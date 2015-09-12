@@ -1,6 +1,6 @@
 <?php
 
-use GenLib\objectManager\singleton\InstanceModel;
+use ObjectManagerLib\objectManager\singleton\InstanceModel;
 
 class ConditionExtended extends Condition {
 
@@ -22,6 +22,7 @@ class ConditionExtended extends Condition {
 		$this->mPropertyName = $pPropertyName;
 		$this->mOperator = $pOperator;
 		$this->mValue = $pValue;
+		$this->_verifCondition();
 	}
 
 	public function getModel() {

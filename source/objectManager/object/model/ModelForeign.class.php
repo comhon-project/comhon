@@ -1,7 +1,7 @@
 <?php
-namespace GenLib\objectManager\Model;
+namespace ObjectManagerLib\objectManager\Model;
 
-use GenLib\objectManager\object\object\UnloadObject;
+use ObjectManagerLib\objectManager\object\object\UnloadObject;
 
 class ModelForeign extends ModelContainer {
 

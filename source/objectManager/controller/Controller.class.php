@@ -1,10 +1,10 @@
 <?php
-namespace GenLib\objectManager\controller;
+namespace ObjectManagerLib\objectManager\controller;
 
-use GenLib\objectManager\object\object\Object;
-use GenLib\objectManager\Model\ModelArray;
-use GenLib\objectManager\Model\SimpleModel;
-use GenLib\objectManager\Model\ModelContainer;
+use ObjectManagerLib\objectManager\object\object\Object;
+use ObjectManagerLib\objectManager\Model\ModelArray;
+use ObjectManagerLib\objectManager\Model\SimpleModel;
+use ObjectManagerLib\objectManager\Model\ModelContainer;
 
 abstract class Controller {
 

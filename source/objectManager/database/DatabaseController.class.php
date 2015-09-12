@@ -1,5 +1,5 @@
 <?php
-namespace GenLib\database;
+namespace ObjectManagerLib\database;
 
 use \PDO;
 use \Exception;

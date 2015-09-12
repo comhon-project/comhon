@@ -1,12 +1,12 @@
 <?php
-namespace GenLib\objectManager\object\object;
+namespace ObjectManagerLib\objectManager\object\object;
 
-use GenLib\database\DatabaseController;
-use GenLib\objectManager\singleton\InstanceModel;
+use ObjectManagerLib\database\DatabaseController;
+use ObjectManagerLib\objectManager\singleton\InstanceModel;
 use \LinkedConditions;
 use \Condition;
-use GenLib\objectManager\Model\ModelForeign;
-use GenLib\objectManager\Model\ModelArray;
+use ObjectManagerLib\objectManager\Model\ModelForeign;
+use ObjectManagerLib\objectManager\Model\ModelArray;
 
 class SqlTable extends SerializationUnit {
 	

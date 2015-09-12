@@ -1,9 +1,8 @@
 <?php
-namespace GenLib\objectManager\object\object;
+namespace ObjectManagerLib\objectManager\object\object;
 
-use GenLib\objectManager\utils\DbUtils;
-use GenLib\objectManager\singleton\InstanceModel;
-use GenLib\objectManager\Model\SerializableProperty;
+use ObjectManagerLib\objectManager\singleton\InstanceModel;
+use ObjectManagerLib\objectManager\Model\SerializableProperty;
 /*
  * a model attached to a Table in data base
  */

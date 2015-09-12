@@ -1,7 +1,7 @@
 <?php
-namespace GenLib\objectManager\Model;
+namespace ObjectManagerLib\objectManager\Model;
 
-use GenLib\objectManager\object\object\SqlTable;
+use ObjectManagerLib\objectManager\object\object\SqlTable;
 
 class SerializableProperty extends Property {
 

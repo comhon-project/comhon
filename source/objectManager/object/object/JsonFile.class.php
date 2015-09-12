@@ -1,7 +1,7 @@
 <?php
-namespace GenLib\objectManager\object\object;
+namespace ObjectManagerLib\objectManager\object\object;
 
-use GenLib\objectManager\Model\ModelForeign;
+use ObjectManagerLib\objectManager\Model\ModelForeign;
 
 class JsonFile extends SerializationUnit {
 	

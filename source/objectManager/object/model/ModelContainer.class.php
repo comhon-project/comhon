@@ -1,5 +1,5 @@
 <?php
-namespace GenLib\objectManager\Model;
+namespace ObjectManagerLib\objectManager\Model;
 use \Exception;
 
 abstract class ModelContainer {
@@ -11,7 +11,7 @@ abstract class ModelContainer {
 	 * to get a model instance use singleton InstanceModel
 	 */
 	public function __construct($pModel) {
-		if ($pModel instanceof GenLib\objectManager\Model\Model) {
+		if ($pModel instanceof ObjectManagerLib\objectManager\Model\Model) {
 			throw new Exception("model parameter must be an instanceof Model");
 		}
 		$this->mModel = $pModel;

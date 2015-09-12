@@ -4,8 +4,8 @@
 	<manifest type="woman" extends="person">woman/manifest.xml</manifest>
 	<manifest type="man" extends="person">man/manifest.xml</manifest>
 	<manifest type="sqlDatabase">sqlDatabase/manifest.xml</manifest>
-	<manifest type="sqlTable" object="GenLib\objectManager\object\object\SqlTable">sqlTable/manifest.xml</manifest>
-	<manifest type="jsonFile" object="GenLib\objectManager\object\object\JsonFile">jsonFile/manifest.xml</manifest>
+	<manifest type="sqlTable" object="ObjectManagerLib\objectManager\object\object\SqlTable">sqlTable/manifest.xml</manifest>
+	<manifest type="jsonFile" object="ObjectManagerLib\objectManager\object\object\JsonFile">jsonFile/manifest.xml</manifest>
 	<manifest type="house">house/manifest.xml</manifest>
 	<manifest type="home">home/manifest.xml</manifest>
 </list>
