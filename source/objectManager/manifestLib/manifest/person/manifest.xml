@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<properties>
+		<property type="string" id="1">id</property>
+		<property type="string">firstName</property>
+		<property type="string">lastName</property>
+		<property type="string">
+			<name>sex</name>
+			<enum>
+				<value>male</value>
+				<value>female</value>
+			</enum>
+		</property>
+		<property type="foreignProperty">
+			<name>father</name>
+			<foreignType>person</foreignType>
+		</property>
+		<property type="foreignProperty">
+			<name>mother</name>
+			<foreignType>person</foreignType>
+		</property>
+		<property type="array">
+			<name>children</name>
+			<values type="person"/>
+		</property>
+		<property type="array">
+			<name>homes</name>
+			<values type="home"/>
+		</property>
+		<property type="array">
+			<name>realEstateProperties</name>
+			<values type="home"/>
+		</property>
+		
+		<!-- test
+		<property type="array">
+			<name>otherNames</name>
+			<values type="string">
+				<enum>
+					<value>paul</value>
+					<value>marcel</value>
+				</enum>
+			</values>
+		</property>
+		 -->
+	</properties>
+</manifest>
