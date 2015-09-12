@@ -1,21 +1,20 @@
 <?php
 
-namespace GenLib\objectManager\singleton;
+namespace ObjectManagerLib\objectManager\singleton;
 
-use GenLib\Utils\Utils;
 use \Exception;
-use GenLib\objectManager\Model\ModelArray;
-use GenLib\objectManager\Model\ModelEnum;
-use GenLib\objectManager\Model\Integer;
-use GenLib\objectManager\Model\Float;
-use GenLib\objectManager\Model\Boolean;
-use GenLib\objectManager\Model\String;
-use GenLib\objectManager\Model\Model;
-use GenLib\objectManager\Model\Property;
-use GenLib\objectManager\Model\ModelForeign;
-use GenLib\objectManager\Model\SimpleModel;
-use GenLib\objectManager\Model\SerializationUnit;
-use GenLib\objectManager\Model\SerializableProperty;
+use ObjectManagerLib\objectManager\Model\ModelArray;
+use ObjectManagerLib\objectManager\Model\ModelEnum;
+use ObjectManagerLib\objectManager\Model\Integer;
+use ObjectManagerLib\objectManager\Model\Float;
+use ObjectManagerLib\objectManager\Model\Boolean;
+use ObjectManagerLib\objectManager\Model\String;
+use ObjectManagerLib\objectManager\Model\Model;
+use ObjectManagerLib\objectManager\Model\Property;
+use ObjectManagerLib\objectManager\Model\ModelForeign;
+use ObjectManagerLib\objectManager\Model\SimpleModel;
+use ObjectManagerLib\objectManager\Model\SerializationUnit;
+use ObjectManagerLib\objectManager\Model\SerializableProperty;
 
 class InstanceModel {
 	

@@ -1,9 +1,9 @@
 <?php
-namespace GenLib\objectManager\controller;
+namespace ObjectManagerLib\objectManager\controller;
 
-use GenLib\objectManager\object\object\Object;
-use GenLib\objectManager\Model\SerializableProperty;
-use GenLib\objectManager\object\object\UnloadObject;
+use ObjectManagerLib\objectManager\object\object\Object;
+use ObjectManagerLib\objectManager\Model\SerializableProperty;
+use ObjectManagerLib\objectManager\object\object\UnloadObject;
 
 class ForeignObjectLoader extends Controller {
 

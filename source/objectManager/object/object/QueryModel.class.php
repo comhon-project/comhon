@@ -1,6 +1,6 @@
 <?php
 
-use GenLib\objectManager\singleton\InstanceModel;
+use ObjectManagerLib\objectManager\singleton\InstanceModel;
 
 class QueryModel {
 

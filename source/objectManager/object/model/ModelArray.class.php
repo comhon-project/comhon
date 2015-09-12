@@ -1,5 +1,5 @@
 <?php
-namespace GenLib\objectManager\Model;
+namespace ObjectManagerLib\objectManager\Model;
 
 class ModelArray extends ModelContainer {
 	

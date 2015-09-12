@@ -53,8 +53,20 @@ class LinkedConditions {
 		$this->mLinkedConditions = $pLinkedConditions;
 	}
 	
-	public function getConditions() {
-		return $this->mConditions;
+	/**
+	 * @param string $pKeyType can be "index" or "md5"
+	 * @return array:
+	 */
+	public function getConditions($pKeyType = "index") {
+		$lReturn = $this->mConditions;
+		if ($pKeyType == "md5") {
+			$lReturn = array();
+			$lArray = array();
+			foreach ($this->mConditions as $lCondition) {
+				$lReturn[md5($lCondition->exportWithValue())] = $lCondition;
+			}
+		}
+		return $lReturn;
 	}
 	
 	public function getLinkedConditions() {
@@ -64,7 +76,7 @@ class LinkedConditions {
 	/**
 	 * 
 	 * @param string $pKeyType can be "index" or "md5"
-	 * @return multitype:
+	 * @return array
 	 */
 	public function getFlattenedConditions($pKeyType = "index") {
 		$lConditions = array();
@@ -81,7 +93,7 @@ class LinkedConditions {
 		foreach ($this->mConditions as $lCondition) {
 			switch ($pKeyType) {
 				case "md5":
-					$pConditions[md5($lCondition->export())] = $lCondition;
+					$pConditions[md5($lCondition->exportWithValue())] = $lCondition;
 					break;
 				default:
 					$pConditions[] = $lCondition;
@@ -154,7 +166,7 @@ class LinkedConditions {
 	}
 	
 	private function _isSatisfiedAnd($pPredicates) {
-		foreach ($this->mConditions as $lKey => $lCondition) {
+		foreach ($this->getConditions("md5") as $lKey => $lCondition) {
 			if (!$pPredicates[$lKey]) {
 				return false;
 			}
@@ -169,7 +181,7 @@ class LinkedConditions {
 	
 	private function _isSatisfiedOr($pPredicates) {
 		$lSatisfied = false;
-		foreach ($this->mConditions as $lKey => $lCondition) {
+		foreach ($this->getConditions("md5") as $lKey => $lCondition) {
 			$lSatisfied = $lSatisfied || $pPredicates[$lKey];
 		}
 		foreach ($this->mLinkedConditions as $lLinkedConditions) {

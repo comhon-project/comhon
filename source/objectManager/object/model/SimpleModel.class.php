@@ -1,7 +1,7 @@
 <?php
-namespace GenLib\objectManager\Model;
+namespace ObjectManagerLib\objectManager\Model;
 
-use GenLib\objectManager\singleton\InstanceModel;
+use ObjectManagerLib\objectManager\singleton\InstanceModel;
 
 abstract class SimpleModel extends Model {
 	

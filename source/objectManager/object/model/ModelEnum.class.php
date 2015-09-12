@@ -1,5 +1,5 @@
 <?php
-namespace GenLib\objectManager\Model;
+namespace ObjectManagerLib\objectManager\Model;
 use \Exception;
 
 class ModelEnum extends ModelContainer {

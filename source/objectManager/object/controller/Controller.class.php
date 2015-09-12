@@ -1,14 +1,14 @@
 <?php
 
-use GenLib\database\DatabaseController;
-use GenLib\objectManager\singleton\InstanceModel;
-use GenLib\objectManager\object\object\JoinedTables;
-use GenLib\objectManager\Model\Model;
-use GenLib\objectManager\Model\ModelForeign;
-use GenLib\objectManager\Model\SerializableProperty;
-use GenLib\objectManager\controller\ForeignObjectReplacer;
-use GenLib\objectManager\controller\ForeignObjectLoader;
-use GenLib\objectManager\Model\ModelContainer;
+use ObjectManagerLib\database\DatabaseController;
+use ObjectManagerLib\objectManager\singleton\InstanceModel;
+use ObjectManagerLib\objectManager\object\object\JoinedTables;
+use ObjectManagerLib\objectManager\Model\Model;
+use ObjectManagerLib\objectManager\Model\ModelForeign;
+use ObjectManagerLib\objectManager\Model\SerializableProperty;
+use ObjectManagerLib\objectManager\controller\ForeignObjectReplacer;
+use ObjectManagerLib\objectManager\controller\ForeignObjectLoader;
+use ObjectManagerLib\objectManager\Model\ModelContainer;
 
 class Controller {
 	
@@ -154,6 +154,7 @@ class Controller {
 	 */
 	protected function _getObjects($pModel, $pParentModel, $pLinkedConditions, $pLoadDepth, $pLoadForeignObject, $pKey = null) {
 		$lReturn = null;
+		ConditionOptimizer::optimizeConditions($pLinkedConditions);
 		if (!is_null($pKey) && !$pModel->hasProperty($pKey) && (get_parent_class($pModel->getProperty($pKey)) == "SimpleModel")) {
 			trigger_error("attribut not defined".$pKey);
 			throw new Exception("attribut not defined".$pKey);

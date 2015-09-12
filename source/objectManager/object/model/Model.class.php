@@ -1,10 +1,9 @@
 <?php
-namespace GenLib\objectManager\Model;
+namespace ObjectManagerLib\objectManager\Model;
 
-use GenLib\objectManager\utils\DbUtils;
-use GenLib\objectManager\singleton\InstanceModel;
+use ObjectManagerLib\objectManager\singleton\InstanceModel;
 use \stdClass;
-use GenLib\objectManager\object\object\SqlTable;
+use ObjectManagerLib\objectManager\object\object\SqlTable;
 
 class Model {
 	
@@ -12,7 +11,7 @@ class Model {
 
 	protected $mModelName;	// unique model name
 	private $mProperties;   // database attributes type and value
-	private $mObjectClass   = "GenLib\objectManager\object\object\Object";
+	private $mObjectClass   = "ObjectManagerLib\objectManager\object\object\Object";
 	private $mSerialization = array(); // informations for object serialization
 	private $mIds           = array(); // list of id properties 
 	protected $mIsLoaded    = false;
@@ -135,77 +134,6 @@ class Model {
 	public function isNew() {
 		//TODO
 		return true;
-	}
-	
-	/*
-	 * this function can insert or update a row in dataBase
-	 * if the attribut "id" is set in this instance, that will be an update, otherwise that will be an insert
-	 * if $pId is specified that will force to set the id to $pId (only if it's an insert)
-	 */
-	public function saave($pPDO, $pId = null) {
-		global $gPostgres;
-		$lResult = null;
-		if (is_null($this->_initTable())) {
-			trigger_error("table must be specified");
-			throw new Exception("table must be specified");
-		}
-		$lQuery = ($this->isNew()) ? $this->_setInsertQuery($pPDO, $pId) : $this->_setUpdateQuery($pPDO);
-		$lResult = $pPDO->doQuery($lQuery);
-		/*if ($lResult && is_null($this->getId())) {
-			$this->_setId($pPDO->lastInsertId());
-		}*/
-		return $lResult;
-	}
-	
-	private function _setUpdateQuery($pPDO) {
-		global $gPostgres;
-		$lParams = array();
-		$lUpdateValues = array();
-		foreach ($this->mProperties as $lKey => $lValue) {
-			if (!array_key_exists($lKey, $this->mPrimaryKey)) {
-				if ($this->getAttributType($lKey) == "INCREMENTAL") {
-					$this->_setAttributValue($lKey, $this->getAttributValue($lKey) + 1);
-				}
-				else if (($this->getAttributType($lKey) == "DIRTY_FLAG") && is_null($this->getAttributValue($lKey))) {
-					$this->_setAttributValue($lKey, true);
-				}
-				$lParams[] = (!is_null($this->getAttributValue($lKey))) ? DbUtils::transformFromType($this->getAttributValue($lKey), $this->getAttributType($lKey)) : null;
-				$lUpdateValues[] = $lKey."=?";
-			}else {
-				$lPrimaryKeyParams[] = (!is_null($this->getAttributValue($lKey))) ? DbUtils::transformFromType($this->getAttributValue($lKey), $this->getAttributType($lKey)) : null;
-				$lPrimaryKeyValue[] = $lKey."=?";
-			}
-		}
-		$lQuery = "UPDATE ".$this->_initTable()." SET ".implode(", ", $lUpdateValues)." WHERE ".implode(" and ", $lPrimaryKeyValue).";";
-		$lParams = array_merge($lParams, $lPrimaryKeyParams);
-		$pPDO->prepareQuery($lQuery, $lParams);
-		trigger_error(var_export($lQuery, true));
-		
-		return $lQuery;
-	}
-	
-	private function _setInsertQuery($pPDO, $pId) {
-		global $gPostgres;
-		$lQueryColumns = array();
-		$lQueryValues = array();
-		foreach ($this->mProperties as $lKey => $lValue) {
-			if (($lKey != self::ID) && ($this->getAttributType($lKey) != "INCREMENTAL")) {
-				$lQueryColumns[] = $lKey;
-				
-				$lParams[] = (!is_null($this->getAttributValue($lKey))) ? DbUtils::transformFromType($this->getAttributValue($lKey), $this->getAttributType($lKey)) : null;
-				$lQueryValues[] = "?";
-			}
-		}
-		if (!is_null($pId)) {
-			$lQuery = "INSERT INTO ".$this->_initTable()." (".self::ID.", ".implode(", ", $lQueryColumns).") VALUES ('".$pId."', ".implode(", ", $lQueryValues).");";
-		}else {
-			$lQuery = "INSERT INTO ".$this->_initTable()." (".implode(", ", $lQueryColumns).") VALUES (".implode(", ", $lQueryValues).");";
-		}
-		//SELECT LAST_INSERT_ID();
-		//array_unshift($lParams, $lQuery);
-		$pPDO->prepareQuery($lQuery, $lParams);
-		trigger_error(var_export($lQuery, true));
-		return $lQuery;
 	}
 	
 	public function toObject($pObject, $pUseSerializationName = false, $pExportForeignObject = false) {
