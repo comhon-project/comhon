@@ -61,7 +61,6 @@ class LinkedConditions {
 		$lReturn = $this->mConditions;
 		if ($pKeyType == "md5") {
 			$lReturn = array();
-			$lArray = array();
 			foreach ($this->mConditions as $lCondition) {
 				$lReturn[md5($lCondition->exportWithValue())] = $lCondition;
 			}
