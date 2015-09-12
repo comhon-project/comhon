@@ -123,6 +123,23 @@ class LinkedConditions {
 		return (count($lArray) > 0) ? "(".implode(" ".$this->mLink." ", $lArray).")" : "";
 	}
 	
+	/**
+	 * @return string
+	 */
+	public function exportDebug() {
+		$lArray = array();
+		foreach ($this->mConditions as $lCondition) {
+			$lArray[] = $lCondition->exportWithValue();
+		}
+		foreach ($this->mLinkedConditions as $lLinkedConditions) {
+			$lResult = $lLinkedConditions->exportDebug();
+			if ($lResult != "") {
+				$lArray[] = $lResult;
+			}
+		}
+		return (count($lArray) > 0) ? "(".implode(" ".$this->mLink." ", $lArray).")" : "";
+	}
+	
 	public function hasOnlyOneCondition() {
 		$lhasOnlyOneCondition = false;
 		if (count($this->mConditions) > 1) {
