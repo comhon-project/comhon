@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list>
+	<manifest type="person">person/manifest.xml</manifest>
+	<manifest type="woman" extends="person">woman/manifest.xml</manifest>
+	<manifest type="man" extends="person">man/manifest.xml</manifest>
+	<manifest type="sqlDatabase">sqlDatabase/manifest.xml</manifest>
+	<manifest type="sqlTable" object="objectManagerLib\object\object\SqlTable">sqlTable/manifest.xml</manifest>
+	<manifest type="jsonFile" object="objectManagerLib\object\object\JsonFile">jsonFile/manifest.xml</manifest>
+	<manifest type="house">house/manifest.xml</manifest>
+	<manifest type="home">home/manifest.xml</manifest>
+</list>

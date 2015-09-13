@@ -1,6 +1,7 @@
 <?php
+namespace objectManagerLib\database;
 
-use ObjectManagerLib\utils\Utils;
+use objectManagerLib\utils\Utils;
 abstract class ConditionOptimizer {
 	
 	/**
@@ -199,7 +200,7 @@ abstract class ConditionOptimizer {
 				$lMatrix[] = $lMatches;
 			}
 		}
-		usort($lMatrix, array("ConditionOptimizer", "sortByLastValue"));
+		usort($lMatrix, array("objectManagerLib\database\ConditionOptimizer", "sortByLastValue"));
 		return $lMatrix;
 	}
 	

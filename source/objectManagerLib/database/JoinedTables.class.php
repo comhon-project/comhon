@@ -1,5 +1,5 @@
 <?php
-namespace ObjectManagerLib\objectManager\object\object;
+namespace objectManagerLib\database;
 
 class JoinedTables {
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<serialization>
+		<sqlTable database="1" name="person"/>
+	</serialization>
+	<properties>
+		<id autoIncrement="true" />
+		<firstName serializationName="first_name"/>
+		<father serializationName="father_id">
+			<sqlTable database="1" name="person"/>
+		</father>
+		<mother serializationName="mother_id">
+			<sqlTable database="1" name="person"/>
+		</mother>
+		<children foreignIds="mother,father">
+			<sqlTable database="1" name="person"/>
+		</children>
+		<homes foreignIds="person">
+			<sqlTable database="1" name="home"/>
+		</homes>
+		<realEstateProperties foreignIds="person">
+			<sqlTable database="1" name="home"/>
+		</realEstateProperties>
+	</properties>
+</manifest>
