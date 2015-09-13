@@ -1,4 +1,5 @@
 <?php
+namespace objectManagerLib\database;
 
 class LinkedConditions {
 

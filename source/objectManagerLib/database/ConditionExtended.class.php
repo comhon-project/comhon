@@ -1,6 +1,7 @@
 <?php
+namespace objectManagerLib\database;
 
-use ObjectManagerLib\objectManager\singleton\InstanceModel;
+use objectManagerLib\object\singleton\InstanceModel;
 
 class ConditionExtended extends Condition {
 

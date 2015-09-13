@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<properties>
+		<database>
+			<jsonFile saticPath="/var/data/database" staticName="database.json"/>
+		</database>
+	</properties>
+</manifest>
