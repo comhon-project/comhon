@@ -13,5 +13,5 @@ if(!file_exists($gInstallPath) || !is_dir($gInstallPath)) {
 }
 */
 spl_autoload_register(function ($pClass) {
-	include_once "§TOKEN:installPath§/" . str_replace("\\", "/", $pClass) . ".class.php";
+	include_once "§TOKEN:installPath§/" . str_replace("\\", DIRECTORY_SEPARATOR, $pClass) . ".class.php";
 });
