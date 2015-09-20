@@ -45,11 +45,15 @@ abstract class ConditionOptimizer {
 			$lLiteralKeys[] = $lKey;
 		
 		}
+		if (count($lLiteralKeys) > §TOKEN:optimizationLimit§) {
+			return $pLinkedConditions;
+		}
 		$pLinkedConditions = ConditionOptimizer::linkedConditionsToConditions($pLinkedConditions);
 		$lLogicalConjunctions = self::_setLogicalConjunctions($pLinkedConditions, $lFlattenedConditions, $lLiteralKeys);
 		$lEssentialPrimeImplicants = self::_execQuineMcCluskeyAlgorithm($lLogicalConjunctions);
 		$lLiteralsToFactoryze = self::_findLiteralsToFactoryze($lEssentialPrimeImplicants);
 		$lLinkedConditions = self::_setFinalLinkedConditions($lEssentialPrimeImplicants, $lFlattenedConditions, $lLiteralsToFactoryze, $lLiteralKeys);
+		
 		return $lLinkedConditions;
 	}
 	

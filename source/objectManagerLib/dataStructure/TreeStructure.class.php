@@ -3,6 +3,7 @@ namespace objectManagerLib\dataStructure;
 
 class TreeStructure extends AbstractUndirectedGraph {
 	
+	
 	/*********************************************************              insert functions              *********************************************************/
 	
 	/**

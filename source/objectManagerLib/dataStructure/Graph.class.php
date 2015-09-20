@@ -6,10 +6,13 @@ abstract class Graph {
 	protected $mVisitedNodes;
 	protected $mSavedNodes;
 	protected $mCurrentNode;
+	protected $mCallBackVisit;
+	protected $InstanceMap;
 	
 	public function __construct($pValue) {
 		$this->mVisitedNodes = new DoublyLinkedList();
 		$this->mSavedNodes = array();
+		$this->InstanceMap = array();
 		$this->mCurrentNode = new Node($pValue);
 	}
 	
@@ -129,6 +132,7 @@ abstract class Graph {
 		$lReturn = false;
 		$this->mVisitedNodes->reset();
 		if (!is_null($this->mCurrentNode)) {
+			$this->InstanceMap = null;
 			$this->mVisitedNodes->push($this->mCurrentNode);
 			$lReturn = true;
 		}
@@ -139,11 +143,49 @@ abstract class Graph {
 		$this->mVisitedNodes->reset();
 	}
 	
+	public final function initDepthFirstSearch() {
+		if ($this->initVisit()) {
+			$this->mCallBackVisit = function () {
+				return $this->mVisitedNodes->pop();
+			};
+			$this->InstanceMap = array();
+		}
+	}
+	
+	public final function initBreadthFirstSearch() {
+		if ($this->initVisit()) {
+			$this->mCallBackVisit = function () {
+				return $this->mVisitedNodes->shift();
+			};
+			$this->InstanceMap = array();
+		}
+	}
+	
+	/**
+	 * move to next node
+	 * @return boolean|node
+	 */
+	public function next() {
+		if($this->mVisitedNodes->isEmpty()) {
+			return false;
+		} else {
+			$lFunction = $this->mCallBackVisit;
+			$lLastNode = $lFunction();
+			if (is_array($this->InstanceMap) && !array_key_exists(spl_object_hash($lLastNode), $this->InstanceMap)) {
+				foreach ($lLastNode->getNeighbors() as $lNode) {
+					$this->mVisitedNodes->push($lNode);
+				}
+			}
+			$this->InstanceMap[spl_object_hash($lLastNode)] = null;
+			return $lLastNode->getValue();
+		}
+	}
+	
 	/**
 	 * if it is possible, move the current node to the previous visited node
 	 * return the new current node or false if there is no previous node
 	 */
-	public final function previous() {
+	public final function goToPreviousVisitedNode() {
 		$lReturn = false;
 		if (!$this->mVisitedNodes->isEmpty()) {
 			if ($lReturn = $this->mVisitedNodes->previous()) {
@@ -158,7 +200,7 @@ abstract class Graph {
 	 * if it is possible, move the current node to the next node
 	 * return the new current node or false if there is no next node
 	 */
-	public final function next() {
+	public final function goToNextVisitedNode() {
 		$lReturn = false;
 		if (!$this->mVisitedNodes->isEmpty()) {
 			if ($lReturn = $this->mVisitedNodes->next()) {
@@ -250,10 +292,16 @@ abstract class Graph {
 	
 	/*********************************************************              print functions              *********************************************************/
 	
-	/*
-	 * $pFunction is a fonction which will be apply on values in each node (to simplify the output)
-	*/
-	public final function to_pretty_print_visited_model() {
-		$this->mVisitedNodes->to_pretty_print("getValue");
+	/**
+	 * @param function $pCallBack callback applied on each value to simplify the output (value will be a parameter of you callback)
+	 */
+	public final function to_pretty_print_visited_model($pCallBack = null) {
+		if (is_null($pCallBack)) {
+			$this->mVisitedNodes->to_pretty_print(function ($pNode) {
+				return $pNode->getValue();
+			});
+		}else {
+			$this->mVisitedNodes->to_pretty_print($pCallBack);
+		}
 	}
 }
