@@ -319,50 +319,58 @@ class DoublyLinkedList {
 	
 	/**
 	 * if possible, delete the first node (in O(1))
+	 * @return boolean|Node return first value if success, false otherwise
 	 */
 	public function shift() {
 		$lReturn = false;
 		if (!is_null($this->mCurrentNode)) {
 			if (is_null($this->mCurrentNode->getPrevious()) && is_null($this->mCurrentNode->getNext())) {
+				$lNode = $this->mCurrentNode;
 				$this->mFirstNode = null;
 				$this->mCurrentNode = null;
 				$this->mLastNode = null;
 			}else {
 				if (is_null($this->mCurrentNode->getPrevious())) {
+					$lNode = $this->mCurrentNode;
 					$this->mCurrentNode = $this->mCurrentNode->getNext();
 					$this->mCurrentNode->setPrevious(null);
 					$this->mFirstNode = $this->mCurrentNode;
 				}else {
+					$lNode = $this->mFirstNode;
 					$this->mFirstNode = $this->mFirstNode->getNext();
 					$this->mFirstNode->setPrevious(null);
 				}
 			}
-			$lReturn = true;
+			$lReturn = $lNode->getValue();
 		}
 		return $lReturn;
 	}
 	
 	/**
 	 * if possible, delete the last node (in O(1))
+	 * @return boolean|Node return last value if success, false otherwise
 	 */
 	public function pop() {
 		$lReturn = false;
 		if (!is_null($this->mCurrentNode)) {
 			if (is_null($this->mCurrentNode->getPrevious()) && is_null($this->mCurrentNode->getNext())) {
+				$lNode = $this->mCurrentNode;
 				$this->mFirstNode = null;
 				$this->mCurrentNode = null;
 				$this->mLastNode = null;
 			}else {
 				if (is_null($this->mCurrentNode->getNext())) {
+					$lNode = $this->mCurrentNode;
 					$this->mCurrentNode = $this->mCurrentNode->getPrevious();
 					$this->mCurrentNode->setNext(null);
 					$this->mLastNode = $this->mCurrentNode;
 				}else {
+					$lNode = $this->mLastNode;
 					$this->mLastNode = $this->mLastNode->getPrevious();
 					$this->mLastNode->setNext(null);
 				}
 			}
-			$lReturn = true;
+			$lReturn = $lNode->getValue();
 		}
 		return $lReturn;
 	}
@@ -384,14 +392,14 @@ class DoublyLinkedList {
 	
 		/*********************************************************              print functions              *********************************************************/
 	
-	/*
-	 * $pFunction is a fonction which will be apply on values in each node (to simplify the output)
+	/**
+	 * @param function $pCallBack callback applied on each value to simplify the output (value will be a parameter of you callback)
 	 */
-	public function to_pretty_print($pFunction = null) {
-		trigger_error($this->to_pretty_string($this->mCurrentNode, $pFunction));
+	public function to_pretty_print($pCallBack = null) {
+		trigger_error($this->to_pretty_string($this->mCurrentNode, $pCallBack));
 	}
 	
-	public function to_pretty_string($lNode, $pFunction = null) {
+	public function to_pretty_string($lNode, $pCallBack = null) {
 		if (is_null($lNode)) {
 			return "[]";
 		}
@@ -400,10 +408,10 @@ class DoublyLinkedList {
 		
 		/*------------ add previous nodes -------------*/
 		while (!is_null($lPrevious = $lCurrentNode->getPrevious())) {
-			if (is_null($pFunction)) {
+			if (is_null($pCallBack)) {
 				$lValue = $lPrevious->getValue();
 			}else {
-				$lValue = $lPrevious->getValue()->$pFunction();
+				$lValue = $pCallBack($lPrevious->getValue());
 			}
 			array_unshift($lArray, var_export($lValue, true));
 			$lCurrentNode = $lPrevious;
@@ -411,19 +419,19 @@ class DoublyLinkedList {
 		
 		/*------------ add current node -------------*/
 		$lCurrentNode = $lNode;
-		if (is_null($pFunction)) {
+		if (is_null($pCallBack)) {
 			$lValue = $lCurrentNode->getValue();
 		}else {
-			$lValue = $lCurrentNode->getValue()->$pFunction();
+			$lValue = $pCallBack($lCurrentNode->getValue());
 		}
 		$lArray[] = "<<".var_export($lValue, true).">>";
 		
 		/*------------ add next nodes -------------*/
 		while (!is_null($lNext = $lCurrentNode->getNext())) {
-			if (is_null($pFunction)) {
+			if (is_null($pCallBack)) {
 				$lValue = $lNext->getValue();
 			}else {
-				$lValue = $lNext->getValue()->$pFunction();
+				$lValue = $pCallBack($lNext->getValue());
 			}
 			$lArray[] = var_export($lValue, true);
 			$lCurrentNode = $lNext;

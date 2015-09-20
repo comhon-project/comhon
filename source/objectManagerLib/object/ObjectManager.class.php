@@ -8,6 +8,7 @@ use objectManagerLib\database\ConditionExtended;
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\database\JoinedTables;
 use objectManagerLib\object\model\Model;
+use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\ModelForeign;
 use objectManagerLib\object\model\SerializableProperty;
 use objectManagerLib\controller\ForeignObjectReplacer;
@@ -31,7 +32,7 @@ class ObjectManager {
 	 * @param string $pKey
 	 * @return array
 	 */
-	public function getObjects($pModelName, $pCondition = null, $pLoadDepth = 0, $pLoadForeignObject = false, $pKey = null) {
+	public function getObjects($pModelName, $pCondition = null, $pLoadDepth = 0, $pLoadForeignObject = false, $pOptimizeConditions = false, $pKey = null) {
 		$lReturn = array();
 		try {
 			$lModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
@@ -46,7 +47,7 @@ class ObjectManager {
 		}else {
 			$lLinkedCondition = $pCondition;
 		}
-		$lObjects = $this->_getObjects($lModel, null, $lLinkedCondition, $pLoadDepth, $pLoadForeignObject, $pKey);
+		$lObjects = $this->_getObjects($lModel, $lLinkedCondition, $pLoadDepth, $pLoadForeignObject, $pOptimizeConditions, $pKey);
 		return $lObjects;
 	}
 	
@@ -146,34 +147,33 @@ class ObjectManager {
 	}
 	
 	/**
-	 * 
-	 * @param DataBaseObject $pModel
-	 * @param DataBaseObject $pParentModel
-	 * @param LinkedConditions $pCondition
-	 * @param boolean $pRetrieveForeignKey
-	 * @param boolean $pRetrieveChildren
+	 * @param model $pModel
+	 * @param LinkedConditions $pLinkedConditions
+	 * @param integer $pLoadDepth
+	 * @param boolean $pLoadForeignObject
+	 * @param boolean $pOptimizeConditions
 	 * @param string $pKey
-	 * 
+	 * @throws \Exception
 	 * @return array
 	 */
-	protected function _getObjects($pModel, $pParentModel, $pLinkedConditions, $pLoadDepth, $pLoadForeignObject, $pKey = null) {
+	protected function _getObjects($pModel, $pLinkedConditions, $pLoadDepth, $pLoadForeignObject, $pOptimizeConditions,  $pKey = null) {
 		$lReturn = null;
-		ConditionOptimizer::optimizeConditions($pLinkedConditions);
-		if (!is_null($pKey) && !$pModel->hasProperty($pKey) && (get_parent_class($pModel->getProperty($pKey)) == "SimpleModel")) {
-			trigger_error("attribut not defined".$pKey);
-			throw new Exception("attribut not defined".$pKey);
+		if (!is_null($pKey) && (!$pModel->hasProperty($pKey) || ! ($pModel->getProperty($pKey)->getModel() instanceof SimpleModel))) {
+			trigger_error("key '".$pKey."' unauthorized");
+			throw new \Exception("key '".$pKey."' unauthorized");
 		}
 		if (is_null($lSqlTable = $pModel->getSqlTableUnit())) {
-			trigger_error("must have a database serialization");
-			throw new \Exception("must have a database serialization");
+			trigger_error("error : resquested model must have a database serialization");
+			throw new \Exception("error : resquested model must have a database serialization");
 		}
+		$lLinkedConditions = $pOptimizeConditions ? ConditionOptimizer::optimizeConditions($pLinkedConditions) : $pLinkedConditions;
 		$lSqlTable->loadValue("database");
 		$lJoinedTables = new JoinedTables($lSqlTable->getValue("name"));
-		$this->_addLeftJoinsForConditions($lJoinedTables, $pModel, $pLinkedConditions);
+		$this->_addLeftJoinsForConditions($lJoinedTables, $pModel, $lLinkedConditions);
 		
 		try {
 			$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
-			$lRows = $lDbInstance->select($lJoinedTables, $this->_getColumnsByTable($pModel), $pLinkedConditions, $this->_getGroupedColumns($pModel));
+			$lRows = $lDbInstance->select($lJoinedTables, $this->_getColumnsByTable($pModel), $lLinkedConditions, $this->_getGroupedColumns($pModel));
 			$lReturn = $this->_buildObjectsWithRows($pModel, $lRows, $pLoadDepth, $pLoadForeignObject, $pKey);
 		} catch (Exception $e) {
 			trigger_error($e->getMessage(), E_USER_WARNING);
@@ -187,7 +187,6 @@ class ObjectManager {
 		$lArrayVisitedModels = array();
 		$lStack = array();
 		
-		// helpfull to know if we have visited all needed models
 		$lModelsByName = array();
 		$lConditions = $pLinkedConditions->getFlattenedConditions();
 		foreach ($lConditions as $lCondition) {
@@ -201,7 +200,7 @@ class ObjectManager {
 		$this->_extendsStacks($pModel, $pModel->getSqlTableUnit(), $lModelsByName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
 		
 		// Depth-first search to build all left joins
-		while ((count($lStack) > 0)/* && (count($lModelsByName) > 0)*/) {
+		while ((count($lStack) > 0)) {
 			if ($lStack[count($lStack) - 1]["current"] != -1) {
 				array_pop($lTemporaryLeftJoins);
 				$lModelName = array_pop($lStackVisitedModels);
@@ -224,7 +223,7 @@ class ObjectManager {
 				$lTemporaryLeftJoins[] = $this->_prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftId"], $lRightModel, $lRightProperty);
 				if (array_key_exists($lRightModel->getModelName(), $lModelsByName)) {
 					foreach ($lTemporaryLeftJoins as $lLeftJoin) {
-						$pJoinedTables->addTable($lLeftJoin["right_table"], null, JoinedTables::INNER_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
+						$pJoinedTables->addTable($lLeftJoin["right_table"], null, JoinedTables::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
 					}
 					$lTemporaryLeftJoins = array();
 				}
