@@ -131,7 +131,6 @@ class ObjectManager {
 		if (array_key_exists($pModel->getModelName(), $pArrayVisitedModels) && array_key_exists($pModel->getModelName(), $pModelsByName)) {
 			throw new \Exception("Cannot resolve condition. Condition with model '".$pModel->getModelName()."' can be applied on several properties");
 		}
-		$plop;
 		$lIds = $pModel->getIds();
 		$pStack[] = array(
 				"leftId"     => (is_array($lIds) && (count($lIds) > 0)) ? $pModel->getProperty($lIds[0])->getSerializationName() : null,
