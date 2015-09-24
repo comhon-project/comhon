@@ -3,27 +3,34 @@ namespace objectManagerLib\database;
 
 class Condition {
 
+	const EQUAL      = '=';
+	const SUPP       = '>';
+	const INF        = '<';
+	const SUPP_EQUAL = '>=';
+	const INF_EQUAL  = '<=';
+	const DIFF       = '<>';
+	
 	protected $mTable;
 	protected $mPropertyName;      // name of table concatanate with propertyName
 	protected $mOperator; // operator
 	protected $mValue;    // value(s) to filter
 	
 	private static $sAcceptedConditions = array(
-		"=" => null,
-		"<" => null,
-		"<=" => null,
-		">" => null,
-		">=" => null,
-		"<>" => null
+		self::EQUAL      => null,
+		self::SUPP       => null,
+		self::INF        => null,
+		self::SUPP_EQUAL => null,
+		self::INF_EQUAL  => null,
+		self::DIFF       => null
 	);
 	
-	public static $sOppositeConditions = array(
-			"=" => "<>",
-			"<" => ">=",
-			"<=" => ">",
-			">" => "<=",
-			">=" => "<",
-			"<>" => "="
+	private static $sOppositeOperator = array(
+		self::EQUAL      => self::DIFF,
+		self::INF        => self::SUPP_EQUAL,
+		self::INF_EQUAL  => self::SUPP,
+		self::SUPP       => self::INF_EQUAL,
+		self::SUPP_EQUAL => self::INF,
+		self::DIFF       => self::EQUAL
 	);
 	
 	/**
@@ -39,12 +46,15 @@ class Condition {
 		$this->_verifCondition();
 	}
 	
-	protected function _verifCondition() {
+	private function _verifCondition() {
+		if (!array_key_exists($this->mOperator, self::$sAcceptedConditions)) {
+			throw new \Exception("operator '".$this->mOperator."' doesn't exists");
+		}
 		if (is_null($this->mValue) && ($this->mOperator != "=") && ($this->mOperator != "<>")) {
-			throw new Exception("condition with operator '".$this->mOperator."' can't have null value");
+			throw new \Exception("condition with operator '".$this->mOperator."' can't have null value");
 		}
 		if (is_array($this->mValue) && ($this->mOperator != "=") && ($this->mOperator != "<>")) {
-			throw new Exception("condition with operator '".$this->mOperator."' can't have array value");
+			throw new \Exception("condition with operator '".$this->mOperator."' can't have array value");
 		}
 	}
 
@@ -58,6 +68,10 @@ class Condition {
 	
 	public function getOperator() {
 		return $this->mOperator;
+	}
+	
+	public function reverseOperator() {
+		$this->mOperator = self::$sOppositeOperator[$this->mOperator];
 	}
 	
 	public function getValue() {

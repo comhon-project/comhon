@@ -28,27 +28,191 @@ class ObjectManager {
 	 * @param string $pModelName model name of objects that you want to retrieve
 	 * @param LinkedConditions $pCondition condition(s) for query (can be an object Condition)
 	 * @param integer $pLoadDepth
-	 * @param string $pLoadDepthType
+	 * @param integer $pLoadLength
+	 * @param boolean $pLoadForeignObject
+	 * @param boolean $pOptimizeConditions
 	 * @param string $pKey
 	 * @return array
 	 */
-	public function getObjects($pModelName, $pCondition = null, $pLoadDepth = 0, $pLoadForeignObject = false, $pOptimizeConditions = false, $pKey = null) {
+	public function getObjects($pModelName, $pCondition = null, $pLoadDepth = 0, $pLoadLength = null, $pLoadForeignObject = false, $pOptimizeConditions = false, $pKey = null) {
 		$lReturn = array();
-		try {
-			$lModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
-		}catch (Exception $e) {
-			trigger_error($e->getMessage());
+		$lModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
+		if (!is_null($pKey) && (!$lModel->hasProperty($pKey) || ! ($lModel->getProperty($pKey)->getModel() instanceof SimpleModel))) {
+			trigger_error("key '".$pKey."' unauthorized");
+			throw new \Exception("key '".$pKey."' unauthorized");
+		}
+		if (is_null($lSqlTable = $lModel->getSqlTableUnit())) {
+			trigger_error("error : resquested model must have a database serialization");
+			throw new \Exception("error : resquested model must have a database serialization");
 		}
 		if (is_null($pCondition)) {
-			$lLinkedCondition = new LinkedConditions("and");
-		}else if (($pCondition instanceof LinkedConditions) === false) {
-			$lLinkedCondition = new LinkedConditions("and");
-			$lLinkedCondition->addCondition($pCondition);
+			$lLinkedConditions = new LinkedConditions("and");
+		}else if ($pCondition instanceof LinkedConditions) {
+			$lLinkedConditions = $pCondition;
 		}else {
-			$lLinkedCondition = $pCondition;
+			$lLinkedConditions = new LinkedConditions("and");
+			$lLinkedConditions->addCondition($pCondition);
 		}
-		$lObjects = $this->_getObjects($lModel, $lLinkedCondition, $pLoadDepth, $pLoadForeignObject, $pOptimizeConditions, $pKey);
-		return $lObjects;
+		if ($pOptimizeConditions) {
+			$lLinkedConditions = ConditionOptimizer::optimizeConditions($lLinkedConditions);
+		}
+		$lSqlTable->loadValue("database");
+		$lJoinedTables = new JoinedTables($lSqlTable->getValue("name"));
+		$this->_addTablesForQuery($lJoinedTables, $lModel, $lLinkedConditions);
+		
+		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
+		$lRows = $lDbInstance->select($lJoinedTables, $this->_getColumnsByTable($lModel), $lLinkedConditions, $this->_getGroupedColumns($lModel));
+		
+		return $this->_buildObjectsWithRows($lModel, $lRows, $pLoadDepth, $pLoadForeignObject, $pKey);
+	}
+	
+	private function _addTablesForQuery($pJoinedTables, $pModel, $pLinkedConditions) {
+		$lTemporaryLeftJoins = array();
+		$lStackVisitedModels = array();
+		$lArrayVisitedModels = array();
+		$lStack = array();
+	
+		$lModelsByName = array();
+		$lConditions = $pLinkedConditions->getFlattenedConditions();
+		foreach ($lConditions as $lCondition) {
+			if (! ($lCondition instanceof ConditionExtended)) {
+				throw new \Exception("all conditions must be instance of ConditionExtended to know related model");
+			}
+			$lModelsByName[$lCondition->getModel()->getModelName()] = $lCondition->getModel();
+		}
+	
+		// stack initialisation with $pModel
+		$this->_extendsStacks($pModel, $pModel->getSqlTableUnit(), $lModelsByName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
+	
+		// Depth-first search to build all left joins
+		while ((count($lStack) > 0)) {
+			if ($lStack[count($lStack) - 1]["current"] != -1) {
+				array_pop($lTemporaryLeftJoins);
+				$lModelName = array_pop($lStackVisitedModels);
+				$lArrayVisitedModels[$lModelName] -= 1;
+			}
+			$lStack[count($lStack) - 1]["current"]++;
+			if ($lStack[count($lStack) - 1]["current"] < count($lStack[count($lStack) - 1]["properties"])) {
+				$lStackIndex    = count($lStack) - 1;
+				$lRightProperty = $lStack[$lStackIndex]["properties"][$lStack[$lStackIndex]["current"]];
+				$lRightModel    = ($lRightProperty->getModel() instanceof ModelContainer) ? $lRightProperty->getModel()->getModel() : $lRightProperty->getModel();
+	
+				if (array_key_exists($lRightModel->getModelName(), $lArrayVisitedModels) && ($lArrayVisitedModels[$lRightModel->getModelName()] > 0)) {
+					$lStackVisitedModels[] = $lRightModel->getModelName();
+					$lArrayVisitedModels[$lRightModel->getModelName()] += 1;
+					$lTemporaryLeftJoins[] = null;
+					continue;
+				}
+				// add temporary leftJoin
+				// add leftjoin if model $lRightModel is in conditions ($lModelsByName)
+				$lTemporaryLeftJoins[] = $this->_prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftId"], $lRightModel, $lRightProperty);
+				if (array_key_exists($lRightModel->getModelName(), $lModelsByName)) {
+					foreach ($lTemporaryLeftJoins as $lLeftJoin) {
+						$pJoinedTables->addTable($lLeftJoin["right_table"], null, JoinedTables::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
+					}
+					$lTemporaryLeftJoins = array();
+				}
+				// add serializable properties to stack
+				$this->_extendsStacks($lRightModel, $lRightProperty->getSqlTableUnit(), $lModelsByName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
+	
+				// if no added model we can delete last stack element
+				if (count($lStack[count($lStack) - 1]["properties"]) == 0) {
+					array_pop($lStack);
+				}
+			}
+			else {
+				array_pop($lStack);
+				array_pop($lTemporaryLeftJoins);
+			}
+		}
+	}
+	
+	private function _extendsStacks($pModel, $pSqlTable, $pModelsByName, &$pStack, &$pStackVisitedModels, &$pArrayVisitedModels) {
+		if (array_key_exists($pModel->getModelName(), $pArrayVisitedModels) && array_key_exists($pModel->getModelName(), $pModelsByName)) {
+			throw new Exception("Cannot resolve condition. Condition with model '".$pModel->getModelName()."' can be applied on several properties");
+		}
+		$lIds = $pModel->getIds();
+		$pStack[] = array(
+				"leftId"     => (is_array($lIds) && (count($lIds) > 0)) ? $pModel->getProperty($lIds[0])->getSerializationName() : null,
+				"leftTable"  => $pSqlTable,
+				"properties" => $pModel->getSerializableProperties("sqlTable"),
+				"current"    => -1
+		);
+		$lModelName = $pModel->getModelName();
+		$pStackVisitedModels[] = $lModelName;
+		$pArrayVisitedModels[$lModelName] = array_key_exists($lModelName, $pArrayVisitedModels) ? $pArrayVisitedModels[$lModelName] + 1 : 1;
+	}
+	
+	private function _prepareLeftJoin($pLeftTable, $pLeftId, $pRightModel, $pRightProperty) {
+		$lRightTable = $pRightProperty->getSqlTableUnit();
+		$lReturn = array(
+				"left_table"   => $pLeftTable->getValue("name"),
+				"right_table"  => $lRightTable->getValue("name")
+		);
+		if ($pRightProperty->getModel() instanceof ModelForeign) {
+			$lIds = $pRightModel->getIds();
+			$lReturn["left_column"] = $pRightProperty->getSerializationName();
+			$lReturn["right_column"] = $pRightModel->getProperty($lIds[0])->getSerializationName();
+		}else {
+			$lRightColumns = array();
+			foreach ($pRightProperty->getForeignIds() as $lPropertyId) {
+				$lRightColumns[] = $pRightModel->getProperty($lPropertyId)->getSerializationName();
+			}
+			$lReturn["left_column"] = $pLeftId;
+			$lReturn["right_column"] = $lRightColumns;
+		}
+		$lReturn["right_model"] = $pRightModel;
+		return $lReturn;
+	}
+	
+	/**
+	 * @param array $pObjects each object is a serializable property or a model
+	 * @return string
+	 */
+	private function _getColumnsByTable($pModel) {
+		$lColumnsByTable = array();
+		if (is_null($lSqlTable = $pModel->getSqlTableUnit())) {
+			trigger_error("must have a database serialization");
+			throw new \Exception("must have a database serialization");
+		}
+		$lTableName = $lSqlTable->getValue("name");
+		$lColumnsByTable[$lTableName] = array();
+		foreach ($pModel->getProperties() as $lProperty) {
+			if (!($lProperty instanceof SerializableProperty) || is_null($lProperty->getForeignIds())) {
+				$lColumnsByTable[$lTableName][] = array($lProperty->getSerializationName());
+			}
+		}
+		return $lColumnsByTable;
+	}
+	
+	private function _getGroupedColumns($pModel) {
+		$lArray = array();
+		$lTableName = $pModel->getSqlTableUnit()->getValue("name");
+		foreach ($pModel->getIds() as $lPropertyName) {
+			$lArray[] = $lTableName.".".$pModel->getProperty($lPropertyName)->getSerializationName();
+		}
+		return $lArray;
+	}
+	
+	private function _buildObjectsWithRows($pModel, $pRows, $pLoadDepth, $pLoadForeignObject, $pKey) {
+		$lReturn = array();
+		if (is_array($pRows)) {
+			$lForeignObjectReplacer = new ForeignObjectReplacer();
+			$lForeignObjectLoader = new ForeignObjectLoader();
+			foreach ($pRows as $lRow) {
+				$lObject = $pModel->fromSqlDataBase($lRow, $pLoadDepth);
+				$lForeignObjectReplacer->execute($lObject);
+				if ($pLoadForeignObject) {
+					$lForeignObjectLoader->execute($lObject);
+				}
+				if (is_null($pKey)) {
+					$lReturn[] = $lObject;
+				}else {
+					$lReturn[$lObject->getValue($pKey)] = $lObject;
+				}
+			}
+		}
+		return $lReturn;
 	}
 	
 	/*
@@ -145,191 +309,6 @@ class ObjectManager {
 		}
 		return $lObject;
 	}
-	
-	/**
-	 * @param model $pModel
-	 * @param LinkedConditions $pLinkedConditions
-	 * @param integer $pLoadDepth
-	 * @param boolean $pLoadForeignObject
-	 * @param boolean $pOptimizeConditions
-	 * @param string $pKey
-	 * @throws \Exception
-	 * @return array
-	 */
-	protected function _getObjects($pModel, $pLinkedConditions, $pLoadDepth, $pLoadForeignObject, $pOptimizeConditions,  $pKey = null) {
-		$lReturn = null;
-		if (!is_null($pKey) && (!$pModel->hasProperty($pKey) || ! ($pModel->getProperty($pKey)->getModel() instanceof SimpleModel))) {
-			trigger_error("key '".$pKey."' unauthorized");
-			throw new \Exception("key '".$pKey."' unauthorized");
-		}
-		if (is_null($lSqlTable = $pModel->getSqlTableUnit())) {
-			trigger_error("error : resquested model must have a database serialization");
-			throw new \Exception("error : resquested model must have a database serialization");
-		}
-		$lLinkedConditions = $pOptimizeConditions ? ConditionOptimizer::optimizeConditions($pLinkedConditions) : $pLinkedConditions;
-		$lSqlTable->loadValue("database");
-		$lJoinedTables = new JoinedTables($lSqlTable->getValue("name"));
-		$this->_addLeftJoinsForConditions($lJoinedTables, $pModel, $lLinkedConditions);
-		
-		try {
-			$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
-			$lRows = $lDbInstance->select($lJoinedTables, $this->_getColumnsByTable($pModel), $lLinkedConditions, $this->_getGroupedColumns($pModel));
-			$lReturn = $this->_buildObjectsWithRows($pModel, $lRows, $pLoadDepth, $pLoadForeignObject, $pKey);
-		} catch (Exception $e) {
-			trigger_error($e->getMessage(), E_USER_WARNING);
-		}
-		return $lReturn;
-	}
-	
-	private function _addLeftJoinsForConditions($pJoinedTables, $pModel, $pLinkedConditions) {
-		$lTemporaryLeftJoins = array();
-		$lStackVisitedModels = array();
-		$lArrayVisitedModels = array();
-		$lStack = array();
-		
-		$lModelsByName = array();
-		$lConditions = $pLinkedConditions->getFlattenedConditions();
-		foreach ($lConditions as $lCondition) {
-			if (! ($lCondition instanceof ConditionExtended)) {
-				throw new \Exception("all conditions must be instance of ConditionExtended to know related model");
-			}
-			$lModelsByName[$lCondition->getModel()->getModelName()] = $lCondition->getModel();
-		}
-		
-		// stack initialisation with $pModel
-		$this->_extendsStacks($pModel, $pModel->getSqlTableUnit(), $lModelsByName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
-		
-		// Depth-first search to build all left joins
-		while ((count($lStack) > 0)) {
-			if ($lStack[count($lStack) - 1]["current"] != -1) {
-				array_pop($lTemporaryLeftJoins);
-				$lModelName = array_pop($lStackVisitedModels);
-				$lArrayVisitedModels[$lModelName] -= 1;
-			}
-			$lStack[count($lStack) - 1]["current"]++;
-			if ($lStack[count($lStack) - 1]["current"] < count($lStack[count($lStack) - 1]["properties"])) {
-				$lStackIndex    = count($lStack) - 1;
-				$lRightProperty = $lStack[$lStackIndex]["properties"][$lStack[$lStackIndex]["current"]];
-				$lRightModel    = ($lRightProperty->getModel() instanceof ModelContainer) ? $lRightProperty->getModel()->getModel() : $lRightProperty->getModel();
-				
-				if (array_key_exists($lRightModel->getModelName(), $lArrayVisitedModels) && ($lArrayVisitedModels[$lRightModel->getModelName()] > 0)) {
-					$lStackVisitedModels[] = $lRightModel->getModelName();
-					$lArrayVisitedModels[$lRightModel->getModelName()] += 1;
-					$lTemporaryLeftJoins[] = null;
-					continue;
-				}
-				// add temporary leftJoin
-				// add leftjoin if model $lRightModel is in conditions ($lModelsByName)
-				$lTemporaryLeftJoins[] = $this->_prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftId"], $lRightModel, $lRightProperty);
-				if (array_key_exists($lRightModel->getModelName(), $lModelsByName)) {
-					foreach ($lTemporaryLeftJoins as $lLeftJoin) {
-						$pJoinedTables->addTable($lLeftJoin["right_table"], null, JoinedTables::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
-					}
-					$lTemporaryLeftJoins = array();
-				}
-				// add serializable properties to stack
-				$this->_extendsStacks($lRightModel, $lRightProperty->getSqlTableUnit(), $lModelsByName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
-				
-				// if no added model we can delete last stack element
-				if (count($lStack[count($lStack) - 1]["properties"]) == 0) {
-					array_pop($lStack);
-				}
-			}
-			else {
-				array_pop($lStack);
-				array_pop($lTemporaryLeftJoins);
-			}
-		}
-	}
-	
-	private function _extendsStacks($pModel, $pSqlTable, $pModelsByName, &$pStack, &$pStackVisitedModels, &$pArrayVisitedModels) {
-		if (array_key_exists($pModel->getModelName(), $pArrayVisitedModels) && array_key_exists($pModel->getModelName(), $pModelsByName)) {
-			throw new Exception("Cannot resolve condition. Condition with model '".$pModel->getModelName()."' can be applied on several properties");
-		}
-		$lIds = $pModel->getIds();
-		$pStack[] = array(
-				"leftId"     => (is_array($lIds) && (count($lIds) > 0)) ? $pModel->getProperty($lIds[0])->getSerializationName() : null,
-				"leftTable"  => $pSqlTable,
-				"properties" => $pModel->getSerializableProperties("sqlTable"),
-				"current"    => -1
-		);
-		$lModelName = $pModel->getModelName();
-		$pStackVisitedModels[] = $lModelName;
-		$pArrayVisitedModels[$lModelName] = array_key_exists($lModelName, $pArrayVisitedModels) ? $pArrayVisitedModels[$lModelName] + 1 : 1;
-	}
-	
-	private function _prepareLeftJoin($pLeftTable, $pLeftId, $pRightModel, $pRightProperty) {
-		$lRightTable = $pRightProperty->getSqlTableUnit();
-		$lReturn = array(
-			"left_table"   => $pLeftTable->getValue("name"),
-			"right_table"  => $lRightTable->getValue("name")
-		);
-		if ($pRightProperty->getModel() instanceof ModelForeign) {
-			$lIds = $pRightModel->getIds();
-			$lReturn["left_column"] = $pRightProperty->getSerializationName();
-			$lReturn["right_column"] = $pRightModel->getProperty($lIds[0])->getSerializationName();
-		}else {
-			$lRightColumns = array();
-			foreach ($pRightProperty->getForeignIds() as $lPropertyId) {
-				$lRightColumns[] = $pRightModel->getProperty($lPropertyId)->getSerializationName();
-			}
-			$lReturn["left_column"] = $pLeftId;
-			$lReturn["right_column"] = $lRightColumns;
-		}
-		$lReturn["right_model"] = $pRightModel;
-		return $lReturn;
-	}
-	
-	/**
-	 * @param array $pObjects each object is a serializable property or a model
-	 * @return string
-	 */
-	private function _getColumnsByTable($pModel) {
-		$lColumnsByTable = array();
-		if (is_null($lSqlTable = $pModel->getSqlTableUnit())) {
-			trigger_error("must have a database serialization");
-			throw new \Exception("must have a database serialization");
-		}
-		$lTableName = $lSqlTable->getValue("name");
-		$lColumnsByTable[$lTableName] = array();
-		foreach ($pModel->getProperties() as $lProperty) {
-			if (!($lProperty instanceof SerializableProperty) || is_null($lProperty->getForeignIds())) {
-				$lColumnsByTable[$lTableName][] = array($lProperty->getSerializationName());
-			}
-		}
-		return $lColumnsByTable;
-	}
-	
-	private function _getGroupedColumns($pModel) {
-		$lArray = array();
-		$lTableName = $pModel->getSqlTableUnit()->getValue("name");
-		foreach ($pModel->getIds() as $lPropertyName) {
-			$lArray[] = $lTableName.".".$pModel->getProperty($lPropertyName)->getSerializationName();
-		}
-		return $lArray;
-	}
-	
-	private function _buildObjectsWithRows($pModel, $pRows, $pLoadDepth, $pLoadForeignObject, $pKey) {
-		$lReturn = array();
-		if (is_array($pRows)) {
-			$lForeignObjectReplacer = new ForeignObjectReplacer();
-			$lForeignObjectLoader = new ForeignObjectLoader();
-			foreach ($pRows as $lRow) {
-				$lObject = $pModel->fromSqlDataBase($lRow, $pLoadDepth);
-				$lForeignObjectReplacer->execute($lObject);
-				if ($pLoadForeignObject) {
-					$lForeignObjectLoader->execute($lObject);
-				}
-				if (is_null($pKey)) {
-					$lReturn[] = $lObject;
-				}else {
-					$lReturn[$lObject->getValue($pKey)] = $lObject;
-				}
-			}
-		}
-		return $lReturn;
-	}
-	
 	
 	protected function _setErrorObject($pException, $pId = null) {
 		$lResult = new stdClass();

@@ -19,11 +19,7 @@ class ConditionExtended extends Condition {
 		if (is_null($lSqlTable = $this->mModel->getSqlTableUnit())) {
 			throw new \Exception("must have a database serialization");
 		}
-		$this->mTable = $lSqlTable->getValue("name");
-		$this->mPropertyName = $pPropertyName;
-		$this->mOperator = $pOperator;
-		$this->mValue = $pValue;
-		$this->_verifCondition();
+		parent::__construct($lSqlTable->getValue("name"), $pPropertyName, $pOperator, $pValue);
 	}
 
 	public function getModel() {
