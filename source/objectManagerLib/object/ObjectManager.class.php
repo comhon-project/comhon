@@ -129,7 +129,7 @@ class ObjectManager {
 	
 	private function _extendsStacks($pModel, $pSqlTable, $pModelsByName, &$pStack, &$pStackVisitedModels, &$pArrayVisitedModels) {
 		if (array_key_exists($pModel->getModelName(), $pArrayVisitedModels) && array_key_exists($pModel->getModelName(), $pModelsByName)) {
-			throw new Exception("Cannot resolve condition. Condition with model '".$pModel->getModelName()."' can be applied on several properties");
+			throw new \Exception("Cannot resolve condition. Condition with model '".$pModel->getModelName()."' can be applied on several properties");
 		}
 		$lIds = $pModel->getIds();
 		$pStack[] = array(
