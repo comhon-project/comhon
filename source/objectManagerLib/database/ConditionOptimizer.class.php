@@ -268,7 +268,8 @@ abstract class ConditionOptimizer {
 						$lConjunction->addCondition($pFlattenedConditions[$pLiteralKeys[$lIndex]]);
 					}else if ($lValue === false) {
 						$lCondition = $pFlattenedConditions[$pLiteralKeys[$lIndex]];
-						$lOppositeCondition = new Condition($lCondition->getModel()->getModelName(), $lCondition->getPropertyName(), Condition::$sOppositeConditions[$lCondition->getOperator()], $lCondition->getValue());
+						$lOppositeCondition = clone $lCondition;
+						$lOppositeCondition->reverseOperator();
 						$lConjunction->addCondition($lOppositeCondition);
 					}
 				}
