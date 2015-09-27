@@ -65,11 +65,11 @@ class JoinedTables {
 			$lJoinedTables .= " ".$lJoinedTable[0];
 			$lJoinedTables .= " ".implode(" as ", $lJoinedTable[1]);
 			if (is_array($lJoinedTable[2][1])) {
-				$lOnConditions = array();
+				$lOnLiterals = array();
 				foreach ($lJoinedTable[2][1] as $lRightColumn) {
-					$lOnConditions[] = $lJoinedTable[2][0].".".$lRightColumn."=".implode(".", $lJoinedTable[3]);
+					$lOnLiterals[] = $lJoinedTable[2][0].".".$lRightColumn."=".implode(".", $lJoinedTable[3]);
 				}
-				$lJoinedTables .= " on ".implode(" or ", $lOnConditions);
+				$lJoinedTables .= " on ".implode(" or ", $lOnLiterals);
 			} else {
 				$lJoinedTables .= " on ".implode(".", $lJoinedTable[2])."=".implode(".", $lJoinedTable[3]);
 			}

@@ -155,19 +155,19 @@ class DatabaseController {
 	 * execute select query
 	 * @param array $pColumnsByTable
 	 * @param JoinedTables $pJoinedTables
-	 * @param LinkedConditions $pLinkedConditions
+	 * @param LogicalJunction $pLogicalJunction
 	 * @param array $pGroupColumns
 	 * @param array $pOrderColumns
 	 * @throws Exception
 	 * @return array
 	 */
-	public function select($pJoinedTables, $pColumnsByTable = null, $pLinkedConditions = null, $pGroupColumns = null, $pOrderColumns = null) {
+	public function select($pJoinedTables, $pColumnsByTable = null, $pLogicalJunction = null, $pGroupColumns = null, $pOrderColumns = null) {
 		$lValues = array();
 		
 		$lColumns = is_null($pColumnsByTable) ? "*" : $this->_getColumnsForQuery($pColumnsByTable);
 		$lQuery = "SELECT ".$lColumns." FROM ".$pJoinedTables->export();
 		
-		if (!is_null($lClause = $this->_getClauseForQuery($pLinkedConditions, $lValues))) {
+		if (!is_null($lClause = $this->_getClauseForQuery($pLogicalJunction, $lValues))) {
 			$lQuery .= " WHERE ".$lClause;
 		}
 		if (is_array($pGroupColumns) && (count($pGroupColumns) > 0)) {
@@ -200,16 +200,16 @@ class DatabaseController {
 	
 	/**
 	 * construct clause query (WHERE ...), extract values for query and put them in $pValues
-	 * @param LinkedConditions $pLinkedConditions
+	 * @param LogicalJunction $pLogicalJunction
 	 * @param array $pValues
 	 * @return string
 	 */
-	private function _getClauseForQuery($pLinkedConditions, &$pValues) {
+	private function _getClauseForQuery($pLogicalJunction, &$pValues) {
 		$lClause = null;
-		if (!is_null($pLinkedConditions)) {
-			$lQueryConditions = $pLinkedConditions->export($pValues);
-			if ($lQueryConditions != "") {
-				$lClause = $lQueryConditions;
+		if (!is_null($pLogicalJunction)) {
+			$lQueryLiterals = $pLogicalJunction->export($pValues);
+			if ($lQueryLiterals != "") {
+				$lClause = $lQueryLiterals;
 			}
 		}
 		return $lClause;

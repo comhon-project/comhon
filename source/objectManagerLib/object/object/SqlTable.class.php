@@ -2,9 +2,9 @@
 namespace objectManagerLib\object\object;
 
 use objectManagerLib\database\DatabaseController;
-use objectManagerLib\database\LinkedConditions;
+use objectManagerLib\database\LogicalJunction;
 use objectManagerLib\database\JoinedTables;
-use objectManagerLib\database\Condition;
+use objectManagerLib\database\Literal;
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\model\ModelForeign;
 use objectManagerLib\object\model\ModelArray;
@@ -29,12 +29,12 @@ class SqlTable extends SerializationUnit {
 		if (is_null($pPropertiesNames)) {
 			$pPropertiesNames = $pModel->getIds();
 		}
-		$lLinkedCondition = new LinkedConditions("or");
+		$lLinkedLiteral = new LogicalJunction(LogicalJunction::_OR);
 		foreach ($pPropertiesNames as $pPropertyName) {
 			$lColumn = $pModel->getProperty($pPropertyName)->getSerializationName();
-			$lLinkedCondition->addCondition(new Condition($this->getValue("name"), $lColumn, "=", $pId));
+			$lLinkedLiteral->addLiteral(new Literal($this->getValue("name"), $lColumn, "=", $pId));
 		}
-		$lResult = $this->mDbController->select(new JoinedTables($this->getValue("name")), null, $lLinkedCondition);
+		$lResult = $this->mDbController->select(new JoinedTables($this->getValue("name")), null, $lLinkedLiteral);
 		
 		if (count($lResult) > 0) {
 			if (! ($pModel instanceof ModelArray)) {

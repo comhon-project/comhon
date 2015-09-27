@@ -2,9 +2,10 @@
 namespace objectManagerLib\object;
 
 use objectManagerLib\database\DatabaseController;
-use objectManagerLib\database\LinkedConditions;
-use objectManagerLib\database\ConditionOptimizer;
-use objectManagerLib\database\ConditionExtended;
+use objectManagerLib\database\LogicalJunction;
+use objectManagerLib\database\LogicalJunctionOptimizer;
+use objectManagerLib\database\LiteralExtended;
+use objectManagerLib\database\Count;
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\database\JoinedTables;
 use objectManagerLib\object\model\Model;
@@ -26,15 +27,15 @@ class ObjectManager {
 	/**
 	 * 
 	 * @param string $pModelName model name of objects that you want to retrieve
-	 * @param LinkedConditions $pCondition condition(s) for query (can be an object Condition)
+	 * @param LogicalJunction $pLiteral literal(s) for query (can be an object Literal)
 	 * @param integer $pLoadDepth
 	 * @param integer $pLoadLength
 	 * @param boolean $pLoadForeignObject
-	 * @param boolean $pOptimizeConditions
+	 * @param boolean $pOptimizeLiterals
 	 * @param string $pKey
 	 * @return array
 	 */
-	public function getObjects($pModelName, $pCondition = null, $pLoadDepth = 0, $pLoadLength = null, $pLoadForeignObject = false, $pOptimizeConditions = false, $pKey = null) {
+	public function getObjects($pModelName, $pLiteral = null, $pLoadDepth = 0, $pLoadLength = null, $pLoadForeignObject = false, $pOptimizeLiterals = false, $pKey = null) {
 		$lReturn = array();
 		$lModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
 		if (!is_null($pKey) && (!$lModel->hasProperty($pKey) || ! ($lModel->getProperty($pKey)->getModel() instanceof SimpleModel))) {
@@ -45,40 +46,40 @@ class ObjectManager {
 			trigger_error("error : resquested model must have a database serialization");
 			throw new \Exception("error : resquested model must have a database serialization");
 		}
-		if (is_null($pCondition)) {
-			$lLinkedConditions = new LinkedConditions("and");
-		}else if ($pCondition instanceof LinkedConditions) {
-			$lLinkedConditions = $pCondition;
+		if (is_null($pLiteral)) {
+			$lLogicalJunction = new LogicalJunction(LogicalJunction::_AND);
+		}else if ($pLiteral instanceof LogicalJunction) {
+			$lLogicalJunction = $pLiteral;
 		}else {
-			$lLinkedConditions = new LinkedConditions("and");
-			$lLinkedConditions->addCondition($pCondition);
+			$lLogicalJunction = new LogicalJunction(LogicalJunction::_AND);
+			$lLogicalJunction->addLiteral($pLiteral);
 		}
-		if ($pOptimizeConditions) {
-			$lLinkedConditions = ConditionOptimizer::optimizeConditions($lLinkedConditions);
+		if ($pOptimizeLiterals) {
+			$lLogicalJunction = LogicalJunctionOptimizer::optimizeLiterals($lLogicalJunction);
 		}
 		$lSqlTable->loadValue("database");
 		$lJoinedTables = new JoinedTables($lSqlTable->getValue("name"));
-		$this->_addTablesForQuery($lJoinedTables, $lModel, $lLinkedConditions);
+		$this->_addTablesForQuery($lJoinedTables, $lModel, $lLogicalJunction);
 		
 		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
-		$lRows = $lDbInstance->select($lJoinedTables, $this->_getColumnsByTable($lModel), $lLinkedConditions, $this->_getGroupedColumns($lModel));
+		$lRows = $lDbInstance->select($lJoinedTables, $this->_getColumnsByTable($lModel), $lLogicalJunction, $this->_getGroupedColumns($lModel));
 		
 		return $this->_buildObjectsWithRows($lModel, $lRows, $pLoadDepth, $pLoadForeignObject, $pKey);
 	}
 	
-	private function _addTablesForQuery($pJoinedTables, $pModel, $pLinkedConditions) {
+	private function _addTablesForQuery($pJoinedTables, $pModel, $pLogicalJunction) {
 		$lTemporaryLeftJoins = array();
 		$lStackVisitedModels = array();
 		$lArrayVisitedModels = array();
 		$lStack = array();
 	
 		$lModelsByName = array();
-		$lConditions = $pLinkedConditions->getFlattenedConditions();
-		foreach ($lConditions as $lCondition) {
-			if (! ($lCondition instanceof ConditionExtended)) {
-				throw new \Exception("all conditions must be instance of ConditionExtended to know related model");
+		$lLiterals = $pLogicalJunction->getFlattenedLiterals();
+		foreach ($lLiterals as $lLiteral) {
+			if (! ($lLiteral instanceof LiteralExtended)) {
+				throw new \Exception("all literals must be instance of LiteralExtended to know related model");
 			}
-			$lModelsByName[$lCondition->getModel()->getModelName()] = $lCondition->getModel();
+			$lModelsByName[$lLiteral->getModel()->getModelName()] = $lLiteral;
 		}
 	
 		// stack initialisation with $pModel
@@ -104,7 +105,7 @@ class ObjectManager {
 					continue;
 				}
 				// add temporary leftJoin
-				// add leftjoin if model $lRightModel is in conditions ($lModelsByName)
+				// add leftjoin if model $lRightModel is in literals ($lModelsByName)
 				$lTemporaryLeftJoins[] = $this->_prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftId"], $lRightModel, $lRightProperty);
 				if (array_key_exists($lRightModel->getModelName(), $lModelsByName)) {
 					foreach ($lTemporaryLeftJoins as $lLeftJoin) {
@@ -129,7 +130,7 @@ class ObjectManager {
 	
 	private function _extendsStacks($pModel, $pSqlTable, $pModelsByName, &$pStack, &$pStackVisitedModels, &$pArrayVisitedModels) {
 		if (array_key_exists($pModel->getModelName(), $pArrayVisitedModels) && array_key_exists($pModel->getModelName(), $pModelsByName)) {
-			throw new \Exception("Cannot resolve condition. Condition with model '".$pModel->getModelName()."' can be applied on several properties");
+			throw new \Exception("Cannot resolve literal. Literal with model '".$pModel->getModelName()."' can be applied on several properties");
 		}
 		$lIds = $pModel->getIds();
 		$pStack[] = array(

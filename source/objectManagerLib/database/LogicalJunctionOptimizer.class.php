@@ -2,84 +2,84 @@
 namespace objectManagerLib\database;
 
 use objectManagerLib\utils\Utils;
-abstract class ConditionOptimizer {
+abstract class LogicalJunctionOptimizer {
 	
 	/**
-	 * transform linkedConditions in $pLinkedConditions to Conditions if it's possible
-	 * @param LinkedConditions $pLinkedConditions
+	 * transform logical junctions in $pLogicalJunction to literals if it's possible
+	 * @param LogicalJunction $pLogicalJunction
 	 */
-	public static function linkedConditionsToConditions($pLinkedConditions) {
-		$lNewLinkedConditions = new LinkedConditions($pLinkedConditions->getLink());
-		self::_linkedConditionsToConditions($lNewLinkedConditions, $pLinkedConditions);
-		return $lNewLinkedConditions;
+	public static function logicalJunctionToLiterals($pLogicalJunction) {
+		$lNewLogicalJunction = new LogicalJunction($pLogicalJunction->getLink());
+		self::_logicalJunctionToLiterals($lNewLogicalJunction, $pLogicalJunction);
+		return $lNewLogicalJunction;
 	}
 	
 	/**
-	 * transform linkedConditions to Conditions if it's possible
-	 * @param LinkedConditions $pNewLinkedConditions
-	 * @param LinkedConditions $pLinkedConditions
+	 * transform logical junctions to literals if it's possible
+	 * @param LogicalJunction $pNewLogicalJunction
+	 * @param LogicalJunction $pLogicalJunction
 	 */
-	private static function _linkedConditionsToConditions($pNewLinkedConditions, $pLinkedConditions) {
-		$lLink = $pLinkedConditions->getLink();
-		foreach ($pLinkedConditions->getConditions() as $lCondition) {
-			$pNewLinkedConditions->addCondition($lCondition);
+	private static function _logicalJunctionToLiterals($pNewLogicalJunction, $pLogicalJunction) {
+		$lLink = $pLogicalJunction->getLink();
+		foreach ($pLogicalJunction->getLiterals() as $lLiteral) {
+			$pNewLogicalJunction->addLiteral($lLiteral);
 		}
-		foreach ($pLinkedConditions->getLinkedConditions() as $lLinkedConditions) {
-			if ($lLinkedConditions->hasOnlyOneCondition() || ($lLinkedConditions->getLink() == $lLink)) {
-				self::_linkedConditionsToConditions($pNewLinkedConditions, $lLinkedConditions);
+		foreach ($pLogicalJunction->getLogicalJunction() as $lLogicalJunction) {
+			if ($lLogicalJunction->hasOnlyOneLiteral() || ($lLogicalJunction->getLink() == $lLink)) {
+				self::_logicalJunctionToLiterals($pNewLogicalJunction, $lLogicalJunction);
 			}else {
-				$pNewLinkedConditions->addLinkedConditions(self::linkedConditionsToConditions($lLinkedConditions));
+				$pNewLogicalJunction->addLogicalJunction(self::logicalJunctionToLiterals($lLogicalJunction));
 			}
 		}
 	}
 	
 	/**
-	 * optimize query conditions to optimize execution time of query
+	 * optimize query literals to optimize execution time of query
 	 * 
-	 * @param unknown $pLinkedConditions
+	 * @param unknown $pLogicalJunction
 	 */
-	public static function optimizeConditions($pLinkedConditions) {
-		$lFlattenedConditions = $pLinkedConditions->getFlattenedConditions("md5");
+	public static function optimizeLiterals($pLogicalJunction) {
+		$lFlattenedLiterals = $pLogicalJunction->getFlattenedLiterals("md5");
 		$lLiteralKeys = array();
-		foreach ($lFlattenedConditions as $lKey => $lCondition) {
+		foreach ($lFlattenedLiterals as $lKey => $lLiteral) {
 			$lLiteralKeys[] = $lKey;
 		
 		}
 		if (count($lLiteralKeys) > §TOKEN:optimizationLimit§) {
-			return $pLinkedConditions;
+			return $pLogicalJunction;
 		}
-		$pLinkedConditions = ConditionOptimizer::linkedConditionsToConditions($pLinkedConditions);
-		$lLogicalConjunctions = self::_setLogicalConjunctions($pLinkedConditions, $lFlattenedConditions, $lLiteralKeys);
+		$pLogicalJunction = LogicalJunctionOptimizer::logicalJunctionToLiterals($pLogicalJunction);
+		$lLogicalConjunctions = self::_setLogicalConjunctions($pLogicalJunction, $lFlattenedLiterals, $lLiteralKeys);
 		$lEssentialPrimeImplicants = self::_execQuineMcCluskeyAlgorithm($lLogicalConjunctions);
 		$lLiteralsToFactoryze = self::_findLiteralsToFactoryze($lEssentialPrimeImplicants);
-		$lLinkedConditions = self::_setFinalLinkedConditions($lEssentialPrimeImplicants, $lFlattenedConditions, $lLiteralsToFactoryze, $lLiteralKeys);
+		$lLogicalJunction = self::_setFinalLogicalJunction($lEssentialPrimeImplicants, $lFlattenedLiterals, $lLiteralsToFactoryze, $lLiteralKeys);
 		
-		return $lLinkedConditions;
+		return $lLogicalJunction;
 	}
 	
-	private static function _setLogicalConjunctions($pLinkedConditions, $pFlattenedConditions, $pLiteralKeys) {
+	private static function _setLogicalConjunctions($pLogicalJunction, $pFlattenedLiterals, $pLiteralKeys) {
 		$lLiteralValues = array();
 		$lLiterals = array();
 		$lLogicalConjunctions = array();
-		foreach ($pFlattenedConditions as $lKey => $lCondition) {
+		foreach ($pFlattenedLiterals as $lKey => $lLiteral) {
 			$lLiteralValues[] = false;
 			$lLiterals[$lKey] = false;
 				
 		}
 		$lNbTrueValues = 0;
-		$i = count($pFlattenedConditions) - 1;
+		$i = count($pFlattenedLiterals) - 1;
 		while ($i > -1) {
 			if ($lLiteralValues[$i] === false) {
 				$lLiteralValues[$i] = true;
 				$lLiterals[$pLiteralKeys[$i]] = true;
 				$lNbTrueValues++;
-				for ($j = $i + 1; $j < count($pFlattenedConditions); $j++) {
+				for ($j = $i + 1; $j < count($pFlattenedLiterals); $j++) {
 					$lLiteralValues[$j] = false;
 					$lLiterals[$pLiteralKeys[$j]] = false;
 					$lNbTrueValues--;
 				}
-				$i = count($pFlattenedConditions) - 1;
-				$lSatisfied = $pLinkedConditions->isSatisfied($lLiterals);
+				$i = count($pFlattenedLiterals) - 1;
+				$lSatisfied = $pLogicalJunction->isSatisfied($lLiterals);
 		
 				if ($lSatisfied) {
 					$lLogicalConjunctions[$lNbTrueValues][] = $lLiteralValues;
@@ -204,7 +204,7 @@ abstract class ConditionOptimizer {
 				$lMatrix[] = $lMatches;
 			}
 		}
-		usort($lMatrix, array("objectManagerLib\database\ConditionOptimizer", "sortByLastValue"));
+		usort($lMatrix, array("objectManagerLib\database\LogicalJunctionOptimizer", "sortByLastValue"));
 		return $lMatrix;
 	}
 	
@@ -246,36 +246,36 @@ abstract class ConditionOptimizer {
 		return array_keys($lLiteralsToFactoryze);
 	}
 	
-	private static function _setFinalLinkedConditions($pEssentialPrimeImplicants, $pFlattenedConditions, $pLiteralsToFactoryze, $pLiteralKeys) {
+	private static function _setFinalLogicalJunction($pEssentialPrimeImplicants, $pFlattenedLiterals, $pLiteralsToFactoryze, $pLiteralKeys) {
 		$lLiteralsToFactoryzeByKey = array();
-		$lFirstConjunction = new LinkedConditions("and");
+		$lFirstConjunction = new LogicalJunction(LogicalJunction::_AND);
 		if (count($pLiteralsToFactoryze) > 0) {
 			foreach ($pLiteralsToFactoryze as $pLiteralIndex) {
-				$lFirstConjunction->addCondition($pFlattenedConditions[$pLiteralKeys[$pLiteralIndex]]);
+				$lFirstConjunction->addLiteral($pFlattenedLiterals[$pLiteralKeys[$pLiteralIndex]]);
 				$lLiteralsToFactoryzeByKey[$pLiteralIndex] = null;
 			}
 		}
 
-		$lDisjunction = new LinkedConditions("or");
-		$lFirstConjunction->addLinkedConditions($lDisjunction);
+		$lDisjunction = new LogicalJunction(LogicalJunction::_OR);
+		$lFirstConjunction->addLogicalJunction($lDisjunction);
 		
 		foreach ($pEssentialPrimeImplicants as $lEssentialPrimeImplicantValues) {
-			$lConjunction = new LinkedConditions("and");
+			$lConjunction = new LogicalJunction(LogicalJunction::_AND);
 			foreach ($lEssentialPrimeImplicantValues as $lIndex => $lValue) {
 				// if literal hasn't been factorised
 				if (!array_key_exists($lIndex, $lLiteralsToFactoryzeByKey)) {
 					if ($lValue === true) {
-						$lConjunction->addCondition($pFlattenedConditions[$pLiteralKeys[$lIndex]]);
+						$lConjunction->addLiteral($pFlattenedLiterals[$pLiteralKeys[$lIndex]]);
 					}else if ($lValue === false) {
-						$lCondition = $pFlattenedConditions[$pLiteralKeys[$lIndex]];
-						$lOppositeCondition = clone $lCondition;
-						$lOppositeCondition->reverseOperator();
-						$lConjunction->addCondition($lOppositeCondition);
+						$lLiteral = $pFlattenedLiterals[$pLiteralKeys[$lIndex]];
+						$lOppositeLiteral = clone $lLiteral;
+						$lOppositeLiteral->reverseOperator();
+						$lConjunction->addLiteral($lOppositeLiteral);
 					}
 				}
 		
 			}
-			$lDisjunction->addLinkedConditions($lConjunction);
+			$lDisjunction->addLogicalJunction($lConjunction);
 		}
 		return $lFirstConjunction;
 	}

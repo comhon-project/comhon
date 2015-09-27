@@ -1,7 +1,7 @@
 <?php
 namespace objectManagerLib\database;
 
-class Condition {
+class Literal {
 
 	const EQUAL      = '=';
 	const SUPP       = '>';
@@ -15,7 +15,7 @@ class Condition {
 	protected $mOperator; // operator
 	protected $mValue;    // value(s) to filter
 	
-	private static $sAcceptedConditions = array(
+	private static $sAcceptedLiterals = array(
 		self::EQUAL      => null,
 		self::SUPP       => null,
 		self::INF        => null,
@@ -35,7 +35,7 @@ class Condition {
 	
 	/**
 	 * 
-	 * @param string $pConditionType
+	 * @param string $pLiteralType
 	 * @param unknown $pValue could be null, a string, a number or an array with null or string or number values
 	 */
 	public function __construct($pTable, $pPropertyName, $pOperator, $pValue) {
@@ -43,18 +43,18 @@ class Condition {
 		$this->mPropertyName = $pPropertyName;
 		$this->mOperator = $pOperator;
 		$this->mValue = $pValue;
-		$this->_verifCondition();
+		$this->_verifLiteral();
 	}
 	
-	private function _verifCondition() {
-		if (!array_key_exists($this->mOperator, self::$sAcceptedConditions)) {
+	private function _verifLiteral() {
+		if (!array_key_exists($this->mOperator, self::$sAcceptedLiterals)) {
 			throw new \Exception("operator '".$this->mOperator."' doesn't exists");
 		}
 		if (is_null($this->mValue) && ($this->mOperator != "=") && ($this->mOperator != "<>")) {
-			throw new \Exception("condition with operator '".$this->mOperator."' can't have null value");
+			throw new \Exception("literal with operator '".$this->mOperator."' can't have null value");
 		}
 		if (is_array($this->mValue) && ($this->mOperator != "=") && ($this->mOperator != "<>")) {
-			throw new \Exception("condition with operator '".$this->mOperator."' can't have array value");
+			throw new \Exception("literal with operator '".$this->mOperator."' can't have array value");
 		}
 	}
 
@@ -101,7 +101,7 @@ class Condition {
 			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mPropertyName, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lConnector = ($this->mOperator == "=") ? "or" : "and";
+				$lConnector = ($this->mOperator == "=") ? LogicalJunction::_OR : LogicalJunction::_AND;
 				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mPropertyName, $lOperator);
 			}
 		}else {
@@ -138,7 +138,7 @@ class Condition {
 			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mPropertyName, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lConnector = ($this->mOperator == "=") ? "or" : "and";
+				$lConnector = ($this->mOperator == "=") ? LogicalJunction::_OR : LogicalJunction::_AND;
 				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mPropertyName, $lOperator);
 			}
 		}else {
