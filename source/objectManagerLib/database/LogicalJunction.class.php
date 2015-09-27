@@ -11,11 +11,11 @@ class LogicalJunction {
 	const _OR = 'or';
 	const _AND = 'and';
 	
-	private $mLink;
-	private $mLiterals = array();
-	private $mLogicalJunction = array();
+	protected $mLink;
+	protected $mLiterals = array();
+	protected $mLogicalJunction = array();
 	
-	private static $sAcceptedLinks = array(
+	protected static $sAcceptedLinks = array(
 		self::_OR => null,
 		self::_AND => null
 	);
@@ -37,14 +37,14 @@ class LogicalJunction {
 	/**
 	 * @param Literal $pLiteral
 	 */
-	public function addLiteral($pLiteral) {
+	public function addLiteral(Literal $pLiteral) {
 		$this->mLiterals[] = $pLiteral;
 	}
 	
 	/**
 	 * @param LogicalJunction $pLogicalJunction
 	 */
-	public function addLogicalJunction($pLogicalJunction) {
+	public function addLogicalJunction(LogicalJunction $pLogicalJunction) {
 		$this->mLogicalJunction[] = $pLogicalJunction;
 	}
 	

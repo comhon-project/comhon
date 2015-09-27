@@ -29,6 +29,10 @@ class JoinedTables {
 		$this->mTableNames[$this->mFirstTable[count($this->mFirstTable) - 1]] = null;
 	}
 	
+	public function getFirstTable($pGetAlias = true) {
+		return ($pGetAlias && (count($this->mFirstTable) == 2)) ? $this->mFirstTable[1] : $this->mFirstTable[0];
+	}
+	
 	/**
 	 * 
 	 * @param unknown $pTable

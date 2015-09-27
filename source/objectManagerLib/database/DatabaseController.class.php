@@ -161,22 +161,8 @@ class DatabaseController {
 	 * @throws Exception
 	 * @return array
 	 */
-	public function select($pJoinedTables, $pColumnsByTable = null, $pLogicalJunction = null, $pGroupColumns = null, $pOrderColumns = null) {
-		$lValues = array();
-		
-		$lColumns = is_null($pColumnsByTable) ? "*" : $this->_getColumnsForQuery($pColumnsByTable);
-		$lQuery = "SELECT ".$lColumns." FROM ".$pJoinedTables->export();
-		
-		if (!is_null($lClause = $this->_getClauseForQuery($pLogicalJunction, $lValues))) {
-			$lQuery .= " WHERE ".$lClause;
-		}
-		if (is_array($pGroupColumns) && (count($pGroupColumns) > 0)) {
-			$lQuery .= " GROUP BY ".implode(",", $pGroupColumns);
-		}
-		if (is_array($pOrderColumns) && (count($pOrderColumns) > 0)) {
-			$lQuery .= " ORDER BY ".implode(",", $pOrderColumns);
-		}
-		
+	public function select($pJoinedTables, $pColumnsByTable = null, $pLogicalJunction = null, $pGroupColumns = null, $pOrderColumns = null, $pHavingCount = null) {
+		list($lQuery, $lValues) = self::selectToString($pJoinedTables, $pColumnsByTable, $pLogicalJunction, $pGroupColumns, $pOrderColumns, $pHavingCount);
 		try {
 			$lQueryId = $this->prepareQuery($lQuery, $lValues);
 			$this->doQueryWithId($lQueryId);
@@ -188,7 +174,25 @@ class DatabaseController {
 		return $lResult;
 	}
 	
-	private function _getColumnsForQuery($pColumnsByTable) {
+	public static function selectToString($pJoinedTables, $pColumnsByTable = null, $pLogicalJunction = null, $pGroupColumns = null, $pOrderColumns = null, $pHavingCount = null) {
+		$lValues = array();
+		
+		$lColumns = is_null($pColumnsByTable) ? "*" : self::_getColumnsForQuery($pColumnsByTable);
+		$lQuery = "SELECT ".$lColumns." FROM ".$pJoinedTables->export();
+		
+		if (!is_null($lClause = self::_getClauseForQuery($pLogicalJunction, $lValues))) {
+			$lQuery .= " WHERE ".$lClause;
+		}
+		if (is_array($pGroupColumns) && (count($pGroupColumns) > 0)) {
+			$lQuery .= " GROUP BY ".implode(",", $pGroupColumns);
+		}
+		if (is_array($pOrderColumns) && (count($pOrderColumns) > 0)) {
+			$lQuery .= " ORDER BY ".implode(",", $pOrderColumns);
+		}
+		return array($lQuery, $lValues);
+	}
+	
+	private static function _getColumnsForQuery($pColumnsByTable) {
 		$lArray = array();
 		foreach ($pColumnsByTable as $lTable => $lColumns) {
 			foreach ($lColumns as $lColumn) {
@@ -204,7 +208,7 @@ class DatabaseController {
 	 * @param array $pValues
 	 * @return string
 	 */
-	private function _getClauseForQuery($pLogicalJunction, &$pValues) {
+	private static function _getClauseForQuery($pLogicalJunction, &$pValues) {
 		$lClause = null;
 		if (!is_null($pLogicalJunction)) {
 			$lQueryLiterals = $pLogicalJunction->export($pValues);

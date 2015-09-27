@@ -1,6 +1,8 @@
 <?php
 namespace objectManagerLib\database;
 
+use objectManagerLib\object\singleton\InstanceModel;
+
 class Literal {
 
 	const EQUAL      = '=';
@@ -11,11 +13,12 @@ class Literal {
 	const DIFF       = '<>';
 	
 	protected $mTable;
-	protected $mPropertyName;      // name of table concatanate with propertyName
-	protected $mOperator; // operator
-	protected $mValue;    // value(s) to filter
+	protected $mPropertyName; // name of table concatanate with propertyName
+	protected $mOperator;     // operator
+	protected $mValue;        // value(s) to filter
+	protected $mModelName;
 	
-	private static $sAcceptedLiterals = array(
+	protected static $sAcceptedOperators = array(
 		self::EQUAL      => null,
 		self::SUPP       => null,
 		self::INF        => null,
@@ -24,7 +27,7 @@ class Literal {
 		self::DIFF       => null
 	);
 	
-	private static $sOppositeOperator = array(
+	protected static $sOppositeOperator = array(
 		self::EQUAL      => self::DIFF,
 		self::INF        => self::SUPP_EQUAL,
 		self::INF_EQUAL  => self::SUPP,
@@ -34,20 +37,33 @@ class Literal {
 	);
 	
 	/**
-	 * 
-	 * @param string $pLiteralType
+	 * construtor
+	 * @param unknown $pTable
+	 * @param unknown $pPropertyName
+	 * @param unknown $pOperator
 	 * @param unknown $pValue could be null, a string, a number or an array with null or string or number values
+	 * @param string $pModelName
+	 * @throws \Exception
 	 */
-	public function __construct($pTable, $pPropertyName, $pOperator, $pValue) {
+	public function __construct($pTable, $pPropertyName, $pOperator, $pValue, $pModelName = null) {
 		$this->mTable = $pTable;
-		$this->mPropertyName = $pPropertyName;
 		$this->mOperator = $pOperator;
 		$this->mValue = $pValue;
+		if (is_null($pModelName)) {
+			$this->mPropertyName = $pPropertyName;
+		}else {
+			$this->mModelName = $pModelName;
+			$lModel = InstanceModel::getInstance()->getInstanceModel($this->mModelName);
+			if (is_null($lProperty = $lModel->getProperty($pPropertyName))) {
+				throw new \Exception("'$pModelName' doesn't have property '$pPropertyName'");
+			}
+			$this->mPropertyName = $lProperty->getSerializationName();
+		}
 		$this->_verifLiteral();
 	}
 	
-	private function _verifLiteral() {
-		if (!array_key_exists($this->mOperator, self::$sAcceptedLiterals)) {
+	protected function _verifLiteral() {
+		if (!array_key_exists($this->mOperator, self::$sAcceptedOperators)) {
 			throw new \Exception("operator '".$this->mOperator."' doesn't exists");
 		}
 		if (is_null($this->mValue) && ($this->mOperator != "=") && ($this->mOperator != "<>")) {
@@ -60,6 +76,10 @@ class Literal {
 
 	public function getTable() {
 		return $this->mTable;
+	}
+	
+	public function setTable($pTableName) {
+		$this->mTable = $pTableName;
 	}
 	
 	public function getPropertyName() {
@@ -76,6 +96,10 @@ class Literal {
 	
 	public function getValue() {
 		return $this->mValue;
+	}
+	
+	public function getModelName() {
+		return $this->mModelName;
 	}
 	
 	/**

@@ -4,7 +4,6 @@ namespace objectManagerLib\object;
 use objectManagerLib\database\DatabaseController;
 use objectManagerLib\database\LogicalJunction;
 use objectManagerLib\database\LogicalJunctionOptimizer;
-use objectManagerLib\database\LiteralExtended;
 use objectManagerLib\database\Count;
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\database\JoinedTables;
@@ -69,26 +68,35 @@ class ObjectManager {
 	
 	private function _addTablesForQuery($pJoinedTables, $pModel, $pLogicalJunction) {
 		$lTemporaryLeftJoins = array();
+		$lGlobalLeftJoins    = array();
 		$lStackVisitedModels = array();
 		$lArrayVisitedModels = array();
+		$lModelTable = $pJoinedTables->getFirstTable();
 		$lStack = array();
 	
-		$lModelsByName = array();
+		$lLiteralsByModelName = array();
 		$lLiterals = $pLogicalJunction->getFlattenedLiterals();
 		foreach ($lLiterals as $lLiteral) {
-			if (! ($lLiteral instanceof LiteralExtended)) {
-				throw new \Exception("all literals must be instance of LiteralExtended to know related model");
+			if (is_null($lLiteral->getModelName())) {
+				throw new \Exception("all literals must have modelName to know related serialization");
 			}
-			$lModelsByName[$lLiteral->getModel()->getModelName()] = $lLiteral;
+			if (!array_key_exists($lLiteral->getModelName(), $lLiteralsByModelName)) {
+				$lLiteralsByModelName[$lLiteral->getModelName()] = array();
+			}
+			$lLiteralsByModelName[$lLiteral->getModelName()][] = $lLiteral;
+			if ($lLiteral->getModelName() == $pModel->getModelName()) {
+				$lLiteral->setTable($lModelTable);
+			}
 		}
 	
 		// stack initialisation with $pModel
-		$this->_extendsStacks($pModel, $pModel->getSqlTableUnit(), $lModelsByName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
+		$this->_extendsStacks($pModel, $pModel->getSqlTableUnit(), $lLiteralsByModelName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
 	
 		// Depth-first search to build all left joins
 		while ((count($lStack) > 0)) {
 			if ($lStack[count($lStack) - 1]["current"] != -1) {
 				array_pop($lTemporaryLeftJoins);
+				array_pop($lGlobalLeftJoins);
 				$lModelName = array_pop($lStackVisitedModels);
 				$lArrayVisitedModels[$lModelName] -= 1;
 			}
@@ -102,19 +110,25 @@ class ObjectManager {
 					$lStackVisitedModels[] = $lRightModel->getModelName();
 					$lArrayVisitedModels[$lRightModel->getModelName()] += 1;
 					$lTemporaryLeftJoins[] = null;
+					$lGlobalLeftJoins[]    = null;
 					continue;
 				}
 				// add temporary leftJoin
-				// add leftjoin if model $lRightModel is in literals ($lModelsByName)
+				// add leftjoin if model $lRightModel is in literals ($lLiteralsByModelName)
 				$lTemporaryLeftJoins[] = $this->_prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftId"], $lRightModel, $lRightProperty);
-				if (array_key_exists($lRightModel->getModelName(), $lModelsByName)) {
+				$lGlobalLeftJoins[]    = $lTemporaryLeftJoins[count($lTemporaryLeftJoins) - 1];
+				if (array_key_exists($lRightModel->getModelName(), $lLiteralsByModelName)) {
 					foreach ($lTemporaryLeftJoins as $lLeftJoin) {
 						$pJoinedTables->addTable($lLeftJoin["right_table"], null, JoinedTables::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
+					}
+					$lLiteralTable = $lTemporaryLeftJoins[count($lTemporaryLeftJoins) - 1]["right_table"];
+					foreach ($lLiteralsByModelName[$lRightModel->getModelName()] as $lLiteral) {
+						$lLiteral->setTable($lLiteralTable);
 					}
 					$lTemporaryLeftJoins = array();
 				}
 				// add serializable properties to stack
-				$this->_extendsStacks($lRightModel, $lRightProperty->getSqlTableUnit(), $lModelsByName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
+				$this->_extendsStacks($lRightModel, $lRightProperty->getSqlTableUnit(), $lLiteralsByModelName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
 	
 				// if no added model we can delete last stack element
 				if (count($lStack[count($lStack) - 1]["properties"]) == 0) {
@@ -124,12 +138,13 @@ class ObjectManager {
 			else {
 				array_pop($lStack);
 				array_pop($lTemporaryLeftJoins);
+				array_pop($lGlobalLeftJoins);
 			}
 		}
 	}
 	
-	private function _extendsStacks($pModel, $pSqlTable, $pModelsByName, &$pStack, &$pStackVisitedModels, &$pArrayVisitedModels) {
-		if (array_key_exists($pModel->getModelName(), $pArrayVisitedModels) && array_key_exists($pModel->getModelName(), $pModelsByName)) {
+	private function _extendsStacks($pModel, $pSqlTable, $pLiteralsByModelName, &$pStack, &$pStackVisitedModels, &$pArrayVisitedModels) {
+		if (array_key_exists($pModel->getModelName(), $pArrayVisitedModels) && array_key_exists($pModel->getModelName(), $pLiteralsByModelName)) {
 			throw new \Exception("Cannot resolve literal. Literal with model '".$pModel->getModelName()."' can be applied on several properties");
 		}
 		$lIds = $pModel->getIds();
