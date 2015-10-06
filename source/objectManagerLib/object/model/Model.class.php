@@ -98,6 +98,10 @@ class Model {
 		return $this->mIds;
 	}
 	
+	public function getFirstId() {
+		return (count($this->mIds) > 0) ? $this->mIds[0] : null;
+	}
+	
 	public function getSerialization() {
 		return $this->mSerialization;
 	}

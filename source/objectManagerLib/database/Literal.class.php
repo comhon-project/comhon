@@ -1,7 +1,9 @@
 <?php
 namespace objectManagerLib\database;
 
-class Condition {
+use objectManagerLib\object\singleton\InstanceModel;
+
+class Literal {
 
 	const EQUAL      = '=';
 	const SUPP       = '>';
@@ -11,11 +13,12 @@ class Condition {
 	const DIFF       = '<>';
 	
 	protected $mTable;
-	protected $mPropertyName;      // name of table concatanate with propertyName
-	protected $mOperator; // operator
-	protected $mValue;    // value(s) to filter
+	protected $mPropertyName; // name of table concatanate with propertyName
+	protected $mOperator;     // operator
+	protected $mValue;        // value(s) to filter
+	protected $mModelName;
 	
-	private static $sAcceptedConditions = array(
+	protected static $sAcceptedOperators = array(
 		self::EQUAL      => null,
 		self::SUPP       => null,
 		self::INF        => null,
@@ -24,7 +27,7 @@ class Condition {
 		self::DIFF       => null
 	);
 	
-	private static $sOppositeOperator = array(
+	protected static $sOppositeOperator = array(
 		self::EQUAL      => self::DIFF,
 		self::INF        => self::SUPP_EQUAL,
 		self::INF_EQUAL  => self::SUPP,
@@ -34,32 +37,49 @@ class Condition {
 	);
 	
 	/**
-	 * 
-	 * @param string $pConditionType
+	 * construtor
+	 * @param unknown $pTable
+	 * @param unknown $pPropertyName
+	 * @param unknown $pOperator
 	 * @param unknown $pValue could be null, a string, a number or an array with null or string or number values
+	 * @param string $pModelName
+	 * @throws \Exception
 	 */
-	public function __construct($pTable, $pPropertyName, $pOperator, $pValue) {
+	public function __construct($pTable, $pPropertyName, $pOperator, $pValue, $pModelName = null) {
 		$this->mTable = $pTable;
-		$this->mPropertyName = $pPropertyName;
 		$this->mOperator = $pOperator;
 		$this->mValue = $pValue;
-		$this->_verifCondition();
+		if (is_null($pModelName)) {
+			$this->mPropertyName = $pPropertyName;
+		}else {
+			$this->mModelName = $pModelName;
+			$lModel = InstanceModel::getInstance()->getInstanceModel($this->mModelName);
+			if (is_null($lProperty = $lModel->getProperty($pPropertyName))) {
+				throw new \Exception("'$pModelName' doesn't have property '$pPropertyName'");
+			}
+			$this->mPropertyName = $lProperty->getSerializationName();
+		}
+		$this->_verifLiteral();
 	}
 	
-	private function _verifCondition() {
-		if (!array_key_exists($this->mOperator, self::$sAcceptedConditions)) {
+	protected function _verifLiteral() {
+		if (!array_key_exists($this->mOperator, self::$sAcceptedOperators)) {
 			throw new \Exception("operator '".$this->mOperator."' doesn't exists");
 		}
 		if (is_null($this->mValue) && ($this->mOperator != "=") && ($this->mOperator != "<>")) {
-			throw new \Exception("condition with operator '".$this->mOperator."' can't have null value");
+			throw new \Exception("literal with operator '".$this->mOperator."' can't have null value");
 		}
 		if (is_array($this->mValue) && ($this->mOperator != "=") && ($this->mOperator != "<>")) {
-			throw new \Exception("condition with operator '".$this->mOperator."' can't have array value");
+			throw new \Exception("literal with operator '".$this->mOperator."' can't have array value");
 		}
 	}
 
 	public function getTable() {
 		return $this->mTable;
+	}
+	
+	public function setTable($pTableName) {
+		$this->mTable = $pTableName;
 	}
 	
 	public function getPropertyName() {
@@ -76,6 +96,10 @@ class Condition {
 	
 	public function getValue() {
 		return $this->mValue;
+	}
+	
+	public function getModelName() {
+		return $this->mModelName;
 	}
 	
 	/**
@@ -101,7 +125,7 @@ class Condition {
 			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mPropertyName, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lConnector = ($this->mOperator == "=") ? "or" : "and";
+				$lConnector = ($this->mOperator == "=") ? LogicalJunction::_OR : LogicalJunction::_AND;
 				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mPropertyName, $lOperator);
 			}
 		}else {
@@ -138,7 +162,7 @@ class Condition {
 			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mPropertyName, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lConnector = ($this->mOperator == "=") ? "or" : "and";
+				$lConnector = ($this->mOperator == "=") ? LogicalJunction::_OR : LogicalJunction::_AND;
 				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mPropertyName, $lOperator);
 			}
 		}else {

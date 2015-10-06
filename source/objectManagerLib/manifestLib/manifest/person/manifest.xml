@@ -27,10 +27,10 @@
 			<name>homes</name>
 			<values type="home"/>
 		</property>
-		<property type="array">
+		<!--<property type="array">
 			<name>realEstateProperties</name>
 			<values type="home"/>
-		</property>
+		</property>-->
 		
 		<!-- test
 		<property type="array">

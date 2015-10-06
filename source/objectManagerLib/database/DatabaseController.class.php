@@ -152,32 +152,15 @@ class DatabaseController {
 	}
 	
 	/**
-	 * execute select query
-	 * @param array $pColumnsByTable
-	 * @param JoinedTables $pJoinedTables
-	 * @param LinkedConditions $pLinkedConditions
-	 * @param array $pGroupColumns
-	 * @param array $pOrderColumns
+	 * prepare, execute and return result of query
+	 * @param SelectQuery $pSelectQuery
 	 * @throws Exception
 	 * @return array
 	 */
-	public function select($pJoinedTables, $pColumnsByTable = null, $pLinkedConditions = null, $pGroupColumns = null, $pOrderColumns = null) {
-		$lValues = array();
-		
-		$lColumns = is_null($pColumnsByTable) ? "*" : $this->_getColumnsForQuery($pColumnsByTable);
-		$lQuery = "SELECT ".$lColumns." FROM ".$pJoinedTables->export();
-		
-		if (!is_null($lClause = $this->_getClauseForQuery($pLinkedConditions, $lValues))) {
-			$lQuery .= " WHERE ".$lClause;
-		}
-		if (is_array($pGroupColumns) && (count($pGroupColumns) > 0)) {
-			$lQuery .= " GROUP BY ".implode(",", $pGroupColumns);
-		}
-		if (is_array($pOrderColumns) && (count($pOrderColumns) > 0)) {
-			$lQuery .= " ORDER BY ".implode(",", $pOrderColumns);
-		}
-		
+	public function executeQuery($pSelectQuery) {
+		list($lQuery, $lValues) = $pSelectQuery->export();
 		try {
+			//trigger_error(vsprintf(str_replace('?', "%s", $lQuery), $lValues));
 			$lQueryId = $this->prepareQuery($lQuery, $lValues);
 			$this->doQueryWithId($lQueryId);
 			$lResult = $this->fetchAllWithId($lQueryId);
@@ -186,33 +169,6 @@ class DatabaseController {
 			throw new Exception($e->getMessage());
 		}
 		return $lResult;
-	}
-	
-	private function _getColumnsForQuery($pColumnsByTable) {
-		$lArray = array();
-		foreach ($pColumnsByTable as $lTable => $lColumns) {
-			foreach ($lColumns as $lColumn) {
-				$lArray[] = sprintf("%s.%s", $lTable, implode(" as ", $lColumn));
-			}
-		}
-		return implode(",", $lArray);
-	}
-	
-	/**
-	 * construct clause query (WHERE ...), extract values for query and put them in $pValues
-	 * @param LinkedConditions $pLinkedConditions
-	 * @param array $pValues
-	 * @return string
-	 */
-	private function _getClauseForQuery($pLinkedConditions, &$pValues) {
-		$lClause = null;
-		if (!is_null($pLinkedConditions)) {
-			$lQueryConditions = $pLinkedConditions->export($pValues);
-			if ($lQueryConditions != "") {
-				$lClause = $lQueryConditions;
-			}
-		}
-		return $lClause;
 	}
 	
 }
