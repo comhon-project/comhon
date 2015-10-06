@@ -4,16 +4,16 @@ namespace objectManagerLib\object;
 use objectManagerLib\database\DatabaseController;
 use objectManagerLib\database\LogicalJunction;
 use objectManagerLib\database\LogicalJunctionOptimizer;
-use objectManagerLib\database\Count;
+use objectManagerLib\database\ComplexLiteral;
+use objectManagerLib\database\SelectQuery;
 use objectManagerLib\object\singleton\InstanceModel;
-use objectManagerLib\database\JoinedTables;
 use objectManagerLib\object\model\Model;
 use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\ModelForeign;
+use objectManagerLib\object\model\ModelContainer;
 use objectManagerLib\object\model\SerializableProperty;
 use objectManagerLib\controller\ForeignObjectReplacer;
 use objectManagerLib\controller\ForeignObjectLoader;
-use objectManagerLib\object\model\ModelContainer;
 
 class ObjectManager {
 	
@@ -57,25 +57,36 @@ class ObjectManager {
 			$lLogicalJunction = LogicalJunctionOptimizer::optimizeLiterals($lLogicalJunction);
 		}
 		$lSqlTable->loadValue("database");
-		$lJoinedTables = new JoinedTables($lSqlTable->getValue("name"));
-		$this->_addTablesForQuery($lJoinedTables, $lModel, $lLogicalJunction);
-		
+		$lSelectQuery = new SelectQuery($lSqlTable->getValue("name"));
+		$lSelectQuery->setWhereLogicalJunction($lLogicalJunction);
+		$this->_addColumns($lSelectQuery, $lModel);
+		$this->_addGroupedColumns($lSelectQuery, $lModel);
+		$this->_addTablesForQuery($lSelectQuery, $lModel);
 		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
-		$lRows = $lDbInstance->select($lJoinedTables, $this->_getColumnsByTable($lModel), $lLogicalJunction, $this->_getGroupedColumns($lModel));
+		$lRows = $lDbInstance->executeQuery($lSelectQuery);
 		
 		return $this->_buildObjectsWithRows($lModel, $lRows, $pLoadDepth, $pLoadForeignObject, $pKey);
 	}
 	
-	private function _addTablesForQuery($pJoinedTables, $pModel, $pLogicalJunction) {
+	/**
+	 * add table to query $pSelectQuery (add left joins and set table in litterals)
+	 * @param SelectQuery $pSelectQuery
+	 * @param pModel $pModel
+	 * @param LogicalJunction $pLogicalJunction
+	 * @throws \Exception
+	 */
+	private function _addTablesForQuery($pSelectQuery, $pModel) {
 		$lTemporaryLeftJoins = array();
 		$lGlobalLeftJoins    = array();
 		$lStackVisitedModels = array();
 		$lArrayVisitedModels = array();
-		$lModelTable = $pJoinedTables->getFirstTable();
+		$lModelTable = $pSelectQuery->getCurrentTableName();
 		$lStack = array();
 	
 		$lLiteralsByModelName = array();
-		$lLiterals = $pLogicalJunction->getFlattenedLiterals();
+		$lWhere  = $pSelectQuery->getWhereLogicalJunction() instanceof LogicalJunction ? $pSelectQuery->getWhereLogicalJunction()->getFlattenedLiterals() : array();
+		$lHaving = $pSelectQuery->getHavingLogicalJunction() instanceof LogicalJunction ? $pSelectQuery->getHavingLogicalJunction()->getFlattenedLiterals() : array();
+		$lLiterals = array_merge($lWhere, $lHaving);
 		foreach ($lLiterals as $lLiteral) {
 			if (is_null($lLiteral->getModelName())) {
 				throw new \Exception("all literals must have modelName to know related serialization");
@@ -86,6 +97,18 @@ class ObjectManager {
 			$lLiteralsByModelName[$lLiteral->getModelName()][] = $lLiteral;
 			if ($lLiteral->getModelName() == $pModel->getModelName()) {
 				$lLiteral->setTable($lModelTable);
+			}
+			if ($lLiteral instanceof ComplexLiteral) {
+				if (count($pModel->getIds()) != 1) {
+					throw new \Exception("error : query with complex litteral must have one and only one column id");
+				}
+				$lSubSelectQuery = $lLiteral->getValue();
+				$lWhere = $lSubSelectQuery->getWhereLogicalJunction();
+				$lHaving = $lSubSelectQuery->getHavingLogicalJunction();
+				$lColumnId = $pModel->getProperty($pModel->getFirstId())->getSerializationName();
+				$lSubSelectQuery->init($lModelTable)->addSelectColumn($lColumnId);
+				$lSubSelectQuery->setWhereLogicalJunction($lWhere)->setHavingLogicalJunction($lHaving)->addGroupColumn($lColumnId);
+				$this->_addTablesForQuery($lSubSelectQuery, $pModel);
 			}
 		}
 	
@@ -119,7 +142,7 @@ class ObjectManager {
 				$lGlobalLeftJoins[]    = $lTemporaryLeftJoins[count($lTemporaryLeftJoins) - 1];
 				if (array_key_exists($lRightModel->getModelName(), $lLiteralsByModelName)) {
 					foreach ($lTemporaryLeftJoins as $lLeftJoin) {
-						$pJoinedTables->addTable($lLeftJoin["right_table"], null, JoinedTables::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
+						$pSelectQuery->addTable($lLeftJoin["right_table"], null, SelectQuery::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
 					}
 					$lLiteralTable = $lTemporaryLeftJoins[count($lTemporaryLeftJoins) - 1]["right_table"];
 					foreach ($lLiteralsByModelName[$lRightModel->getModelName()] as $lLiteral) {
@@ -185,29 +208,18 @@ class ObjectManager {
 	 * @param array $pObjects each object is a serializable property or a model
 	 * @return string
 	 */
-	private function _getColumnsByTable($pModel) {
-		$lColumnsByTable = array();
-		if (is_null($lSqlTable = $pModel->getSqlTableUnit())) {
-			trigger_error("must have a database serialization");
-			throw new \Exception("must have a database serialization");
-		}
-		$lTableName = $lSqlTable->getValue("name");
-		$lColumnsByTable[$lTableName] = array();
+	private function _addColumns($pSelectQuery, $pModel) {
 		foreach ($pModel->getProperties() as $lProperty) {
 			if (!($lProperty instanceof SerializableProperty) || is_null($lProperty->getForeignIds())) {
-				$lColumnsByTable[$lTableName][] = array($lProperty->getSerializationName());
+				$pSelectQuery->addSelectColumn($lProperty->getSerializationName());
 			}
 		}
-		return $lColumnsByTable;
 	}
 	
-	private function _getGroupedColumns($pModel) {
-		$lArray = array();
-		$lTableName = $pModel->getSqlTableUnit()->getValue("name");
+	private function _addGroupedColumns($pSelectQuery, $pModel) {
 		foreach ($pModel->getIds() as $lPropertyName) {
-			$lArray[] = $lTableName.".".$pModel->getProperty($lPropertyName)->getSerializationName();
+			$pSelectQuery->addGroupColumn($pModel->getProperty($lPropertyName)->getSerializationName());
 		}
-		return $lArray;
 	}
 	
 	private function _buildObjectsWithRows($pModel, $pRows, $pLoadDepth, $pLoadForeignObject, $pKey) {

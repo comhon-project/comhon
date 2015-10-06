@@ -152,18 +152,15 @@ class DatabaseController {
 	}
 	
 	/**
-	 * execute select query
-	 * @param array $pColumnsByTable
-	 * @param JoinedTables $pJoinedTables
-	 * @param LogicalJunction $pLogicalJunction
-	 * @param array $pGroupColumns
-	 * @param array $pOrderColumns
+	 * prepare, execute and return result of query
+	 * @param SelectQuery $pSelectQuery
 	 * @throws Exception
 	 * @return array
 	 */
-	public function select($pJoinedTables, $pColumnsByTable = null, $pLogicalJunction = null, $pGroupColumns = null, $pOrderColumns = null, $pHavingCount = null) {
-		list($lQuery, $lValues) = self::selectToString($pJoinedTables, $pColumnsByTable, $pLogicalJunction, $pGroupColumns, $pOrderColumns, $pHavingCount);
+	public function executeQuery($pSelectQuery) {
+		list($lQuery, $lValues) = $pSelectQuery->export();
 		try {
+			//trigger_error(vsprintf(str_replace('?', "%s", $lQuery), $lValues));
 			$lQueryId = $this->prepareQuery($lQuery, $lValues);
 			$this->doQueryWithId($lQueryId);
 			$lResult = $this->fetchAllWithId($lQueryId);
@@ -172,51 +169,6 @@ class DatabaseController {
 			throw new Exception($e->getMessage());
 		}
 		return $lResult;
-	}
-	
-	public static function selectToString($pJoinedTables, $pColumnsByTable = null, $pLogicalJunction = null, $pGroupColumns = null, $pOrderColumns = null, $pHavingCount = null) {
-		$lValues = array();
-		
-		$lColumns = is_null($pColumnsByTable) ? "*" : self::_getColumnsForQuery($pColumnsByTable);
-		$lQuery = "SELECT ".$lColumns." FROM ".$pJoinedTables->export();
-		
-		if (!is_null($lClause = self::_getClauseForQuery($pLogicalJunction, $lValues))) {
-			$lQuery .= " WHERE ".$lClause;
-		}
-		if (is_array($pGroupColumns) && (count($pGroupColumns) > 0)) {
-			$lQuery .= " GROUP BY ".implode(",", $pGroupColumns);
-		}
-		if (is_array($pOrderColumns) && (count($pOrderColumns) > 0)) {
-			$lQuery .= " ORDER BY ".implode(",", $pOrderColumns);
-		}
-		return array($lQuery, $lValues);
-	}
-	
-	private static function _getColumnsForQuery($pColumnsByTable) {
-		$lArray = array();
-		foreach ($pColumnsByTable as $lTable => $lColumns) {
-			foreach ($lColumns as $lColumn) {
-				$lArray[] = sprintf("%s.%s", $lTable, implode(" as ", $lColumn));
-			}
-		}
-		return implode(",", $lArray);
-	}
-	
-	/**
-	 * construct clause query (WHERE ...), extract values for query and put them in $pValues
-	 * @param LogicalJunction $pLogicalJunction
-	 * @param array $pValues
-	 * @return string
-	 */
-	private static function _getClauseForQuery($pLogicalJunction, &$pValues) {
-		$lClause = null;
-		if (!is_null($pLogicalJunction)) {
-			$lQueryLiterals = $pLogicalJunction->export($pValues);
-			if ($lQueryLiterals != "") {
-				$lClause = $lQueryLiterals;
-			}
-		}
-		return $lClause;
 	}
 	
 }

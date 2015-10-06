@@ -3,7 +3,7 @@ namespace objectManagerLib\object\object;
 
 use objectManagerLib\database\DatabaseController;
 use objectManagerLib\database\LogicalJunction;
-use objectManagerLib\database\JoinedTables;
+use objectManagerLib\database\SelectQuery;
 use objectManagerLib\database\Literal;
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\model\ModelForeign;
@@ -34,7 +34,9 @@ class SqlTable extends SerializationUnit {
 			$lColumn = $pModel->getProperty($pPropertyName)->getSerializationName();
 			$lLinkedLiteral->addLiteral(new Literal($this->getValue("name"), $lColumn, "=", $pId));
 		}
-		$lResult = $this->mDbController->select(new JoinedTables($this->getValue("name")), null, $lLinkedLiteral);
+		$lSelectQuery = new SelectQuery($this->getValue("name"));
+		$lSelectQuery->setWhereLogicalJunction($lLinkedLiteral);
+		$lResult = $this->mDbController->executeQuery($lSelectQuery);
 		
 		if (count($lResult) > 0) {
 			if (! ($pModel instanceof ModelArray)) {
