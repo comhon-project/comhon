@@ -46,11 +46,11 @@ class ObjectManager {
 			throw new \Exception("error : resquested model must have a database serialization");
 		}
 		if (is_null($pLiteral)) {
-			$lLogicalJunction = new LogicalJunction(LogicalJunction::_AND);
+			$lLogicalJunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 		}else if ($pLiteral instanceof LogicalJunction) {
 			$lLogicalJunction = $pLiteral;
 		}else {
-			$lLogicalJunction = new LogicalJunction(LogicalJunction::_AND);
+			$lLogicalJunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 			$lLogicalJunction->addLiteral($pLiteral);
 		}
 		if ($pOptimizeLiterals) {

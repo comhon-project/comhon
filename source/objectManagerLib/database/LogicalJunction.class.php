@@ -8,30 +8,35 @@ namespace objectManagerLib\database;
  */
 class LogicalJunction {
 
-	const _OR = 'or';
-	const _AND = 'and';
+	const DISJUNCTION = 'disjunction';
+	const CONJUNCTION = 'conjunction';
 	
-	protected $mLink;
+	protected $mType;
 	protected $mLiterals = array();
 	protected $mLogicalJunction = array();
 	
-	protected static $sAcceptedLinks = array(
-		self::_OR => null,
-		self::_AND => null
+	private static $sAcceptedTypes = array(
+		self::DISJUNCTION => 'or',
+		self::CONJUNCTION => 'and'
 	);
 	
 	/**
 	 * 
-	 * @param string $pLink can be self::_AND or self::_OR
+	 * @param string $pType can be self::CONJUNCTION or self::DISJUNCTION
 	 */
-	public function __construct($pLink) {
-		if (array_key_exists($pLink, self::$sAcceptedLinks)) {
-			$this->mLink = $pLink;
+	public function __construct($pType) {
+		if (!array_key_exists($pType, self::$sAcceptedTypes)) {
+			throw new \Exception("type '$pType' doesn't exists");
 		}
+		$this->mType = $pType;
 	}
 	
-	public function getLink() {
-		return $this->mLink;
+	public function getType() {
+		return $this->mType;
+	}
+	
+	public function getOperator() {
+		return self::$sAcceptedTypes[$this->mType];
 	}
 	
 	/**
@@ -128,7 +133,7 @@ class LogicalJunction {
 				$lArray[] = $lResult;
 			}
 		}
-		return (count($lArray) > 0) ? "(".implode(" ".$this->mLink." ", $lArray).")" : "";
+		return (count($lArray) > 0) ? "(".implode(" ".$this->getOperator()." ", $lArray).")" : "";
 	}
 	
 	/**
@@ -145,7 +150,7 @@ class LogicalJunction {
 				$lArray[] = $lResult;
 			}
 		}
-		return (count($lArray) > 0) ? "(".implode(" ".$this->mLink." ", $lArray).")" : "";
+		return (count($lArray) > 0) ? "(".implode(" ".$this->getOperator()." ", $lArray).")" : "";
 	}
 	
 	public function hasOnlyOneLiteral() {
@@ -182,15 +187,15 @@ class LogicalJunction {
 	
 	public function isSatisfied($pPredicates) {
 		$lReturn = false;
-		if ($this->mLink == self::_AND) {
-			$lReturn = $this->_isSatisfiedAnd($pPredicates);
-		}elseif ($this->mLink == self::_OR) {
-			$lReturn = $this->_isSatisfiedOr($pPredicates);
+		if ($this->mType == self::CONJUNCTION) {
+			$lReturn = $this->_isSatisfiedConjunction($pPredicates);
+		}elseif ($this->mType == self::DISJUNCTION) {
+			$lReturn = $this->_isSatisfiedDisjunction($pPredicates);
 		}
 		return $lReturn;
 	}
 	
-	private function _isSatisfiedAnd($pPredicates) {
+	private function _isSatisfiedConjunction($pPredicates) {
 		foreach ($this->getLiterals("md5") as $lKey => $lLiteral) {
 			if (!$pPredicates[$lKey]) {
 				return false;
@@ -204,7 +209,7 @@ class LogicalJunction {
 		return true;
 	}
 	
-	private function _isSatisfiedOr($pPredicates) {
+	private function _isSatisfiedDisjunction($pPredicates) {
 		$lSatisfied = false;
 		foreach ($this->getLiterals("md5") as $lKey => $lLiteral) {
 			$lSatisfied = $lSatisfied || $pPredicates[$lKey];

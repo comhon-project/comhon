@@ -29,7 +29,7 @@ class SqlTable extends SerializationUnit {
 		if (is_null($pPropertiesNames)) {
 			$pPropertiesNames = $pModel->getIds();
 		}
-		$lLinkedLiteral = new LogicalJunction(LogicalJunction::_OR);
+		$lLinkedLiteral = new LogicalJunction(LogicalJunction::DISJUNCTION);
 		foreach ($pPropertiesNames as $pPropertyName) {
 			$lColumn = $pModel->getProperty($pPropertyName)->getSerializationName();
 			$lLinkedLiteral->addLiteral(new Literal($this->getValue("name"), $lColumn, "=", $pId));

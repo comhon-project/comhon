@@ -9,7 +9,7 @@ abstract class LogicalJunctionOptimizer {
 	 * @param LogicalJunction $pLogicalJunction
 	 */
 	public static function logicalJunctionToLiterals($pLogicalJunction) {
-		$lNewLogicalJunction = new LogicalJunction($pLogicalJunction->getLink());
+		$lNewLogicalJunction = new LogicalJunction($pLogicalJunction->getType());
 		self::_logicalJunctionToLiterals($lNewLogicalJunction, $pLogicalJunction);
 		return $lNewLogicalJunction;
 	}
@@ -20,12 +20,12 @@ abstract class LogicalJunctionOptimizer {
 	 * @param LogicalJunction $pLogicalJunction
 	 */
 	private static function _logicalJunctionToLiterals($pNewLogicalJunction, $pLogicalJunction) {
-		$lLink = $pLogicalJunction->getLink();
+		$lLink = $pLogicalJunction->getType();
 		foreach ($pLogicalJunction->getLiterals() as $lLiteral) {
 			$pNewLogicalJunction->addLiteral($lLiteral);
 		}
 		foreach ($pLogicalJunction->getLogicalJunction() as $lLogicalJunction) {
-			if ($lLogicalJunction->hasOnlyOneLiteral() || ($lLogicalJunction->getLink() == $lLink)) {
+			if ($lLogicalJunction->hasOnlyOneLiteral() || ($lLogicalJunction->getType() == $lLink)) {
 				self::_logicalJunctionToLiterals($pNewLogicalJunction, $lLogicalJunction);
 			}else {
 				$pNewLogicalJunction->addLogicalJunction(self::logicalJunctionToLiterals($lLogicalJunction));
@@ -248,7 +248,7 @@ abstract class LogicalJunctionOptimizer {
 	
 	private static function _setFinalLogicalJunction($pEssentialPrimeImplicants, $pFlattenedLiterals, $pLiteralsToFactoryze, $pLiteralKeys) {
 		$lLiteralsToFactoryzeByKey = array();
-		$lFirstConjunction = new LogicalJunction(LogicalJunction::_AND);
+		$lFirstConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 		if (count($pLiteralsToFactoryze) > 0) {
 			foreach ($pLiteralsToFactoryze as $pLiteralIndex) {
 				$lFirstConjunction->addLiteral($pFlattenedLiterals[$pLiteralKeys[$pLiteralIndex]]);
@@ -256,11 +256,11 @@ abstract class LogicalJunctionOptimizer {
 			}
 		}
 
-		$lDisjunction = new LogicalJunction(LogicalJunction::_OR);
+		$lDisjunction = new LogicalJunction(LogicalJunction::DISJUNCTION);
 		$lFirstConjunction->addLogicalJunction($lDisjunction);
 		
 		foreach ($pEssentialPrimeImplicants as $lEssentialPrimeImplicantValues) {
-			$lConjunction = new LogicalJunction(LogicalJunction::_AND);
+			$lConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 			foreach ($lEssentialPrimeImplicantValues as $lIndex => $lValue) {
 				// if literal hasn't been factorised
 				if (!array_key_exists($lIndex, $lLiteralsToFactoryzeByKey)) {

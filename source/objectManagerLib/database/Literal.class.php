@@ -125,7 +125,7 @@ class Literal {
 			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mPropertyName, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lConnector = ($this->mOperator == "=") ? LogicalJunction::_OR : LogicalJunction::_AND;
+				$lConnector = ($this->mOperator == "=") ? 'or' : 'and';
 				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mPropertyName, $lOperator);
 			}
 		}else {
@@ -162,7 +162,7 @@ class Literal {
 			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mPropertyName, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lConnector = ($this->mOperator == "=") ? LogicalJunction::_OR : LogicalJunction::_AND;
+				$lConnector = ($this->mOperator == "=") ? 'or' : 'and';
 				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mPropertyName, $lOperator);
 			}
 		}else {
