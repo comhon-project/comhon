@@ -9,7 +9,6 @@ use objectManagerLib\database\SelectQuery;
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\model\Model;
 use objectManagerLib\object\model\SimpleModel;
-use objectManagerLib\object\model\ModelForeign;
 use objectManagerLib\object\model\ModelContainer;
 use objectManagerLib\object\model\SerializableProperty;
 use objectManagerLib\controller\ForeignObjectReplacer;
@@ -183,7 +182,7 @@ class ObjectManager {
 				"left_table"   => $pLeftTable->getValue("name"),
 				"right_table"  => $lRightTable->getValue("name")
 		);
-		if ($pRightProperty->getModel() instanceof ModelForeign) {
+		if (is_null($pRightProperty->getForeignIds())) {
 			$lIds = $pRightModel->getIds();
 			$lReturn["left_column"] = $pRightProperty->getSerializationName();
 			$lReturn["right_column"] = $pRightModel->getProperty($lIds[0])->getSerializationName();
