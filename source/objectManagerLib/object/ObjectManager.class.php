@@ -69,7 +69,7 @@ class ObjectManager {
 	}
 	
 	/**
-	 * add table to query $pSelectQuery (add left joins and set table in litterals)
+	 * add table to query $pSelectQuery (add left joins and set table in literals)
 	 * @param SelectQuery $pSelectQuery
 	 * @param pModel $pModel
 	 * @param LogicalJunction $pLogicalJunction
@@ -77,7 +77,6 @@ class ObjectManager {
 	 */
 	private function _addTablesForQuery($pSelectQuery, $pModel) {
 		$lTemporaryLeftJoins = array();
-		$lGlobalLeftJoins    = array();
 		$lStackVisitedModels = array();
 		$lArrayVisitedModels = array();
 		$lModelTable = $pSelectQuery->getCurrentTableName();
@@ -100,7 +99,7 @@ class ObjectManager {
 			}
 			if ($lLiteral instanceof ComplexLiteral) {
 				if (count($pModel->getIds()) != 1) {
-					throw new \Exception("error : query with complex litteral must have one and only one column id");
+					throw new \Exception("error : query with complex literal must have one and only one column id");
 				}
 				$lSubSelectQuery = $lLiteral->getValue();
 				$lWhere = $lSubSelectQuery->getWhereLogicalJunction();
@@ -119,7 +118,6 @@ class ObjectManager {
 		while ((count($lStack) > 0)) {
 			if ($lStack[count($lStack) - 1]["current"] != -1) {
 				array_pop($lTemporaryLeftJoins);
-				array_pop($lGlobalLeftJoins);
 				$lModelName = array_pop($lStackVisitedModels);
 				$lArrayVisitedModels[$lModelName] -= 1;
 			}
@@ -133,13 +131,11 @@ class ObjectManager {
 					$lStackVisitedModels[] = $lRightModel->getModelName();
 					$lArrayVisitedModels[$lRightModel->getModelName()] += 1;
 					$lTemporaryLeftJoins[] = null;
-					$lGlobalLeftJoins[]    = null;
 					continue;
 				}
 				// add temporary leftJoin
 				// add leftjoin if model $lRightModel is in literals ($lLiteralsByModelName)
 				$lTemporaryLeftJoins[] = $this->_prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftId"], $lRightModel, $lRightProperty);
-				$lGlobalLeftJoins[]    = $lTemporaryLeftJoins[count($lTemporaryLeftJoins) - 1];
 				if (array_key_exists($lRightModel->getModelName(), $lLiteralsByModelName)) {
 					foreach ($lTemporaryLeftJoins as $lLeftJoin) {
 						$pSelectQuery->addTable($lLeftJoin["right_table"], null, SelectQuery::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
@@ -161,7 +157,6 @@ class ObjectManager {
 			else {
 				array_pop($lStack);
 				array_pop($lTemporaryLeftJoins);
-				array_pop($lGlobalLeftJoins);
 			}
 		}
 	}

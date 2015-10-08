@@ -220,4 +220,21 @@ class LogicalJunction {
 		return $lSatisfied;
 	}
 	
+	public static function phpObjectToLogicalJunction($pPhpObject, $pMainModel) {
+		if (!isset($pPhpObject->type) || (isset($pPhpObject->logicalJunctions) && !is_array($pPhpObject->logicalJunctions)) || (isset($pPhpObject->literals) && !is_array($pPhpObject->literals))) {
+			throw new \Exception("malformed phpObject LogicalJunction : ".json_encode($pPhpObject));
+		}
+		$lLogicalJunction = new LogicalJunction($pPhpObject->type);
+		if (isset($pPhpObject->logicalJunctions)) {
+			foreach ($pPhpObject->logicalJunctions as $lPhpObjectLogicalJunction) {
+				$lLogicalJunction->addLogicalJunction(LogicalJunction::phpObjectToLogicalJunction($lPhpObjectLogicalJunction, $pMainModel));
+			}
+		}
+		if (isset($pPhpObject->literals)) {
+			foreach ($pPhpObject->literals as $lPhpObjectLiteral) {
+				$lLogicalJunction->addLiteral(Literal::phpObjectToLiteral($lPhpObjectLiteral, $pMainModel));
+			}
+		}
+		return $lLogicalJunction;
+	}
 }

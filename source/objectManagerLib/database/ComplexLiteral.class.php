@@ -25,6 +25,17 @@ class ComplexLiteral extends WhereLiteral {
 			self::NOT_IN => self::IN
 	);
 	
+	public function __construct($pTable, $pPropertyName, $pOperator, $pValue, $pModelName = null) {
+		if (is_null($pPropertyName) && !is_null($pModelName)) {
+			$lModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
+			if (count($lModel->getIds()) != 1) {
+				throw new \Exception("error : complex literal with model must have one and only one property id");
+			}
+			$pPropertyName = $lModel->getFirstId();
+		}
+		parent::__construct($pTable, $pPropertyName, $pOperator, $pValue, $pModelName);
+	}
+	
 	protected function _verifLiteral() {
 		if (!array_key_exists($this->mOperator, self::$sAcceptedOperators)) {
 			throw new \Exception("operator '".$this->mOperator."' doesn't exists");
