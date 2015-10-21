@@ -2,6 +2,7 @@
 namespace objectManagerLib\controller;
 
 use objectManagerLib\object\object\Object;
+use objectManagerLib\object\object\ObjectArray;
 use objectManagerLib\object\model\ModelArray;
 use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\ModelContainer;
@@ -30,12 +31,9 @@ abstract class Controller {
 		$this->_postVisit($pValue, $pParentObject, $pPropertyName);
 	}
 	
-	private function _acceptChildren($pValue) {
-		$lValues = $pValue;
-		if (!is_array($pValue)) {
-			$lValues = array($pValue);
-		}
-		foreach ($lValues as $lObject) {
+	private function _acceptChildren($pObject) {
+		$lObjects = (!is_null($pObject) && ($pObject instanceof ObjectArray)) ? $pObject->getValues() : array($pObject);
+		foreach ($lObjects as $lObject) {
 			if (!is_null($lObject) && (!array_key_exists(spl_object_hash($lObject), $this->mInstanceObjectHash))) {
 				$this->mInstanceObjectHash[spl_object_hash($lObject)] = $lObject;
 				foreach ($lObject->getModel()->getProperties() as $lPropertyName => $lProperty) {

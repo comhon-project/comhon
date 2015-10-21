@@ -7,4 +7,6 @@
 	<serialization type="sqlTable">sqlTable/manifest.xml</serialization>
 	<serialization type="house">house/manifest.xml</serialization>
 	<serialization type="home">home/manifest.xml</serialization>
+	<serialization type="place">place/manifest.xml</serialization>
+	<serialization type="town">town/manifest.xml</serialization>
 </list>

@@ -6,9 +6,9 @@
 		<property type="string">type</property>
 		<property type="boolean">garden</property>
 		<property type="boolean">garage</property>
-		<property type="array">
+		<foreignProperty type="array">
 			<name>residents</name>
 			<values type="home"/>
-		</property>
+		</foreignProperty>
 	</properties>
 </manifest>

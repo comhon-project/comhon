@@ -24,7 +24,7 @@ class ObjectService {
 			$lLogicalObject = Literal::phpObjectToLiteral($pParams->literal, $lModel);
 		}
 		
-		$lObjects = $lObjectManager->getObjects($pParams->model, $lLogicalObject, 4, null, true);
+		$lObjects = $lObjectManager->getObjects($pParams->model, $lLogicalObject, 1, null, true);
 		foreach ($lObjects as $lObject) {
 			$lPhpObjects[] = $lObject->toObject(false, true);
 		}

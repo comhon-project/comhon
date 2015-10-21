@@ -14,7 +14,8 @@ use objectManagerLib\object\model\Property;
 use objectManagerLib\object\model\ModelForeign;
 use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\SerializationUnit;
-use objectManagerLib\object\model\SerializableProperty;
+use objectManagerLib\object\model\ForeignProperty;
+use objectManagerLib\object\ObjectManager;
 
 class InstanceModel {
 	
@@ -32,10 +33,9 @@ class InstanceModel {
 
 	private $mInstanceModels;
 	private $mInstanceSerializations = array();
-	private $mDataBaseProperties;
-	private $mManifestFolder = "§TOKEN:manifestFolder§";
 	private $mManifestListFolder;
 	private $mSerializationListFolder;
+	private $mLocalTypeXml;
 	
 	private  static $_instance;
 	
@@ -65,9 +65,9 @@ class InstanceModel {
 	 * register path of each manifest
 	 */
 	private function _registerComplexModel() {
-		$lManifestListPath = sprintf("%s/%s", $this->mManifestFolder, "§TOKEN:manifestList§");
+		$lManifestListPath = sprintf("%s/%s", "§TOKEN:manifestFolder§", "§TOKEN:manifestList§");
 		$this->mManifestListFolder = dirname($lManifestListPath);
-		$lSerializationListPath = sprintf("%s/%s", $this->mManifestFolder, "§TOKEN:serializationList§");
+		$lSerializationListPath = sprintf("%s/%s", "§TOKEN:manifestFolder§", "§TOKEN:serializationList§");
 		$this->mSerializationListFolder = dirname($lSerializationListPath);
 		
 		$lManifestList = simplexml_load_file($lManifestListPath);
@@ -83,10 +83,8 @@ class InstanceModel {
 			if (array_key_exists($lType, $this->mInstanceModels)) { 
 				throw new Exception("several model with same type : '$lType'");
 			}
-			$lExtends = isset($lManifest["extends"]) ? (string) $lManifest["extends"] : null;
-			$lObjectClass = isset($lManifest["object"]) ? (string) $lManifest["object"] : null;
 			$lSerializationPath = array_key_exists($lType, $lSerializationMap) ? $lSerializationMap[$lType] : null;
-			$this->mInstanceModels[$lType] = array((string) $lManifest, $lExtends, $lSerializationPath, $lObjectClass);
+			$this->mInstanceModels[$lType] = array((string) $lManifest, $lSerializationPath);
 		}
 	}
 	
@@ -103,145 +101,182 @@ class InstanceModel {
 	
 	private function _getInstanceModel($pModelName, $pLoadModel) {
 		$lReturn = null;
-		// if model exists
-		if (array_key_exists($pModelName, $this->mInstanceModels)) {
-			// if model already initialized
-			if (is_object($this->mInstanceModels[$pModelName])) {
-				$lReturn = $this->mInstanceModels[$pModelName];
-			}else {
-				if (count($this->mInstanceModels[$pModelName]) == 5) {
-					$lReturn = $this->mInstanceModels[$pModelName][4];
-				} else {
-					$lReturn = new Model($pModelName, $pLoadModel);
-					// if model has been initialized during itself initialization
-					if (is_object($this->mInstanceModels[$pModelName])) {
-						$lReturn = $this->mInstanceModels[$pModelName];
-					}
-					// else add model
-					else {
-						if ($pLoadModel) {
-							$this->mInstanceModels[$pModelName] = $lReturn;
-						} else {
-							$this->mInstanceModels[$pModelName][4] = $lReturn;
-						}
+		
+		if (!array_key_exists($pModelName, $this->mInstanceModels)) { // model doesn't exists
+			throw new Exception("'$pModelName' doesn't exists, you must define it");
+		}
+		if (is_object($this->mInstanceModels[$pModelName])) { // model already initialized
+			$lReturn = $this->mInstanceModels[$pModelName];
+		}else {
+			if (count($this->mInstanceModels[$pModelName]) == 3) {
+				$lReturn = $this->mInstanceModels[$pModelName][2];
+			} else {
+				$lReturn = new Model($pModelName, $pLoadModel);
+				// if model has been initialized during itself initialization
+				if (is_object($this->mInstanceModels[$pModelName])) {
+					$lReturn = $this->mInstanceModels[$pModelName];
+				}
+				// else add model
+				else {
+					if ($pLoadModel) {
+						$this->mInstanceModels[$pModelName] = $lReturn;
+					} else {
+						$this->mInstanceModels[$pModelName][] = $lReturn;
 					}
 				}
 			}
-		}
-		// else model doesn't exists
-		else {
-			throw new Exception("'$pModelName' doesn't exists, you must define it");
 		}
 		return $lReturn;
 	}
 	
 	public function addInstanceModel($pModel) {
-		if (($pModel instanceof Model) && !is_object($this->mInstanceModels[$pModel->getModelName()])) {
+		if (is_null($this->mLocalTypeXml) && ($pModel instanceof Model) && !is_object($this->mInstanceModels[$pModel->getModelName()])) {
 			$this->mInstanceModels[$pModel->getModelName()] = $pModel;
 		}
 	}
 	
 	public function getProperties($pModel) {
+		$lReturn = null;
 		if ($pModel instanceof Model) {
-			if (is_object($this->mInstanceModels[$pModel->getModelName()]) && $this->mInstanceModels[$pModel->getModelName()]->isLoaded()) {
+			if (is_null($this->mLocalTypeXml) && is_object($this->mInstanceModels[$pModel->getModelName()]) && $this->mInstanceModels[$pModel->getModelName()]->isLoaded()) {
 				$lReturn = array(
-					"properties"    => $pModel->getProperties(), 
-					"ids"           => $pModel->getIds(), 
+					"properties"     => $pModel->getProperties(), 
 					"objectClass"    => $pModel->getObjectCass(), 
-					"serialization" => $pModel->getSerialization()
+					"serializations" => $pModel->getSerializations()
 				);
 			}else {
-				$lObjectClass = $this->mInstanceModels[$pModel->getModelName()][3];
-				$lReturn = array("properties" => array(), "ids" => array(), "serialization" => null, "objectClass" => $lObjectClass);
-				$lManifestPath = sprintf("%s/%s", $this->mManifestListFolder, $this->mInstanceModels[$pModel->getModelName()][0]);
-				$lManifest = simplexml_load_file($lManifestPath);
+				if (is_null($this->mLocalTypeXml)) {
+					$lManifestPath = sprintf("%s/%s", $this->mManifestListFolder, $this->mInstanceModels[$pModel->getModelName()][0]);
+					$lManifest = simplexml_load_file($lManifestPath);
+				}else {
+					$lManifest = $this->mLocalTypeXml;
+				}
+				$lExtends     = isset($lManifest["extends"]) ? (string) $lManifest["extends"] : null; // TODO manage extends
+				$lObjectClass = isset($lManifest["object"]) ? (string) $lManifest["object"] : null;
+				$lReturn      = array("properties" => array(), "serializations" => null, "objectClass" => $lObjectClass);
 				
 				$lSerializationXml = null;
-				if (!is_null($this->mInstanceModels[$pModel->getModelName()][2])) {
-					$lSerializationPath = sprintf("%s/%s", $this->mSerializationListFolder, $this->mInstanceModels[$pModel->getModelName()][2]);
+				if (is_null($this->mLocalTypeXml) && !is_null($this->mInstanceModels[$pModel->getModelName()][1])) {
+					$lSerializationPath = sprintf("%s/%s", $this->mSerializationListFolder, $this->mInstanceModels[$pModel->getModelName()][1]);
 					$lSerializationXml = simplexml_load_file($lSerializationPath);
 				}
-				InstanceModel::getInstance()->addInstanceModel($pModel);
+				$this->addInstanceModel($pModel);
 				
-				// build serialization
-				if (!is_null($lSerializationXml) && isset($lSerializationXml->serialization)) {
-					list($lSerializationName, $lSerialization, $lForeignIds) = $this->_buildSerialization($lSerializationXml->serialization);
-					$lReturn["serialization"] = $lSerialization;
+				if (!is_null($lSerializationXml) && isset($lSerializationXml->serializations)) {
+					list($lSerializationName, $lSerializations) = $this->_buildSerializations($lSerializationXml->serializations);
+					$lReturn["serializations"] = $lSerializations;
 				}
 				
-				// build properties to model
-				foreach ($lManifest->properties->property as $lProperty) {
-					$lName = isset($lProperty->name) ? (string) $lProperty->name : (string) $lProperty;
-					$lSerializationNode = isset($lSerializationXml->properties->$lName) ? $lSerializationXml->properties->$lName : null;
-					$lReturn["properties"][$lName] = $this->_buildProperty($lProperty, $lSerializationNode, $lName);
-					if ($lReturn["properties"][$lName]->isId()) {
-						$lReturn["ids"][] = $lName;
-					}
-				}
+				$lReturn["properties"] = array();
+				$lLocalTypes = $this->_buildLocalTypes($lManifest);
+				$this->_buildProperties($lManifest->properties, $lSerializationXml, $lLocalTypes, $lReturn["properties"]);
+				$this->_buildForeignProperties($lManifest->properties, $lSerializationXml, $lLocalTypes, $pModel, $lReturn["properties"]);
 			}
 		}
 		return $lReturn;
 	}
 	
-	private function _buildProperty($pProperty, $pSerializationNode, $pName) {
-		$lModel = $this->_buildModel($pProperty);
-		$lIsId = (isset($pProperty["id"]) && ((string) $pProperty["id"] == "1")) ? true : false;
-		if ($lIsId && !($lModel instanceof SimpleModel)) {
-			throw new Exception("id property with name '$pName' must be a simple model");
-		}
-		if (!is_null($pSerializationNode)) {
-			list($lSerializationName, $lSerialization, $lForeignIds) = $this->_buildSerialization($pSerializationNode);
-			if (count($lSerialization) > 0) {
-				if ($lModel instanceof SimpleModel) {
-					throw new Exception("property with name '$pName' can't be a simple model");
-				}
-				$lProperty = new SerializableProperty($lModel, $pName, $lSerializationName, $lSerialization, $lIsId, $lForeignIds);
-			}else {
-				$lProperty = new Property($lModel, $pName, $lSerializationName, $lIsId);
-			}
+	private function _getBaseInfosForProperty($pPropertyXml, $pSerializationXml, $pLocalTypes) {
+		$lName  = isset($pPropertyXml->name) ? (string) $pPropertyXml->name : (string) $pPropertyXml;
+		$lIsId  = (isset($pPropertyXml["id"]) && ((string) $pPropertyXml["id"] == "1")) ? true : false;
+		
+		if (array_key_exists((string) $pPropertyXml["type"], $pLocalTypes)) {
+			$lModel = $pLocalTypes[(string) $pPropertyXml["type"]];
+			$lSerializationsNode = null;
 		}else {
-			$lProperty = new Property($lModel, $pName, null, $lIsId);
+			$lModel = $this->_buildModel($pPropertyXml, $pLocalTypes);
+			$lSerializationsNode = isset($pSerializationXml->properties->$lName) ? $pSerializationXml->properties->$lName : null;
 		}
-		return $lProperty;
+			
+		if ($lIsId && !($lModel instanceof SimpleModel)) {
+			throw new Exception("id property with name '$lName' must be a simple model");
+		}
+		return array($lName, $lModel, $lSerializationsNode, $lIsId);
 	}
 	
-	private function _buildSerialization($pSerializationNode) {
-		$lSerialization = array();
-		$lForeignIds = isset($pSerializationNode["foreignIds"]) ? explode(",", (string) $pSerializationNode["foreignIds"]) : null;
-		$lSerializationName = isset($pSerializationNode["serializationName"]) ? (string) $pSerializationNode["serializationName"] : null;
-		foreach ($pSerializationNode->children() as $lChild) {
-			$lType = $lChild->getName();
-			$lStringProperties = "";
-			$lArrayProperties = array();
-			foreach ($lChild->attributes() as $lName => $lValue) {
-				$lArrayProperties[$lName] = (string) $lValue;
+	private function _buildProperties($pPropertiesXml, $pSerializationXml, $pLocalTypes, &$pProperties) {
+		foreach ($pPropertiesXml->property as $lPropertyXml) {
+			list($lName, $lModel, $lSerializationsNode, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml, $pSerializationXml, $pLocalTypes);
+			$lSerializationName = (!is_null($lSerializationsNode) && isset($lSerializationsNode["serializationName"])) ? (string) $lSerializationsNode["serializationName"] : null;
+			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId);
+			$pProperties[$lName] = $lProperty;
+		}
+	}
+	
+	private function _buildForeignProperties($pPropertiesXml, $pSerializationXml, $pLocalTypes, $pParentModel, &$pProperties) {
+		foreach ($pPropertiesXml->foreignProperty as $lPropertyXml) {
+			list($lName, $lModel, $lSerializationsNode, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml, $pSerializationXml, $pLocalTypes);
+			if ($lModel instanceof SimpleModel) {
+				throw new Exception("foreign property with name '$lName' can't be a simple model");
 			}
-			ksort($lArrayProperties);
-			foreach ($lArrayProperties as $lName => $lValue) {
-				$lStringProperties .= $lName.$lValue;
-			}
-			if (array_key_exists($lKey = md5($lStringProperties), $this->mInstanceSerializations)) {
-				$lObject = $this->mInstanceSerializations[$lKey];
+			$lModelForeign = new ModelForeign($lModel);
+			if (!is_null($lSerializationsNode)) {
+				list($lSerializationName, $lSerializations) = $this->_buildSerializations($lSerializationsNode);
+				$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName, $lSerializations);
 			}else {
-				$lObject = $this->getInstanceModel($lType)->getObjectInstance();
-				$lObject->fromXml($lChild);
-				$this->mInstanceSerializations[$lKey] = $lObject;
+				$lProperty = new ForeignProperty($lModelForeign, $lName);
 			}
-			$lSerialization[] = $lObject;
+			$pProperties[$lName] = $lProperty;
 		}
-		return array($lSerializationName, $lSerialization, $lForeignIds);
 	}
 	
-	private function _buildModel($pProperty) {
-		if (((string) $pProperty["type"]) == "array") {
-			$lReturn = new ModelArray($this->_buildModel($pProperty->values));
+	private function _buildLocalTypes($pManifestXML) {
+		$lLocalTypes = array();
+		if (isset($pManifestXML->types) && is_null($this->mLocalTypeXml)) {
+			foreach ($pManifestXML->types->type as $lLocalType) {
+				$this->mLocalTypeXml = $lLocalType;
+				$lTypeId = (string) $lLocalType["id"];
+				$lLocalTypes[$lTypeId] = new Model($lTypeId, true);
+			}
+			$this->mLocalTypeXml = null;
 		}
-		else if (((string) $pProperty["type"]) == "foreignProperty") {
-			$lForeignTypeId = (string) $pProperty->foreignType;
-			$lReturn = new ModelForeign($this->_getInstanceModel($lForeignTypeId, false));
+		return $lLocalTypes;
+	}
+	
+	private function _buildSerializations($pSerializationsNode) {
+		$lSerializations = array();
+		$lSerializationName = isset($pSerializationsNode["serializationName"]) ? (string) $pSerializationsNode["serializationName"] : null;
+		foreach ($pSerializationsNode->serialization as $lSerializationNode) {
+			$lType = (string) $lSerializationNode["type"];
+			if (isset($lSerializationNode->$lType)) {
+				$lObjectXml = $lSerializationNode->$lType;
+				$lObject = $this->getInstanceModel($lType)->getObjectInstance();
+				$lObject->fromXml($lObjectXml);
+			} else {
+				$lId = (string) $lSerializationNode;
+				if (!array_key_exists($lType, $this->mInstanceSerializations)) {
+					$this->mInstanceSerializations[$lType] = array();
+				}
+				if (array_key_exists($lId, $this->mInstanceSerializations[$lType])) {
+					$lObject = $this->mInstanceSerializations[$lType][$lId];
+				} else {
+					$lObject = $this->_getSerializationObject($lType, $lId);
+				}
+			}
+			$lSerializations[] = $lObject;
+		}
+		return array($lSerializationName, $lSerializations);
+	}
+	
+	private function _getSerializationObject($pType, $pId) {
+		if (array_key_exists($pId, $this->mInstanceSerializations[$pType])) {
+			$lObject = $this->mInstanceSerializations[$pType][$pId];
+		} else {
+			$lObject = ObjectManager::getObject($pType, $pId);
+			$this->mInstanceSerializations[$pType][$pId] = $lObject;
+		}
+		return $lObject;
+	}
+	
+	private function _buildModel($pProperty, $pLocalTypes) {
+		$lTypeId = (string) $pProperty["type"];
+		if ($lTypeId == "array") {
+			$lReturn = new ModelArray($this->_buildModel($pProperty->values, $pLocalTypes));
+		}
+		else if (array_key_exists($lTypeId, $pLocalTypes)) {
+			$lReturn = $pLocalTypes[$lTypeId];
 		}
 		else {
-			$lTypeId = (string) $pProperty["type"];
 			$lModel = $this->_getInstanceModel($lTypeId, false);
 			if (isset($pProperty->enum)) {
 				$lEnum = array();
@@ -256,7 +291,4 @@ class InstanceModel {
 		return $lReturn;
 	}
 	
-	private function getDataBaseInformations($pModelName) {
-		return array_key_exists($pModelName, $this->mDataBaseProperties) ? $this->mDataBaseProperties[$pModelName] : null;
-	}
 }

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-	<serialization>
-		<sqlTable database="1" name="house"/>
-	</serialization>
+	<serializations>
+		<serialization type="sqlTable">house</serialization>
+	</serializations>
 	<properties>
-		<residents foreignIds="house">
-			<sqlTable database="1" name="home"/>
+		<residents>
+			<serialization type="sqlTable">home</serialization>
 		</residents>
 	</properties>
 </manifest>

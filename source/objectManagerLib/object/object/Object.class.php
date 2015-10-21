@@ -2,20 +2,24 @@
 namespace objectManagerLib\object\object;
 
 use objectManagerLib\object\singleton\InstanceModel;
-use objectManagerLib\object\model\SerializableProperty;
-/*
- * a model attached to a Table in data base
- */
+use objectManagerLib\object\model\ForeignProperty;
+use objectManagerLib\object\model\Model;
+use objectManagerLib\object\model\ModelContainer;
+
 class Object {
+
+	protected $mModel;
+	protected $mIsLoaded;
+	protected $mValues = array();
 	
-	private $mModel;
-	private $mValues = array();
 	
-	/*
-	 * $pAttributs is an array of key => value that have been retrieve from database
-	 */
-	public final function __construct($pModelName) {
-		$this->mModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
+	public final function __construct($pModelName, $lIsLoaded = true) {
+		if (($pModelName instanceof Model) || ($pModelName instanceof ModelContainer)) {
+			$this->mModel = $pModelName;
+		}else {
+			$this->mModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
+		}
+		$this->mIsLoaded = $lIsLoaded;
 	}
 	
 	public function getModel() {
@@ -30,13 +34,26 @@ class Object {
 		return $this->mValues;
 	}
 	
-	public function loadValue($pName, $pLoadDepth = 0) {
-		if ($this->hasProperty($pName) && ($this->getProperty($pName) instanceof SerializableProperty) && is_object($this->getValue($pName)) && ($this->getValue($pName) instanceof UnloadObject)) {
-			$lValue = $this->getProperty($pName)->load($this->getValue($pName)->getId(), $pLoadDepth);
-			if (is_null($lValue)) {
-				throw new \Exception("cannot load object with name : ".$pName);
+	public function isLoaded() {
+		return $this->mIsLoaded;
+	}
+	
+	public function setLoadStatus($pLoadStatus) {
+		$this->mIsLoaded = $pLoadStatus;
+	}
+	
+	public function loadValue($pName) {
+		if ($this->hasProperty($pName) && ($this->getProperty($pName) instanceof ForeignProperty) && is_object($this->getValue($pName)) && !$this->getValue($pName)->isLoaded()) {
+			$lIdValue = $this->getValue($pName)->getId();
+			$lSqlTableUnit = $this->getProperty($pName)->getSqlTableUnit();
+			if (!is_null($lSqlTableUnit) && $lSqlTableUnit->isComposition($this->getModel(), $this->getProperty($pName)->getSerializationName())) {
+				$lIds = $this->getModel()->getIds();
+				$lIdValue = $this->getValue($lIds[0]);
 			}
-			$this->setValue($pName, $lValue);
+			if (! $this->getProperty($pName)->load($this->getValue($pName), $lIdValue, $this->mModel)) {
+				throw new \Exception("cannot load object with name '$pName' and id '".$this->getValue($pName)->getId()."'");
+			}
+			$this->getValue($pName)->setLoadStatus(true);
 			return $this->getValue($pName);
 		}
 		return null;
@@ -70,9 +87,6 @@ class Object {
 	}
 	
 	public function hasProperty($pKey) {
-		if (!is_object($this->mModel)) {
-			trigger_error(var_export($this->mModel, true));
-		}
 		return $this->mModel->hasProperty($pKey);
 	}
 	
@@ -124,6 +138,25 @@ class Object {
 	
 	public function toXml() {
 		return $this->mModel->toXml($this);
+	}
+	
+	public function fromSqlDataBase($pRow) {
+		foreach ($this->getModel()->getProperties() as $lPropertyName => $lProperty) {
+			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
+				if ($lProperty instanceof ForeignProperty) {
+					$lValue = ($lProperty->getModel()->getModel() instanceof SimpleModel) ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
+					$this->setValue($lPropertyName, $lProperty->getModel()->getModel()->fromIdValue($lValue));
+				} else {
+					$lValue = ($lProperty->getModel() instanceof SimpleModel) ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
+					$this->setValue($lPropertyName, $lProperty->getModel()->fromObject($lValue));
+				}
+			}
+			else if (($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
+				$lForeignModel = $lProperty->getModel()->getModel();
+				$lObjectValue = ($lForeignModel instanceof ModelArray) ? new ObjectArray($lForeignModel, false) : new Object($lForeignModel, false);
+				$this->setValue($lPropertyName, $lObjectValue);
+			}
+		}
 	}
 	
 	/*

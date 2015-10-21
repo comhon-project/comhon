@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-	<serialization>
-		<sqlTable database="1" name="person"/>
-	</serialization>
+	<serializations>
+		<serialization type="sqlTable">person</serialization>
+	</serializations>
 	<properties>
 		<id autoIncrement="true" />
 		<firstName serializationName="first_name"/>
+		<birthPlace serializationName="birth_place">
+			<serialization type="sqlTable">place</serialization>
+		</birthPlace>
 		<father serializationName="father_id">
-			<sqlTable database="1" name="person"/>
+			<serialization type="sqlTable">person</serialization>
 		</father>
 		<mother serializationName="mother_id">
-			<sqlTable database="1" name="person"/>
+			<serialization type="sqlTable">person</serialization>
 		</mother>
-		<children foreignIds="mother,father">
-			<sqlTable database="1" name="person"/>
+		<children>
+			<serialization type="sqlTable">person</serialization>
 		</children>
-		<homes foreignIds="person">
-			<sqlTable database="1" name="home"/>
+		<homes>
+			<serialization type="sqlTable">home</serialization>
 		</homes>
-		<realEstateProperties foreignIds="person">
-			<sqlTable database="1" name="home"/>
+		<realEstateProperties>
+			<serialization type="sqlTable">home</serialization>
 		</realEstateProperties>
 	</properties>
 </manifest>

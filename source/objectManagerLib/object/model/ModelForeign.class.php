@@ -1,8 +1,6 @@
 <?php
 namespace objectManagerLib\object\model;
 
-use objectManagerLib\object\object\UnloadObject;
-
 class ModelForeign extends ModelContainer {
 
 	private $mForeignModelPropertyId;
@@ -24,30 +22,30 @@ class ModelForeign extends ModelContainer {
 		return $this->mForeignModelPropertyId;
 	}
 	
-	public function getObjectInstance() {
-		return new UnloadObject($this->getModelName());
-	}
-	
 	public function toObject($pValue, $pUseSerializationName = false, $pExportForeignObject = false) {
-		$this->getForeignPropertyId();
 		if (is_null($pValue)) {
 			return null;
 		} else if ($pExportForeignObject) {
 			return $this->mModel->toObject($pValue, $pUseSerializationName, $pExportForeignObject);
 		} else {
-			$lModel = $this->mModel->getPropertyModel($this->mForeignModelPropertyId);
-			return $lModel->toObject($pValue->getValue($this->mForeignModelPropertyId), $pUseSerializationName, $pExportForeignObject);
+			return $this->mModel->toObjectId($pValue, $pUseSerializationName);
 		}
 	}
 	
 	public function fromObject($pValue) {
-		$lObject = null;
-		if (!is_null($pValue)) {
-			$this->getForeignPropertyId();
-			$lObject = $this->getObjectInstance();
-			$lObject->setValue($this->mForeignModelPropertyId, $this->mModel->getPropertyModel($this->mForeignModelPropertyId)->fromObject($pValue));
+		if (is_null($pValue)) {
+			return null;
+		} else {
+			$lValue = $this->mModel->fromObject($pValue);
+			if (is_array($lValue)) {
+				foreach ($lValue as $lObject) {
+					$lObject->setLoadStatus(false);
+				}
+			} else {
+				$lValue->setLoadStatus(false);
+			}
+			return $lValue;
 		}
-		return $lObject;
 	}
 	
 	public function toXml($pValue) {
@@ -57,7 +55,6 @@ class ModelForeign extends ModelContainer {
 	
 	public function fromXml($pValue) {
 		$this->getForeignPropertyId();
-		$lObject = $this->getObjectInstance();
 		$lObject->setValue($this->mForeignModelPropertyId, $this->mModel->getPropertyModel($this->mForeignModelPropertyId)->fromXml($pValue));
 		return $lObject;
 	}

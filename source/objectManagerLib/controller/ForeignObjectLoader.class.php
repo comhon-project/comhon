@@ -2,8 +2,7 @@
 namespace objectManagerLib\controller;
 
 use objectManagerLib\object\object\Object;
-use objectManagerLib\object\model\SerializableProperty;
-use objectManagerLib\object\object\UnloadObject;
+use objectManagerLib\object\model\ForeignProperty;
 
 class ForeignObjectLoader extends Controller {
 
@@ -12,18 +11,14 @@ class ForeignObjectLoader extends Controller {
 	protected function _init($pObject) {
 	}
 	
-	protected function _visit($pValue, $pParentObject, $pPropertyName) {
-		$lValues = $pValue;
-		if (!is_array($pValue)) {
-			$lValues = array($pValue);
-		}
+	protected function _visit($pObject, $pParentObject, $pPropertyName) {
+		$lObjects = (!is_null($pObject) && ($pObject instanceof ObjectArray)) ? $pObject->getValues() : array($pObject);
 		if (!is_null($pParentObject)) {
-			$lObjectId = $pParentObject->getProperty($pPropertyName)->getModel()->getIds();
-			if (count($lObjectId) == 1) {
-				foreach ($lValues as $lObject) {
-					if ($lObject instanceof UnloadObject) {
-						$this->_addRefValue($pParentObject, $pPropertyName, $lObject, $lObjectId[0]);
-					}
+			$lPropertiesIds = $pParentObject->getProperty($pPropertyName)->getModel()->getIds();
+			$lPropertyId = array_key_exists(0, $lPropertiesIds) ? $lPropertiesIds[0] : null;
+			foreach ($lObjects as $lObject) {
+				if (is_object($lObject) && !$lObject->isLoaded()) {
+					$this->_addRefValue($pParentObject, $pPropertyName, $lObject, $lPropertyId);
 				}
 			}
 		}
@@ -33,17 +28,26 @@ class ForeignObjectLoader extends Controller {
 	protected function _postVisit($pValue, $pParentObject, $pPropertyName) {}
 	
 	private function _addRefValue($pParentObject, $pPropertyName, $pObject, $pPropertyId) {
-		$lSerialization = $pParentObject->getProperty($pPropertyName)->getSerialization();
-		if (is_array($lSerialization) && (count($lSerialization) > 0)) {
-			$lKey = spl_object_hash($lSerialization[0]);
-			if (!array_key_exists($lKey, $this->mUnloadSerializedRefValueMap)) {
-				$this->mUnloadSerializedRefValueMap[$lKey] = array();
-			}
+		$lSerializationUnit = $pParentObject->getProperty($pPropertyName)->getFirstSerialization();
+		if (!is_null($lSerializationUnit)) {
 			$lIdValue = $pObject->getValue($pPropertyId);
-			if (!array_key_exists($lIdValue, $this->mUnloadSerializedRefValueMap[$lKey])) {
-				$this->mUnloadSerializedRefValueMap[$lKey][$lIdValue] = array();
+			if (!is_null($lSqlTableUnit = $pParentObject->getProperty($pPropertyName)->getSqlTableUnit())) {
+				if ($lSqlTableUnit->isComposition($pParentObject->getModel(), $pParentObject->getProperty($pPropertyName)->getSerializationName())) {
+					$lIds = $pParentObject->getModel()->getIds();
+					$lSerializationUnit = $lSqlTableUnit;
+					$lIdValue = $pParentObject->getModel()->getModelName()."-".$pParentObject->getValue($lIds[0]);
+				}
 			}
-			$this->mUnloadSerializedRefValueMap[$lKey][$lIdValue][] = array($pParentObject, $pPropertyName);
+			if (!is_null($lIdValue)) {
+				$lKey = spl_object_hash($lSerializationUnit);
+				if (!array_key_exists($lKey, $this->mUnloadSerializedRefValueMap)) {
+					$this->mUnloadSerializedRefValueMap[$lKey] = array();
+				}
+				if (!array_key_exists($lIdValue, $this->mUnloadSerializedRefValueMap[$lKey])) {
+					$this->mUnloadSerializedRefValueMap[$lKey][$lIdValue] = array();
+				}
+				$this->mUnloadSerializedRefValueMap[$lKey][$lIdValue][] = array($pParentObject, $pPropertyName);
+			}
 		}
 	}
 	
@@ -51,9 +55,9 @@ class ForeignObjectLoader extends Controller {
 		foreach ($this->mUnloadSerializedRefValueMap as $lKey => $lMap) {
 			foreach ($lMap as $lIdValue => $lRefValues) {
 				$lLoadedValue = $lRefValues[0][0]->loadValue($lRefValues[0][1]);
-				for ($i = 1; $i < count($lRefValues); $i++) {
+				/*for ($i = 1; $i < count($lRefValues); $i++) {
 					$lRefValues[$i][0]->setValue($lRefValues[$i][1], $lLoadedValue);
-				}
+				}*/
 			}
 		}
 		$this->mUnloadSerializedRefValueMap = array();

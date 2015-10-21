@@ -2,8 +2,7 @@
 namespace objectManagerLib\controller;
 
 use objectManagerLib\object\object\Object;
-use objectManagerLib\object\model\SerializableProperty;
-use objectManagerLib\object\object\UnloadObject;
+use objectManagerLib\object\model\ForeignProperty;
 
 class ForeignObjectReplacer extends Controller {
 
@@ -16,12 +15,9 @@ class ForeignObjectReplacer extends Controller {
 	protected function _init($pObject) {
 	}
 	
-	protected function _visit($pValue, $pParentObject, $pPropertyName) {
-		$lValues = $pValue;
-		if (!is_array($pValue)) {
-			$lValues = array($pValue);
-		}
-		foreach ($lValues as $lObject) {
+	protected function _visit($pObject, $pParentObject, $pPropertyName) {
+		$lObjects = (!is_null($pObject) && ($pObject instanceof ObjectArray)) ? $pObject->getValues() : array($pObject);
+		foreach ($lObjects as $lObject) {
 			if (!is_null($lObject)) {
 				$this->_populateMap($lObject, $pParentObject, $pPropertyName);
 			}
@@ -37,25 +33,25 @@ class ForeignObjectReplacer extends Controller {
 		$lObjectId = $pObject->getModel()->getIds();
 		if ((count($lObjectId) == 1) && !is_null($pObject->getValue($lObjectId[0]))) {
 			if (is_null($pParentObject)) {
-				$lSerialization = $pObject->getModel()->getSerialization();
+				$lSerializationUnit = $pObject->getModel()->getFirstSerialization();
 			}else {
-				$lSerialization = $pParentObject->getProperty($pPropertyName)->getSerialization();
+				$lSerializationUnit = $pParentObject->getProperty($pPropertyName)->getFirstSerialization();
 			}
-			if (($pObject instanceof UnloadObject) && !is_null($pParentObject)) {
-				$this->_addRefValue($pParentObject, $pPropertyName, $pObject, $lObjectId[0], $lSerialization);
+			if (is_object($pObject) && !$pObject->isLoaded() && !is_null($pParentObject)) {
+				$this->_addRefValue($pParentObject, $pPropertyName, $pObject, $lObjectId[0], $lSerializationUnit);
 			} else {
-				$this->_addObject($pObject, $lObjectId[0], $lSerialization);
+				$this->_addObject($pObject, $lObjectId[0], $lSerializationUnit);
 			}
 		}
 	}
 	
-	private function _addObject($pObject, $pPropertyId, $pSerialization) {
-		if (is_array($pSerialization) && (count($pSerialization) > 0)) {
-			$lKey = spl_object_hash($pSerialization[0]);
-			$lMap = &$this->mSerializedObjectMap;
-		} else {
+	private function _addObject($pObject, $pPropertyId, $pSerializationUnit) {
+		if (is_null($pSerializationUnit)) {
 			$lKey = $pObject->getModel()->getModelName();
 			$lMap = &$this->mObjectMap;
+		} else {
+			$lKey = spl_object_hash($pSerializationUnit);
+			$lMap = &$this->mSerializedObjectMap;
 		}
 		if (!array_key_exists($lKey, $lMap)) {
 			$lMap[$lKey] = array();
@@ -63,13 +59,13 @@ class ForeignObjectReplacer extends Controller {
 		$lMap[$lKey][$pObject->getValue($pPropertyId)] = $pObject;
 	}
 	
-	private function _addRefValue($pParentObject, $pPropertyName, $pObject, $pPropertyId, $pSerialization) {
-		if (is_array($pSerialization) && (count($pSerialization) > 0)) {
-			$lKey = spl_object_hash($pSerialization[0]);
-			$lMap = &$this->mUnloadSerializedRefValueMap;
-		} else {
+	private function _addRefValue($pParentObject, $pPropertyName, $pObject, $pPropertyId, $pSerializationUnit) {
+		if (is_null($pSerializationUnit)) {
 			$lKey = $pObject->getModel()->getModelName();
 			$lMap = &$this->mUnloadRefValueMap;
+		} else {
+			$lKey = spl_object_hash($pSerializationUnit);
+			$lMap = &$this->mUnloadSerializedRefValueMap;
 		}
 		if (!array_key_exists($lKey, $lMap)) {
 			$lMap[$lKey] = array();
@@ -93,9 +89,15 @@ class ForeignObjectReplacer extends Controller {
 		}
 		foreach ($this->mUnloadSerializedRefValueMap as $lSerializationRef => $lRefValuesMapId) {
 			foreach ($lRefValuesMapId as $lId => $lRefValues) {
-				foreach ($lRefValues as $lRefValue) {
-					if (array_key_exists($lSerializationRef, $this->mSerializedObjectMap) && array_key_exists($lId, $this->mSerializedObjectMap[$lSerializationRef])) {
+				if (array_key_exists($lSerializationRef, $this->mSerializedObjectMap) && array_key_exists($lId, $this->mSerializedObjectMap[$lSerializationRef])) {
+					foreach ($lRefValues as $lRefValue) {
 						$lRefValue[0]->setValue($lRefValue[1], $this->mSerializedObjectMap[$lSerializationRef][$lId]);
+					}
+				}
+				else {
+					$lFirstObject = $lRefValues[0][0]->getValue($lRefValues[0][1]);
+					for ($i = 1; $i < count($lRefValues); $i++) {
+						$lRefValues[$i][0]->setValue($lRefValues[$i][1], $lFirstObject);
 					}
 				}
 			}

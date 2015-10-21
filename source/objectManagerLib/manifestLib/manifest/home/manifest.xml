@@ -3,13 +3,7 @@
 	<properties>
 		<property type="string">beginDate</property>
 		<property type="string">endDate</property>
-		<property type="foreignProperty">
-			<name>person</name>
-			<foreignType>person</foreignType>
-		</property>
-		<property type="foreignProperty">
-			<name>house</name>
-			<foreignType>house</foreignType>
-		</property>
+		<foreignProperty type="person">person</foreignProperty>
+		<foreignProperty type="house">house</foreignProperty>
 	</properties>
 </manifest>

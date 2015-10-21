@@ -7,15 +7,25 @@ class JsonFile extends SerializationUnit {
 	
 	public function saveObject($pValue, $pModel) {
 		$lPath = $this->getValue("saticPath")."/".$pValue->getId()."/".$this->getValue("staticName");
+		if (!file_exists(dirname($lPath))) {
+			if (!mkdir(dirname($lPath), 0777, true)) {
+				throw new \Exception("cannot save json file (id = $pId)");
+			}
+		}
 		return file_put_contents($pPath, json_encode($pModel->toObject($pValue)));
 	}
 	
-	public function loadObject($pId, $pModel, $pLoadDepth) {
+	public function loadObject($pObject, $pId, $pModel, $pPropertySerializationName = null, $pParentModel = null) {
 		$lPath = $this->getValue("saticPath")."/$pId/".$this->getValue("staticName");
-		if ($pModel instanceof ModelForeign) {
-			return $pModel->getModel()->fromObject(json_decode(file_get_contents($lPath)), $pLoadDepth);
+		if (!file_exists($lPath)) {
+			throw new \Exception("cannot load json file, file doesn't exists (id = $pId)");
+		}
+		$lStdClassObject = json_decode(file_get_contents($lPath));
+		if ($lStdClassObject !== false) {
+			$pObject->fromObject($lStdClassObject);
+			return true;
 		}else {
-			return $pModel->fromObject(json_decode(file_get_contents($lPath)), $pLoadDepth);
+			return false;
 		}
 	}
 	

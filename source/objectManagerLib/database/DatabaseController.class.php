@@ -25,7 +25,7 @@ class DatabaseController {
 		if ($pDbReference->hasValue("port")) {
 			$lDataSourceName .= sprintf(';port=%s', $pDbReference->getValue("port"));
 		}
-		$this->mDbHandle = new PDO($lDataSourceName, $pDbReference->getValue("user"), $pDbReference->getValue("password"));
+		$this->mDbHandle = new PDO($lDataSourceName, $pDbReference->getValue("user"), $pDbReference->getValue("password"), array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
 		$this->mPreparedQueries = array();
 	}
 
@@ -160,12 +160,12 @@ class DatabaseController {
 	public function executeQuery($pSelectQuery) {
 		list($lQuery, $lValues) = $pSelectQuery->export();
 		try {
-			//trigger_error(vsprintf(str_replace('?', "%s", $lQuery), $lValues));
+			trigger_error("\n\n".vsprintf(str_replace('?', "%s", $lQuery), $lValues));
 			$lQueryId = $this->prepareQuery($lQuery, $lValues);
 			$this->doQueryWithId($lQueryId);
 			$lResult = $this->fetchAllWithId($lQueryId);
 		} catch (Exception $e) {
-			throw trigger_error(var_export($e->getMessage(), true));
+			trigger_error(var_export($e->getMessage(), true));
 			throw new Exception($e->getMessage());
 		}
 		return $lResult;

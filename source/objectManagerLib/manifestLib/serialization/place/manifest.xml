@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<serialization>
+		<serialization type="sqlTable">place</serialization>
+	</serialization>
+	<properties>
+		<geographicLatitude serializationName="geographic_latitude"/>
+		<geographicLongitude serializationName="geographic_longitude"/>
+		<town>
+			<serialization type="sqlTable">town</serialization>
+		</town>
+	</properties>
+</manifest>

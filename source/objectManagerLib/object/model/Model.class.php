@@ -4,17 +4,19 @@ namespace objectManagerLib\object\model;
 use objectManagerLib\object\singleton\InstanceModel;
 use \stdClass;
 use objectManagerLib\object\object\SqlTable;
+use objectManagerLib\object\object\Object;
+use objectManagerLib\object\object\ObjectArray;
 
 class Model {
 	
 	protected static $sInstanceObjectHash = array();
 
-	protected $mModelName;	// unique model name
-	private $mProperties;   // database attributes type and value
-	private $mObjectClass   = "objectManagerLib\object\object\Object";
-	private $mSerialization = array(); // informations for object serialization
-	private $mIds           = array(); // list of id properties 
-	protected $mIsLoaded    = false;
+	protected $mModelName;
+	private $mProperties;
+	private $mObjectClass    = "objectManagerLib\object\object\Object";
+	private $mSerializations = array();
+	private $mIds            = array();
+	protected $mIsLoaded     = false;
 	
 	
 	/**
@@ -32,9 +34,13 @@ class Model {
 		if (!$this->mIsLoaded) {
 			$lResult = InstanceModel::getInstance()->getProperties($this);
 			$this->mProperties = $lResult["properties"];
-			$this->mIds = $lResult["ids"];
-			if (!is_null($lResult["serialization"])) {
-				$this->mSerialization = $lResult["serialization"];
+			foreach ($this->mProperties as $lProperty) {
+				if ($lProperty->isId()) {
+					$this->mIds[] = $lProperty->getName();
+				}
+			}
+			if (!is_null($lResult["serializations"])) {
+				$this->mSerializations = $lResult["serializations"];
 			}
 			if (!is_null($lResult["objectClass"])) {
 				$this->mObjectClass = $lResult["objectClass"];
@@ -53,8 +59,8 @@ class Model {
 		return $this->mObjectClass;
 	}
 	
-	public function getObjectInstance() {
-		return new $this->mObjectClass($this->mModelName);
+	public function getObjectInstance($pIsloaded = true) {
+		return new $this->mObjectClass($this, $pIsloaded);
 	}
 	
 	public function getModelName() {
@@ -87,7 +93,7 @@ class Model {
 	public function getSerializableProperties($pSerializationType) {
 		$lProperties = array();
 		foreach ($this->mProperties as $lPropertyName => $lProperty) {
-			if (($lProperty instanceof SerializableProperty) && $lProperty->hasSerializationUnit($pSerializationType)) {
+			if (($lProperty instanceof ForeignProperty) && $lProperty->hasSerializationUnit($pSerializationType)) {
 				$lProperties[] = $lProperty;
 			}
 		}
@@ -102,16 +108,24 @@ class Model {
 		return (count($this->mIds) > 0) ? $this->mIds[0] : null;
 	}
 	
-	public function getSerialization() {
-		return $this->mSerialization;
+	public function getSerializations() {
+		return $this->mSerializations;
+	}
+	
+	public function getFirstSerialization() {
+		return array_key_exists(0, $this->mSerializations) ? $this->mSerializations[0] : null;
+	}
+	
+	public function getSerialization($pIndex) {
+		return ($pIndex < count($this->mSerializations)) ? $this->mSerializations[$pIndex] : null;
 	}
 	
 	public function hasSerialization() {
-		return is_array($this->mSerialization) && (count($this->mSerialization) > 0);
+		return is_array($this->mSerializations) && (count($this->mSerializations) > 0);
 	}
 	
 	public function hasSqlTableUnit() {
-		foreach ($this->mSerialization as $lSerializationUnit) {
+		foreach ($this->mSerializations as $lSerializationUnit) {
 			if ($lSerializationUnit instanceof SqlTable) {
 				return true;
 			}
@@ -120,7 +134,7 @@ class Model {
 	}
 	
 	public function getSqlTableUnit() {
-		foreach ($this->mSerialization as $lSerializationUnit) {
+		foreach ($this->mSerializations as $lSerializationUnit) {
 			if ($lSerializationUnit instanceof SqlTable) {
 				return $lSerializationUnit;
 			}
@@ -143,33 +157,35 @@ class Model {
 	public function toObject($pObject, $pUseSerializationName = false, $pExportForeignObject = false) {
 		$lReturn = new stdClass();
 		if (is_null($pObject)) {
-			$lReturn = null;
+			return null;
 		}
-		else if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
-			$lReturn = $this->toObjectId($pObject, $pUseSerializationName);
-			if (is_null($lReturn)) {
-				trigger_error("Warning cannot export object, loop detected");
-			}
-		}
-		else {
-			self::$sInstanceObjectHash[spl_object_hash($pObject)] = $pObject;
-			foreach ($pObject->getValues() as $lKey => $lValue) {
-				if ($this->hasProperty($lKey)) {
-					$lProperty =  $this->getProperty($lKey);
-					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
-					$lReturn->$lName = $lProperty->getModel()->toObject($lValue, $pUseSerializationName, $pExportForeignObject);
+		if ($pExportForeignObject && array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
+			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
+				if (count($this->getIds()) > 0) {
+					return $this->toObjectId($pObject, $pUseSerializationName);
 				}
+				$pExportForeignObject = false;
 			}
-			unset(self::$sInstanceObjectHash[spl_object_hash($pObject)]);
+		} else {
+			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
 		}
+		self::$sInstanceObjectHash[spl_object_hash($pObject)]++;
+		foreach ($pObject->getValues() as $lKey => $lValue) {
+			if ($this->hasProperty($lKey)) {
+				$lProperty =  $this->getProperty($lKey);
+				$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
+				$lReturn->$lName = $lProperty->getModel()->toObject($lValue, $pUseSerializationName, $pExportForeignObject);
+			}
+		}
+		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
 		return $lReturn;
 	}
 	
 	public function toObjectId($pObject, $pUseSerializationName = false) {
-		$lObjectId = $this->getIds();
-		if (count($lObjectId) > 0) {
+		$lPropertyIds = $this->getIds();
+		if (count($lPropertyIds) > 0) {
 			$lReturn = new stdClass();
-			foreach ($lObjectId as $lPropertyId) {
+			foreach ($lPropertyIds as $lPropertyId) {
 				if ($this->hasProperty($lPropertyId) && $pObject->hasValue($lPropertyId)) {
 					$lProperty =  $this->getProperty($lPropertyId);
 					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
@@ -178,7 +194,7 @@ class Model {
 			}
 		}else {
 			$lReturn = null;
-			trigger_error("Warning cannot export object id");
+			trigger_error("Warning cannot export foreign property with model '{$this->mModelName}' because this model doesn't have id");
 		}
 		return $lReturn;
 	}
@@ -206,28 +222,12 @@ class Model {
 		return $pPDO->doQuery($lQuery);
 	}
 	
-	/*public function save($pObject, $pSerialization = null) {
-		$lReturn = new stdClass();
-		if (is_array($pSerialization)) {
-			$lSerialzation = $pSerialization;
-		}else if (is_array($this->mSerialization)) {
-			$lSerialzation = $this->mSerialization;
-		}else {
-			throw new \Exception("this object can't be serialized");
-		}
-		foreach ($lSerialzation as $lSerializationUnit) {
-			$lSerializationUnit->saveObject($pObject, $this);
-		}
-		return $lReturn;
-	}*/
-	
 	public function fromObject($pPhpObject) {
 		$lObject = $this->getObjectInstance();
 		
 		foreach ($pPhpObject as $lKey => $lPhpValue) {
 			if ($this->hasProperty($lKey)) {
-				$lModel = $this->getPropertyModel($lKey);
-				$lObject->setValue($lKey, $lModel->fromObject($lPhpValue));
+				$lObject->setValue($lKey, $this->getPropertyModel($lKey)->fromObject($lPhpValue));
 			}
 		}
 		return $lObject;
@@ -238,56 +238,51 @@ class Model {
 		
 		foreach ($pXml->attributes() as $lKey => $lValue) {
 			if ($this->hasProperty($lKey)) {
-				$lModel = $this->getPropertyModel($lKey);
-				$lObject->setValue($lKey, $lModel->fromXml((string) $lValue));
+				$lObject->setValue($lKey,  $this->getPropertyModel($lKey)->fromXml((string) $lValue));
 			}
 		}
 		foreach ($pXml->children() as $lChild) {
 			$lPropertyName = $lChild->getName();
 			if ($this->hasProperty($lPropertyName)) {
-				$lModel = $this->getPropertyModel($lPropertyName);
-				$lObject->setValue($lPropertyName, $lModel->fromXml($lChild));
+				$lObject->setValue($lPropertyName, $this->getPropertyModel($lPropertyName)->fromXml($lChild));
 			}
 		}
 		return $lObject;
 	}
 	
-	/*
-	 * set object attributes with $pArray that has been retrieve from dataBase
-	 * foreign object can only be set if $pUseUnqiuePropertyName is true (to avoid conflicts with properties name)
-	 */
-	public function fromSqlDataBase($pRow, $pLoadDepth = 0) {
+	public function fromSqlDataBase($pRow) {
 		$lObject = $this->getObjectInstance();
-		
-		// first step we set id value if exists (id can be anywhere in row but it must be set in first)
-		if (count($lIds = $this->getIds()) > 0) {
-			$lPropertyId = $this->getProperty($lIds[0]);
-			if (array_key_exists($lPropertyId->getSerializationName(), $pRow)) {
-				$lObject->setValue($lPropertyId->getName(), $lPropertyId->getModel()->fromObject($pRow[$lPropertyId->getSerializationName()]));
-				//$lObject->setValue($lPropertyId->getName(), $pRow[$lPropertyId->getSerializationName()]);
-			}
-		}
-		// second step we set all values
 		foreach ($this->getProperties() as $lPropertyName => $lProperty) {
 			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
-				$lObject->setValue($lPropertyName, $lProperty->getModel()->fromObject($pRow[$lProperty->getSerializationName()]));
-				//$lObject->setValue($lPropertyName, $pRow[$lProperty->getSerializationName()]);
-			}
-			else if (($lProperty instanceof SerializableProperty) && !is_null($lProperty->hasSqlTableUnit()) && $pLoadDepth > 0) {
-				if (is_null($lProperty->getForeignIds())) {
-					throw new \Exception(
-							"To load objects, property must have at least one foreign id. \n"
-							."Exemple : you have a model person (with database serialization) with property 'chirldren', 'mother_id' and 'father_id'... \n"
-							."Property 'children' doesn't represente a column but others row \n"
-							."And if we want to automaticaly retrieve children we must know which columns will match with current person id \n"
-							."So for property 'children' The foreign ids will be 'mother_id' and 'father_id' \n"
-					);
+				if ($lProperty instanceof ForeignProperty) {
+					$lValue = ($lProperty->getModel()->getModel() instanceof SimpleModel) ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
+					$lObject->setValue($lPropertyName, $lProperty->getModel()->getModel()->fromIdValue($lValue));
+				} else {
+					$lValue = ($lProperty->getModel() instanceof SimpleModel) ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
+					$lObject->setValue($lPropertyName, $lProperty->getModel()->fromObject($lValue));
 				}
-				$lObject->setValue($lPropertyName, $lProperty->load($lObject->getValue($lIds[0]), $pLoadDepth));
+			}
+			else if (($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
+				$lForeignModel = $lProperty->getModel()->getModel();
+				$lObjectValue = ($lForeignModel instanceof ModelArray) ? new ObjectArray($lForeignModel, false) : new Object($lForeignModel, false);
+				$lObject->setValue($lPropertyName, $lObjectValue);
 			}
 		}
 		return $lObject;
 	}
+	
+	public function fromIdValue($pValue) {
+		if (is_null($pValue)) {
+			return null;
+		}
+		if (count($lIds = $this->getIds()) != 1) {
+			throw new \Exception("model '{$this->mModelName}' must have one and only one id");
+		}
+		$lObject = $this->getObjectInstance(false);
+		$lObject->setValue($lIds[0], $pValue);
+		return $lObject;
+	}
+	
 	
 	/*
 	 * return true if $pValue1 and $pValue2 are equals

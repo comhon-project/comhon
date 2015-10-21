@@ -40,7 +40,7 @@ class Property {
 		return $this->mModel->toObject($pObject);
 	}
 	
-	public function getSerialization() {
+	public function getSerializations() {
 		return null;
 	}
 }

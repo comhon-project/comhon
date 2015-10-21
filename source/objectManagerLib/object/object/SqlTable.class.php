@@ -11,43 +11,73 @@ use objectManagerLib\object\model\ModelArray;
 
 class SqlTable extends SerializationUnit {
 	
-	private $mDbController;
+	private static $sDbObjectById = array();
 	
 	public function saveObject($pValue, $pModel) {
-		if (is_null($this->mDbController)) {
+		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
 			$this->loadValue("database");
-			$this->mDbController = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
+			self::$sDbObjectById[$this->getValue("database")->getValue("id")] = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
 		}
-		return $pModel->toSqlDataBase($pValue, $this->getValue("name"), $lDbController);
+		return $pModel->toSqlDataBase($pValue, $this->getValue("name"), self::$sDbObjectById[$this->getValue("database")->getValue("id")]);
 	}
 	
-	public function loadObject($pId, $pModel, $pLoadDepth, $pPropertiesNames = null) {
-		if (is_null($this->mDbController)) {
+	public function loadObject($pObject, $pId, $pModel, $pColumn = null, $pParentModel = null) {
+		$lReturn = false;
+		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
 			$this->loadValue("database");
-			$this->mDbController = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
-		}
-		if (is_null($pPropertiesNames)) {
-			$pPropertiesNames = $pModel->getIds();
+			self::$sDbObjectById[$this->getValue("database")->getValue("id")] = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
 		}
 		$lLinkedLiteral = new LogicalJunction(LogicalJunction::DISJUNCTION);
-		foreach ($pPropertiesNames as $pPropertyName) {
-			$lColumn = $pModel->getProperty($pPropertyName)->getSerializationName();
+		foreach ($this->_getColumns($pObject->getModel(), $pColumn, $pParentModel) as $lColumn) {
 			$lLinkedLiteral->addLiteral(new Literal($this->getValue("name"), $lColumn, "=", $pId));
 		}
 		$lSelectQuery = new SelectQuery($this->getValue("name"));
 		$lSelectQuery->setWhereLogicalJunction($lLinkedLiteral);
-		$lResult = $this->mDbController->executeQuery($lSelectQuery);
+		$lResult = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeQuery($lSelectQuery);
 		
-		if (count($lResult) > 0) {
-			if (! ($pModel instanceof ModelArray)) {
-				$lResult = $lResult[0];
+		if (is_array($lResult)) {
+			if ($pObject->getModel() instanceof ModelArray) {
+				$pObject->fromSqlDataBase($lResult);
+				$lReturn = true;
 			}
-			if ($pModel instanceof ModelForeign) {
-				return $pModel->getModel()->fromSqlDataBase($lResult);
-			}else {
-				return $pModel->fromSqlDataBase($lResult, $pLoadDepth - 1);
+			else if (count($lResult) > 0) {
+				$pObject->fromSqlDataBase($lResult[0]);
+				$lReturn = true;
 			}
 		}
+		return $lReturn;
+	}
+	
+	private function _getColumns($pModel, $pColumn, $pParentModel) {
+		$lColumns = array();
+		if (!is_null($pParentModel) && $this->isComposition($pParentModel, $pColumn)) {
+			foreach ($this->getValue("compositions")->getValues() as $lComposition) {
+				if ($lComposition->getValue("parent") == $pParentModel->getModelName()) {
+					$lColumns[] = $lComposition->getValue("column");
+				}
+			}
+		} 
+		if (count($lColumns) == 0) {
+			foreach ($pModel->getIds() as $pPropertyName) {
+				$lColumns[] = $pModel->getProperty($pPropertyName)->getSerializationName();
+			}
+		}
+		return $lColumns;
+	}
+	
+	public function isComposition($pParentModel, $pColumn) {
+		$lIsComposition = false;
+		if ($this->hasValue("compositions")) {
+			foreach ($this->getValue("compositions")->getValues() as $lComposition) {
+				if ($lComposition->getValue("parent") == $pParentModel->getModelName()) {
+					if ($lComposition->getValue("column") == $pColumn) {
+						return false;
+					}
+					$lIsComposition = true;
+				}
+			}
+		}
+		return $lIsComposition;
 	}
 	
 	public function hasReturnValue() {

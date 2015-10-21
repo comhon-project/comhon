@@ -1,37 +1,65 @@
 <?php
 namespace objectManagerLib\object\model;
 
+use objectManagerLib\object\object\ObjectArray;
+
 class ModelArray extends ModelContainer {
 	
 	
-	public function getChildrenModel() {
-		return $this->mModel;
-	}
-	
-	public function toObject($pArray, $pUseSerializationName = false, $pExportForeignObject = false) {
+	public function toObject($pObjectArray, $pUseSerializationName = false, $pExportForeignObject = false) {
 		$lReturn = array();
-		if (!is_null($pArray)) {
-			foreach ($pArray as $lKey => $lValue) {
+		if (!$pObjectArray->isLoaded()) {
+			$lReturn = null;
+		}
+		if (!is_null($pObjectArray)) {
+			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
 				$lReturn[$lKey] = $this->mModel->toObject($lValue, $pUseSerializationName, $pExportForeignObject);
 			}
 		}
 		return $lReturn;
 	}
 	
-	public function fromObject($pArray) {
-		$lReturnArray = array();
-		foreach ($pArray as $lKey => $lPhpValue) {
-			$lReturnArray[$lKey] = $this->mModel->fromObject($lPhpValue);
+	public function toObjectId($pObjectArray, $pUseSerializationName = false) {
+		$lReturn = array();
+		if (!is_null($pObjectArray)) {
+			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+				$lReturn[$lKey] = $this->mModel->toObjectId($lValue, $pUseSerializationName);
+			}
 		}
-		return $lReturnArray;
+		return $lReturn;
 	}
 	
-	public function fromSqlDataBase($pRows, $pLoadDepth) {
-		$lReturnArray = array();
-		foreach ($pRows as $lKey => $lRow) {
-			$lReturnArray[$lKey] = $this->mModel->fromSqlDataBase($lRow, $pLoadDepth);
+	public function fromObject($pArray) {
+		$lObjectArray = new ObjectArray($this);
+		foreach ($pArray as $lKey => $lPhpValue) {
+			$lObjectArray->setValue($lKey, $this->mModel->fromObject($lPhpValue));
 		}
-		return $lReturnArray;
+		return $lObjectArray;
+	}
+	
+	public function fromSqlDataBase($pRows, $pLoadDepth = 0) {
+		$lObjectArray = new ObjectArray($this);
+		foreach ($pRows as $lKey => $lRow) {
+			$lObjectArray->setValue($lKey, $this->mModel->fromSqlDataBase($lRow, $pLoadDepth));
+		}
+		return $lObjectArray;
+	}
+	
+	public function fromXml($pXml) {
+		$lObjectArray = new ObjectArray($this);
+		$lChildrenModelName = $this->mModel->getModelName();
+		foreach ($pXml->$lChildrenModelName as $lChild) {
+			$lObjectArray->pushValue($this->mModel->fromXml($lChild));
+		}
+		return $lObjectArray;
+	}
+	
+	public function fromIdValue($pArray) {
+		$lObjectArray = new ObjectArray($this);
+		foreach ($pArray as $lKey => $lPhpValue) {
+			$lObjectArray->setValue($lKey, $this->mModel->fromIdValue($lPhpValue));
+		}
+		return $lObjectArray;
 	}
 	
 	

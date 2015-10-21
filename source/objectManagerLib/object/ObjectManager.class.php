@@ -7,10 +7,11 @@ use objectManagerLib\database\LogicalJunctionOptimizer;
 use objectManagerLib\database\ComplexLiteral;
 use objectManagerLib\database\SelectQuery;
 use objectManagerLib\object\singleton\InstanceModel;
+use objectManagerLib\object\object\Object;
 use objectManagerLib\object\model\Model;
 use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\ModelContainer;
-use objectManagerLib\object\model\SerializableProperty;
+use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\controller\ForeignObjectReplacer;
 use objectManagerLib\controller\ForeignObjectLoader;
 
@@ -22,6 +23,21 @@ class ObjectManager {
 	const DELETE_CASCADE = "deleteCascade";
 	const CREATE_OR_UPDATE = "createOrUpdate";
 
+	public static function getObject($pModelName, $pId, $pLoadDepth = 0) {
+		$lModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
+		if (is_null($lSerializationUnit = $lModel->getSerialization(0))) {
+			throw new \Exception("model doesn't have serialization");
+		}
+		if (count($lPropertiesIds = $lModel->getIds()) != 1) {
+			throw new \Exception("model must have one and only one id property");
+		}
+		$lObject = $lModel->getObjectInstance();
+		$lObject->setValue($lPropertiesIds[0], $pId);
+		$lResult = $lSerializationUnit->loadObject($lObject, $pId, $lModel, $pLoadDepth);
+		trigger_error(var_export($lResult, true));
+		return $lResult ? $lObject : null;
+	}
+	
 	/**
 	 * 
 	 * @param string $pModelName model name of objects that you want to retrieve
@@ -124,7 +140,8 @@ class ObjectManager {
 			if ($lStack[count($lStack) - 1]["current"] < count($lStack[count($lStack) - 1]["properties"])) {
 				$lStackIndex    = count($lStack) - 1;
 				$lRightProperty = $lStack[$lStackIndex]["properties"][$lStack[$lStackIndex]["current"]];
-				$lRightModel    = ($lRightProperty->getModel() instanceof ModelContainer) ? $lRightProperty->getModel()->getModel() : $lRightProperty->getModel();
+				$lRightModel    = $lRightProperty->getModel()->getModel();
+				$lRightModel    = ($lRightModel instanceof ModelContainer) ? $lRightModel->getModel() : $lRightModel;
 	
 				if (array_key_exists($lRightModel->getModelName(), $lArrayVisitedModels) && ($lArrayVisitedModels[$lRightModel->getModelName()] > 0)) {
 					$lStackVisitedModels[] = $lRightModel->getModelName();
@@ -182,32 +199,48 @@ class ObjectManager {
 				"left_table"   => $pLeftTable->getValue("name"),
 				"right_table"  => $lRightTable->getValue("name")
 		);
-		if (is_null($pRightProperty->getForeignIds())) {
-			$lIds = $pRightModel->getIds();
-			$lReturn["left_column"] = $pRightProperty->getSerializationName();
-			$lReturn["right_column"] = $pRightModel->getProperty($lIds[0])->getSerializationName();
-		}else {
+		if ($pRightProperty->getSqlTableUnit()->hasValue("compositions")) {
 			$lRightColumns = array();
-			foreach ($pRightProperty->getForeignIds() as $lPropertyId) {
-				$lRightColumns[] = $pRightModel->getProperty($lPropertyId)->getSerializationName();
+			foreach ($pRightProperty->getSqlTableUnit()->getValue("compositions")->getValues() as $lComposition) {
+				$lRightColumns[] = $lComposition->getValue("column");
 			}
 			$lReturn["left_column"] = $pLeftId;
 			$lReturn["right_column"] = $lRightColumns;
+		}else {
+			$lIds = $pRightModel->getIds();
+			$lReturn["left_column"] = $pRightProperty->getSerializationName();
+			$lReturn["right_column"] = $pRightModel->getProperty($lIds[0])->getSerializationName();
 		}
 		$lReturn["right_model"] = $pRightModel;
 		return $lReturn;
 	}
 	
 	/**
-	 * @param array $pObjects each object is a serializable property or a model
-	 * @return string
+	 * 
+	 * @param SelectQuery $pSelectQuery
+	 * @param Model $pModel
 	 */
 	private function _addColumns($pSelectQuery, $pModel) {
 		foreach ($pModel->getProperties() as $lProperty) {
-			if (!($lProperty instanceof SerializableProperty) || is_null($lProperty->getForeignIds())) {
+			if (!($lProperty instanceof ForeignProperty) || !$this->_isComposition($pModel, $lProperty->getSerializationName(), $lProperty->getSqlTableUnit())) {
 				$pSelectQuery->addSelectColumn($lProperty->getSerializationName());
 			}
 		}
+	}
+	
+	private function _isComposition($pModel, $pColumn, $pSqlTableUnit) {
+		$lIsComposition = false;
+		if ($pSqlTableUnit->hasValue("compositions")) {
+			foreach ($pSqlTableUnit->getValue("compositions")->getValues() as $lComposition) {
+				if ($lComposition->getValue("parent") == $pModel->getModelName()) {
+					if ($lComposition->getValue("column") == $pColumn) {
+						return false;
+					}
+					$lIsComposition = true;
+				}
+			}
+		}
+		return $lIsComposition;
 	}
 	
 	private function _addGroupedColumns($pSelectQuery, $pModel) {
@@ -223,10 +256,10 @@ class ObjectManager {
 			$lForeignObjectLoader = new ForeignObjectLoader();
 			foreach ($pRows as $lRow) {
 				$lObject = $pModel->fromSqlDataBase($lRow, $pLoadDepth);
-				$lForeignObjectReplacer->execute($lObject);
 				if ($pLoadForeignObject) {
 					$lForeignObjectLoader->execute($lObject);
 				}
+				$lForeignObjectReplacer->execute($lObject);
 				if (is_null($pKey)) {
 					$lReturn[] = $lObject;
 				}else {
