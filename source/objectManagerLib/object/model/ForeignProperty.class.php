@@ -41,7 +41,7 @@ class ForeignProperty extends Property {
 	public function load($pObject, $pId, $pParentModel) {
 		// all serializations are equals so we take arbitrarily the first serialization
 		if (count($this->mSerializations) > 0) {
-			return $this->mSerializations[0]->loadObject($pObject, $pId, $this->mModel->getModel(), $this->getSerializationName(), $pParentModel);
+			return $this->mSerializations[0]->loadObject($pObject, $pId, $this->getSerializationName(), $pParentModel);
 		}
 		else {
 			return false;

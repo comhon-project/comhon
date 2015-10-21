@@ -21,7 +21,7 @@ class SqlTable extends SerializationUnit {
 		return $pModel->toSqlDataBase($pValue, $this->getValue("name"), self::$sDbObjectById[$this->getValue("database")->getValue("id")]);
 	}
 	
-	public function loadObject($pObject, $pId, $pModel, $pColumn = null, $pParentModel = null) {
+	public function loadObject($pObject, $pId, $pColumn = null, $pParentModel = null) {
 		$lReturn = false;
 		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
 			$this->loadValue("database");

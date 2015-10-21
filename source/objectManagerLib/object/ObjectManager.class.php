@@ -33,7 +33,7 @@ class ObjectManager {
 		}
 		$lObject = $lModel->getObjectInstance();
 		$lObject->setValue($lPropertiesIds[0], $pId);
-		$lResult = $lSerializationUnit->loadObject($lObject, $pId, $lModel, $pLoadDepth);
+		$lResult = $lSerializationUnit->loadObject($lObject, $pId);
 		trigger_error(var_export($lResult, true));
 		return $lResult ? $lObject : null;
 	}
