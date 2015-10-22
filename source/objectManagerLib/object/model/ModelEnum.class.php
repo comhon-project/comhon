@@ -37,4 +37,20 @@ class ModelEnum extends ModelContainer {
 		return $lReturn;
 	}
 	
+	public function toXml($pValue, $pXmlNode, $pUseSerializationName = false, $pExportForeignObject = false) {
+		$lReturn = $this->mModel->toXml($pValue, $pUseSerializationName, $pExportForeignObject);
+		if (!in_array($lReturn, $this->mEnum)) {
+			$lReturn = null;
+		}
+		return $lReturn;
+	}
+	
+	public function fromXml($pValue) {
+		$lReturn = $this->mModel->fromXml($pValue);
+		if (!in_array($lReturn, $this->mEnum)) {
+			$lReturn = null;
+		}
+		return $lReturn;
+	}
+	
 }

@@ -199,8 +199,49 @@ class Model {
 		return $lReturn;
 	}
 	
-	public function toXml() {
-		// TODO
+	public function toXml($pObject, $pXmlNode, $pUseSerializationName = false, $pExportForeignObject = false) {
+		if (is_null($pObject)) {
+			return null;
+		}
+		if ($pExportForeignObject && array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
+			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
+				if (count($this->getIds()) > 0) {
+					return $this->toXmlId($pObject, $pXmlNode, $pUseSerializationName);
+				}
+				$pExportForeignObject = false;
+			}
+		} else {
+			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
+		}
+		self::$sInstanceObjectHash[spl_object_hash($pObject)]++;
+		foreach ($pObject->getValues() as $lKey => $lValue) {
+			if ($this->hasProperty($lKey)) {
+				$lProperty =  $this->getProperty($lKey);
+				$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
+				if (($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum)){
+					$pXmlNode[$lName] = $lProperty->getModel()->toXml($lValue, $pXmlNode, $pUseSerializationName, $pExportForeignObject);
+				} else {
+					$pXmlChildNode = $pXmlNode->addChild($lName);
+					$lProperty->getModel()->toXml($lValue, $pXmlChildNode, $pUseSerializationName, $pExportForeignObject);
+				}
+			}
+		}
+		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
+	}
+	
+	public function toXmlId($pObject, $pXmlNode, $pUseSerializationName = false) {
+		$lPropertyIds = $this->getIds();
+		if (count($lPropertyIds) > 0) {
+			foreach ($lPropertyIds as $lPropertyId) {
+				if ($this->hasProperty($lPropertyId) && $pObject->hasValue($lPropertyId)) {
+					$lProperty =  $this->getProperty($lPropertyId);
+					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
+					$pXmlNode[$lName] = $lProperty->getModel()->toXml($pObject->getValue($lPropertyId), $pUseSerializationName, false);
+				}
+			}
+		}else {
+			trigger_error("Warning cannot export foreign property with model '{$this->mModelName}' because this model doesn't have id");
+		}
 	}
 	
 	public function toSqlDataBase($pObject, $pTable, $pPDO) {
@@ -238,7 +279,7 @@ class Model {
 		
 		foreach ($pXml->attributes() as $lKey => $lValue) {
 			if ($this->hasProperty($lKey)) {
-				$lObject->setValue($lKey,  $this->getPropertyModel($lKey)->fromXml((string) $lValue));
+				$lObject->setValue($lKey,  $this->getPropertyModel($lKey)->fromXml($lValue));
 			}
 		}
 		foreach ($pXml->children() as $lChild) {
@@ -255,10 +296,12 @@ class Model {
 		foreach ($this->getProperties() as $lPropertyName => $lProperty) {
 			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
 				if ($lProperty instanceof ForeignProperty) {
-					$lValue = ($lProperty->getModel()->getModel() instanceof SimpleModel) ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
+					$lIsSimpleValue = ($lProperty->getModel()->getModel() instanceof SimpleModel) || ($lProperty->getModel()->getModel() instanceof ModelEnum);
+					$lValue = $lIsSimpleValue ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
 					$lObject->setValue($lPropertyName, $lProperty->getModel()->getModel()->fromIdValue($lValue));
 				} else {
-					$lValue = ($lProperty->getModel() instanceof SimpleModel) ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
+					$lIsSimpleValue = ($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum);
+					$lValue = $lIsSimpleValue ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
 					$lObject->setValue($lPropertyName, $lProperty->getModel()->fromObject($lValue));
 				}
 			}

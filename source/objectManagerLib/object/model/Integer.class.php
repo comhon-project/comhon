@@ -9,4 +9,7 @@ class Integer extends SimpleModel {
 		$this->mModelName = self::ID;
 	}
 	
+	public function fromXml($pValue) {
+		return (integer) $pValue;
+	}
 }

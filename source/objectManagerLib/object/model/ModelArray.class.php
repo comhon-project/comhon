@@ -45,6 +45,24 @@ class ModelArray extends ModelContainer {
 		return $lObjectArray;
 	}
 	
+	public function toXml($pObjectArray, $pXmlNode, $pUseSerializationName = false, $pExportForeignObject = false) {
+		if (!is_null($pObjectArray)) {
+			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+				$lXmlChildNode = $pXmlNode->addChild($this->mModel->getModelName());
+				$this->mModel->toXml($lValue, $lXmlChildNode, $pUseSerializationName, $pExportForeignObject);
+			}
+		}
+	}
+	
+	public function toXmlId($pObjectArray, $pXmlNode, $pUseSerializationName = false) {
+		if (!is_null($pObjectArray)) {
+			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+				$lXmlChildNode = $pXmlNode->addChild($this->mModel->getModelName());
+				$this->mModel->toXmlId($lValue, $lXmlChildNode, $pUseSerializationName);
+			}
+		}
+	}
+	
 	public function fromXml($pXml) {
 		$lObjectArray = new ObjectArray($this);
 		$lChildrenModelName = $this->mModel->getModelName();

@@ -25,11 +25,11 @@ abstract class SimpleModel extends Model {
 	}
 	
 	public function fromXml($pValue) {
-		return $pValue;
+		return (string) $pValue;
 	}
 	
-	public function toXml() {
-		// TODO
+	public function toXml($pValue, $pXmlNode = null, $pUseSerializationName = false, $pExportForeignObject = false) {
+		return $pValue;
 	}
 	
 	/*

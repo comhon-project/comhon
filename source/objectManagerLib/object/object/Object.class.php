@@ -5,6 +5,8 @@ use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\object\model\Model;
 use objectManagerLib\object\model\ModelContainer;
+use objectManagerLib\object\model\ModelEnum;
+use objectManagerLib\object\model\SimpleModel;
 
 class Object {
 
@@ -136,18 +138,25 @@ class Object {
 		}
 	}
 	
-	public function toXml() {
-		return $this->mModel->toXml($this);
+	public function toXml($pUseSerializationName = false, $pExportForeignObject = false) {
+		$lXmlNode = new \SimpleXmlElement("<{$this->getModel()->getModelName()}/>");
+		$this->mModel->toXml($this, $lXmlNode, $pUseSerializationName, $pExportForeignObject);
+		return $lXmlNode;
 	}
 	
 	public function fromSqlDataBase($pRow) {
 		foreach ($this->getModel()->getProperties() as $lPropertyName => $lProperty) {
 			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
+				if (is_null($pRow[$lProperty->getSerializationName()])) {
+					continue;
+				}
 				if ($lProperty instanceof ForeignProperty) {
-					$lValue = ($lProperty->getModel()->getModel() instanceof SimpleModel) ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
+					$lIsSimpleValue = ($lProperty->getModel()->getModel() instanceof SimpleModel) || ($lProperty->getModel()->getModel() instanceof ModelEnum);
+					$lValue = $lIsSimpleValue ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
 					$this->setValue($lPropertyName, $lProperty->getModel()->getModel()->fromIdValue($lValue));
 				} else {
-					$lValue = ($lProperty->getModel() instanceof SimpleModel) ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
+					$lIsSimpleValue = ($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum);
+					$lValue = $lIsSimpleValue ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
 					$this->setValue($lPropertyName, $lProperty->getModel()->fromObject($lValue));
 				}
 			}

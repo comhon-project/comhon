@@ -52,8 +52,8 @@ class ObjectArray extends Object {
 		}
 	}
 	
-	public function toXml() {
-		return $this->mModel->toXml($this);
+	public function toXml($pUseSerializationName = false, $pExportForeignObject = false) {
+		return $this->mModel->toXml($this, $pUseSerializationName, $pExportForeignObject);
 	}
 	
 	public function fromSqlDataBase($pRows) {
