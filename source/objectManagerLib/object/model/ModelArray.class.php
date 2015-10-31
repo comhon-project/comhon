@@ -5,16 +5,17 @@ use objectManagerLib\object\object\ObjectArray;
 
 class ModelArray extends ModelContainer {
 	
+	public function getObjectInstance($pIsloaded = true) {
+		return new ObjectArray($this, $pIsloaded);
+	}
 	
 	public function toObject($pObjectArray, $pUseSerializationName = false, $pExportForeignObject = false) {
-		$lReturn = array();
-		if (!$pObjectArray->isLoaded()) {
-			$lReturn = null;
+		if (is_null($pObjectArray)) {
+			return null;
 		}
-		if (!is_null($pObjectArray)) {
-			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-				$lReturn[$lKey] = $this->mModel->toObject($lValue, $pUseSerializationName, $pExportForeignObject);
-			}
+		$lReturn = array();
+		foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+			$lReturn[$lKey] = $this->mModel->toObject($lValue, $pUseSerializationName, $pExportForeignObject);
 		}
 		return $lReturn;
 	}
@@ -30,17 +31,17 @@ class ModelArray extends ModelContainer {
 	}
 	
 	public function fromObject($pArray) {
-		$lObjectArray = new ObjectArray($this);
+		$lObjectArray = $this->getObjectInstance();
 		foreach ($pArray as $lKey => $lPhpValue) {
 			$lObjectArray->setValue($lKey, $this->mModel->fromObject($lPhpValue));
 		}
 		return $lObjectArray;
 	}
 	
-	public function fromSqlDataBase($pRows, $pLoadDepth = 0) {
-		$lObjectArray = new ObjectArray($this);
+	public function fromSqlDataBase($pRows, $pAddUnloadValues = true, $pLoadDepth = 0) {
+		$lObjectArray = $this->getObjectInstance();
 		foreach ($pRows as $lKey => $lRow) {
-			$lObjectArray->setValue($lKey, $this->mModel->fromSqlDataBase($lRow, $pLoadDepth));
+			$lObjectArray->setValue($lKey, $this->mModel->fromSqlDataBase($lRow, $pAddUnloadValues, $pLoadDepth));
 		}
 		return $lObjectArray;
 	}
@@ -64,7 +65,7 @@ class ModelArray extends ModelContainer {
 	}
 	
 	public function fromXml($pXml) {
-		$lObjectArray = new ObjectArray($this);
+		$lObjectArray = $this->getObjectInstance();
 		$lChildrenModelName = $this->mModel->getModelName();
 		foreach ($pXml->$lChildrenModelName as $lChild) {
 			$lObjectArray->pushValue($this->mModel->fromXml($lChild));
@@ -73,7 +74,7 @@ class ModelArray extends ModelContainer {
 	}
 	
 	public function fromIdValue($pArray) {
-		$lObjectArray = new ObjectArray($this);
+		$lObjectArray = $this->getObjectInstance();
 		foreach ($pArray as $lKey => $lPhpValue) {
 			$lObjectArray->setValue($lKey, $this->mModel->fromIdValue($lPhpValue));
 		}

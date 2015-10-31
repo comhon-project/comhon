@@ -48,6 +48,22 @@ class ForeignProperty extends Property {
 		}
 	}
 	
+	/**
+	 * load object ids (only for properties that are serialized in database composition)
+	 * @param Object $pObject
+	 * @param string $pId
+	 * @param Model $pParentModel
+	 * @return Object|boolean
+	 */
+	public function loadIds($pObject, $pId, $pParentModel) {
+		if (!is_null($lSqlTableUnit = $this->getSqlTableUnit())) {
+			return $lSqlTableUnit->loadCompositionIds($pObject, $pId, $this->getSerializationName(), $pParentModel);
+		}
+		else {
+			return false;
+		}
+	}
+	
 	public function getSerializations() {
 		return $this->mSerializations;
 	}

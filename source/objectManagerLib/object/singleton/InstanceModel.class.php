@@ -141,7 +141,7 @@ class InstanceModel {
 			if (is_null($this->mLocalTypeXml) && is_object($this->mInstanceModels[$pModel->getModelName()]) && $this->mInstanceModels[$pModel->getModelName()]->isLoaded()) {
 				$lReturn = array(
 					"properties"     => $pModel->getProperties(), 
-					"objectClass"    => $pModel->getObjectCass(), 
+					"objectClass"    => $pModel->getObjectClass(), 
 					"serializations" => $pModel->getSerializations()
 				);
 			}else {

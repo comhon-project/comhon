@@ -28,8 +28,8 @@ class Object {
 		return $this->mModel;
 	}
 	
-	public function getValue($pKey) {
-		return ($this->hasValue($pKey)) ? $this->mValues[$pKey] : null;
+	public function getValue($pName) {
+		return ($this->hasValue($pName)) ? $this->mValues[$pName] : null;
 	}
 	
 	public function getValues() {
@@ -61,6 +61,17 @@ class Object {
 		return null;
 	}
 	
+	public function loadValueIds($pName) {
+		if (is_object($this->getValue($pName)) && !$this->getValue($pName)->isLoaded()) {
+			if (! $this->getProperty($pName)->loadIds($this->getValue($pName), $this->getId(), $this->mModel)) {
+				throw new \Exception("cannot load object with name '$pName'");
+			}
+			$this->getValue($pName)->setLoadStatus(true);
+			return $this->getValue($pName);
+		}
+		return null;
+	}
+	
 	public function getId() {
 		$lValues = array();
 		foreach ($this->mModel->getIds() as $lPropertyName) {
@@ -69,14 +80,31 @@ class Object {
 		return count($lValues) > 0 ? implode("-", $lValues) : null;
 	}
 	
-	public function setValue($pKey, $pValue) {
-		if ($this->hasProperty($pKey)) {
-			$this->mValues[$pKey] = $pValue;
+	public function setValue($pName, $pValue) {
+		if ($this->hasProperty($pName)) {
+			$this->mValues[$pName] = $pValue;
 		}
 	}
 	
-	public function hasValue($pKey) {
-		return array_key_exists($pKey, $this->mValues);
+	/**
+	 * instanciate an Object value (only if model of property is not a SimpleModel or ModelEnum)
+	 * @param unknown $pName
+	 * @param string $pIsLoaded
+	 * @return Object|boolean
+	 */
+	public function initValue($pName, $pIsLoaded = true) {
+		if ($this->hasProperty($pName)) {
+			$lPropertyModel = $this->getProperty($pName)->getModel();
+			if (!($lPropertyModel instanceof SimpleModel) && !($lPropertyModel instanceof ModelEnum)) {
+				$this->mValues[$pName] = $lPropertyModel->getObjectInstance($pIsLoaded);
+				return $this->mValues[$pName];
+			}
+		}
+		return false;
+	}
+	
+	public function hasValue($pName) {
+		return array_key_exists($pName, $this->mValues);
 	}
 	
 	public function hasValues($Names) {
@@ -88,8 +116,8 @@ class Object {
 		return true;
 	}
 	
-	public function hasProperty($pKey) {
-		return $this->mModel->hasProperty($pKey);
+	public function hasProperty($pPropertyName) {
+		return $this->mModel->hasProperty($pPropertyName);
 	}
 	
 	public function getProperties() {
@@ -100,8 +128,8 @@ class Object {
 		return array_keys($this->mModel->getProperties());
 	}
 	
-	public function getProperty($pKey) {
-		return $this->mModel->getProperty($pKey);
+	public function getProperty($pPropertyName) {
+		return $this->mModel->getProperty($pPropertyName);
 	}
 	
 	/*
@@ -144,7 +172,7 @@ class Object {
 		return $lXmlNode;
 	}
 	
-	public function fromSqlDataBase($pRow) {
+	public function fromSqlDataBase($pRow, $pAddUnloadValues = true) {
 		foreach ($this->getModel()->getProperties() as $lPropertyName => $lProperty) {
 			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
 				if (is_null($pRow[$lProperty->getSerializationName()])) {
@@ -160,10 +188,8 @@ class Object {
 					$this->setValue($lPropertyName, $lProperty->getModel()->fromObject($lValue));
 				}
 			}
-			else if (($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
-				$lForeignModel = $lProperty->getModel()->getModel();
-				$lObjectValue = ($lForeignModel instanceof ModelArray) ? new ObjectArray($lForeignModel, false) : new Object($lForeignModel, false);
-				$this->setValue($lPropertyName, $lObjectValue);
+			else if ($pAddUnloadValues && ($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
+				$this->initValue($lPropertyName, false);
 			}
 		}
 	}

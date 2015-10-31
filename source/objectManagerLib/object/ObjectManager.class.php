@@ -14,6 +14,7 @@ use objectManagerLib\object\model\ModelContainer;
 use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\controller\ForeignObjectReplacer;
 use objectManagerLib\controller\ForeignObjectLoader;
+use objectManagerLib\controller\CompositionLoader;
 
 class ObjectManager {
 	
@@ -48,7 +49,7 @@ class ObjectManager {
 	 * @param string $pKey
 	 * @return array
 	 */
-	public function getObjects($pModelName, $pLiteral = null, $pLoadDepth = 0, $pLoadLength = null, $pLoadForeignObject = false, $pOptimizeLiterals = false, $pKey = null) {
+	public function getObjects($pModelName, $pLiteral = null, $pGetChildren = false, $pLoadForeignObject = false, $pLoadLength = null, $pOptimizeLiterals = false, $pKey = null) {
 		$lReturn = array();
 		$lModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
 		if (!is_null($pKey) && (!$lModel->hasProperty($pKey) || ! ($lModel->getProperty($pKey)->getModel() instanceof SimpleModel))) {
@@ -79,7 +80,7 @@ class ObjectManager {
 		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
 		$lRows = $lDbInstance->executeQuery($lSelectQuery);
 		
-		return $this->_buildObjectsWithRows($lModel, $lRows, $pLoadDepth, $pLoadForeignObject, $pKey);
+		return $this->_buildObjectsWithRows($lModel, $lRows, $pGetChildren, $pLoadForeignObject, $pKey);
 	}
 	
 	/**
@@ -248,15 +249,19 @@ class ObjectManager {
 		}
 	}
 	
-	private function _buildObjectsWithRows($pModel, $pRows, $pLoadDepth, $pLoadForeignObject, $pKey) {
+	private function _buildObjectsWithRows($pModel, $pRows, $pGetChildren, $pLoadForeignObject, $pKey) {
 		$lReturn = array();
 		if (is_array($pRows)) {
 			$lForeignObjectReplacer = new ForeignObjectReplacer();
-			$lForeignObjectLoader = new ForeignObjectLoader();
+			$lForeignObjectLoader   = new ForeignObjectLoader();
+			$lCompositionLoader     = new CompositionLoader();
 			foreach ($pRows as $lRow) {
-				$lObject = $pModel->fromSqlDataBase($lRow, $pLoadDepth);
-				if ($pLoadForeignObject) {
-					$lForeignObjectLoader->execute($lObject);
+				$lObject = $pModel->fromSqlDataBase($lRow);
+				if ($pGetChildren && !$pLoadForeignObject) {
+					$lCompositionLoader->execute($lObject, array($pLoadForeignObject));
+				}
+				else if ($pLoadForeignObject) {
+					$lForeignObjectLoader->execute($lObject, array($pGetChildren));
 				}
 				$lForeignObjectReplacer->execute($lObject);
 				if (is_null($pKey)) {

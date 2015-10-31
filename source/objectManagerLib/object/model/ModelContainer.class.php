@@ -17,6 +17,10 @@ abstract class ModelContainer {
 		$this->mModel = $pModel;
 	}
 	
+	public function getObjectInstance($pIsloaded = true) {
+		return $this->mModel->getObjectInstance($pIsloaded);
+	}
+	
 	public function getModelName() {
 		return $this->mModel->getModelName();
 	}

@@ -55,7 +55,7 @@ class Model {
 		// you can overide this function in inherited class to initialize others attributes
 	}
 	
-	public function getObjectCass() {
+	public function getObjectClass() {
 		return $this->mObjectClass;
 	}
 	
@@ -264,8 +264,10 @@ class Model {
 	}
 	
 	public function fromObject($pPhpObject) {
+		if (is_null($pPhpObject)) {
+			return null;
+		}
 		$lObject = $this->getObjectInstance();
-		
 		foreach ($pPhpObject as $lKey => $lPhpValue) {
 			if ($this->hasProperty($lKey)) {
 				$lObject->setValue($lKey, $this->getPropertyModel($lKey)->fromObject($lPhpValue));
@@ -276,22 +278,24 @@ class Model {
 	
 	public function fromXml($pXml) {
 		$lObject = $this->getObjectInstance();
-		
+		$lHasValue = false;
 		foreach ($pXml->attributes() as $lKey => $lValue) {
 			if ($this->hasProperty($lKey)) {
 				$lObject->setValue($lKey,  $this->getPropertyModel($lKey)->fromXml($lValue));
+				$lHasValue = true;
 			}
 		}
 		foreach ($pXml->children() as $lChild) {
 			$lPropertyName = $lChild->getName();
 			if ($this->hasProperty($lPropertyName)) {
 				$lObject->setValue($lPropertyName, $this->getPropertyModel($lPropertyName)->fromXml($lChild));
+				$lHasValue = true;
 			}
 		}
-		return $lObject;
+		return $lHasValue ? $lObject : null;
 	}
 	
-	public function fromSqlDataBase($pRow) {
+	public function fromSqlDataBase($pRow, $pAddUnloadValues = true) {
 		$lObject = $this->getObjectInstance();
 		foreach ($this->getProperties() as $lPropertyName => $lProperty) {
 			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
@@ -305,10 +309,8 @@ class Model {
 					$lObject->setValue($lPropertyName, $lProperty->getModel()->fromObject($lValue));
 				}
 			}
-			else if (($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
-				$lForeignModel = $lProperty->getModel()->getModel();
-				$lObjectValue = ($lForeignModel instanceof ModelArray) ? new ObjectArray($lForeignModel, false) : new Object($lForeignModel, false);
-				$lObject->setValue($lPropertyName, $lObjectValue);
+			else if ($pAddUnloadValues && ($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
+				$lObject->initValue($lPropertyName, false);
 			}
 		}
 		return $lObject;

@@ -7,8 +7,12 @@ use objectManagerLib\object\model\ForeignProperty;
 class ForeignObjectLoader extends Controller {
 
 	private $mUnloadSerializedRefValueMap = array();
+	private $mLoadCompositions = true;
 	
 	protected function _init($pObject) {
+		if (array_key_exists(0, $this->mParams)) {
+			$this->mLoadCompositions = $this->mParams[0];
+		}
 	}
 	
 	protected function _visit($pObject, $pParentObject, $pPropertyName) {
@@ -31,11 +35,14 @@ class ForeignObjectLoader extends Controller {
 		$lSerializationUnit = $pParentObject->getProperty($pPropertyName)->getFirstSerialization();
 		if (!is_null($lSerializationUnit)) {
 			$lIdValue = $pObject->getValue($pPropertyId);
-			if (!is_null($lSqlTableUnit = $pParentObject->getProperty($pPropertyName)->getSqlTableUnit())) {
-				if ($lSqlTableUnit->isComposition($pParentObject->getModel(), $pParentObject->getProperty($pPropertyName)->getSerializationName())) {
+			$lSqlTableUnit = $pParentObject->getProperty($pPropertyName)->getSqlTableUnit();
+			if (!is_null($lSqlTableUnit) && $lSqlTableUnit->isComposition($pParentObject->getModel(), $pParentObject->getProperty($pPropertyName)->getSerializationName())) {
+				if ($this->mLoadCompositions) {
 					$lIds = $pParentObject->getModel()->getIds();
 					$lSerializationUnit = $lSqlTableUnit;
 					$lIdValue = $pParentObject->getModel()->getModelName()."-".$pParentObject->getValue($lIds[0]);
+				} else {
+					return;
 				}
 			}
 			if (!is_null($lIdValue)) {

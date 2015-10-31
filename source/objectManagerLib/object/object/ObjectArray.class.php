@@ -5,6 +5,8 @@ use objectManagerLib\object\model\ForeignProperty;
 
 class ObjectArray extends Object {
 
+	const __UNLOAD__ = "__UNLOAD__";
+	
 	public function loadValue($pkey) {
 		if (is_object($this->getValue($pkey)) && !$this->getValue($pkey)->isLoaded()) {
 			if (! $this->getProperty($pkey)->load($this->getValue($pkey), $this->getValue($pkey)->getId(), $this->mModel->getModel())) {
@@ -56,9 +58,9 @@ class ObjectArray extends Object {
 		return $this->mModel->toXml($this, $pUseSerializationName, $pExportForeignObject);
 	}
 	
-	public function fromSqlDataBase($pRows) {
+	public function fromSqlDataBase($pRows, $pAddUnloadValues = true) {
 		foreach ($pRows as $lRow) {
-			$this->pushValue($this->mModel->getModel()->fromSqlDataBase($lRow));
+			$this->pushValue($this->mModel->getModel()->fromSqlDataBase($lRow, $pAddUnloadValues));
 		}
 	}
 	

@@ -10,11 +10,19 @@ use objectManagerLib\object\model\ModelContainer;
 abstract class Controller {
 
 	protected $mMainObject;
-	private $mInstanceObjectHash = array();
+	protected $mParams;
+	private   $mInstanceObjectHash = array();
 	
-	public final function execute($pObject) {
+	/**
+	 * execute controller
+	 * @param Oject $pObject
+	 * @param array $pParams
+	 * @return unknown|boolean
+	 */
+	public final function execute($pObject, $pParams = null) {
 		if ($pObject instanceof Object) {
 			$this->mMainObject = $pObject;
+			$this->mParams     = $pParams;
 			$this->_init($pObject);
 			$this->_accept($pObject, null, null);
 			$lReturn = $this->_finalize($pObject);
