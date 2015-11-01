@@ -5,6 +5,7 @@ use objectManagerLib\database\DatabaseController;
 use objectManagerLib\database\LogicalJunction;
 use objectManagerLib\database\LogicalJunctionOptimizer;
 use objectManagerLib\database\ComplexLiteral;
+use objectManagerLib\database\HavingLiteral;
 use objectManagerLib\database\SelectQuery;
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\object\Object;
@@ -123,6 +124,10 @@ class ObjectManager {
 				$lSubSelectQuery->init($lModelTable)->addSelectColumn($lColumnId);
 				$lSubSelectQuery->setWhereLogicalJunction($lWhere)->setHavingLogicalJunction($lHaving)->addGroupColumn($lColumnId);
 				$this->_addTablesForQuery($lSubSelectQuery, $pModel);
+			} else if (($lLiteral instanceof HavingLiteral) && $lLiteral->hasModelNameForJoin()) {
+				if (!array_key_exists($lLiteral->getModelNameForJoin(), $lLiteralsByModelName)) {
+					$lLiteralsByModelName[$lLiteral->getModelNameForJoin()] = array();
+				}
 			}
 		}
 	
@@ -151,7 +156,7 @@ class ObjectManager {
 				}
 				// add temporary leftJoin
 				// add leftjoin if model $lRightModel is in literals ($lLiteralsByModelName)
-				$lTemporaryLeftJoins[] = $this->_prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftId"], $lRightModel, $lRightProperty);
+				$lTemporaryLeftJoins[] = $this->_prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftModel"], $lStack[$lStackIndex]["leftId"], $lRightModel, $lRightProperty);
 				if (array_key_exists($lRightModel->getModelName(), $lLiteralsByModelName)) {
 					foreach ($lTemporaryLeftJoins as $lLeftJoin) {
 						$pSelectQuery->addTable($lLeftJoin["right_table"], null, SelectQuery::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
@@ -185,6 +190,7 @@ class ObjectManager {
 		$pStack[] = array(
 				"leftId"     => (is_array($lIds) && (count($lIds) > 0)) ? $pModel->getProperty($lIds[0])->getSerializationName() : null,
 				"leftTable"  => $pSqlTable,
+				"leftModel"  => $pModel,
 				"properties" => $pModel->getSerializableProperties("sqlTable"),
 				"current"    => -1
 		);
@@ -193,22 +199,19 @@ class ObjectManager {
 		$pArrayVisitedModels[$lModelName] = array_key_exists($lModelName, $pArrayVisitedModels) ? $pArrayVisitedModels[$lModelName] + 1 : 1;
 	}
 	
-	private function _prepareLeftJoin($pLeftTable, $pLeftId, $pRightModel, $pRightProperty) {
+	private function _prepareLeftJoin($pLeftTable, $pLeftModel, $pLeftId, $pRightModel, $pRightProperty) {
 		$lRightTable = $pRightProperty->getSqlTableUnit();
 		$lReturn = array(
 				"left_table"   => $pLeftTable->getValue("name"),
 				"right_table"  => $lRightTable->getValue("name")
 		);
-		if ($pRightProperty->getSqlTableUnit()->hasValue("compositions")) {
-			$lRightColumns = array();
-			foreach ($pRightProperty->getSqlTableUnit()->getValue("compositions")->getValues() as $lComposition) {
-				$lRightColumns[] = $lComposition->getValue("column");
-			}
+		$lColumn = $pRightProperty->getSerializationName();
+		if ($lRightTable->isComposition($pLeftModel, $lColumn)) {
 			$lReturn["left_column"] = $pLeftId;
-			$lReturn["right_column"] = $lRightColumns;
+			$lReturn["right_column"] = $lRightTable->getCompositionColumns($pLeftModel, $lColumn);
 		}else {
 			$lIds = $pRightModel->getIds();
-			$lReturn["left_column"] = $pRightProperty->getSerializationName();
+			$lReturn["left_column"] = $lColumn;
 			$lReturn["right_column"] = $pRightModel->getProperty($lIds[0])->getSerializationName();
 		}
 		$lReturn["right_model"] = $pRightModel;

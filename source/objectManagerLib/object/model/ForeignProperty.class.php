@@ -98,4 +98,11 @@ class ForeignProperty extends Property {
 		}
 		return null;
 	}
+	
+	public function hasSqlTableUnitComposition($pParentModel) {
+		if (is_null($lSqlTableUnit = $this->getSqlTableUnit())) {
+			return false;
+		}
+		return $lSqlTableUnit->isComposition($pParentModel, $this->getSerializationName());
+	}
 }

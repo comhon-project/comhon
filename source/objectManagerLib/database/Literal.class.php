@@ -2,6 +2,8 @@
 namespace objectManagerLib\database;
 
 use objectManagerLib\object\singleton\InstanceModel;
+use objectManagerLib\object\model\ForeignProperty;
+use objectManagerLib\object\model\ModelContainer;
 
 class Literal {
 
@@ -180,26 +182,38 @@ class Literal {
 		if ((!isset($pPhpObject->property) && (!isset($pPhpObject->function) || ($pPhpObject->function != HavingLiteral::COUNT))) || !isset($pPhpObject->operator) || !isset($pPhpObject->value) || (!isset($pPhpObject->model) && !isset($pPhpObject->table))) {
 			throw new \Exception("malformed phpObject literal : ".json_encode($pPhpObject));
 		}
-		$lModelName = isset($pPhpObject->model)    ? $pPhpObject->model : null;
-		$lTable     = isset($pPhpObject->table)    ? $pPhpObject->table : null;
-		$lProperty  = isset($pPhpObject->property) ? $pPhpObject->property : null;
+		$lModelName    = isset($pPhpObject->model)      ? $pPhpObject->model      : null;
+		$lTable        = isset($pPhpObject->aliasModel) ? $pPhpObject->aliasModel : null;
+		$lPropertyName = $pPhpObject->property;
 		
 		if (isset($pPhpObject->function)) {
-			if (is_null($lProperty) && !is_null($lModelName) && ($pPhpObject->function == HavingLiteral::COUNT)) {
-				$lModel = InstanceModel::getInstance()->getInstanceModel($lModelName);
-				if (count($lModel->getIds()) != 1) {
-					throw new \Exception("error : count literal must have one and only one property id");
-				}
-				$lProperty = $lModel->getFirstId();
-			}
-			$lSubLogicalJunction = new HavingLogicalJunction(LogicalJunction::CONJUNCTION);
-			$lSubLogicalJunction->addLiteral(new HavingLiteral($pPhpObject->function, null, $lProperty, $pPhpObject->operator, $pPhpObject->value, $lModelName));
 			$lSelectQuery = new SelectQuery(null);
+			$lSubLogicalJunction = new HavingLogicalJunction(LogicalJunction::CONJUNCTION);
+			
+			if ($pPhpObject->function == HavingLiteral::COUNT) {
+				$lModel = InstanceModel::getInstance()->getInstanceModel($lModelName);
+				if (!$lModel->hasProperty($lPropertyName)) {
+					throw new \Exception("error : unknown property '$lPropertyName' for model '{$lModel->getModelName()}'");
+				}
+				if (!($lModel->getProperty($lPropertyName) instanceof ForeignProperty) || !$lModel->getProperty($lPropertyName)->hasSqlTableUnitComposition($lModel)) {
+					throw new \Exception("error : function 'COUNT' must be applied on a composition property. '$lPropertyName' for model '{$lModel->getModelName()}' is not a composition");
+				}
+				$lPropertyModel = $lModel->getProperty($lPropertyName)->getModel();
+				while ($lPropertyModel instanceof ModelContainer) {
+					$lPropertyModel = $lPropertyModel->getModel();
+				}
+				$lHavingLiteral = new HavingLiteral($pPhpObject->function, null, $pMainModel->getFirstId(), $pPhpObject->operator, $pPhpObject->value, $pMainModel->getModelName(), $lPropertyModel->getModelName());
+			}
+			else {
+				$lHavingLiteral = new HavingLiteral($pPhpObject->function, null, $lPropertyName, $pPhpObject->operator, $pPhpObject->value, $lModelName);
+			}
+			$lSubLogicalJunction->addLiteral($lHavingLiteral);
+			
 			$lSelectQuery->setHavingLogicalJunction($lSubLogicalJunction);
 			$lLiteral = new ComplexLiteral(null, null, ComplexLiteral::IN, $lSelectQuery, $pMainModel->getModelName());
 		}
 		else {
-			$lLiteral = new Literal($lTable, $lProperty, $pPhpObject->operator, $pPhpObject->value, $lModelName);
+			$lLiteral = new Literal($lTable, $lPropertyName, $pPhpObject->operator, $pPhpObject->value, $lModelName);
 		}
 		return $lLiteral;
 	}

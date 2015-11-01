@@ -4,6 +4,7 @@ namespace objectManagerLib\database;
 class HavingLiteral extends Literal {
 
 	private $mFunction;
+	private $mModelNameForJoin;
 
 	const COUNT = "COUNT";
 	const SUM   = "SUM";
@@ -19,8 +20,9 @@ class HavingLiteral extends Literal {
 			self::MAX   => null
 	);
 	
-	public function __construct($pFunction, $pTable, $pPropertyName, $pOperator, $pValue, $pModelName = null) {
+	public function __construct($pFunction, $pTable, $pPropertyName, $pOperator, $pValue, $pModelName = null, $pModelNameForJoin = null) {
 		$this->mFunction = $pFunction;
+		$this->mModelNameForJoin = $pModelNameForJoin;
 		parent::__construct($pTable, $pPropertyName, $pOperator, $pValue, $pModelName);
 	}
 	
@@ -34,6 +36,14 @@ class HavingLiteral extends Literal {
 		if (!is_int($this->mValue)) {
 			throw new \Exception("having literal must have an integer value");
 		}
+	}
+	
+	public function hasModelNameForJoin() {
+		return !is_null($this->mModelNameForJoin);
+	}
+	
+	public function getModelNameForJoin() {
+		return $this->mModelNameForJoin;
 	}
 	
 	/**

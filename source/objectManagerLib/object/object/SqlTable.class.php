@@ -29,7 +29,7 @@ class SqlTable extends SerializationUnit {
 	
 	public function loadCompositionIds($pObject, $pId, $pColumn, $pParentModel) {
 		$lReturn = false;
-		$lWhereColumns = $this->_getCompositionColumns($pColumn, $pParentModel);
+		$lWhereColumns = $this->getCompositionColumns($pParentModel, $pColumn);
 		if (count($lWhereColumns) > 0) {
 			$lPropertiesIds = $pObject->getModel()->getIds();
 			if (count($lPropertiesIds) !== 1) {
@@ -84,7 +84,7 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	private function _getColumns($pModel, $pColumn, $pParentModel) {
-		$lColumns = $this->_getCompositionColumns($pColumn, $pParentModel);
+		$lColumns = $this->getCompositionColumns($pParentModel, $pColumn);
 		if (count($lColumns) == 0) {
 			foreach ($pModel->getIds() as $pPropertyName) {
 				$lColumns[] = $pModel->getProperty($pPropertyName)->getSerializationName();
@@ -93,7 +93,7 @@ class SqlTable extends SerializationUnit {
 		return $lColumns;
 	}
 	
-	private function _getCompositionColumns($pColumn, $pParentModel) {
+	public function getCompositionColumns($pParentModel, $pColumn) {
 		$lColumns = array();
 		if (!is_null($pParentModel) && $this->isComposition($pParentModel, $pColumn)) {
 			foreach ($this->getValue("compositions")->getValues() as $lComposition) {
