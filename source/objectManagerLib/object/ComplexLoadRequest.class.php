@@ -17,7 +17,7 @@ use objectManagerLib\controller\ForeignObjectReplacer;
 use objectManagerLib\controller\ForeignObjectLoader;
 use objectManagerLib\controller\CompositionLoader;
 
-class ObjectManager {
+class ComplexLoadRequest extends LoadObjectRequest {
 	
 	const CREATE = "create";
 	const UPDATE = "update";
@@ -25,63 +25,60 @@ class ObjectManager {
 	const DELETE_CASCADE = "deleteCascade";
 	const CREATE_OR_UPDATE = "createOrUpdate";
 
-	public static function getObject($pModelName, $pId, $pLoadDepth = 0) {
-		$lModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
-		if (is_null($lSerializationUnit = $lModel->getSerialization(0))) {
-			throw new \Exception("model doesn't have serialization");
+	private $mLoadLength;
+	private $mOptimizeLiterals = false;
+	private $mKey;
+	
+	public function loadLength($pBoolean) {
+		$this->mLoadLength = $pBoolean;
+		return $this;
+	}
+	
+	public function opitimizeLiterals($pBoolean) {
+		$this->mOptimizeLiterals = $pBoolean;
+		return $this;
+	}
+	
+	public function setKey($pKey) {
+		if (!is_null($pKey) && (!$this->mModel->hasProperty($pKey) || ! ($this->mModel->getProperty($pKey)->getModel() instanceof SimpleModel))) {
+			trigger_error("key '".$pKey."' unauthorized");
+			throw new \Exception("key '".$pKey."' unauthorized");
 		}
-		if (count($lPropertiesIds = $lModel->getIds()) != 1) {
-			throw new \Exception("model must have one and only one id property");
-		}
-		$lObject = $lModel->getObjectInstance();
-		$lObject->setValue($lPropertiesIds[0], $pId);
-		$lResult = $lSerializationUnit->loadObject($lObject, $pId);
-		return $lResult ? $lObject : null;
+		$this->mKey = $pKey;
 	}
 	
 	/**
 	 * 
-	 * @param string $pModelName model name of objects that you want to retrieve
-	 * @param LogicalJunction $pLiteral literal(s) for query (can be an object Literal)
-	 * @param integer $pLoadDepth
-	 * @param integer $pLoadLength
-	 * @param boolean $pLoadForeignObject
-	 * @param boolean $pOptimizeLiterals
-	 * @param string $pKey
+	 * @param LogicalJunction $pLogicalJunction literal(s) for query (can be an object Literal)
 	 * @return array
 	 */
-	public function getObjects($pModelName, $pLiteral = null, $pGetChildren = false, $pLoadForeignObject = false, $pLoadLength = null, $pOptimizeLiterals = false, $pKey = null) {
+	public function execute($pLogicalJunction = null) {
 		$lReturn = array();
-		$lModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
-		if (!is_null($pKey) && (!$lModel->hasProperty($pKey) || ! ($lModel->getProperty($pKey)->getModel() instanceof SimpleModel))) {
-			trigger_error("key '".$pKey."' unauthorized");
-			throw new \Exception("key '".$pKey."' unauthorized");
-		}
-		if (is_null($lSqlTable = $lModel->getSqlTableUnit())) {
+		if (is_null($lSqlTable = $this->mModel->getSqlTableUnit())) {
 			trigger_error("error : resquested model must have a database serialization");
 			throw new \Exception("error : resquested model must have a database serialization");
 		}
-		if (is_null($pLiteral)) {
+		if (is_null($pLogicalJunction)) {
 			$lLogicalJunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
-		}else if ($pLiteral instanceof LogicalJunction) {
-			$lLogicalJunction = $pLiteral;
+		}else if ($pLogicalJunction instanceof LogicalJunction) {
+			$lLogicalJunction = $pLogicalJunction;
 		}else {
 			$lLogicalJunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
-			$lLogicalJunction->addLiteral($pLiteral);
+			$lLogicalJunction->addLiteral($pLogicalJunction);
 		}
-		if ($pOptimizeLiterals) {
+		if ($this->mOptimizeLiterals) {
 			$lLogicalJunction = LogicalJunctionOptimizer::optimizeLiterals($lLogicalJunction);
 		}
 		$lSqlTable->loadValue("database");
 		$lSelectQuery = new SelectQuery($lSqlTable->getValue("name"));
 		$lSelectQuery->setWhereLogicalJunction($lLogicalJunction);
-		$this->_addColumns($lSelectQuery, $lModel);
-		$this->_addGroupedColumns($lSelectQuery, $lModel);
-		$this->_addTablesForQuery($lSelectQuery, $lModel);
+		$this->_addColumns($lSelectQuery);
+		$this->_addGroupedColumns($lSelectQuery);
+		$this->_addTablesForQuery($lSelectQuery);
 		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
 		$lRows = $lDbInstance->executeQuery($lSelectQuery);
 		
-		return $this->_buildObjectsWithRows($lModel, $lRows, $pGetChildren, $pLoadForeignObject, $pKey);
+		return $this->_buildObjectsWithRows($lRows);
 	}
 	
 	/**
@@ -91,7 +88,7 @@ class ObjectManager {
 	 * @param LogicalJunction $pLogicalJunction
 	 * @throws \Exception
 	 */
-	private function _addTablesForQuery($pSelectQuery, $pModel) {
+	private function _addTablesForQuery($pSelectQuery) {
 		$lTemporaryLeftJoins = array();
 		$lStackVisitedModels = array();
 		$lArrayVisitedModels = array();
@@ -110,20 +107,20 @@ class ObjectManager {
 				$lLiteralsByModelName[$lLiteral->getModelName()] = array();
 			}
 			$lLiteralsByModelName[$lLiteral->getModelName()][] = $lLiteral;
-			if ($lLiteral->getModelName() == $pModel->getModelName()) {
+			if ($lLiteral->getModelName() == $this->mModel->getModelName()) {
 				$lLiteral->setTable($lModelTable);
 			}
 			if ($lLiteral instanceof ComplexLiteral) {
-				if (count($pModel->getIds()) != 1) {
+				if (count($this->mModel->getIds()) != 1) {
 					throw new \Exception("error : query with complex literal must have one and only one column id");
 				}
 				$lSubSelectQuery = $lLiteral->getValue();
 				$lWhere = $lSubSelectQuery->getWhereLogicalJunction();
 				$lHaving = $lSubSelectQuery->getHavingLogicalJunction();
-				$lColumnId = $pModel->getProperty($pModel->getFirstId())->getSerializationName();
+				$lColumnId = $this->mModel->getProperty($this->mModel->getFirstId())->getSerializationName();
 				$lSubSelectQuery->init($lModelTable)->addSelectColumn($lColumnId);
 				$lSubSelectQuery->setWhereLogicalJunction($lWhere)->setHavingLogicalJunction($lHaving)->addGroupColumn($lColumnId);
-				$this->_addTablesForQuery($lSubSelectQuery, $pModel);
+				$this->_addTablesForQuery($lSubSelectQuery, $this->mModel);
 			} else if (($lLiteral instanceof HavingLiteral) && $lLiteral->hasModelNameForJoin()) {
 				if (!array_key_exists($lLiteral->getModelNameForJoin(), $lLiteralsByModelName)) {
 					$lLiteralsByModelName[$lLiteral->getModelNameForJoin()] = array();
@@ -132,7 +129,7 @@ class ObjectManager {
 		}
 	
 		// stack initialisation with $pModel
-		$this->_extendsStacks($pModel, $pModel->getSqlTableUnit(), $lLiteralsByModelName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
+		$this->_extendsStacks($this->mModel, $this->mModel->getSqlTableUnit(), $lLiteralsByModelName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
 	
 		// Depth-first search to build all left joins
 		while ((count($lStack) > 0)) {
@@ -219,62 +216,28 @@ class ObjectManager {
 	}
 	
 	/**
-	 * 
 	 * @param SelectQuery $pSelectQuery
-	 * @param Model $pModel
 	 */
-	private function _addColumns($pSelectQuery, $pModel) {
-		foreach ($pModel->getProperties() as $lProperty) {
-			if (!($lProperty instanceof ForeignProperty) || !$this->_isComposition($pModel, $lProperty->getSerializationName(), $lProperty->getSqlTableUnit())) {
+	private function _addColumns($pSelectQuery) {
+		foreach ($this->mModel->getProperties() as $lProperty) {
+			if (!($lProperty instanceof ForeignProperty) || !$lProperty->hasSqlTableUnitComposition($this->mModel)) {
 				$pSelectQuery->addSelectColumn($lProperty->getSerializationName());
 			}
 		}
 	}
 	
-	private function _isComposition($pModel, $pColumn, $pSqlTableUnit) {
-		$lIsComposition = false;
-		if ($pSqlTableUnit->hasValue("compositions")) {
-			foreach ($pSqlTableUnit->getValue("compositions")->getValues() as $lComposition) {
-				if ($lComposition->getValue("parent") == $pModel->getModelName()) {
-					if ($lComposition->getValue("column") == $pColumn) {
-						return false;
-					}
-					$lIsComposition = true;
-				}
-			}
-		}
-		return $lIsComposition;
-	}
-	
-	private function _addGroupedColumns($pSelectQuery, $pModel) {
-		foreach ($pModel->getIds() as $lPropertyName) {
-			$pSelectQuery->addGroupColumn($pModel->getProperty($lPropertyName)->getSerializationName());
+	private function _addGroupedColumns($pSelectQuery) {
+		foreach ($this->mModel->getIds() as $lPropertyName) {
+			$pSelectQuery->addGroupColumn($this->mModel->getProperty($lPropertyName)->getSerializationName());
 		}
 	}
 	
-	private function _buildObjectsWithRows($pModel, $pRows, $pGetChildren, $pLoadForeignObject, $pKey) {
-		$lReturn = array();
-		if (is_array($pRows)) {
-			$lForeignObjectReplacer = new ForeignObjectReplacer();
-			$lForeignObjectLoader   = new ForeignObjectLoader();
-			$lCompositionLoader     = new CompositionLoader();
-			foreach ($pRows as $lRow) {
-				$lObject = $pModel->fromSqlDataBase($lRow);
-				if ($pGetChildren && !$pLoadForeignObject) {
-					$lCompositionLoader->execute($lObject, array($pLoadForeignObject));
-				}
-				else if ($pLoadForeignObject) {
-					$lForeignObjectLoader->execute($lObject, array($pGetChildren));
-				}
-				$lForeignObjectReplacer->execute($lObject);
-				if (is_null($pKey)) {
-					$lReturn[] = $lObject;
-				}else {
-					$lReturn[$lObject->getValue($pKey)] = $lObject;
-				}
-			}
+	private function _buildObjectsWithRows($pRows) {
+		$lObjects = array();
+		foreach ($pRows as $lRow) {
+			$lObjects[] = $this->mModel->fromSqlDataBase($lRow);
 		}
-		return $lReturn;
+		return $this->_updateObjects($lObjects);
 	}
 	
 	/*

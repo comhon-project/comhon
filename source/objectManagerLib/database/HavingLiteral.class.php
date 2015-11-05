@@ -20,10 +20,10 @@ class HavingLiteral extends Literal {
 			self::MAX   => null
 	);
 	
-	public function __construct($pFunction, $pTable, $pPropertyName, $pOperator, $pValue, $pModelName = null, $pModelNameForJoin = null) {
+	public function __construct($pFunction, $pTable, $pColumn, $pOperator, $pValue, $pModelName = null, $pModelNameForJoin = null) {
 		$this->mFunction = $pFunction;
 		$this->mModelNameForJoin = $pModelNameForJoin;
-		parent::__construct($pTable, $pPropertyName, $pOperator, $pValue, $pModelName);
+		parent::__construct($pTable, $pColumn, $pOperator, $pValue, $pModelName);
 	}
 	
 	protected function _verifLiteral() {
@@ -51,6 +51,6 @@ class HavingLiteral extends Literal {
 	 * @return string
 	 */
 	public function export(&$pValues) {
-		return sprintf("%s(%s.%s) %s %s", $this->mFunction, $this->mTable, $this->mPropertyName, $this->mOperator, $this->mValue);
+		return sprintf("%s(%s.%s) %s %s", $this->mFunction, $this->mTable, $this->mColumn, $this->mOperator, $this->mValue);
 	}
 }

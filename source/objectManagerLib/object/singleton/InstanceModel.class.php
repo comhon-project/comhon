@@ -15,7 +15,7 @@ use objectManagerLib\object\model\ModelForeign;
 use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\SerializationUnit;
 use objectManagerLib\object\model\ForeignProperty;
-use objectManagerLib\object\ObjectManager;
+use objectManagerLib\object\SimpleLoadRequest;
 
 class InstanceModel {
 	
@@ -262,7 +262,8 @@ class InstanceModel {
 		if (array_key_exists($pId, $this->mInstanceSerializations[$pType])) {
 			$lObject = $this->mInstanceSerializations[$pType][$pId];
 		} else {
-			$lObject = ObjectManager::getObject($pType, $pId);
+			$lRequest = new SimpleLoadRequest($pType);
+			$lObject = $lRequest->execute($pId);
 			$this->mInstanceSerializations[$pType][$pId] = $lObject;
 		}
 		return $lObject;

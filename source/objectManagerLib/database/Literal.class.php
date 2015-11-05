@@ -15,9 +15,9 @@ class Literal {
 	const DIFF       = '<>';
 	
 	protected $mTable;
-	protected $mPropertyName; // name of table concatanate with propertyName
-	protected $mOperator;     // operator
-	protected $mValue;        // value(s) to filter
+	protected $mColumn;
+	protected $mOperator;
+	protected $mValue;
 	protected $mModelName;
 	
 	protected static $sAcceptedOperators = array(
@@ -41,26 +41,22 @@ class Literal {
 	/**
 	 * construtor
 	 * @param unknown $pTable
-	 * @param unknown $pPropertyName
+	 * @param unknown $pColumn 
 	 * @param unknown $pOperator
-	 * @param unknown $pValue could be null, a string, a number or an array with null or string or number values
+	 * @param unknown $pValue could be :
+	 * - null
+	 * - a string
+	 * - a number
+	 * - an array with null or string or number values
 	 * @param string $pModelName
 	 * @throws \Exception
 	 */
-	public function __construct($pTable, $pPropertyName, $pOperator, $pValue, $pModelName = null) {
-		$this->mTable = $pTable;
-		$this->mOperator = $pOperator;
-		$this->mValue = $pValue;
-		if (is_null($pModelName)) {
-			$this->mPropertyName = $pPropertyName;
-		}else {
-			$this->mModelName = $pModelName;
-			$lModel = InstanceModel::getInstance()->getInstanceModel($this->mModelName);
-			if (is_null($lProperty = $lModel->getProperty($pPropertyName))) {
-				throw new \Exception("'$pModelName' doesn't have property '$pPropertyName'");
-			}
-			$this->mPropertyName = $lProperty->getSerializationName();
-		}
+	public function __construct($pTable, $pColumn, $pOperator, $pValue, $pModelName = null) {
+		$this->mTable     = $pTable;
+		$this->mOperator  = $pOperator;
+		$this->mValue     = $pValue;
+		$this->mColumn    = $pColumn;
+		$this->mModelName = $pModelName;
 		$this->_verifLiteral();
 	}
 	
@@ -85,7 +81,7 @@ class Literal {
 	}
 	
 	public function getPropertyName() {
-		return $this->mPropertyName;
+		return $this->mColumn;
 	}
 	
 	public function getOperator() {
@@ -124,19 +120,19 @@ class Literal {
 			}
 			$lOperator = ($this->mOperator == "=") ? " IN " : " NOT IN ";
 			$lToReplaceValues = "(".implode(",", $lToReplaceValues).")";
-			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mPropertyName, $lOperator, $lToReplaceValues);
+			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mColumn, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
 				$lConnector = ($this->mOperator == "=") ? 'or' : 'and';
-				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mPropertyName, $lOperator);
+				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mColumn, $lOperator);
 			}
 		}else {
 			if (is_null($this->mValue)) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lStringValue = sprintf("%s.%s %s", $this->mTable, $this->mPropertyName, $lOperator);
+				$lStringValue = sprintf("%s.%s %s", $this->mTable, $this->mColumn, $lOperator);
 			}else {
 				$pValues[] = $this->mValue;
-				$lStringValue = sprintf("%s.%s %s ?", $this->mTable, $this->mPropertyName, $this->mOperator);
+				$lStringValue = sprintf("%s.%s %s ?", $this->mTable, $this->mColumn, $this->mOperator);
 			}
 		}
 		return $lStringValue;
@@ -161,40 +157,50 @@ class Literal {
 			}
 			$lOperator = ($this->mOperator == "=") ? " IN " : " NOT IN ";
 			$lToReplaceValues = "(".implode(",", $lToReplaceValues).")";
-			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mPropertyName, $lOperator, $lToReplaceValues);
+			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mColumn, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
 				$lConnector = ($this->mOperator == "=") ? 'or' : 'and';
-				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mPropertyName, $lOperator);
+				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mColumn, $lOperator);
 			}
 		}else {
 			if (is_null($this->mValue)) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lStringValue = sprintf("%s.%s %s", $this->mTable, $this->mPropertyName, $lOperator);
+				$lStringValue = sprintf("%s.%s %s", $this->mTable, $this->mColumn, $lOperator);
 			}else {
-				$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mPropertyName, $this->mOperator, $this->mValue);
+				$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mColumn, $this->mOperator, $this->mValue);
 			}
 		}
 		return $lStringValue;
 	}
 	
-	public static function phpObjectToLiteral($pPhpObject, $pMainModel) {
+	public static function phpObjectToLiteral($pPhpObject, $pMainModel, $pModelByTable = null) {
 		if ((!isset($pPhpObject->property) && (!isset($pPhpObject->function) || ($pPhpObject->function != HavingLiteral::COUNT))) || !isset($pPhpObject->operator) || !isset($pPhpObject->value) || (!isset($pPhpObject->model) && !isset($pPhpObject->table))) {
 			throw new \Exception("malformed phpObject literal : ".json_encode($pPhpObject));
 		}
-		$lModelName    = isset($pPhpObject->model)      ? $pPhpObject->model      : null;
-		$lTable        = isset($pPhpObject->aliasModel) ? $pPhpObject->aliasModel : null;
+		$lModelName    = isset($pPhpObject->model) ? $pPhpObject->model : null;
+		$lTable        = isset($pPhpObject->node)  ? $pPhpObject->node  : null;
 		$lPropertyName = $pPhpObject->property;
+		
+		if (!is_null($lModelName)) {
+			$lModel = InstanceModel::getInstance()->getInstanceModel($lModelName);
+		} else if (!is_null($lTable) && !is_null($pModelByTable)) {
+			if (!array_key_exists($lTable, $pModelByTable)) {
+				throw new \Exception("error : unknown property '$lPropertyName' for model '{$lModel->getModelName()}'");
+			}
+			$lModel = $pModelByTable[$lTable];
+		} else {
+			throw new \Exception("error : phpObject Literal must have 'node' or 'model' property");
+		}
+		if (!$lModel->hasProperty($lPropertyName)) {
+			throw new \Exception("error : unknown property '$lPropertyName' for model '{$lModel->getModelName()}'");
+		}
 		
 		if (isset($pPhpObject->function)) {
 			$lSelectQuery = new SelectQuery(null);
 			$lSubLogicalJunction = new HavingLogicalJunction(LogicalJunction::CONJUNCTION);
 			
 			if ($pPhpObject->function == HavingLiteral::COUNT) {
-				$lModel = InstanceModel::getInstance()->getInstanceModel($lModelName);
-				if (!$lModel->hasProperty($lPropertyName)) {
-					throw new \Exception("error : unknown property '$lPropertyName' for model '{$lModel->getModelName()}'");
-				}
 				if (!($lModel->getProperty($lPropertyName) instanceof ForeignProperty) || !$lModel->getProperty($lPropertyName)->hasSqlTableUnitComposition($lModel)) {
 					throw new \Exception("error : function 'COUNT' must be applied on a composition property. '$lPropertyName' for model '{$lModel->getModelName()}' is not a composition");
 				}
@@ -202,10 +208,12 @@ class Literal {
 				while ($lPropertyModel instanceof ModelContainer) {
 					$lPropertyModel = $lPropertyModel->getModel();
 				}
-				$lHavingLiteral = new HavingLiteral($pPhpObject->function, null, $pMainModel->getFirstId(), $pPhpObject->operator, $pPhpObject->value, $pMainModel->getModelName(), $lPropertyModel->getModelName());
+				$lColumn = $pMainModel->getProperty($pMainModel->getFirstId())->getSerializationName();
+				$lHavingLiteral = new HavingLiteral($pPhpObject->function, null, $lColumn, $pPhpObject->operator, $pPhpObject->value, $pMainModel->getModelName(), $lPropertyModel->getModelName());
 			}
 			else {
-				$lHavingLiteral = new HavingLiteral($pPhpObject->function, null, $lPropertyName, $pPhpObject->operator, $pPhpObject->value, $lModelName);
+				$lColumn = $lModel->getProperty($lPropertyName)->getSerializationName();
+				$lHavingLiteral = new HavingLiteral($pPhpObject->function, null, $lColumn, $pPhpObject->operator, $pPhpObject->value, $lModelName);
 			}
 			$lSubLogicalJunction->addLiteral($lHavingLiteral);
 			
@@ -213,7 +221,8 @@ class Literal {
 			$lLiteral = new ComplexLiteral(null, null, ComplexLiteral::IN, $lSelectQuery, $pMainModel->getModelName());
 		}
 		else {
-			$lLiteral = new Literal($lTable, $lPropertyName, $pPhpObject->operator, $pPhpObject->value, $lModelName);
+			$lColumn = $lModel->getProperty($lPropertyName)->getSerializationName();
+			$lLiteral = new Literal($lTable, $lColumn, $pPhpObject->operator, $pPhpObject->value, $lModelName);
 		}
 		return $lLiteral;
 	}

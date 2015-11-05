@@ -25,15 +25,15 @@ class ComplexLiteral extends WhereLiteral {
 			self::NOT_IN => self::IN
 	);
 	
-	public function __construct($pTable, $pPropertyName, $pOperator, $pValue, $pModelName = null) {
-		if (is_null($pPropertyName) && !is_null($pModelName)) {
+	public function __construct($pTable, $pColumn, $pOperator, $pValue, $pModelName = null) {
+		if (is_null($pColumn) && !is_null($pModelName)) {
 			$lModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
 			if (count($lModel->getIds()) != 1) {
 				throw new \Exception("error : complex literal with model must have one and only one property id");
 			}
-			$pPropertyName = $lModel->getFirstId();
+			$pColumn = $lModel->getProperty($lModel->getFirstId())->getSerializationName();
 		}
-		parent::__construct($pTable, $pPropertyName, $pOperator, $pValue, $pModelName);
+		parent::__construct($pTable, $pColumn, $pOperator, $pValue, $pModelName);
 	}
 	
 	protected function _verifLiteral() {
@@ -54,7 +54,7 @@ class ComplexLiteral extends WhereLiteral {
 		foreach ($lValues as $lValue) {
 			$pValues[] = $lValue;
 		}
-		return sprintf("%s.%s %s (%s)", $this->mTable, $this->mPropertyName, $this->mOperator, $lQuery);
+		return sprintf("%s.%s %s (%s)", $this->mTable, $this->mColumn, $this->mOperator, $lQuery);
 	}
 	
 	/**
@@ -62,6 +62,6 @@ class ComplexLiteral extends WhereLiteral {
 	 * @return string
 	 */
 	public function exportWithValue() {
-		return sprintf("%s.%s %s (%s)", $this->mTable, $this->mPropertyName, $this->mOperator, $this->mValue->exportWithValue());
+		return sprintf("%s.%s %s (%s)", $this->mTable, $this->mColumn, $this->mOperator, $this->mValue->exportWithValue());
 	}
 }

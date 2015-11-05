@@ -87,10 +87,10 @@ class SelectQuery {
 		$this->mTableNames[$lTable[count($lTable) - 1]] = null;
 		$this->mCurrentTableName = $lTable[count($lTable) - 1];
 		$this->mJoinedTables[] = array(
-				$pJoinType,
-				$lTable,
-				array($lTable[count($lTable) - 1], $pColumn),
-				array($pForeignTable, $pForeignColumn)
+			$pJoinType,
+			$lTable,
+			array($lTable[count($lTable) - 1], $pColumn),
+			array($pForeignTable, $pForeignColumn)
 		);
 		return $this;
 	}
