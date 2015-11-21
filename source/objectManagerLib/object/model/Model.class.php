@@ -12,11 +12,12 @@ class Model {
 	protected static $sInstanceObjectHash = array();
 
 	protected $mModelName;
+	protected $mIsLoaded     = false;
+	
 	private $mProperties;
 	private $mObjectClass    = "objectManagerLib\object\object\Object";
 	private $mSerializations = array();
 	private $mIds            = array();
-	protected $mIsLoaded     = false;
 	
 	
 	/**

@@ -17,12 +17,12 @@ use objectManagerLib\controller\ForeignObjectReplacer;
 use objectManagerLib\controller\ForeignObjectLoader;
 use objectManagerLib\controller\CompositionLoader;
 
-abstract class LoadObjectRequest {
+abstract class ObjectLoadRequest {
 
 	protected $mModel;
-	protected $mGetChildren            = false;
-	protected $mLoadForeignProperty    = false;
-	protected $mReplaceForeignProperty = true;
+	protected $mRequestChildren          = false;
+	protected $mLoadForeignProperties    = false;
+	protected $mReplaceForeignProperties = true;
 	
 	public function __construct($pModelName) {
 		$this->mModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
@@ -30,22 +30,24 @@ abstract class LoadObjectRequest {
 	
 	public abstract function execute($pValue);
 		
-	public function getChildren($pBoolean) {
-		$this->mGetChildren = $pBoolean;
+	public function requestChildren($pBoolean) {
+		$this->mRequestChildren = $pBoolean;
 		return $this;
 	}
 	
-	public function loadForeignProperty($pBoolean) {
-		$this->mLoadForeignProperty = $pBoolean;
+	public function loadForeignProperties($pBoolean) {
+		$this->mLoadForeignProperties = $pBoolean;
 		return $this;
 	}
 	
-	public function replaceForeignProperty($pBoolean) {
-		$this->mReplaceForeignProperty = $pBoolean;
+	public function ReplaceForeignProperties($pBoolean) {
+		$this->mReplaceForeignProperties = $pBoolean;
 		return $this;
 	}
 	
-	
+	public function getModel() {
+		return $this->mModel;
+	}
 	
 	protected function _updateObjects($pObjects) {
 		$lReturn = array();
@@ -54,13 +56,13 @@ abstract class LoadObjectRequest {
 		$lCompositionLoader     = new CompositionLoader();
 		
 		foreach ($pObjects as $lObject) {
-			if ($this->mGetChildren && !$this->mLoadForeignProperty) {
-				$lCompositionLoader->execute($lObject, array($this->mLoadForeignProperty));
+			if ($this->mRequestChildren && !$this->mLoadForeignProperties) {
+				$lCompositionLoader->execute($lObject, array($this->mLoadForeignProperties));
 			}
-			else if ($this->mLoadForeignProperty) {
-				$lForeignObjectLoader->execute($lObject, array($this->mGetChildren));
+			else if ($this->mLoadForeignProperties) {
+				$lForeignObjectLoader->execute($lObject, array($this->mRequestChildren));
 			}
-			if ($this->mReplaceForeignProperty) {
+			if ($this->mReplaceForeignProperties) {
 				$lForeignObjectReplacer->execute($lObject);
 			}
 			$lReturn[] = $lObject;

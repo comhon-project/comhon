@@ -18,7 +18,6 @@ class Literal {
 	protected $mColumn;
 	protected $mOperator;
 	protected $mValue;
-	protected $mModelName;
 	
 	protected static $sAcceptedOperators = array(
 		self::EQUAL      => null,
@@ -51,12 +50,11 @@ class Literal {
 	 * @param string $pModelName
 	 * @throws \Exception
 	 */
-	public function __construct($pTable, $pColumn, $pOperator, $pValue, $pModelName = null) {
+	public function __construct($pTable, $pColumn, $pOperator, $pValue) {
 		$this->mTable     = $pTable;
 		$this->mOperator  = $pOperator;
 		$this->mValue     = $pValue;
 		$this->mColumn    = $pColumn;
-		$this->mModelName = $pModelName;
 		$this->_verifLiteral();
 	}
 	
@@ -94,10 +92,6 @@ class Literal {
 	
 	public function getValue() {
 		return $this->mValue;
-	}
-	
-	public function getModelName() {
-		return $this->mModelName;
 	}
 	
 	/**
@@ -174,56 +168,100 @@ class Literal {
 		return $lStringValue;
 	}
 	
-	public static function phpObjectToLiteral($pPhpObject, $pMainModel, $pModelByTable = null) {
-		if ((!isset($pPhpObject->property) && (!isset($pPhpObject->function) || ($pPhpObject->function != HavingLiteral::COUNT))) || !isset($pPhpObject->operator) || !isset($pPhpObject->value) || (!isset($pPhpObject->model) && !isset($pPhpObject->table))) {
+	/**
+	 * @param stdClass $pPhpObject
+	 * @param Model $pMainModel model of your object request
+	 * @throws \Exception
+	 * @return Literal
+	 */
+	public static function phpObjectToLiteral($pPhpObject, $pJoinTree, $pTablesWithConditions) {
+		if ((!isset($pPhpObject->property) && (!isset($pPhpObject->function) || ($pPhpObject->function != HavingLiteral::COUNT))) || !isset($pPhpObject->operator) || !isset($pPhpObject->value) || !isset($pPhpObject->node)) {
 			throw new \Exception("malformed phpObject literal : ".json_encode($pPhpObject));
 		}
-		$lModelName    = isset($pPhpObject->model) ? $pPhpObject->model : null;
-		$lTable        = isset($pPhpObject->node)  ? $pPhpObject->node  : null;
-		$lPropertyName = $pPhpObject->property;
+		if (!$pJoinTree->goToSavedNodeAt($pPhpObject->node)) {
+			throw new \Exception("node doesn't exist in join tree : ".json_encode($pPhpObject));
+		}
+		$lJoinValue     = $pJoinTree->current();
+		$lLeftModel     = $lJoinValue['left_model'];
+		$lRightodel     = $lJoinValue['right_model'];
+		$lProperty      = $lRightodel->getProperty($pPhpObject->property);
+		$lTable         = $pPhpObject->node;
 		
-		if (!is_null($lModelName)) {
-			$lModel = InstanceModel::getInstance()->getInstanceModel($lModelName);
-		} else if (!is_null($lTable) && !is_null($pModelByTable)) {
-			if (!array_key_exists($lTable, $pModelByTable)) {
-				throw new \Exception("error : unknown property '$lPropertyName' for model '{$lModel->getModelName()}'");
-			}
-			$lModel = $pModelByTable[$lTable];
-		} else {
-			throw new \Exception("error : phpObject Literal must have 'node' or 'model' property");
+		if (is_null($lProperty)) {
+			throw new \Exception("error : unknown property '{$pPhpObject->property}' for model '{$lRightodel->getModelName()}'");
 		}
-		if (!$lModel->hasProperty($lPropertyName)) {
-			throw new \Exception("error : unknown property '$lPropertyName' for model '{$lModel->getModelName()}'");
-		}
+		$lColumn        = $lProperty->getSerializationName();
 		
 		if (isset($pPhpObject->function)) {
-			$lSelectQuery = new SelectQuery(null);
-			$lSubLogicalJunction = new HavingLogicalJunction(LogicalJunction::CONJUNCTION);
+			$lSubQueryTables = self::_getSubQueryTables($pJoinTree, $lTable, $pTablesWithConditions);
+			$lNodeValue      = $pJoinTree->current();
+			$lComplexColumn  = $lNodeValue['left_model']->getProperty($lNodeValue['left_model']->getFirstId())->getSerializationName();
+			$lComplexTable   = array_key_exists('right_table_alias', $lNodeValue) && !is_null($lNodeValue['right_table_alias']) ? $lNodeValue['right_table_alias'] : $lNodeValue['right_table'];
 			
 			if ($pPhpObject->function == HavingLiteral::COUNT) {
-				if (!($lModel->getProperty($lPropertyName) instanceof ForeignProperty) || !$lModel->getProperty($lPropertyName)->hasSqlTableUnitComposition($lModel)) {
-					throw new \Exception("error : function 'COUNT' must be applied on a composition property. '$lPropertyName' for model '{$lModel->getModelName()}' is not a composition");
-				}
-				$lPropertyModel = $lModel->getProperty($lPropertyName)->getModel();
-				while ($lPropertyModel instanceof ModelContainer) {
-					$lPropertyModel = $lPropertyModel->getModel();
-				}
-				$lColumn = $pMainModel->getProperty($pMainModel->getFirstId())->getSerializationName();
-				$lHavingLiteral = new HavingLiteral($pPhpObject->function, null, $lColumn, $pPhpObject->operator, $pPhpObject->value, $pMainModel->getModelName(), $lPropertyModel->getModelName());
+				$lSubQueryTables[] = self::_getCountJoinTable($lJoinValue, $lLeftModel, $lProperty);
+				$lColumn = $lComplexColumn;
+				$lTable  = $lComplexTable;
 			}
-			else {
-				$lColumn = $lModel->getProperty($lPropertyName)->getSerializationName();
-				$lHavingLiteral = new HavingLiteral($pPhpObject->function, null, $lColumn, $pPhpObject->operator, $pPhpObject->value, $lModelName);
-			}
-			$lSubLogicalJunction->addLiteral($lHavingLiteral);
-			
-			$lSelectQuery->setHavingLogicalJunction($lSubLogicalJunction);
-			$lLiteral = new ComplexLiteral(null, null, ComplexLiteral::IN, $lSelectQuery, $pMainModel->getModelName());
+			$lSelectQuery = self::_setSubSelectQuery($lSubQueryTables, $pPhpObject, $lTable, $lColumn, $lComplexColumn);
+			$lLiteral     = new ComplexLiteral($lComplexTable, $lComplexColumn, ComplexLiteral::IN, $lSelectQuery);
 		}
 		else {
-			$lColumn = $lModel->getProperty($lPropertyName)->getSerializationName();
-			$lLiteral = new Literal($lTable, $lColumn, $pPhpObject->operator, $pPhpObject->value, $lModelName);
+			$lLiteral = new Literal($lTable, $lColumn, $pPhpObject->operator, $pPhpObject->value);
 		}
 		return $lLiteral;
 	}
+	
+	private static function _getSubQueryTables($pJoinTree, $pTable, $pTablesWithConditions) {
+		$pJoinTree->goToSavedNodeAt($pTable);
+		$lSubQueryTables = array();
+		$lChildTable     = $pTable;
+		$lIsDeletable    = true;
+		$lRewind         = true;
+		while ($lRewind && $pJoinTree->goToParent()) {
+			$lIndex = $pJoinTree->searchChild(function($pJoinTable, $pTableName) {
+				if (array_key_exists('right_table_alias', $pJoinTable) && !is_null($pJoinTable['right_table_alias'])) {
+					return $pJoinTable['right_table_alias'] == $pTableName;
+				}
+				return $pJoinTable['right_table'] == $pTableName;
+			}, $lChildTable);
+			$lSubQueryTable    = $lIsDeletable ? $pJoinTree->deleteChildAt($lIndex) : $pJoinTree->getChildAt($lIndex);
+			$lSubQueryTables[] = $lSubQueryTable;
+			$lRewind      = !array_key_exists($lSubQueryTable['left_table'], $pTablesWithConditions);
+			$lIsDeletable = !$pJoinTree->hasChildren();
+			$lChildTable  = $lSubQueryTable['left_table'];
+		}
+		$lSubQueryTables[] = $pJoinTree->current();
+		return array_reverse($lSubQueryTables);
+	}
+	
+	private static function _getCountJoinTable($pJoinValue, $pModel, $pProperty) {
+		if (!($pProperty instanceof ForeignProperty) || !$pProperty->hasSqlTableUnitComposition($pModel)) {
+			throw new \Exception("error : function 'COUNT' must be applied on a composition property. '{$pProperty->getName()}' for model '{$pModel->getModelName()}' is not a composition");
+		}
+		$lRightTable = $pProperty->getSqlTableUnit();
+		return  array(
+				"left_table"        => array_key_exists('right_table_alias', $pJoinValue) && !is_null($pJoinValue['right_table_alias']) ? $pJoinValue['right_table_alias'] : $pJoinValue['right_table'],
+				"right_table"       => $lRightTable->getValue("name"),
+				"right_table_alias" => $lRightTable->getValue("name")."_".mt_rand(),
+				"left_column"       => $pModel->getProperty($pModel->getFirstId())->getSerializationName(),
+				"right_column"      => $lRightTable->getCompositionColumns($pModel, $pProperty->getSerializationName())
+		);
+	}
+	
+	private static function _setSubSelectQuery($pSubQueryTables, $pPhpObject, $pHavingTable, $pHavingColumn, $pSelectColumn) {
+		$lSelectQuery = new SelectQuery($pSubQueryTables[0]['right_table'], $pSubQueryTables[0]['right_table_alias']);
+		$lSelectQuery->addSelectColumn($pSelectColumn)->addGroupColumn($pSelectColumn);
+		
+		for ($i = 1; $i < count($pSubQueryTables); $i++) {
+			$lJoinTable = $pSubQueryTables[$i];
+			$lSelectQuery->addTable($lJoinTable["right_table"], $lJoinTable["right_table_alias"], SelectQuery::LEFT_JOIN, $lJoinTable["right_column"], $lJoinTable["left_column"], $lJoinTable["left_table"]);
+		}
+		$lSubLogicalJunction = new HavingLogicalJunction(LogicalJunction::CONJUNCTION);
+		$lSubLogicalJunction->addLiteral(new HavingLiteral($pPhpObject->function, $pHavingTable, $pHavingColumn, $pPhpObject->operator, $pPhpObject->value));
+			
+		$lSelectQuery->setHavingLogicalJunction($lSubLogicalJunction);
+		return $lSelectQuery;
+	}
+	
 }

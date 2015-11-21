@@ -160,7 +160,7 @@ class DatabaseController {
 	public function executeQuery($pSelectQuery) {
 		list($lQuery, $lValues) = $pSelectQuery->export();
 		try {
-			trigger_error("\n\n".vsprintf(str_replace('?', "%s", $lQuery), $lValues));
+			//var_dump("\n\n".vsprintf(str_replace('?', "%s", $lQuery), $lValues));
 			$lQueryId = $this->prepareQuery($lQuery, $lValues);
 			$this->doQueryWithId($lQueryId);
 			$lResult = $this->fetchAllWithId($lQueryId);

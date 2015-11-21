@@ -22,7 +22,7 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	public function loadObject($pObject, $pId, $pColumn = null, $pParentModel = null) {
-		$lWhereColumns = $this->_getColumns($pObject->getModel(), $pColumn, $pParentModel);
+		$lWhereColumns = $this->getJoinColumns($pObject->getModel(), $pColumn, $pParentModel);
 		$lReturn = $this->_loadObject($pObject, $pId, $pColumn, $pParentModel, array(), $lWhereColumns);
 		return $lReturn;
 	}
@@ -83,7 +83,7 @@ class SqlTable extends SerializationUnit {
 		return $lReturn;
 	}
 	
-	private function _getColumns($pModel, $pColumn, $pParentModel) {
+	private function getJoinColumns($pModel, $pColumn, $pParentModel) {
 		$lColumns = $this->getCompositionColumns($pParentModel, $pColumn);
 		if (count($lColumns) == 0) {
 			foreach ($pModel->getIds() as $pPropertyName) {

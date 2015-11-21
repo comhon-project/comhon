@@ -17,7 +17,7 @@ use objectManagerLib\controller\ForeignObjectReplacer;
 use objectManagerLib\controller\ForeignObjectLoader;
 use objectManagerLib\controller\CompositionLoader;
 
-class SimpleLoadRequest extends LoadObjectRequest {
+class SimpleLoadRequest extends ObjectLoadRequest {
 
 	public function execute($pId) {
 		if (is_null($lSerializationUnit = $this->mModel->getSerialization(0))) {

@@ -220,19 +220,41 @@ class LogicalJunction {
 		return $lSatisfied;
 	}
 	
-	public static function phpObjectToLogicalJunction($pPhpObject, $pMainModel) {
+	public static function phpObjectToLogicalJunction($pPhpObject, $pJoinTree) {
+		$lTablesWithConditions = array();
+		self::_setTablesWithConditions($pPhpObject, $lTablesWithConditions);
+		return self::_phpObjectToLogicalJunction($pPhpObject, $pJoinTree, $lTablesWithConditions);
+	}
+	
+	private static function _setTablesWithConditions($pPhpObject, &$pTablesWithConditions) {
+		if (isset($pPhpObject->literals)) {
+			foreach ($pPhpObject->literals as $lLiteral) {
+				if (!isset($lLiteral->node)) {
+					throw new \Exception("malformed phpObject literal : ".json_encode($lLiteral));
+				}
+				$pTablesWithConditions[$lLiteral->node] = null;
+			}
+		}
+		if (isset($pPhpObject->logicalJunctions)) {
+			foreach ($pPhpObject->logicalJunctions as $lLogicalJunction) {
+				self::_setTablesWithConditions($lLogicalJunction, $pTablesWithConditions);
+			}
+		}
+	}
+	
+	private static function _phpObjectToLogicalJunction($pPhpObject, $pJoinTree, $pTablesWithConditions) {
 		if (!isset($pPhpObject->type) || (isset($pPhpObject->logicalJunctions) && !is_array($pPhpObject->logicalJunctions)) || (isset($pPhpObject->literals) && !is_array($pPhpObject->literals))) {
 			throw new \Exception("malformed phpObject LogicalJunction : ".json_encode($pPhpObject));
 		}
 		$lLogicalJunction = new LogicalJunction($pPhpObject->type);
 		if (isset($pPhpObject->logicalJunctions)) {
 			foreach ($pPhpObject->logicalJunctions as $lPhpObjectLogicalJunction) {
-				$lLogicalJunction->addLogicalJunction(LogicalJunction::phpObjectToLogicalJunction($lPhpObjectLogicalJunction, $pMainModel));
+				$lLogicalJunction->addLogicalJunction(LogicalJunction::_phpObjectToLogicalJunction($lPhpObjectLogicalJunction, $pJoinTree, $pTablesWithConditions));
 			}
 		}
 		if (isset($pPhpObject->literals)) {
 			foreach ($pPhpObject->literals as $lPhpObjectLiteral) {
-				$lLogicalJunction->addLiteral(Literal::phpObjectToLiteral($lPhpObjectLiteral, $pMainModel));
+				$lLogicalJunction->addLiteral(Literal::phpObjectToLiteral($lPhpObjectLiteral, $pJoinTree, $pTablesWithConditions));
 			}
 		}
 		return $lLogicalJunction;

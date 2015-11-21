@@ -148,6 +148,10 @@ class Node {
 		return array_key_exists($pIndex, $this->mNextNodes);
 	}
 	
+	public function hasNeighbors() {
+		return count($this->mNextNodes) > 0;
+	}
+	
 	public function getNeighborAt($pIndex) {
 		return array_key_exists($pIndex, $this->mNextNodes) ? $this->mNextNodes[$pIndex] : null;
 	}
@@ -182,6 +186,10 @@ class Node {
 	
 	public function hasChildAt($pIndex) {
 		return $this->hasNeighborAt($pIndex);
+	}
+	
+	public function hasChildren() {
+		return $this->hasNeighbors();
 	}
 	
 	public function getChildAt($pIndex) {

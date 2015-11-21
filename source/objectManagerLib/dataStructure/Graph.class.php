@@ -66,26 +66,44 @@ abstract class Graph {
 	}
 	
 	/**
+	 * return true if the current node as neighbors
+	 */
+	public final function _hasNeighbors() {
+		if (!is_null($this->mCurrentNode)) {
+			return $this->mCurrentNode->hasNeighbors();
+		}
+		return false;
+	}
+	
+	/**
 	 * add node to saved node list
 	 */
-	public final function saveNode(Node $pNode) {
-		$this->mSavedNodes[] = $pNode;
+	public final function saveNode(Node $pNode, $pKey = null) {
+		if (is_null($pKey)) {
+			$this->mSavedNodes[] = $pNode;
+		} else {
+			$this->mSavedNodes[$pKey] = $pNode;
+		}
 	}
 	
 	/**
 	 * add current node to saved node list
 	 */
-	public final function saveCurrentNode() {
+	public final function saveCurrentNode($pKey = null) {
 		if (!is_null($this->mCurrentNode)) {
-			$this->mSavedNodes[] = $this->mCurrentNode;
+			if (is_null($pKey)) {
+				$this->mSavedNodes[] = $this->mCurrentNode;
+			} else {
+				$this->mSavedNodes[$pKey] = $this->mCurrentNode;
+			}
 		}
 	}
 	
 	/**
 	 * get saved node value
 	 */
-	public final function getSavedNodeValue($pIndex) {
-		return array_key_exists($pIndex, $this->mSavedNodes) ? $this->mSavedNodes[$pIndex]->getValue() : null;
+	public final function getSavedNodeValue($pKey) {
+		return array_key_exists($pKey, $this->mSavedNodes) ? $this->mSavedNodes[$pKey]->getValue() : null;
 	}
 	
 	public final function savedNodesCount() {
@@ -113,11 +131,11 @@ abstract class Graph {
 	/**
 	 * go to saved node (reset visit nodes)
 	 */
-	public function goToSavedNodeAt($pIndex) {
+	public function goToSavedNodeAt($pKey) {
 		$lReturn = false;
-		if (array_key_exists($pIndex, $this->mSavedNodes)) {
+		if (array_key_exists($pKey, $this->mSavedNodes)) {
 			$this->resetVisit();
-			$this->mCurrentNode = $this->mSavedNodes[$pIndex];
+			$this->mCurrentNode = $this->mSavedNodes[$pKey];
 			$lReturn = true;
 		}
 		return $lReturn;

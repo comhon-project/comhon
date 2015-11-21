@@ -10,6 +10,57 @@ class Tree extends Graph {
 		$this->mRootNode = $this->mCurrentNode;
 	}
 	
+	/**
+	 * add last child node to saved node list
+	 */
+	public final function saveLastChild($pKey = null) {
+		$lReturn = false;
+		if (!is_null($this->mCurrentNode)) {
+			$lCount = count($this->mCurrentNode->getChildren());
+			if ($lCount > 0) {
+				if (is_null($pKey)) {
+					$this->mSavedNodes[] = $this->mCurrentNode->getChildAt($lCount - 1);
+				} else {
+					$this->mSavedNodes[$pKey] = $this->mCurrentNode->getChildAt($lCount - 1);
+				}
+				$lReturn = true;
+			}
+		}
+		return $lReturn;
+	}
+	
+	/*********************************************************              access functions              *********************************************************/
+	
+	/**
+	 * get child at index $pChildIndex
+	 * @param integer $pChildIndex
+	 */
+	public function getChildAt($pChildIndex) {
+		return $this->mCurrentNode->hasChildAt($pChildIndex) ? $this->mCurrentNode->getChildAt($pChildIndex)->getValue() : null;
+	}
+	
+	/**
+	 * search a child
+	 * @param function $pCallBack
+	 * @return integer|false return index of child if exists
+	 */
+	public function searchChild($pCallBack, $pCallBackParam) {
+		$lChildren = $this->mCurrentNode->getChildren();
+		for ($i = 0; $i < count($lChildren); $i++) {
+			if ($pCallBack($lChildren[$i]->getValue(), $pCallBackParam)) {
+				return $i;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * return true if the current node as neighbors
+	 */
+	public function hasChildren() {
+		return $this->mCurrentNode->hasChildren();
+	}
+	
 	/*********************************************************              navigate functions              *********************************************************/
 	
 	public function goToChildAt($pChildIndex) {
@@ -78,7 +129,7 @@ class Tree extends Graph {
 	 */
 	public function deleteChildAt($pChildIndex) {
 		$lChild = $this->_deleteNeighborLinkAt($pChildIndex);
-		return $lChild !== false;
+		return ($lChild !== false) ? $lChild->getValue() : false;
 	}
 	
 }

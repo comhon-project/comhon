@@ -8,11 +8,19 @@ class SelectQuery {
 	const RIGHT_JOIN = "right join";
 	const FULL_JOIN  = "full join";
 	
+	const ASC  = "ASC";
+	const DESC = "DESC";
+	
 	private static $sAccpetedJoins = array(
 		self::INNER_JOIN => null,
 		self::LEFT_JOIN  => null,
 		self::RIGHT_JOIN => null,
-		self::FULL_JOIN  => null,
+		self::FULL_JOIN  => null
+	);
+	
+	private static $sAccpetedOrders = array(
+			self::ASC  => null,
+			self::DESC => null
 	);
 
 	private $mFirstTable;
@@ -20,6 +28,8 @@ class SelectQuery {
 	private $mColumnsByTable;
 	private $mWhereLogicalJunction;
 	private $mHavingLogicalJunction;
+	private $mLimit;
+	private $mOffset;
 	
 	private $mJoinedTables = array();
 	private $mTableNames   = array();
@@ -43,6 +53,8 @@ class SelectQuery {
 		$this->mColumnsByTable   = null;
 		$this->mOrder            = array();
 		$this->mGroup            = array();
+		$this->mLimit            = null;
+		$this->mOffset           = null;
 		$this->mWhereLogicalJunction  = null;
 		$this->mHavingLogicalJunction = null;
 		$this->_setFirstTable($pTable, $pAlias);
@@ -67,6 +79,16 @@ class SelectQuery {
 		return true;
 	}
 	
+	public function getCurrentTable() {
+		return $this->mCurrentTableName;
+	}
+	
+	public function setFirstTableCurrentTable() {
+		reset($this->mTableNames);
+		$this->mCurrentTableName = key($this->mTableNames);
+		return true;
+	}
+	
 	/**
 	 * 
 	 * @param string $pTable
@@ -78,18 +100,22 @@ class SelectQuery {
 	 */
 	public function addTable($pTable, $pAlias, $pJoinType, $pColumn, $pForeignColumn, $pForeignTable) {
 		if (!array_key_exists($pForeignTable, $this->mTableNames)) {
-			throw new \Exception("foreign table is not already added");
+			throw new \Exception("foreign table '$pForeignTable' is not already added ".json_encode(array_keys($this->mTableNames)));
 		}
 		if (!array_key_exists($pJoinType, self::$sAccpetedJoins)) {
-			throw new \Exception("undefined join type");
+			throw new \Exception("undefined join type '$pJoinType'");
 		}
 		$lTable = is_null($pAlias) ? array($pTable) : array($pTable, $pAlias);
-		$this->mTableNames[$lTable[count($lTable) - 1]] = null;
-		$this->mCurrentTableName = $lTable[count($lTable) - 1];
+		$lTableName = $lTable[count($lTable) - 1];
+		if (array_key_exists($lTableName, $this->mTableNames)) {
+			throw new \Exception("table already added '$lTableName'");
+		}
+		$this->mTableNames[$lTableName] = null;
+		$this->mCurrentTableName = $lTableName;
 		$this->mJoinedTables[] = array(
 			$pJoinType,
 			$lTable,
-			array($lTable[count($lTable) - 1], $pColumn),
+			array($lTableName, $pColumn),
 			array($pForeignTable, $pForeignColumn)
 		);
 		return $this;
@@ -127,8 +153,25 @@ class SelectQuery {
 		return $this;
 	}
 	
-	public function addOrderColumn($pColumn) {
-		$this->mOrder[] = $this->mCurrentTableName.'.'.$pColumn;
+	public function addOrderColumn($pColumn, $pType = self::ASC) {
+		if (!array_key_exists($pType, self::$sAccpetedOrders)) {
+			throw new \Exception("undefined order type '$pType'");
+		}
+		$lOrder = $this->mCurrentTableName.'.'.$pColumn;
+		if ($pType == self::DESC) {
+			$lOrder .= " $pType";
+		}
+		$this->mOrder[] = $lOrder;
+		return $this;
+	}
+	
+	public function setLimit($pLimit) {
+		$this->mLimit = $pLimit;
+		return $this;
+	}
+	
+	public function setOffset($pOffset) {
+		$this->mOffset = $pOffset;
 		return $this;
 	}
 	
@@ -149,6 +192,18 @@ class SelectQuery {
 		}
 		if (!is_null($lClause = $this->_getClauseForQuery($this->mHavingLogicalJunction, $lValues))) {
 			$lQuery .= " HAVING ".$lClause;
+		}
+		if (!is_null($this->mLimit)) {
+			if (count($this->mOrder) == 0) {
+				trigger_error('Warning, limit is used without ordering');
+			}
+			$lQuery .= " LIMIT ".$this->mLimit;
+		}
+		if (!is_null($this->mOffset)) {
+			if (count($this->mOrder) == 0) {
+				trigger_error('Warning, offset is used without ordering');
+			}
+			$lQuery .= " OFFSET ".$this->mOffset;
 		}
 		return array($lQuery, $lValues);
 	}

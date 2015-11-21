@@ -20,6 +20,15 @@ class Property {
 		return $this->mModel;
 	}
 	
+	public function getUniqueModel() {
+		$lUniqueModel = $this->mModel;
+		while ($lUniqueModel instanceof ModelContainer) {
+			$lUniqueModel = $lUniqueModel->getModel();
+		}
+		$lUniqueModel->load();
+		return $lUniqueModel;
+	}
+	
 	public function getName() {
 		return $this->mName;
 	}
