@@ -148,8 +148,6 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$lSqlTable = $this->mModel->getSqlTableUnit();
 		$lAlias = isset($pModelTree->id) ? $pModelTree->id : null;
 		$this->mSelectQuery = new SelectQuery($lSqlTable->getValue("name"), $lAlias);
-		$this->_addColumns();
-		$this->_addGroupedColumns();
 		
 		$this->mModelTree = new Tree(array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lSqlTable->getValue("name"), "right_table_alias" => $lAlias));
 		$this->mModelTree->saveCurrentNode(is_null($lAlias) ? $lSqlTable->getValue("name") : $lAlias);
@@ -222,22 +220,21 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public function execute($pFakeValue = null) {
 		$lReturn = array();
+		if (is_null($this->mSelectQuery)) {
+			throw new \Exception("query not initialized");
+		}
 		if ($this->mOptimizeLiterals) {
 			$this->mLogicalJunction = LogicalJunctionOptimizer::optimizeLiterals($this->mLogicalJunction);
 		}
 		$lSqlTable = $this->mModel->getSqlTableUnit();
 		$lSqlTable->loadValue("database");
-		if (is_null($this->mSelectQuery)) {
-			$this->mSelectQuery = new SelectQuery($lSqlTable->getValue("name"));
-			$this->mSelectQuery->setWhereLogicalJunction($this->mLogicalJunction);
-			$this->_addColumns();
-			$this->_addGroupedColumns();
-			$this->_buildModelTree($this->mSelectQuery);
-		} else {
-			$this->mSelectQuery->setWhereLogicalJunction($this->mLogicalJunction);
-		}
+		
+		$this->mSelectQuery->setWhereLogicalJunction($this->mLogicalJunction);
 		$this->mSelectQuery->setLimit($this->mLoadLength)->setOffset($this->mOffset);
 		$this->mSelectQuery->setFirstTableCurrentTable();
+		$this->_addColumns();
+		$this->_addGroupedColumns();
+		
 		foreach ($this->mOrder as $lOrder) {
 			if (!$this->mModel->hasProperty($lOrder[0])) {
 				throw new Exception("property doesn't exists");
@@ -246,7 +243,6 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		}
 		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
 		$lRows = $lDbInstance->executeQuery($this->mSelectQuery);
-		
 		return $this->_buildObjectsWithRows($lRows);
 	}
 	
