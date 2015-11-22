@@ -281,6 +281,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @throws Exception
 	 */
 	private function _buildModelTree($pModels) {
+		if ((count($pModels) == 0) || ((count($pModels) == 1) && array_key_exists($this->mModel->getModelName(), $pModels))) {
+			return;
+		}
 		$lTemporaryLeftJoins = array();
 		$lStackVisitedModels = array();
 		$lArrayVisitedModels = array();
