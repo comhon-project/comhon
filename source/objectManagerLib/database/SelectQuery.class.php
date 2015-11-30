@@ -86,7 +86,7 @@ class SelectQuery {
 	public function setFirstTableCurrentTable() {
 		reset($this->mTableNames);
 		$this->mCurrentTableName = key($this->mTableNames);
-		return true;
+		return $this;
 	}
 	
 	/**
@@ -121,6 +121,10 @@ class SelectQuery {
 		return $this;
 	}
 	
+	public function resetSelectColumns() {
+		$this->mColumnsByTable = array();
+	}
+	
 	public function addSelectColumn($pColumn, $pAlias = null) {
 		$lColumn = array($pColumn);
 		if (!is_null($pAlias)) {
@@ -148,6 +152,10 @@ class SelectQuery {
 		return $this->mHavingLogicalJunction;
 	}
 	
+	public function resetGroupColumns() {
+		$this->mGroup = array();
+	}
+	
 	public function addGroupColumn($pColumn) {
 		$this->mGroup[] = $this->mCurrentTableName.'.'.$pColumn;
 		return $this;
@@ -163,6 +171,10 @@ class SelectQuery {
 		}
 		$this->mOrder[] = $lOrder;
 		return $this;
+	}
+	
+	public function resetOrderColumns() {
+		$this->mOrder = array();
 	}
 	
 	public function setLimit($pLimit) {

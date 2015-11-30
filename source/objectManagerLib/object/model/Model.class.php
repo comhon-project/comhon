@@ -2,10 +2,11 @@
 namespace objectManagerLib\object\model;
 
 use objectManagerLib\object\singleton\InstanceModel;
-use \stdClass;
 use objectManagerLib\object\object\SqlTable;
 use objectManagerLib\object\object\Object;
 use objectManagerLib\object\object\ObjectArray;
+use objectManagerLib\exception\PropertyException;
+use \stdClass;
 
 class Model {
 	
@@ -76,8 +77,14 @@ class Model {
 		return array_keys($this->mProperties);
 	}
 	
-	public function getProperty($pPropertyName) {
-		return $this->hasProperty($pPropertyName) ? $this->mProperties[$pPropertyName] : null;
+	public function getProperty($pPropertyName, $pThrowException = false) {
+		if ($this->hasProperty($pPropertyName)) {
+			return $this->mProperties[$pPropertyName];
+		}
+		else if ($pThrowException) {
+			throw new PropertyException($this, $pPropertyName);
+		}
+		return null;
 	}
 	
 	public function getPropertyModel($pPropertyName) {
@@ -103,6 +110,14 @@ class Model {
 	
 	public function getIds() {
 		return $this->mIds;
+	}
+	
+	public function getSerializationIds() {
+		$lSerializationIds = array();
+		foreach ($this->mIds as $lIdPropertyName) {
+			$lSerializationIds[] = $this->getProperty($lIdPropertyName)->getSerializationName();
+		}
+		return $lSerializationIds;
 	}
 	
 	public function getFirstId() {

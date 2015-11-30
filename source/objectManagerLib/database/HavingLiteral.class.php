@@ -43,4 +43,23 @@ class HavingLiteral extends Literal {
 	public function export(&$pValues) {
 		return sprintf("%s(%s.%s) %s %s", $this->mFunction, $this->mTable, $this->mColumn, $this->mOperator, $this->mValue);
 	}
+	
+	private static function _verifPhpObject($pPhpObject) {
+		if (!is_object($pPhpObject) || !isset($pPhpObject->function) || !isset($pPhpObject->node) || !isset($pPhpObject->column) || !isset($pPhpObject->operator) ||!isset($pPhpObject->value)) {
+			throw new \Exception("malformed phpObject literal : ".json_encode($pPhpObject));
+		}
+	}
+	
+	/**
+	 * @param stdClass $pPhpObject
+	 * @param Tree $pJoinTree
+	 * @throws \Exception
+	 * @return Literal
+	 */
+	public static function phpObjectToLiteral($pPhpObject, $pJoinTree = null) {
+		self::_verifPhpObject($pPhpObject);
+		$lLiteral  = new HavingLiteral($pPhpObject->function, $pPhpObject->node, $pPhpObject->column, $pPhpObject->operator, $pPhpObject->value);
+		return $lLiteral;
+	}
+	
 }

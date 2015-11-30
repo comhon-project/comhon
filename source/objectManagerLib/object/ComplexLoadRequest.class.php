@@ -36,8 +36,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	private $mLoadLength;
 	private $mOrder = array();
 	private $mOffset;
+	private $mSelectedColumns;
 	private $mOptimizeLiterals = false;
-	private $mKey;
 	
 	public function __construct($pModelName) {
 		parent::__construct($pModelName);
@@ -79,12 +79,18 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		return $this;
 	}
 	
-	public function setKey($pKey) {
-		if (!is_null($pKey) && (!$this->mModel->hasProperty($pKey) || ! ($this->mModel->getProperty($pKey)->getModel() instanceof SimpleModel))) {
-			trigger_error("key '".$pKey."' unauthorized");
-			throw new Exception("key '".$pKey."' unauthorized");
+	public function setPropertiesFilter($pPropertiesFilter) {
+		$this->mSelectedColumns = array();
+		foreach ($pPropertiesFilter as $pPropertyName) {
+			$lProperty = $this->mModel->getProperty($pPropertyName, true);
+			if (!($lProperty instanceof ForeignProperty) || !$lProperty->hasSqlTableUnitComposition($this->mModel)) {
+				$this->mSelectedColumns[] = $lProperty->getSerializationName();
+			}
+			else {
+				throw new \Exception("property $pPropertyName can't be a filter property");
+			}
 		}
-		$this->mKey = $pKey;
+		return $this;
 	}
 	
 	/**
@@ -163,14 +169,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$this->mModelTree->goToSavedNodeAt($lLeftTableName);
 			
 			foreach ($lChildrenNodes as $lChildNode) {
-				if (!$lLeftModel->hasProperty($lChildNode->property)) {
-					throw new Exception("property '{$lChildNode->property}' in model '{$lLeftModel->getModelName()}' doesn't exist");
-				}
-				$lProperty = $lLeftModel->getProperty($lChildNode->property);
-				if (!($lProperty instanceof ForeignProperty) || !$lProperty->hasSqlTableUnit()) {
-					throw new Exception("property '{$lChildNode->property}' in model '{$lLeftModel->getModelName()}' hasn't sql serialization");
-				}
-				$lLeftJoin                      = $this->_prepareLeftJoin($lLeftTable, $lLeftModel, $lProperty);
+				$lProperty                      = $lLeftModel->getProperty($lChildNode->property, true);
+				$lLeftJoin                      = self::prepareLeftJoin($lLeftTable, $lLeftModel, $lProperty);
 				$lLeftJoin["left_table"]        = $lLeftTableName;
 				$lLeftJoin["right_table_alias"] = isset($lChildNode->id) ? $lChildNode->id : null;
 				
@@ -213,37 +213,38 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$this->setLiteral(Literal::phpObjectToLiteral($pPhpObjectLiteral, $this->mModelTree));
 	}
 	
-	/**
-	 * execute request
-	 * @param unknown $pFakeValue parent function has parameter so we add on to have same number of parameter
-	 * @return array
-	 */
-	public function execute($pFakeValue = null) {
-		$lReturn = array();
+	private function finalize() {
 		if (is_null($this->mSelectQuery)) {
 			throw new \Exception("query not initialized");
 		}
 		if ($this->mOptimizeLiterals) {
 			$this->mLogicalJunction = LogicalJunctionOptimizer::optimizeLiterals($this->mLogicalJunction);
 		}
-		$lSqlTable = $this->mModel->getSqlTableUnit();
-		$lSqlTable->loadValue("database");
-		
 		$this->mSelectQuery->setWhereLogicalJunction($this->mLogicalJunction);
 		$this->mSelectQuery->setLimit($this->mLoadLength)->setOffset($this->mOffset);
 		$this->mSelectQuery->setFirstTableCurrentTable();
 		$this->_addColumns();
 		$this->_addGroupedColumns();
-		
-		foreach ($this->mOrder as $lOrder) {
-			if (!$this->mModel->hasProperty($lOrder[0])) {
-				throw new Exception("property doesn't exists");
-			}
-			$this->mSelectQuery->addOrderColumn($this->mModel->getProperty($lOrder[0])->getSerializationName(), $lOrder[1]);
-		}
+		$this->_addOrderColumns();
+	}
+	
+	/**
+	 * execute request
+	 * @param unknown $pFakeValue parent function has parameter so we add on to have same number of parameter
+	 * @return array
+	 */
+	public function execute($pFakeValue = null) {
+		$this->finalize();
+		$lSqlTable = $this->mModel->getSqlTableUnit();
+		$lSqlTable->loadValue("database");
 		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
 		$lRows = $lDbInstance->executeQuery($this->mSelectQuery);
 		return $this->_buildObjectsWithRows($lRows);
+	}
+	
+	public function exportQuery() {
+		$this->finalize();
+		return $this->mSelectQuery;
 	}
 	
 	private function _getModelLiterals($pPhpObjectLogicalJunction, $pMainTableName, &$pModels) {
@@ -315,7 +316,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				}
 				// add temporary leftJoin
 				// add leftjoin if model $lRightModel is in literals ($pModels)
-				$lTemporaryLeftJoins[] = $this->_prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftModel"], $lRightProperty);
+				$lTemporaryLeftJoins[] = self::prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftModel"], $lRightProperty);
 				if (array_key_exists($lRightModelName, $pModels)) {
 					$this->_addJoins($lTemporaryLeftJoins, $pModels[$lRightModelName]['alias'], $pModels[$lRightModelName]['literalsWithoutAlias']);
 					if (count($pModels[$lRightModelName]['literalsWithoutAlias']) > 0) {
@@ -384,7 +385,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$pArrayVisitedModels[$lModelName] = array_key_exists($lModelName, $pArrayVisitedModels) ? $pArrayVisitedModels[$lModelName] + 1 : 1;
 	}
 	
-	private function _prepareLeftJoin($pLeftTable, $pLeftModel, $pRightProperty) {
+	public static function prepareLeftJoin($pLeftTable, $pLeftModel, $pRightProperty) {
+		if (!($pRightProperty instanceof ForeignProperty) || !$pRightProperty->hasSqlTableUnit()) {
+			throw new Exception("property '{$lCurrentNode->property}' in model '{$lLeftModel->getModelName()}' hasn't sql serialization");
+		}
 		$lRightTable = $pRightProperty->getSqlTableUnit();
 		$lReturn = array(
 			"left_model"   => $pLeftModel,
@@ -408,16 +412,31 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * add select columns to $mSelectQuery
 	 */
 	private function _addColumns() {
-		foreach ($this->mModel->getProperties() as $lProperty) {
-			if (!($lProperty instanceof ForeignProperty) || !$lProperty->hasSqlTableUnitComposition($this->mModel)) {
-				$this->mSelectQuery->addSelectColumn($lProperty->getSerializationName());
+		$this->mSelectQuery->resetSelectColumns();
+		if (is_null($this->mSelectedColumns)) {
+			foreach ($this->mModel->getProperties() as $lProperty) {
+				if (!($lProperty instanceof ForeignProperty) || !$lProperty->hasSqlTableUnitComposition($this->mModel)) {
+					$this->mSelectQuery->addSelectColumn($lProperty->getSerializationName());
+				}
+			}
+		} else {
+			foreach ($this->mSelectedColumns as $lColumn) {
+				$this->mSelectQuery->addSelectColumn($lColumn);
 			}
 		}
 	}
 	
 	private function _addGroupedColumns() {
+		$this->mSelectQuery->resetGroupColumns();
 		foreach ($this->mModel->getIds() as $lPropertyName) {
 			$this->mSelectQuery->addGroupColumn($this->mModel->getProperty($lPropertyName)->getSerializationName());
+		}
+	}
+	
+	private function _addOrderColumns() {
+		$this->mSelectQuery->resetOrderColumns();
+		foreach ($this->mOrder as $lOrder) {
+			$this->mSelectQuery->addOrderColumn($this->mModel->getProperty($lOrder[0], true)->getSerializationName(), $lOrder[1]);
 		}
 	}
 	

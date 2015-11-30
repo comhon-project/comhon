@@ -4,6 +4,7 @@
 		<property type="string" id="1">id</property>
 		<property type="string">firstName</property>
 		<property type="string">lastName</property>
+		<property type="integer">age</property>
 		<foreignProperty type="place">birthPlace</foreignProperty>
 		<property type="string">
 			<name>sex</name>
