@@ -91,7 +91,7 @@ class SelectQuery {
 	
 	/**
 	 * 
-	 * @param string $pTable
+	 * @param string|SelectQuery $pTable
 	 * @param string $pAlias if you don't want alias, put null value
 	 * @param string $pJoinType must be in array self::$sAccpetedJoins
 	 * @param string|array $pColumn can be a column or an array of columns
@@ -99,6 +99,9 @@ class SelectQuery {
 	 * @param string $pForeignTable must reference a table name or an alias already added
 	 */
 	public function addTable($pTable, $pAlias, $pJoinType, $pColumn, $pForeignColumn, $pForeignTable) {
+		if (is_object($pTable) && is_null($pAlias)) {
+			throw new \Exception("object table must have an alias");
+		}
 		if (!array_key_exists($pForeignTable, $this->mTableNames)) {
 			throw new \Exception("foreign table '$pForeignTable' is not already added ".json_encode(array_keys($this->mTableNames)));
 		}
@@ -191,7 +194,7 @@ class SelectQuery {
 		$lValues = array();
 	
 		$lColumns = (count($this->mColumnsByTable) == 0) ? "*" : $this->_getColumnsForQuery();
-		$lQuery = "SELECT ".$lColumns." FROM ".$this->_exportJoinedTables();
+		$lQuery = "SELECT ".$lColumns." FROM ".$this->_exportJoinedTables($lValues);
 	
 		if (!is_null($lClause = $this->_getClauseForQuery($this->mWhereLogicalJunction, $lValues))) {
 			$lQuery .= " WHERE ".$lClause;
@@ -256,11 +259,17 @@ class SelectQuery {
 	 * @param array $pValues
 	 * @return string
 	 */
-	private function _exportJoinedTables() {
+	private function _exportJoinedTables(&$lValues) {
 		$lJoinedTables = " ".implode(" as ", $this->mFirstTable);
 		foreach ($this->mJoinedTables as $lJoinedTable) {
 			$lJoinedTables .= " ".$lJoinedTable[0];
-			$lJoinedTables .= " ".implode(" as ", $lJoinedTable[1]);
+			if (is_object($lJoinedTable[1][0])) {
+				list($lSubquery, $lSubValues) = $lJoinedTable[1][0]->export();
+				$lValues        = array_merge($lValues, $lSubValues);
+				$lJoinedTables .= " ($lSubquery) as {$lJoinedTable[1][1]}";
+			} else {
+				$lJoinedTables .= " ".implode(" as ", $lJoinedTable[1]);
+			}
 			if (is_array($lJoinedTable[2][1])) {
 				$lOnLiterals = array();
 				foreach ($lJoinedTable[2][1] as $lRightColumn) {

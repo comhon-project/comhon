@@ -56,7 +56,7 @@ class HavingLiteral extends Literal {
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function phpObjectToLiteral($pPhpObject, $pJoinTree = null) {
+	public static function phpObjectToLiteral($pPhpObject, $pJoinTree = null, $pLiteralCollection = null) {
 		self::_verifPhpObject($pPhpObject);
 		$lLiteral  = new HavingLiteral($pPhpObject->function, $pPhpObject->node, $pPhpObject->column, $pPhpObject->operator, $pPhpObject->value);
 		return $lLiteral;

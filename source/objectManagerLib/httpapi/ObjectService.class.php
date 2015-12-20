@@ -9,11 +9,30 @@ use objectManagerLib\object\singleton\InstanceModel;
 class ObjectService {
 	
 	public static function getObjects($pParams) {
-		$lPhpObjects    = array();
-		$lObjects = ComplexLoadRequest::buildObjectLoadRequest($pParams)->execute();
-		foreach ($lObjects as $lObject) {
-			$lPhpObjects[] = $lObject->toObject(false, true);
+		try {
+			$lPhpObjects    = array();
+			$lObjects = ComplexLoadRequest::buildObjectLoadRequest($pParams)->execute();
+			foreach ($lObjects as $lObject) {
+				$lPhpObjects[] = $lObject->toObject(false, true);
+			}
+			return self::_setSuccessReturn($lPhpObjects);
+		} catch (\Exception $e) {
+			return self::_setErrorReturn($e);
 		}
-		return $lPhpObjects;
 	}
+	
+	private static function _setSuccessReturn($pReturnValue) {
+		$lReturn = new \stdClass();
+		$lReturn->success = true;
+		$lReturn->result  = $pReturnValue;
+		return $lReturn;
+	}
+	
+	private static function _setErrorReturn($pException) {
+		$lReturn = new \stdClass();
+		$lReturn->success = false;
+		$lReturn->error   = $pException->getMessage();
+		return $lReturn;
+	}
+	
 }

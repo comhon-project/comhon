@@ -7,7 +7,7 @@ use objectManagerLib\object\model\ModelContainer;
 use objectManagerLib\object\ComplexLoadRequest;
 
 class Literal {
-
+	
 	const EQUAL      = '=';
 	const SUPP       = '>';
 	const INF        = '<';
@@ -15,6 +15,9 @@ class Literal {
 	const INF_EQUAL  = '<=';
 	const DIFF       = '<>';
 	
+	private static $sIndex = 0;
+
+	protected $mId;
 	protected $mTable;
 	protected $mColumn;
 	protected $mOperator;
@@ -71,6 +74,18 @@ class Literal {
 		}
 	}
 
+	public function getId() {
+		return $this->mId;
+	}
+	
+	public function setId($pId) {
+		$this->mId = $pId;
+	}
+	
+	public function hasId() {
+		return !is_null($this->mId);
+	}
+	
 	public function getTable() {
 		return $this->mTable;
 	}
@@ -175,7 +190,13 @@ class Literal {
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function phpObjectToLiteral($pPhpObject, $pJoinTree) {
+	public static function phpObjectToLiteral($pPhpObject, $pJoinTree, $pLiteralCollection = null) {
+		if (isset($pPhpObject->id) && !is_null($pLiteralCollection)) {
+			if (!array_key_exists($pPhpObject->id, $pLiteralCollection)) {
+				throw new \Exception("literal id '{$pPhpObject->id}' is not defined in literal collection");
+			}
+			return $pLiteralCollection[$pPhpObject->id];
+		}
 		self::_verifPhpObject($pPhpObject);
 		if (!$pJoinTree->goToSavedNodeAt($pPhpObject->node)) {
 			throw new \Exception("node doesn't exist in join tree : ".json_encode($pPhpObject));
@@ -187,16 +208,32 @@ class Literal {
 		$lTable         = $pPhpObject->node;
 		
 		if (isset($pPhpObject->queue)) {
-			$lSubQueryTables = self::_queuetoLeftJoins($lLeftModel, $lTable, $pPhpObject->queue);
-			$lNodeValue      = $pJoinTree->current();
-			$lComplexColumn  = $lNodeValue['left_model']->getProperty($lNodeValue['left_model']->getFirstId())->getSerializationName();
-			$lComplexTable   = array_key_exists('right_table_alias', $lNodeValue) && !is_null($lNodeValue['right_table_alias']) ? $lNodeValue['right_table_alias'] : $lNodeValue['right_table'];
-			$lSelectQuery    = self::_setSubSelectQuery($lSubQueryTables, $pPhpObject);
-			$lLiteral        = new ComplexLiteral($lComplexTable, $lComplexColumn, ComplexLiteral::IN, $lSelectQuery);
+			$lSubQueryTables   = self::_queuetoLeftJoins($lLeftModel, $lTable, $pPhpObject->queue);
+			$lNodeValue        = $pJoinTree->current();
+			$lComplexColumn    = $lNodeValue['left_model']->getProperty($lNodeValue['left_model']->getFirstId())->getSerializationName();
+			$lComplexTable     = array_key_exists('right_table_alias', $lNodeValue) && !is_null($lNodeValue['right_table_alias']) ? $lNodeValue['right_table_alias'] : $lNodeValue['right_table'];
+			$lColumnIdSubQuery = $lSubQueryTables[0]['right_column'][0];
+			$lSelectQuery      = self::_setSubSelectQuery($lSubQueryTables, $pPhpObject);
+			
+			$lJoinTable = array(
+				'left_table'        => $lComplexTable,
+				'left_column'       => $lComplexColumn,
+				'right_table'       => $lSelectQuery,
+				'right_table_alias' => 't_'.self::$sIndex++,
+				'right_column'      => $lColumnIdSubQuery
+			);
+			$pJoinTree->pushChild($lJoinTable);
+			$lLiteral = new Literal($lJoinTable['right_table_alias'], $lColumnIdSubQuery, Literal::DIFF, null);
 		}
 		else {
-			$lColumn = $lRightodel->getProperty($pPhpObject->property, true)->getSerializationName();
-			$lLiteral  = new Literal($lTable, $lColumn, $pPhpObject->operator, $pPhpObject->value);
+			$lProperty =  $lRightodel->getProperty($pPhpObject->property, true);
+			if (($lProperty instanceof ForeignProperty) && $lProperty->hasSqlTableUnitComposition($lRightodel)) {
+				throw new \Exception("literal cannot contain foreign porperty '{$pPhpObject->property}'");
+			}
+			$lLiteral  = new Literal($lTable, $lProperty->getSerializationName(), $pPhpObject->operator, $pPhpObject->value);
+		}
+		if (isset($pPhpObject->id)) {
+			$lLiteral->setId($pPhpObject->id);
 		}
 		return $lLiteral;
 	}
@@ -256,10 +293,7 @@ class Literal {
 	private static function _getAlias($pTableName, &$pTableNameUsed) {
 		$lReturn = null;
 		if (array_key_exists($pTableName, $pTableNameUsed)) {
-			$pTableName = $pTableName.'_'.mt_rand(0,1000);
-			while (array_key_exists($pTableName, $pTableNameUsed)) {
-				$pTableName = $pTableName.'_'.mt_rand(0,1000);
-			}
+			$pTableName = $pTableName.'_'.self::$sIndex++;
 			$pTableNameUsed[$pTableName] = null;
 			$lReturn = $pTableName;
 		} else {

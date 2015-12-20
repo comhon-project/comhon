@@ -31,8 +31,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 
 	private $mModelTree;
 	private $mSelectQuery;
+	private $mLiteralCollection = array();
 	private $mLogicalJunction;
-	private $mAliasCount = 1;
 	private $mLoadLength;
 	private $mOrder = array();
 	private $mOffset;
@@ -109,6 +109,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (isset($pPhpObject->logicalJunction) && isset($pPhpObject->literal)) {
 			throw new Exception('can\'t have logicalJunction and literal properties in same time');
 		}
+		if (isset($pPhpObject->literalCollection)) {
+			$lObjectLoadRequest->importLiteralCollection($pPhpObject->literalCollection);
+		}
 		if (isset($pPhpObject->logicalJunction)) {
 			$lObjectLoadRequest->importLogicalJunction($pPhpObject->logicalJunction);
 		}
@@ -183,6 +186,27 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		return $this;
 	}
 	
+	public function importLiteralCollection($pPhpObjectLiteralCollection) {
+		if (is_null($this->mModelTree)) {
+			throw new \Exception('model tree must be set');
+		}
+		if (is_array($pPhpObjectLiteralCollection)) {
+			foreach ($pPhpObjectLiteralCollection as $pPhpObjectLiteral) {
+				$this->addliteralToCollection(Literal::phpObjectToLiteral($pPhpObjectLiteral, $this->mModelTree));
+			}
+		}
+	}
+	
+	public function addliteralToCollection($pLiteral) {
+		if (!$pLiteral->hasId()) {
+			throw new \Exception('literal must have id');
+		}
+		if (array_key_exists($pLiteral->getId(), $this->mLiteralCollection)) {
+			throw new \Exception("literal with id '{$pLiteral->getId()}' already added in collection");
+		}
+		$this->mLiteralCollection[$pLiteral->getId()] = $pLiteral;
+	}
+	
 	public function importLogicalJunction($pPhpObjectLogicalJunction) {
 		if (is_null($this->mModelTree)) {
 			$lMainTableName = $this->mModel->getSqlTableUnit()->getValue("name");
@@ -194,7 +218,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$this->_getModelLiterals($pPhpObjectLogicalJunction, $lMainTableName, $lModels);
 			$this->_buildModelTree($lModels);
 		}
-		$this->setLogicalJunction(LogicalJunction::phpObjectToLogicalJunction($pPhpObjectLogicalJunction, $this->mModelTree));
+		$this->setLogicalJunction(LogicalJunction::phpObjectToLogicalJunction($pPhpObjectLogicalJunction, $this->mModelTree, $this->mLiteralCollection));
 		
 		$this->mModelTree->goToRoot();
 		$this->mModelTree->initDepthFirstSearch();
@@ -210,7 +234,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (is_null($this->mModelTree)) {
 			$this->_buildModelTree(array($pPhpObjectLiteral->model => null));
 		}
-		$this->setLiteral(Literal::phpObjectToLiteral($pPhpObjectLiteral, $this->mModelTree));
+		$this->setLiteral(Literal::phpObjectToLiteral($pPhpObjectLiteral, $this->mModelTree, $this->mLiteralCollection));
 	}
 	
 	private function finalize() {
@@ -250,21 +274,18 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	private function _getModelLiterals($pPhpObjectLogicalJunction, $pMainTableName, &$pModels) {
 		if (isset($pPhpObjectLogicalJunction->literals)) {
 			foreach ($pPhpObjectLogicalJunction->literals as $lLiteral) {
+				if (!isset($lLiteral->model)) {
+					throw new \Exception("malformed phpObject literal : ".json_encode($lLiteral));
+				}
+				InstanceModel::getInstance()->getInstanceModel($lLiteral->model); // verify if model exists
 				if (!array_key_exists($lLiteral->model, $pModels)) {
-					$pModels[$lLiteral->model] = array('alias' => array(), 'literalsWithoutAlias' => array());
+					$pModels[$lLiteral->model] = array();
 				}
 				if ($lLiteral->model == $this->mModel->getModelName()) {
 					$lLiteral->node = $pMainTableName;
-					unset($lLiteral->model);
-				}
-				else if (isset($lLiteral->function)) {
-					$lAliasSuffix = "t".$this->mAliasCount;
-					$pModels[$lLiteral->model]['alias'][] = $lAliasSuffix;
-					$lLiteral->node = $this->_getAlias($lLiteral->model, $lAliasSuffix);
-					$this->mAliasCount++;
 				}
 				else {
-					$pModels[$lLiteral->model]['literalsWithoutAlias'][] = $lLiteral;
+					$pModels[$lLiteral->model][] = $lLiteral;
 				}
 				unset($lLiteral->model);
 			}
@@ -318,10 +339,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				// add leftjoin if model $lRightModel is in literals ($pModels)
 				$lTemporaryLeftJoins[] = self::prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftModel"], $lRightProperty);
 				if (array_key_exists($lRightModelName, $pModels)) {
-					$this->_addJoins($lTemporaryLeftJoins, $pModels[$lRightModelName]['alias'], $pModels[$lRightModelName]['literalsWithoutAlias']);
-					if (count($pModels[$lRightModelName]['literalsWithoutAlias']) > 0) {
-						$lTemporaryLeftJoins = array();
-					}
+					$this->_addJoins($lTemporaryLeftJoins, $pModels[$lRightModelName]);
+					$lTemporaryLeftJoins = array();
 				}
 				// add serializable properties to stack
 				$this->_extendsStacks($lRightModel, $lRightProperty->getSqlTableUnit(), $pModels, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
@@ -338,29 +357,15 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		}
 	}
 	
-	private function _addJoins($pLeftJoins, $pAliasArray, $pLiteralsWithoutAlias) {
-		$lTableByOriginalTable = array($pLeftJoins[0]["left_table"] => $pLeftJoins[0]["left_table"]);
-		
-		foreach ($pAliasArray as $lAlias) {
-			foreach ($pLeftJoins as $lLeftJoin) {
-				$lLeftJoin["left_table"]        = $lTableByOriginalTable[$lLeftJoin["left_table"]];
-				$lLeftJoin["right_table_alias"] = $this->_getAlias($lLeftJoin["right_table"], $lAlias);
-				$lTableByOriginalTable[$lLeftJoin["right_table"]] = $lLeftJoin["right_table_alias"];
-				
-				$this->mModelTree->goToSavedNodeAt($lLeftJoin["left_table"]);
-				$this->mModelTree->pushChild($lLeftJoin);
-				$this->mModelTree->saveLastChild($lLeftJoin["right_table_alias"]);
-			}
-		}
-		
-		if (count($pLiteralsWithoutAlias) > 0) {
+	private function _addJoins($pLeftJoins, $pLiterals) {
+		if (count($pLiterals) > 0) {
 			foreach ($pLeftJoins as $lLeftJoin) {
 				$this->mModelTree->goToSavedNodeAt($lLeftJoin["left_table"]);
 				$this->mModelTree->pushChild($lLeftJoin);
 				$this->mModelTree->saveLastChild($lLeftJoin["right_table"]);
 			}
 			$lLiteralNode = $pLeftJoins[count($pLeftJoins) - 1]["right_table"];
-			foreach ($pLiteralsWithoutAlias as $pLiteral) {
+			foreach ($pLiterals as $pLiteral) {
 				$pLiteral->node = $lLiteralNode;
 			}
 		}
