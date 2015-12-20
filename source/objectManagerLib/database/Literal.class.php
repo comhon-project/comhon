@@ -186,11 +186,11 @@ class Literal {
 	
 	/**
 	 * @param stdClass $pPhpObject
-	 * @param Tree $pJoinTree
+	 * @param array $pLeftJoins
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function phpObjectToLiteral($pPhpObject, $pJoinTree, $pLiteralCollection = null) {
+	public static function phpObjectToLiteral($pPhpObject, &$pLeftJoins, $pLiteralCollection = null) {
 		if (isset($pPhpObject->id) && !is_null($pLiteralCollection)) {
 			if (!array_key_exists($pPhpObject->id, $pLiteralCollection)) {
 				throw new \Exception("literal id '{$pPhpObject->id}' is not defined in literal collection");
@@ -198,31 +198,35 @@ class Literal {
 			return $pLiteralCollection[$pPhpObject->id];
 		}
 		self::_verifPhpObject($pPhpObject);
-		if (!$pJoinTree->goToSavedNodeAt($pPhpObject->node)) {
+		if (!array_key_exists($pPhpObject->node, $pLeftJoins)) {
 			throw new \Exception("node doesn't exist in join tree : ".json_encode($pPhpObject));
 		}
 		
-		$lJoinValue     = $pJoinTree->current();
-		$lLeftModel     = $lJoinValue['left_model'];
-		$lRightodel     = $lJoinValue['right_model'];
+		$lLeftJoin      = $pLeftJoins[$pPhpObject->node];
+		$lLeftModel     = $lLeftJoin['left_model'];
+		$lRightodel     = $lLeftJoin['right_model'];
 		$lTable         = $pPhpObject->node;
 		
 		if (isset($pPhpObject->queue)) {
 			$lSubQueryTables   = self::_queuetoLeftJoins($lLeftModel, $lTable, $pPhpObject->queue);
-			$lNodeValue        = $pJoinTree->current();
-			$lComplexColumn    = $lNodeValue['left_model']->getProperty($lNodeValue['left_model']->getFirstId())->getSerializationName();
-			$lComplexTable     = array_key_exists('right_table_alias', $lNodeValue) && !is_null($lNodeValue['right_table_alias']) ? $lNodeValue['right_table_alias'] : $lNodeValue['right_table'];
+			$lLeftJoin         = $pLeftJoins[$pPhpObject->node];
+			$lLeftColumn       = $lLeftJoin['left_model']->getProperty($lLeftJoin['left_model']->getFirstId())->getSerializationName();
+			$lLeftTable        = array_key_exists('right_table_alias', $lLeftJoin) && !is_null($lLeftJoin['right_table_alias']) ? $lLeftJoin['right_table_alias'] : $lLeftJoin['right_table'];
 			$lColumnIdSubQuery = $lSubQueryTables[0]['right_column'][0];
 			$lSelectQuery      = self::_setSubSelectQuery($lSubQueryTables, $pPhpObject);
+			$lRigthTableAlias  = 't_'.self::$sIndex++;
 			
+			while (array_key_exists($lRigthTableAlias, $pLeftJoins)) {
+				$lRigthTableAlias  = 't_'.self::$sIndex++;
+			}
 			$lJoinTable = array(
-				'left_table'        => $lComplexTable,
-				'left_column'       => $lComplexColumn,
+				'left_table'        => $lLeftTable,
+				'left_column'       => $lLeftColumn,
 				'right_table'       => $lSelectQuery,
-				'right_table_alias' => 't_'.self::$sIndex++,
+				'right_table_alias' => $lRigthTableAlias,
 				'right_column'      => $lColumnIdSubQuery
 			);
-			$pJoinTree->pushChild($lJoinTable);
+			$pLeftJoins[$lJoinTable['right_table_alias']] = $lJoinTable;
 			$lLiteral = new Literal($lJoinTable['right_table_alias'], $lColumnIdSubQuery, Literal::DIFF, null);
 		}
 		else {
@@ -327,7 +331,7 @@ class Literal {
 		} else {
 			self::_completeHavingLiteral($pPhpObject->havingLiteral, $lFirstTableName, $lFirstColumnId, $lLastTableName, $lLastQueryTable["right_model"]);
 			$lSubLogicalJunction = new HavingLogicalJunction(LogicalJunction::CONJUNCTION);
-			$lSubLogicalJunction->addLiteral(HavingLiteral::phpObjectToLiteral($pPhpObject->havingLiteral));
+			$lSubLogicalJunction->addLiteral(HavingLiteral::phpObjectToHavingLiteral($pPhpObject->havingLiteral));
 		}
 		$lSelectQuery->setHavingLogicalJunction($lSubLogicalJunction);
 		return $lSelectQuery;
@@ -346,7 +350,7 @@ class Literal {
 		if (isset($pPhpObject->literals)) {
 			foreach ($pPhpObject->literals as $lPhpObjectLiteral) {
 				self::_completeHavingLiteral($lPhpObjectLiteral, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel);
-				$lLogicalJunction->addLiteral(HavingLiteral::phpObjectToLiteral($lPhpObjectLiteral));
+				$lLogicalJunction->addLiteral(HavingLiteral::phpObjectToHavingLiteral($lPhpObjectLiteral));
 			}
 		}
 		return $lLogicalJunction;

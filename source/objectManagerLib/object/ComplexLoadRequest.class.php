@@ -29,7 +29,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	const DELETE_CASCADE = "deleteCascade";
 	const CREATE_OR_UPDATE = "createOrUpdate";
 
-	private $mModelTree;
+	private $mLeftJoins;
 	private $mSelectQuery;
 	private $mLiteralCollection = array();
 	private $mLogicalJunction;
@@ -158,8 +158,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$lAlias = isset($pModelTree->id) ? $pModelTree->id : null;
 		$this->mSelectQuery = new SelectQuery($lSqlTable->getValue("name"), $lAlias);
 		
-		$this->mModelTree = new Tree(array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lSqlTable->getValue("name"), "right_table_alias" => $lAlias));
-		$this->mModelTree->saveCurrentNode(is_null($lAlias) ? $lSqlTable->getValue("name") : $lAlias);
+		$this->mLeftJoins = array();
+		$lTableName = is_null($lAlias) ? $lSqlTable->getValue("name") : $lAlias;
+		$this->mLeftJoins[$lTableName] = array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lSqlTable->getValue("name"), "right_table_alias" => $lAlias);
 		
 		$lStack = array(array($this->mModel, $lSqlTable, $lAlias, $pModelTree));
 		while (count($lStack) > 0) {
@@ -169,7 +170,6 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$lLeftAliasTable = $lLastElement[2];
 			$lLeftTableName  = is_null($lLeftAliasTable) ? $lLeftTable->getValue("name") : $lLeftAliasTable;
 			$lChildrenNodes  = isset($lLastElement[3]->children) ? $lLastElement[3]->children : array();
-			$this->mModelTree->goToSavedNodeAt($lLeftTableName);
 			
 			foreach ($lChildrenNodes as $lChildNode) {
 				$lProperty                      = $lLeftModel->getProperty($lChildNode->property, true);
@@ -177,22 +177,20 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				$lLeftJoin["left_table"]        = $lLeftTableName;
 				$lLeftJoin["right_table_alias"] = isset($lChildNode->id) ? $lChildNode->id : null;
 				
-				$this->mModelTree->pushChild($lLeftJoin);
-				$this->mModelTree->saveLastChild($lLeftJoin["right_table_alias"]);
+				$this->mLeftJoins[$lLeftJoin["right_table_alias"]] = $lLeftJoin;
 				$lStack[] = array($lProperty->getUniqueModel(), $lProperty->getSqlTableUnit(), $lLeftJoin["right_table_alias"], $lChildNode);
 			}
 		}
-		$this->mModelTree->goToRoot();
 		return $this;
 	}
 	
 	public function importLiteralCollection($pPhpObjectLiteralCollection) {
-		if (is_null($this->mModelTree)) {
+		if (is_null($this->mLeftJoins)) {
 			throw new \Exception('model tree must be set');
 		}
 		if (is_array($pPhpObjectLiteralCollection)) {
 			foreach ($pPhpObjectLiteralCollection as $pPhpObjectLiteral) {
-				$this->addliteralToCollection(Literal::phpObjectToLiteral($pPhpObjectLiteral, $this->mModelTree));
+				$this->addliteralToCollection(Literal::phpObjectToLiteral($pPhpObjectLiteral, $this->mLeftJoins));
 			}
 		}
 	}
@@ -208,33 +206,30 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	public function importLogicalJunction($pPhpObjectLogicalJunction) {
-		if (is_null($this->mModelTree)) {
+		if (is_null($this->mLeftJoins)) {
 			$lMainTableName = $this->mModel->getSqlTableUnit()->getValue("name");
 			$this->mSelectQuery = new SelectQuery($lMainTableName);
-			$this->mModelTree   = new Tree(array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lMainTableName, "right_table_alias" => null));
-			$this->mModelTree->saveCurrentNode($lMainTableName);
+			$this->mLeftJoins   = array();
+			$this->mLeftJoins[$lMainTableName] = array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lMainTableName, "right_table_alias" => null);
 
 			$lModels = array();
 			$this->_getModelLiterals($pPhpObjectLogicalJunction, $lMainTableName, $lModels);
 			$this->_buildModelTree($lModels);
 		}
-		$this->setLogicalJunction(LogicalJunction::phpObjectToLogicalJunction($pPhpObjectLogicalJunction, $this->mModelTree, $this->mLiteralCollection));
+		$this->setLogicalJunction(LogicalJunction::phpObjectToLogicalJunction($pPhpObjectLogicalJunction, $this->mLeftJoins, $this->mLiteralCollection));
 		
-		$this->mModelTree->goToRoot();
-		$this->mModelTree->initDepthFirstSearch();
-		if ($this->mModelTree->next()) { // skip first node
-			while ($lLeftJoin = $this->mModelTree->next()) {
-				$lAlias = array_key_exists('right_table_alias', $lLeftJoin) ? $lLeftJoin['right_table_alias'] : null;
-				$this->mSelectQuery->addTable($lLeftJoin["right_table"], $lAlias, SelectQuery::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
-			}
+		array_shift($this->mLeftJoins);
+		foreach ($this->mLeftJoins as $lLeftJoin) {
+			$lAlias = array_key_exists('right_table_alias', $lLeftJoin) ? $lLeftJoin['right_table_alias'] : null;
+			$this->mSelectQuery->addTable($lLeftJoin["right_table"], $lAlias, SelectQuery::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
 		}
 	}
 	
 	public function importLiteral($pPhpObjectLiteral) {
-		if (is_null($this->mModelTree)) {
+		if (is_null($this->mLeftJoins)) {
 			$this->_buildModelTree(array($pPhpObjectLiteral->model => null));
 		}
-		$this->setLiteral(Literal::phpObjectToLiteral($pPhpObjectLiteral, $this->mModelTree, $this->mLiteralCollection));
+		$this->setLiteral(Literal::phpObjectToLiteral($pPhpObjectLiteral, $this->mLeftJoins, $this->mLiteralCollection));
 	}
 	
 	private function finalize() {
@@ -360,11 +355,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	private function _addJoins($pLeftJoins, $pLiterals) {
 		if (count($pLiterals) > 0) {
 			foreach ($pLeftJoins as $lLeftJoin) {
-				$this->mModelTree->goToSavedNodeAt($lLeftJoin["left_table"]);
-				$this->mModelTree->pushChild($lLeftJoin);
-				$this->mModelTree->saveLastChild($lLeftJoin["right_table"]);
+				$this->mLeftJoins[$lLeftJoin["right_table"]] = $lLeftJoin;
 			}
-			$lLiteralNode = $pLeftJoins[count($pLeftJoins) - 1]["right_table"];
+			$lLiteralNode     = $pLeftJoins[count($pLeftJoins) - 1]["right_table"];
 			foreach ($pLiterals as $pLiteral) {
 				$pLiteral->node = $lLiteralNode;
 			}
