@@ -412,11 +412,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	private function _addColumns() {
 		$this->mSelectQuery->resetSelectColumns();
 		if (is_null($this->mSelectedColumns)) {
-			foreach ($this->mModel->getProperties() as $lProperty) {
-				if (!($lProperty instanceof ForeignProperty) || !$lProperty->hasSqlTableUnitComposition($this->mModel)) {
-					$this->mSelectQuery->addSelectColumn($lProperty->getSerializationName());
-				}
-			}
+			$this->mSelectQuery->addSelectTableColumns();
 		} else {
 			foreach ($this->mSelectedColumns as $lColumn) {
 				$this->mSelectQuery->addSelectColumn($lColumn);

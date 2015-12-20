@@ -137,6 +137,13 @@ class SelectQuery {
 		return $this;
 	}
 	
+	/**
+	 * add all columns of current table in selected columns
+	 */
+	public function addSelectTableColumns() {
+		$this->mColumnsByTable[$this->mCurrentTableName][] = array('*');
+	}
+	
 	public function setWhereLogicalJunction($pWhereLogicalJunction) {
 		$this->mWhereLogicalJunction = $pWhereLogicalJunction;
 		return $this;
