@@ -52,4 +52,8 @@ class Property {
 	public function getSerializations() {
 		return null;
 	}
+	
+	public function getFirstSerialization() {
+		return null;
+	}
 }

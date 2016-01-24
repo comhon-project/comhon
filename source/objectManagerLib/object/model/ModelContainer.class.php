@@ -62,6 +62,14 @@ abstract class ModelContainer {
 		return $this->mModel->getIds();
 	}
 	
+	public function hasUniqueId() {
+		return $this->mModel->hasUniqueId();
+	}
+	
+	public function getFirstId() {
+		return $this->mModel->getFirstId();
+	}
+	
 	public function load() {
 		$this->mModel->load();
 	}

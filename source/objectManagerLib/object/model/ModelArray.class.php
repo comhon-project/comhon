@@ -5,6 +5,26 @@ use objectManagerLib\object\object\ObjectArray;
 
 class ModelArray extends ModelContainer {
 	
+	/**
+	 * name of each element
+	 * for exemple if we have a ModelArray 'children', each element name would be 'child'
+	 * @var string
+	 */
+	private $mElementName;
+	
+	/**
+	 * don't instanciate a model by yourself because it take time
+	 * to get a model instance use singleton InstanceModel
+	 */
+	public function __construct($pModel, $pElementName) {
+		parent::__construct($pModel);
+		$this->mElementName = $pElementName;
+	}
+	
+	public function getElementName() {
+		return $this->mElementName;
+	}
+	
 	public function getObjectInstance($pIsloaded = true) {
 		return new ObjectArray($this, $pIsloaded);
 	}
@@ -49,7 +69,7 @@ class ModelArray extends ModelContainer {
 	public function toXml($pObjectArray, $pXmlNode, $pUseSerializationName = false, $pExportForeignObject = false) {
 		if (!is_null($pObjectArray)) {
 			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-				$lXmlChildNode = $pXmlNode->addChild($this->mModel->getModelName());
+				$lXmlChildNode = $pXmlNode->addChild($this->mElementName);
 				$this->mModel->toXml($lValue, $lXmlChildNode, $pUseSerializationName, $pExportForeignObject);
 			}
 		}
@@ -58,7 +78,7 @@ class ModelArray extends ModelContainer {
 	public function toXmlId($pObjectArray, $pXmlNode, $pUseSerializationName = false) {
 		if (!is_null($pObjectArray)) {
 			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-				$lXmlChildNode = $pXmlNode->addChild($this->mModel->getModelName());
+				$lXmlChildNode = $pXmlNode->addChild($this->mElementName);
 				$this->mModel->toXmlId($lValue, $lXmlChildNode, $pUseSerializationName);
 			}
 		}
@@ -66,8 +86,7 @@ class ModelArray extends ModelContainer {
 	
 	public function fromXml($pXml) {
 		$lObjectArray = $this->getObjectInstance();
-		$lChildrenModelName = $this->mModel->getModelName();
-		foreach ($pXml->$lChildrenModelName as $lChild) {
+		foreach ($pXml->{$this->mElementName} as $lChild) {
 			$lObjectArray->pushValue($this->mModel->fromXml($lChild));
 		}
 		return $lObjectArray;

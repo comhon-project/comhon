@@ -1,18 +1,22 @@
 <?php
-namespace objectManagerLib\controller;
+namespace objectManagerLib\visitor;
 
+use objectManagerLib\controller\Controller;
 use objectManagerLib\object\object\Object;
 use objectManagerLib\object\object\ObjectArray;
 use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\object\ObjectCollection;
 
-class ForeignObjectReplacer extends Controller {
-	
+/**
+ * instanciate and populate ObjectCollection
+ */
+class ObjectCollectionPopulator extends Controller {
+
 	private $mObjectCollection;
 	private $mSerializationStack; 
 	
 	protected function _getMandatoryParameters() {
-		return array();
+		return null;
 	}
 	
 	protected function _init($pObject) {
@@ -21,7 +25,8 @@ class ForeignObjectReplacer extends Controller {
 	}
 	
 	protected function _visit($pParentObject, $pKey, $pPropertyNameStack, $pSerializationUnit) {
-		$lSuccess = $this->mObjectCollection->replaceValue($pParentObject, $pKey, $pSerializationUnit);
+		$lValue = $pParentObject->getValue($pKey);
+		$lSuccess = $this->mObjectCollection->addObject($lValue, $pSerializationUnit);
 		$this->mSerializationStack[] = $this->mObjectCollection->getCurrentKey();
 		return true;
 	}
@@ -35,5 +40,4 @@ class ForeignObjectReplacer extends Controller {
 	protected function _finalize($pObject) {
 		return $this->mObjectCollection;
 	}
-	
 }

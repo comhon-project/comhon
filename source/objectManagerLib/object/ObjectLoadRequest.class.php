@@ -13,16 +13,18 @@ use objectManagerLib\object\model\Model;
 use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\ModelContainer;
 use objectManagerLib\object\model\ForeignProperty;
+use objectManagerLib\object\ObjectCollection;
+use objectManagerLib\controller\Controller;
 use objectManagerLib\controller\ForeignObjectReplacer;
 use objectManagerLib\controller\ForeignObjectLoader;
 use objectManagerLib\controller\CompositionLoader;
+use objectManagerLib\visitor\ObjectCollectionPopulator;
 
 abstract class ObjectLoadRequest {
 
 	protected $mModel;
 	protected $mRequestChildren          = false;
 	protected $mLoadForeignProperties    = false;
-	protected $mReplaceForeignProperties = true;
 	
 	public function __construct($pModelName) {
 		$this->mModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
@@ -40,34 +42,26 @@ abstract class ObjectLoadRequest {
 		return $this;
 	}
 	
-	public function ReplaceForeignProperties($pBoolean) {
-		$this->mReplaceForeignProperties = $pBoolean;
-		return $this;
-	}
-	
 	public function getModel() {
 		return $this->mModel;
 	}
 	
-	protected function _updateObjects($pObjects) {
-		$lReturn = array();
-		$lForeignObjectReplacer = new ForeignObjectReplacer();
-		$lForeignObjectLoader   = new ForeignObjectLoader();
-		$lCompositionLoader     = new CompositionLoader();
+	protected function _updateObjects($pObject) {
+		$lObjectCollectionPopulator = new ObjectCollectionPopulator();
+		$lForeignObjectReplacer     = new ForeignObjectReplacer();
+		$lForeignObjectLoader       = new ForeignObjectLoader();
+		$lCompositionLoader         = new CompositionLoader();
 		
-		foreach ($pObjects as $lObject) {
-			if ($this->mRequestChildren && !$this->mLoadForeignProperties) {
-				$lCompositionLoader->execute($lObject, array($this->mLoadForeignProperties));
-			}
-			else if ($this->mLoadForeignProperties) {
-				$lForeignObjectLoader->execute($lObject, array($this->mRequestChildren));
-			}
-			if ($this->mReplaceForeignProperties) {
-				$lForeignObjectReplacer->execute($lObject);
-			}
-			$lReturn[] = $lObject;
+		$lObjectCollectionPopulator->execute($pObject);
+		$lForeignObjectReplacer->execute($pObject);
+		if ($this->mRequestChildren && !$this->mLoadForeignProperties) {
+			$lCompositionLoader->execute($pObject, array(CompositionLoader::LOAD_CHILDREN => $this->mLoadForeignProperties));
 		}
-		return $lReturn;
+		else if ($this->mLoadForeignProperties) {
+			$lForeignObjectLoader->execute($pObject, array($this->mRequestChildren));
+		}
+		
+		return $pObject;
 	}
 	
 	

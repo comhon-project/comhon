@@ -87,6 +87,17 @@ class Model {
 		return null;
 	}
 	
+	protected function _setProperties($pProperties) {
+		$this->mProperties = array();
+		$this->mIds        = array();
+		foreach ($pProperties as $pProperty) {
+			$this->mProperties[$pProperty->getName()] = $pProperty;
+			if ($pProperty->isId()) {
+				$this->mIds[] = $pProperty->getName();
+			}
+		}
+	}
+	
 	public function getPropertyModel($pPropertyName) {
 		return $this->hasProperty($pPropertyName) ? $this->mProperties[$pPropertyName]->getModel() : null;
 	}
@@ -112,6 +123,10 @@ class Model {
 		return $this->mIds;
 	}
 	
+	public function hasUniqueId() {
+		return count($this->mIds) == 1;
+	}
+	
 	public function getSerializationIds() {
 		$lSerializationIds = array();
 		foreach ($this->mIds as $lIdPropertyName) {
@@ -121,7 +136,7 @@ class Model {
 	}
 	
 	public function getFirstId() {
-		return (count($this->mIds) > 0) ? $this->mIds[0] : null;
+		return count($this->mIds) > 0 ? $this->mIds[0] : null;
 	}
 	
 	public function getSerializations() {

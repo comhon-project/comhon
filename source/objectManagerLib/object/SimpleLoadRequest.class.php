@@ -30,7 +30,7 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 		$lObject->setValue($lPropertiesIds[0], $pId);
 		$lResult = $lSerializationUnit->loadObject($lObject, $pId);
 		if ($lResult) {
-			$this->_updateObjects(array($lObject));
+			$this->_updateObjects($lObject);
 			$lResult = $lObject;
 		}
 		return $lResult;

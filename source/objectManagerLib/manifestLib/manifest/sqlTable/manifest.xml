@@ -14,7 +14,7 @@
 		<foreignProperty type="sqlDatabase">database</foreignProperty>
 		<property type="array">
 			<name>compositions</name>
-			<values type="composition"/>
+			<values type="composition" name="composition"/>
 		</property>
 	</properties>
 </manifest>

@@ -10,7 +10,9 @@ use objectManagerLib\database\HavingLiteral;
 use objectManagerLib\database\SelectQuery;
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\object\Object;
+use objectManagerLib\object\object\ObjectArray;
 use objectManagerLib\object\model\Model;
+use objectManagerLib\object\model\ModelArray;
 use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\ModelContainer;
 use objectManagerLib\object\model\ForeignProperty;
@@ -435,11 +437,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	private function _buildObjectsWithRows($pRows) {
-		$lObjects = array();
+		$lObjectArray = new ObjectArray(new ModelArray($this->mModel, $this->mModel->getModelName()));
 		foreach ($pRows as $lRow) {
-			$lObjects[] = $this->mModel->fromSqlDataBase($lRow);
+			$lObjectArray->pushValue($this->mModel->fromSqlDataBase($lRow));
 		}
-		return $this->_updateObjects($lObjects);
+		return $this->_updateObjects($lObjectArray);
 	}
 	
 	/*

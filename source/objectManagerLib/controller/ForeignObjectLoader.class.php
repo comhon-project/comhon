@@ -3,71 +3,57 @@ namespace objectManagerLib\controller;
 
 use objectManagerLib\object\object\Object;
 use objectManagerLib\object\model\ForeignProperty;
+use objectManagerLib\object\model\ModelArray;
+use objectManagerLib\object\model\ModelContainer;
+use objectManagerLib\object\ObjectCollection;
+use objectManagerLib\visitor\ObjectCollectionPopulator;
 
 class ForeignObjectLoader extends Controller {
 
-	private $mUnloadSerializedRefValueMap = array();
-	private $mLoadCompositions = true;
+	private $mLoadCompositions      = true;
+	private $mLoadedValues          = array();
+	private $mObjectCollection;
+	private $mObjectCollectionPopulator;
+	private $mForeignObjectReplacer;
 	
 	protected function _init($pObject) {
+		$this->mObjectCollection          = ObjectCollection::getInstance();
+		$this->mObjectCollectionPopulator = new ObjectCollectionPopulator();
+		$this->mForeignObjectReplacer     = new ForeignObjectReplacer();
+		
 		if (array_key_exists(0, $this->mParams)) {
 			$this->mLoadCompositions = $this->mParams[0];
 		}
 	}
 	
-	protected function _visit($pObject, $pParentObject, $pPropertyName) {
-		$lObjects = (!is_null($pObject) && ($pObject instanceof ObjectArray)) ? $pObject->getValues() : array($pObject);
-		if (!is_null($pParentObject)) {
-			$lPropertiesIds = $pParentObject->getProperty($pPropertyName)->getModel()->getIds();
-			$lPropertyId = array_key_exists(0, $lPropertiesIds) ? $lPropertiesIds[0] : null;
-			foreach ($lObjects as $lObject) {
-				if (is_object($lObject) && !$lObject->isLoaded()) {
-					$this->_addRefValue($pParentObject, $pPropertyName, $lObject, $lPropertyId);
-				}
-			}
-		}
-		return true;
+	protected function _getMandatoryParameters() {
+		return array();
 	}
 	
-	protected function _postVisit($pValue, $pParentObject, $pPropertyName) {}
-	
-	private function _addRefValue($pParentObject, $pPropertyName, $pObject, $pPropertyId) {
-		$lSerializationUnit = $pParentObject->getProperty($pPropertyName)->getFirstSerialization();
-		if (!is_null($lSerializationUnit)) {
-			$lIdValue = $pObject->getValue($pPropertyId);
-			$lSqlTableUnit = $pParentObject->getProperty($pPropertyName)->getSqlTableUnit();
-			if (!is_null($lSqlTableUnit) && $lSqlTableUnit->isComposition($pParentObject->getModel(), $pParentObject->getProperty($pPropertyName)->getSerializationName())) {
-				if ($this->mLoadCompositions) {
-					$lIds = $pParentObject->getModel()->getIds();
-					$lSerializationUnit = $lSqlTableUnit;
-					$lIdValue = $pParentObject->getModel()->getModelName()."-".$pParentObject->getValue($lIds[0]);
-				} else {
-					return;
-				}
+	protected function _visit($pParentObject, $pKey, $pPropertyNameStack, $pSerializationUnit) {
+		$lVisitChildren = true;
+		$lObject = $pParentObject->getValue($pKey);
+		if (!is_null($pSerializationUnit) && !is_null($lObject) && !is_null($pParentObject)) {
+			$lIsComposition = !($pParentObject->getModel() instanceof ModelContainer) && $pSerializationUnit->isComposition($pParentObject->getModel(), $pParentObject->getProperty($pKey)->getSerializationName());
+			if (!$lObject->isLoaded() && ($this->mLoadCompositions || !$lIsComposition)) {
+				
+				$lObject        = $pParentObject->loadValue($pKey);
+				$lModel         = ($lObject->getModel() instanceof ModelArray) ? $lObject->getModel()->getModel() : $lObject->getModel();
+				$lSerialization = $lModel->getFirstSerialization();
+				$lSameSerial    = !is_null($lSerialization) && (spl_object_hash($pSerializationUnit) == spl_object_hash($lSerialization));
+				$lObjectToVisit = $lSameSerial ? $lObject : $pParentObject;
+
+				$this->mObjectCollectionPopulator->execute($lObjectToVisit);
+				$this->mForeignObjectReplacer->execute($lObjectToVisit);
+				$this->mLoadedValues[spl_object_hash($lObject)] = null;
 			}
-			if (!is_null($lIdValue)) {
-				$lKey = spl_object_hash($lSerializationUnit);
-				if (!array_key_exists($lKey, $this->mUnloadSerializedRefValueMap)) {
-					$this->mUnloadSerializedRefValueMap[$lKey] = array();
-				}
-				if (!array_key_exists($lIdValue, $this->mUnloadSerializedRefValueMap[$lKey])) {
-					$this->mUnloadSerializedRefValueMap[$lKey][$lIdValue] = array();
-				}
-				$this->mUnloadSerializedRefValueMap[$lKey][$lIdValue][] = array($pParentObject, $pPropertyName);
-			}
+			$lVisitChildren = !array_key_exists(spl_object_hash($lObject), $this->mLoadedValues);
 		}
+		return $lVisitChildren;
 	}
 	
-	protected function _finalize($pObject) {
-		foreach ($this->mUnloadSerializedRefValueMap as $lKey => $lMap) {
-			foreach ($lMap as $lIdValue => $lRefValues) {
-				$lLoadedValue = $lRefValues[0][0]->loadValue($lRefValues[0][1]);
-				/*for ($i = 1; $i < count($lRefValues); $i++) {
-					$lRefValues[$i][0]->setValue($lRefValues[$i][1], $lLoadedValue);
-				}*/
-			}
-		}
-		$this->mUnloadSerializedRefValueMap = array();
-	}
+	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack, $pSerializationUnit) {}
+	
+	protected function _finalize($pObject) {}
 	
 }

@@ -36,6 +36,10 @@ class Object {
 		return $this->mValues;
 	}
 	
+	public function &getRefValues() {
+		return $this->mValues;
+	}
+	
 	public function isLoaded() {
 		return $this->mIsLoaded;
 	}

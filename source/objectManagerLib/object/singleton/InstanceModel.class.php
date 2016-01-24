@@ -272,7 +272,10 @@ class InstanceModel {
 	private function _buildModel($pProperty, $pLocalTypes) {
 		$lTypeId = (string) $pProperty["type"];
 		if ($lTypeId == "array") {
-			$lReturn = new ModelArray($this->_buildModel($pProperty->values, $pLocalTypes));
+			if (!isset($pProperty->values['name'])) {
+				throw new \Exception('type array must have a values name. property : '.(string) $pProperty->name);
+			}
+			$lReturn = new ModelArray($this->_buildModel($pProperty->values, $pLocalTypes), (string) $pProperty->values['name']);
 		}
 		else if (array_key_exists($lTypeId, $pLocalTypes)) {
 			$lReturn = $pLocalTypes[$lTypeId];

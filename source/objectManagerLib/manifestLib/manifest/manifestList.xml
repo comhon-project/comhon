@@ -8,4 +8,5 @@
 	<manifest type="home">home/manifest.xml</manifest>
 	<manifest type="place">place/manifest.xml</manifest>
 	<manifest type="town">town/manifest.xml</manifest>
+	<manifest type="test">test/manifest.xml</manifest>
 </list>

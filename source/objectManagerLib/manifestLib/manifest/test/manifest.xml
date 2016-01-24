@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<types>
+		<type id="object">
+			<properties>
+				<property type="string" id="1">id</property>
+				<property type="string">propertyOne</property>
+				<property type="string">propertyTwo</property>
+			</properties>
+		</type>
+		<type id="objectContainer">
+			<properties>
+				<foreignProperty type="object">foreignObjectValue</foreignProperty>
+			</properties>
+		</type>
+	</types>
+	
+	<properties>
+		<property type="string" id="1">name</property>
+		<property type="object">objectValue</property>
+		<property type="array">
+			<name>objectValues</name>
+			<values type="object" name="objectValue"/>
+		</property>
+		<property type="objectContainer">objectContainer</property>
+		<foreignProperty type="array">
+			<name>foreignObjectValues</name>
+			<values type="object" name="foreignObjectValue"/>
+		</foreignProperty>
+	</properties>
+</manifest>

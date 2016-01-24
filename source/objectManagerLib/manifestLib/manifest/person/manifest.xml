@@ -17,11 +17,11 @@
 		<foreignProperty type="person">mother</foreignProperty>
 		<foreignProperty type="array">
 			<name>children</name>
-			<values type="person"/>
+			<values type="person" name="child"/>
 		</foreignProperty>
 		<foreignProperty type="array">
 			<name>homes</name>
-			<values type="home"/>
+			<values type="home" name="home"/>
 		</foreignProperty>
 		<!--<foreignProperty type="array">
 			<name>realEstateProperties</name>

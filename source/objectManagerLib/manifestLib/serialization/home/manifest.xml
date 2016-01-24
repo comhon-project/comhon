@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-	<serialization>
+	<serializations>
 		<serialization type="sqlTable">home</serialization>
-	</serialization>
+	</serializations>
 	<properties>
 		<beginDate serializationName="begin_date"/>
 		<endDate serializationName="end_date"/>

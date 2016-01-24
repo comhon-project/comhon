@@ -9,4 +9,5 @@
 	<serialization type="home">home/manifest.xml</serialization>
 	<serialization type="place">place/manifest.xml</serialization>
 	<serialization type="town">town/manifest.xml</serialization>
+	<serialization type="test">test/manifest.xml</serialization>
 </list>

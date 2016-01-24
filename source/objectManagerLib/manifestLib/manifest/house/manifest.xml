@@ -8,7 +8,7 @@
 		<property type="boolean">garage</property>
 		<foreignProperty type="array">
 			<name>residents</name>
-			<values type="home"/>
+			<values type="home" name="resident"/>
 		</foreignProperty>
 	</properties>
 </manifest>
