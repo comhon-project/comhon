@@ -36,6 +36,7 @@ class InstanceModel {
 	private $mManifestListFolder;
 	private $mSerializationListFolder;
 	private $mLocalTypeXml;
+	private $mLocalTypes = array();
 	
 	private  static $_instance;
 	
@@ -168,23 +169,23 @@ class InstanceModel {
 				}
 				
 				$lReturn["properties"] = array();
-				$lLocalTypes = $this->_buildLocalTypes($lManifest);
-				$this->_buildProperties($lManifest->properties, $lSerializationXml, $lLocalTypes, $lReturn["properties"]);
-				$this->_buildForeignProperties($lManifest->properties, $lSerializationXml, $lLocalTypes, $pModel, $lReturn["properties"]);
+				$this->_buildLocalTypes($lManifest);
+				$this->_buildProperties($lManifest->properties, $lSerializationXml, $lReturn["properties"]);
+				$this->_buildForeignProperties($lManifest->properties, $lSerializationXml, $pModel, $lReturn["properties"]);
 			}
 		}
 		return $lReturn;
 	}
 	
-	private function _getBaseInfosForProperty($pPropertyXml, $pSerializationXml, $pLocalTypes) {
+	private function _getBaseInfosForProperty($pPropertyXml, $pSerializationXml) {
 		$lName  = isset($pPropertyXml->name) ? (string) $pPropertyXml->name : (string) $pPropertyXml;
 		$lIsId  = (isset($pPropertyXml["id"]) && ((string) $pPropertyXml["id"] == "1")) ? true : false;
 		
-		if (array_key_exists((string) $pPropertyXml["type"], $pLocalTypes)) {
-			$lModel = $pLocalTypes[(string) $pPropertyXml["type"]];
+		if (array_key_exists((string) $pPropertyXml["type"], $this->mLocalTypes)) {
+			$lModel = $this->mLocalTypes[(string) $pPropertyXml["type"]];
 			$lSerializationsNode = null;
 		}else {
-			$lModel = $this->_buildModel($pPropertyXml, $pLocalTypes);
+			$lModel = $this->_buildModel($pPropertyXml);
 			$lSerializationsNode = isset($pSerializationXml->properties->$lName) ? $pSerializationXml->properties->$lName : null;
 		}
 			
@@ -194,18 +195,18 @@ class InstanceModel {
 		return array($lName, $lModel, $lSerializationsNode, $lIsId);
 	}
 	
-	private function _buildProperties($pPropertiesXml, $pSerializationXml, $pLocalTypes, &$pProperties) {
+	private function _buildProperties($pPropertiesXml, $pSerializationXml, &$pProperties) {
 		foreach ($pPropertiesXml->property as $lPropertyXml) {
-			list($lName, $lModel, $lSerializationsNode, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml, $pSerializationXml, $pLocalTypes);
+			list($lName, $lModel, $lSerializationsNode, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml, $pSerializationXml);
 			$lSerializationName = (!is_null($lSerializationsNode) && isset($lSerializationsNode["serializationName"])) ? (string) $lSerializationsNode["serializationName"] : null;
 			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId);
 			$pProperties[$lName] = $lProperty;
 		}
 	}
 	
-	private function _buildForeignProperties($pPropertiesXml, $pSerializationXml, $pLocalTypes, $pParentModel, &$pProperties) {
+	private function _buildForeignProperties($pPropertiesXml, $pSerializationXml, $pParentModel, &$pProperties) {
 		foreach ($pPropertiesXml->foreignProperty as $lPropertyXml) {
-			list($lName, $lModel, $lSerializationsNode, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml, $pSerializationXml, $pLocalTypes);
+			list($lName, $lModel, $lSerializationsNode, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml, $pSerializationXml);
 			if ($lModel instanceof SimpleModel) {
 				throw new Exception("foreign property with name '$lName' can't be a simple model");
 			}
@@ -221,16 +222,23 @@ class InstanceModel {
 	}
 	
 	private function _buildLocalTypes($pManifestXML) {
-		$lLocalTypes = array();
-		if (isset($pManifestXML->types) && is_null($this->mLocalTypeXml)) {
-			foreach ($pManifestXML->types->type as $lLocalType) {
-				$this->mLocalTypeXml = $lLocalType;
-				$lTypeId = (string) $lLocalType["id"];
-				$lLocalTypes[$lTypeId] = new Model($lTypeId, true);
+		// if $mLocalTypeXml is not null we are already building a local type (we can't define local type in another local type)
+		if (is_null($this->mLocalTypeXml)) {
+			$lXmlLocalTypes    = array();
+			$this->mLocalTypes = array();
+			if (isset($pManifestXML->types) && is_null($this->mLocalTypeXml)) {
+				foreach ($pManifestXML->types->type as $lLocalType) {
+					$lTypeId                     = (string) $lLocalType["id"];
+					$lXmlLocalTypes[$lTypeId]    = $lLocalType;
+					$this->mLocalTypes[$lTypeId] = new Model($lTypeId, false);
+				}
+				foreach ($this->mLocalTypes as $lTypeId => $lLocalType) {
+					$this->mLocalTypeXml = $lXmlLocalTypes[$lTypeId];
+					$this->mLocalTypes[$lTypeId]->load();
+				}
 			}
 			$this->mLocalTypeXml = null;
 		}
-		return $lLocalTypes;
 	}
 	
 	private function _buildSerializations($pSerializationsNode) {
@@ -269,16 +277,16 @@ class InstanceModel {
 		return $lObject;
 	}
 	
-	private function _buildModel($pProperty, $pLocalTypes) {
+	private function _buildModel($pProperty) {
 		$lTypeId = (string) $pProperty["type"];
 		if ($lTypeId == "array") {
 			if (!isset($pProperty->values['name'])) {
 				throw new \Exception('type array must have a values name. property : '.(string) $pProperty->name);
 			}
-			$lReturn = new ModelArray($this->_buildModel($pProperty->values, $pLocalTypes), (string) $pProperty->values['name']);
+			$lReturn = new ModelArray($this->_buildModel($pProperty->values), (string) $pProperty->values['name']);
 		}
-		else if (array_key_exists($lTypeId, $pLocalTypes)) {
-			$lReturn = $pLocalTypes[$lTypeId];
+		else if (array_key_exists($lTypeId, $this->mLocalTypes)) {
+			$lReturn = $this->mLocalTypes[$lTypeId];
 		}
 		else {
 			$lModel = $this->_getInstanceModel($lTypeId, false);

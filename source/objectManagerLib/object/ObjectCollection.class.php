@@ -69,7 +69,7 @@ class ObjectCollection {
 						}
 					}
 				} else {
-					$lId = $this->_addObject($lObject);
+					$lId = $this->_addObject($pObject);
 					$lSuccess = !is_null($lId);
 				}
 			}
