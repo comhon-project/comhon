@@ -10,6 +10,4 @@ class ModelCustom extends Model {
 		$this->_setProperties($pProperties);
 	}
 	
-	public function load() {}
-	
 }

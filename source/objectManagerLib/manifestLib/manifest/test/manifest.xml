@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
 	<types>
+		<type id="objectContainer">
+			<properties>
+				<foreignProperty type="object">foreignObjectValue</foreignProperty>
+			</properties>
+		</type>
 		<type id="object">
 			<properties>
 				<property type="string" id="1">id</property>
 				<property type="string">propertyOne</property>
 				<property type="string">propertyTwo</property>
-			</properties>
-		</type>
-		<type id="objectContainer">
-			<properties>
-				<foreignProperty type="object">foreignObjectValue</foreignProperty>
 			</properties>
 		</type>
 	</types>

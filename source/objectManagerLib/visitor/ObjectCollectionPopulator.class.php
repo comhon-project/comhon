@@ -24,14 +24,15 @@ class ObjectCollectionPopulator extends Controller {
 		$this->mSerializationStack = array(array(0,0));
 	}
 	
-	protected function _visit($pParentObject, $pKey, $pPropertyNameStack, $pSerializationUnit) {
+	protected function _visit($pParentObject, $pKey, $pPropertyNameStack) {
 		$lValue = $pParentObject->getValue($pKey);
-		$lSuccess = $this->mObjectCollection->addObject($lValue, $pSerializationUnit);
+		$lSerializationUnit = $lValue->getModel()->getSerialization();
+		$lSuccess = $this->mObjectCollection->addObject($lValue, $lSerializationUnit);
 		$this->mSerializationStack[] = $this->mObjectCollection->getCurrentKey();
 		return true;
 	}
 	
-	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack, $pSerializationUnit) {
+	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack) {
 		array_pop($this->mSerializationStack);
 		$lIndex = count($this->mSerializationStack) - 1;
 		$this->mObjectCollection->getCurrentKey($this->mSerializationStack[$lIndex][0], $this->mSerializationStack[$lIndex][1]);

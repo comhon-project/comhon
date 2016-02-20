@@ -30,17 +30,18 @@ class ForeignObjectLoader extends Controller {
 		return array();
 	}
 	
-	protected function _visit($pParentObject, $pKey, $pPropertyNameStack, $pSerializationUnit) {
+	protected function _visit($pParentObject, $pKey, $pPropertyNameStack) {
 		$lVisitChildren = true;
 		$lObject = $pParentObject->getValue($pKey);
-		if (!is_null($pSerializationUnit) && !is_null($lObject) && !is_null($pParentObject)) {
-			$lIsComposition = !($pParentObject->getModel() instanceof ModelContainer) && $pSerializationUnit->isComposition($pParentObject->getModel(), $pParentObject->getProperty($pKey)->getSerializationName());
+		$lSerializationUnit = $lObject->getModel()->getSerialization();
+		if (!is_null($lSerializationUnit) && !is_null($lObject) && !is_null($pParentObject)) {
+			$lIsComposition = !($pParentObject->getModel() instanceof ModelContainer) && $lSerializationUnit->isComposition($pParentObject->getModel(), $pParentObject->getProperty($pKey)->getSerializationName());
 			if (!$lObject->isLoaded() && ($this->mLoadCompositions || !$lIsComposition)) {
 				
 				$lObject        = $pParentObject->loadValue($pKey);
 				$lModel         = ($lObject->getModel() instanceof ModelArray) ? $lObject->getModel()->getModel() : $lObject->getModel();
-				$lSerialization = $lModel->getFirstSerialization();
-				$lSameSerial    = !is_null($lSerialization) && (spl_object_hash($pSerializationUnit) == spl_object_hash($lSerialization));
+				$lSerialization = $lModel->getSerialization();
+				$lSameSerial    = !is_null($lSerialization) && (spl_object_hash($lSerializationUnit) == spl_object_hash($lSerialization));
 				$lObjectToVisit = $lSameSerial ? $lObject : $pParentObject;
 
 				$this->mObjectCollectionPopulator->execute($lObjectToVisit);
@@ -52,7 +53,7 @@ class ForeignObjectLoader extends Controller {
 		return $lVisitChildren;
 	}
 	
-	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack, $pSerializationUnit) {}
+	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack) {}
 	
 	protected function _finalize($pObject) {}
 	

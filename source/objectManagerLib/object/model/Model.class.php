@@ -17,7 +17,6 @@ class Model {
 	
 	private $mProperties;
 	private $mObjectClass    = "objectManagerLib\object\object\Object";
-	private $mSerializations = array();
 	private $mIds            = array();
 	
 	
@@ -32,26 +31,25 @@ class Model {
 		}
 	}
 	
-	public function load() {
+	public final function load() {
 		if (!$this->mIsLoaded) {
 			$lResult = InstanceModel::getInstance()->getProperties($this);
-			$this->mProperties = $lResult["properties"];
+			$this->mProperties = $lResult[InstanceModel::PROPERTIES];
 			foreach ($this->mProperties as $lProperty) {
 				if ($lProperty->isId()) {
 					$this->mIds[] = $lProperty->getName();
 				}
 			}
-			if (!is_null($lResult["serializations"])) {
-				$this->mSerializations = $lResult["serializations"];
+			if (!is_null($lResult[InstanceModel::OBJECT_CLASS])) {
+				$this->mObjectClass = $lResult[InstanceModel::OBJECT_CLASS];
 			}
-			if (!is_null($lResult["objectClass"])) {
-				$this->mObjectClass = $lResult["objectClass"];
-			}
-			InstanceModel::getInstance()->addInstanceModel($this);
-			$this->mIsLoaded = true;
+			$this->_setSerialization();
 			$this->_init();
+			$this->mIsLoaded = true;
 		}
 	}
+	
+	protected function _setSerialization() {}
 	
 	protected function _init() {
 		// you can overide this function in inherited class to initialize others attributes
@@ -139,42 +137,12 @@ class Model {
 		return count($this->mIds) > 0 ? $this->mIds[0] : null;
 	}
 	
-	public function getSerializations() {
-		return $this->mSerializations;
-	}
-	
-	public function getFirstSerialization() {
-		return array_key_exists(0, $this->mSerializations) ? $this->mSerializations[0] : null;
-	}
-	
-	public function getSerialization($pIndex) {
-		return ($pIndex < count($this->mSerializations)) ? $this->mSerializations[$pIndex] : null;
-	}
-	
-	public function hasSerialization() {
-		return is_array($this->mSerializations) && (count($this->mSerializations) > 0);
-	}
-	
-	public function hasSqlTableUnit() {
-		foreach ($this->mSerializations as $lSerializationUnit) {
-			if ($lSerializationUnit instanceof SqlTable) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public function getSqlTableUnit() {
-		foreach ($this->mSerializations as $lSerializationUnit) {
-			if ($lSerializationUnit instanceof SqlTable) {
-				return $lSerializationUnit;
-			}
-		}
-		return null;
-	}
-	
 	public function isLoaded() {
 		return $this->mIsLoaded;
+	}
+	
+	public function getSerialization() {
+		return null;
 	}
 	
 	/*

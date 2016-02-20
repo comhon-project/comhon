@@ -49,11 +49,8 @@ class Property {
 		return $this->mModel->toObject($pObject);
 	}
 	
-	public function getSerializations() {
+	public function getSerialization() {
 		return null;
 	}
 	
-	public function getFirstSerialization() {
-		return null;
-	}
 }

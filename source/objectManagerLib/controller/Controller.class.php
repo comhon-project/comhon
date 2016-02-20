@@ -33,51 +33,39 @@ abstract class Controller {
 			$this->mParams            = $pParams;	
 			$lModel                   = $pObject->getModel();
 			$lModelName               = $lModel->getModelName();
-			
-			if ($pObject->getModel() instanceof ModelArray) {
-				$lSerializations      = $lModel->getModel()->getSerializations();
-				$lSerializationUnit   = $lModel->getModel()->getFirstSerialization();
-			} else {
-				$lSerializations      = $lModel->getSerializations();
-				$lSerializationUnit   = $lModel->getFirstSerialization();
-			}
-			
-			$lProperty = is_null($lSerializations)
-							? new Property($lModel, $lModelName)
-							: new ForeignProperty($lModel, $lModelName, null, $lSerializations);
-			
+			$lProperty                = new Property($lModel, $lModelName);
 			$lCustomModel             = new ModelCustom('modelCustom', array($lProperty));
 			$lRootCustomObject        = $lCustomModel->getObjectInstance();
 
 			$lRootCustomObject->setValue($lModelName, $pObject);
 			$this->_init($pObject);
-			$this->_accept($lRootCustomObject, $lModelName, $lModelName, $lSerializationUnit);
+			$this->_accept($lRootCustomObject, $lModelName, $lModelName);
 			
 			return $this->_finalize($pObject);
 		}
 		return false;
 	}
 	
-	private function _accept($pParentObject, $pKey, $pPropertyName, $pSerializationUnit) {
+	private function _accept($pParentObject, $pKey, $pPropertyName) {
 		if (!is_null($pParentObject->getValue($pKey))) {
 			$this->mPropertyNameStack[] = $pPropertyName;
-			$lVisitChild = $this->_visit($pParentObject, $pKey, $this->mPropertyNameStack, $pSerializationUnit);
+			$lVisitChild = $this->_visit($pParentObject, $pKey, $this->mPropertyNameStack);
 			if ($lVisitChild) {
-				$this->_acceptChildren($pParentObject->getValue($pKey), $pSerializationUnit);
+				$this->_acceptChildren($pParentObject->getValue($pKey));
 			}
-			$this->_postVisit($pParentObject, $pKey, $this->mPropertyNameStack, $pSerializationUnit);
+			$this->_postVisit($pParentObject, $pKey, $this->mPropertyNameStack);
 			array_pop($this->mPropertyNameStack);
 		}
 	}
 	
-	private function _acceptChildren($pObject, $pSerializationUnit) {
+	private function _acceptChildren($pObject) {
 		if (is_null($pObject)) {
 			return;
 		}
 		if ($pObject->getModel() instanceof ModelArray && $pObject instanceof ObjectArray) {
 			$lPropertyName = $pObject->getModel()->getElementName();
 			foreach ($pObject->getValues() as $lKey => $lObject) {
-				$this->_accept($pObject, $lKey, $lPropertyName, $pSerializationUnit);
+				$this->_accept($pObject, $lKey, $lPropertyName);
 			}
 		}
 		else if (!array_key_exists(spl_object_hash($pObject), $this->mInstanceObjectHash)) {
@@ -85,7 +73,7 @@ abstract class Controller {
 			foreach ($pObject->getModel()->getProperties() as $lPropertyName => $lProperty) {
 				$lModel = ($lProperty->getModel() instanceof ModelContainer) ? $lProperty->getModel()->getModel() : $lProperty->getModel();
 				if (! ($lModel instanceof SimpleModel)) {
-					$this->_accept($pObject, $lPropertyName, $lPropertyName, $lProperty->getFirstSerialization());
+					$this->_accept($pObject, $lPropertyName, $lPropertyName);
 				}
 			}
 			unset($this->mInstanceObjectHash[spl_object_hash($pObject)]);
@@ -114,9 +102,9 @@ abstract class Controller {
 
 	protected abstract function _init($pObject);
 	
-	protected abstract function _visit($pParentObject, $pKey, $pPropertyNameStack, $pSerializationUnit);
+	protected abstract function _visit($pParentObject, $pKey, $pPropertyNameStack);
 	
-	protected abstract function _postVisit($pParentObject, $pKey, $pPropertyNameStack, $pSerializationUnit);
+	protected abstract function _postVisit($pParentObject, $pKey, $pPropertyNameStack);
 	
 	protected abstract function _finalize($pObject);
 }

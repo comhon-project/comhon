@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-	<serializations>
-		<serialization type="jsonFile">
-			<jsonFile saticPath="/var/data/table" staticName="table.json"/>
-		</serialization>
-	</serializations>
-	<properties>
-		<database>
-			<serialization type="jsonFile">
-				<jsonFile saticPath="/var/data/database" staticName="database.json"/>
-			</serialization>
-		</database>
-	</properties>
+	<serialization type="jsonFile">
+		<jsonFile saticPath="/var/data/table" staticName="table.json"/>
+	</serialization>
+	<properties/>
 </manifest>

@@ -20,7 +20,7 @@ use objectManagerLib\controller\CompositionLoader;
 class SimpleLoadRequest extends ObjectLoadRequest {
 
 	public function execute($pId) {
-		if (is_null($lSerializationUnit = $this->mModel->getSerialization(0))) {
+		if (is_null($lSerializationUnit = $this->mModel->getSerialization())) {
 			throw new \Exception("model doesn't have serialization");
 		}
 		if (count($lPropertiesIds = $this->mModel->getIds()) != 1) {

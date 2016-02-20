@@ -14,8 +14,6 @@ abstract class SimpleModel extends Model {
 		$this->_init();
 	}
 	
-	public function load() {}
-	
 	public function toObject($pValue, $pUseSerializationName = false, $pExportForeignObject = false) {
 		return $pValue;
 	}

@@ -78,6 +78,10 @@ abstract class ModelContainer {
 		return $this->mModel->isLoaded();
 	}
 	
+	public function getSerialization() {
+		return $this->mModel->getSerialization();
+	}
+	
 	/*
 	 * this function can insert or update a row in dataBase
 	 * if the attribut "id" is set in this instance, that will be an update, otherwise that will be an insert
