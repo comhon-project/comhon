@@ -9,7 +9,7 @@ use objectManagerLib\object\ObjectCollection;
 class ForeignObjectReplacer extends Controller {
 	
 	private $mObjectCollection;
-	private $mSerializationStack; 
+	private $mMainModelStack; 
 	
 	protected function _getMandatoryParameters() {
 		return array();
@@ -17,20 +17,19 @@ class ForeignObjectReplacer extends Controller {
 	
 	protected function _init($pObject) {
 		$this->mObjectCollection = ObjectCollection::getInstance();
-		$this->mSerializationStack = array(array(0,0));
+		$this->mMainModelStack = array(array(0,0));
 	}
 	
 	protected function _visit($pParentObject, $pKey, $pPropertyNameStack) {
-		$lSerializationUnit = $pParentObject->getValue($pKey)->getModel()->getSerialization();
-		$lSuccess = $this->mObjectCollection->replaceValue($pParentObject, $pKey, $lSerializationUnit);
-		$this->mSerializationStack[] = $this->mObjectCollection->getCurrentKey();
+		$lSuccess = $this->mObjectCollection->replaceValue($pParentObject, $pKey);
+		$this->mMainModelStack[] = $this->mObjectCollection->getCurrentKey();
 		return true;
 	}
 	
 	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack) {
-		array_pop($this->mSerializationStack);
-		$lIndex = count($this->mSerializationStack) - 1;
-		$this->mObjectCollection->getCurrentKey($this->mSerializationStack[$lIndex][0], $this->mSerializationStack[$lIndex][1]);
+		array_pop($this->mMainModelStack);
+		$lIndex = count($this->mMainModelStack) - 1;
+		$this->mObjectCollection->getCurrentKey($this->mMainModelStack[$lIndex][0], $this->mMainModelStack[$lIndex][1]);
 	}
 	
 	protected function _finalize($pObject) {
