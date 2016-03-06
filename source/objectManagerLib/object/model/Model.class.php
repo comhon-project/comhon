@@ -8,12 +8,13 @@ use objectManagerLib\object\object\ObjectArray;
 use objectManagerLib\exception\PropertyException;
 use \stdClass;
 
-class Model {
+abstract class Model {
 	
 	protected static $sInstanceObjectHash = array();
 
 	protected $mModelName;
 	protected $mIsLoaded     = false;
+	protected $mIsLoading    = false;
 	
 	private $mProperties;
 	private $mObjectClass    = "objectManagerLib\object\object\Object";
@@ -32,7 +33,8 @@ class Model {
 	}
 	
 	public final function load() {
-		if (!$this->mIsLoaded) {
+		if (!$this->mIsLoaded && !$this->mIsLoading) {
+			$this->mIsLoading = true;
 			$lResult = InstanceModel::getInstance()->getProperties($this);
 			$this->mProperties = $lResult[InstanceModel::PROPERTIES];
 			foreach ($this->mProperties as $lProperty) {
@@ -45,7 +47,8 @@ class Model {
 			}
 			$this->_setSerialization();
 			$this->_init();
-			$this->mIsLoaded = true;
+			$this->mIsLoaded  = true;
+			$this->mIsLoading = false;
 		}
 	}
 	
@@ -64,6 +67,10 @@ class Model {
 	}
 	
 	public function getModelName() {
+		return $this->mModelName;
+	}
+	
+	public function getMainModelName() {
 		return $this->mModelName;
 	}
 	

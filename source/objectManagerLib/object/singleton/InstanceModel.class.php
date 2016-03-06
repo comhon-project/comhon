@@ -11,6 +11,7 @@ use objectManagerLib\object\model\Boolean;
 use objectManagerLib\object\model\String;
 use objectManagerLib\object\model\Model;
 use objectManagerLib\object\model\MainModel;
+use objectManagerLib\object\model\LocalModel;
 use objectManagerLib\object\model\Property;
 use objectManagerLib\object\model\ModelForeign;
 use objectManagerLib\object\model\SimpleModel;
@@ -89,39 +90,66 @@ class InstanceModel {
 	}
 	
 	
-	public function hasInstanceModel($pModelName) {
-		return array_key_exists($pModelName, $this->mInstanceModels);
+	public function hasInstanceModel($pModelName, $pMainModelName = null) {
+		if (is_null($pMainModelName)) {
+			return array_key_exists($pModelName, $this->mInstanceModels);
+		} else {
+			return array_key_exists($pMainModelName, $this->mLocalTypes) && array_key_exists($pModelName, $this->mLocalTypes[$pMainModelName]);
+		}
 	}
 	
-	public function getInstanceModel($pModelName) {
-		$lReturn = $this->_getInstanceModel($pModelName, true);
+	/**
+	 * get model instance (specify main model name if you request a local model)
+	 * @param string $pModelName
+	 * @param string $pMainModelName
+	 * @return Model
+	 */
+	public function getInstanceModel($pModelName, $pMainModelName = null) {
+		$lReturn = $this->_getInstanceModel($pModelName, $pMainModelName, true);
 		$lReturn->load();
 		return $lReturn;
 	}
 	
-	private function _getInstanceModel($pModelName, $pLoadModel) {
+	/**
+	 * 
+	 * @param string $pModelName
+	 * @param string $pMainModelName null if $pModelName is a main model name
+	 * @param boolean $pLoadModel
+	 * @throws Exception
+	 * @return NULL|Model
+	 */
+	private function _getInstanceModel($pModelName, $pMainModelName, $pLoadModel) {
 		$lReturn = null;
+		if (is_null($pMainModelName)) {
+			$lInstanceModels =& $this->mInstanceModels;
+		} else {
+			$lMainModel = $this->getInstanceModel($pMainModelName);
+			$lInstanceModels =& $this->mLocalTypes[$pMainModelName];
+		}
 		
-		if (!array_key_exists($pModelName, $this->mInstanceModels)) { // model doesn't exists
+		if (!array_key_exists($pModelName, $lInstanceModels)) { // model doesn't exists
 			throw new Exception("'$pModelName' doesn't exists, you must define it");
 		}
-		if (is_object($this->mInstanceModels[$pModelName])) { // model already initialized
-			$lReturn = $this->mInstanceModels[$pModelName];
+		if (is_object($lInstanceModels[$pModelName])) { // model already initialized
+			$lReturn = $lInstanceModels[$pModelName];
 		}else {
-			if (count($this->mInstanceModels[$pModelName]) == 3) {
-				$lReturn = $this->mInstanceModels[$pModelName][2];
+			if (count($lInstanceModels[$pModelName]) == 3) {
+				$lReturn = $lInstanceModels[$pModelName][2];
 			} else {
-				$lReturn = new MainModel($pModelName, $pLoadModel);
-				// if model has been initialized during itself initialization
-				if (is_object($this->mInstanceModels[$pModelName])) {
-					$lReturn = $this->mInstanceModels[$pModelName];
+				if (is_null($pMainModelName)) {
+					$lReturn = new MainModel($pModelName, $pLoadModel);
+				} else {
+					$lReturn = new LocalModel($pModelName, $pMainModelName, $pLoadModel);
 				}
-				// else add model
-				else {
-					if ($pLoadModel) {trigger_error("-+-".$lReturn->getModelName());
-						$this->mInstanceModels[$pModelName] = $lReturn;
+				
+				if (is_object($lInstanceModels[$pModelName])) { // if model has been initialized during itself initialization
+					$lReturn = $lInstanceModels[$pModelName];
+				}
+				else { // else add model
+					if ($pLoadModel) {
+						$lInstanceModels[$pModelName] = $lReturn;
 					} else {
-						$this->mInstanceModels[$pModelName][] = $lReturn;
+						$lInstanceModels[$pModelName][] = $lReturn;
 					}
 				}
 			}
@@ -129,74 +157,102 @@ class InstanceModel {
 		return $lReturn;
 	}
 	
-	public function addInstanceModel($pModel) {
-		if (is_null($this->mLocalTypeXml) && ($pModel instanceof Model) && !is_object($this->mInstanceModels[$pModel->getModelName()])) {
-			$this->mInstanceModels[$pModel->getModelName()] = $pModel;
+	/**
+	 * 
+	 * @param Model $pModel
+	 */
+	private function _addInstanceModel(Model $pModel) {
+		if ($pModel instanceof LocalModel) {
+			$lMainModel = $this->getInstanceModel($pModel->getMainModelName());
+			$lInstanceModels =& $this->mLocalTypes[$pModel->getMainModelName()];
+		} else {
+			$lInstanceModels =& $this->mInstanceModels;
+		}
+		
+		if (is_null($this->mLocalTypeXml) && !is_object($lInstanceModels[$pModel->getModelName()])) {
+			$lInstanceModels[$pModel->getModelName()] = $pModel;
 		}
 	}
 	
-	public function getProperties($pModel) {
+	public function getProperties(Model $pModel) {
 		$lReturn = null;
-		if ($pModel instanceof Model) {
-			if (is_null($this->mLocalTypeXml) && is_object($this->mInstanceModels[$pModel->getModelName()]) && $this->mInstanceModels[$pModel->getModelName()]->isLoaded()) {
-				$lReturn = array(
-					self::PROPERTIES     => $pModel->getProperties(), 
-					self::OBJECT_CLASS   => $pModel->getObjectClass()
-				);
-				if ($pModel instanceof MainModel) {
-					$lReturn[self::SERIALIZATION] = $pModel->getSerialization();
-				}
-			}else {
-				if (is_null($this->mLocalTypeXml)) {
-					$lManifestPath = sprintf("%s/%s", $this->mManifestListFolder, $this->mInstanceModels[$pModel->getModelName()][0]);
-					$lManifest = simplexml_load_file($lManifestPath);
-				}else {
-					$lManifest = $this->mLocalTypeXml;
-				}
-				$lExtends     = isset($lManifest["extends"]) ? (string) $lManifest["extends"] : null; // TODO manage extends
-				$lObjectClass = isset($lManifest["object"]) ? (string) $lManifest["object"] : null;
-				$lReturn      = array(self::PROPERTIES => array(), self::OBJECT_CLASS => $lObjectClass);
-				
-				if (is_null($this->mLocalTypeXml) && !is_null($this->mInstanceModels[$pModel->getModelName()][1])) {
-					$lSerializationPath = sprintf("%s/%s", $this->mSerializationListFolder, $this->mInstanceModels[$pModel->getModelName()][1]);
-					$this->mCurrentXmlSerialization  = simplexml_load_file($lSerializationPath);
-				}
-				$this->addInstanceModel($pModel);
-				$this->_buildLocalTypes($lManifest);
-				$lReturn[self::PROPERTIES] = $this->_buildProperties($lManifest->properties);
+		
+		if ($pModel instanceof LocalModel) {
+			$lInstanceModels =& $this->mLocalTypes[$pModel->getMainModel()->getModelName()];
+		} else {
+			$lInstanceModels =& $this->mInstanceModels;
+		}
+		
+		if (is_null($this->mLocalTypeXml) && is_object($lInstanceModels[$pModel->getModelName()]) && $lInstanceModels[$pModel->getModelName()]->isLoaded()) {
+			$lReturn = array(
+				self::PROPERTIES     => $pModel->getProperties(), 
+				self::OBJECT_CLASS   => $pModel->getObjectClass()
+			);
+			if ($pModel instanceof MainModel) {
+				$lReturn[self::SERIALIZATION] = $pModel->getSerialization();
 			}
+		}else {
+			if (is_null($this->mLocalTypeXml)) {
+				$lManifestPath = sprintf("%s/%s", $this->mManifestListFolder, $lInstanceModels[$pModel->getModelName()][0]);
+				$lManifest = simplexml_load_file($lManifestPath);
+			}else {
+				$lManifest = $this->mLocalTypeXml;
+			}
+			$lExtends     = isset($lManifest["extends"]) ? (string) $lManifest["extends"] : null; // TODO manage extends
+			$lObjectClass = isset($lManifest["object"]) ? (string) $lManifest["object"] : null;
+			$lReturn      = array(self::PROPERTIES => array(), self::OBJECT_CLASS => $lObjectClass);
+			
+			if (is_null($this->mLocalTypeXml) && !is_null($lInstanceModels[$pModel->getModelName()][1])) {
+				$lSerializationPath = sprintf("%s/%s", $this->mSerializationListFolder, $lInstanceModels[$pModel->getModelName()][1]);
+				$this->mCurrentXmlSerialization  = simplexml_load_file($lSerializationPath);
+			}
+			$this->_addInstanceModel($pModel);
+			$this->_buildLocalTypes($lManifest, $pModel);
+			$lReturn[self::PROPERTIES] = $this->_buildProperties($lManifest->properties, $pModel->getMainModelName());
 		}
 		return $lReturn;
 	}
 	
-	private function _buildProperties($pPropertiesXml) {
+	private function _buildProperties($pPropertiesXml, $pMainModelName) {
 		$lProperties = array();
 		foreach ($pPropertiesXml->property as $lPropertyXml) {
-			list($lName, $lModel, $lSerializationName, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml);
-			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId);
+			list($lName, $lModel, $lSerializationName, $lIsId, $lEnum) = $this->_getBaseInfosForProperty($lPropertyXml, $pMainModelName);
+			if (is_null($lEnum)) {
+				$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId);
+			} else if ($lModel instanceof SimpleModel) {
+				if ($lIsId) {
+					throw new Exception("enum property with name '$lName' can't be an id");
+				}
+				$lProperty = new EnumProperty($lModel, $lName, $lEnum, $lSerializationName);
+			} else {
+				throw new Exception("enum property with name '$lName' must be a simple model");
+			}
 			$lProperties[$lName] = $lProperty;
 		}
 		foreach ($pPropertiesXml->foreignProperty as $lPropertyXml) {
-			list($lName, $lModel, $lSerializationName, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml);
+			list($lName, $lModel, $lSerializationName, $lIsId, $lEnum) = $this->_getBaseInfosForProperty($lPropertyXml, $pMainModelName);
+			if (!is_null($lEnum)) {
+				throw new Exception("foreign property with name '$lName' can't be an enumeration");
+			}
 			if ($lModel instanceof SimpleModel) {
 				throw new Exception("foreign property with name '$lName' can't be a simple model");
 			}
-			$lModelForeign = new ModelForeign($lModel);
-			$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName);
+			$lProperty = new ForeignProperty($lModel, $lName, $lSerializationName);
 			$lProperties[$lName] = $lProperty;
 		}
 		return $lProperties;
 	}
 	
-	private function _getBaseInfosForProperty($pPropertyXml) {
+	private function _getBaseInfosForProperty($pPropertyXml, $pMainModelName) {
 		$lName  = isset($pPropertyXml->name) ? (string) $pPropertyXml->name : (string) $pPropertyXml;
 		$lIsId  = (isset($pPropertyXml["id"]) && ((string) $pPropertyXml["id"] == "1")) ? true : false;
+		$lEnum  = null;
 	
-		if (array_key_exists((string) $pPropertyXml["type"], $this->mLocalTypes)) {
-			$lModel = $this->mLocalTypes[(string) $pPropertyXml["type"]];
+		if (array_key_exists((string) $pPropertyXml["type"], $this->mLocalTypes[$pMainModelName])) {
+			$lModel = $this->mLocalTypes[$pMainModelName][(string) $pPropertyXml["type"]];
 			$lSerializationName = null;
 		}else {
-			$lModel = $this->_buildModel($pPropertyXml);
+			$lModel = $this->_buildModel($pPropertyXml, $pMainModelName);
 			$lSerializationsNode = isset($this->mCurrentXmlSerialization->properties->$lName) ? $this->mCurrentXmlSerialization->properties->$lName : null;
 			$lSerializationName  = (!is_null($lSerializationsNode) && isset($lSerializationsNode["serializationName"])) ? (string) $lSerializationsNode["serializationName"] : null;
 		}
@@ -204,23 +260,30 @@ class InstanceModel {
 		if ($lIsId && !($lModel instanceof SimpleModel)) {
 			throw new Exception("id property with name '$lName' must be a simple model");
 		}
-		return array($lName, $lModel, $lSerializationName, $lIsId);
+		if (isset($pProperty->enum)) {
+			$lEnum = array();
+			foreach ($pProperty->enum->value as $lValue) {
+				$lEnum[] = (string) $lValue;
+			}
+		}
+		return array($lName, $lModel, $lSerializationName, $lIsId, $lEnum);
 	}
 	
-	private function _buildLocalTypes($pManifestXML) {
+	private function _buildLocalTypes($pManifestXML, $pModel) {
 		// if $mLocalTypeXml is not null we are already building a local type (we can't define local type in another local type)
-		if (is_null($this->mLocalTypeXml)) {
-			$lXmlLocalTypes    = array();
-			$this->mLocalTypes = array();
+		if (is_null($this->mLocalTypeXml) && ($pModel instanceof MainModel)) {
+			$lXmlLocalTypes = array();
+			$lMainModelName = $pModel->getModelName();
+			$this->mLocalTypes[$lMainModelName] = array();
 			if (isset($pManifestXML->types) && is_null($this->mLocalTypeXml)) {
 				foreach ($pManifestXML->types->type as $lLocalType) {
 					$lTypeId                     = (string) $lLocalType["id"];
 					$lXmlLocalTypes[$lTypeId]    = $lLocalType;
-					$this->mLocalTypes[$lTypeId] = new Model($lTypeId, false);
+					$this->mLocalTypes[$lMainModelName][$lTypeId] = new LocalModel($lTypeId, $lMainModelName, false);
 				}
-				foreach ($this->mLocalTypes as $lTypeId => $lLocalType) {
+				foreach ($this->mLocalTypes[$lMainModelName] as $lTypeId => $lLocalType) {
 					$this->mLocalTypeXml = $lXmlLocalTypes[$lTypeId];
-					$this->mLocalTypes[$lTypeId]->load();
+					$lLocalType->load();
 				}
 			}
 			$this->mLocalTypeXml = null;
@@ -273,28 +336,22 @@ class InstanceModel {
 		return $lObject;
 	}
 	
-	private function _buildModel($pProperty) {
+	private function _buildModel($pProperty, $pMainModelName) {
 		$lTypeId = (string) $pProperty["type"];
 		if ($lTypeId == "array") {
 			if (!isset($pProperty->values['name'])) {
 				throw new \Exception('type array must have a values name. property : '.(string) $pProperty->name);
 			}
-			$lReturn = new ModelArray($this->_buildModel($pProperty->values), (string) $pProperty->values['name']);
-		}
-		else if (array_key_exists($lTypeId, $this->mLocalTypes)) {
-			$lReturn = $this->mLocalTypes[$lTypeId];
+			$lReturn = new ModelArray($this->_buildModel($pProperty->values, $pMainModelName), (string) $pProperty->values['name']);
 		}
 		else {
-			$lModel = $this->_getInstanceModel($lTypeId, false);
-			if (isset($pProperty->enum)) {
-				$lEnum = array();
-				foreach ($pProperty->enum->value as $lValue) {
-					$lEnum[] = (string) $lValue;
+			if (array_key_exists($lTypeId, $this->mInstanceModels)) {
+				if (array_key_exists($lTypeId, $this->mLocalTypes[$pMainModelName])) {
+					throw new \Exception("cannot determine if property '$lTypeId' is local or main model");
 				}
-				$lReturn = new ModelEnum($lModel, $lEnum);
-			}else {
-				$lReturn = $lModel;
+				$pMainModelName = null;
 			}
+			$lReturn = $this->_getInstanceModel($lTypeId, $pMainModelName, false);
 		}
 		return $lReturn;
 	}

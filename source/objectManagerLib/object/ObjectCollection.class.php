@@ -63,13 +63,13 @@ class ObjectCollection {
 				if ($pObject instanceof ObjectArray) {
 					$lSuccess = true;
 					foreach ($pObject->getValues() as $lObject) {
-						$lId = $this->_addObject($lObject);
+						$lId = $this->_addLocalObject($lObject);
 						if (is_null($lId)) {
 							$lSuccess = false;
 						}
 					}
 				} else {
-					$lId = $this->_addObject($pObject);
+					$lId = $this->_addLocalObject($pObject);
 					$lSuccess = !is_null($lId);
 				}
 			}
@@ -78,23 +78,22 @@ class ObjectCollection {
 			$lId = null;
 			if ($pObject instanceof ObjectArray) {
 				foreach ($pObject->getValues() as $lObject) {
-					list($lId, $lTempSuccess) = $this->_addSerializableObject($lObject, $lMainModelName);
+					list($lId, $lTempSuccess) = $this->_addMainObject($lObject, $lMainModelName);
 					if (!$lTempSuccess) {
 						$lSuccess = false;
 					}
 				}
 			} else {
-				list($lId, $lSuccess) = $this->_addSerializableObject($pObject, $lMainModelName);
+				list($lId, $lSuccess) = $this->_addMainObject($pObject, $lMainModelName);
 			}
 			if (!is_null($lId) && $pUpdateCurrentCollectionKey) {
-				$this->mCurrentMainModelName = $lMainModelName;
 				$this->mCurrentId = $lId;
 			}
 		}
 		return $lSuccess;
 	}
 	
-	public function _addSerializableObject(Object $pObject, $pMainModelName) {
+	public function _addMainObject(Object $pObject, $pMainModelName) {
 		$lSuccess = true;
 		$lId      = '';
 		foreach ($pObject->getModel()->getIds() as $lPropertyName) {
@@ -119,13 +118,14 @@ class ObjectCollection {
 		return array($lId, $lSuccess);
 	}
 	
-	public function _addObject(Object $pObject) {
+	public function _addLocalObject(Object $pObject) {
 		$lId = $pObject->getValue($pObject->getModel()->getFirstId());
 		if (is_null($lId)) {
 			return null;
 		}
-		if (isset($this->mMap[$this->mCurrentMainModelName][$this->mCurrentId])) {
-			$lIncludedObjects = &$this->mMap[$this->mCurrentMainModelName][$this->mCurrentId][self::INCLUDED_OBJECTS];
+		$lMainModelName = $pObject->getModel()->getMainModelName();
+		if (isset($this->mMap[$lMainModelName][$this->mCurrentId])) {
+			$lIncludedObjects = &$this->mMap[$lMainModelName][$this->mCurrentId][self::INCLUDED_OBJECTS];
 			$pModelName = $pObject->getModel()->getModelName();
 			if (!array_key_exists($pModelName, $lIncludedObjects)) {
 				$lIncludedObjects[$pModelName] = array();
@@ -170,12 +170,12 @@ class ObjectCollection {
 				$lSuccess = true;
 			}
 			if ($pUpdateCurrentCollectionKey) {
-				$this->mCurrentMainModelName = $lMainModelName;
 				$this->mCurrentId = $lId;
 			}
 		} else {
-			if (isset($this->mMap[$this->mCurrentMainModelName][$this->mCurrentId][self::INCLUDED_OBJECTS][$lModel->getModelName()][$lId])) {
-				$lRefValues[$pKey] = &$this->mMap[$this->mCurrentMainModelName][$this->mCurrentId][self::INCLUDED_OBJECTS][$lModel->getModelName()][$lId];
+			$lMainModelName = $pObject->getModel()->getMainModelName();
+			if (isset($this->mMap[$lMainModelName][$this->mCurrentId][self::INCLUDED_OBJECTS][$lModel->getModelName()][$lId])) {
+				$lRefValues[$pKey] = &$this->mMap[$lMainModelName][$this->mCurrentId][self::INCLUDED_OBJECTS][$lModel->getModelName()][$lId];
 				$lSuccess = true;
 			}
 		}

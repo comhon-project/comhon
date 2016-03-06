@@ -18,6 +18,7 @@ class ForeignObjectReplacer extends Controller {
 	protected function _init($pObject) {
 		$this->mObjectCollection = ObjectCollection::getInstance();
 		$this->mMainModelStack = array(array(0,0));
+		var_dump(ObjectCollection::getInstance()->toString());
 	}
 	
 	protected function _visit($pParentObject, $pKey, $pPropertyNameStack) {

@@ -11,7 +11,7 @@ abstract class ModelContainer {
 	 * to get a model instance use singleton InstanceModel
 	 */
 	public function __construct($pModel) {
-		if ($pModel instanceof objectManagerLib\object\model\Model) {
+		if (!($pModel instanceof Model) && !($pModel instanceof ModelContainer)) {
 			throw new Exception("model parameter must be an instanceof Model");
 		}
 		$this->mModel = $pModel;
