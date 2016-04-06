@@ -17,36 +17,44 @@ class ModelEnum extends ModelContainer {
 		if (!is_array($pEnum)) {
 			throw new Exception("enum parameter must be an array");
 		}
-		$this->mModel = $pModel;
-		$this->mEnum = $pEnum;
+		$this->mModel    = $pModel;
+		$this->mEnum     = $pEnum;
 	}
 	
-	public function toObject($pValue, $pUseSerializationName = false, $pExportForeignObject = false) {
-		$lReturn = $this->mModel->toObject($pValue, $pUseSerializationName, $pExportForeignObject);
+	public function toObject($pValue, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+		$lReturn = $this->mModel->toObject($pValue, $pUseSerializationName, $pMainForeignObjects);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}
 		return $lReturn;
 	}
 	
-	public function fromObject($pValue) {
-		$lReturn = $this->mModel->fromObject($pValue);
+	protected function _fromObject($pValue, $pMainObjectId) {
+		$lReturn = $this->mModel->_fromObject($pValue, $pMainObjectId);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}
 		return $lReturn;
 	}
 	
-	public function toXml($pValue, $pXmlNode, $pUseSerializationName = false, $pExportForeignObject = false) {
-		$lReturn = $this->mModel->toXml($pValue, $pUseSerializationName, $pExportForeignObject);
+	protected function _fromSqlColumn($pValue) {
+		$lReturn = $this->mModel->_fromSqlColumn($pValue);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}
 		return $lReturn;
 	}
 	
-	public function fromXml($pValue) {
-		$lReturn = $this->mModel->fromXml($pValue);
+	public function toXml($pValue, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+		$lReturn = $this->mModel->toXml($pValue, $pXmlNode, $pUseSerializationName, $pMainForeignObjects);
+		if (!in_array($lReturn, $this->mEnum)) {
+			$lReturn = null;
+		}
+		return $lReturn;
+	}
+	
+	protected function _fromXml($pValue, $pMainObjectId) {
+		$lReturn = $this->mModel->_fromXml($pValue, $pMainObjectId);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}

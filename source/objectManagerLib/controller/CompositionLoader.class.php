@@ -24,8 +24,8 @@ class CompositionLoader extends Controller {
 	
 	protected function _init($pObject) {
 		$this->mObjectCollection          = ObjectCollection::getInstance();
-		$this->mObjectCollectionPopulator = new ObjectCollectionPopulator();
-		$this->mForeignObjectReplacer     = new ForeignObjectReplacer();
+		//$this->mObjectCollectionPopulator = new ObjectCollectionPopulator();
+		//$this->mForeignObjectReplacer     = new ForeignObjectReplacer();
 		
 		if (array_key_exists(self::LOAD_CHILDREN, $this->mParams)) {
 			$this->mLoadChildren = $this->mParams[self::LOAD_CHILDREN];
@@ -50,8 +50,8 @@ class CompositionLoader extends Controller {
 					$lSameSerial    = !is_null($lSerialization) && (spl_object_hash($lSerializationUnit) == spl_object_hash($lSerialization));
 					$lObjectToVisit = $lSameSerial ? $lObject : $pParentObject;
 
-					$this->mObjectCollectionPopulator->execute($lObjectToVisit);
-					$this->mForeignObjectReplacer->execute($lObjectToVisit);
+					//$this->mObjectCollectionPopulator->execute($lObjectToVisit);
+					//$this->mForeignObjectReplacer->execute($lObjectToVisit);
 					$this->mLoadedCompositions[spl_object_hash($lObject)] = null;
 				}
 				$lVisitChildren = !array_key_exists(spl_object_hash($lObject), $this->mLoadedCompositions);

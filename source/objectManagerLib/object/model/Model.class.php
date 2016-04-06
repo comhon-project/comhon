@@ -66,6 +66,17 @@ abstract class Model {
 		return new $this->mObjectClass($this, $pIsloaded);
 	}
 	
+	/**
+	 * get or create an instance of Object
+	 * @param string|integer $pId
+	 * @param string|integer $pMainObjectId not used but we need to have it to match with LocalModel
+	 * @param boolean $pIsloaded
+	 * @throws \Exception
+	 */
+	protected function _getOrCreateObjectInstance($pId, $pMainObjectId, $pIsloaded = true) {
+		throw new \Exception('can\'t apply function. Only callable for MainModel or LocalModel');
+	}
+	
 	public function getModelName() {
 		return $this->mModelName;
 	}
@@ -108,6 +119,14 @@ abstract class Model {
 	}
 	
 	public function hasProperty($pPropertyName) {
+		if (is_null($this->mProperties)) {
+			trigger_error($this->mModelName);
+			trigger_error(var_export($this->isLoaded(), true));
+			$lNodes = debug_backtrace();
+			for ($i = 0; $i < count($lNodes); $i++) {
+				trigger_error("$i. ".basename($lNodes[$i]['file']) ." : " .$lNodes[$i]['function'] ."(" .$lNodes[$i]['line'].")");
+			}
+		}
 		return array_key_exists($pPropertyName, $this->mProperties);
 	}
 	
@@ -124,12 +143,16 @@ abstract class Model {
 		return $lProperties;
 	}
 	
-	public function getIds() {
+	public function getIdProperties() {
 		return $this->mIds;
 	}
 	
-	public function hasUniqueId() {
+	public function hasUniqueIdProperty() {
 		return count($this->mIds) == 1;
+	}
+	
+	public function hasIdProperty() {
+		return count($this->mIds) > 0;
 	}
 	
 	public function getSerializationIds() {
@@ -160,17 +183,32 @@ abstract class Model {
 		return true;
 	}
 	
-	public function toObject($pObject, $pUseSerializationName = false, $pExportForeignObject = false) {
+	/**
+	 * 
+	 * @param array $pIdValues
+	 */
+	public function formatId($pIdValues) {
+		return count($pIdValues) > 0 ? implode("-", $pIdValues) : null;
+	}
+	
+	/**
+	 * 
+	 * @param Object $pObject
+	 * @param boolean $pUseSerializationName
+	 * @param array|null $pMainForeignObjects 
+	 * by default foreign properties with MainModel are not exported 
+	 * but you can export them by spsifying an array in third parameter
+	 * @return NULL|\stdClass
+	 */
+	public function toObject($pObject, $pUseSerializationName = false, &$pMainForeignObjects = null) {
 		$lReturn = new stdClass();
 		if (is_null($pObject)) {
 			return null;
 		}
-		if ($pExportForeignObject && array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
+		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
-				if (count($this->getIds()) > 0) {
-					return $this->toObjectId($pObject, $pUseSerializationName);
-				}
-				$pExportForeignObject = false;
+				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getModelName()}' can't be exported");
+				return $this->toObjectId($pObject, $pUseSerializationName);
 			}
 		} else {
 			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
@@ -180,41 +218,26 @@ abstract class Model {
 			if ($this->hasProperty($lKey)) {
 				$lProperty =  $this->getProperty($lKey);
 				$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
-				$lReturn->$lName = $lProperty->getModel()->toObject($lValue, $pUseSerializationName, $pExportForeignObject);
+				$lReturn->$lName = $lProperty->getModel()->toObject($lValue, $pUseSerializationName, $pMainForeignObjects);
 			}
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
 		return $lReturn;
 	}
 	
-	public function toObjectId($pObject, $pUseSerializationName = false) {
-		$lPropertyIds = $this->getIds();
-		if (count($lPropertyIds) > 0) {
-			$lReturn = new stdClass();
-			foreach ($lPropertyIds as $lPropertyId) {
-				if ($this->hasProperty($lPropertyId) && $pObject->hasValue($lPropertyId)) {
-					$lProperty =  $this->getProperty($lPropertyId);
-					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
-					$lReturn->$lName = $lProperty->getModel()->toObject($pObject->getValue($lPropertyId), $pUseSerializationName, false);
-				}
-			}
-		}else {
-			$lReturn = null;
-			trigger_error("Warning cannot export foreign property with model '{$this->mModelName}' because this model doesn't have id");
-		}
-		return $lReturn;
+	public function toObjectId($pObject, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+		return $this->toId($pObject, $pUseSerializationName);
 	}
 	
-	public function toXml($pObject, $pXmlNode, $pUseSerializationName = false, $pExportForeignObject = false) {
+	public function toXml($pObject, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
 		if (is_null($pObject)) {
-			return null;
+			return;
 		}
-		if ($pExportForeignObject && array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
+		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
-				if (count($this->getIds()) > 0) {
-					return $this->toXmlId($pObject, $pXmlNode, $pUseSerializationName);
-				}
-				$pExportForeignObject = false;
+				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getModelName()}' can't be exported");
+				$this->toXmlId($pObject, $pXmlNode, $pUseSerializationName, $pMainForeignObjects);
+				return;
 			}
 		} else {
 			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
@@ -225,29 +248,22 @@ abstract class Model {
 				$lProperty =  $this->getProperty($lKey);
 				$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
 				if (($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum)){
-					$pXmlNode[$lName] = $lProperty->getModel()->toXml($lValue, $pXmlNode, $pUseSerializationName, $pExportForeignObject);
+					$pXmlNode[$lName] = $lProperty->getModel()->toXml($lValue, $pXmlNode, $pUseSerializationName, $pMainForeignObjects);
 				} else {
 					$pXmlChildNode = $pXmlNode->addChild($lName);
-					$lProperty->getModel()->toXml($lValue, $pXmlChildNode, $pUseSerializationName, $pExportForeignObject);
+					$lProperty->getModel()->toXml($lValue, $pXmlChildNode, $pUseSerializationName, $pMainForeignObjects);
 				}
 			}
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
 	}
 	
-	public function toXmlId($pObject, $pXmlNode, $pUseSerializationName = false) {
-		$lPropertyIds = $this->getIds();
-		if (count($lPropertyIds) > 0) {
-			foreach ($lPropertyIds as $lPropertyId) {
-				if ($this->hasProperty($lPropertyId) && $pObject->hasValue($lPropertyId)) {
-					$lProperty =  $this->getProperty($lPropertyId);
-					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
-					$pXmlNode[$lName] = $lProperty->getModel()->toXml($pObject->getValue($lPropertyId), $pUseSerializationName, false);
-				}
-			}
-		}else {
-			trigger_error("Warning cannot export foreign property with model '{$this->mModelName}' because this model doesn't have id");
-		}
+	public function toXmlId($pObject, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+		$lDomNode  = dom_import_simplexml($pXmlNode);
+		$lId       = $this->toId($pObject, $pUseSerializationName);
+		$lTextNode = new \DOMText($lId);
+		$lDomNode->appendChild($lTextNode);
+		return $lId;
 	}
 	
 	public function toSqlDataBase($pObject, $pTable, $pPDO) {
@@ -269,71 +285,183 @@ abstract class Model {
 		return $pPDO->doQuery($lQuery);
 	}
 	
-	public function fromObject($pPhpObject) {
+	public function toId($pObject, $pUseSerializationName = false) {
+		$lId = $pObject->getId();
+		if (is_null($lId)) {
+			trigger_error("Warning cannot export foreign property with model '{$this->mModelName}' because this model doesn't have id");
+		}
+		return $lId;
+	}
+	
+	public function fillObjectFromPhpObject($pObject, $pPhpObject) {
+		throw new \Exception('can\'t apply function. Only callable for MainModel');
+	}
+	
+	public function fillObjectFromXml($pObject, $pXml) {
+		throw new \Exception('can\'t apply function. Only callable for MainModel');
+	}
+	
+	public function fillObjectFromSqlDatabase($pObject, $pRow, $pAddUnloadValues = true) {
+		throw new \Exception('can\'t apply function. Only callable for MainModel');
+	}
+	
+	protected function _fromObject($pPhpObject, $pMainObjectId) {
 		if (is_null($pPhpObject)) {
 			return null;
 		}
-		$lObject = $this->getObjectInstance();
-		foreach ($pPhpObject as $lKey => $lPhpValue) {
-			if ($this->hasProperty($lKey)) {
-				$lObject->setValue($lKey, $this->getPropertyModel($lKey)->fromObject($lPhpValue));
-			}
-		}
+		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromPhpObject($pPhpObject), $pMainObjectId);
+		$this->_fillObjectFromPhpObject($lObject, $pPhpObject, $lMainObjectId);
 		return $lObject;
 	}
 	
-	public function fromXml($pXml) {
-		$lObject = $this->getObjectInstance();
+	protected function _fillObjectFromPhpObject($pObject, $pPhpObject, $pMainObjectId) {
+		if (is_null($pPhpObject)) {
+			return null;
+		}
+		foreach ($pPhpObject as $lKey => $lPhpValue) {
+			if ($this->hasProperty($lKey)) {
+				$pObject->setValue($lKey, $this->getPropertyModel($lKey)->_fromObject($lPhpValue, $pMainObjectId));
+			}
+		}
+	}
+	
+	protected function _fromXml($pXml, $pMainObjectId) {
+		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml), $pMainObjectId);
+		return $this->_fillObjectFromXml($lObject, $pXml, $lMainObjectId) ? $lObject : null;
+	}
+	
+	protected function _fillObjectFromXml($pObject, $pXml, $pMainObjectId) {
 		$lHasValue = false;
 		foreach ($pXml->attributes() as $lKey => $lValue) {
 			if ($this->hasProperty($lKey)) {
-				$lObject->setValue($lKey,  $this->getPropertyModel($lKey)->fromXml($lValue));
+				$pObject->setValue($lKey,  $this->getPropertyModel($lKey)->_fromXml($lValue, $pMainObjectId));
 				$lHasValue = true;
 			}
 		}
 		foreach ($pXml->children() as $lChild) {
 			$lPropertyName = $lChild->getName();
 			if ($this->hasProperty($lPropertyName)) {
-				$lObject->setValue($lPropertyName, $this->getPropertyModel($lPropertyName)->fromXml($lChild));
+				$pObject->setValue($lPropertyName, $this->getPropertyModel($lPropertyName)->_fromXml($lChild, $pMainObjectId));
 				$lHasValue = true;
 			}
 		}
-		return $lHasValue ? $lObject : null;
+		return $lHasValue;
 	}
 	
-	public function fromSqlDataBase($pRow, $pAddUnloadValues = true) {
+	protected function _fromSqlDataBase($pRow, $pAddUnloadValues = true) {
 		$lObject = $this->getObjectInstance();
+		$this->_fillObjectFromSqlDatabase($lObject, $pRow, $pAddUnloadValues);
+		return $lObject;
+	}
+	
+	public function _fillObjectFromSqlDatabase($pObject, $pRow, $pAddUnloadValues = true) {
 		foreach ($this->getProperties() as $lPropertyName => $lProperty) {
 			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
-				if ($lProperty instanceof ForeignProperty) {
-					$lIsSimpleValue = ($lProperty->getModel()->getModel() instanceof SimpleModel) || ($lProperty->getModel()->getModel() instanceof ModelEnum);
-					$lValue = $lIsSimpleValue ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
-					$lObject->setValue($lPropertyName, $lProperty->getModel()->getModel()->fromIdValue($lValue));
-				} else {
-					$lIsSimpleValue = ($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum);
-					$lValue = $lIsSimpleValue ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
-					$lObject->setValue($lPropertyName, $lProperty->getModel()->fromObject($lValue));
+				if (is_null($pRow[$lProperty->getSerializationName()])) {
+					continue;
 				}
+				$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromSqlColumn($pRow[$lProperty->getSerializationName()]));
 			}
 			else if ($pAddUnloadValues && ($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
-				$lObject->initValue($lPropertyName, false);
+				$pObject->initValue($lPropertyName, false);
+			}
+		}
+	}
+	
+	protected function _fromSqlColumn($pJsonEncodedObject) {
+		if (is_null($pJsonEncodedObject)) {
+			return null;
+		}
+		$lPhpObject = json_decode($pJsonEncodedObject);
+		$lObject    = $this->getObjectInstance();
+		foreach ($lPhpObject as $lKey => $lPhpValue) {
+			if ($this->hasProperty($lKey)) {
+				$lObject->setValue($lKey, $this->getPropertyModel($lKey)->_fromObject($lPhpValue));
 			}
 		}
 		return $lObject;
 	}
 	
-	public function fromIdValue($pValue) {
-		if (is_null($pValue)) {
+	protected function _fromObjectId($pValue, $pMainObjectId) {
+		return $this->_fromId($pValue, $pMainObjectId);
+	}
+	
+	protected function _fromXmlId($pValue, $pMainObjectId) {
+		$lId = (string) $pValue;
+		if ($lId == '') {
 			return null;
 		}
-		if (count($lIds = $this->getIds()) != 1) {
+		return $this->_fromId($lId, $pMainObjectId);
+	}
+	
+	protected function _fromSqlId($pValue) {
+		return $this->_fromId($pValue);
+	}
+	
+	protected function _fromId($pId, $pMainObjectId = null) {
+		if (is_object($pId) || $pId == '') {
+			$pId = is_object($pId) ? json_encode($pId) : $pId;
+			throw new \Exception("malformed id '$pId' for model '{$this->mModelName}'");
+		}
+		if (is_null($pId)) {
+			return null;
+		}
+		if (count($lIdProperties = $this->getIdProperties()) != 1) {
 			throw new \Exception("model '{$this->mModelName}' must have one and only one id");
 		}
-		$lObject = $this->getObjectInstance(false);
-		$lObject->setValue($lIds[0], $pValue);
+		list($lObject, $lObjectCollectionKey) = $this->_getOrCreateObjectInstance($pId, $pMainObjectId, false);
 		return $lObject;
 	}
 	
+	public function getIdFromXml($pXml) {
+		$lIdProperties = $this->getIdProperties();
+		if (count($lIdProperties) == 1) {
+			return $this->getPropertyModel($lIdProperties[0])->_fromXml($pXml[$lIdProperties[0]]);
+		}
+		$lIdValues = [];
+		foreach ($lIdProperties as $lIdProperty) {
+			if (isset($pXml[$lIdProperty])) {
+				$lIdValues[] = $this->getPropertyModel($lIdProperty)->_fromXml($pXml[$lIdProperty]);
+			} else {
+				$lIdValues[] = null;
+			}
+		}
+		return $this->formatId($lIdValues);
+	}
+	
+	public function getIdFromPhpObject($pPhpObject) {
+		$lIdProperties = $this->getIdProperties();
+		if (count($lIdProperties) == 1) {
+			return $this->getPropertyModel($lIdProperties[0])->_fromObject($pPhpObject->{$lIdProperties[0]});
+		}
+		$lIdValues = [];
+		foreach ($lIdProperties as $lIdProperty) {
+			if (isset($pPhpObject->$lIdProperty)) {
+				$lIdValues[] = $this->getPropertyModel($lIdProperty)->_fromObject($pPhpObject->$lIdProperty);
+			} else {
+				$lIdValues[] = null;
+			}
+		}
+		return $this->formatId($lIdValues);
+	}
+	
+	public function getIdFromSqlDatabase($pRow) {
+		$lIdProperties = $this->getIdProperties();
+		if (count($lIdProperties) == 1) {
+			$lProperty = $this->getProperty($lIdProperties[0]);
+			return $lProperty->getModel()->_fromSqlColumn($pRow[$lProperty->getSerializationName()]);
+		}
+		$lIdValues = [];
+		foreach ($lIdProperties as $lIdProperty) {
+			if (isset($pRow[$lIdProperty])) {
+				$lProperty   = $this->getProperty($lIdProperty);
+				$lIdValues[] = $lProperty->getModel()->_fromSqlColumn($pRow[$lProperty->getSerializationName()]);
+			} else {
+				$lIdValues[] = null;
+			}
+		}
+		return $this->formatId($lIdValues);
+	}
 	
 	/*
 	 * return true if $pValue1 and $pValue2 are equals

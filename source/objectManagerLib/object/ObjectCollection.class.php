@@ -9,6 +9,7 @@ use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\exception\PropertyException;
 use objectManagerLib\object\model\Model;
 use objectManagerLib\object\model\MainModel;
+use objectManagerLib\object\model\LocalModel;
 use objectManagerLib\object\model\ModelContainer;
 
 class ObjectCollection {
@@ -17,8 +18,6 @@ class ObjectCollection {
 	const INCLUDED_OBJECTS  = 'includedObject';
 	
 	private $mMap = array();
-	private $mCurrentMainModelName;
-	private $mCurrentId;
 	
 	private  static $_instance;
 	
@@ -32,154 +31,107 @@ class ObjectCollection {
 	
 	private function __construct() {}
 	
-	public function getCurrentHashKey() {
-		$this->mCurrentMainModelName;
+	/**
+	 * get Object with MainModel if exists
+	 * @param string $pMainModelName
+	 * @param string|integer $pId
+	 * @return Object|null
+	 */
+	public function getMainObject($pId, $pMainModelName) {
+		return array_key_exists($pMainModelName, $this->mMap) && array_key_exists($pId, $this->mMap[$pMainModelName]) 
+				? $this->mMap[$pMainModelName][$pId][self::MAIN_MODEL_OBJECT]
+				: null;
 	}
 	
-	public function getCurrentIdKey() {
-		$this->mCurrentId;
-	}
-	
-	public function getCurrentKey() {
-		return array($this->mCurrentMainModelName, $this->mCurrentId);
-	}
-	
-	public function setCurrentKey($lMainModelName, $lId) {
-		if (isset($this->mMap[$lMainModelName][$lId])) {
-			$this->mCurrentMainModelName = $lMainModelName;
-			$this->mCurrentId = $lId;
-			return true;
-		} 
-		return false;
-	}
-	
-	public function addObject(Object $pObject, $pUpdateCurrentCollectionKey = true) {
-		$lSuccess       = false;
-		$lModel         = ($pObject->getModel() instanceof ModelContainer) ? $pObject->getModel()->getModel() : $pObject->getModel();
-		$lMainModelName = ($lModel instanceof MainModel) ? $lModel->getModelName() : null;
+	/**
+	 * add object with mainModel if needed
+	 * @param Object $pObject
+	 * @param boolean $pThrowException throw exception if an object with same id already exists
+	 * @throws \Exception
+	 * @return string|integer 
+	 * - return object id if object has id and (not already added or same instance)
+	 * - return object spl_object_hash if object hasn't id or (already added and different instance)
+	 */
+	public function addMainObject(Object $pObject, $pThrowException = true) {
+		if (!($pObject->getModel() instanceof MainModel)) {
+			throw new \Exception('mdodel must be instance of MainModel');
+		}
+		$lModelName = $pObject->getModel()->getModelName();
+		$lId        = $pObject->getId();
 		
-		if (is_null($lMainModelName)) {
-			if ($pObject->getModel()->hasUniqueId()) {
-				if ($pObject instanceof ObjectArray) {
-					$lSuccess = true;
-					foreach ($pObject->getValues() as $lObject) {
-						$lId = $this->_addLocalObject($lObject);
-						if (is_null($lId)) {
-							$lSuccess = false;
-						}
-					}
-				} else {
-					$lId = $this->_addLocalObject($pObject);
-					$lSuccess = !is_null($lId);
-				}
-			}
-		} else {
-			$lSuccess = true;
-			$lId = null;
-			if ($pObject instanceof ObjectArray) {
-				foreach ($pObject->getValues() as $lObject) {
-					list($lId, $lTempSuccess) = $this->_addMainObject($lObject, $lMainModelName);
-					if (!$lTempSuccess) {
-						$lSuccess = false;
-					}
-				}
-			} else {
-				list($lId, $lSuccess) = $this->_addMainObject($pObject, $lMainModelName);
-			}
-			if (!is_null($lId) && $pUpdateCurrentCollectionKey) {
-				$this->mCurrentId = $lId;
-			}
-		}
-		return $lSuccess;
-	}
-	
-	public function _addMainObject(Object $pObject, $pMainModelName) {
-		$lSuccess = true;
-		$lId      = '';
-		foreach ($pObject->getModel()->getIds() as $lPropertyName) {
-			if (!is_null($pObject->getValue($lPropertyName))) {
-				$lId .= $pObject->getValue($lPropertyName);
-			}
-		}
-		if ($lId == '') {
+		if (is_null($lId)) {
 			$lId = spl_object_hash($pObject);
 		}
-		if (!array_key_exists($pMainModelName, $this->mMap)) {
-			$this->mMap[$pMainModelName] = array();
+		if (!array_key_exists($lModelName, $this->mMap)) {
+			$this->mMap[$lModelName] = array();
 		}
-		if (!array_key_exists($lId, $this->mMap[$pMainModelName])) {
-			$this->mMap[$pMainModelName][$lId] = array(self::MAIN_MODEL_OBJECT => $pObject, self::INCLUDED_OBJECTS => array());
-		} else if ($pObject->isLoaded() && !$this->mMap[$pMainModelName][$lId][self::MAIN_MODEL_OBJECT]->isLoaded()) {
-			$this->mMap[$pMainModelName][$lId][self::MAIN_MODEL_OBJECT] = $pObject;
-		} else {
-			$lSuccess = false;
+		// if key doesn't exists => create new key with object id or instance id (spl_object_hash)
+		if (!array_key_exists($lId, $this->mMap[$lModelName])) {
+			$this->mMap[$lModelName][$lId] = array(self::MAIN_MODEL_OBJECT => $pObject, self::INCLUDED_OBJECTS => array());
+		}
+		// else if must throw exception => throw exception
+		else if ($pThrowException) {
+			throw new \Exception('object already added');
+		}
+		// else if id exists but not same object => create new key with instance id (spl_object_hash)
+		else if (spl_object_hash($pObject) != spl_object_hash($this->mMap[$lModelName][$lId][self::MAIN_MODEL_OBJECT])) {
+			trigger_error("should never happen");
+			$lId = spl_object_hash($pObject);
+			$this->mMap[$lModelName][$lId] = array(self::MAIN_MODEL_OBJECT => $pObject, self::INCLUDED_OBJECTS => array());
 		}
 		
-		return array($lId, $lSuccess);
+		return $lId;
 	}
 	
-	public function _addLocalObject(Object $pObject) {
-		$lId = $pObject->getValue($pObject->getModel()->getFirstId());
-		if (is_null($lId)) {
-			return null;
+	/**
+	 * get Object with LocalModel if exists
+	 * @param string|integer $pId
+	 * @param string $pModelName
+	 * @param string|integer $pMainModelId
+	 * @param string $pMainModelName
+	 * @return Object|null
+	 */
+	public function getLocalObject($pId, $pModelName, $pMainModelId, $pMainModelName) {
+		return array_key_exists($pMainModelName, $this->mMap) && array_key_exists($pMainModelId, $this->mMap[$pMainModelName])
+				&& array_key_exists($pModelName, $this->mMap[$pMainModelName][$pMainModelId][self::INCLUDED_OBJECTS])
+				&& array_key_exists($pId, $this->mMap[$pMainModelName][$pMainModelId][self::INCLUDED_OBJECTS][$pModelName])
+					? $this->mMap[$pMainModelName][$pMainModelId][self::INCLUDED_OBJECTS][$pModelName][$pId]
+					: null;
+	}
+	
+	/**
+	 * add object with localModel (only if not already added)
+	 * @param Object $pObject
+	 * @param string|integer $pMainObjectId
+	 * @param boolean $pThrowException throw exception if an object with same id already exists
+	 * @return boolean true if object is added
+	 */
+	public function addLocalObject(Object $pObject, $pMainObjectId, $pThrowException = true) {
+		if (!($pObject->getModel() instanceof LocalModel)) {
+			throw new \Exception('mdodel must be instance of LocalModel');
 		}
+		$lReturn        = false;
 		$lMainModelName = $pObject->getModel()->getMainModelName();
-		if (isset($this->mMap[$lMainModelName][$this->mCurrentId])) {
-			$lIncludedObjects = &$this->mMap[$lMainModelName][$this->mCurrentId][self::INCLUDED_OBJECTS];
+		$lId            = $pObject->getId();
+		
+		if (is_null($lId)) {
+			return $lReturn;
+		}
+		if (isset($this->mMap[$lMainModelName][$pMainObjectId])) {
+			$lIncludedObjects = &$this->mMap[$lMainModelName][$pMainObjectId][self::INCLUDED_OBJECTS];
 			$pModelName = $pObject->getModel()->getModelName();
 			if (!array_key_exists($pModelName, $lIncludedObjects)) {
 				$lIncludedObjects[$pModelName] = array();
 			}
 			if (!array_key_exists($lId, $lIncludedObjects[$pModelName])) {
 				$lIncludedObjects[$pModelName][$lId] = $pObject;
-			} else if ($pObject->isLoaded() && !$lIncludedObjects[$pModelName][$lId]->isLoaded()) {
-				$lIncludedObjects[$pModelName][$lId] = $pObject;
-			} else {
-				$lId = null;
+				$lReturn = true;
+			} else if ($pThrowException) {
+				throw new \Exception('object already added');
 			}
-		} else {
-			$lId = null;
 		}
 		
-		return $lId;
-	}
-	
-	public function replaceValue(Object $pParentObject, $pKey, $pUpdateCurrentCollectionKey = true) {
-		$lSuccess = false;
-		$lObject  = $pParentObject->getValue($pKey); 
-		$lModel   = $lObject->getModel();
-		
-		if (!($lObject instanceof Object) || !($lModel instanceof Model) || (($lModel instanceof MainModel) && !$lModel->hasUniqueId())) {
-			return false;
-		}
-		$lId      = '';
-		foreach ($lObject->getModel()->getIds() as $lPropertyName) {
-			if (!is_null($lObject->getValue($lPropertyName))) {
-				$lId .= $lObject->getValue($lPropertyName);
-			}
-		}
-		if ($lId == '') {
-			return false;
-		}
-		$lRefValues =& $pParentObject->getRefValues();
-		if ($lModel instanceof MainModel) {
-			$lMainModelName = $lModel->getModelName();
-			if (isset($this->mMap[$lMainModelName][$lId][self::MAIN_MODEL_OBJECT])) {
-				$lRefValues[$pKey] = &$this->mMap[$lMainModelName][$lId][self::MAIN_MODEL_OBJECT];
-				$lRefValues2 = $pParentObject->getRefValues();
-				$lSuccess = true;
-			}
-			if ($pUpdateCurrentCollectionKey) {
-				$this->mCurrentId = $lId;
-			}
-		} else {
-			$lMainModelName = $pObject->getModel()->getMainModelName();
-			if (isset($this->mMap[$lMainModelName][$this->mCurrentId][self::INCLUDED_OBJECTS][$lModel->getModelName()][$lId])) {
-				$lRefValues[$pKey] = &$this->mMap[$lMainModelName][$this->mCurrentId][self::INCLUDED_OBJECTS][$lModel->getModelName()][$lId];
-				$lSuccess = true;
-			}
-		}
-		return $lSuccess;
+		return $lReturn;
 	}
 	
 	public function toString() {

@@ -18,8 +18,8 @@ class ForeignObjectLoader extends Controller {
 	
 	protected function _init($pObject) {
 		$this->mObjectCollection          = ObjectCollection::getInstance();
-		$this->mObjectCollectionPopulator = new ObjectCollectionPopulator();
-		$this->mForeignObjectReplacer     = new ForeignObjectReplacer();
+		//$this->mObjectCollectionPopulator = new ObjectCollectionPopulator();
+		//$this->mForeignObjectReplacer     = new ForeignObjectReplacer();
 		
 		if (array_key_exists(0, $this->mParams)) {
 			$this->mLoadCompositions = $this->mParams[0];
@@ -44,8 +44,8 @@ class ForeignObjectLoader extends Controller {
 				$lSameSerial    = !is_null($lSerialization) && (spl_object_hash($lSerializationUnit) == spl_object_hash($lSerialization));
 				$lObjectToVisit = $lSameSerial ? $lObject : $pParentObject;
 
-				$this->mObjectCollectionPopulator->execute($lObjectToVisit);
-				$this->mForeignObjectReplacer->execute($lObjectToVisit);
+				//$this->mObjectCollectionPopulator->execute($lObjectToVisit);
+				//$this->mForeignObjectReplacer->execute($lObjectToVisit);
 				$this->mLoadedValues[spl_object_hash($lObject)] = null;
 			}
 			$lVisitChildren = !array_key_exists(spl_object_hash($lObject), $this->mLoadedValues);

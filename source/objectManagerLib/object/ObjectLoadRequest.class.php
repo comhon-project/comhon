@@ -47,13 +47,13 @@ abstract class ObjectLoadRequest {
 	}
 	
 	protected function _updateObjects($pObject) {
-		$lObjectCollectionPopulator = new ObjectCollectionPopulator();
-		$lForeignObjectReplacer     = new ForeignObjectReplacer();
+		//$lObjectCollectionPopulator = new ObjectCollectionPopulator();
+		//$lForeignObjectReplacer     = new ForeignObjectReplacer();
 		$lForeignObjectLoader       = new ForeignObjectLoader();
 		$lCompositionLoader         = new CompositionLoader();
 		
-		$lObjectCollectionPopulator->execute($pObject);
-		$lForeignObjectReplacer->execute($pObject);
+		//$lObjectCollectionPopulator->execute($pObject);
+		//$lForeignObjectReplacer->execute($pObject);
 		if ($this->mRequestChildren && !$this->mLoadForeignProperties) {
 			$lCompositionLoader->execute($pObject, array(CompositionLoader::LOAD_CHILDREN => $this->mLoadForeignProperties));
 		}

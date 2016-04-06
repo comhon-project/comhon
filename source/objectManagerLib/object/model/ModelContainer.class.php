@@ -2,9 +2,10 @@
 namespace objectManagerLib\object\model;
 use \Exception;
 
-abstract class ModelContainer {
+abstract class ModelContainer extends Model {
 
 	protected $mModel;
+	protected $mIsLoaded = true;
 	
 	/**
 	 * don't instanciate a model by yourself because it take time
@@ -18,60 +19,57 @@ abstract class ModelContainer {
 	}
 	
 	public function getObjectInstance($pIsloaded = true) {
-		return $this->mModel->getObjectInstance($pIsloaded);
+		return $this->getModel()->getObjectInstance($pIsloaded);
 	}
 	
 	public function getModelName() {
-		return $this->mModel->getModelName();
+		return $this->getModel()->getModelName();
 	}
 	
-	public function getProperty($pPropertyName) {
-		return $this->mModel->getProperty($pPropertyName);
+	public function getProperty($pPropertyName, $pThrowException = false) {
+		return $this->getModel()->getProperty($pPropertyName);
 	}
 	
 	public function getProperties() {
-		return $this->mModel->getProperties();
+		return $this->getModel()->getProperties();
 	}
 	
 	public function getPropertiesNames() {
-		return $this->mModel->getPropertiesNames();
+		return $this->getModel()->getPropertiesNames();
 	}
 	
 	public function getPropertyModel($pPropertyName) {
-		return $this->mModel->getPropertyModel($pPropertyName);
+		return $this->getModel()->getPropertyModel($pPropertyName);
 	}
 	
 	public function getModel() {
+		$this->mModel->load();
 		return $this->mModel;
 	}
 	
 	public function hasProperty($pPropertyName) {
-		return $this->mModel->hasProperty($pPropertyName);
+		return $this->getModel()->hasProperty($pPropertyName);
 	}
 	
 	public final function getExportKeys() {
-		return $this->mModel->getExportKeys();
+		return $this->getModel()->getExportKeys();
 	}
 	
 	
 	public function getExportKey($pKey) {
-		return $this->mModel->getExportKey($pKey);
+		return $this->getModel()->getExportKey($pKey);
 	}
 	
-	public function getIds() {
-		return $this->mModel->getIds();
+	public function getIdProperties() {
+		return $this->getModel()->getIdProperties();
 	}
 	
-	public function hasUniqueId() {
-		return $this->mModel->hasUniqueId();
+	public function hasUniqueIdProperty() {
+		return $this->getModel()->hasUniqueIdProperty();
 	}
 	
 	public function getFirstId() {
-		return $this->mModel->getFirstId();
-	}
-	
-	public function load() {
-		$this->mModel->load();
+		return $this->getModel()->getFirstId();
 	}
 	
 	public function isLoaded() {
@@ -79,7 +77,7 @@ abstract class ModelContainer {
 	}
 	
 	public function getSerialization() {
-		return $this->mModel->getSerialization();
+		return $this->getModel()->getSerialization();
 	}
 	
 	/*
@@ -102,14 +100,21 @@ abstract class ModelContainer {
 		return $lResult;
 	}
 	
-	public function toObject($pValue, $pUseSerializationName = false, $pExportForeignObject = false) {
-		return $this->mModel->toObject($pValue, $pUseSerializationName, $pExportForeignObject);
+	public function toObject($pValue, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+		throw new \Exception('must be overrided');
 	}
 	
-	public function fromObject($pValue) {
-		return $this->mModel->fromObject($pValue);
+	public function toXml($pObjectArray, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+		throw new \Exception('must be overrided');
 	}
 	
+	protected function _fromObject($pValue, $pMainObjectId)  {
+		throw new \Exception('must be overrided');
+	}
+	
+	protected function _fromSqlColumn($pValue) {
+		throw new \Exception('must be overrided');
+	}
 	
 	/*
 	 * return true if $pValue1 and $pValue2 are equals

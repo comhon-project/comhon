@@ -2,6 +2,7 @@
 namespace objectManagerLib\object\model;
 
 use objectManagerLib\object\object\ObjectArray;
+use objectManagerLib\object\model\MainModel;
 
 class ModelArray extends ModelContainer {
 	
@@ -29,77 +30,150 @@ class ModelArray extends ModelContainer {
 		return new ObjectArray($this, $pIsloaded);
 	}
 	
-	public function toObject($pObjectArray, $pUseSerializationName = false, $pExportForeignObject = false) {
+	public function toObject($pObjectArray, $pUseSerializationName = false, &$pMainForeignObjects = null) {
 		if (is_null($pObjectArray)) {
 			return null;
 		}
+		if (!$pObjectArray->isLoaded()) {
+			return  ObjectArray::__UNLOAD__;
+		}
 		$lReturn = array();
 		foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-			$lReturn[$lKey] = $this->mModel->toObject($lValue, $pUseSerializationName, $pExportForeignObject);
+			$lReturn[$lKey] = $this->getModel()->toObject($lValue, $pUseSerializationName, $pMainForeignObjects);
 		}
 		return $lReturn;
 	}
 	
-	public function toObjectId($pObjectArray, $pUseSerializationName = false) {
+	public function toObjectId($pObjectArray, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+		if (is_null($pObjectArray)) {
+			return null;
+		}
+		if (!$pObjectArray->isLoaded()) {
+			return  ObjectArray::__UNLOAD__;
+		}
 		$lReturn = array();
 		if (!is_null($pObjectArray)) {
 			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-				$lReturn[$lKey] = $this->mModel->toObjectId($lValue, $pUseSerializationName);
+				$lReturn[$lKey] = $this->getModel()->toObjectId($lValue, $pUseSerializationName, $pMainForeignObjects);
 			}
 		}
 		return $lReturn;
 	}
 	
 	public function fromObject($pArray) {
+		if (!($this->getModel() instanceof MainModel)) {
+			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
+		}
+		return $this->_fromObject($pArray, null);
+	}
+	
+	protected function _fromObject($pArray, $pMainObjectId) {
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pArray as $lKey => $lPhpValue) {
-			$lObjectArray->setValue($lKey, $this->mModel->fromObject($lPhpValue));
+			$lObjectArray->setValue($lKey, $this->getModel()->_fromObject($lPhpValue, $pMainObjectId));
 		}
 		return $lObjectArray;
 	}
 	
-	public function fromSqlDataBase($pRows, $pAddUnloadValues = true, $pLoadDepth = 0) {
+	protected function _fromObjectId($pArray, $pMainObjectId) {
+		if (is_null($pArray)) {
+			return null;
+		}
+		if (is_string($pArray) && $pArray == ObjectArray::__UNLOAD__) {
+			return $this->getObjectInstance(false);
+		}
+		$lReturn = $this->getObjectInstance();
+		foreach ($pArray as $lKey => $lValue) {
+			$lReturn->setValue($lKey, $this->getModel()->_fromObjectId($lValue, $pMainObjectId));
+		}
+		return $lReturn;
+	}
+	
+	protected function _fromSqlColumn($pJsonEncodedObject) {
+		if (is_null($pJsonEncodedObject)) {
+			return null;
+		}
+		$lPhpObject = json_decode($pJsonEncodedObject);
+		$lObject    = $this->getObjectInstance();
+		foreach ($lPhpObject as $lKey => $lPhpValue) {
+			$lObject->setValue($lKey, $this->getModel()->_fromObject($lPhpValue));
+		}
+		return $lObject;
+	}
+	
+	public function fromSqlDataBase($pRows, $pAddUnloadValues = true) {
+		if (!($this->getModel() instanceof MainModel)) {
+			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
+		}
+		return $this->_fromSqlDataBase($pRows, $pAddUnloadValues);
+	}
+	
+	protected function _fromSqlDataBase($pRows, $pAddUnloadValues = true) {
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pRows as $lKey => $lRow) {
-			$lObjectArray->setValue($lKey, $this->mModel->fromSqlDataBase($lRow, $pAddUnloadValues, $pLoadDepth));
+			$lObjectArray->setValue($lKey, $this->getModel()->_fromSqlDataBase($lRow, $pAddUnloadValues));
 		}
 		return $lObjectArray;
 	}
 	
-	public function toXml($pObjectArray, $pXmlNode, $pUseSerializationName = false, $pExportForeignObject = false) {
+	public function toXml($pObjectArray, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
 		if (!is_null($pObjectArray)) {
-			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-				$lXmlChildNode = $pXmlNode->addChild($this->mElementName);
-				$this->mModel->toXml($lValue, $lXmlChildNode, $pUseSerializationName, $pExportForeignObject);
+			if (!$pObjectArray->isLoaded()) {
+				$pXmlNode[ObjectArray::__UNLOAD__] = "1";
+			}
+			else {
+				foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+					$lXmlChildNode = $pXmlNode->addChild($this->mElementName);
+					$this->getModel()->toXml($lValue, $lXmlChildNode, $pUseSerializationName, $pMainForeignObjects);
+				}
 			}
 		}
 	}
 	
-	public function toXmlId($pObjectArray, $pXmlNode, $pUseSerializationName = false) {
+	public function toXmlId($pObjectArray, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
 		if (!is_null($pObjectArray)) {
-			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-				$lXmlChildNode = $pXmlNode->addChild($this->mElementName);
-				$this->mModel->toXmlId($lValue, $lXmlChildNode, $pUseSerializationName);
+			if (!$pObjectArray->isLoaded()) {
+				$pXmlNode[ObjectArray::__UNLOAD__] = "1";
+			}
+			else {
+				foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+					$lXmlChildNode = $pXmlNode->addChild($this->mElementName);
+					$this->getModel()->toXmlId($lValue, $lXmlChildNode, $pUseSerializationName, $pMainForeignObjects);
+				}
 			}
 		}
 	}
 	
-	public function fromXml($pXml) {
+	public function fromXml($pArray) {
+		if (!($this->getModel() instanceof MainModel)) {
+			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
+		}
+		return $this->_fromXml($pArray, null);
+	}
+	
+	protected function _fromXml($pXml, $pMainObjectId) {
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pXml->{$this->mElementName} as $lChild) {
-			$lObjectArray->pushValue($this->mModel->fromXml($lChild));
+			$lObjectArray->pushValue($this->getModel()->_fromXml($lChild, $pMainObjectId));
 		}
 		return $lObjectArray;
 	}
 	
-	public function fromIdValue($pArray) {
-		$lObjectArray = $this->getObjectInstance();
-		foreach ($pArray as $lKey => $lPhpValue) {
-			$lObjectArray->setValue($lKey, $this->mModel->fromIdValue($lPhpValue));
+	protected function _fromXmlId($pXml, $pMainObjectId) {
+		if (isset($pXml[ObjectArray::__UNLOAD__]) && ((string) $pXml[ObjectArray::__UNLOAD__] == "1")) {
+			$lValue = $this->getModel()->getObjectInstance(false);
+		} else {
+			$lValue = $this->getObjectInstance();
+			foreach ($pXml->{$this->mElementName} as $lChild) {
+				$lValue->pushValue($this->getModel()->_fromXmlId($lChild, $pMainObjectId));
+			}
 		}
-		return $lObjectArray;
+		return $lValue;
 	}
-	
+
+	protected function _fromSqlId($pValue) {
+		return $this->_fromObjectId(json_decode($pValue));
+	}
 	
 	/*
 	 * return true if $pArray1 and $pArray2 are equals

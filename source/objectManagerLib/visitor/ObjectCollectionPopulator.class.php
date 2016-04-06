@@ -25,7 +25,7 @@ class ObjectCollectionPopulator extends Controller {
 	}
 	
 	protected function _visit($pParentObject, $pKey, $pPropertyNameStack) {
-		$lValue = $pParentObject->getValue($pKey);
+		$lValue   = $pParentObject->getValue($pKey);
 		$lSuccess = $this->mObjectCollection->addObject($lValue);
 		$this->mMainModelStack[] = $this->mObjectCollection->getCurrentKey();
 		return true;

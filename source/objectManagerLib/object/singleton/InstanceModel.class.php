@@ -216,28 +216,17 @@ class InstanceModel {
 	private function _buildProperties($pPropertiesXml, $pMainModelName) {
 		$lProperties = array();
 		foreach ($pPropertiesXml->property as $lPropertyXml) {
-			list($lName, $lModel, $lSerializationName, $lIsId, $lEnum) = $this->_getBaseInfosForProperty($lPropertyXml, $pMainModelName);
-			if (is_null($lEnum)) {
-				$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId);
-			} else if ($lModel instanceof SimpleModel) {
-				if ($lIsId) {
-					throw new Exception("enum property with name '$lName' can't be an id");
-				}
-				$lProperty = new EnumProperty($lModel, $lName, $lEnum, $lSerializationName);
-			} else {
-				throw new Exception("enum property with name '$lName' must be a simple model");
-			}
+			list($lName, $lModel, $lSerializationName, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml, $pMainModelName);
+			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId);
 			$lProperties[$lName] = $lProperty;
 		}
 		foreach ($pPropertiesXml->foreignProperty as $lPropertyXml) {
-			list($lName, $lModel, $lSerializationName, $lIsId, $lEnum) = $this->_getBaseInfosForProperty($lPropertyXml, $pMainModelName);
-			if (!is_null($lEnum)) {
-				throw new Exception("foreign property with name '$lName' can't be an enumeration");
-			}
+			list($lName, $lModel, $lSerializationName, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml, $pMainModelName);
 			if ($lModel instanceof SimpleModel) {
 				throw new Exception("foreign property with name '$lName' can't be a simple model");
 			}
-			$lProperty = new ForeignProperty($lModel, $lName, $lSerializationName);
+			$lModelForeign = new ModelForeign($lModel);
+			$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName);
 			$lProperties[$lName] = $lProperty;
 		}
 		return $lProperties;
@@ -246,7 +235,6 @@ class InstanceModel {
 	private function _getBaseInfosForProperty($pPropertyXml, $pMainModelName) {
 		$lName  = isset($pPropertyXml->name) ? (string) $pPropertyXml->name : (string) $pPropertyXml;
 		$lIsId  = (isset($pPropertyXml["id"]) && ((string) $pPropertyXml["id"] == "1")) ? true : false;
-		$lEnum  = null;
 	
 		if (array_key_exists((string) $pPropertyXml["type"], $this->mLocalTypes[$pMainModelName])) {
 			$lModel = $this->mLocalTypes[$pMainModelName][(string) $pPropertyXml["type"]];
@@ -260,13 +248,7 @@ class InstanceModel {
 		if ($lIsId && !($lModel instanceof SimpleModel)) {
 			throw new Exception("id property with name '$lName' must be a simple model");
 		}
-		if (isset($pProperty->enum)) {
-			$lEnum = array();
-			foreach ($pProperty->enum->value as $lValue) {
-				$lEnum[] = (string) $lValue;
-			}
-		}
-		return array($lName, $lModel, $lSerializationName, $lIsId, $lEnum);
+		return array($lName, $lModel, $lSerializationName, $lIsId);
 	}
 	
 	private function _buildLocalTypes($pManifestXML, $pModel) {
@@ -351,7 +333,16 @@ class InstanceModel {
 				}
 				$pMainModelName = null;
 			}
-			$lReturn = $this->_getInstanceModel($lTypeId, $pMainModelName, false);
+			$lModel = $this->_getInstanceModel($lTypeId, $pMainModelName, false);
+			if (isset($pProperty->enum)) {
+				$lEnum = array();
+				foreach ($pProperty->enum->value as $lValue) {
+					$lEnum[] = (string) $lValue;
+				}
+				$lReturn = new ModelEnum($lModel, $lEnum);
+			}else {
+				$lReturn = $lModel;
+			}
 		}
 		return $lReturn;
 	}

@@ -424,7 +424,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	private function _addGroupedColumns() {
 		$this->mSelectQuery->resetGroupColumns();
-		foreach ($this->mModel->getIds() as $lPropertyName) {
+		foreach ($this->mModel->getIdProperties() as $lPropertyName) {
 			$this->mSelectQuery->addGroupColumn($this->mModel->getProperty($lPropertyName)->getSerializationName());
 		}
 	}
