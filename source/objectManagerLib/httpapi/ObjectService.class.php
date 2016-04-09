@@ -12,7 +12,7 @@ class ObjectService {
 		try {
 			$lPhpObjects    = array();
 			$lObjects = ComplexLoadRequest::buildObjectLoadRequest($pParams)->execute();
-			return self::_setSuccessReturn($lObjects->toObject(false, true));
+			return self::_setSuccessReturn($lObjects->toObject(false));
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}

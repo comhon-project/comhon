@@ -14,19 +14,12 @@ class CompositionLoader extends Controller {
 
 	private $mLoadChildren        = false;
 	private $mLoadedCompositions = array();
-	private $mObjectCollection;
-	private $mObjectCollectionPopulator;
-	private $mForeignObjectReplacer;
 	
 	protected function _getMandatoryParameters() {
 		return array();
 	}
 	
 	protected function _init($pObject) {
-		$this->mObjectCollection          = ObjectCollection::getInstance();
-		$this->mObjectCollectionPopulator = new ObjectCollectionPopulator();
-		$this->mForeignObjectReplacer     = new ForeignObjectReplacer();
-		
 		if (array_key_exists(self::LOAD_CHILDREN, $this->mParams)) {
 			$this->mLoadChildren = $this->mParams[self::LOAD_CHILDREN];
 		}
@@ -36,7 +29,7 @@ class CompositionLoader extends Controller {
 		$lVisitChildren = true;
 		$lObject = $pParentObject->getValue($pKey);
 		$lSerializationUnit = $lObject->getModel()->getSerialization();
-		if (!is_null($lSerializationUnit) && !is_null($lObject) && ($lObject instanceof ObjectArray) && !is_null($pParentObject)) {
+		if (!is_null($lSerializationUnit) && !is_null($lObject) && ($lObject instanceof ObjectArray)) {
 			if ($lSerializationUnit->isComposition($pParentObject->getModel(), $pParentObject->getProperty($pKey)->getSerializationName())) {
 				if (!$lObject->isLoaded()) {
 					if ($this->mLoadChildren) {
@@ -44,14 +37,6 @@ class CompositionLoader extends Controller {
 					} else {
 						$lObject = $pParentObject->loadValueIds($pKey);
 					}
-					
-					$lModel         = ($lObject->getModel() instanceof ModelArray) ? $lObject->getModel()->getModel() : $lObject->getModel();
-					$lSerialization = $lModel->getSerialization();
-					$lSameSerial    = !is_null($lSerialization) && (spl_object_hash($lSerializationUnit) == spl_object_hash($lSerialization));
-					$lObjectToVisit = $lSameSerial ? $lObject : $pParentObject;
-
-					$this->mObjectCollectionPopulator->execute($lObjectToVisit);
-					$this->mForeignObjectReplacer->execute($lObjectToVisit);
 					$this->mLoadedCompositions[spl_object_hash($lObject)] = null;
 				}
 				$lVisitChildren = !array_key_exists(spl_object_hash($lObject), $this->mLoadedCompositions);
@@ -62,6 +47,8 @@ class CompositionLoader extends Controller {
 	
 	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack) {}
 	
-	protected function _finalize($pObject) {}
+	protected function _finalize($pObject) {
+		$this->mLoadedCompositions = array();
+	}
 	
 }

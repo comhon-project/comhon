@@ -4,8 +4,10 @@ namespace objectManagerLib\object\object;
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\object\model\Model;
+use objectManagerLib\object\model\MainModel;
 use objectManagerLib\object\model\ModelContainer;
 use objectManagerLib\object\model\ModelEnum;
+use objectManagerLib\object\model\ModelArray;
 use objectManagerLib\object\model\SimpleModel;
 
 class Object {
@@ -44,8 +46,8 @@ class Object {
 		return $this->mIsLoaded;
 	}
 	
-	public function setLoadStatus($pLoadStatus) {
-		$this->mIsLoaded = $pLoadStatus;
+	public function setLoadStatus() {
+		$this->mIsLoaded = true;
 	}
 	
 	public function loadValue($pName) {
@@ -53,13 +55,12 @@ class Object {
 			$lIdValue = $this->getValue($pName)->getId();
 			$lSqlTableUnit = $this->getProperty($pName)->getSqlTableUnit();
 			if (!is_null($lSqlTableUnit) && $lSqlTableUnit->isComposition($this->getModel(), $this->getProperty($pName)->getSerializationName())) {
-				$lIds = $this->getModel()->getIds();
-				$lIdValue = $this->getValue($lIds[0]);
+				$lIdProperties = $this->getModel()->getIdProperties();
+				$lIdValue      = $this->getValue($lIdProperties[0]);
 			}
 			if (! $this->getProperty($pName)->load($this->getValue($pName), $lIdValue, $this->mModel)) {
 				throw new \Exception("cannot load object with name '$pName' and id '".$this->getValue($pName)->getId()."'");
 			}
-			$this->getValue($pName)->setLoadStatus(true);
 			return $this->getValue($pName);
 		}
 		return null;
@@ -70,18 +71,21 @@ class Object {
 			if (! $this->getProperty($pName)->loadIds($this->getValue($pName), $this->getId(), $this->mModel)) {
 				throw new \Exception("cannot load object with name '$pName'");
 			}
-			$this->getValue($pName)->setLoadStatus(true);
 			return $this->getValue($pName);
 		}
 		return null;
 	}
 	
 	public function getId() {
+		$lIdProperties = $this->mModel->getIdProperties();
+		if (count($lIdProperties) == 1) {
+			return $this->getValue($lIdProperties[0]);
+		}
 		$lValues = array();
-		foreach ($this->mModel->getIds() as $lPropertyName) {
+		foreach ($lIdProperties as $lPropertyName) {
 			$lValues[] = $this->getValue($lPropertyName);
 		}
-		return count($lValues) > 0 ? implode("-", $lValues) : null;
+		return $this->mModel->formatId($lValues);
 	}
 	
 	public function setValue($pName, $pValue) {
@@ -144,58 +148,26 @@ class Object {
 		return true;
 	}
 	
-	public function fromObject($pPhpObject) {
-		foreach ($pPhpObject as $lKey => $lValue) {
-			if ($this->getModel()->hasProperty($lKey)) {
-				$this->setValue($lKey, $this->getModel()->getPropertyModel($lKey)->fromObject($lValue));
-			}
-		}
+	public function fromObject($pPhpObject, $pUpdateLoadStatus = true) {
+		$this->mModel->fillObjectFromPhpObject($this, $pPhpObject, $pUpdateLoadStatus);
 	}
 	
-	public function toObject($pUseSerializationName = false, $pExportForeignObject = false) {
-		return $this->mModel->toObject($this, $pUseSerializationName, $pExportForeignObject);
+	public function toObject($pUseSerializationName = false, &$pMainForeignObjects = null) {
+		return $this->mModel->toObject($this, $pUseSerializationName, $pMainForeignObjects);
 	}
 	
-	public function fromXml($pXml) {
-		foreach ($pXml->attributes() as $lKey => $lValue) {
-			if ($this->getModel()->hasProperty($lKey)) {
-				$this->setValue($lKey, $this->getModel()->getPropertyModel($lKey)->fromXml((string) $lValue));
-			}
-		}
-		foreach ($pXml->children() as $lChild) {
-			$lPropertyName = $lChild->getName();
-			if ($this->getModel()->hasProperty($lPropertyName)) {
-				$this->setValue($lPropertyName, $this->getModel()->getPropertyModel($lPropertyName)->fromXml($lChild));
-			}
-		}
+	public function fromXml($pXml, $pUpdateLoadStatus = true) {
+		$this->mModel->fillObjectFromXml($this, $pXml, $pUpdateLoadStatus);
 	}
 	
-	public function toXml($pUseSerializationName = false, $pExportForeignObject = false) {
+	public function toXml($pUseSerializationName = false, &$pMainForeignObjects = null) {
 		$lXmlNode = new \SimpleXmlElement("<{$this->getModel()->getModelName()}/>");
-		$this->mModel->toXml($this, $lXmlNode, $pUseSerializationName, $pExportForeignObject);
+		$this->mModel->toXml($this, $lXmlNode, $pUseSerializationName, $pMainForeignObjects);
 		return $lXmlNode;
 	}
 	
-	public function fromSqlDataBase($pRow, $pAddUnloadValues = true) {
-		foreach ($this->getModel()->getProperties() as $lPropertyName => $lProperty) {
-			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
-				if (is_null($pRow[$lProperty->getSerializationName()])) {
-					continue;
-				}
-				if ($lProperty instanceof ForeignProperty) {
-					$lIsSimpleValue = ($lProperty->getModel()->getModel() instanceof SimpleModel) || ($lProperty->getModel()->getModel() instanceof ModelEnum);
-					$lValue = $lIsSimpleValue ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
-					$this->setValue($lPropertyName, $lProperty->getModel()->getModel()->fromIdValue($lValue));
-				} else {
-					$lIsSimpleValue = ($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum);
-					$lValue = $lIsSimpleValue ? $pRow[$lProperty->getSerializationName()] : json_decode($pRow[$lProperty->getSerializationName()]);
-					$this->setValue($lPropertyName, $lProperty->getModel()->fromObject($lValue));
-				}
-			}
-			else if ($pAddUnloadValues && ($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
-				$this->initValue($lPropertyName, false);
-			}
-		}
+	public function fromSqlDataBase($pRow, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
+		$this->mModel->fillObjectFromSqlDatabase($this, $pRow, $pUpdateLoadStatus, $pAddUnloadValues);
 	}
 	
 	/*

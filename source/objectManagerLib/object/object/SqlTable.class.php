@@ -31,20 +31,15 @@ class SqlTable extends SerializationUnit {
 		$lReturn = false;
 		$lWhereColumns = $this->getCompositionColumns($pParentModel, $pColumn);
 		if (count($lWhereColumns) > 0) {
-			$lPropertiesIds = $pObject->getModel()->getIds();
-			if (count($lPropertiesIds) !== 1) {
+			$lIdProperties = $pObject->getModel()->getIdProperties();
+			if (count($lIdProperties) !== 1) {
 				trigger_error("Warning! model '{$pObject->getModel()->getModelName()}' doesn't have a unique property id. All model is loaded");
 				$lSelectColumns = array();
 				//throw new \Exception("model '{$pObject->getModel()->getModelName()}' must have one and only one id property");
 			} else {
-				$lSelectColumns = array($pObject->getProperty($lPropertiesIds[0])->getSerializationName());
+				$lSelectColumns = array($pObject->getProperty($lIdProperties[0])->getSerializationName());
 			}
 			$lReturn = $this->_loadObject($pObject, $pId, $pColumn, $pParentModel, $lSelectColumns, $lWhereColumns);
-			if ((count($lSelectColumns) > 0) && ($pObject->getModel() instanceof ModelArray)) {
-				foreach ($pObject->getValues() as $lValue) {
-					$lValue->setLoadStatus(false);
-				}
-			}
 		}
 		else {
 			throw new \Exception('error : property is not serialized in database composition');
@@ -52,8 +47,8 @@ class SqlTable extends SerializationUnit {
 		return $lReturn;
 	}
 	
-	public function _loadObject($pObject, $pId, $pColumn, $pParentModel, $pSelectColumns, $pWhereColumns) {
-		$lReturn = false;
+	private function _loadObject($pObject, $pId, $pColumn, $pParentModel, $pSelectColumns, $pWhereColumns) {
+		$lSuccess = false;
 		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
 			$this->loadValue("database");
 			self::$sDbObjectById[$this->getValue("database")->getValue("id")] = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
@@ -69,24 +64,25 @@ class SqlTable extends SerializationUnit {
 		}
 		$lResult = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeQuery($lSelectQuery);
 	
-		if (is_array($lResult)) {
-			$lAddUnloadValues = count($pSelectColumns) == 0;
-			if ($pObject->getModel() instanceof ModelArray) {
-				$pObject->fromSqlDataBase($lResult, $lAddUnloadValues);
-				$lReturn = true;
+		$lIsModelArray = $pObject->getModel() instanceof ModelArray;
+		if (is_array($lResult) && ($lIsModelArray || (count($lResult) == 1))) {
+			if (!$lIsModelArray) {
+				$lResult = $lResult[0];
 			}
-			else if (count($lResult) > 0) {
-				$pObject->fromSqlDataBase($lResult[0], $lAddUnloadValues);
-				$lReturn = true;
+			if (count($pSelectColumns) == 0) {
+				$pObject->fromSqlDataBase($lResult);
+			} else {
+				$pObject->fromSqlDataBaseId($lResult);
 			}
+			$lSuccess = true;
 		}
-		return $lReturn;
+		return $lSuccess;
 	}
 	
 	private function getJoinColumns($pModel, $pColumn, $pParentModel) {
 		$lColumns = $this->getCompositionColumns($pParentModel, $pColumn);
 		if (count($lColumns) == 0) {
-			foreach ($pModel->getIds() as $pPropertyName) {
+			foreach ($pModel->getIdProperties() as $pPropertyName) {
 				$lColumns[] = $pModel->getProperty($pPropertyName)->getSerializationName();
 			}
 		}

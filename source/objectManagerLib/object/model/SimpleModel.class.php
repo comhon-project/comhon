@@ -14,19 +14,29 @@ abstract class SimpleModel extends Model {
 		$this->_init();
 	}
 	
-	public function toObject($pValue, $pUseSerializationName = false, $pExportForeignObject = false) {
+	public function toObject($pValue, $pUseSerializationName = false, &$pMainForeignObjects = null) {
 		return $pValue;
 	}
 	
-	public function fromObject($pValue) {
+	/**
+	 * 
+	 * @param unknown $pValue
+	 * @param string $pMainObjectId not used but is mandatory to stay compatible with parent function
+	 * @return unknown
+	 */
+	protected function _fromObject($pValue, $pMainObjectId = null) {
 		return $pValue;
 	}
 	
-	public function fromXml($pValue) {
+	protected function _fromXml($pValue, $pMainObjectId = null) {
 		return (string) $pValue;
 	}
 	
-	public function toXml($pValue, $pXmlNode = null, $pUseSerializationName = false, $pExportForeignObject = false) {
+	public function toXml($pValue, $pXmlNode = null, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+		return $pValue;
+	}
+	
+	protected function _fromSqlColumn($pValue, $pMainObjectId = null) {
 		return $pValue;
 	}
 	

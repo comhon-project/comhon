@@ -14,9 +14,9 @@ class ForeignProperty extends Property {
 		$lSerializationUnit = $this->getUniqueModel()->getSerialization();
 		if (!is_null($lSerializationUnit)) {
 			if ($lSerializationUnit->hasReturnValue()) {
-				$lReturn = $lSerializationUnit->saveObject($pObject, $this->mModel->getModel());
+				$lReturn = $lSerializationUnit->saveObject($pObject, $this->getUniqueModel());
 			}else {
-				$lSerializationUnit->saveObject($pObject, $this->mModel->getModel());
+				$lSerializationUnit->saveObject($pObject, $this->getUniqueModel());
 			}
 		}
 		return $lReturn;
