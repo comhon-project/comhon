@@ -25,7 +25,7 @@ abstract class Controller {
 	 * @param array $pParams
 	 * @return unknown|boolean
 	 */
-	public final function execute(Object $pObject, $pParams = null) {
+	public final function execute(Object $pObject, $pParams = array()) {
 		$this->_verifParameters($pParams);
 		if (($pObject->getModel() instanceof Model) || ($pObject->getModel() instanceof ModelArray)) {
 			$this->mPropertyNameStack = array();

@@ -9,12 +9,10 @@ class ObjectArray extends Object {
 	const __UNLOAD__ = "__UNLOAD__";
 	
 	public function loadValue($pkey) {
-		trigger_error("+++++++//////++++ array loadValue +++++++++++");
 		if (is_object($this->getValue($pkey)) && !$this->getValue($pkey)->isLoaded()) {
-			if (! $this->getProperty($pkey)->load($this->getValue($pkey), $this->getValue($pkey)->getId(), $this->mModel->getModel())) {
-				throw new \Exception("cannot load object with name '$pkey' and id '".$this->getValue($pkey)->getId()."'");
+			if (! $this->getModel()->getUniqueModel()->loadAndFillObject($this->getValue($pkey))) {
+				throw new \Exception("cannot load object ({$this->getModel()->getUniqueModel()->getModelName()}) at index '$pkey' and id '".$this->getValue($pkey)->getId()."'");
 			}
-			$this->getValue($pkey)->setLoadStatus(true);
 			return $this->getValue($pkey);
 		}
 		return null;
@@ -40,30 +38,51 @@ class ObjectArray extends Object {
 		$this->mValues[] = $pValue;
 	}
 	
-	public function fromObject($pPhpObject) {
+	public function fromObject($pPhpObject, $pUpdateLoadStatus = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		foreach ($pArray as $lKey => $lPhpValue) {
 			$this->setValue($lKey, $this->mModel->getModel()->fromObject($lPhpValue));
 		}
+		if ($pUpdateLoadStatus) {
+			$this->setLoadStatus();
+		}
 	}
 	
-	public function fromXml($pXml) {
+	public function fromXml($pXml, $pUpdateLoadStatus = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		foreach ($pXml->children() as $lChild) {
 			$this->pushValue($this->mModel->getModel()->fromXml($lChild));
 		}
+		if ($pUpdateLoadStatus) {
+			$this->setLoadStatus();
+		}
 	}
 	
-	public function fromSqlDataBase($pRows, $pAddUnloadValues = true) {
+	public function fromSqlDataBase($pRows, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		foreach ($pRows as $lRow) {
 			$this->pushValue($this->mModel->getModel()->fromSqlDataBase($lRow, $pAddUnloadValues));
+		}
+		if ($pUpdateLoadStatus) {
+			$this->setLoadStatus();
+		}
+	}
+	
+	public function fromSqlDataBaseId($pRows, $pUpdateLoadStatus = true) {
+		if (!($this->mModel->getModel() instanceof MainModel)) {
+			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
+		}
+		foreach ($pRows as $lRow) {
+			$this->pushValue($this->mModel->getModel()->fromSqlDataBaseId($lRow));
+		}
+		if ($pUpdateLoadStatus) {
+			$this->setLoadStatus();
 		}
 	}
 	

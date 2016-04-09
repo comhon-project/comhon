@@ -46,8 +46,8 @@ class Object {
 		return $this->mIsLoaded;
 	}
 	
-	public function setLoadStatus($pLoadStatus) {
-		$this->mIsLoaded = $pLoadStatus;
+	public function setLoadStatus() {
+		$this->mIsLoaded = true;
 	}
 	
 	public function loadValue($pName) {
@@ -61,7 +61,6 @@ class Object {
 			if (! $this->getProperty($pName)->load($this->getValue($pName), $lIdValue, $this->mModel)) {
 				throw new \Exception("cannot load object with name '$pName' and id '".$this->getValue($pName)->getId()."'");
 			}
-			$this->getValue($pName)->setLoadStatus(true);
 			return $this->getValue($pName);
 		}
 		return null;
@@ -72,7 +71,6 @@ class Object {
 			if (! $this->getProperty($pName)->loadIds($this->getValue($pName), $this->getId(), $this->mModel)) {
 				throw new \Exception("cannot load object with name '$pName'");
 			}
-			$this->getValue($pName)->setLoadStatus(true);
 			return $this->getValue($pName);
 		}
 		return null;
@@ -150,16 +148,16 @@ class Object {
 		return true;
 	}
 	
-	public function fromObject($pPhpObject) {
-		$this->mModel->fillObjectFromPhpObject($this, $pPhpObject);
+	public function fromObject($pPhpObject, $pUpdateLoadStatus = true) {
+		$this->mModel->fillObjectFromPhpObject($this, $pPhpObject, $pUpdateLoadStatus);
 	}
 	
 	public function toObject($pUseSerializationName = false, &$pMainForeignObjects = null) {
 		return $this->mModel->toObject($this, $pUseSerializationName, $pMainForeignObjects);
 	}
 	
-	public function fromXml($pXml) {
-		$this->mModel->fillObjectFromXml($this, $pXml);
+	public function fromXml($pXml, $pUpdateLoadStatus = true) {
+		$this->mModel->fillObjectFromXml($this, $pXml, $pUpdateLoadStatus);
 	}
 	
 	public function toXml($pUseSerializationName = false, &$pMainForeignObjects = null) {
@@ -168,8 +166,8 @@ class Object {
 		return $lXmlNode;
 	}
 	
-	public function fromSqlDataBase($pRow, $pAddUnloadValues = true) {
-		$this->mModel->fillObjectFromSqlDatabase($this, $pRow, $pAddUnloadValues);
+	public function fromSqlDataBase($pRow, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
+		$this->mModel->fillObjectFromSqlDatabase($this, $pRow, $pUpdateLoadStatus, $pAddUnloadValues);
 	}
 	
 	/*

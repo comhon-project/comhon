@@ -34,12 +34,13 @@ class LocalModel extends Model {
 	 * @param string|integer $pId
 	 * @param string|integer $pMainObjectId
 	 * @param boolean $pIsloaded
+	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status 
 	 * @return array [Object,string] second element is $pMainObjectId
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pMainObjectId, $pIsloaded = true) {
+	protected function _getOrCreateObjectInstance($pId, $pMainObjectId, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		if (!$this->hasIdProperty()) {
 			$lObject = $this->getObjectInstance($pIsloaded);
-			trigger_error("new local whithout id $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
+			//trigger_error("new local whithout id $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
 		}
 		else {
 			if (count($lIdProperties = $this->getIdProperties()) != 1) {
@@ -51,13 +52,17 @@ class LocalModel extends Model {
 				if (!is_null($pId)) {
 					$lObject->setValue($lIdProperties[0], $pId);
 					ObjectCollection::getInstance()->addLocalObject($lObject, $pMainObjectId);
-					trigger_error("add local $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
+					//trigger_error("add local $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
 				}
 				else {
-					trigger_error("new local without add $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
+					//trigger_error("new local without add $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
 				}
 			} else {
-				trigger_error("local already added $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
+				//trigger_error("local already added $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
+				if ($pUpdateLoadStatus) {
+					//trigger_error("update local status ".var_export($lObject->isLoaded(), true));
+					$lObject->setLoadStatus();
+				}
 			}
 		}
 		return array($lObject, $pMainObjectId);

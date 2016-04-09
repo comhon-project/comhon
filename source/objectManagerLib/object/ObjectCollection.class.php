@@ -33,14 +33,24 @@ class ObjectCollection {
 	
 	/**
 	 * get Object with MainModel if exists
-	 * @param string $pMainModelName
 	 * @param string|integer $pId
+	 * @param string $pMainModelName
 	 * @return Object|null
 	 */
 	public function getMainObject($pId, $pMainModelName) {
 		return array_key_exists($pMainModelName, $this->mMap) && array_key_exists($pId, $this->mMap[$pMainModelName]) 
 				? $this->mMap[$pMainModelName][$pId][self::MAIN_MODEL_OBJECT]
 				: null;
+	}
+	
+	/**
+	 * verify if Object with specified MainModel and id exists in ObjectCollection
+	 * @param string|integer $pId
+	 * @param string $pMainModelName
+	 * @return boolean true if exists
+	 */
+	public function hasMainObject($pId, $pMainModelName) {
+		return array_key_exists($pMainModelName, $this->mMap) && array_key_exists($pId, $this->mMap[$pMainModelName]);
 	}
 	
 	/**

@@ -348,19 +348,19 @@ abstract class Model {
 		return $lHasValue;
 	}
 	
-	protected function _fromSqlDataBase($pRow, $pAddUnloadValues = true) {
-		$lObject = $this->getObjectInstance();
-		$this->_fillObjectFromSqlDatabase($lObject, $pRow, $pAddUnloadValues);
+	protected function _fromSqlDataBase($pRow, $pMainObjectId, $pAddUnloadValues = true) {
+		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), $pMainObjectId);
+		$this->_fillObjectFromSqlDatabase($lObject, $pRow, $lMainObjectId, $pAddUnloadValues);
 		return $lObject;
 	}
 	
-	public function _fillObjectFromSqlDatabase($pObject, $pRow, $pAddUnloadValues = true) {
+	public function _fillObjectFromSqlDatabase($pObject, $pRow, $lMainObjectId, $pAddUnloadValues = true) {
 		foreach ($this->getProperties() as $lPropertyName => $lProperty) {
 			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
 				if (is_null($pRow[$lProperty->getSerializationName()])) {
 					continue;
 				}
-				$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromSqlColumn($pRow[$lProperty->getSerializationName()]));
+				$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromSqlColumn($pRow[$lProperty->getSerializationName()], $lMainObjectId));
 			}
 			else if ($pAddUnloadValues && ($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
 				$pObject->initValue($lPropertyName, false);
@@ -368,18 +368,12 @@ abstract class Model {
 		}
 	}
 	
-	protected function _fromSqlColumn($pJsonEncodedObject) {
+	protected function _fromSqlColumn($pJsonEncodedObject, $pMainObjectId) {
 		if (is_null($pJsonEncodedObject)) {
 			return null;
 		}
 		$lPhpObject = json_decode($pJsonEncodedObject);
-		$lObject    = $this->getObjectInstance();
-		foreach ($lPhpObject as $lKey => $lPhpValue) {
-			if ($this->hasProperty($lKey)) {
-				$lObject->setValue($lKey, $this->getPropertyModel($lKey)->_fromObject($lPhpValue));
-			}
-		}
-		return $lObject;
+		return $this->_fromObject($lPhpObject, $pMainObjectId);
 	}
 	
 	protected function _fromObjectId($pValue, $pMainObjectId) {
@@ -394,7 +388,7 @@ abstract class Model {
 		return $this->_fromId($lId, $pMainObjectId);
 	}
 	
-	protected function _fromSqlId($pValue) {
+	protected function fromSqlColumnId($pValue) {
 		return $this->_fromId($pValue);
 	}
 	
@@ -409,24 +403,8 @@ abstract class Model {
 		if (count($lIdProperties = $this->getIdProperties()) != 1) {
 			throw new \Exception("model '{$this->mModelName}' must have one and only one id");
 		}
-		list($lObject, $lObjectCollectionKey) = $this->_getOrCreateObjectInstance($pId, $pMainObjectId, false);
+		list($lObject, $lObjectCollectionKey) = $this->_getOrCreateObjectInstance($pId, $pMainObjectId, false, false);
 		return $lObject;
-	}
-	
-	public function getIdFromXml($pXml) {
-		$lIdProperties = $this->getIdProperties();
-		if (count($lIdProperties) == 1) {
-			return $this->getPropertyModel($lIdProperties[0])->_fromXml($pXml[$lIdProperties[0]]);
-		}
-		$lIdValues = [];
-		foreach ($lIdProperties as $lIdProperty) {
-			if (isset($pXml[$lIdProperty])) {
-				$lIdValues[] = $this->getPropertyModel($lIdProperty)->_fromXml($pXml[$lIdProperty]);
-			} else {
-				$lIdValues[] = null;
-			}
-		}
-		return $this->formatId($lIdValues);
 	}
 	
 	public function getIdFromPhpObject($pPhpObject) {
@@ -438,6 +416,22 @@ abstract class Model {
 		foreach ($lIdProperties as $lIdProperty) {
 			if (isset($pPhpObject->$lIdProperty)) {
 				$lIdValues[] = $this->getPropertyModel($lIdProperty)->_fromObject($pPhpObject->$lIdProperty);
+			} else {
+				$lIdValues[] = null;
+			}
+		}
+		return $this->formatId($lIdValues);
+	}
+	
+	public function getIdFromXml($pXml) {
+		$lIdProperties = $this->getIdProperties();
+		if (count($lIdProperties) == 1) {
+			return $this->getPropertyModel($lIdProperties[0])->_fromXml($pXml[$lIdProperties[0]]);
+		}
+		$lIdValues = [];
+		foreach ($lIdProperties as $lIdProperty) {
+			if (isset($pXml[$lIdProperty])) {
+				$lIdValues[] = $this->getPropertyModel($lIdProperty)->_fromXml($pXml[$lIdProperty]);
 			} else {
 				$lIdValues[] = null;
 			}

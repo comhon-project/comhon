@@ -37,8 +37,8 @@ class ModelEnum extends ModelContainer {
 		return $lReturn;
 	}
 	
-	protected function _fromSqlColumn($pValue) {
-		$lReturn = $this->mModel->_fromSqlColumn($pValue);
+	protected function _fromSqlColumn($pValue, $pMainObjectId) {
+		$lReturn = $this->mModel->_fromSqlColumn($pValue, $pMainObjectId);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}

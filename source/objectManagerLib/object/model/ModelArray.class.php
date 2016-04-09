@@ -89,29 +89,25 @@ class ModelArray extends ModelContainer {
 		return $lReturn;
 	}
 	
-	protected function _fromSqlColumn($pJsonEncodedObject) {
+	protected function _fromSqlColumn($pJsonEncodedObject, $pMainObjectId) {
 		if (is_null($pJsonEncodedObject)) {
 			return null;
 		}
 		$lPhpObject = json_decode($pJsonEncodedObject);
-		$lObject    = $this->getObjectInstance();
-		foreach ($lPhpObject as $lKey => $lPhpValue) {
-			$lObject->setValue($lKey, $this->getModel()->_fromObject($lPhpValue));
-		}
-		return $lObject;
+		return $this->_fromObject($lPhpObject, $pMainObjectId);
 	}
 	
 	public function fromSqlDataBase($pRows, $pAddUnloadValues = true) {
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
-		return $this->_fromSqlDataBase($pRows, $pAddUnloadValues);
+		return $this->_fromSqlDataBase($pRows, null, $pAddUnloadValues);
 	}
 	
-	protected function _fromSqlDataBase($pRows, $pAddUnloadValues = true) {
+	protected function _fromSqlDataBase($pRows, $pMainObjectId, $pAddUnloadValues = true) {
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pRows as $lKey => $lRow) {
-			$lObjectArray->setValue($lKey, $this->getModel()->_fromSqlDataBase($lRow, $pAddUnloadValues));
+			$lObjectArray->setValue($lKey, $this->getModel()->_fromSqlDataBase($lRow, $pMainObjectId, $pAddUnloadValues));
 		}
 		return $lObjectArray;
 	}
@@ -171,7 +167,7 @@ class ModelArray extends ModelContainer {
 		return $lValue;
 	}
 
-	protected function _fromSqlId($pValue) {
+	protected function fromSqlColumnId($pValue) {
 		return $this->_fromObjectId(json_decode($pValue));
 	}
 	

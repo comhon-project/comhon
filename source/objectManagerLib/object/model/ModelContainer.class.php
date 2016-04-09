@@ -47,6 +47,15 @@ abstract class ModelContainer extends Model {
 		return $this->mModel;
 	}
 	
+	public function getUniqueModel() {
+		$lUniqueModel = $this->mModel;
+		while ($lUniqueModel instanceof ModelContainer) {
+			$lUniqueModel = $lUniqueModel->getModel();
+		}
+		$lUniqueModel->load();
+		return $lUniqueModel;
+	}
+	
 	public function hasProperty($pPropertyName) {
 		return $this->getModel()->hasProperty($pPropertyName);
 	}
@@ -89,7 +98,6 @@ abstract class ModelContainer extends Model {
 		global $gPostgres;
 		$lResult = null;
 		if (is_null($this->_initTable())) {
-			trigger_error("table must be specified");
 			throw new Exception("table must be specified");
 		}
 		$lQuery = ($this->isNew()) ? $this->_setInsertQuery($pPDO, $pId) : $this->_setUpdateQuery($pPDO);
@@ -112,7 +120,7 @@ abstract class ModelContainer extends Model {
 		throw new \Exception('must be overrided');
 	}
 	
-	protected function _fromSqlColumn($pValue) {
+	protected function _fromSqlColumn($pValue, $pMainObjectId) {
 		throw new \Exception('must be overrided');
 	}
 	

@@ -36,7 +36,7 @@ abstract class SimpleModel extends Model {
 		return $pValue;
 	}
 	
-	protected function _fromSqlColumn($pValue) {
+	protected function _fromSqlColumn($pValue, $pMainObjectId = null) {
 		return $pValue;
 	}
 	

@@ -40,11 +40,6 @@ class SqlTable extends SerializationUnit {
 				$lSelectColumns = array($pObject->getProperty($lIdProperties[0])->getSerializationName());
 			}
 			$lReturn = $this->_loadObject($pObject, $pId, $pColumn, $pParentModel, $lSelectColumns, $lWhereColumns);
-			if ((count($lSelectColumns) > 0) && ($pObject->getModel() instanceof ModelArray)) {
-				foreach ($pObject->getValues() as $lValue) {
-					$lValue->setLoadStatus(false);
-				}
-			}
 		}
 		else {
 			throw new \Exception('error : property is not serialized in database composition');
@@ -53,7 +48,7 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	private function _loadObject($pObject, $pId, $pColumn, $pParentModel, $pSelectColumns, $pWhereColumns) {
-		$lReturn = false;
+		$lSuccess = false;
 		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
 			$this->loadValue("database");
 			self::$sDbObjectById[$this->getValue("database")->getValue("id")] = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
@@ -69,18 +64,19 @@ class SqlTable extends SerializationUnit {
 		}
 		$lResult = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeQuery($lSelectQuery);
 	
-		if (is_array($lResult)) {
-			$lAddUnloadValues = count($pSelectColumns) == 0;
-			if ($pObject->getModel() instanceof ModelArray) {
-				$pObject->fromSqlDataBase($lResult, $lAddUnloadValues);
-				$lReturn = true;
+		$lIsModelArray = $pObject->getModel() instanceof ModelArray;
+		if (is_array($lResult) && ($lIsModelArray || (count($lResult) == 1))) {
+			if (!$lIsModelArray) {
+				$lResult = $lResult[0];
 			}
-			else if (count($lResult) > 0) {
-				$pObject->fromSqlDataBase($lResult[0], $lAddUnloadValues);
-				$lReturn = true;
+			if (count($pSelectColumns) == 0) {
+				$pObject->fromSqlDataBase($lResult);
+			} else {
+				$pObject->fromSqlDataBaseId($lResult);
 			}
+			$lSuccess = true;
 		}
-		return $lReturn;
+		return $lSuccess;
 	}
 	
 	private function getJoinColumns($pModel, $pColumn, $pParentModel) {

@@ -31,7 +31,6 @@ class InstanceModel {
 	const SERIALIZATION  = 'serialization';
 	
 	private $mInstanceModels;
-	private $mInstanceSerializations = array();
 	private $mCurrentXmlSerialization;
 	private $mManifestListFolder;
 	private $mSerializationListFolder;
@@ -295,27 +294,12 @@ class InstanceModel {
 			$lSerialization->fromXml($lObjectXml);
 		} else {
 			$lId = (string) $pSerializationNode;
-			if (!array_key_exists($lType, $this->mInstanceSerializations)) {
-				$this->mInstanceSerializations[$lType] = array();
+			if (empty($lId)) {
+				throw new \Exception('malformed serialization, must have description or id');
 			}
-			if (array_key_exists($lId, $this->mInstanceSerializations[$lType])) {
-				$lSerialization = $this->mInstanceSerializations[$lType][$lId];
-			} else {
-				$lSerialization = $this->_getSerializationObject($lType, $lId);
-			}
+			$lSerialization = $this->getInstanceModel($lType)->loadObject($lId);
 		}
 		return $lSerialization;
-	}
-	
-	private function _getSerializationObject($pType, $pId) {
-		if (array_key_exists($pId, $this->mInstanceSerializations[$pType])) {
-			$lObject = $this->mInstanceSerializations[$pType][$pId];
-		} else {
-			$lRequest = new SimpleLoadRequest($pType);
-			$lObject = $lRequest->execute($pId);
-			$this->mInstanceSerializations[$pType][$pId] = $lObject;
-		}
-		return $lObject;
 	}
 	
 	private function _buildModel($pProperty, $pMainModelName) {

@@ -30,8 +30,8 @@ class ModelForeign extends ModelContainer {
 		return $this->getModel()->_fromXmlId($pValue, $pMainObjectId);
 	}
 	
-	protected function _fromSqlColumn($pValue) {
-		return $this->getModel()->_fromSqlId($pValue);
+	protected function _fromSqlColumn($pValue, $pMainObjectId) {
+		return $this->getModel()->fromSqlColumnId($pValue, $pMainObjectId);
 	}
 	
 }

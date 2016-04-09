@@ -72,25 +72,40 @@ class MainModel extends Model {
 	
 	public function fromSqlDataBase($pRow, $pAddUnloadValues = true) {
 		$this->load();
-		return $this->_fromSqlDataBase($pRow, $pAddUnloadValues, null /** no need to pass id */);
+		return $this->_fromSqlDataBase($pRow, null /** no need to pass id */, $pAddUnloadValues);
 	}
 	
-	public function fillObjectFromPhpObject($pObject, $pPhpObject) {
+	public function fromSqlDataBaseId($pRow) {
+		$this->load();
+		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), null, false, false);
+		return $lObject;
+	}
+	
+	public function fillObjectFromPhpObject($pObject, $pPhpObject, $pUpdateLoadStatus = true) {
 		$this->load();
 		ObjectCollection::getInstance()->addMainObject($pObject, false);
 		$this->_fillObjectFromPhpObject($pObject, $pPhpObject, $this->getIdFromPhpObject($pPhpObject));
+		if ($pUpdateLoadStatus) {
+			$pObject->setLoadStatus();
+		}
 	}
 	
-	public function fillObjectFromXml($pObject, $pXml) {
+	public function fillObjectFromXml($pObject, $pXml, $pUpdateLoadStatus = true) {
 		$this->load();
 		ObjectCollection::getInstance()->addMainObject($pObject, false);
 		$this->_fillObjectFromXml($pObject, $pXml, $this->getIdFromXml($pXml));
+		if ($pUpdateLoadStatus) {
+			$pObject->setLoadStatus();
+		}
 	}
 	
-	public function fillObjectFromSqlDatabase($pObject, $pRow, $pAddUnloadValues = true) {
+	public function fillObjectFromSqlDatabase($pObject, $pRow, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
 		$this->load();
 		ObjectCollection::getInstance()->addMainObject($pObject, false);
-		$this->_fillObjectFromSqlDatabase($pObject, $pRow, $pAddUnloadValues);
+		$this->_fillObjectFromSqlDatabase($pObject, $pRow, $this->getIdFromSqlDatabase($pRow), $pAddUnloadValues);
+		if ($pUpdateLoadStatus) {
+			$pObject->setLoadStatus();
+		}
 	}
 	
 	public function toObjectId($pObject, $pUseSerializationName = false, &$pMainForeignObjects = null) {
@@ -113,30 +128,42 @@ class MainModel extends Model {
 	/**
 	 * load serialized object 
 	 * @param string|integer $pId
-	 * @param boolean $pForceLoad if object already exists, force to reload serialized object
+	 * @param boolean $pForceLoad if object already exists and is already loaded, force to reload object
 	 * @throws \Exception
-	 * @return Object
+	 * @return Object|null null if load is unsuccessfull
 	 */
 	public function loadObject($pId, $pForceLoad = false) {
 		$this->load();
-		if (is_null($lSerializationUnit = $this->getSerialization())) {
-			throw new \Exception("model doesn't have serialization");
-		}
 		if (count($lIdProperties = $this->getIdProperties()) != 1) {
 			throw new \Exception("model must have one and only one id property");
 		}
 		$lMainObject = ObjectCollection::getInstance()->getMainObject($pId, $this->mModelName);
 		
 		if (is_null($lMainObject)) {
-			$lMainObject = $this->getObjectInstance();
+			$lMainObject = $this->getObjectInstance(false);
 			$lMainObject->setValue($lIdProperties[0], $pId);
-			ObjectCollection::getInstance()->addMainObject($lMainObject);
-			$lSuccess = $lSerializationUnit->loadObject($lMainObject, $pId);
 		}
-		else if ($pForceLoad) {
-			$lSuccess = $lSerializationUnit->loadObject($lMainObject, $pId);
+
+		return $this->loadAndFillObject($lMainObject, $pForceLoad) ? $lMainObject : null;
+	}
+	
+	/**
+	 * load instancied object with serialized object
+	 * @param Object $pObject
+	 * @param boolean $pForceLoad if object already exists and is already loaded, force to reload object
+	 * @throws \Exception
+	 * @return Object|null null if load is unsuccessfull
+	 */
+	public function loadAndFillObject(Object $pObject, $pForceLoad = false) {
+		$lSuccess = false;
+		$this->load();
+		if (is_null($lSerializationUnit = $this->getSerialization())) {
+			throw new \Exception("model doesn't have serialization");
 		}
-		return $lMainObject;
+		if (!$pObject->isLoaded() || $pForceLoad) {
+			$lSuccess = $lSerializationUnit->loadObject($pObject, $pObject->getId());
+		}
+		return $lSuccess;
 	}
 	
 	/**
@@ -144,13 +171,14 @@ class MainModel extends Model {
 	 * @param string|integer $pId
 	 * @param string|integer $pMainObjectId not used but we need to have it to match with LocalModel
 	 * @param boolean $pIsloaded
+	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status
 	 * @return array [Object,string] second element is the key in ObjectCollection where we can found Object returned
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pMainObjectId = null, $pIsloaded = true) {
+	protected function _getOrCreateObjectInstance($pId, $pMainObjectId = null, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		if (!$this->hasIdProperty()) {
 			$lMainObject = $this->getObjectInstance($pIsloaded);
 			$lObjectCollectionKey = ObjectCollection::getInstance()->addMainObject($lMainObject);
-			trigger_error("new main without id $pId, $this->mModelName");
+			//trigger_error("new main without id $pId, $this->mModelName");
 		}
 		else {
 			if (count($lIdProperties = $this->getIdProperties()) != 1) {
@@ -163,10 +191,14 @@ class MainModel extends Model {
 					$lMainObject->setValue($lIdProperties[0], $pId);
 				}
 				$lObjectCollectionKey = ObjectCollection::getInstance()->addMainObject($lMainObject);
-				trigger_error("new main $pId, $this->mModelName");
+				//trigger_error("new main $pId, $this->mModelName");
 			}
 			else {
-				trigger_error("main already added $pId, $this->mModelName");
+				//trigger_error("main already added $pId, $this->mModelName");
+				if ($pUpdateLoadStatus) {
+					//trigger_error("update main status ".var_export($lMainObject->isLoaded(), true));
+					$lMainObject->setLoadStatus();
+				}
 				$lObjectCollectionKey = $pId;
 			}
 		}
