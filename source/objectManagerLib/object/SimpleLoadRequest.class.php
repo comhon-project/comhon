@@ -13,7 +13,6 @@ use objectManagerLib\object\model\Model;
 use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\ModelContainer;
 use objectManagerLib\object\model\ForeignProperty;
-use objectManagerLib\controller\ForeignObjectReplacer;
 use objectManagerLib\controller\ForeignObjectLoader;
 use objectManagerLib\controller\CompositionLoader;
 

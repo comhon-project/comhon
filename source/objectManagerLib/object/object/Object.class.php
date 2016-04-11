@@ -52,13 +52,8 @@ class Object {
 	
 	public function loadValue($pName) {
 		if ($this->hasProperty($pName) && ($this->getProperty($pName) instanceof ForeignProperty) && is_object($this->getValue($pName)) && !$this->getValue($pName)->isLoaded()) {
-			$lIdValue = $this->getValue($pName)->getId();
-			$lSqlTableUnit = $this->getProperty($pName)->getSqlTableUnit();
-			if (!is_null($lSqlTableUnit) && $lSqlTableUnit->isComposition($this->getModel(), $this->getProperty($pName)->getSerializationName())) {
-				$lIdProperties = $this->getModel()->getIdProperties();
-				$lIdValue      = $this->getValue($lIdProperties[0]);
-			}
-			if (! $this->getProperty($pName)->load($this->getValue($pName), $lIdValue, $this->mModel)) {
+			$lIdValue = $this->getProperty($pName)->isComposition() ? $this->getId() : null;
+			if (! $this->getProperty($pName)->loadValue($this->getValue($pName), $lIdValue)) {
 				throw new \Exception("cannot load object with name '$pName' and id '".$this->getValue($pName)->getId()."'");
 			}
 			return $this->getValue($pName);
@@ -68,7 +63,7 @@ class Object {
 	
 	public function loadValueIds($pName) {
 		if (is_object($this->getValue($pName)) && !$this->getValue($pName)->isLoaded()) {
-			if (! $this->getProperty($pName)->loadIds($this->getValue($pName), $this->getId(), $this->mModel)) {
+			if (! $this->getProperty($pName)->loadValueIds($this->getValue($pName), $this->getId())) {
 				throw new \Exception("cannot load object with name '$pName'");
 			}
 			return $this->getValue($pName);

@@ -6,7 +6,6 @@ use objectManagerLib\object\object\ObjectArray;
 use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\object\model\ModelArray;
 use objectManagerLib\object\ObjectCollection;
-use objectManagerLib\visitor\ObjectCollectionPopulator;
 
 class CompositionLoader extends Controller {
 
@@ -27,21 +26,21 @@ class CompositionLoader extends Controller {
 	
 	protected function _visit($pParentObject, $pKey, $pPropertyNameStack) {
 		$lVisitChildren = true;
-		$lObject = $pParentObject->getValue($pKey);
-		$lSerializationUnit = $lObject->getModel()->getSerialization();
-		if (!is_null($lSerializationUnit) && !is_null($lObject) && ($lObject instanceof ObjectArray)) {
-			if ($lSerializationUnit->isComposition($pParentObject->getModel(), $pParentObject->getProperty($pKey)->getSerializationName())) {
-				if (!$lObject->isLoaded()) {
-					if ($this->mLoadChildren) {
-						$lObject = $pParentObject->loadValue($pKey);
-					} else {
-						$lObject = $pParentObject->loadValueIds($pKey);
-					}
-					$this->mLoadedCompositions[spl_object_hash($lObject)] = null;
+		$lObject        = $pParentObject->getValue($pKey);
+		$lIsComposition = $pParentObject->hasProperty($pKey) && $pParentObject->getProperty($pKey)->isComposition();
+		
+		if ($lIsComposition && !is_null($lObject) && ($lObject instanceof ObjectArray)) {
+			if (!$lObject->isLoaded()) {
+				if ($this->mLoadChildren) {
+					$pParentObject->loadValue($pKey);
+				} else {
+					$pParentObject->loadValueIds($pKey);
 				}
-				$lVisitChildren = !array_key_exists(spl_object_hash($lObject), $this->mLoadedCompositions);
+				$this->mLoadedCompositions[spl_object_hash($lObject)] = null;
 			}
+			$lVisitChildren = !array_key_exists(spl_object_hash($lObject), $this->mLoadedCompositions);
 		}
+		
 		return $lVisitChildren;
 	}
 	

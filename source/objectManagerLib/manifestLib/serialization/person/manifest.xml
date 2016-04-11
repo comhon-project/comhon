@@ -7,5 +7,16 @@
 		<birthPlace serializationName="birth_place"/>
 		<father serializationName="father_id"/>
 		<mother serializationName="mother_id"/>
+		<children>
+			<compositions>
+				<composition>mother</composition>
+				<composition>father</composition>
+			</compositions>
+		</children>
+		<homes>
+			<compositions>
+				<composition>person</composition>
+			</compositions>
+		</homes>
 	</properties>
 </manifest>

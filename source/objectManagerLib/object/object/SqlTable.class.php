@@ -8,6 +8,7 @@ use objectManagerLib\database\Literal;
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\model\ModelForeign;
 use objectManagerLib\object\model\ModelArray;
+use objectManagerLib\object\object\ObjectArray;
 
 class SqlTable extends SerializationUnit {
 	
@@ -21,33 +22,39 @@ class SqlTable extends SerializationUnit {
 		return $pModel->toSqlDataBase($pValue, $this->getValue("name"), self::$sDbObjectById[$this->getValue("database")->getValue("id")]);
 	}
 	
-	public function loadObject($pObject, $pId, $pColumn = null, $pParentModel = null) {
-		$lWhereColumns = $this->getJoinColumns($pObject->getModel(), $pColumn, $pParentModel);
-		$lReturn = $this->_loadObject($pObject, $pId, $pColumn, $pParentModel, array(), $lWhereColumns);
+	public function loadObject($pObject) {
+		$lWhereColumns = [];
+		$lModel = $pObject->getModel();
+		foreach ($lModel->getIdProperties() as $lPropertyName) {
+			$lWhereColumns[] = $lModel->getProperty($lPropertyName)->getSerializationName();
+		}
+		$lReturn = $this->_loadObject($pObject, $pObject->getId(), array(), $lWhereColumns);
 		return $lReturn;
 	}
 	
-	public function loadCompositionIds($pObject, $pId, $pColumn, $pParentModel) {
-		$lReturn = false;
-		$lWhereColumns = $this->getCompositionColumns($pParentModel, $pColumn);
-		if (count($lWhereColumns) > 0) {
-			$lIdProperties = $pObject->getModel()->getIdProperties();
-			if (count($lIdProperties) !== 1) {
-				trigger_error("Warning! model '{$pObject->getModel()->getModelName()}' doesn't have a unique property id. All model is loaded");
-				$lSelectColumns = array();
-				//throw new \Exception("model '{$pObject->getModel()->getModelName()}' must have one and only one id property");
-			} else {
-				$lSelectColumns = array($pObject->getProperty($lIdProperties[0])->getSerializationName());
-			}
-			$lReturn = $this->_loadObject($pObject, $pId, $pColumn, $pParentModel, $lSelectColumns, $lWhereColumns);
-		}
-		else {
+	public function loadComposition(ObjectArray $pObject, $pParentId, $pCompositionProperties, $pOnlyIds) {
+		$lReturn        = false;
+		$lModel         = $pObject->getModel()->getUniqueModel();
+		$lWhereColumns  = $this->getCompositionColumns($lModel, $pCompositionProperties);
+		$lSelectColumns = array();
+		$lIdProperties  = $lModel->getIdProperties();
+		
+		if (count($lWhereColumns) == 0) {
 			throw new \Exception('error : property is not serialized in database composition');
 		}
+		if (count($lIdProperties) == 0) {
+			trigger_error("Warning! model '{$lModel->getModelName()}' doesn't have a unique property id. All model is loaded");
+		}
+		if ($pOnlyIds) {
+			foreach ($lIdProperties as $lIdProperty) {
+				$lSelectColumns[] = $lModel->getProperty($lIdProperty)->getSerializationName();
+			}
+		}
+		$lReturn = $this->_loadObject($pObject, $pParentId, $lSelectColumns, $lWhereColumns);
 		return $lReturn;
 	}
 	
-	private function _loadObject($pObject, $pId, $pColumn, $pParentModel, $pSelectColumns, $pWhereColumns) {
+	private function _loadObject($pObject, $pId, $pSelectColumns, $pWhereColumns) {
 		$lSuccess = false;
 		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
 			$this->loadValue("database");
@@ -79,41 +86,12 @@ class SqlTable extends SerializationUnit {
 		return $lSuccess;
 	}
 	
-	private function getJoinColumns($pModel, $pColumn, $pParentModel) {
-		$lColumns = $this->getCompositionColumns($pParentModel, $pColumn);
-		if (count($lColumns) == 0) {
-			foreach ($pModel->getIdProperties() as $pPropertyName) {
-				$lColumns[] = $pModel->getProperty($pPropertyName)->getSerializationName();
-			}
-		}
-		return $lColumns;
-	}
-	
-	public function getCompositionColumns($pParentModel, $pColumn) {
+	public function getCompositionColumns($pModel, $pCompositionProperties) {
 		$lColumns = array();
-		if (!is_null($pParentModel) && $this->isComposition($pParentModel, $pColumn)) {
-			foreach ($this->getValue("compositions")->getValues() as $lComposition) {
-				if ($lComposition->getValue("parent") == $pParentModel->getModelName()) {
-					$lColumns[] = $lComposition->getValue("column");
-				}
-			}
+		foreach ($pCompositionProperties as $lCompositionProperty) {
+			$lColumns[] = $pModel->getProperty($lCompositionProperty, true)->getSerializationName();
 		}
 		return $lColumns;
-	}
-	
-	public function isComposition($pParentModel, $pColumn) {
-		$lIsComposition = false;
-		if ($this->hasValue("compositions")) {
-			foreach ($this->getValue("compositions")->getValues() as $lComposition) {
-				if ($lComposition->getValue("parent") == $pParentModel->getModelName()) {
-					if ($lComposition->getValue("column") == $pColumn) {
-						return false;
-					}
-					$lIsComposition = true;
-				}
-			}
-		}
-		return $lIsComposition;
 	}
 	
 	public function hasReturnValue() {

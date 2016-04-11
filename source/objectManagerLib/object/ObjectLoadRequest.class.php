@@ -15,7 +15,6 @@ use objectManagerLib\object\model\ModelContainer;
 use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\object\ObjectCollection;
 use objectManagerLib\controller\Controller;
-use objectManagerLib\controller\ForeignObjectReplacer;
 use objectManagerLib\controller\ForeignObjectLoader;
 use objectManagerLib\controller\CompositionLoader;
 use objectManagerLib\visitor\ObjectCollectionPopulator;

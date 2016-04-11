@@ -1,6 +1,9 @@
 <?php
 namespace objectManagerLib\object\model;
 
+use objectManagerLib\object\object\ObjectArray;
+use objectManagerLib\object\object\Object;
+
 class Property {
 	
 	protected $mModel;
@@ -53,4 +56,19 @@ class Property {
 		return null;
 	}
 	
+	public function isComposition() {
+		return false;
+	}
+	
+	public function getCompositionProperties() {
+		return null;
+	}
+	
+	public function loadValue(Object $pObject) {
+		throw new \Exception('cannot load object, property is not foreign property');
+	}
+	
+	public function loadValueIds(ObjectArray $pObject, $pParentId) {
+		throw new \Exception('cannot load composition ids, property is not composition property');
+	}
 }

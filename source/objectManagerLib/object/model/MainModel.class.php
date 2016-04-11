@@ -53,13 +53,6 @@ class MainModel extends Model {
 		return !is_null($this->mSerialization) && ($this->mSerialization->getModel()->getModelName() == $pSerializationType);
 	}
 	
-	public function hasSqlTableUnitComposition($pParentModel) {
-		if (is_null($lSqlTableUnit = $this->getSqlTableUnit())) {
-			return false;
-		}
-		return $lSqlTableUnit->isComposition($pParentModel, $this->getSerializationName());
-	}
-	
 	public function fromObject($pPhpObject) {
 		$this->load();
 		return $this->_fromObject($pPhpObject, null /** no need to pass id */);

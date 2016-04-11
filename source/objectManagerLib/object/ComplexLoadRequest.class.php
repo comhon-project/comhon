@@ -16,7 +16,6 @@ use objectManagerLib\object\model\ModelArray;
 use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\ModelContainer;
 use objectManagerLib\object\model\ForeignProperty;
-use objectManagerLib\controller\ForeignObjectReplacer;
 use objectManagerLib\controller\ForeignObjectLoader;
 use objectManagerLib\controller\CompositionLoader;
 use objectManagerLib\dataStructure\Tree;
@@ -85,7 +84,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$this->mSelectedColumns = array();
 		foreach ($pPropertiesFilter as $pPropertyName) {
 			$lProperty = $this->mModel->getProperty($pPropertyName, true);
-			if (!($lProperty instanceof ForeignProperty) || !$lProperty->hasSqlTableUnitComposition($this->mModel)) {
+			if (!$lProperty->isComposition()) {
 				$this->mSelectedColumns[] = $lProperty->getSerializationName();
 			}
 			else {
@@ -397,7 +396,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			"right_table"  => $lRightTable->getValue("name")
 		);
 		$lColumn = $pRightProperty->getSerializationName();
-		if ($lRightTable->isComposition($pLeftModel, $lColumn)) {
+		if ($pRightProperty->isComposition()) {
 			$lReturn["left_column"] = $pLeftModel->getProperty($pLeftModel->getFirstId())->getSerializationName();
 			$lReturn["right_column"] = $lRightTable->getCompositionColumns($pLeftModel, $lColumn);
 		}else {

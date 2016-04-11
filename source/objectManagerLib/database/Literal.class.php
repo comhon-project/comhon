@@ -231,7 +231,7 @@ class Literal {
 		}
 		else {
 			$lProperty =  $lRightodel->getProperty($pPhpObject->property, true);
-			if (($lProperty instanceof ForeignProperty) && $lProperty->hasSqlTableUnitComposition($lRightodel)) {
+			if ($lProperty->isComposition()) {
 				throw new \Exception("literal cannot contain foreign porperty '{$pPhpObject->property}'");
 			}
 			$lLiteral  = new Literal($lTable, $lProperty->getSerializationName(), $pPhpObject->operator, $pPhpObject->value);

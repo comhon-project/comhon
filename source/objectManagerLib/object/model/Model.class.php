@@ -236,7 +236,7 @@ abstract class Model {
 		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
 				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getModelName()}' can't be exported");
-				$this->toXmlId($pObject, $pXmlNode, $pUseSerializationName, $pMainForeignObjects);
+				$this->toXmlId($pObject, $pXmlNode, $pUseSerializationName);
 				return;
 			}
 		} else {

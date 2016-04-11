@@ -33,7 +33,7 @@ abstract class Controller {
 			$this->mParams            = $pParams;	
 			$lModel                   = $pObject->getModel();
 			$lModelName               = $lModel->getModelName();
-			$lProperty                = new Property($lModel, $lModelName);
+			$lProperty                = new ForeignProperty($lModel, $lModelName);
 			$lCustomModel             = new ModelCustom('modelCustom', array($lProperty));
 			$lRootCustomObject        = $lCustomModel->getObjectInstance();
 

@@ -15,10 +15,11 @@ class JsonFile extends SerializationUnit {
 		return file_put_contents($pPath, json_encode($pModel->toObject($pValue)));
 	}
 	
-	public function loadObject($pObject, $pId, $pPropertySerializationName = null, $pParentModel = null) {
-		$lPath = $this->getValue("saticPath")."/$pId/".$this->getValue("staticName");
+	public function loadObject($pObject) {
+		$lId = $pObject->getId();
+		$lPath = $this->getValue("saticPath")."/$lId/".$this->getValue("staticName");
 		if (!file_exists($lPath)) {
-			throw new \Exception("cannot load json file, file doesn't exists (id = $pId)");
+			throw new \Exception("cannot load json file, file doesn't exists (id = $lId)");
 		}
 		$lStdClassObject = json_decode(file_get_contents($lPath));
 		if ($lStdClassObject !== false) {

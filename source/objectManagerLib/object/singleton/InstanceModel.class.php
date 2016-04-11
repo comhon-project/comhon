@@ -17,6 +17,7 @@ use objectManagerLib\object\model\ModelForeign;
 use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\SerializationUnit;
 use objectManagerLib\object\model\ForeignProperty;
+use objectManagerLib\object\model\CompositionProperty;
 use objectManagerLib\object\SimpleLoadRequest;
 
 class InstanceModel {
@@ -215,17 +216,21 @@ class InstanceModel {
 	private function _buildProperties($pPropertiesXml, $pMainModelName) {
 		$lProperties = array();
 		foreach ($pPropertiesXml->property as $lPropertyXml) {
-			list($lName, $lModel, $lSerializationName, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml, $pMainModelName);
+			list($lName, $lModel, $lSerializationName, $lIsId, $lCompositions) = $this->_getBaseInfosForProperty($lPropertyXml, $pMainModelName);
 			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId);
 			$lProperties[$lName] = $lProperty;
 		}
 		foreach ($pPropertiesXml->foreignProperty as $lPropertyXml) {
-			list($lName, $lModel, $lSerializationName, $lIsId) = $this->_getBaseInfosForProperty($lPropertyXml, $pMainModelName);
+			list($lName, $lModel, $lSerializationName, $lIsId, $lCompositions) = $this->_getBaseInfosForProperty($lPropertyXml, $pMainModelName);
 			if ($lModel instanceof SimpleModel) {
 				throw new Exception("foreign property with name '$lName' can't be a simple model");
 			}
 			$lModelForeign = new ModelForeign($lModel);
-			$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName);
+			if (is_null($lCompositions)) {
+				$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName);
+			} else {
+				$lProperty = new CompositionProperty($lModelForeign, $lName, $lCompositions, $lSerializationName);
+			}
 			$lProperties[$lName] = $lProperty;
 		}
 		return $lProperties;
@@ -238,16 +243,38 @@ class InstanceModel {
 		if (array_key_exists((string) $pPropertyXml["type"], $this->mLocalTypes[$pMainModelName])) {
 			$lModel = $this->mLocalTypes[$pMainModelName][(string) $pPropertyXml["type"]];
 			$lSerializationName = null;
+			$lCompositions      = null;
 		}else {
 			$lModel = $this->_buildModel($pPropertyXml, $pMainModelName);
 			$lSerializationsNode = isset($this->mCurrentXmlSerialization->properties->$lName) ? $this->mCurrentXmlSerialization->properties->$lName : null;
 			$lSerializationName  = (!is_null($lSerializationsNode) && isset($lSerializationsNode["serializationName"])) ? (string) $lSerializationsNode["serializationName"] : null;
+			list($lSerializationName, $lCompositions) = $this->_getSerializationBaseInfosForProperty($this->mCurrentXmlSerialization, $lName);
 		}
 			
 		if ($lIsId && !($lModel instanceof SimpleModel)) {
 			throw new Exception("id property with name '$lName' must be a simple model");
 		}
-		return array($lName, $lModel, $lSerializationName, $lIsId);
+		return array($lName, $lModel, $lSerializationName, $lIsId, $lCompositions);
+	}
+	
+	private function _getSerializationBaseInfosForProperty($pXmlSerialization, $pPropertyName) {
+		$lSerializationName = null;
+		$lCompositions      = null;
+		
+		if (isset($pXmlSerialization->properties->$pPropertyName)) {
+			$lSerializationNode = $pXmlSerialization->properties->$pPropertyName;
+			if (isset($lSerializationNode['serializationName'])) {
+				$lSerializationName = (string) $lSerializationNode['serializationName'];
+			}
+			if (isset($lSerializationNode->compositions->composition)) {
+				$lCompositions = [];
+				foreach ($lSerializationNode->compositions->composition as $lComposition) {
+					$lCompositions[] = (string) $lComposition;
+				}
+			}
+		}
+		
+		return array($lSerializationName, $lCompositions);
 	}
 	
 	private function _buildLocalTypes($pManifestXML, $pModel) {

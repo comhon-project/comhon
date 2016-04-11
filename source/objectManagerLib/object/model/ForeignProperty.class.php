@@ -2,8 +2,15 @@
 namespace objectManagerLib\object\model;
 
 use objectManagerLib\object\object\SqlTable;
+use objectManagerLib\object\object\Object;
 
 class ForeignProperty extends Property {
+	
+	private $mCompositionProperties = null;
+	
+	public function __construct($pModel, $pName, $pSerializationName = null) {
+		parent::__construct($pModel, $pName, $pSerializationName);
+	}
 	
 	public function hasSerializationReturn() {
 		return $this->getUniqueModel()->hasSerializationReturn();
@@ -22,31 +29,16 @@ class ForeignProperty extends Property {
 		return $lReturn;
 	}
 	
-	public function load($pObject, $pId, $pParentModel) {
-		// all serializations are equals so we take arbitrarily the first serialization
+	public function loadValue(Object $pObject) {
+		if ($pObject->getModel() !== $this->getUniqueModel()) {
+			throw new \Exception('object not compatible with property ');
+		}
 		$lSerializationUnit = $this->getUniqueModel()->getSerialization();
-		if (!is_null($lSerializationUnit)) {
-			return $lSerializationUnit->loadObject($pObject, $pId, $this->getSerializationName(), $pParentModel);
-		}
-		else {
+		if (is_null($lSerializationUnit)) {
+			trigger_error("+++++++++ no serial +++++++++");
 			return false;
 		}
-	}
-	
-	/**
-	 * load object ids (only for properties that are serialized in database composition)
-	 * @param Object $pObject
-	 * @param string $pId
-	 * @param Model $pParentModel
-	 * @return Object|boolean
-	 */
-	public function loadIds($pObject, $pId, $pParentModel) {
-		if (!is_null($lSqlTableUnit = $this->getSqlTableUnit())) {
-			return $lSqlTableUnit->loadCompositionIds($pObject, $pId, $this->getSerializationName(), $pParentModel);
-		}
-		else {
-			return false;
-		}
+		return $lSerializationUnit->loadObject($pObject);
 	}
 	
 	public function getSerialization() {
@@ -65,7 +57,4 @@ class ForeignProperty extends Property {
 		return $this->getUniqueModel()->getSqlTableUnit();
 	}
 	
-	public function hasSqlTableUnitComposition($pParentModel) {
-		return $this->getUniqueModel()->hasSqlTableUnitComposition($pParentModel);
-	}
 }
