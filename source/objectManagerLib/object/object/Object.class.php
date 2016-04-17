@@ -83,6 +83,23 @@ class Object {
 		return $this->mModel->formatId($lValues);
 	}
 	
+	public function hasCompleteId() {
+		foreach ($this->mModel->getIdProperties() as $lPropertyName) {
+			if(is_null($this->getValue($lPropertyName)) || $this->getValue($lPropertyName) == '') {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public function verifCompleteId() {
+		foreach ($this->mModel->getIdProperties() as $lPropertyName) {
+			if(is_null($this->getValue($lPropertyName)) || $this->getValue($lPropertyName) == '') {
+				throw new \Excpetion("id is not complete, property '$lPropertyName' is empty");
+			}
+		}
+	}
+	
 	public function setValue($pName, $pValue) {
 		if ($this->hasProperty($pName)) {
 			$this->mValues[$pName] = $pValue;

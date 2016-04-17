@@ -32,40 +32,40 @@ class LocalModel extends Model {
 	/**
 	 * get or create an instance of Object
 	 * @param string|integer $pId
-	 * @param string|integer $pMainObjectId
+	 * @param LocalObjectCollection $pLocalObjectCollection
 	 * @param boolean $pIsloaded
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status 
-	 * @return array [Object,string] second element is $pMainObjectId
+	 * @return array [Object,LocalObjectCollection] second element is $pLocalObjectCollection
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pMainObjectId, $pIsloaded = true, $pUpdateLoadStatus = true) {
+	protected function _getOrCreateObjectInstance($pId, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		if (!$this->hasIdProperty()) {
 			$lObject = $this->getObjectInstance($pIsloaded);
-			//trigger_error("new local whithout id $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
+			//trigger_error("new local whithout id $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
 		}
 		else {
 			if (count($lIdProperties = $this->getIdProperties()) != 1) {
 				throw new \Exception("model must have one and only one id property");
 			}
-			$lObject = ObjectCollection::getInstance()->getLocalObject($pId, $this->mModelName, $pMainObjectId, $this->mMainModel->getModelName());
+			$lObject = $pLocalObjectCollection->getObject($pId, $this->mModelName);
 			if (is_null($lObject)) {
 				$lObject = $this->getObjectInstance($pIsloaded);
 				if (!is_null($pId)) {
 					$lObject->setValue($lIdProperties[0], $pId);
-					ObjectCollection::getInstance()->addLocalObject($lObject, $pMainObjectId);
-					//trigger_error("add local $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
+					$pLocalObjectCollection->addObject($lObject);
+					//trigger_error("add local $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
 				}
 				else {
-					//trigger_error("new local without add $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
+					//trigger_error("new local without add $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
 				}
 			} else {
-				//trigger_error("local already added $pId, $this->mModelName, $pMainObjectId, {$this->mMainModel->getModelName()}");
+				//trigger_error("local already added $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
 				if ($pUpdateLoadStatus) {
 					//trigger_error("update local status ".var_export($lObject->isLoaded(), true));
 					$lObject->setLoadStatus();
 				}
 			}
 		}
-		return array($lObject, $pMainObjectId);
+		return array($lObject, $pLocalObjectCollection);
 	}
 	
 }

@@ -21,14 +21,14 @@ abstract class SimpleModel extends Model {
 	/**
 	 * 
 	 * @param unknown $pValue
-	 * @param string $pMainObjectId not used but is mandatory to stay compatible with parent function
+	 * @param string $pLocalObjectCollection not used but is mandatory to stay compatible with parent function
 	 * @return unknown
 	 */
-	protected function _fromObject($pValue, $pMainObjectId = null) {
+	protected function _fromObject($pValue, $pLocalObjectCollection = null) {
 		return $pValue;
 	}
 	
-	protected function _fromXml($pValue, $pMainObjectId = null) {
+	protected function _fromXml($pValue, $pLocalObjectCollection = null) {
 		return (string) $pValue;
 	}
 	
@@ -36,7 +36,7 @@ abstract class SimpleModel extends Model {
 		return $pValue;
 	}
 	
-	protected function _fromSqlColumn($pValue, $pMainObjectId = null) {
+	protected function _fromSqlColumn($pValue, $pLocalObjectCollection = null) {
 		return $pValue;
 	}
 	

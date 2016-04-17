@@ -56,56 +56,91 @@ class ObjectCollection {
 	/**
 	 * add object with mainModel if needed
 	 * @param Object $pObject
-	 * @param boolean $pThrowException throw exception if an object with same id already exists
+	 * @param boolean $pThrowException throw exception if object can't be added (no id or already added)
 	 * @throws \Exception
-	 * @return string|integer 
-	 * - return object id if object has id and (not already added or same instance)
-	 * - return object spl_object_hash if object hasn't id or (already added and different instance)
+	 * @return LocalObjectCollection
+	 * - if Main object has been added or same instance with existing object
+	 * 		return LocalObjectCollection attached to ObjectCollection (retrievable)
+	 * - otherwise
+	 * 		return LocalObjectCollection NOT attached to ObjectCollection (NOT retrievable)
 	 */
 	public function addMainObject(Object $pObject, $pThrowException = true) {
 		if (!($pObject->getModel() instanceof MainModel)) {
 			throw new \Exception('mdodel must be instance of MainModel');
 		}
 		$lModelName = $pObject->getModel()->getModelName();
-		$lId        = $pObject->getId();
 		
-		if (is_null($lId)) {
-			$lId = spl_object_hash($pObject);
+		// if model doesn't contained id, create new LocalObjectCollection NOT attached to ObjectCollection
+		if (!$pObject->getModel()->hasIdProperty()) {
+			$lLocalObjectCollection = new LocalObjectCollection();
 		}
-		if (!array_key_exists($lModelName, $this->mMap)) {
-			$this->mMap[$lModelName] = array();
-		}
-		// if key doesn't exists => create new key with object id or instance id (spl_object_hash)
-		if (!array_key_exists($lId, $this->mMap[$lModelName])) {
-			$this->mMap[$lModelName][$lId] = array(self::MAIN_MODEL_OBJECT => $pObject, self::INCLUDED_OBJECTS => array());
+		// else if object has a complete id
+		else if ($pObject->hasCompleteId()) {
+			$lId = $pObject->getId();
+			if (!array_key_exists($lModelName, $this->mMap)) {
+				$this->mMap[$lModelName] = array();
+			}
+			// if object NOT already added, we can add it and create attached LocalObjectCollection
+			if(!array_key_exists($lId, $this->mMap[$lModelName])) {
+				$lLocalObjectCollection = new LocalObjectCollection();
+				$this->mMap[$lModelName][$lId] = array(self::MAIN_MODEL_OBJECT => $pObject, self::INCLUDED_OBJECTS => $lLocalObjectCollection);
+			}
+			// else if must throw exception => throw exception
+			else if ($pThrowException) {
+				throw new \Exception('object already added');
+			}
+			// else if same object instance, get LocalObjectCollection previously created
+			else if ($pObject === $this->mMap[$lModelName][$lId][self::MAIN_MODEL_OBJECT]) {
+				$lLocalObjectCollection = $this->mMap[$lModelName][$lId][self::MAIN_MODEL_OBJECT];
+			}
+			// else create new LocalObjectCollection NOT attached to ObjectCollection
+			else {
+				trigger_error("should never happen");
+				$lLocalObjectCollection = new LocalObjectCollection();
+			}
 		}
 		// else if must throw exception => throw exception
 		else if ($pThrowException) {
-			throw new \Exception('object already added');
+			trigger_error(json_encode($pObject->toObject()));
+			trigger_error($pObject->getModel()->getModelName());
+			trigger_error(json_encode($pObject->getModel()->getIdproperties()));
+			throw new \Exception('object can\'t be added, object has no id or id is incomplete');
 		}
-		// else if id exists but not same object => create new key with instance id (spl_object_hash)
-		else if (spl_object_hash($pObject) != spl_object_hash($this->mMap[$lModelName][$lId][self::MAIN_MODEL_OBJECT])) {
-			trigger_error("should never happen");
-			$lId = spl_object_hash($pObject);
-			$this->mMap[$lModelName][$lId] = array(self::MAIN_MODEL_OBJECT => $pObject, self::INCLUDED_OBJECTS => array());
+		// else create new LocalObjectCollection NOT attached to ObjectCollection
+		else {
+			$lLocalObjectCollection = new LocalObjectCollection();
 		}
 		
-		return $lId;
+		return $lLocalObjectCollection;
+	}
+	
+	/**
+	 * get LocalObjectCollection attached to a main object
+	 * @param string|integer $pMainObjectId
+	 * @param string $pMainModelName
+	 * @param boolean $pThrowException if true, throw exception if not found
+	 * @return Object|null
+	 */
+	public function getLocalObjectCollection($pMainObjectId, $pMainModelName, $pThrowException = false) {
+		if (array_key_exists($pMainModelName, $this->mMap) && array_key_exists($pMainObjectId, $this->mMap[$pMainModelName])) {
+			return $this->mMap[$pMainModelName][$pMainObjectId][self::INCLUDED_OBJECTS];
+		}else if ($pThrowException) {
+			throw new \Exception('LocalObjectCollection not found');
+		}
+		return null;
 	}
 	
 	/**
 	 * get Object with LocalModel if exists
 	 * @param string|integer $pId
 	 * @param string $pModelName
-	 * @param string|integer $pMainModelId
+	 * @param string|integer $pMainObjectId
 	 * @param string $pMainModelName
 	 * @return Object|null
 	 */
-	public function getLocalObject($pId, $pModelName, $pMainModelId, $pMainModelName) {
-		return array_key_exists($pMainModelName, $this->mMap) && array_key_exists($pMainModelId, $this->mMap[$pMainModelName])
-				&& array_key_exists($pModelName, $this->mMap[$pMainModelName][$pMainModelId][self::INCLUDED_OBJECTS])
-				&& array_key_exists($pId, $this->mMap[$pMainModelName][$pMainModelId][self::INCLUDED_OBJECTS][$pModelName])
-					? $this->mMap[$pMainModelName][$pMainModelId][self::INCLUDED_OBJECTS][$pModelName][$pId]
+	public function getLocalObject($pId, $pModelName, $pLocalObjectCollection, $pMainModelName) {
+		return array_key_exists($pMainModelName, $this->mMap) && array_key_exists($pMainObjectId, $this->mMap[$pMainModelName])
+					? $this->mMap[$pMainModelName][$pMainObjectId][self::INCLUDED_OBJECTS]->getObject($pId, $pModelName)
 					: null;
 	}
 	
@@ -116,32 +151,12 @@ class ObjectCollection {
 	 * @param boolean $pThrowException throw exception if an object with same id already exists
 	 * @return boolean true if object is added
 	 */
-	public function addLocalObject(Object $pObject, $pMainObjectId, $pThrowException = true) {
-		if (!($pObject->getModel() instanceof LocalModel)) {
-			throw new \Exception('mdodel must be instance of LocalModel');
-		}
-		$lReturn        = false;
+	public function addLocalObject(Object $pObject, $pLocalObjectCollection, $pThrowException = true) {
 		$lMainModelName = $pObject->getModel()->getMainModelName();
-		$lId            = $pObject->getId();
-		
-		if (is_null($lId)) {
-			return $lReturn;
+		if ($this->hasMainObject($pMainObjectId, $lMainModelName)) {
+			return $this->mMap[$lMainModelName][$pMainObjectId][self::INCLUDED_OBJECTS]->addObject($pObject, $pThrowException);
 		}
-		if (isset($this->mMap[$lMainModelName][$pMainObjectId])) {
-			$lIncludedObjects = &$this->mMap[$lMainModelName][$pMainObjectId][self::INCLUDED_OBJECTS];
-			$pModelName = $pObject->getModel()->getModelName();
-			if (!array_key_exists($pModelName, $lIncludedObjects)) {
-				$lIncludedObjects[$pModelName] = array();
-			}
-			if (!array_key_exists($lId, $lIncludedObjects[$pModelName])) {
-				$lIncludedObjects[$pModelName][$lId] = $pObject;
-				$lReturn = true;
-			} else if ($pThrowException) {
-				throw new \Exception('object already added');
-			}
-		}
-		
-		return $lReturn;
+		return false;
 	}
 	
 	public function toString() {
@@ -149,12 +164,10 @@ class ObjectCollection {
 		foreach ($this->mMap as $lMainModelName => $lObjectById) {
 			$lArray[$lMainModelName] = array();
 			foreach ($lObjectById as $lId => $lObjects) {
-				$lArray[$lMainModelName][$lId] = array(self::MAIN_MODEL_OBJECT => $lObjects[self::MAIN_MODEL_OBJECT]->toObject(), self::INCLUDED_OBJECTS => array());
-				foreach ($lObjects[self::INCLUDED_OBJECTS] as $lModelName => $lUnserializableObjectById) {
-					foreach ($lUnserializableObjectById as $lOtherId => $lObject) {
-						$lArray[$lMainModelName][$lId][self::INCLUDED_OBJECTS][$lModelName][$lOtherId] = $lObject->toObject();
-					}
-				}
+				$lArray[$lMainModelName][$lId] = array(
+					self::MAIN_MODEL_OBJECT => $lObjects[self::MAIN_MODEL_OBJECT]->toObject(), 
+					self::INCLUDED_OBJECTS => $lObjects[self::INCLUDED_OBJECTS]->toObject()
+				);
 			}
 		}
 		return json_encode($lArray);

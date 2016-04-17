@@ -69,11 +69,11 @@ abstract class Model {
 	/**
 	 * get or create an instance of Object
 	 * @param string|integer $pId
-	 * @param string|integer $pMainObjectId not used but we need to have it to match with LocalModel
+	 * @param string|integer $pLocalObjectCollection not used but we need to have it to match with LocalModel
 	 * @param boolean $pIsloaded
 	 * @throws \Exception
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pMainObjectId, $pIsloaded = true) {
+	protected function _getOrCreateObjectInstance($pId, $pLocalObjectCollection, $pIsloaded = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel or LocalModel');
 	}
 	
@@ -305,51 +305,51 @@ abstract class Model {
 		throw new \Exception('can\'t apply function. Only callable for MainModel');
 	}
 	
-	protected function _fromObject($pPhpObject, $pMainObjectId) {
+	protected function _fromObject($pPhpObject, $pLocalObjectCollection) {
 		if (is_null($pPhpObject)) {
 			return null;
 		}
-		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromPhpObject($pPhpObject), $pMainObjectId);
+		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromPhpObject($pPhpObject), $pLocalObjectCollection);
 		$this->_fillObjectFromPhpObject($lObject, $pPhpObject, $lMainObjectId);
 		return $lObject;
 	}
 	
-	protected function _fillObjectFromPhpObject($pObject, $pPhpObject, $pMainObjectId) {
+	protected function _fillObjectFromPhpObject($pObject, $pPhpObject, $pLocalObjectCollection) {
 		if (is_null($pPhpObject)) {
 			return null;
 		}
 		foreach ($pPhpObject as $lKey => $lPhpValue) {
 			if ($this->hasProperty($lKey)) {
-				$pObject->setValue($lKey, $this->getPropertyModel($lKey)->_fromObject($lPhpValue, $pMainObjectId));
+				$pObject->setValue($lKey, $this->getPropertyModel($lKey)->_fromObject($lPhpValue, $pLocalObjectCollection));
 			}
 		}
 	}
 	
-	protected function _fromXml($pXml, $pMainObjectId) {
-		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml), $pMainObjectId);
+	protected function _fromXml($pXml, $pLocalObjectCollection) {
+		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml), $pLocalObjectCollection);
 		return $this->_fillObjectFromXml($lObject, $pXml, $lMainObjectId) ? $lObject : null;
 	}
 	
-	protected function _fillObjectFromXml($pObject, $pXml, $pMainObjectId) {
+	protected function _fillObjectFromXml($pObject, $pXml, $pLocalObjectCollection) {
 		$lHasValue = false;
 		foreach ($pXml->attributes() as $lKey => $lValue) {
 			if ($this->hasProperty($lKey)) {
-				$pObject->setValue($lKey,  $this->getPropertyModel($lKey)->_fromXml($lValue, $pMainObjectId));
+				$pObject->setValue($lKey,  $this->getPropertyModel($lKey)->_fromXml($lValue, $pLocalObjectCollection));
 				$lHasValue = true;
 			}
 		}
 		foreach ($pXml->children() as $lChild) {
 			$lPropertyName = $lChild->getName();
 			if ($this->hasProperty($lPropertyName)) {
-				$pObject->setValue($lPropertyName, $this->getPropertyModel($lPropertyName)->_fromXml($lChild, $pMainObjectId));
+				$pObject->setValue($lPropertyName, $this->getPropertyModel($lPropertyName)->_fromXml($lChild, $pLocalObjectCollection));
 				$lHasValue = true;
 			}
 		}
 		return $lHasValue;
 	}
 	
-	protected function _fromSqlDataBase($pRow, $pMainObjectId, $pAddUnloadValues = true) {
-		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), $pMainObjectId);
+	protected function _fromSqlDataBase($pRow, $pLocalObjectCollection, $pAddUnloadValues = true) {
+		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), $pLocalObjectCollection);
 		$this->_fillObjectFromSqlDatabase($lObject, $pRow, $lMainObjectId, $pAddUnloadValues);
 		return $lObject;
 	}
@@ -368,31 +368,31 @@ abstract class Model {
 		}
 	}
 	
-	protected function _fromSqlColumn($pJsonEncodedObject, $pMainObjectId) {
+	protected function _fromSqlColumn($pJsonEncodedObject, $pLocalObjectCollection) {
 		if (is_null($pJsonEncodedObject)) {
 			return null;
 		}
 		$lPhpObject = json_decode($pJsonEncodedObject);
-		return $this->_fromObject($lPhpObject, $pMainObjectId);
+		return $this->_fromObject($lPhpObject, $pLocalObjectCollection);
 	}
 	
-	protected function _fromObjectId($pValue, $pMainObjectId) {
-		return $this->_fromId($pValue, $pMainObjectId);
+	protected function _fromObjectId($pValue, $pLocalObjectCollection) {
+		return $this->_fromId($pValue, $pLocalObjectCollection);
 	}
 	
-	protected function _fromXmlId($pValue, $pMainObjectId) {
+	protected function _fromXmlId($pValue, $pLocalObjectCollection) {
 		$lId = (string) $pValue;
 		if ($lId == '') {
 			return null;
 		}
-		return $this->_fromId($lId, $pMainObjectId);
+		return $this->_fromId($lId, $pLocalObjectCollection);
 	}
 	
 	protected function fromSqlColumnId($pValue) {
 		return $this->_fromId($pValue);
 	}
 	
-	protected function _fromId($pId, $pMainObjectId = null) {
+	protected function _fromId($pId, $pLocalObjectCollection = null) {
 		if (is_object($pId) || $pId == '') {
 			$pId = is_object($pId) ? json_encode($pId) : $pId;
 			throw new \Exception("malformed id '$pId' for model '{$this->mModelName}'");
@@ -403,7 +403,7 @@ abstract class Model {
 		if (count($lIdProperties = $this->getIdProperties()) != 1) {
 			throw new \Exception("model '{$this->mModelName}' must have one and only one id");
 		}
-		list($lObject, $lObjectCollectionKey) = $this->_getOrCreateObjectInstance($pId, $pMainObjectId, false, false);
+		list($lObject, $lObjectCollectionKey) = $this->_getOrCreateObjectInstance($pId, $pLocalObjectCollection, false, false);
 		return $lObject;
 	}
 	

@@ -2,6 +2,6 @@
 <manifest>
 	<serialization type="sqlTable">town</serialization>
 	<properties>
-		<town serializationName="city_hall"/>
+		<cityHall serializationName="city_hall"/>
 	</properties>
 </manifest>

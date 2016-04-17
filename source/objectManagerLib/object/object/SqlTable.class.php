@@ -42,10 +42,10 @@ class SqlTable extends SerializationUnit {
 		if (count($lWhereColumns) == 0) {
 			throw new \Exception('error : property is not serialized in database composition');
 		}
-		if (count($lIdProperties) == 0) {
-			trigger_error("Warning! model '{$lModel->getModelName()}' doesn't have a unique property id. All model is loaded");
-		}
 		if ($pOnlyIds) {
+			if (count($lIdProperties) == 0) {
+				trigger_error("Warning! model '{$lModel->getModelName()}' doesn't have a unique property id. All model is loaded");
+			}
 			foreach ($lIdProperties as $lIdProperty) {
 				$lSelectColumns[] = $lModel->getProperty($lIdProperty)->getSerializationName();
 			}

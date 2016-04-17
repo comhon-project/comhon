@@ -13,7 +13,7 @@ class Boolean extends SimpleModel {
 		return $pValue ? 1 : 0;
 	}
 	
-	protected function _fromXml($pValue, $pMainObjectId = null) {
+	protected function _fromXml($pValue, $pLocalObjectCollection = null) {
 		return ((integer) $pValue === 1) ? true : false;
 	}
 	

@@ -29,16 +29,16 @@ class ModelEnum extends ModelContainer {
 		return $lReturn;
 	}
 	
-	protected function _fromObject($pValue, $pMainObjectId) {
-		$lReturn = $this->mModel->_fromObject($pValue, $pMainObjectId);
+	protected function _fromObject($pValue, $pLocalObjectCollection) {
+		$lReturn = $this->mModel->_fromObject($pValue, $pLocalObjectCollection);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}
 		return $lReturn;
 	}
 	
-	protected function _fromSqlColumn($pValue, $pMainObjectId) {
-		$lReturn = $this->mModel->_fromSqlColumn($pValue, $pMainObjectId);
+	protected function _fromSqlColumn($pValue, $pLocalObjectCollection) {
+		$lReturn = $this->mModel->_fromSqlColumn($pValue, $pLocalObjectCollection);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}
@@ -53,8 +53,8 @@ class ModelEnum extends ModelContainer {
 		return $lReturn;
 	}
 	
-	protected function _fromXml($pValue, $pMainObjectId) {
-		$lReturn = $this->mModel->_fromXml($pValue, $pMainObjectId);
+	protected function _fromXml($pValue, $pLocalObjectCollection) {
+		$lReturn = $this->mModel->_fromXml($pValue, $pLocalObjectCollection);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}

@@ -116,11 +116,11 @@ abstract class ModelContainer extends Model {
 		throw new \Exception('must be overrided');
 	}
 	
-	protected function _fromObject($pValue, $pMainObjectId)  {
+	protected function _fromObject($pValue, $pLocalObjectCollection)  {
 		throw new \Exception('must be overrided');
 	}
 	
-	protected function _fromSqlColumn($pValue, $pMainObjectId) {
+	protected function _fromSqlColumn($pValue, $pLocalObjectCollection) {
 		throw new \Exception('must be overrided');
 	}
 	

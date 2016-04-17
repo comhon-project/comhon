@@ -76,8 +76,8 @@ class MainModel extends Model {
 	
 	public function fillObjectFromPhpObject($pObject, $pPhpObject, $pUpdateLoadStatus = true) {
 		$this->load();
-		ObjectCollection::getInstance()->addMainObject($pObject, false);
-		$this->_fillObjectFromPhpObject($pObject, $pPhpObject, $this->getIdFromPhpObject($pPhpObject));
+		$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($pObject, false);
+		$this->_fillObjectFromPhpObject($pObject, $pPhpObject, $lLocalObjectCollection);
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
@@ -85,8 +85,8 @@ class MainModel extends Model {
 	
 	public function fillObjectFromXml($pObject, $pXml, $pUpdateLoadStatus = true) {
 		$this->load();
-		ObjectCollection::getInstance()->addMainObject($pObject, false);
-		$this->_fillObjectFromXml($pObject, $pXml, $this->getIdFromXml($pXml));
+		$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($pObject, false);
+		$this->_fillObjectFromXml($pObject, $pXml, $lLocalObjectCollection);
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
@@ -94,8 +94,8 @@ class MainModel extends Model {
 	
 	public function fillObjectFromSqlDatabase($pObject, $pRow, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
 		$this->load();
-		ObjectCollection::getInstance()->addMainObject($pObject, false);
-		$this->_fillObjectFromSqlDatabase($pObject, $pRow, $this->getIdFromSqlDatabase($pRow), $pAddUnloadValues);
+		$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($pObject, false);
+		$this->_fillObjectFromSqlDatabase($pObject, $pRow, $lLocalObjectCollection, $pAddUnloadValues);
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
@@ -135,6 +135,8 @@ class MainModel extends Model {
 		if (is_null($lMainObject)) {
 			$lMainObject = $this->getObjectInstance(false);
 			$lMainObject->setValue($lIdProperties[0], $pId);
+		} else if (!$pForceLoad) {
+			return $lMainObject;
 		}
 
 		return $this->loadAndFillObject($lMainObject, $pForceLoad) ? $lMainObject : null;
@@ -162,15 +164,15 @@ class MainModel extends Model {
 	/**
 	 * get or create an instance of Object
 	 * @param string|integer $pId
-	 * @param string|integer $pMainObjectId not used but we need to have it to match with LocalModel
+	 * @param string|integer $pLocalObjectCollection not used but we need to have it to match with LocalModel
 	 * @param boolean $pIsloaded
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status
 	 * @return array [Object,string] second element is the key in ObjectCollection where we can found Object returned
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pMainObjectId = null, $pIsloaded = true, $pUpdateLoadStatus = true) {
+	protected function _getOrCreateObjectInstance($pId, $pLocalObjectCollection = null, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		if (!$this->hasIdProperty()) {
 			$lMainObject = $this->getObjectInstance($pIsloaded);
-			$lObjectCollectionKey = ObjectCollection::getInstance()->addMainObject($lMainObject);
+			$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($lMainObject);
 			//trigger_error("new main without id $pId, $this->mModelName");
 		}
 		else {
@@ -183,7 +185,7 @@ class MainModel extends Model {
 				if (!is_null($pId)) {
 					$lMainObject->setValue($lIdProperties[0], $pId);
 				}
-				$lObjectCollectionKey = ObjectCollection::getInstance()->addMainObject($lMainObject);
+				$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($lMainObject);
 				//trigger_error("new main $pId, $this->mModelName");
 			}
 			else {
@@ -192,10 +194,10 @@ class MainModel extends Model {
 					//trigger_error("update main status ".var_export($lMainObject->isLoaded(), true));
 					$lMainObject->setLoadStatus();
 				}
-				$lObjectCollectionKey = $pId;
+				$lLocalObjectCollection = ObjectCollection::getInstance()->getLocalObjectCollection($pId, $this->mModelName, true);
 			}
 		}
-		return array($lMainObject, $lObjectCollectionKey);
+		return array($lMainObject, $lLocalObjectCollection);
 	}
 	
 }

@@ -67,15 +67,18 @@ class ModelArray extends ModelContainer {
 		return $this->_fromObject($pArray, null);
 	}
 	
-	protected function _fromObject($pArray, $pMainObjectId) {
+	protected function _fromObject($pArray, $pLocalObjectCollection) {
+		if (is_string($pArray) && $pArray == ObjectArray::__UNLOAD__) {
+			return $this->getObjectInstance(false);
+		}
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pArray as $lKey => $lPhpValue) {
-			$lObjectArray->setValue($lKey, $this->getModel()->_fromObject($lPhpValue, $pMainObjectId));
+			$lObjectArray->setValue($lKey, $this->getModel()->_fromObject($lPhpValue, $pLocalObjectCollection));
 		}
 		return $lObjectArray;
 	}
 	
-	protected function _fromObjectId($pArray, $pMainObjectId) {
+	protected function _fromObjectId($pArray, $pLocalObjectCollection) {
 		if (is_null($pArray)) {
 			return null;
 		}
@@ -84,17 +87,17 @@ class ModelArray extends ModelContainer {
 		}
 		$lReturn = $this->getObjectInstance();
 		foreach ($pArray as $lKey => $lValue) {
-			$lReturn->setValue($lKey, $this->getModel()->_fromObjectId($lValue, $pMainObjectId));
+			$lReturn->setValue($lKey, $this->getModel()->_fromObjectId($lValue, $pLocalObjectCollection));
 		}
 		return $lReturn;
 	}
 	
-	protected function _fromSqlColumn($pJsonEncodedObject, $pMainObjectId) {
+	protected function _fromSqlColumn($pJsonEncodedObject, $pLocalObjectCollection) {
 		if (is_null($pJsonEncodedObject)) {
 			return null;
 		}
 		$lPhpObject = json_decode($pJsonEncodedObject);
-		return $this->_fromObject($lPhpObject, $pMainObjectId);
+		return $this->_fromObject($lPhpObject, $pLocalObjectCollection);
 	}
 	
 	public function fromSqlDataBase($pRows, $pAddUnloadValues = true) {
@@ -104,10 +107,10 @@ class ModelArray extends ModelContainer {
 		return $this->_fromSqlDataBase($pRows, null, $pAddUnloadValues);
 	}
 	
-	protected function _fromSqlDataBase($pRows, $pMainObjectId, $pAddUnloadValues = true) {
+	protected function _fromSqlDataBase($pRows, $pLocalObjectCollection, $pAddUnloadValues = true) {
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pRows as $lKey => $lRow) {
-			$lObjectArray->setValue($lKey, $this->getModel()->_fromSqlDataBase($lRow, $pMainObjectId, $pAddUnloadValues));
+			$lObjectArray->setValue($lKey, $this->getModel()->_fromSqlDataBase($lRow, $pLocalObjectCollection, $pAddUnloadValues));
 		}
 		return $lObjectArray;
 	}
@@ -147,21 +150,25 @@ class ModelArray extends ModelContainer {
 		return $this->_fromXml($pArray, null);
 	}
 	
-	protected function _fromXml($pXml, $pMainObjectId) {
-		$lObjectArray = $this->getObjectInstance();
-		foreach ($pXml->{$this->mElementName} as $lChild) {
-			$lObjectArray->pushValue($this->getModel()->_fromXml($lChild, $pMainObjectId));
+	protected function _fromXml($pXml, $pLocalObjectCollection) {
+		if (isset($pXml[ObjectArray::__UNLOAD__]) && ((string) $pXml[ObjectArray::__UNLOAD__] == "1")) {
+			$lObjectArray = $this->getObjectInstance(false);
+		} else {
+			$lObjectArray = $this->getObjectInstance();
+			foreach ($pXml->{$this->mElementName} as $lChild) {
+				$lObjectArray->pushValue($this->getModel()->_fromXml($lChild, $pLocalObjectCollection));
+			}
 		}
 		return $lObjectArray;
 	}
 	
-	protected function _fromXmlId($pXml, $pMainObjectId) {
+	protected function _fromXmlId($pXml, $pLocalObjectCollection) {
 		if (isset($pXml[ObjectArray::__UNLOAD__]) && ((string) $pXml[ObjectArray::__UNLOAD__] == "1")) {
-			$lValue = $this->getModel()->getObjectInstance(false);
+			$lValue = $this->getObjectInstance(false);
 		} else {
 			$lValue = $this->getObjectInstance();
 			foreach ($pXml->{$this->mElementName} as $lChild) {
-				$lValue->pushValue($this->getModel()->_fromXmlId($lChild, $pMainObjectId));
+				$lValue->pushValue($this->getModel()->_fromXmlId($lChild, $pLocalObjectCollection));
 			}
 		}
 		return $lValue;

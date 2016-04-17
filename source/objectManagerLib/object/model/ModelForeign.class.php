@@ -19,17 +19,17 @@ class ModelForeign extends ModelContainer {
 		}
 	}
 	
-	protected function _fromObject($pValue, $pMainObjectId) {
+	protected function _fromObject($pValue, $pLocalObjectCollection) {
 		if (is_null($pValue)) {
 			return null;
 		}
 		if ($this->getUniqueModel()->hasIdProperty()) {
-			return $this->getModel()->_fromObjectId($pValue, $pMainObjectId);
+			return $this->getModel()->_fromObjectId($pValue, $pLocalObjectCollection);
 		} else {
 			if (!($this->getUniqueModel() instanceof MainModel)) {
 				throw new \Exception('foreign property with local model must have id');
 			}
-			return $this->getModel()->_fromObject($pValue, $pMainObjectId);
+			return $this->getModel()->_fromObject($pValue, $pLocalObjectCollection);
 		}
 	}
 	
@@ -47,19 +47,19 @@ class ModelForeign extends ModelContainer {
 		}
 	}
 	
-	protected function _fromXml($pValue, $pMainObjectId) {
+	protected function _fromXml($pValue, $pLocalObjectCollection) {
 		if ($this->getUniqueModel()->hasIdProperty()) {
-			return $this->getModel()->_fromXmlId($pValue, $pMainObjectId);
+			return $this->getModel()->_fromXmlId($pValue, $pLocalObjectCollection);
 		} else {
 			if (!($this->getUniqueModel() instanceof MainModel)) {
 				throw new \Exception('foreign property with local model must have id');
 			}
-			return $this->getModel()->_fromXml($pValue, $pMainObjectId);
+			return $this->getModel()->_fromXml($pValue, $pLocalObjectCollection);
 		}
 	}
 	
-	protected function _fromSqlColumn($pValue, $pMainObjectId) {
-		return $this->getModel()->fromSqlColumnId($pValue, $pMainObjectId);
+	protected function _fromSqlColumn($pValue, $pLocalObjectCollection) {
+		return $this->getModel()->fromSqlColumnId($pValue, $pLocalObjectCollection);
 	}
 	
 }
