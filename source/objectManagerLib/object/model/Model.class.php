@@ -184,11 +184,28 @@ abstract class Model {
 	}
 	
 	/**
-	 * 
-	 * @param array $pIdValues
+	 * @param array $pIdValues encode id in json format
 	 */
-	public function formatId($pIdValues) {
-		return count($pIdValues) > 0 ? implode("-", $pIdValues) : null;
+	public function _encodeId($pIdValues) {
+		return count($pIdValues) > 0 ? json_encode($pIdValues) : null;
+	}
+	
+	/**
+	 * @param string $pId decode id from json format
+	 */
+	public function _decodeId($pId) {
+		return json_decode($pId);
+	}
+	
+	/**
+	 * @param Object $pObject
+	 */
+	public function encodeIdfromObject(Object $pObject) {
+		$lValues = array();
+		foreach ($this->getIdProperties() as $lPropertyName) {
+			$lValues[] = $pObject->getValue($lPropertyName);
+		}
+		return $this->_encodeId($lValues);
 	}
 	
 	/**
@@ -400,10 +417,23 @@ abstract class Model {
 		if (is_null($pId)) {
 			return null;
 		}
-		if (count($lIdProperties = $this->getIdProperties()) != 1) {
-			throw new \Exception("model '{$this->mModelName}' must have one and only one id");
-		}
 		list($lObject, $lObjectCollectionKey) = $this->_getOrCreateObjectInstance($pId, $pLocalObjectCollection, false, false);
+		return $lObject;
+	}
+	
+	protected function _buildObjectFromId($pId, $pIsloaded) {
+		$lObject = $this->getObjectInstance($pIsloaded);
+		if (!is_null($pId)) {
+			$lIdProperties = $this->getIdProperties();
+			if (count($lIdProperties) == 1) {
+				$lObject->setValue($lIdProperties[0], $pId);
+			} else {
+				$lIdValues = $this->_decodeId($pId);
+				foreach ($this->getIdProperties() as $lIndex => $lPropertyName) {
+					$lObject->setValue($lPropertyName, $lIdValues[$lIndex]);
+				}
+			}
+		}
 		return $lObject;
 	}
 	
@@ -420,7 +450,7 @@ abstract class Model {
 				$lIdValues[] = null;
 			}
 		}
-		return $this->formatId($lIdValues);
+		return $this->_encodeId($lIdValues);
 	}
 	
 	public function getIdFromXml($pXml) {
@@ -436,7 +466,7 @@ abstract class Model {
 				$lIdValues[] = null;
 			}
 		}
-		return $this->formatId($lIdValues);
+		return $this->_encodeId($lIdValues);
 	}
 	
 	public function getIdFromSqlDatabase($pRow) {
@@ -454,7 +484,7 @@ abstract class Model {
 				$lIdValues[] = null;
 			}
 		}
-		return $this->formatId($lIdValues);
+		return $this->_encodeId($lIdValues);
 	}
 	
 	/*

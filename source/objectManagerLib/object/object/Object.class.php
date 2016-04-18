@@ -76,11 +76,7 @@ class Object {
 		if (count($lIdProperties) == 1) {
 			return $this->getValue($lIdProperties[0]);
 		}
-		$lValues = array();
-		foreach ($lIdProperties as $lPropertyName) {
-			$lValues[] = $this->getValue($lPropertyName);
-		}
-		return $this->mModel->formatId($lValues);
+		return $this->mModel->encodeIdfromObject($this);
 	}
 	
 	public function hasCompleteId() {

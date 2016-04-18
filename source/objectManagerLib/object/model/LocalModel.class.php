@@ -43,14 +43,10 @@ class LocalModel extends Model {
 			//trigger_error("new local whithout id $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
 		}
 		else {
-			if (count($lIdProperties = $this->getIdProperties()) != 1) {
-				throw new \Exception("model must have one and only one id property");
-			}
 			$lObject = $pLocalObjectCollection->getObject($pId, $this->mModelName);
 			if (is_null($lObject)) {
-				$lObject = $this->getObjectInstance($pIsloaded);
+				$lObject = $this->_buildObjectFromId($pId, $pIsloaded);
 				if (!is_null($pId)) {
-					$lObject->setValue($lIdProperties[0], $pId);
 					$pLocalObjectCollection->addObject($lObject);
 					//trigger_error("add local $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
 				}
