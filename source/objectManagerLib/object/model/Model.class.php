@@ -309,8 +309,8 @@ abstract class Model {
 		if (is_null($pPhpObject)) {
 			return null;
 		}
-		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromPhpObject($pPhpObject), $pLocalObjectCollection);
-		$this->_fillObjectFromPhpObject($lObject, $pPhpObject, $lMainObjectId);
+		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromPhpObject($pPhpObject), $pLocalObjectCollection);
+		$this->_fillObjectFromPhpObject($lObject, $pPhpObject, $lLocalObjectCollection);
 		return $lObject;
 	}
 	
@@ -326,8 +326,8 @@ abstract class Model {
 	}
 	
 	protected function _fromXml($pXml, $pLocalObjectCollection) {
-		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml), $pLocalObjectCollection);
-		return $this->_fillObjectFromXml($lObject, $pXml, $lMainObjectId) ? $lObject : null;
+		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml), $pLocalObjectCollection);
+		return $this->_fillObjectFromXml($lObject, $pXml, $lLocalObjectCollection) ? $lObject : null;
 	}
 	
 	protected function _fillObjectFromXml($pObject, $pXml, $pLocalObjectCollection) {
@@ -349,18 +349,18 @@ abstract class Model {
 	}
 	
 	protected function _fromSqlDataBase($pRow, $pLocalObjectCollection, $pAddUnloadValues = true) {
-		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), $pLocalObjectCollection);
-		$this->_fillObjectFromSqlDatabase($lObject, $pRow, $lMainObjectId, $pAddUnloadValues);
+		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), $pLocalObjectCollection);
+		$this->_fillObjectFromSqlDatabase($lObject, $pRow, $lLocalObjectCollection, $pAddUnloadValues);
 		return $lObject;
 	}
 	
-	public function _fillObjectFromSqlDatabase($pObject, $pRow, $lMainObjectId, $pAddUnloadValues = true) {
+	public function _fillObjectFromSqlDatabase($pObject, $pRow, $pLocalObjectCollection, $pAddUnloadValues = true) {
 		foreach ($this->getProperties() as $lPropertyName => $lProperty) {
 			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
 				if (is_null($pRow[$lProperty->getSerializationName()])) {
 					continue;
 				}
-				$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromSqlColumn($pRow[$lProperty->getSerializationName()], $lMainObjectId));
+				$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromSqlColumn($pRow[$lProperty->getSerializationName()], $pLocalObjectCollection));
 			}
 			else if ($pAddUnloadValues && ($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
 				$pObject->initValue($lPropertyName, false);

@@ -70,7 +70,7 @@ class MainModel extends Model {
 	
 	public function fromSqlDataBaseId($pRow) {
 		$this->load();
-		list($lObject, $lMainObjectId) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), null, false, false);
+		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), null, false, false);
 		return $lObject;
 	}
 	
