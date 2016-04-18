@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<properties>
+		<property type="string" id="1">id1</property>
+		<property type="string" id="1">id2</property>
+		<property type="string">date</property>
+		<property type="string">object</property>
+	</properties>
+</manifest>

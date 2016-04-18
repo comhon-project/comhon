@@ -155,7 +155,7 @@ class MainModel extends Model {
 			throw new \Exception("model doesn't have serialization");
 		}
 		if (!$pObject->isLoaded() || $pForceLoad) {
-			$lSuccess = $lSerializationUnit->loadObject($pObject, $pObject->getId());
+			$lSuccess = $lSerializationUnit->loadObject($pObject);
 		}
 		return $lSuccess;
 	}
