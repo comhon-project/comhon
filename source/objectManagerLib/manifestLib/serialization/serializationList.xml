@@ -10,4 +10,5 @@
 	<serialization type="place">place/manifest.xml</serialization>
 	<serialization type="town">town/manifest.xml</serialization>
 	<serialization type="test">test/manifest.xml</serialization>
+	<serialization type="testDb">testDb/manifest.xml</serialization>
 </list>

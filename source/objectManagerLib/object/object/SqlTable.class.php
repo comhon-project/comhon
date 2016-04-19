@@ -26,9 +26,9 @@ class SqlTable extends SerializationUnit {
 		$lWhereColumns = [];
 		$lModel = $pObject->getModel();
 		foreach ($lModel->getIdProperties() as $lPropertyName) {
-			$lWhereColumns[] = $lModel->getProperty($lPropertyName)->getSerializationName();
+			$lWhereColumns[$lModel->getProperty($lPropertyName)->getSerializationName()] = $pObject->getValue($lPropertyName);
 		}
-		$lReturn = $this->_loadObject($pObject, $pObject->getId(), array(), $lWhereColumns);
+		$lReturn = $this->_loadObject($pObject, array(), $lWhereColumns, LogicalJunction::CONJUNCTION);
 		return $lReturn;
 	}
 	
@@ -37,10 +37,14 @@ class SqlTable extends SerializationUnit {
 		$lModel         = $pObject->getModel()->getUniqueModel();
 		$lWhereColumns  = $this->getCompositionColumns($lModel, $pCompositionProperties);
 		$lSelectColumns = array();
+		$lWhereValues   = array();
 		$lIdProperties  = $lModel->getIdProperties();
 		
 		if (count($lWhereColumns) == 0) {
 			throw new \Exception('error : property is not serialized in database composition');
+		}
+		foreach ($lWhereColumns as $lColumn) {
+			$lWhereValues[$lColumn] = $pParentId;
 		}
 		if ($pOnlyIds) {
 			if (count($lIdProperties) == 0) {
@@ -50,19 +54,19 @@ class SqlTable extends SerializationUnit {
 				$lSelectColumns[] = $lModel->getProperty($lIdProperty)->getSerializationName();
 			}
 		}
-		$lReturn = $this->_loadObject($pObject, $pParentId, $lSelectColumns, $lWhereColumns);
+		$lReturn = $this->_loadObject($pObject, $lSelectColumns, $lWhereValues, LogicalJunction::DISJUNCTION);
 		return $lReturn;
 	}
 	
-	private function _loadObject($pObject, $pId, $pSelectColumns, $pWhereColumns) {
+	private function _loadObject($pObject, $pSelectColumns, $pWhereColumns, $lLogicalJunctionType) {
 		$lSuccess = false;
 		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
 			$this->loadValue("database");
 			self::$sDbObjectById[$this->getValue("database")->getValue("id")] = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
 		}
-		$lLinkedLiteral = new LogicalJunction(LogicalJunction::DISJUNCTION);
-		foreach ($pWhereColumns as $lColumn) {
-			$lLinkedLiteral->addLiteral(new Literal($this->getValue("name"), $lColumn, "=", $pId));
+		$lLinkedLiteral = new LogicalJunction($lLogicalJunctionType);
+		foreach ($pWhereColumns as $lColumn => $lValue) {
+			$lLinkedLiteral->addLiteral(new Literal($this->getValue("name"), $lColumn, "=", $lValue));
 		}
 		$lSelectQuery = new SelectQuery($this->getValue("name"));
 		$lSelectQuery->setWhereLogicalJunction($lLinkedLiteral);

@@ -9,4 +9,5 @@
 	<manifest type="place">place/manifest.xml</manifest>
 	<manifest type="town">town/manifest.xml</manifest>
 	<manifest type="test">test/manifest.xml</manifest>
+	<manifest type="testDb">testDb/manifest.xml</manifest>
 </list>

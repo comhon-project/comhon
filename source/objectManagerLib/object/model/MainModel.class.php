@@ -127,14 +127,13 @@ class MainModel extends Model {
 	 */
 	public function loadObject($pId, $pForceLoad = false) {
 		$this->load();
-		if (count($lIdProperties = $this->getIdProperties()) != 1) {
-			throw new \Exception("model must have one and only one id property");
+		if (!$this->hasIdProperty()) {
+			throw new \Exception("model must have at least one id property");
 		}
 		$lMainObject = ObjectCollection::getInstance()->getMainObject($pId, $this->mModelName);
 		
 		if (is_null($lMainObject)) {
-			$lMainObject = $this->getObjectInstance(false);
-			$lMainObject->setValue($lIdProperties[0], $pId);
+			$lMainObject = $this->_buildObjectFromId($pId, false);
 		} else if (!$pForceLoad) {
 			return $lMainObject;
 		}
@@ -156,7 +155,7 @@ class MainModel extends Model {
 			throw new \Exception("model doesn't have serialization");
 		}
 		if (!$pObject->isLoaded() || $pForceLoad) {
-			$lSuccess = $lSerializationUnit->loadObject($pObject, $pObject->getId());
+			$lSuccess = $lSerializationUnit->loadObject($pObject);
 		}
 		return $lSuccess;
 	}
@@ -176,15 +175,9 @@ class MainModel extends Model {
 			//trigger_error("new main without id $pId, $this->mModelName");
 		}
 		else {
-			if (count($lIdProperties = $this->getIdProperties()) != 1) {
-				throw new \Exception("model must have one and only one id property");
-			}
 			$lMainObject = ObjectCollection::getInstance()->getMainObject($pId, $this->mModelName);
 			if (is_null($lMainObject)) {
-				$lMainObject = $this->getObjectInstance($pIsloaded);
-				if (!is_null($pId)) {
-					$lMainObject->setValue($lIdProperties[0], $pId);
-				}
+				$lMainObject = $this->_buildObjectFromId($pId, $pIsloaded);
 				$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($lMainObject);
 				//trigger_error("new main $pId, $this->mModelName");
 			}
