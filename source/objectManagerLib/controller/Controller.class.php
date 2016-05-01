@@ -83,7 +83,7 @@ abstract class Controller {
 	private function _verifParameters($pParams) {
 		$lParameters = $this->_getMandatoryParameters();
 		if (is_array($lParameters)) {
-			if (count($lParameters) > 0) {
+			if (!empty($lParameters)) {
 				if (!is_array($pParams)) {
 					throw new ControllerParameterException(implode(', ', $lParameters));
 				}

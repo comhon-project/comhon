@@ -200,29 +200,29 @@ class SelectQuery {
 	public function export() {
 		$lValues = array();
 	
-		$lColumns = (count($this->mColumnsByTable) == 0) ? "*" : $this->_getColumnsForQuery();
+		$lColumns = (empty($this->mColumnsByTable)) ? "*" : $this->_getColumnsForQuery();
 		$lQuery = "SELECT ".$lColumns." FROM ".$this->_exportJoinedTables($lValues);
 	
 		if (!is_null($lClause = $this->_getClauseForQuery($this->mWhereLogicalJunction, $lValues))) {
 			$lQuery .= " WHERE ".$lClause;
 		}
-		if (count($this->mGroup) > 0) {
+		if (!empty($this->mGroup)) {
 			$lQuery .= " GROUP BY ".implode(",", $this->mGroup);
 		}
-		if (count($this->mOrder) > 0) {
+		if (!empty($this->mOrder)) {
 			$lQuery .= " ORDER BY ".implode(",", $this->mOrder);
 		}
 		if (!is_null($lClause = $this->_getClauseForQuery($this->mHavingLogicalJunction, $lValues))) {
 			$lQuery .= " HAVING ".$lClause;
 		}
 		if (!is_null($this->mLimit)) {
-			if (count($this->mOrder) == 0) {
+			if (empty($this->mOrder)) {
 				trigger_error('Warning, limit is used without ordering');
 			}
 			$lQuery .= " LIMIT ".$this->mLimit;
 		}
 		if (!is_null($this->mOffset)) {
-			if (count($this->mOrder) == 0) {
+			if (empty($this->mOrder)) {
 				trigger_error('Warning, offset is used without ordering');
 			}
 			$lQuery .= " OFFSET ".$this->mOffset;

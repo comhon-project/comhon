@@ -9,6 +9,7 @@ use objectManagerLib\object\model\Integer;
 use objectManagerLib\object\model\Float;
 use objectManagerLib\object\model\Boolean;
 use objectManagerLib\object\model\String;
+use objectManagerLib\object\model\DateTime;
 use objectManagerLib\object\model\Model;
 use objectManagerLib\object\model\MainModel;
 use objectManagerLib\object\model\LocalModel;
@@ -18,14 +19,9 @@ use objectManagerLib\object\model\SimpleModel;
 use objectManagerLib\object\model\SerializationUnit;
 use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\object\model\CompositionProperty;
-use objectManagerLib\object\SimpleLoadRequest;
+use objectManagerLib\object\object\Config;
 
 class InstanceModel {
-	
-	/** simple models **/
-	const INTEGER = 'integer';
-	const BOOLEAN = 'boolean';
-	const STRING  = 'string';
 
 	const PROPERTIES     = 'properties';
 	const OBJECT_CLASS   = 'objectClass';
@@ -42,37 +38,54 @@ class InstanceModel {
 	
 	public static function getInstance() {
 		if (!isset(self::$_instance)) {
-			self::$_instance = new self();
+			new self();
 		}
 	
 		return self::$_instance;
 	}
 	
-	protected function __construct() {
+	private function __construct() {
+		self::$_instance = $this;
 		$this->_registerSimpleModelClasses();
-		$this->_registerComplexModel();
+		$this->_registerComplexModel(
+			__DIR__ . '/../../manifestCollection/manifest/manifestList.xml', 
+			__DIR__ . '/../../manifestCollection/serialization/serializationList.xml'
+		);
+		foreach ($this->mInstanceModels as $lModelName => $lValue) {
+			$this->getInstanceModel($lModelName);
+		}
+		
+		$this->_registerComplexModel(
+			Config::getInstance()->getValue('manifestObjectList'),
+			Config::getInstance()->getValue('manifestSerializationList')
+		);
 	}	
 	
 	private function _registerSimpleModelClasses() {
 		$this->mInstanceModels = array(
-			Integer::ID => new Integer(),
-			Float::ID   => new Float(),
-			Boolean::ID => new Boolean(),
-			String::ID  => new String()
+			Integer::ID  => new Integer(),
+			Float::ID    => new Float(),
+			Boolean::ID  => new Boolean(),
+			String::ID   => new String(),
+			DateTime::ID => new DateTime()
 		);
 	}
 	
 	/**
 	 * register path of each manifest
 	 */
-	private function _registerComplexModel() {
-		$lManifestListPath = sprintf("%s/%s", "§TOKEN:manifestFolder§", "§TOKEN:manifestList§");
-		$this->mManifestListFolder = dirname($lManifestListPath);
-		$lSerializationListPath = sprintf("%s/%s", "§TOKEN:manifestFolder§", "§TOKEN:serializationList§");
-		$this->mSerializationListFolder = dirname($lSerializationListPath);
+	private function _registerComplexModel($pManifestListPath, $pSerializationListPath) {
+		$this->mManifestListFolder = dirname($pManifestListPath);
+		$this->mSerializationListFolder = dirname($pSerializationListPath);
 		
-		$lManifestList = simplexml_load_file($lManifestListPath);
-		$lSerializationList = simplexml_load_file($lSerializationListPath);
+		$lManifestList = simplexml_load_file($pManifestListPath);
+		if ($lManifestList === false) {
+			throw new \Exception("manifestList file not found '$pManifestListPath'");
+		}
+		$lSerializationList = simplexml_load_file($pSerializationListPath);
+		if ($lSerializationList === false) {
+			throw new \Exception("serializationList file not found '$pSerializationListPath'");
+		}
 		$lSerializationMap = array();
 		
 		foreach ($lSerializationList->serialization as $lSerialization) {
@@ -195,6 +208,9 @@ class InstanceModel {
 			if (is_null($this->mLocalTypeXml)) {
 				$lManifestPath = sprintf("%s/%s", $this->mManifestListFolder, $lInstanceModels[$pModel->getModelName()][0]);
 				$lManifest = simplexml_load_file($lManifestPath);
+				if ($lManifest === false) {
+					throw new \Exception("manifest file not found '$lManifestPath'");
+				}
 			}else {
 				$lManifest = $this->mLocalTypeXml;
 			}
@@ -205,6 +221,9 @@ class InstanceModel {
 			if (is_null($this->mLocalTypeXml) && !is_null($lInstanceModels[$pModel->getModelName()][1])) {
 				$lSerializationPath = sprintf("%s/%s", $this->mSerializationListFolder, $lInstanceModels[$pModel->getModelName()][1]);
 				$this->mCurrentXmlSerialization  = simplexml_load_file($lSerializationPath);
+				if ($this->mCurrentXmlSerialization === false) {
+					throw new \Exception("serialization file not found '$lSerializationPath'");
+				}
 			}
 			$this->_addInstanceModel($pModel);
 			$this->_buildLocalTypes($lManifest, $pModel);

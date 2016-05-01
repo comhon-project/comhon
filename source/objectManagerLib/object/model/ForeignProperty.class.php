@@ -12,23 +12,6 @@ class ForeignProperty extends Property {
 		parent::__construct($pModel, $pName, $pSerializationName);
 	}
 	
-	public function hasSerializationReturn() {
-		return $this->getUniqueModel()->hasSerializationReturn();
-	}
-	
-	public function save($pObject) {
-		$lReturn = null;
-		$lSerializationUnit = $this->getUniqueModel()->getSerialization();
-		if (!is_null($lSerializationUnit)) {
-			if ($lSerializationUnit->hasReturnValue()) {
-				$lReturn = $lSerializationUnit->saveObject($pObject, $this->getUniqueModel());
-			}else {
-				$lSerializationUnit->saveObject($pObject, $this->getUniqueModel());
-			}
-		}
-		return $lReturn;
-	}
-	
 	public function loadValue(Object $pObject) {
 		if ($pObject->getModel() !== $this->getUniqueModel()) {
 			throw new \Exception('object not compatible with property ');

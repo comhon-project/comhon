@@ -133,7 +133,7 @@ class LogicalJunction {
 				$lArray[] = $lResult;
 			}
 		}
-		return (count($lArray) > 0) ? "(".implode(" ".$this->getOperator()." ", $lArray).")" : "";
+		return (!empty($lArray)) ? "(".implode(" ".$this->getOperator()." ", $lArray).")" : "";
 	}
 	
 	/**
@@ -150,7 +150,7 @@ class LogicalJunction {
 				$lArray[] = $lResult;
 			}
 		}
-		return (count($lArray) > 0) ? "(".implode(" ".$this->getOperator()." ", $lArray).")" : "";
+		return (!empty($lArray)) ? "(".implode(" ".$this->getOperator()." ", $lArray).")" : "";
 	}
 	
 	public function hasOnlyOneLiteral() {
@@ -175,7 +175,7 @@ class LogicalJunction {
 	}
 	
 	public function hasLiterals() {
-		if (count($this->mLiterals) > 0) {
+		if (!empty($this->mLiterals)) {
 			return true;
 		}foreach ($this->mLogicalJunction as $lLogicalJunction) {
 			if ($lLogicalJunction->hasLiterals()) {

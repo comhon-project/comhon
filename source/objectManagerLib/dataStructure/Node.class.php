@@ -149,7 +149,7 @@ class Node {
 	}
 	
 	public function hasNeighbors() {
-		return count($this->mNextNodes) > 0;
+		return !empty($this->mNextNodes);
 	}
 	
 	public function getNeighborAt($pIndex) {

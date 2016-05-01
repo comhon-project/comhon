@@ -178,6 +178,10 @@ class Object {
 		$this->mModel->fillObjectFromSqlDatabase($this, $pRow, $pUpdateLoadStatus, $pAddUnloadValues);
 	}
 	
+	public function toSqlDataBase($pUseSerializationName = true, &$pMainForeignObjects = null) {
+		return $this->mModel->toSqlDataBase($this, $pUseSerializationName, $pMainForeignObjects);
+	}
+	
 	/*
 	 * return true if $this is equal to $pObject
 	 */

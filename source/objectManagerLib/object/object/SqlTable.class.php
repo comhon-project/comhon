@@ -14,21 +14,26 @@ class SqlTable extends SerializationUnit {
 	
 	private static $sDbObjectById = array();
 	
-	public function saveObject($pValue, $pModel) {
+	protected function _saveObject($pObject) {
 		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
 			$this->loadValue("database");
 			self::$sDbObjectById[$this->getValue("database")->getValue("id")] = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
 		}
-		return $pModel->toSqlDataBase($pValue, $this->getValue("name"), self::$sDbObjectById[$this->getValue("database")->getValue("id")]);
+		$lMapOfString = $pObject->toSqlDataBase();
+		$lQuery = "INSERT INTO ".$this->getValue("name")." (".implode(", ", array_keys($lMapOfString)).") VALUES (".implode(", ", array_fill(0, count($lMapOfString), '?')).");";
+		trigger_error(var_export($lQuery, true));
+		
+		self::$sDbObjectById[$this->getValue("database")->getValue("id")]->prepareQuery($lQuery, array_values($lMapOfString));
+		return self::$sDbObjectById[$this->getValue("database")->getValue("id")]->doQuery($lQuery);
 	}
 	
-	public function loadObject($pObject) {
+	protected function _loadObject($pObject) {
 		$lWhereColumns = [];
 		$lModel = $pObject->getModel();
 		foreach ($lModel->getIdProperties() as $lPropertyName) {
 			$lWhereColumns[$lModel->getProperty($lPropertyName)->getSerializationName()] = $pObject->getValue($lPropertyName);
 		}
-		$lReturn = $this->_loadObject($pObject, array(), $lWhereColumns, LogicalJunction::CONJUNCTION);
+		$lReturn = $this->_loadObjectFromDatabase($pObject, array(), $lWhereColumns, LogicalJunction::CONJUNCTION);
 		return $lReturn;
 	}
 	
@@ -40,25 +45,25 @@ class SqlTable extends SerializationUnit {
 		$lWhereValues   = array();
 		$lIdProperties  = $lModel->getIdProperties();
 		
-		if (count($lWhereColumns) == 0) {
+		if (empty($lWhereColumns)) {
 			throw new \Exception('error : property is not serialized in database composition');
 		}
 		foreach ($lWhereColumns as $lColumn) {
 			$lWhereValues[$lColumn] = $pParentId;
 		}
 		if ($pOnlyIds) {
-			if (count($lIdProperties) == 0) {
+			if (empty($lIdProperties)) {
 				trigger_error("Warning! model '{$lModel->getModelName()}' doesn't have a unique property id. All model is loaded");
 			}
 			foreach ($lIdProperties as $lIdProperty) {
 				$lSelectColumns[] = $lModel->getProperty($lIdProperty)->getSerializationName();
 			}
 		}
-		$lReturn = $this->_loadObject($pObject, $lSelectColumns, $lWhereValues, LogicalJunction::DISJUNCTION);
+		$lReturn = $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lWhereValues, LogicalJunction::DISJUNCTION);
 		return $lReturn;
 	}
 	
-	private function _loadObject($pObject, $pSelectColumns, $pWhereColumns, $lLogicalJunctionType) {
+	private function _loadObjectFromDatabase($pObject, $pSelectColumns, $pWhereColumns, $lLogicalJunctionType) {
 		$lSuccess = false;
 		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
 			$this->loadValue("database");
@@ -80,7 +85,7 @@ class SqlTable extends SerializationUnit {
 			if (!$lIsModelArray) {
 				$lResult = $lResult[0];
 			}
-			if (count($pSelectColumns) == 0) {
+			if (empty($pSelectColumns)) {
 				$pObject->fromSqlDataBase($lResult);
 			} else {
 				$pObject->fromSqlDataBaseId($lResult);
@@ -98,7 +103,4 @@ class SqlTable extends SerializationUnit {
 		return $lColumns;
 	}
 	
-	public function hasReturnValue() {
-		return false;
-	}
 }

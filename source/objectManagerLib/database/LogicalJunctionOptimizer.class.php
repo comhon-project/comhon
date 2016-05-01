@@ -35,17 +35,18 @@ abstract class LogicalJunctionOptimizer {
 	
 	/**
 	 * optimize query literals to optimize execution time of query
-	 * 
 	 * @param unknown $pLogicalJunction
+	 * @param integer $pCountMax	optimisation will not be executed if there is more literals than $pCountMax
+	 * 								actually, optimization is exponential and it can take more time than request itself
 	 */
-	public static function optimizeLiterals($pLogicalJunction) {
+	public static function optimizeLiterals($pLogicalJunction, $pCountMax = 10) {
 		$lFlattenedLiterals = $pLogicalJunction->getFlattenedLiterals("md5");
 		$lLiteralKeys = array();
 		foreach ($lFlattenedLiterals as $lKey => $lLiteral) {
 			$lLiteralKeys[] = $lKey;
 		
 		}
-		if (count($lLiteralKeys) > §TOKEN:optimizationLimit§) {
+		if (count($lLiteralKeys) > $pCountMax) {
 			return $pLogicalJunction;
 		}
 		$pLogicalJunction = LogicalJunctionOptimizer::logicalJunctionToLiterals($pLogicalJunction);
@@ -141,7 +142,7 @@ abstract class LogicalJunctionOptimizer {
 			$i = $k;
 		}
 
-		if (count($lNewLogicalConjunctions) > 0) {
+		if (!empty($lNewLogicalConjunctions)) {
 			self::_findPrimeImplicants($lNewLogicalConjunctions, $lPrimeImplicants);
 		}
 	}
@@ -222,7 +223,7 @@ abstract class LogicalJunctionOptimizer {
 	 */
 	private static function _findLiteralsToFactoryze($pEssentialPrimeImplicants) {
 		$lLiteralsToFactoryze = array();
-		if (count($pEssentialPrimeImplicants) > 0) {
+		if (!empty($pEssentialPrimeImplicants)) {
 			foreach ($pEssentialPrimeImplicants[0] as  $i => $lValue) {
 				if (!is_null($lValue)) {
 					$lLiteralsToFactoryze[$i] = $lValue;
@@ -238,7 +239,7 @@ abstract class LogicalJunctionOptimizer {
 				foreach ($lIndexes as $lIndex) {
 					unset($lLiteralsToFactoryze[$lIndex]);
 				}
-				if (count($lLiteralsToFactoryze) == 0) {
+				if (empty($lLiteralsToFactoryze)) {
 					break;
 				}
 			}
@@ -249,7 +250,7 @@ abstract class LogicalJunctionOptimizer {
 	private static function _setFinalLogicalJunction($pEssentialPrimeImplicants, $pFlattenedLiterals, $pLiteralsToFactoryze, $pLiteralKeys) {
 		$lLiteralsToFactoryzeByKey = array();
 		$lFirstConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
-		if (count($pLiteralsToFactoryze) > 0) {
+		if (!empty($pLiteralsToFactoryze)) {
 			foreach ($pLiteralsToFactoryze as $pLiteralIndex) {
 				$lFirstConjunction->addLiteral($pFlattenedLiterals[$pLiteralKeys[$pLiteralIndex]]);
 				$lLiteralsToFactoryzeByKey[$pLiteralIndex] = null;

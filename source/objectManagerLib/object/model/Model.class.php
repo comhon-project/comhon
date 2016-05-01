@@ -6,6 +6,7 @@ use objectManagerLib\object\object\SqlTable;
 use objectManagerLib\object\object\Object;
 use objectManagerLib\object\object\ObjectArray;
 use objectManagerLib\exception\PropertyException;
+use objectManagerLib\object\object\Config;
 use \stdClass;
 
 abstract class Model {
@@ -152,7 +153,7 @@ abstract class Model {
 	}
 	
 	public function hasIdProperty() {
-		return count($this->mIds) > 0;
+		return !empty($this->mIds);
 	}
 	
 	public function getSerializationIds() {
@@ -164,7 +165,7 @@ abstract class Model {
 	}
 	
 	public function getFirstId() {
-		return count($this->mIds) > 0 ? $this->mIds[0] : null;
+		return empty($this->mIds) ? null : $this->mIds[0];
 	}
 	
 	public function isLoaded() {
@@ -187,7 +188,7 @@ abstract class Model {
 	 * @param array $pIdValues encode id in json format
 	 */
 	public function _encodeId($pIdValues) {
-		return count($pIdValues) > 0 ? json_encode($pIdValues) : null;
+		return empty($pIdValues) ? null : json_encode($pIdValues);
 	}
 	
 	/**
@@ -283,23 +284,53 @@ abstract class Model {
 		return $lId;
 	}
 	
-	public function toSqlDataBase($pObject, $pTable, $pPDO) {
-		$lQueryColumns = array();
-		$lQueryValues = array();
+	public function toSqlDataBase($pObject, $pUseSerializationName = true, &$pMainForeignObjects = null) {
+		$lMapOfString      = array();
+		$lDatabaseTimezone = Config::getInstance()->getValue('database')->getValue('timezone');
+		$lDefaultTimeZone  = false;
 		
-		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
-			if ($this->hasProperty($lPropertyName) && $lProperty->hasSerializationReturn()) {
-				$lProperty =  $this->getProperty($lPropertyName);
-				$lQueryColumns[] = $lProperty->getSerializationName();
-				$lParams[] = $lProperty->save($lValue, true);
-				$lQueryValues[] = "?";
+		if (date_default_timezone_get() != $lDatabaseTimezone) {
+			$lDefaultTimeZone = date_default_timezone_get();
+			date_default_timezone_set($lDatabaseTimezone);
+		}
+		
+		$lPhpObject = $this->toObject($pObject, $pUseSerializationName, $pMainForeignObjects);
+		$lMapOfString = $this->objectToSqlArrayString($lPhpObject, $this);
+		
+		if (is_array($pMainForeignObjects)) {
+			foreach ($pMainForeignObjects as $lMainModelName => &$lValues) {
+				$lModel = InstanceModel::getInstance()->getInstanceModel($lMainModelName);
+				foreach ($pMainForeignObjects as $lId => $lValue) {
+					$lValues[$lId] = $this->objectToSqlArrayString($lPhpObject, $lModel);
+				}
 			}
 		}
-		$lQuery = "INSERT INTO ".$pTable." (".implode(", ", $lQueryColumns).") VALUES (".implode(", ", $lQueryValues).");";
-		$pPDO->prepareQuery($lQuery, $lParams);
-		trigger_error(var_export($lQuery, true));
-		
-		return $pPDO->doQuery($lQuery);
+		if ($lDefaultTimeZone) {
+			date_default_timezone_set($lDefaultTimeZone);
+		}
+		return $lMapOfString;
+	}
+	
+	/**
+	 * transform an stdClass to an array which each stdclass or array values are transformed to string
+	 * @param \stdClass $pObject
+	 */
+	public function objectToSqlArrayString($pObject, $pModel) {
+		$lMapOfString = array();
+		foreach ($pModel->getProperties() as $lProperty) {
+			if (!$lProperty->isComposition() && isset($pObject->{$lProperty->getSerializationName()})) {
+				$lValue = $pObject->{$lProperty->getSerializationName()};
+				if (is_object($lValue)) {
+					$lValue = json_encode($lValue);
+				}
+				$lMapOfString[$lProperty->getSerializationName()] = $lValue;
+			}
+		}
+		return $lMapOfString;
+	}
+	
+	public function toSqlDatabaseId($pObject, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+		return $this->toId($pObject, $pUseSerializationName);
 	}
 	
 	public function toId($pObject, $pUseSerializationName = false) {
@@ -372,6 +403,14 @@ abstract class Model {
 	}
 	
 	public function _fillObjectFromSqlDatabase($pObject, $pRow, $pLocalObjectCollection, $pAddUnloadValues = true) {
+		$lDatabaseTimezone = Config::getInstance()->getValue('database')->getValue('timezone');
+		$lDefaultTimeZone  = false;
+		
+		if (date_default_timezone_get() != $lDatabaseTimezone) {
+			$lDefaultTimeZone = date_default_timezone_get();
+			date_default_timezone_set($lDatabaseTimezone);
+		}
+		
 		foreach ($this->getProperties() as $lPropertyName => $lProperty) {
 			if (array_key_exists($lProperty->getSerializationName(), $pRow)) {
 				if (is_null($pRow[$lProperty->getSerializationName()])) {
@@ -382,6 +421,10 @@ abstract class Model {
 			else if ($pAddUnloadValues && ($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
 				$pObject->initValue($lPropertyName, false);
 			}
+		}
+		
+		if ($lDefaultTimeZone) {
+			date_default_timezone_set($lDefaultTimeZone);
 		}
 	}
 	

@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
+	<types>
+		<type id="object">
+			<properties>
+				<property type="string">plop</property>
+				<property type="string">plop2</property>
+			</properties>
+		</type>
+	</types>
+	
 	<properties>
 		<property type="string" id="1">id1</property>
 		<property type="string" id="1">id2</property>
-		<property type="string">date</property>
-		<property type="string">object</property>
+		<property type="dateTime">date</property>
+		<property type="dateTime">timestamp</property>
+		<property type="object">object</property>
 	</properties>
 </manifest>

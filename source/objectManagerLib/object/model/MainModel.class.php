@@ -13,24 +13,16 @@ class MainModel extends Model {
 	
 	private $mSerialization            = null;
 	private $mSerializationInitialised = false;
-	private $mHasSerializationReturn   = false;
 	
 	protected final function _setSerialization() {
 		if (!$this->mSerializationInitialised) {
 			$this->mSerialization = InstanceModel::getInstance()->getSerialization($this);
-			if (!is_null($this->mSerialization)) {
-				$this->mHasSerializationReturn = $this->mSerialization->hasReturnValue();
-			}
 			$this->mSerializationInitialised = true;
 		}
 	}
 	
 	public function hasLoadedSerialization() {
 		return $this->mSerializationInitialised;
-	}
-	
-	public function hasSerializationReturn() {
-		return $this->mHasSerializationReturn;
 	}
 	
 	public function getSerialization() {

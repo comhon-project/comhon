@@ -164,7 +164,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$this->mLeftJoins[$lTableName] = array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lSqlTable->getValue("name"), "right_table_alias" => $lAlias);
 		
 		$lStack = array(array($this->mModel, $lSqlTable, $lAlias, $pModelTree));
-		while (count($lStack) > 0) {
+		while (!empty($lStack)) {
 			$lLastElement    = array_pop($lStack);
 			$lLeftModel      = $lLastElement[0];
 			$lLeftTable      = $lLastElement[1];
@@ -299,7 +299,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @throws Exception
 	 */
 	private function _buildModelTree($pModels) {
-		if ((count($pModels) == 0) || ((count($pModels) == 1) && array_key_exists($this->mModel->getModelName(), $pModels))) {
+		if ((empty($pModels)) || ((count($pModels) == 1) && array_key_exists($this->mModel->getModelName(), $pModels))) {
 			return;
 		}
 		$lTemporaryLeftJoins = array();
@@ -312,7 +312,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$this->_extendsStacks($this->mModel, $this->mModel->getSqlTableUnit(), $pModels, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
 	
 		// Depth-first search to build all left joins
-		while ((count($lStack) > 0)) {
+		while (!empty($lStack)) {
 			if ($lStack[count($lStack) - 1]["current"] != -1) {
 				array_pop($lTemporaryLeftJoins);
 				$lModelName = array_pop($lStackVisitedModels);
@@ -342,7 +342,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				$this->_extendsStacks($lRightModel, $lRightProperty->getSqlTableUnit(), $pModels, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
 	
 				// if no added model we can delete last stack element
-				if (count($lStack[count($lStack) - 1]["properties"]) == 0) {
+				if (empty($lStack[count($lStack) - 1]["properties"])) {
 					array_pop($lStack);
 				}
 			}
@@ -354,7 +354,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	private function _addJoins($pLeftJoins, $pLiterals) {
-		if (count($pLiterals) > 0) {
+		if (!empty($pLiterals)) {
 			foreach ($pLeftJoins as $lLeftJoin) {
 				$this->mLeftJoins[$lLeftJoin["right_table"]] = $lLeftJoin;
 			}

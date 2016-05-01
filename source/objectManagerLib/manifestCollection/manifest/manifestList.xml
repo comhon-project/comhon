@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<list>
+	<manifest type="config">config/manifest.xml</manifest>
+	<manifest type="sqlDatabase">sqlDatabase/manifest.xml</manifest>
+	<manifest type="sqlTable">sqlTable/manifest.xml</manifest>
+	<manifest type="jsonFile">jsonFile/manifest.xml</manifest>
+</list>

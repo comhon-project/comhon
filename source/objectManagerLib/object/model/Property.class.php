@@ -44,10 +44,6 @@ class Property {
 		return $this->mIsId;
 	}
 	
-	public function hasSerializationReturn() {
-		return true;
-	}
-	
 	public function save($pObject) {
 		return $this->mModel->toObject($pObject);
 	}

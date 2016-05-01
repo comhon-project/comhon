@@ -25,23 +25,6 @@ class CompositionProperty extends ForeignProperty {
 		return $this->mCompositionProperties;
 	}
 	
-	public function hasSerializationReturn() {
-		return $this->getUniqueModel()->hasSerializationReturn();
-	}
-	
-	public function save($pObject) {
-		$lReturn = null;
-		$lSerializationUnit = $this->getUniqueModel()->getSerialization();
-		if (!is_null($lSerializationUnit)) {
-			if ($lSerializationUnit->hasReturnValue()) {
-				$lReturn = $lSerializationUnit->saveObject($pObject, $this->getUniqueModel());
-			}else {
-				$lSerializationUnit->saveObject($pObject, $this->getUniqueModel());
-			}
-		}
-		return $lReturn;
-	}
-	
 	/**
 	 *
 	 * @param Object $pObjectArray

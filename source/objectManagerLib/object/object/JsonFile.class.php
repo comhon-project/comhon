@@ -5,17 +5,17 @@ use objectManagerLib\object\model\ModelForeign;
 
 class JsonFile extends SerializationUnit {
 	
-	public function saveObject($pValue, $pModel) {
-		$lPath = $this->getValue("saticPath")."/".$pValue->getId()."/".$this->getValue("staticName");
+	protected function _saveObject($pObject) {
+		$lPath = $this->getValue("saticPath")."/".$pObject->getId()."/".$this->getValue("staticName");
 		if (!file_exists(dirname($lPath))) {
 			if (!mkdir(dirname($lPath), 0777, true)) {
 				throw new \Exception("cannot save json file (id = $pId)");
 			}
 		}
-		return file_put_contents($pPath, json_encode($pModel->toObject($pValue)));
+		return file_put_contents($pPath, json_encode($pObject->toObject()));
 	}
 	
-	public function loadObject($pObject) {
+	protected function _loadObject($pObject) {
 		$lId = $pObject->getId();
 		$lPath = $this->getValue("saticPath")."/$lId/".$this->getValue("staticName");
 		if (!file_exists($lPath)) {
@@ -30,7 +30,4 @@ class JsonFile extends SerializationUnit {
 		}
 	}
 	
-	public function hasReturnValue() {
-		return false;
-	}
 }

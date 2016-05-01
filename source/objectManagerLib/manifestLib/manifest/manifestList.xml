@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list>
 	<manifest type="person">person/manifest.xml</manifest>
-	<manifest type="sqlDatabase">sqlDatabase/manifest.xml</manifest>
-	<manifest type="sqlTable">sqlTable/manifest.xml</manifest>
-	<manifest type="jsonFile">jsonFile/manifest.xml</manifest>
 	<manifest type="house">house/manifest.xml</manifest>
 	<manifest type="home">home/manifest.xml</manifest>
 	<manifest type="place">place/manifest.xml</manifest>
