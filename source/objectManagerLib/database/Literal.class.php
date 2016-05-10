@@ -210,7 +210,7 @@ class Literal {
 		if (isset($pPhpObject->queue)) {
 			$lSubQueryTables   = self::_queuetoLeftJoins($lLeftModel, $lTable, $pPhpObject->queue);
 			$lLeftJoin         = $pLeftJoins[$pPhpObject->node];
-			$lLeftColumn       = $lLeftJoin['left_model']->getProperty($lLeftJoin['left_model']->getFirstIdProperty())->getSerializationName();
+			$lLeftColumn       = $lLeftJoin['left_model']->getProperty($lLeftJoin['left_model']->getFirstIdPropertyName())->getSerializationName();
 			$lLeftTable        = array_key_exists('right_table_alias', $lLeftJoin) && !is_null($lLeftJoin['right_table_alias']) ? $lLeftJoin['right_table_alias'] : $lLeftJoin['right_table'];
 			$lColumnIdSubQuery = $lSubQueryTables[0]['right_column'][0];
 			$lSelectQuery      = self::_setSubSelectQuery($lSubQueryTables, $pPhpObject);

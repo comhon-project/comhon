@@ -30,7 +30,7 @@ class SqlTable extends SerializationUnit {
 		$lResult = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeSimpleQuery($lQuery);
 	
 		if ($pModel->hasUniqueIdProperty()) {
-			$lColumnId = $pModel->getProperty($pModel->getFirstIdProperty())->getSerializationName();
+			$lColumnId = $pModel->getProperty($pModel->getFirstIdPropertyName())->getSerializationName();
 			foreach ($lResult as $lRow) {
 				if ($lRow['Field'] == $lColumnId) {
 					if ($lRow['Extra'] == 'auto_increment') {
@@ -58,7 +58,7 @@ class SqlTable extends SerializationUnit {
 			$this->_initColumnsProperties($pObject->getModel());
 		}
 		if (is_null($pOperation)) {
-			return $this->_insertOrUpdateObject($pObject);
+			return $this->_saveObjectWithIncrementalId($pObject);
 		} else if ($pOperation == self::INSERT) {
 			return $this->_insertObject($pObject);
 		} else if ($pOperation == self::UPDATE) {
@@ -68,14 +68,18 @@ class SqlTable extends SerializationUnit {
 		}
 	}
 	
-	private function _insertOrUpdateObject($pObject) {
+	private function _saveObjectWithIncrementalId($pObject) {
 		if (!$this->mHasIncrementalId) {
 			throw new \Exception('operation not specified');
 		}
 		if ($pObject->hasCompleteId()) {
 			return $this->_updateObject($pObject);
 		} else {
-			return $this->_insertObject($pObject);
+			$lResult = $this->_insertObject($pObject);
+			$lId = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->lastInsertId();
+			$lPropertyName = $pObject->getModel()->getFirstIdPropertyName();
+			$pObject->setValue($lPropertyName, $lId);
+			return $lResult;
 		}
 	}
 	

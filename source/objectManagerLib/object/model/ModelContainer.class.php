@@ -77,8 +77,8 @@ abstract class ModelContainer extends Model {
 		return $this->getModel()->hasUniqueIdProperty();
 	}
 	
-	public function getFirstIdProperty() {
-		return $this->getModel()->getFirstIdProperty();
+	public function getFirstIdPropertyName() {
+		return $this->getModel()->getFirstIdPropertyName();
 	}
 	
 	public function isLoaded() {

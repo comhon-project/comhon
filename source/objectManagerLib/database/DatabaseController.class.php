@@ -213,7 +213,7 @@ class DatabaseController {
 	 */
 	public function executeSimpleQuery($pQuery, $pValues = array()) {
 		try {
-			var_dump("\n\n".vsprintf(str_replace('?', "%s", $pQuery), $pValues));
+			//var_dump("\n\n".vsprintf(str_replace('?', "%s", $pQuery), $pValues));
 			$lQueryId = $this->prepareQuery($pQuery, $pValues);
 			$this->doQueryWithId($lQueryId);
 			$lResult = $this->fetchAllWithId($lQueryId);

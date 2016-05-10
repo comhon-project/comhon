@@ -164,7 +164,7 @@ abstract class Model {
 		return $lSerializationIds;
 	}
 	
-	public function getFirstIdProperty() {
+	public function getFirstIdPropertyName() {
 		return empty($this->mIds) ? null : $this->mIds[0];
 	}
 	
