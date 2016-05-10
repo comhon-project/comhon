@@ -77,8 +77,7 @@ class SqlTable extends SerializationUnit {
 		} else {
 			$lResult = $this->_insertObject($pObject);
 			$lId = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->lastInsertId();
-			$lPropertyName = $pObject->getModel()->getFirstIdPropertyName();
-			$pObject->setValue($lPropertyName, $lId);
+			$pObject->setValue($pObject->getModel()->getFirstIdPropertyName(), $lId);
 			return $lResult;
 		}
 	}

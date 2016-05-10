@@ -56,9 +56,6 @@ $lDirectory = "source";
 echo "copying sources...\n";
 exec(sprintf("cp -r %s%s %s", $lSourcePath, $lDirectory, $lBuildPath));
 
-echo "Finalizing...\n";
-recursiveReplace($lBuildPath);
-
 echo "Synchronizing...\n";
 $lBuildSourcePath = sprintf("%s/%s", $lBuildPath, $lDirectory);
 $lHost = $gConfiguration["targetHost"];
@@ -76,46 +73,6 @@ die("Terminated.\n");
 /***********************************************/
 /*                 Fonctions                   */
 /***********************************************/
-
-function recursiveReplace($pPath) {
-	if(is_dir($pPath)) {
-		$lFiles = scandir($pPath);
-		foreach($lFiles as $lFile) {
-			$lPath = sprintf("%s/%s", $pPath, $lFile);
-			if(is_dir($lPath)) {
-				if(!in_array($lFile, array(".", ".."))) {
-					recursiveReplace($lPath);
-				}
-			} elseif(is_file($lPath)) {
-				replaceToken($lPath);
-			}
-		}
-	}
-}
-
-
-
-function replaceToken($pFile) {
-	$lContent = file_get_contents($pFile);
-	$lPattern = "/§TOKEN:([A-Za-z0-9_]*)§/";
-	$lContent = preg_replace_callback($lPattern, "replaceCallBack", $lContent);
-	file_put_contents($pFile, $lContent);
-}
-
-
-
-function replaceCallBack($pToken) {
-	$lReturn = "";
-	global $gConfiguration;
-	$lKey = substr($pToken[0], 8, -2);
-	if(isset($gConfiguration[$lKey])) {
-		$lReturn = $gConfiguration[$lKey];
-	} 
-	else {
-		die("Fatal error: Unknow Token $lKey");
-	}
-	return $lReturn;
-}
 
 
 ?>
