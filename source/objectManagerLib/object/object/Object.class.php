@@ -102,6 +102,12 @@ class Object {
 		}
 	}
 	
+	public function deleteValue($pName) {
+		if ($this->hasValue($pName)) {
+			unset($this->mValues[$pName]);
+		}
+	}
+	
 	/**
 	 * instanciate an Object value (only if model of property is not a SimpleModel or ModelEnum)
 	 * @param unknown $pName

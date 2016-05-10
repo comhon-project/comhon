@@ -9,6 +9,7 @@ abstract class SerializationUnit extends Object {
 		}
 		return $this->_saveObject($pObject);
 	}
+	
 	public function loadObject($pObject) {
 		if ($this !== $pObject->getModel()->getSerialization()) {
 			throw new \Exception('this serialization mismatch with parameter object serialization');

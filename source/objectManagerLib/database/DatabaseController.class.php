@@ -204,4 +204,24 @@ class DatabaseController {
 		return $lResult;
 	}
 	
+	/**
+	 * prepare, execute and return result of query
+	 * @param string $pSelectQuery
+	 * @param array $pValues
+	 * @throws Exception
+	 * @return array
+	 */
+	public function executeSimpleQuery($pQuery, $pValues = array()) {
+		try {
+			var_dump("\n\n".vsprintf(str_replace('?', "%s", $pQuery), $pValues));
+			$lQueryId = $this->prepareQuery($pQuery, $pValues);
+			$this->doQueryWithId($lQueryId);
+			$lResult = $this->fetchAllWithId($lQueryId);
+		} catch (Exception $e) {
+			trigger_error(var_export($e->getMessage(), true));
+			throw new Exception($e->getMessage());
+		}
+		return $lResult;
+	}
+	
 }

@@ -164,7 +164,7 @@ abstract class Model {
 		return $lSerializationIds;
 	}
 	
-	public function getFirstId() {
+	public function getFirstIdProperty() {
 		return empty($this->mIds) ? null : $this->mIds[0];
 	}
 	
@@ -295,13 +295,13 @@ abstract class Model {
 		}
 		
 		$lPhpObject = $this->toObject($pObject, $pUseSerializationName, $pMainForeignObjects);
-		$lMapOfString = $this->objectToSqlArrayString($lPhpObject, $this);
+		$lMapOfString = $this->objectToSqlArrayString($lPhpObject, $this, $pUseSerializationName);
 		
 		if (is_array($pMainForeignObjects)) {
 			foreach ($pMainForeignObjects as $lMainModelName => &$lValues) {
 				$lModel = InstanceModel::getInstance()->getInstanceModel($lMainModelName);
 				foreach ($pMainForeignObjects as $lId => $lValue) {
-					$lValues[$lId] = $this->objectToSqlArrayString($lPhpObject, $lModel);
+					$lValues[$lId] = $this->objectToSqlArrayString($lPhpObject, $lModel, $pUseSerializationName);
 				}
 			}
 		}
@@ -315,30 +315,28 @@ abstract class Model {
 	 * transform an stdClass to an array which each stdclass or array values are transformed to string
 	 * @param \stdClass $pObject
 	 */
-	public function objectToSqlArrayString($pObject, $pModel) {
+	public function objectToSqlArrayString($pPhpObject, $pModel, $pUseSerializationName) {
 		$lMapOfString = array();
 		foreach ($pModel->getProperties() as $lProperty) {
-			if (!$lProperty->isComposition() && isset($pObject->{$lProperty->getSerializationName()})) {
-				$lValue = $pObject->{$lProperty->getSerializationName()};
+			$lPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
+			if (!$lProperty->isComposition() && isset($pPhpObject->$lPropertyName)) {
+				$lValue = $pPhpObject->$lPropertyName;
 				if (is_object($lValue)) {
 					$lValue = json_encode($lValue);
 				}
-				$lMapOfString[$lProperty->getSerializationName()] = $lValue;
+				$lMapOfString[$lPropertyName] = $lValue;
 			}
 		}
 		return $lMapOfString;
 	}
 	
-	public function toSqlDatabaseId($pObject, $pUseSerializationName = false, &$pMainForeignObjects = null) {
-		return $this->toId($pObject, $pUseSerializationName);
-	}
-	
 	public function toId($pObject, $pUseSerializationName = false) {
-		$lId = $pObject->getId();
-		if (is_null($lId)) {
-			trigger_error("Warning cannot export foreign property with model '{$this->mModelName}' because this model doesn't have id");
+		if ($pObject->hasCompleteId()) {
+			return $pObject->getId();
+		} else {
+			trigger_error("Warning cannot export id of foreign property with model '{$this->mModelName}' because object doesn't have complete id");
+			return null;
 		}
-		return $lId;
 	}
 	
 	public function fillObjectFromPhpObject($pObject, $pPhpObject) {

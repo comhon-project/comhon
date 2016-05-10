@@ -397,12 +397,12 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		);
 		$lColumn = $pRightProperty->getSerializationName();
 		if ($pRightProperty->isComposition()) {
-			$lReturn["left_column"] = $pLeftModel->getProperty($pLeftModel->getFirstId())->getSerializationName();
+			$lReturn["left_column"] = $pLeftModel->getProperty($pLeftModel->getFirstIdProperty())->getSerializationName();
 			$lReturn["right_column"] = $lRightTable->getCompositionColumns($pLeftModel, $lColumn);
 		}else {
 			$lRightModel = $pRightProperty->getUniqueModel();
 			$lReturn["left_column"] = $lColumn;
-			$lReturn["right_column"] = $lRightModel->getProperty($lRightModel->getFirstId())->getSerializationName();
+			$lReturn["right_column"] = $lRightModel->getProperty($lRightModel->getFirstIdProperty())->getSerializationName();
 		}
 		return $lReturn;
 	}

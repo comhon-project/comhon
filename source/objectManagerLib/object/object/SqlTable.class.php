@@ -11,22 +11,105 @@ use objectManagerLib\object\model\ModelArray;
 use objectManagerLib\object\object\ObjectArray;
 
 class SqlTable extends SerializationUnit {
+
+	const UPDATE = 'update';
+	const INSERT = 'insert';
 	
 	private static $sDbObjectById = array();
+
+	private $mInitialized = false;
+	private $mHasIncrementalId = false;
 	
-	protected function _saveObject($pObject) {
-		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
-			$this->loadValue("database");
-			self::$sDbObjectById[$this->getValue("database")->getValue("id")] = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
-		}
-		$lMapOfString = $pObject->toSqlDataBase();
-		$lQuery = "INSERT INTO ".$this->getValue("name")." (".implode(", ", array_keys($lMapOfString)).") VALUES (".implode(", ", array_fill(0, count($lMapOfString), '?')).");";
-		trigger_error(var_export($lQuery, true));
-		
-		self::$sDbObjectById[$this->getValue("database")->getValue("id")]->prepareQuery($lQuery, array_values($lMapOfString));
-		return self::$sDbObjectById[$this->getValue("database")->getValue("id")]->doQuery($lQuery);
+	private function _initDbObject() {
+		$this->loadValue("database");
+		self::$sDbObjectById[$this->getValue("database")->getValue("id")] = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
 	}
 	
+	private function _initColumnsProperties($pModel) {
+		$lQuery = 'SHOW COLUMNS FROM '.$this->getValue("name");
+		$lResult = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeSimpleQuery($lQuery);
+	
+		if ($pModel->hasUniqueIdProperty()) {
+			$lColumnId = $pModel->getProperty($pModel->getFirstIdProperty())->getSerializationName();
+			foreach ($lResult as $lRow) {
+				if ($lRow['Field'] == $lColumnId) {
+					if ($lRow['Extra'] == 'auto_increment') {
+						$this->mHasIncrementalId = true;
+					}
+					break;
+				}
+			}
+		}
+		$this->mInitialized = true;
+	}
+	
+	public function saveObject($pObject, $pOperation = null) {
+		if ($this !== $pObject->getModel()->getSerialization()) {
+			throw new \Exception('this serialization mismatch with parameter object serialization');
+		}
+		return $this->_saveObject($pObject, $pOperation);
+	}
+	
+	protected function _saveObject($pObject, $pOperation = null) {
+		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
+			$this->_initDbObject();
+		}
+		if (!$this->mInitialized) {
+			$this->_initColumnsProperties($pObject->getModel());
+		}
+		if (is_null($pOperation)) {
+			return $this->_insertOrUpdateObject($pObject);
+		} else if ($pOperation == self::INSERT) {
+			return $this->_insertObject($pObject);
+		} else if ($pOperation == self::UPDATE) {
+			return $this->_updateObject($pObject);
+		} else {
+			throw new \Exception('unknown operation '.$pOperation);
+		}
+	}
+	
+	private function _insertOrUpdateObject($pObject) {
+		if (!$this->mHasIncrementalId) {
+			throw new \Exception('operation not specified');
+		}
+		if ($pObject->hasCompleteId()) {
+			return $this->_updateObject($pObject);
+		} else {
+			return $this->_insertObject($pObject);
+		}
+	}
+	
+	private function _insertObject($pObject) {
+		$lMapOfString = $pObject->toSqlDataBase();
+		$lQuery = "INSERT INTO ".$this->getValue("name")." (".implode(", ", array_keys($lMapOfString)).") VALUES (".implode(", ", array_fill(0, count($lMapOfString), '?')).");";
+		return self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeSimpleQuery($lQuery, array_values($lMapOfString));
+	}
+	
+	private function _updateObject($pObject) {
+		if (!$pObject->hasCompleteId()) {
+			throw new \Exception('update operation require complete id');
+		}
+		$lModel            = $pObject->getModel();
+		$lConditions       = array();
+		$lUpdates          = array();
+		$lUpdateValues     = array();
+		$lConditionsValues = array();
+		$lMapOfString      = $pObject->toSqlDataBase(false);
+		
+		foreach ($lMapOfString as $lPropertyName => $lValue) {
+			$lProperty = $lModel->getProperty($lPropertyName);
+			if ($lProperty->isId()) {
+				$lConditions[]       = "{$lProperty->getSerializationName()} = ?";
+				$lConditionsValues[] = $lValue;
+			} else {
+				$lUpdates[]      = "{$lProperty->getSerializationName()} = ?";
+				$lUpdateValues[] = $lValue;
+			}
+		}
+		$lQuery = "UPDATE ".$this->getValue("name")." SET ".implode(", ", $lUpdates)." WHERE ".implode(" and ", $lConditions).";";
+		return self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
+	}
+
 	protected function _loadObject($pObject) {
 		$lWhereColumns = [];
 		$lModel = $pObject->getModel();
@@ -66,8 +149,10 @@ class SqlTable extends SerializationUnit {
 	private function _loadObjectFromDatabase($pObject, $pSelectColumns, $pWhereColumns, $lLogicalJunctionType) {
 		$lSuccess = false;
 		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
-			$this->loadValue("database");
-			self::$sDbObjectById[$this->getValue("database")->getValue("id")] = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
+			$this->_initDbObject();
+		}
+		if (!$this->mInitialized) {
+			$this->_initColumnsProperties($pObject->getModel());
 		}
 		$lLinkedLiteral = new LogicalJunction($lLogicalJunctionType);
 		foreach ($pWhereColumns as $lColumn => $lValue) {
