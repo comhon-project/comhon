@@ -7,6 +7,7 @@ use objectManagerLib\object\object\Object;
 use objectManagerLib\object\object\ObjectArray;
 use objectManagerLib\object\ObjectCollection;
 use objectManagerLib\exception\PropertyException;
+use objectManagerLib\visitor\ObjectCollectionCreator;
 use \stdClass;
 
 class MainModel extends Model {
@@ -47,29 +48,29 @@ class MainModel extends Model {
 	
 	public function fromObject($pPhpObject) {
 		$this->load();
-		return $this->_fromObject($pPhpObject, null /** no need to pass id */);
+		return $this->_fromObject($pPhpObject, null);
 	}
 	
 	public function fromXml($pXml) {
 		$this->load();
-		return $this->_fromXml($pXml, null /** no need to pass id */);
+		return $this->_fromXml($pXml, null);
 	}
 	
 	public function fromSqlDataBase($pRow, $pAddUnloadValues = true) {
 		$this->load();
-		return $this->_fromSqlDataBase($pRow, null /** no need to pass id */, $pAddUnloadValues);
+		return $this->_fromSqlDataBase($pRow, null, $pAddUnloadValues);
 	}
 	
 	public function fromSqlDataBaseId($pRow) {
 		$this->load();
-		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), null, false, false);
+		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), null, false, false, false);
 		return $lObject;
 	}
 	
 	public function fillObjectFromPhpObject($pObject, $pPhpObject, $pUpdateLoadStatus = true) {
 		$this->load();
-		$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($pObject, false);
-		$this->_fillObjectFromPhpObject($pObject, $pPhpObject, $lLocalObjectCollection);
+		ObjectCollection::getInstance()->addMainObject($pObject, false);
+		$this->_fillObjectFromPhpObject($pObject, $pPhpObject, $this->_loadLocalObjectCollection($pObject));
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
@@ -77,8 +78,8 @@ class MainModel extends Model {
 	
 	public function fillObjectFromXml($pObject, $pXml, $pUpdateLoadStatus = true) {
 		$this->load();
-		$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($pObject, false);
-		$this->_fillObjectFromXml($pObject, $pXml, $lLocalObjectCollection);
+		ObjectCollection::getInstance()->addMainObject($pObject, false);
+		$this->_fillObjectFromXml($pObject, $pXml, $this->_loadLocalObjectCollection($pObject));
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
@@ -86,8 +87,8 @@ class MainModel extends Model {
 	
 	public function fillObjectFromSqlDatabase($pObject, $pRow, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
 		$this->load();
-		$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($pObject, false);
-		$this->_fillObjectFromSqlDatabase($pObject, $pRow, $lLocalObjectCollection, $pAddUnloadValues);
+		ObjectCollection::getInstance()->addMainObject($pObject, false);
+		$this->_fillObjectFromSqlDatabase($pObject, $pRow, $this->_loadLocalObjectCollection($pObject), $pAddUnloadValues);
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
@@ -158,31 +159,52 @@ class MainModel extends Model {
 	 * @param string|integer $pLocalObjectCollection not used but we need to have it to match with LocalModel
 	 * @param boolean $pIsloaded
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status
+	 * @param boolean $pCreateLocalObjectCollection
 	 * @return array [Object,string] second element is the key in ObjectCollection where we can found Object returned
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pLocalObjectCollection = null, $pIsloaded = true, $pUpdateLoadStatus = true) {
+	protected function _getOrCreateObjectInstance($pId, $pLocalObjectCollection = null, $pIsloaded = true, $pUpdateLoadStatus = true, $pCreateLocalObjectCollection = true) {
+		trigger_error("=========== $this->mModelName =============");
+		$lLocalObjectCollection = null;
 		if (!$this->hasIdProperty()) {
 			$lMainObject = $this->getObjectInstance($pIsloaded);
-			$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($lMainObject);
-			//trigger_error("new main without id $pId, $this->mModelName");
+			ObjectCollection::getInstance()->addMainObject($lMainObject);
+			trigger_error("new main without id $pId, $this->mModelName");
 		}
 		else {
 			$lMainObject = ObjectCollection::getInstance()->getMainObject($pId, $this->mModelName);
 			if (is_null($lMainObject)) {
 				$lMainObject = $this->_buildObjectFromId($pId, $pIsloaded);
-				$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($lMainObject);
-				//trigger_error("new main $pId, $this->mModelName");
+				ObjectCollection::getInstance()->addMainObject($lMainObject);
+				trigger_error("new main $pId, $this->mModelName");
+			}
+			else if ($pUpdateLoadStatus) {
+				trigger_error("main already added $pId, $this->mModelName");
+				trigger_error("update main status ".var_export($lMainObject->isLoaded(), true));
+				$lMainObject->setLoadStatus();
 			}
 			else {
-				//trigger_error("main already added $pId, $this->mModelName");
-				if ($pUpdateLoadStatus) {
-					//trigger_error("update main status ".var_export($lMainObject->isLoaded(), true));
-					$lMainObject->setLoadStatus();
-				}
-				$lLocalObjectCollection = ObjectCollection::getInstance()->getLocalObjectCollection($pId, $this->mModelName, true);
+				trigger_error("main already added $pId, $this->mModelName doesn't update");
 			}
 		}
+		if ($pCreateLocalObjectCollection) {
+			$lLocalObjectCollection = $this->_loadLocalObjectCollection($lMainObject);
+		}
 		return array($lMainObject, $lLocalObjectCollection);
+	}
+	
+	/**
+	 * 
+	 * @param Object $pObject
+	 */
+	private function _loadLocalObjectCollection($pObject) {
+		trigger_error("+++++++++++ debut ++++++ $this->mModelName ++++++++");
+		trigger_error(json_encode($pObject->toObject()));
+		$lObjectCollectionCreator = new ObjectCollectionCreator();
+		
+		$plop = $lObjectCollectionCreator->execute($pObject);
+		trigger_error($plop->toString());
+		trigger_error("+++++++++++ fin ++++++++++++++");
+		return $plop;
 	}
 	
 }

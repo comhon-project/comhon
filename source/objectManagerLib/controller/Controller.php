@@ -23,6 +23,7 @@ abstract class Controller {
 	 * execute controller
 	 * @param Oject $pObject
 	 * @param array $pParams
+	 * @param array $pVisitRootObject
 	 * @return unknown|boolean
 	 */
 	public final function execute(Object $pObject, $pParams = array()) {
@@ -31,15 +32,19 @@ abstract class Controller {
 			$this->mPropertyNameStack = array();
 			$this->mMainObject        = $pObject;
 			$this->mParams            = $pParams;	
-			$lModel                   = $pObject->getModel();
-			$lModelName               = $lModel->getModelName();
-			$lProperty                = new ForeignProperty($lModel, $lModelName);
-			$lCustomModel             = new ModelCustom('modelCustom', array($lProperty));
-			$lRootCustomObject        = $lCustomModel->getObjectInstance();
 
-			$lRootCustomObject->setValue($lModelName, $pObject);
 			$this->_init($pObject);
-			$this->_accept($lRootCustomObject, $lModelName, $lModelName);
+			
+			if ($this->_isVisitRootObject()) {
+				$lModelName   = $pObject->getModel()->getModelName();
+				$lProperty    = new ForeignProperty($pObject->getModel(), $lModelName);
+				$lCustomModel = new ModelCustom('modelCustom', array($lProperty));
+				$lRootObject  = $lCustomModel->getObjectInstance();
+				$lRootObject->setValue($lModelName, $pObject);
+				$this->_accept($lRootObject, $lModelName, $lModelName);
+			} else {
+				$this->_acceptChildren($pObject);
+			}
 			
 			return $this->_finalize($pObject);
 		}
@@ -78,6 +83,11 @@ abstract class Controller {
 			}
 			unset($this->mInstanceObjectHash[spl_object_hash($pObject)]);
 		}
+	}
+	
+
+	protected function _isVisitRootObject() {
+		return true;
 	}
 	
 	private function _verifParameters($pParams) {

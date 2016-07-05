@@ -34,6 +34,10 @@ class Object {
 		return ($this->hasValue($pName)) ? $this->mValues[$pName] : null;
 	}
 	
+	public function getInstanceValue($pPropertyName, $pIsLoaded = true) {
+		return $this->getProperty($pPropertyName, true)->getModel()->getObjectInstance($pIsLoaded);
+	}
+	
 	public function getValues() {
 		return $this->mValues;
 	}
@@ -109,20 +113,14 @@ class Object {
 	}
 	
 	/**
-	 * instanciate an Object value (only if model of property is not a SimpleModel or ModelEnum)
-	 * @param unknown $pName
+	 * instanciate an Object and add it to values
+	 * @param unknown $pPropertyName
 	 * @param string $pIsLoaded
-	 * @return Object|boolean
+	 * @return Object
 	 */
-	public function initValue($pName, $pIsLoaded = true) {
-		if ($this->hasProperty($pName)) {
-			$lPropertyModel = $this->getProperty($pName)->getModel();
-			if (!($lPropertyModel instanceof SimpleModel) && !($lPropertyModel instanceof ModelEnum)) {
-				$this->mValues[$pName] = $lPropertyModel->getObjectInstance($pIsLoaded);
-				return $this->mValues[$pName];
-			}
-		}
-		return false;
+	public function initValue($pPropertyName, $pIsLoaded = true) {
+		$this->mValues[$pPropertyName] = $this->getInstanceValue($pPropertyName, $pIsLoaded);
+		return $this->mValues[$pPropertyName];
 	}
 	
 	public function hasValue($pName) {
@@ -150,8 +148,8 @@ class Object {
 		return array_keys($this->mModel->getProperties());
 	}
 	
-	public function getProperty($pPropertyName) {
-		return $this->mModel->getProperty($pPropertyName);
+	public function getProperty($pPropertyName, $pThrowException = false) {
+		return $this->mModel->getProperty($pPropertyName, $pThrowException);
 	}
 	
 	/*

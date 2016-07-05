@@ -54,49 +54,31 @@ class ObjectCollection {
 	}
 	
 	/**
-	 * add object with mainModel if needed
+	 * add object with mainModel (if not already added)
 	 * @param Object $pObject
-	 * @param boolean $pThrowException throw exception if object can't be added (no id or already added)
+	 * @param boolean $pThrowException throw exception if object can't be added (no complete id or object already added)
 	 * @throws \Exception
-	 * @return LocalObjectCollection
-	 * - if Main object has been added or same instance with existing object
-	 * 		return LocalObjectCollection attached to ObjectCollection (retrievable)
-	 * - otherwise
-	 * 		return LocalObjectCollection NOT attached to ObjectCollection (NOT retrievable)
 	 */
 	public function addMainObject(Object $pObject, $pThrowException = true) {
 		if (!($pObject->getModel() instanceof MainModel)) {
 			throw new \Exception('mdodel must be instance of MainModel');
 		}
-		$lModelName = $pObject->getModel()->getModelName();
 		
-		// if model doesn't contained id, create new LocalObjectCollection NOT attached to ObjectCollection
-		if (!$pObject->getModel()->hasIdProperty()) {
-			$lLocalObjectCollection = new LocalObjectCollection();
-		}
-		// else if object has a complete id
-		else if ($pObject->hasCompleteId()) {
-			$lId = $pObject->getId();
-			if (!array_key_exists($lModelName, $this->mMap)) {
-				$this->mMap[$lModelName] = array();
-			}
-			// if object NOT already added, we can add it and create attached LocalObjectCollection
-			if(!array_key_exists($lId, $this->mMap[$lModelName])) {
-				$lLocalObjectCollection = new LocalObjectCollection();
-				$this->mMap[$lModelName][$lId] = array(self::MAIN_MODEL_OBJECT => $pObject, self::INCLUDED_OBJECTS => $lLocalObjectCollection);
-			}
-			// else if must throw exception => throw exception
-			else if ($pThrowException) {
-				throw new \Exception('object already added');
-			}
-			// else if same object instance, get LocalObjectCollection previously created
-			else if ($pObject === $this->mMap[$lModelName][$lId][self::MAIN_MODEL_OBJECT]) {
-				$lLocalObjectCollection = $this->mMap[$lModelName][$lId][self::MAIN_MODEL_OBJECT];
-			}
-			// else create new LocalObjectCollection NOT attached to ObjectCollection
-			else {
-				trigger_error("should never happen");
-				$lLocalObjectCollection = new LocalObjectCollection();
+		if ($pObject->hasCompleteId()) {
+			if ($pObject->getModel()->hasIdProperty()) {
+				$lModelName = $pObject->getModel()->getModelName();
+				$lId = $pObject->getId();
+				if (!array_key_exists($lModelName, $this->mMap)) {
+					$this->mMap[$lModelName] = array();
+				}
+				// if object NOT already added, we can add it and create attached LocalObjectCollection
+				if(!array_key_exists($lId, $this->mMap[$lModelName])) {
+					$this->mMap[$lModelName][$lId] = array(self::MAIN_MODEL_OBJECT => $pObject, self::INCLUDED_OBJECTS => null);
+				}
+				// else if must throw exception => throw exception
+				else if ($pThrowException) {
+					throw new \Exception('object already added');
+				}
 			}
 		}
 		// else if must throw exception => throw exception
@@ -106,57 +88,6 @@ class ObjectCollection {
 			trigger_error(json_encode($pObject->getModel()->getIdproperties()));
 			throw new \Exception('object can\'t be added, object has no id or id is incomplete');
 		}
-		// else create new LocalObjectCollection NOT attached to ObjectCollection
-		else {
-			$lLocalObjectCollection = new LocalObjectCollection();
-		}
-		
-		return $lLocalObjectCollection;
-	}
-	
-	/**
-	 * get LocalObjectCollection attached to a main object
-	 * @param string|integer $pMainObjectId
-	 * @param string $pMainModelName
-	 * @param boolean $pThrowException if true, throw exception if not found
-	 * @return Object|null
-	 */
-	public function getLocalObjectCollection($pMainObjectId, $pMainModelName, $pThrowException = false) {
-		if (array_key_exists($pMainModelName, $this->mMap) && array_key_exists($pMainObjectId, $this->mMap[$pMainModelName])) {
-			return $this->mMap[$pMainModelName][$pMainObjectId][self::INCLUDED_OBJECTS];
-		}else if ($pThrowException) {
-			throw new \Exception('LocalObjectCollection not found');
-		}
-		return null;
-	}
-	
-	/**
-	 * get Object with LocalModel if exists
-	 * @param string|integer $pId
-	 * @param string $pModelName
-	 * @param string|integer $pMainObjectId
-	 * @param string $pMainModelName
-	 * @return Object|null
-	 */
-	public function getLocalObject($pId, $pModelName, $pLocalObjectCollection, $pMainModelName) {
-		return array_key_exists($pMainModelName, $this->mMap) && array_key_exists($pMainObjectId, $this->mMap[$pMainModelName])
-					? $this->mMap[$pMainModelName][$pMainObjectId][self::INCLUDED_OBJECTS]->getObject($pId, $pModelName)
-					: null;
-	}
-	
-	/**
-	 * add object with localModel (only if not already added)
-	 * @param Object $pObject
-	 * @param string|integer $pMainObjectId
-	 * @param boolean $pThrowException throw exception if an object with same id already exists
-	 * @return boolean true if object is added
-	 */
-	public function addLocalObject(Object $pObject, $pLocalObjectCollection, $pThrowException = true) {
-		$lMainModelName = $pObject->getModel()->getMainModelName();
-		if ($this->hasMainObject($pMainObjectId, $lMainModelName)) {
-			return $this->mMap[$lMainModelName][$pMainObjectId][self::INCLUDED_OBJECTS]->addObject($pObject, $pThrowException);
-		}
-		return false;
 	}
 	
 	public function toString() {

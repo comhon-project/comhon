@@ -458,7 +458,7 @@ abstract class Model {
 		if (is_null($pId)) {
 			return null;
 		}
-		list($lObject, $lObjectCollectionKey) = $this->_getOrCreateObjectInstance($pId, $pLocalObjectCollection, false, false);
+		list($lObject, $lObjectCollectionKey) = $this->_getOrCreateObjectInstance($pId, $pLocalObjectCollection, false, false, false);
 		return $lObject;
 	}
 	
