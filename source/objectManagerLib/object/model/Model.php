@@ -10,6 +10,10 @@ use objectManagerLib\object\object\Config;
 use \stdClass;
 
 abstract class Model {
+
+	const MERGE     = 'merge';
+	const OVERWRITE = 'overwrite';
+	const NO_MERGE  = 'no_merge';
 	
 	protected static $sInstanceObjectHash = array();
 
@@ -72,9 +76,10 @@ abstract class Model {
 	 * @param string|integer $pId
 	 * @param string|integer $pLocalObjectCollection not used but we need to have it to match with LocalModel
 	 * @param boolean $pIsloaded
+	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status 
 	 * @throws \Exception
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pLocalObjectCollection, $pIsloaded = true) {
+	protected function _getOrCreateObjectInstance($pId, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel or LocalModel');
 	}
 	
@@ -207,6 +212,16 @@ abstract class Model {
 			$lValues[] = $pObject->getValue($lPropertyName);
 		}
 		return $this->_encodeId($lValues);
+	}
+	
+	/**
+	 *
+	 * @param Object $pObject
+	 * @param LocalObjectCollection $pLocalObjectCollection
+	 * @return LocalObjectCollection
+	 */
+	private function _getLocalObjectCollection($pObject, $pLocalObjectCollection) {
+		return $pLocalObjectCollection;
 	}
 	
 	/**
@@ -355,8 +370,8 @@ abstract class Model {
 		if (is_null($pPhpObject)) {
 			return null;
 		}
-		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromPhpObject($pPhpObject), $pLocalObjectCollection);
-		$this->_fillObjectFromPhpObject($lObject, $pPhpObject, $lLocalObjectCollection);
+		$lObject = $this->_getOrCreateObjectInstance($this->getIdFromPhpObject($pPhpObject), $pLocalObjectCollection);
+		$this->_fillObjectFromPhpObject($lObject, $pPhpObject, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection));
 		return $lObject;
 	}
 	
@@ -372,8 +387,9 @@ abstract class Model {
 	}
 	
 	protected function _fromXml($pXml, $pLocalObjectCollection) {
-		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml), $pLocalObjectCollection);
-		return $this->_fillObjectFromXml($lObject, $pXml, $lLocalObjectCollection) ? $lObject : null;
+		$lObject = $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml), $pLocalObjectCollection);
+		$this->_fillObjectFromXml($lObject, $pXml, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection)) ? $lObject : null;
+		return $lObject;
 	}
 	
 	protected function _fillObjectFromXml($pObject, $pXml, $pLocalObjectCollection) {
@@ -395,8 +411,8 @@ abstract class Model {
 	}
 	
 	protected function _fromSqlDataBase($pRow, $pLocalObjectCollection, $pAddUnloadValues = true) {
-		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), $pLocalObjectCollection);
-		$this->_fillObjectFromSqlDatabase($lObject, $pRow, $lLocalObjectCollection, $pAddUnloadValues);
+		$lObject = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), $pLocalObjectCollection);
+		$this->_fillObjectFromSqlDatabase($lObject, $pRow, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection), $pAddUnloadValues);
 		return $lObject;
 	}
 	
@@ -458,8 +474,7 @@ abstract class Model {
 		if (is_null($pId)) {
 			return null;
 		}
-		list($lObject, $lObjectCollectionKey) = $this->_getOrCreateObjectInstance($pId, $pLocalObjectCollection, false, false, false);
-		return $lObject;
+		return $this->_getOrCreateObjectInstance($pId, $pLocalObjectCollection, false, false);
 	}
 	
 	protected function _buildObjectFromId($pId, $pIsloaded) {

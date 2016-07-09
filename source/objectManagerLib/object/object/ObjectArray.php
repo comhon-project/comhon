@@ -38,10 +38,11 @@ class ObjectArray extends Object {
 		$this->mValues[] = $pValue;
 	}
 	
-	public function fromObject($pPhpObject, $pUpdateLoadStatus = true) {
+	public function fromObject($pArray, $pUpdateLoadStatus = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
+		$this->resetValues();
 		foreach ($pArray as $lKey => $lPhpValue) {
 			$this->setValue($lKey, $this->mModel->getModel()->fromObject($lPhpValue));
 		}
@@ -54,6 +55,7 @@ class ObjectArray extends Object {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
+		$this->resetValues();
 		foreach ($pXml->children() as $lChild) {
 			$this->pushValue($this->mModel->getModel()->fromXml($lChild));
 		}
@@ -66,6 +68,7 @@ class ObjectArray extends Object {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
+		$this->resetValues();
 		foreach ($pRows as $lRow) {
 			$this->pushValue($this->mModel->getModel()->fromSqlDataBase($lRow, $pAddUnloadValues));
 		}
@@ -78,6 +81,7 @@ class ObjectArray extends Object {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
+		$this->resetValues();
 		foreach ($pRows as $lRow) {
 			$this->pushValue($this->mModel->getModel()->fromSqlDataBaseId($lRow));
 		}

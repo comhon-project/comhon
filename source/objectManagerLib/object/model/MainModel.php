@@ -46,8 +46,11 @@ class MainModel extends Model {
 		return !is_null($this->mSerialization) && ($this->mSerialization->getModel()->getModelName() == $pSerializationType);
 	}
 	
-	public function fromObject($pPhpObject) {
+	public function fromObject($pPhpObject, $pMergeType = self::MERGE) {
 		$this->load();
+		if ($pMergeType == self::OVERWRITE) {
+			
+		}
 		return $this->_fromObject($pPhpObject, null);
 	}
 	
@@ -63,8 +66,7 @@ class MainModel extends Model {
 	
 	public function fromSqlDataBaseId($pRow) {
 		$this->load();
-		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), null, false, false, false);
-		return $lObject;
+		return $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), null, false, false);
 	}
 	
 	public function fillObjectFromPhpObject($pObject, $pPhpObject, $pUpdateLoadStatus = true) {
@@ -159,12 +161,10 @@ class MainModel extends Model {
 	 * @param string|integer $pLocalObjectCollection not used but we need to have it to match with LocalModel
 	 * @param boolean $pIsloaded
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status
-	 * @param boolean $pCreateLocalObjectCollection
 	 * @return array [Object,string] second element is the key in ObjectCollection where we can found Object returned
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pLocalObjectCollection = null, $pIsloaded = true, $pUpdateLoadStatus = true, $pCreateLocalObjectCollection = true) {
+	protected function _getOrCreateObjectInstance($pId, $pLocalObjectCollection = null, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		trigger_error("=========== $this->mModelName =============");
-		$lLocalObjectCollection = null;
 		if (!$this->hasIdProperty()) {
 			$lMainObject = $this->getObjectInstance($pIsloaded);
 			ObjectCollection::getInstance()->addMainObject($lMainObject);
@@ -186,15 +186,23 @@ class MainModel extends Model {
 				trigger_error("main already added $pId, $this->mModelName doesn't update");
 			}
 		}
-		if ($pCreateLocalObjectCollection) {
-			$lLocalObjectCollection = $this->_loadLocalObjectCollection($lMainObject);
-		}
-		return array($lMainObject, $lLocalObjectCollection);
+		return $lMainObject;
+	}
+	
+	/**
+	 *
+	 * @param Object $pObject
+	 * @param LocalObjectCollection $pLocalObjectCollection
+	 * @return LocalObjectCollection
+	 */
+	private function _getLocalObjectCollection($pObject, $pLocalObjectCollection) {
+		return $this->_loadLocalObjectCollection($pObject);
 	}
 	
 	/**
 	 * 
 	 * @param Object $pObject
+	 * @return LocalObjectCollection
 	 */
 	private function _loadLocalObjectCollection($pObject) {
 		trigger_error("+++++++++++ debut ++++++ $this->mModelName ++++++++");
