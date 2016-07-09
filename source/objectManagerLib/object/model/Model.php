@@ -388,8 +388,7 @@ abstract class Model {
 	
 	protected function _fromXml($pXml, $pLocalObjectCollection) {
 		$lObject = $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml), $pLocalObjectCollection);
-		$this->_fillObjectFromXml($lObject, $pXml, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection)) ? $lObject : null;
-		return $lObject;
+		return $this->_fillObjectFromXml($lObject, $pXml, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection)) ? $lObject : null;
 	}
 	
 	protected function _fillObjectFromXml($pObject, $pXml, $pLocalObjectCollection) {
