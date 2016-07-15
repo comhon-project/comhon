@@ -11,9 +11,9 @@ use \stdClass;
 
 abstract class Model {
 
-	const MERGE     = 'merge';
-	const OVERWRITE = 'overwrite';
-	const NO_MERGE  = 'no_merge';
+	const MERGE     = 0;
+	const OVERWRITE = 1;
+	const NO_MERGE  = 2;
 	
 	protected static $sInstanceObjectHash = array();
 
@@ -125,14 +125,6 @@ abstract class Model {
 	}
 	
 	public function hasProperty($pPropertyName) {
-		if (is_null($this->mProperties)) {
-			trigger_error($this->mModelName);
-			trigger_error(var_export($this->isLoaded(), true));
-			$lNodes = debug_backtrace();
-			for ($i = 0; $i < count($lNodes); $i++) {
-				trigger_error("$i. ".basename($lNodes[$i]['file']) ." : " .$lNodes[$i]['function'] ."(" .$lNodes[$i]['line'].")");
-			}
-		}
 		return array_key_exists($pPropertyName, $this->mProperties);
 	}
 	
@@ -220,7 +212,7 @@ abstract class Model {
 	 * @param LocalObjectCollection $pLocalObjectCollection
 	 * @return LocalObjectCollection
 	 */
-	private function _getLocalObjectCollection($pObject, $pLocalObjectCollection) {
+	protected function _getLocalObjectCollection($pObject, $pLocalObjectCollection) {
 		return $pLocalObjectCollection;
 	}
 	
@@ -336,7 +328,7 @@ abstract class Model {
 			$lPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
 			if (!$lProperty->isComposition() && isset($pPhpObject->$lPropertyName)) {
 				$lValue = $pPhpObject->$lPropertyName;
-				if (is_object($lValue)) {
+				if (is_object($lValue) || is_array($lValue)) {
 					$lValue = json_encode($lValue);
 				}
 				$lMapOfString[$lPropertyName] = $lValue;
@@ -461,8 +453,8 @@ abstract class Model {
 		return $this->_fromId($lId, $pLocalObjectCollection);
 	}
 	
-	protected function fromSqlColumnId($pValue) {
-		return $this->_fromId($pValue);
+	protected function _fromSqlColumnId($pValue, $pLocalObjectCollection) {
+		return $this->_fromId($pValue, $pLocalObjectCollection);
 	}
 	
 	protected function _fromId($pId, $pLocalObjectCollection = null) {
@@ -473,23 +465,27 @@ abstract class Model {
 		if (is_null($pId)) {
 			return null;
 		}
+
 		return $this->_getOrCreateObjectInstance($pId, $pLocalObjectCollection, false, false);
 	}
 	
 	protected function _buildObjectFromId($pId, $pIsloaded) {
-		$lObject = $this->getObjectInstance($pIsloaded);
+		return $this->_fillObjectwithId($this->getObjectInstance($pIsloaded), $pId);
+	}
+	
+	protected function _fillObjectwithId($pObject, $pId) {
 		if (!is_null($pId)) {
 			$lIdProperties = $this->getIdProperties();
 			if (count($lIdProperties) == 1) {
-				$lObject->setValue($lIdProperties[0], $pId);
+				$pObject->setValue($lIdProperties[0], $pId);
 			} else {
 				$lIdValues = $this->_decodeId($pId);
 				foreach ($this->getIdProperties() as $lIndex => $lPropertyName) {
-					$lObject->setValue($lPropertyName, $lIdValues[$lIndex]);
+					$pObject->setValue($lPropertyName, $lIdValues[$lIndex]);
 				}
 			}
 		}
-		return $lObject;
+		return $pObject;
 	}
 	
 	public function getIdFromPhpObject($pPhpObject) {

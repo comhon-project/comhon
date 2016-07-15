@@ -38,6 +38,10 @@ class Object {
 		return $this->getProperty($pPropertyName, true)->getModel()->getObjectInstance($pIsLoaded);
 	}
 	
+	public function resetValues() {
+		$this->mValues = array();
+	}
+	
 	public function getValues() {
 		return $this->mValues;
 	}
@@ -52,6 +56,10 @@ class Object {
 	
 	public function setLoadStatus() {
 		$this->mIsLoaded = true;
+	}
+	
+	public function setUnLoadStatus() {
+		$this->mIsLoaded = false;
 	}
 	
 	public function loadValue($pName) {

@@ -48,20 +48,20 @@ class LocalModel extends Model {
 				$lObject = $this->_buildObjectFromId($pId, $pIsloaded);
 				if (!is_null($pId)) {
 					$pLocalObjectCollection->addObject($lObject);
-					trigger_error("add local $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
+					//trigger_error("add local $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
 				}
 				else {
-					trigger_error("new local without add $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
+					//trigger_error("new local without add $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
 				}
 			} else {
-				trigger_error("local already added $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
+				//trigger_error("local already added $pId, $this->mModelName, {$this->mMainModel->getModelName()}");
 				if ($pUpdateLoadStatus) {
-					trigger_error("update local status ".var_export($lObject->isLoaded(), true));
+					//trigger_error("update local status ".var_export($lObject->isLoaded(), true));
 					$lObject->setLoadStatus();
 				}
 			}
 		}
-		return array($lObject, $pLocalObjectCollection);
+		return $lObject;
 	}
 	
 }

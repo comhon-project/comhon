@@ -3,6 +3,7 @@ namespace objectManagerLib\object\object;
 
 use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\object\model\MainModel;
+use objectManagerLib\object\model\Model;
 
 class ObjectArray extends Object {
 
@@ -26,10 +27,6 @@ class ObjectArray extends Object {
 		$this->mValues = $pValue;
 	}
 	
-	public function resetValues() {
-		$this->mValues = array();
-	}
-	
 	public function setValue($pKey, $pValue) {
 		$this->mValues[$pKey] = $pValue;
 	}
@@ -38,52 +35,52 @@ class ObjectArray extends Object {
 		$this->mValues[] = $pValue;
 	}
 	
-	public function fromObject($pArray, $pUpdateLoadStatus = true) {
+	public function fromObject($pArray, $pMergeType = Model::MERGE, $pUpdateLoadStatus = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		$this->resetValues();
 		foreach ($pArray as $lKey => $lPhpValue) {
-			$this->setValue($lKey, $this->mModel->getModel()->fromObject($lPhpValue));
+			$this->setValue($lKey, $this->mModel->getModel()->fromObject($lPhpValue, $pMergeType));
 		}
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();
 		}
 	}
 	
-	public function fromXml($pXml, $pUpdateLoadStatus = true) {
+	public function fromXml($pXml, $pMergeType = Model::MERGE, $pUpdateLoadStatus = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		$this->resetValues();
 		foreach ($pXml->children() as $lChild) {
-			$this->pushValue($this->mModel->getModel()->fromXml($lChild));
+			$this->pushValue($this->mModel->getModel()->fromXml($lChild, $pMergeType));
 		}
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();
 		}
 	}
 	
-	public function fromSqlDataBase($pRows, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
+	public function fromSqlDataBase($pRows, $pMergeType = Model::MERGE, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		$this->resetValues();
 		foreach ($pRows as $lRow) {
-			$this->pushValue($this->mModel->getModel()->fromSqlDataBase($lRow, $pAddUnloadValues));
+			$this->pushValue($this->mModel->getModel()->fromSqlDataBase($lRow, $pMergeType, $pAddUnloadValues));
 		}
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();
 		}
 	}
 	
-	public function fromSqlDataBaseId($pRows, $pUpdateLoadStatus = true) {
+	public function fromSqlDataBaseId($pRows, $pMergeType = Model::MERGE, $pUpdateLoadStatus = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		$this->resetValues();
 		foreach ($pRows as $lRow) {
-			$this->pushValue($this->mModel->getModel()->fromSqlDataBaseId($lRow));
+			$this->pushValue($this->mModel->getModel()->fromSqlDataBaseId($lRow, $pMergeType));
 		}
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();

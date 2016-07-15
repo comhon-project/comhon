@@ -2,41 +2,10 @@
 namespace objectManagerLib\object;
 
 use objectManagerLib\object\object\Object;
-use objectManagerLib\object\object\ObjectArray;
-use objectManagerLib\object\object\SerializationUnit;
-use objectManagerLib\object\model\Property;
-use objectManagerLib\object\model\ForeignProperty;
-use objectManagerLib\exception\PropertyException;
 use objectManagerLib\object\model\Model;
-use objectManagerLib\object\model\MainModel;
 use objectManagerLib\object\model\LocalModel;
-use objectManagerLib\object\model\ModelContainer;
 
-class LocalObjectCollection {
-	
-	private $mMap = array();
-	
-	/**
-	 * get Object with MainModel if exists
-	 * @param string|integer $pId
-	 * @param string $pMainModelName
-	 * @return Object|null
-	 */
-	public function getObject($pId, $pModelName) {
-		return array_key_exists($pModelName, $this->mMap) && array_key_exists($pId, $this->mMap[$pModelName]) 
-				? $this->mMap[$pModelName][$pId]
-				: null;
-	}
-	
-	/**
-	 * verify if Object with specified MainModel and id exists in ObjectCollection
-	 * @param string|integer $pId
-	 * @param string $pMainModelName
-	 * @return boolean true if exists
-	 */
-	public function hasObject($pId, $pModelName) {
-		return array_key_exists($pModelName, $this->mMap) && array_key_exists($pId, $this->mMap[$pModelName]);
-	}
+class LocalObjectCollection extends ObjectCollection {
 	
 	/**
 	 * add object with localModel (only if not already added)
@@ -68,18 +37,4 @@ class LocalObjectCollection {
 		return $lReturn;
 	}
 	
-	public function toObject() {
-		$lArray = array();
-		foreach ($this->mMap as $lModelName => $lObjectById) {
-			$lArray[$lModelName] = array();
-			foreach ($lObjectById as $lId => $lObject) {
-				$lArray[$lModelName][$lId] = $lObject->toObject();
-			}
-		}
-		return $lArray;
-	}
-	
-	public function toString() {
-		return json_encode($this->toObject());
-	}
 }
