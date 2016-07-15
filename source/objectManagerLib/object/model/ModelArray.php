@@ -174,8 +174,8 @@ class ModelArray extends ModelContainer {
 		return $lValue;
 	}
 
-	protected function fromSqlColumnId($pValue) {
-		return $this->_fromObjectId(json_decode($pValue));
+	protected function _fromSqlColumnId($pValue, $pLocalObjectCollection) {
+		return $this->_fromObjectId(json_decode($pValue), $pLocalObjectCollection);
 	}
 	
 	/*

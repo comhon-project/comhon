@@ -5,8 +5,10 @@ use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\object\SqlTable;
 use objectManagerLib\object\object\Object;
 use objectManagerLib\object\object\ObjectArray;
-use objectManagerLib\object\ObjectCollection;
+use objectManagerLib\object\MainObjectCollection;
+use objectManagerLib\object\LocalObjectCollection;
 use objectManagerLib\exception\PropertyException;
+use objectManagerLib\visitor\ObjectCollectionCreator;
 use \stdClass;
 
 class MainModel extends Model {
@@ -45,31 +47,102 @@ class MainModel extends Model {
 		return !is_null($this->mSerialization) && ($this->mSerialization->getModel()->getModelName() == $pSerializationType);
 	}
 	
-	public function fromObject($pPhpObject) {
+	public function fromObject($pPhpObject, $pMergeType = self::MERGE) {
 		$this->load();
-		return $this->_fromObject($pPhpObject, null /** no need to pass id */);
+		
+		switch ($pMergeType) {
+			case self::MERGE:
+				$lObject = $this->_fromObject($pPhpObject, null);
+				break;
+			case self::OVERWRITE:
+				$lObject = $this->_getOrCreateObjectInstance($this->getIdFromPhpObject($pPhpObject), null);
+				$lObject->resetValues();
+				$this->_fillObjectFromPhpObject($lObject, $pPhpObject, new LocalObjectCollection());
+				break;
+			case self::NO_MERGE:
+				$lObject = $this->getObjectInstance();
+				$this->_fillObjectFromPhpObject($lObject, $pPhpObject, new LocalObjectCollection());
+				break;
+			default:
+				throw new \Exception('undefined merge type '.$pMergeType);
+		}
+		return $lObject;
 	}
 	
-	public function fromXml($pXml) {
+	public function fromXml($pXml, $pMergeType = self::MERGE) {
 		$this->load();
-		return $this->_fromXml($pXml, null /** no need to pass id */);
+		
+		switch ($pMergeType) {
+			case self::MERGE:
+				$lObject = $this->_fromXml($pXml, null);
+				break;
+			case self::OVERWRITE:
+				$lObject = $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml), null);
+				$lObject->resetValues();
+				$this->_fillObjectFromXml($lObject, $pXml, new LocalObjectCollection());
+				break;
+			case self::NO_MERGE:
+				$lObject = $this->getObjectInstance();
+				$this->_fillObjectFromXml($lObject, $pXml, new LocalObjectCollection());
+				break;
+			default:
+				throw new \Exception('undefined merge type '.$pMergeType);
+		}
+		return $lObject;
 	}
 	
-	public function fromSqlDataBase($pRow, $pAddUnloadValues = true) {
+	public function fromSqlDataBase($pRow, $pMergeType = self::MERGE, $pAddUnloadValues = true) {
 		$this->load();
-		return $this->_fromSqlDataBase($pRow, null /** no need to pass id */, $pAddUnloadValues);
+		
+		switch ($pMergeType) {
+			case self::MERGE:
+				$lObject = $this->_fromSqlDataBase($pRow, null);
+				break;
+			case self::OVERWRITE:
+				$lObject = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), null);
+				$lObject->resetValues();
+				$this->_fillObjectFromSqlDatabase($lObject, $pRow, new LocalObjectCollection());
+				break;
+			case self::NO_MERGE:
+				$lObject = $this->getObjectInstance();
+				$this->_fillObjectFromSqlDatabase($lObject, $pRow, new LocalObjectCollection());
+				break;
+			default:
+				throw new \Exception('undefined merge type '.$pMergeType);
+		}
+		return $lObject;
 	}
 	
-	public function fromSqlDataBaseId($pRow) {
+	public function fromSqlDataBaseId($pRow, $pMergeType = self::MERGE) {
 		$this->load();
-		list($lObject, $lLocalObjectCollection) = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), null, false, false);
+		$lId = $this->getIdFromSqlDatabase($pRow);
+		
+		switch ($pMergeType) {
+			case self::MERGE:
+				$lObject = $this->_getOrCreateObjectInstance($lId, null, false, false);
+				break;
+			case self::OVERWRITE:
+				$lAlreadyExists = !is_null(MainObjectCollection::getInstance()->getObject($lId, $this->mModelName));
+				$lObject = $this->_getOrCreateObjectInstance($lId, null, false, false);
+				if ($lAlreadyExists) {
+					$lObject->resetValues();
+					$this->_fillObjectwithId($lObject, $lId);
+					$lObject->setUnLoadStatus();
+				}
+				break;
+			case self::NO_MERGE:
+				$lObject = $this->_buildObjectFromId($lId, false);
+				break;
+			default:
+				throw new \Exception('undefined merge type '.$pMergeType);
+		}
 		return $lObject;
 	}
 	
 	public function fillObjectFromPhpObject($pObject, $pPhpObject, $pUpdateLoadStatus = true) {
 		$this->load();
-		$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($pObject, false);
-		$this->_fillObjectFromPhpObject($pObject, $pPhpObject, $lLocalObjectCollection);
+		MainObjectCollection::getInstance()->addObject($pObject, false);
+		$this->_fillObjectFromPhpObject($pObject, $pPhpObject, $this->_loadLocalObjectCollection($pObject));
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
@@ -77,8 +150,8 @@ class MainModel extends Model {
 	
 	public function fillObjectFromXml($pObject, $pXml, $pUpdateLoadStatus = true) {
 		$this->load();
-		$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($pObject, false);
-		$this->_fillObjectFromXml($pObject, $pXml, $lLocalObjectCollection);
+		MainObjectCollection::getInstance()->addObject($pObject, false);
+		$this->_fillObjectFromXml($pObject, $pXml, $this->_loadLocalObjectCollection($pObject));
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
@@ -86,8 +159,8 @@ class MainModel extends Model {
 	
 	public function fillObjectFromSqlDatabase($pObject, $pRow, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
 		$this->load();
-		$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($pObject, false);
-		$this->_fillObjectFromSqlDatabase($pObject, $pRow, $lLocalObjectCollection, $pAddUnloadValues);
+		MainObjectCollection::getInstance()->addObject($pObject, false);
+		$this->_fillObjectFromSqlDatabase($pObject, $pRow, $this->_loadLocalObjectCollection($pObject), $pAddUnloadValues);
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
@@ -122,7 +195,7 @@ class MainModel extends Model {
 		if (!$this->hasIdProperty()) {
 			throw new \Exception("model must have at least one id property");
 		}
-		$lMainObject = ObjectCollection::getInstance()->getMainObject($pId, $this->mModelName);
+		$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
 		
 		if (is_null($lMainObject)) {
 			$lMainObject = $this->_buildObjectFromId($pId, false);
@@ -163,26 +236,46 @@ class MainModel extends Model {
 	protected function _getOrCreateObjectInstance($pId, $pLocalObjectCollection = null, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		if (!$this->hasIdProperty()) {
 			$lMainObject = $this->getObjectInstance($pIsloaded);
-			$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($lMainObject);
+			MainObjectCollection::getInstance()->addObject($lMainObject);
 			//trigger_error("new main without id $pId, $this->mModelName");
 		}
 		else {
-			$lMainObject = ObjectCollection::getInstance()->getMainObject($pId, $this->mModelName);
+			$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
 			if (is_null($lMainObject)) {
 				$lMainObject = $this->_buildObjectFromId($pId, $pIsloaded);
-				$lLocalObjectCollection = ObjectCollection::getInstance()->addMainObject($lMainObject);
+				MainObjectCollection::getInstance()->addObject($lMainObject);
 				//trigger_error("new main $pId, $this->mModelName");
 			}
-			else {
+			else if ($pUpdateLoadStatus) {
 				//trigger_error("main already added $pId, $this->mModelName");
-				if ($pUpdateLoadStatus) {
-					//trigger_error("update main status ".var_export($lMainObject->isLoaded(), true));
-					$lMainObject->setLoadStatus();
-				}
-				$lLocalObjectCollection = ObjectCollection::getInstance()->getLocalObjectCollection($pId, $this->mModelName, true);
+				//trigger_error("update main status ".var_export($lMainObject->isLoaded(), true));
+				$lMainObject->setLoadStatus();
+			}
+			else {
+				//trigger_error("main already added $pId, $this->mModelName doesn't update");
 			}
 		}
-		return array($lMainObject, $lLocalObjectCollection);
+		return $lMainObject;
+	}
+	
+	/**
+	 *
+	 * @param Object $pObject
+	 * @param LocalObjectCollection $pLocalObjectCollection
+	 * @return LocalObjectCollection
+	 */
+	protected function _getLocalObjectCollection($pObject, $pLocalObjectCollection) {
+		return $this->_loadLocalObjectCollection($pObject);
+	}
+	
+	/**
+	 * 
+	 * @param Object $pObject
+	 * @return LocalObjectCollection
+	 */
+	private function _loadLocalObjectCollection($pObject) {
+		$lObjectCollectionCreator = new ObjectCollectionCreator();
+		return $lObjectCollectionCreator->execute($pObject);
 	}
 	
 }

@@ -4,6 +4,7 @@
 		<type id="objectContainer">
 			<properties>
 				<foreignProperty type="object">foreignObjectValue</foreignProperty>
+				<property type="objectTwo">objectValueTwo</property>
 				<property type="person">person</property>
 			</properties>
 		</type>
@@ -12,6 +13,13 @@
 				<property type="string" id="1">id</property>
 				<property type="string">propertyOne</property>
 				<property type="string">propertyTwo</property>
+			</properties>
+		</type>
+		<type id="objectTwo">
+			<properties>
+				<property type="string" id="1">id</property>
+				<property type="string">propertyTwoOne</property>
+				<property type="string">propertyTwoTwo</property>
 			</properties>
 		</type>
 	</types>

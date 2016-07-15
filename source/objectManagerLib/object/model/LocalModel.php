@@ -61,7 +61,7 @@ class LocalModel extends Model {
 				}
 			}
 		}
-		return array($lObject, $pLocalObjectCollection);
+		return $lObject;
 	}
 	
 }

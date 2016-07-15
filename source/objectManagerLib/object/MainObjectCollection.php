@@ -3,40 +3,33 @@ namespace objectManagerLib\object;
 
 use objectManagerLib\object\object\Object;
 use objectManagerLib\object\model\Model;
+use objectManagerLib\object\model\MainModel;
 
-class ObjectCollection {
+class MainObjectCollection extends ObjectCollection {
 	
-	protected $mMap = array();
+	private  static $_instance;
 	
-	/**
-	 * get Object with Model if exists
-	 * @param string|integer $pId
-	 * @param string $pModelName
-	 * @return Object|null
-	 */
-	public function getObject($pId, $pModelName) {
-		return array_key_exists($pModelName, $this->mMap) && array_key_exists($pId, $this->mMap[$pModelName]) 
-				? $this->mMap[$pModelName][$pId]
-				: null;
+	public static function getInstance() {
+		if (!isset(self::$_instance)) {
+			self::$_instance = new self();
+		}
+	
+		return self::$_instance;
 	}
 	
-	/**
-	 * verify if Object with specified Model and id exists in ObjectCollection
-	 * @param string|integer $pId
-	 * @param string $pModelName
-	 * @return boolean true if exists
-	 */
-	public function hasObject($pId, $pModelName) {
-		return array_key_exists($pModelName, $this->mMap) && array_key_exists($pId, $this->mMap[$pModelName]);
-	}
+	private function __construct() {}
+	
 	
 	/**
-	 * add object with Model (if not already added)
+	 * add object with mainModel (if not already added)
 	 * @param Object $pObject
 	 * @param boolean $pThrowException throw exception if object can't be added (no complete id or object already added)
 	 * @throws \Exception
 	 */
 	public function addObject(Object $pObject, $pThrowException = true) {
+		if (!($pObject->getModel() instanceof MainModel)) {
+			throw new \Exception('mdodel must be instance of MainModel');
+		}
 		
 		if ($pObject->hasCompleteId()) {
 			if ($pObject->getModel()->hasIdProperty()) {
@@ -64,18 +57,4 @@ class ObjectCollection {
 		}
 	}
 	
-	public function toObject() {
-		$lArray = array();
-		foreach ($this->mMap as $lModelName => $lObjectById) {
-			$lArray[$lModelName] = array();
-			foreach ($lObjectById as $lId => $lObject) {
-				$lArray[$lModelName][$lId] = $lObject->toObject();
-			}
-		}
-		return $lArray;
-	}
-	
-	public function toString() {
-		return json_encode($this->toObject());
-	}
 }

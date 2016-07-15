@@ -59,7 +59,7 @@ class ModelForeign extends ModelContainer {
 	}
 	
 	protected function _fromSqlColumn($pValue, $pLocalObjectCollection) {
-		return $this->getModel()->fromSqlColumnId($pValue, $pLocalObjectCollection);
+		return $this->getModel()->_fromSqlColumnId($pValue, $pLocalObjectCollection);
 	}
 	
 }

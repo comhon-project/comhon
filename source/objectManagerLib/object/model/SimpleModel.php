@@ -14,6 +14,14 @@ abstract class SimpleModel extends Model {
 		$this->_init();
 	}
 	
+	public function getObjectClass() {
+		throw new \Exception('simple models don\'t have associated class');
+	}
+	
+	public function getObjectInstance($pIsloaded = true) {
+		throw new \Exception('simple models don\'t have associated class');
+	}
+	
 	public function toObject($pValue, $pUseSerializationName = false, &$pMainForeignObjects = null) {
 		return $pValue;
 	}
