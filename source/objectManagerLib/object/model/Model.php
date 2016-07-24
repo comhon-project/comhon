@@ -22,9 +22,13 @@ abstract class Model {
 	protected $mIsLoading    = false;
 	
 	private $mProperties;
-	private $mObjectClass    = "objectManagerLib\object\object\Object";
-	private $mIds            = array();
+	private $mObjectClass     = "objectManagerLib\object\object\Object";
+	private $mIds             = array();
+	private $mEscapedDbColumn = array();
 	
+	private static $sDbColumnToEscape = [
+	'integer' => null
+	];
 	
 	/**
 	 * don't instanciate a model by yourself because it take time
@@ -54,6 +58,12 @@ abstract class Model {
 			$this->_init();
 			$this->mIsLoaded  = true;
 			$this->mIsLoading = false;
+			
+			foreach ($this->mProperties as $lPropertyName => $lProperty) {
+				if (array_key_exists($lProperty->getSerializationName(), self::$sDbColumnToEscape)) {
+					$this->mEscapedDbColumn[$lProperty->getSerializationName()] = '`'.$lProperty->getSerializationName().'`';
+				}
+			}
 		}
 	}
 	
@@ -99,6 +109,13 @@ abstract class Model {
 		return array_keys($this->mProperties);
 	}
 	
+	/**
+	 * 
+	 * @param string $pPropertyName
+	 * @param string $pThrowException
+	 * @throws PropertyException
+	 * @return Property
+	 */
 	public function getProperty($pPropertyName, $pThrowException = false) {
 		if ($this->hasProperty($pPropertyName)) {
 			return $this->mProperties[$pPropertyName];
@@ -169,8 +186,15 @@ abstract class Model {
 		return $this->mIsLoaded;
 	}
 	
+	/**
+	 * @return null
+	 */
 	public function getSerialization() {
 		return null;
+	}
+	
+	public function getEscapedDbColumns() {
+		return $this->mEscapedDbColumn;
 	}
 	
 	/*
@@ -225,7 +249,11 @@ abstract class Model {
 	 * but you can export them by spsifying an array in third parameter
 	 * @return NULL|\stdClass
 	 */
-	public function toObject($pObject, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	public function toObject($pObject, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->_toObject($pObject, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
+	}
+		
+	protected function _toObject($pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		$lReturn = new stdClass();
 		if (is_null($pObject)) {
 			return null;
@@ -233,7 +261,7 @@ abstract class Model {
 		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
 				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getModelName()}' can't be exported");
-				return $this->toObjectId($pObject, $pUseSerializationName);
+				return $this->_toObjectId($pObject, $pUseSerializationName, $pDateTimeZone);
 			}
 		} else {
 			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
@@ -243,25 +271,33 @@ abstract class Model {
 			if ($this->hasProperty($lKey)) {
 				$lProperty =  $this->getProperty($lKey);
 				$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
-				$lReturn->$lName = $lProperty->getModel()->toObject($lValue, $pUseSerializationName, $pMainForeignObjects);
+				$lReturn->$lName = $lProperty->getModel()->_toObject($lValue, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 			}
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
 		return $lReturn;
 	}
 	
-	public function toObjectId($pObject, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	public function toObjectId($pObject, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->_toObjectId($pObject, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
+	}
+		
+	protected function _toObjectId($pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		return $this->toId($pObject, $pUseSerializationName);
 	}
 	
-	public function toXml($pObject, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	public function toXml($pObject, $pXmlNode, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->_toXml($pObject, $pXmlNode, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
+	}
+		
+	protected function _toXml($pObject, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if (is_null($pObject)) {
 			return;
 		}
 		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
 				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getModelName()}' can't be exported");
-				$this->toXmlId($pObject, $pXmlNode, $pUseSerializationName);
+				$this->_toXmlId($pObject, $pXmlNode, $pUseSerializationName, $pDateTimeZone);
 				return;
 			}
 		} else {
@@ -273,17 +309,21 @@ abstract class Model {
 				$lProperty =  $this->getProperty($lKey);
 				$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
 				if (($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum)){
-					$pXmlNode[$lName] = $lProperty->getModel()->toXml($lValue, $pXmlNode, $pUseSerializationName, $pMainForeignObjects);
+					$pXmlNode[$lName] = $lProperty->getModel()->_toXml($lValue, $pXmlNode, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 				} else {
 					$pXmlChildNode = $pXmlNode->addChild($lName);
-					$lProperty->getModel()->toXml($lValue, $pXmlChildNode, $pUseSerializationName, $pMainForeignObjects);
+					$lProperty->getModel()->_toXml($lValue, $pXmlChildNode, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 				}
 			}
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
 	}
 	
-	public function toXmlId($pObject, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	public function toXmlId($pObject, $pXmlNode, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->_toXmlId($pObject, $pXmlNode, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
+	}
+		
+	protected function _toXmlId($pObject, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		$lDomNode  = dom_import_simplexml($pXmlNode);
 		$lId       = $this->toId($pObject, $pUseSerializationName);
 		$lTextNode = new \DOMText($lId);
@@ -291,17 +331,12 @@ abstract class Model {
 		return $lId;
 	}
 	
-	public function toSqlDataBase($pObject, $pUseSerializationName = true, &$pMainForeignObjects = null) {
-		$lMapOfString      = array();
-		$lDatabaseTimezone = Config::getInstance()->getValue('database')->getValue('timezone');
-		$lDefaultTimeZone  = false;
+	public function toSqlDataBase($pObject, $pUseSerializationName = true, $pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->_toSqlDataBase($pObject, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
+	}
 		
-		if (date_default_timezone_get() != $lDatabaseTimezone) {
-			$lDefaultTimeZone = date_default_timezone_get();
-			date_default_timezone_set($lDatabaseTimezone);
-		}
-		
-		$lPhpObject = $this->toObject($pObject, $pUseSerializationName, $pMainForeignObjects);
+	protected function _toSqlDataBase($pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		$lPhpObject   = $this->_toObject($pObject, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 		$lMapOfString = $this->objectToSqlArrayString($lPhpObject, $this, $pUseSerializationName);
 		
 		if (is_array($pMainForeignObjects)) {
@@ -312,15 +347,14 @@ abstract class Model {
 				}
 			}
 		}
-		if ($lDefaultTimeZone) {
-			date_default_timezone_set($lDefaultTimeZone);
-		}
 		return $lMapOfString;
 	}
 	
 	/**
 	 * transform an stdClass to an array which each stdclass or array values are transformed to string
 	 * @param \stdClass $pObject
+	 * @param Model $pModel
+	 * @param boolean $pUseSerializationName
 	 */
 	public function objectToSqlArrayString($pPhpObject, $pModel, $pUseSerializationName) {
 		$lMapOfString = array();
@@ -346,68 +380,68 @@ abstract class Model {
 		}
 	}
 	
-	public function fillObjectFromPhpObject($pObject, $pPhpObject) {
+	public function fillObjectFromPhpObject($pObject, $pPhpObject, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel');
 	}
 	
-	public function fillObjectFromXml($pObject, $pXml) {
+	public function fillObjectFromXml($pObject, $pXml, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel');
 	}
 	
-	public function fillObjectFromSqlDatabase($pObject, $pRow, $pAddUnloadValues = true) {
+	public function fillObjectFromSqlDatabase($pObject, $pRow, $pTimeZone = null, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel');
 	}
 	
-	protected function _fromObject($pPhpObject, $pLocalObjectCollection) {
+	protected function _fromObject($pPhpObject, $pDateTimeZone, $pLocalObjectCollection) {
 		if (is_null($pPhpObject)) {
 			return null;
 		}
 		$lObject = $this->_getOrCreateObjectInstance($this->getIdFromPhpObject($pPhpObject), $pLocalObjectCollection);
-		$this->_fillObjectFromPhpObject($lObject, $pPhpObject, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection));
+		$this->_fillObjectFromPhpObject($lObject, $pPhpObject, $pDateTimeZone, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection));
 		return $lObject;
 	}
 	
-	protected function _fillObjectFromPhpObject($pObject, $pPhpObject, $pLocalObjectCollection) {
+	protected function _fillObjectFromPhpObject($pObject, $pPhpObject, $pDateTimeZone, $pLocalObjectCollection) {
 		if (is_null($pPhpObject)) {
 			return null;
 		}
 		foreach ($pPhpObject as $lKey => $lPhpValue) {
 			if ($this->hasProperty($lKey)) {
-				$pObject->setValue($lKey, $this->getPropertyModel($lKey)->_fromObject($lPhpValue, $pLocalObjectCollection));
+				$pObject->setValue($lKey, $this->getPropertyModel($lKey)->_fromObject($lPhpValue, $pDateTimeZone, $pLocalObjectCollection));
 			}
 		}
 	}
 	
-	protected function _fromXml($pXml, $pLocalObjectCollection) {
+	protected function _fromXml($pXml, $pDateTimeZone, $pLocalObjectCollection) {
 		$lObject = $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml), $pLocalObjectCollection);
-		return $this->_fillObjectFromXml($lObject, $pXml, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection)) ? $lObject : null;
+		return $this->_fillObjectFromXml($lObject, $pXml, $pDateTimeZone, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection)) ? $lObject : null;
 	}
 	
-	protected function _fillObjectFromXml($pObject, $pXml, $pLocalObjectCollection) {
+	protected function _fillObjectFromXml($pObject, $pXml, $pDateTimeZone, $pLocalObjectCollection) {
 		$lHasValue = false;
 		foreach ($pXml->attributes() as $lKey => $lValue) {
 			if ($this->hasProperty($lKey)) {
-				$pObject->setValue($lKey,  $this->getPropertyModel($lKey)->_fromXml($lValue, $pLocalObjectCollection));
+				$pObject->setValue($lKey,  $this->getPropertyModel($lKey)->_fromXml($lValue, $pDateTimeZone, $pLocalObjectCollection));
 				$lHasValue = true;
 			}
 		}
 		foreach ($pXml->children() as $lChild) {
 			$lPropertyName = $lChild->getName();
 			if ($this->hasProperty($lPropertyName)) {
-				$pObject->setValue($lPropertyName, $this->getPropertyModel($lPropertyName)->_fromXml($lChild, $pLocalObjectCollection));
+				$pObject->setValue($lPropertyName, $this->getPropertyModel($lPropertyName)->_fromXml($lChild, $pDateTimeZone, $pLocalObjectCollection));
 				$lHasValue = true;
 			}
 		}
 		return $lHasValue;
 	}
 	
-	protected function _fromSqlDataBase($pRow, $pLocalObjectCollection, $pAddUnloadValues = true) {
+	protected function _fromSqlDataBase($pRow, $pDateTimeZone, $pLocalObjectCollection, $pAddUnloadValues = true) {
 		$lObject = $this->_getOrCreateObjectInstance($this->getIdFromSqlDatabase($pRow), $pLocalObjectCollection);
-		$this->_fillObjectFromSqlDatabase($lObject, $pRow, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection), $pAddUnloadValues);
+		$this->_fillObjectFromSqlDatabase($lObject, $pRow, $pDateTimeZone, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection), $pAddUnloadValues);
 		return $lObject;
 	}
 	
-	public function _fillObjectFromSqlDatabase($pObject, $pRow, $pLocalObjectCollection, $pAddUnloadValues = true) {
+	public function _fillObjectFromSqlDatabase($pObject, $pRow, $pDateTimeZone, $pLocalObjectCollection, $pAddUnloadValues = true) {
 		$lDatabaseTimezone = Config::getInstance()->getValue('database')->getValue('timezone');
 		$lDefaultTimeZone  = false;
 		
@@ -421,7 +455,7 @@ abstract class Model {
 				if (is_null($pRow[$lProperty->getSerializationName()])) {
 					continue;
 				}
-				$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromSqlColumn($pRow[$lProperty->getSerializationName()], $pLocalObjectCollection));
+				$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromSqlColumn($pRow[$lProperty->getSerializationName()], $pDateTimeZone, $pLocalObjectCollection));
 			}
 			else if ($pAddUnloadValues && ($lProperty instanceof ForeignProperty) && !is_null($lProperty->hasSqlTableUnit())) {
 				$pObject->initValue($lPropertyName, false);
@@ -433,12 +467,12 @@ abstract class Model {
 		}
 	}
 	
-	protected function _fromSqlColumn($pJsonEncodedObject, $pLocalObjectCollection) {
+	protected function _fromSqlColumn($pJsonEncodedObject, $pDateTimeZone, $pLocalObjectCollection) {
 		if (is_null($pJsonEncodedObject)) {
 			return null;
 		}
 		$lPhpObject = json_decode($pJsonEncodedObject);
-		return $this->_fromObject($lPhpObject, $pLocalObjectCollection);
+		return $this->_fromObject($lPhpObject, $pDateTimeZone, $pLocalObjectCollection);
 	}
 	
 	protected function _fromObjectId($pValue, $pLocalObjectCollection) {
@@ -528,8 +562,8 @@ abstract class Model {
 		}
 		$lIdValues = [];
 		foreach ($lIdProperties as $lIdProperty) {
-			if (isset($pRow[$lIdProperty])) {
-				$lProperty   = $this->getProperty($lIdProperty);
+			$lProperty = $this->getProperty($lIdProperty);
+			if (isset($pRow[$lProperty->getSerializationName()])) {
 				$lIdValues[] = $lProperty->getModel()->_fromSqlColumn($pRow[$lProperty->getSerializationName()]);
 			} else {
 				$lIdValues[] = null;

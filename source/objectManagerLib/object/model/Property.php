@@ -14,17 +14,20 @@ class Property {
 	public function __construct($pModel, $pName, $pSerializationName = null, $pIsId = false) {
 		$this->mModel = $pModel;
 		$this->mName = $pName;
-		$this->mSerializationName = $pSerializationName;
+		$this->mSerializationName = is_null($pSerializationName) ? $this->mName : $pSerializationName;
 		$this->mIsId = $pIsId;
 	}
 	
+	/**
+	 * @return Model
+	 */
 	public function getModel() {
 		$this->mModel->load();
 		return $this->mModel;
 	}
 	
 	public function getUniqueModel() {
-		$lUniqueModel = $this->mModel;
+		$lUniqueModel = $this->getModel();
 		while ($lUniqueModel instanceof ModelContainer) {
 			$lUniqueModel = $lUniqueModel->getModel();
 		}
@@ -37,7 +40,7 @@ class Property {
 	}
 	
 	public function getSerializationName() {
-		return is_null($this->mSerializationName) ? $this->mName : $this->mSerializationName;
+		return $this->mSerializationName;
 	}
 	
 	public function isId() {
@@ -45,7 +48,7 @@ class Property {
 	}
 	
 	public function save($pObject) {
-		return $this->mModel->toObject($pObject);
+		return $this->getModel()->toObject($pObject);
 	}
 	
 	public function getSerialization() {

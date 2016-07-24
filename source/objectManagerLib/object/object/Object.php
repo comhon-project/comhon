@@ -168,30 +168,42 @@ class Object {
 		return true;
 	}
 	
-	public function fromObject($pPhpObject, $pUpdateLoadStatus = true) {
-		$this->mModel->fillObjectFromPhpObject($this, $pPhpObject, $pUpdateLoadStatus);
+	public function fromObject($pPhpObject, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->mModel->fillObjectFromPhpObject($this, $pPhpObject, $pTimeZone, $pUpdateLoadStatus);
 	}
 	
-	public function toObject($pUseSerializationName = false, &$pMainForeignObjects = null) {
-		return $this->mModel->toObject($this, $pUseSerializationName, $pMainForeignObjects);
+	public function toObject($pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->mModel->toObject($this, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
 	}
 	
-	public function fromXml($pXml, $pUpdateLoadStatus = true) {
-		$this->mModel->fillObjectFromXml($this, $pXml, $pUpdateLoadStatus);
+	public function fromXml($pXml, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->mModel->fillObjectFromXml($this, $pXml, $pTimeZone, $pUpdateLoadStatus);
 	}
 	
-	public function toXml($pUseSerializationName = false, &$pMainForeignObjects = null) {
+	public function toXml($pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
 		$lXmlNode = new \SimpleXmlElement("<{$this->getModel()->getModelName()}/>");
-		$this->mModel->toXml($this, $lXmlNode, $pUseSerializationName, $pMainForeignObjects);
+		$this->mModel->toXml($this, $lXmlNode, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
 		return $lXmlNode;
 	}
 	
-	public function fromSqlDataBase($pRow, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
-		$this->mModel->fillObjectFromSqlDatabase($this, $pRow, $pUpdateLoadStatus, $pAddUnloadValues);
+	public function fromSqlDataBase($pRow, $pTimeZone = null, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
+		$this->mModel->fillObjectFromSqlDatabase($this, $pRow, $pTimeZone, $pUpdateLoadStatus, $pAddUnloadValues);
 	}
 	
-	public function toSqlDataBase($pUseSerializationName = true, &$pMainForeignObjects = null) {
-		return $this->mModel->toSqlDataBase($this, $pUseSerializationName, $pMainForeignObjects);
+	public function toSqlDataBase($pUseSerializationName = true, $pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->mModel->toSqlDataBase($this, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
+	}
+	
+	/**
+	 * 
+	 * @param string $pOperation specify it only if object serialization is sqlDatabase
+	 * @throws \Exception
+	 */
+	public function save($pOperation = null) {
+		if (is_null($this->getModel()->getSerialization())) {
+			throw new \Exception('model doesn\'t have serialization');
+		}
+		return $this->getModel()->getSerialization()->saveObject($this, $pOperation);
 	}
 	
 	/*

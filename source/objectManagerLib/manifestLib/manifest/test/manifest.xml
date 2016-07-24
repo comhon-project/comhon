@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
+
+	<manifests>
+		<manifest type="personLocal">person/manifest.xml</manifest>
+	</manifests>
+
 	<types>
 		<type id="objectContainer">
 			<properties>
 				<foreignProperty type="object">foreignObjectValue</foreignProperty>
 				<property type="objectTwo">objectValueTwo</property>
-				<property type="person">person</property>
+				<property type="personLocal">person</property>
 			</properties>
 		</type>
 		<type id="object">

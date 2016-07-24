@@ -15,5 +15,7 @@
 		<property type="dateTime">date</property>
 		<property type="dateTime">timestamp</property>
 		<property type="object">object</property>
+		<property type="string">string</property>
+		<property type="integer">integer</property>
 	</properties>
 </manifest>

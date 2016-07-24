@@ -22,29 +22,23 @@ abstract class SimpleModel extends Model {
 		throw new \Exception('simple models don\'t have associated class');
 	}
 	
-	public function toObject($pValue, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	protected function _toObject($pValue, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		return $pValue;
 	}
 	
-	/**
-	 * 
-	 * @param unknown $pValue
-	 * @param string $pLocalObjectCollection not used but is mandatory to stay compatible with parent function
-	 * @return unknown
-	 */
-	protected function _fromObject($pValue, $pLocalObjectCollection = null) {
+	protected function _fromObject($pValue, $pDateTimeZone = null, $pLocalObjectCollection = null) {
 		return $pValue;
 	}
 	
-	protected function _fromXml($pValue, $pLocalObjectCollection = null) {
+	protected function _fromXml($pValue, $pDateTimeZone = null, $pLocalObjectCollection = null) {
 		return (string) $pValue;
 	}
 	
-	public function toXml($pValue, $pXmlNode = null, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	protected function _toXml($pValue, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		return $pValue;
 	}
 	
-	protected function _fromSqlColumn($pValue, $pLocalObjectCollection = null) {
+	protected function _fromSqlColumn($pValue, $pDateTimeZone = null, $pLocalObjectCollection = null) {
 		return $pValue;
 	}
 	

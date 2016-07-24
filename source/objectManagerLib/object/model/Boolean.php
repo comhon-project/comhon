@@ -9,11 +9,11 @@ class Boolean extends SimpleModel {
 		$this->mModelName = self::ID;
 	}
 	
-	public function toXml($pValue, $pXmlNode = null, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	protected function _toXml($pValue, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		return $pValue ? 1 : 0;
 	}
 	
-	protected function _fromXml($pValue, $pLocalObjectCollection = null) {
+	protected function _fromXml($pValue, $pDateTimeZone = null, $pLocalObjectCollection = null) {
 		return ((integer) $pValue === 1) ? true : false;
 	}
 	

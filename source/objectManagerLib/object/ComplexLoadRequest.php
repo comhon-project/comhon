@@ -21,6 +21,7 @@ use objectManagerLib\controller\CompositionLoader;
 use objectManagerLib\dataStructure\Tree;
 use objectManagerLib\exception\PropertyException;
 use \Exception;
+use objectManagerLib\object\object\SqlTable;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	
@@ -436,10 +437,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	private function _buildObjectsWithRows($pRows) {
-		$lObjectArray = new ObjectArray(new ModelArray($this->mModel, $this->mModel->getModelName()));
-		foreach ($pRows as $lRow) {
-			$lObjectArray->pushValue($this->mModel->fromSqlDataBase($lRow));
-		}
+		$lModelArray = new ModelArray($this->mModel, $this->mModel->getModelName());
+		$lObjectArray = $lModelArray->fromSqlDataBase($pRows, Model::MERGE, SqlTable::getDatabaseConnectionTimeZone());
 		return $this->_updateObjects($lObjectArray);
 	}
 	

@@ -25,10 +25,12 @@ class ObjectService {
 		return $lReturn;
 	}
 	
-	private static function _setErrorReturn($pException) {
+	private static function _setErrorReturn(\Exception $pException) {
 		$lReturn = new \stdClass();
-		$lReturn->success = false;
-		$lReturn->error   = $pException->getMessage();
+		$lReturn->success        = false;
+		$lReturn->error          = new \stdClass();
+		$lReturn->error->message = $pException->getMessage();
+		$lReturn->error->trace   = $pException->getTrace();
 		return $lReturn;
 	}
 	

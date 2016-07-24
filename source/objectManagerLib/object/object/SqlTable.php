@@ -9,6 +9,7 @@ use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\model\ModelForeign;
 use objectManagerLib\object\model\ModelArray;
 use objectManagerLib\object\object\ObjectArray;
+use objectManagerLib\object\model\Model;
 
 class SqlTable extends SerializationUnit {
 
@@ -83,7 +84,14 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	private function _insertObject($pObject) {
-		$lMapOfString = $pObject->toSqlDataBase();
+		$lMapOfString = $pObject->toSqlDataBase(true, self::getDatabaseConnectionTimeZone());
+		
+		foreach ($pObject->getModel()->getEscapedDbColumns() as $lColumn => $lEscapedColumn) {
+			if (array_key_exists($lColumn, $lMapOfString)) {
+				$lMapOfString[$lEscapedColumn] = $lMapOfString[$lColumn];
+				unset($lMapOfString[$lColumn]);
+			}
+		}
 		$lQuery = "INSERT INTO ".$this->getValue("name")." (".implode(", ", array_keys($lMapOfString)).") VALUES (".implode(", ", array_fill(0, count($lMapOfString), '?')).");";
 		return self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeSimpleQuery($lQuery, array_values($lMapOfString));
 	}
@@ -97,15 +105,20 @@ class SqlTable extends SerializationUnit {
 		$lUpdates          = array();
 		$lUpdateValues     = array();
 		$lConditionsValues = array();
-		$lMapOfString      = $pObject->toSqlDataBase(false);
+
+		$lMapOfString      = $pObject->toSqlDataBase(false, self::getDatabaseConnectionTimeZone());
+		$lEscapedDbColumns = $pObject->getModel()->getEscapedDbColumns();
 		
 		foreach ($lMapOfString as $lPropertyName => $lValue) {
 			$lProperty = $lModel->getProperty($lPropertyName);
+			$lColumn   = array_key_exists($lProperty->getSerializationName(), $lEscapedDbColumns) 
+							? $lEscapedDbColumns[$lProperty->getSerializationName()]
+							: $lProperty->getSerializationName();
 			if ($lProperty->isId()) {
-				$lConditions[]       = "{$lProperty->getSerializationName()} = ?";
+				$lConditions[]       = "$lColumn = ?";
 				$lConditionsValues[] = $lValue;
 			} else {
-				$lUpdates[]      = "{$lProperty->getSerializationName()} = ?";
+				$lUpdates[]      = "$lColumn = ?";
 				$lUpdateValues[] = $lValue;
 			}
 		}
@@ -166,17 +179,17 @@ class SqlTable extends SerializationUnit {
 		foreach ($pSelectColumns as $lColumn) {
 			$lSelectQuery->addSelectColumn($lColumn);
 		}
-		$lResult = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeQuery($lSelectQuery);
-	
+		$lResult       = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeQuery($lSelectQuery);
 		$lIsModelArray = $pObject->getModel() instanceof ModelArray;
+		
 		if (is_array($lResult) && ($lIsModelArray || (count($lResult) == 1))) {
 			if (!$lIsModelArray) {
 				$lResult = $lResult[0];
 			}
 			if (empty($pSelectColumns)) {
-				$pObject->fromSqlDataBase($lResult);
+				$pObject->fromSqlDataBase($lResult, self::getDatabaseConnectionTimeZone());
 			} else {
-				$pObject->fromSqlDataBaseId($lResult);
+				$pObject->fromSqlDataBaseId($lResult, self::getDatabaseConnectionTimeZone());
 			}
 			$lSuccess = true;
 		}
@@ -191,4 +204,11 @@ class SqlTable extends SerializationUnit {
 		return $lColumns;
 	}
 	
+	public static function getDatabaseConnectionTimeZone() {
+		return is_object(Config::getInstance()->getValue('database'))
+				? (Config::getInstance()->getValue('database')->hasValue('timezone')
+					? Config::getInstance()->getValue('database')->getValue('timezone')
+					: 'UTC')
+				: 'UTC';
+	}
 }

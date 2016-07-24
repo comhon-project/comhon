@@ -35,46 +35,40 @@ class ObjectArray extends Object {
 		$this->mValues[] = $pValue;
 	}
 	
-	public function fromObject($pArray, $pMergeType = Model::MERGE, $pUpdateLoadStatus = true) {
+	public function fromObject($pArray, $pMergeType = Model::MERGE, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		$this->resetValues();
-		foreach ($pArray as $lKey => $lPhpValue) {
-			$this->setValue($lKey, $this->mModel->getModel()->fromObject($lPhpValue, $pMergeType));
-		}
+		$this->mModel->fromObject($lPhpValue, $pMergeType, $pTimeZone);
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();
 		}
 	}
 	
-	public function fromXml($pXml, $pMergeType = Model::MERGE, $pUpdateLoadStatus = true) {
+	public function fromXml($pXml, $pMergeType = Model::MERGE, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		$this->resetValues();
-		foreach ($pXml->children() as $lChild) {
-			$this->pushValue($this->mModel->getModel()->fromXml($lChild, $pMergeType));
-		}
+		$this->mModel->fromXml($lChild, $pMergeType, $pTimeZone);
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();
 		}
 	}
 	
-	public function fromSqlDataBase($pRows, $pMergeType = Model::MERGE, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
+	public function fromSqlDataBase($pRows, $pMergeType = Model::MERGE, $pTimeZone = null, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		$this->resetValues();
-		foreach ($pRows as $lRow) {
-			$this->pushValue($this->mModel->getModel()->fromSqlDataBase($lRow, $pMergeType, $pAddUnloadValues));
-		}
+		$this->mModel->fromSqlDataBase($lRow, $pMergeType, $pTimeZone, $pAddUnloadValues);
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();
 		}
 	}
 	
-	public function fromSqlDataBaseId($pRows, $pMergeType = Model::MERGE, $pUpdateLoadStatus = true) {
+	public function fromSqlDataBaseId($pRows, $pMergeType = Model::MERGE, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		if (!($this->mModel->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
@@ -87,13 +81,13 @@ class ObjectArray extends Object {
 		}
 	}
 	
-	public function toObject($pUseSerializationName = false, &$pMainForeignObjects = null) {
-		return $this->mModel->toObject($this, $pUseSerializationName, $pMainForeignObjects);
+	public function toObject($pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->mModel->toObject($this, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
 	}
 	
-	public function toXml($pUseSerializationName = false, &$pMainForeignObjects = null) {
+	public function toXml($pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
 		$lXmlNode = new \SimpleXmlElement("<{$this->getModel()->getModelName()}/>");
-		return $this->mModel->toXml($this, $lXmlNode, $pUseSerializationName, $pMainForeignObjects);
+		return $this->mModel->toXml($this, $lXmlNode, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
 	}
 	
 	/*

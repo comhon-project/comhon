@@ -9,7 +9,7 @@ class Float extends SimpleModel {
 		$this->mModelName = self::ID;
 	}
 	
-	protected function _fromXml($pValue, $pLocalObjectCollection = null) {
+	protected function _fromXml($pValue, $pDateTimeZone = null, $pLocalObjectCollection = null) {
 		return (float) $pValue;
 	}
 }

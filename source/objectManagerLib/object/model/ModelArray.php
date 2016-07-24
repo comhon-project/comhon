@@ -30,7 +30,7 @@ class ModelArray extends ModelContainer {
 		return new ObjectArray($this, $pIsloaded);
 	}
 	
-	public function toObject($pObjectArray, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	protected function _toObject($pObjectArray, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if (is_null($pObjectArray)) {
 			return null;
 		}
@@ -39,12 +39,12 @@ class ModelArray extends ModelContainer {
 		}
 		$lReturn = array();
 		foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-			$lReturn[$lKey] = $this->getModel()->toObject($lValue, $pUseSerializationName, $pMainForeignObjects);
+			$lReturn[$lKey] = $this->getModel()->_toObject($lValue, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 		}
 		return $lReturn;
 	}
 	
-	public function toObjectId($pObjectArray, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	protected function _toObjectId($pObjectArray, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if (is_null($pObjectArray)) {
 			return null;
 		}
@@ -54,26 +54,30 @@ class ModelArray extends ModelContainer {
 		$lReturn = array();
 		if (!is_null($pObjectArray)) {
 			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-				$lReturn[$lKey] = $this->getModel()->toObjectId($lValue, $pUseSerializationName, $pMainForeignObjects);
+				$lReturn[$lKey] = $this->getModel()->_toObjectId($lValue, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 			}
 		}
 		return $lReturn;
 	}
 	
-	public function fromObject($pArray) {
+	public function fromObject($pArray, $pMergeType = self::MERGE, $pTimeZone = null) {
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
-		return $this->_fromObject($pArray, null);
+		$lObjectArray = $this->getObjectInstance();
+		foreach ($pArray as $lKey => $lPhpValue) {
+			$lObjectArray->setValue($lKey, $this->getModel()->fromObject($lPhpValue, $pMergeType, $pTimeZone));
+		}
+		return $lObjectArray;
 	}
 	
-	protected function _fromObject($pArray, $pLocalObjectCollection) {
+	protected function _fromObject($pArray, $pDateTimeZone, $pLocalObjectCollection) {
 		if (is_string($pArray) && $pArray == ObjectArray::__UNLOAD__) {
 			return $this->getObjectInstance(false);
 		}
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pArray as $lKey => $lPhpValue) {
-			$lObjectArray->setValue($lKey, $this->getModel()->_fromObject($lPhpValue, $pLocalObjectCollection));
+			$lObjectArray->setValue($lKey, $this->getModel()->_fromObject($lPhpValue, $pDateTimeZone, $pLocalObjectCollection));
 		}
 		return $lObjectArray;
 	}
@@ -92,30 +96,34 @@ class ModelArray extends ModelContainer {
 		return $lReturn;
 	}
 	
-	protected function _fromSqlColumn($pJsonEncodedObject, $pLocalObjectCollection) {
+	protected function _fromSqlColumn($pJsonEncodedObject, $pDateTimeZone, $pLocalObjectCollection) {
 		if (is_null($pJsonEncodedObject)) {
 			return null;
 		}
 		$lPhpObject = json_decode($pJsonEncodedObject);
-		return $this->_fromObject($lPhpObject, $pLocalObjectCollection);
+		return $this->_fromObject($lPhpObject, $pDateTimeZone, $pLocalObjectCollection);
 	}
 	
-	public function fromSqlDataBase($pRows, $pAddUnloadValues = true) {
+	public function fromSqlDataBase($pRows, $pMergeType = self::MERGE, $pTimeZone = null, $pAddUnloadValues = true) {
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
-		return $this->_fromSqlDataBase($pRows, null, $pAddUnloadValues);
-	}
-	
-	protected function _fromSqlDataBase($pRows, $pLocalObjectCollection, $pAddUnloadValues = true) {
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pRows as $lKey => $lRow) {
-			$lObjectArray->setValue($lKey, $this->getModel()->_fromSqlDataBase($lRow, $pLocalObjectCollection, $pAddUnloadValues));
+			$lObjectArray->setValue($lKey, $this->getModel()->fromSqlDataBase($lRow, $pMergeType, $pTimeZone, $pAddUnloadValues));
 		}
 		return $lObjectArray;
 	}
 	
-	public function toXml($pObjectArray, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	protected function _fromSqlDataBase($pRows, $pDateTimeZone, $pLocalObjectCollection, $pAddUnloadValues = true) {
+		$lObjectArray = $this->getObjectInstance();
+		foreach ($pRows as $lKey => $lRow) {
+			$lObjectArray->setValue($lKey, $this->getModel()->_fromSqlDataBase($lRow, $pDateTimeZone, $pLocalObjectCollection, $pAddUnloadValues));
+		}
+		return $lObjectArray;
+	}
+	
+	protected function _toXml($pObjectArray, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if (!is_null($pObjectArray)) {
 			if (!$pObjectArray->isLoaded()) {
 				$pXmlNode[ObjectArray::__UNLOAD__] = "1";
@@ -123,13 +131,13 @@ class ModelArray extends ModelContainer {
 			else {
 				foreach ($pObjectArray->getValues() as $lKey => $lValue) {
 					$lXmlChildNode = $pXmlNode->addChild($this->mElementName);
-					$this->getModel()->toXml($lValue, $lXmlChildNode, $pUseSerializationName, $pMainForeignObjects);
+					$this->getModel()->_toXml($lValue, $lXmlChildNode, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 				}
 			}
 		}
 	}
 	
-	public function toXmlId($pObjectArray, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
+	protected function _toXmlId($pObjectArray, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if (!is_null($pObjectArray)) {
 			if (!$pObjectArray->isLoaded()) {
 				$pXmlNode[ObjectArray::__UNLOAD__] = "1";
@@ -137,26 +145,30 @@ class ModelArray extends ModelContainer {
 			else {
 				foreach ($pObjectArray->getValues() as $lKey => $lValue) {
 					$lXmlChildNode = $pXmlNode->addChild($this->mElementName);
-					$this->getModel()->toXmlId($lValue, $lXmlChildNode, $pUseSerializationName, $pMainForeignObjects);
+					$this->getModel()->_toXmlId($lValue, $lXmlChildNode, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 				}
 			}
 		}
 	}
 	
-	public function fromXml($pArray) {
+	public function fromXml($pXml, $pMergeType = self::MERGE, $pTimeZone = null) {
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
-		return $this->_fromXml($pArray, null);
+		$lObjectArray = $this->getObjectInstance();
+		foreach ($pXml->{$this->mElementName} as $lChild) {
+			$lObjectArray->pushValue($this->getModel()->fromXml($lChild, $pMergeType, $pTimeZone));
+		}
+		return $lObjectArray;
 	}
 	
-	protected function _fromXml($pXml, $pLocalObjectCollection) {
+	protected function _fromXml($pXml, $pDateTimeZone, $pLocalObjectCollection) {
 		if (isset($pXml[ObjectArray::__UNLOAD__]) && ((string) $pXml[ObjectArray::__UNLOAD__] == "1")) {
 			$lObjectArray = $this->getObjectInstance(false);
 		} else {
 			$lObjectArray = $this->getObjectInstance();
 			foreach ($pXml->{$this->mElementName} as $lChild) {
-				$lObjectArray->pushValue($this->getModel()->_fromXml($lChild, $pLocalObjectCollection));
+				$lObjectArray->pushValue($this->getModel()->_fromXml($lChild, $pDateTimeZone, $pLocalObjectCollection));
 			}
 		}
 		return $lObjectArray;

@@ -21,40 +21,40 @@ class ModelEnum extends ModelContainer {
 		$this->mEnum     = $pEnum;
 	}
 	
-	public function toObject($pValue, $pUseSerializationName = false, &$pMainForeignObjects = null) {
-		$lReturn = $this->mModel->toObject($pValue, $pUseSerializationName, $pMainForeignObjects);
+	protected function _toObject($pValue, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		$lReturn = $this->mModel->_toObject($pValue, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}
 		return $lReturn;
 	}
 	
-	protected function _fromObject($pValue, $pLocalObjectCollection) {
-		$lReturn = $this->mModel->_fromObject($pValue, $pLocalObjectCollection);
+	protected function _fromObject($pValue, $pDateTimeZone, $pLocalObjectCollection) {
+		$lReturn = $this->mModel->_fromObject($pValue, $pDateTimeZone, $pLocalObjectCollection);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}
 		return $lReturn;
 	}
 	
-	protected function _fromSqlColumn($pValue, $pLocalObjectCollection) {
-		$lReturn = $this->mModel->_fromSqlColumn($pValue, $pLocalObjectCollection);
+	protected function _fromSqlColumn($pValue, $pDateTimeZone, $pLocalObjectCollection) {
+		$lReturn = $this->mModel->_fromSqlColumn($pValue, $pDateTimeZone, $pLocalObjectCollection);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}
 		return $lReturn;
 	}
 	
-	public function toXml($pValue, $pXmlNode, $pUseSerializationName = false, &$pMainForeignObjects = null) {
-		$lReturn = $this->mModel->toXml($pValue, $pXmlNode, $pUseSerializationName, $pMainForeignObjects);
+	protected function _toXml($pValue, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		$lReturn = $this->mModel->_toXml($pValue, $pXmlNode, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}
 		return $lReturn;
 	}
 	
-	protected function _fromXml($pValue, $pLocalObjectCollection) {
-		$lReturn = $this->mModel->_fromXml($pValue, $pLocalObjectCollection);
+	protected function _fromXml($pValue, $pDateTimeZone, $pLocalObjectCollection) {
+		$lReturn = $this->mModel->_fromXml($pValue, $pDateTimeZone, $pLocalObjectCollection);
 		if (!in_array($lReturn, $this->mEnum)) {
 			$lReturn = null;
 		}
