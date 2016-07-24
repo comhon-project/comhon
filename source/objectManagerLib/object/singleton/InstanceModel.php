@@ -361,6 +361,10 @@ class InstanceModel {
 				foreach ($pManifestXML->types->type as $lLocalType) {
 					$lTypeId                     = (string) $lLocalType["id"];
 					$lXmlLocalTypes[$lTypeId]    = $lLocalType;
+					
+					if (array_key_exists($lTypeId, $this->mLocalTypes[$lMainModelName])) {
+						throw new Exception("several local model with same type '$lTypeId' in main model '$lMainModelName'");
+					}
 					$this->mLocalTypes[$lMainModelName][$lTypeId] = new LocalModel($lTypeId, $lMainModelName, false);
 				}
 				foreach ($lXmlLocalTypes as $lTypeId => $lXmlLocalType) {
