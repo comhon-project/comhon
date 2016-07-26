@@ -48,4 +48,6 @@ abstract class SimpleModel extends Model {
 	public function isEqual($pValue1, $pValue2) {
 		return $pValue1 == $pValue2;
 	}
+	
+	public function verifValue($pValue) {}
 }

@@ -88,7 +88,11 @@ class Object {
 		if (count($lIdProperties) == 1) {
 			return $this->getValue($lIdProperties[0]);
 		}
-		return $this->mModel->encodeIdfromObject($this);
+		$lValues = array();
+		foreach ($lIdProperties as $lPropertyName) {
+			$lValues[] = $this->getValue($lPropertyName);
+		}
+		return $this->mModel->encodeId($lValues);
 	}
 	
 	public function hasCompleteId() {
@@ -108,10 +112,11 @@ class Object {
 		}
 	}
 	
-	public function setValue($pName, $pValue) {
-		if ($this->hasProperty($pName)) {
+	public function setValue($pName, $pValue, $pStrict = true) {
+			if ($pStrict && !is_null($pValue)) {
+				$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
+			}
 			$this->mValues[$pName] = $pValue;
-		}
 	}
 	
 	public function deleteValue($pName) {

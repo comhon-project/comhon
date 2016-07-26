@@ -146,7 +146,7 @@ class MainModel extends Model {
 		return $lObject;
 	}
 	
-	public function fillObjectFromPhpObject($pObject, $pPhpObject, $pTimeZone = null, $pUpdateLoadStatus = true) {
+	public function fillObjectFromPhpObject(Object $pObject, $pPhpObject, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 		
@@ -160,7 +160,7 @@ class MainModel extends Model {
 		}
 	}
 	
-	public function fillObjectFromXml($pObject, $pXml, $pTimeZone = null, $pUpdateLoadStatus = true) {
+	public function fillObjectFromXml(Object $pObject, $pXml, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 		
@@ -174,7 +174,7 @@ class MainModel extends Model {
 		}
 	}
 	
-	public function fillObjectFromSqlDatabase($pObject, $pRow, $pTimeZone = null, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
+	public function fillObjectFromSqlDatabase(Object $pObject, $pRow, $pTimeZone = null, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 		
@@ -188,11 +188,14 @@ class MainModel extends Model {
 		}
 	}
 	
-	public function toObjectId($pObject, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+	public function toObjectId(Object $pObject, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		if ($pObject->getModel() !== $this) {
+			throw new \Exception('current model instance must be same instance of object model');
+		}
 		return $this->_toObjectId($pObject, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
 	}
 		
-	protected function _toObjectId($pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toObjectId(Object $pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		$lId = parent::_toObjectId($pObject, $pUseSerializationName, $pMainForeignObjects);
 		if (is_array($pMainForeignObjects) && !(array_key_exists($this->mModelName, $pMainForeignObjects) && array_key_exists($lId, $pMainForeignObjects[$this->mModelName]))) {
 			$pMainForeignObjects[$this->mModelName][$lId] = $this->_toObject($pObject, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
@@ -200,11 +203,14 @@ class MainModel extends Model {
 		return $lId;
 	}
 	
-	public function toXmlId($pObject, $pXmlNode, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+	public function toXmlId(Object $pObject, $pXmlNode, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		if ($pObject->getModel() !== $this) {
+			throw new \Exception('current model instance must be same instance of object model');
+		}
 		return $this->_toXmlId($pObject, $pXmlNode, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
 	}
 		
-	protected function _toXmlId($pObject, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toXmlId(Object $pObject, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		$lId = parent::_toXmlId($pObject, $pXmlNode, $pUseSerializationName, $pMainForeignObjects);
 		if (is_array($pMainForeignObjects) && !(array_key_exists($this->mModelName, $pMainForeignObjects) && array_key_exists($lId, $pMainForeignObjects[$this->mModelName]))) {
 			$lXmlNode = new \SimpleXmlElement("<{$this->getModelName()}/>");

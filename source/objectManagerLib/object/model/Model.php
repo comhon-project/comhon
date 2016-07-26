@@ -8,6 +8,7 @@ use objectManagerLib\object\object\ObjectArray;
 use objectManagerLib\exception\PropertyException;
 use objectManagerLib\object\object\Config;
 use \stdClass;
+use objectManagerLib\utils\Utils;
 
 abstract class Model {
 
@@ -208,26 +209,15 @@ abstract class Model {
 	/**
 	 * @param array $pIdValues encode id in json format
 	 */
-	public function _encodeId($pIdValues) {
+	public function encodeId($pIdValues) {
 		return empty($pIdValues) ? null : json_encode($pIdValues);
 	}
 	
 	/**
 	 * @param string $pId decode id from json format
 	 */
-	public function _decodeId($pId) {
+	public function decodeId($pId) {
 		return json_decode($pId);
-	}
-	
-	/**
-	 * @param Object $pObject
-	 */
-	public function encodeIdfromObject(Object $pObject) {
-		$lValues = array();
-		foreach ($this->getIdProperties() as $lPropertyName) {
-			$lValues[] = $pObject->getValue($lPropertyName);
-		}
-		return $this->_encodeId($lValues);
 	}
 	
 	/**
@@ -249,11 +239,14 @@ abstract class Model {
 	 * but you can export them by spsifying an array in third parameter
 	 * @return NULL|\stdClass
 	 */
-	public function toObject($pObject, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+	public function toObject(Object $pObject, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		if ($pObject->getModel() !== $this) {
+			throw new \Exception('current model instance must be same instance of object model');
+		}
 		return $this->_toObject($pObject, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
 	}
 		
-	protected function _toObject($pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toObject(Object $pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		$lReturn = new stdClass();
 		if (is_null($pObject)) {
 			return null;
@@ -278,19 +271,25 @@ abstract class Model {
 		return $lReturn;
 	}
 	
-	public function toObjectId($pObject, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+	public function toObjectId(Object $pObject, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		if ($pObject->getModel() !== $this) {
+			throw new \Exception('current model instance must be same instance of object model');
+		}
 		return $this->_toObjectId($pObject, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
 	}
 		
-	protected function _toObjectId($pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
-		return $this->toId($pObject, $pUseSerializationName);
+	protected function _toObjectId(Object $pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		return $this->_toId($pObject, $pUseSerializationName);
 	}
 	
-	public function toXml($pObject, $pXmlNode, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+	public function toXml(Object $pObject, $pXmlNode, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		if ($pObject->getModel() !== $this) {
+			throw new \Exception('current model instance must be same instance of object model');
+		}
 		return $this->_toXml($pObject, $pXmlNode, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
 	}
 		
-	protected function _toXml($pObject, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toXml(Object $pObject, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if (is_null($pObject)) {
 			return;
 		}
@@ -319,23 +318,29 @@ abstract class Model {
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
 	}
 	
-	public function toXmlId($pObject, $pXmlNode, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+	public function toXmlId(Object $pObject, $pXmlNode, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		if ($pObject->getModel() !== $this) {
+			throw new \Exception('current model instance must be same instance of object model');
+		}
 		return $this->_toXmlId($pObject, $pXmlNode, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
 	}
 		
-	protected function _toXmlId($pObject, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toXmlId(Object $pObject, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		$lDomNode  = dom_import_simplexml($pXmlNode);
-		$lId       = $this->toId($pObject, $pUseSerializationName);
+		$lId       = $this->_toId($pObject, $pUseSerializationName);
 		$lTextNode = new \DOMText($lId);
 		$lDomNode->appendChild($lTextNode);
 		return $lId;
 	}
 	
-	public function toSqlDataBase($pObject, $pUseSerializationName = true, $pTimeZone = null, &$pMainForeignObjects = null) {
+	public function toSqlDataBase(Object $pObject, $pUseSerializationName = true, $pTimeZone = null, &$pMainForeignObjects = null) {
+		if ($pObject->getModel() !== $this) {
+			throw new \Exception('current model instance must be same instance of object model');
+		}
 		return $this->_toSqlDataBase($pObject, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
 	}
 		
-	protected function _toSqlDataBase($pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toSqlDataBase(Object $pObject, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		$lPhpObject   = $this->_toObject($pObject, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 		$lMapOfString = $this->objectToSqlArrayString($lPhpObject, $this, $pUseSerializationName);
 		
@@ -371,7 +376,7 @@ abstract class Model {
 		return $lMapOfString;
 	}
 	
-	public function toId($pObject, $pUseSerializationName = false) {
+	public function _toId(Object $pObject, $pUseSerializationName = false) {
 		if ($pObject->hasCompleteId()) {
 			return $pObject->getId();
 		} else {
@@ -380,15 +385,15 @@ abstract class Model {
 		}
 	}
 	
-	public function fillObjectFromPhpObject($pObject, $pPhpObject, $pTimeZone = null, $pUpdateLoadStatus = true) {
+	public function fillObjectFromPhpObject(Object $pObject, $pPhpObject, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel');
 	}
 	
-	public function fillObjectFromXml($pObject, $pXml, $pTimeZone = null, $pUpdateLoadStatus = true) {
+	public function fillObjectFromXml(Object $pObject, $pXml, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel');
 	}
 	
-	public function fillObjectFromSqlDatabase($pObject, $pRow, $pTimeZone = null, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
+	public function fillObjectFromSqlDatabase(Object $pObject, $pRow, $pTimeZone = null, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel');
 	}
 	
@@ -401,7 +406,7 @@ abstract class Model {
 		return $lObject;
 	}
 	
-	protected function _fillObjectFromPhpObject($pObject, $pPhpObject, $pDateTimeZone, $pLocalObjectCollection) {
+	protected function _fillObjectFromPhpObject(Object $pObject, $pPhpObject, $pDateTimeZone, $pLocalObjectCollection) {
 		if (is_null($pPhpObject)) {
 			return null;
 		}
@@ -417,7 +422,7 @@ abstract class Model {
 		return $this->_fillObjectFromXml($lObject, $pXml, $pDateTimeZone, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection)) ? $lObject : null;
 	}
 	
-	protected function _fillObjectFromXml($pObject, $pXml, $pDateTimeZone, $pLocalObjectCollection) {
+	protected function _fillObjectFromXml(Object $pObject, $pXml, $pDateTimeZone, $pLocalObjectCollection) {
 		$lHasValue = false;
 		foreach ($pXml->attributes() as $lKey => $lValue) {
 			if ($this->hasProperty($lKey)) {
@@ -441,7 +446,7 @@ abstract class Model {
 		return $lObject;
 	}
 	
-	public function _fillObjectFromSqlDatabase($pObject, $pRow, $pDateTimeZone, $pLocalObjectCollection, $pAddUnloadValues = true) {
+	public function _fillObjectFromSqlDatabase(Object $pObject, $pRow, $pDateTimeZone, $pLocalObjectCollection, $pAddUnloadValues = true) {
 		$lDatabaseTimezone = Config::getInstance()->getValue('database')->getValue('timezone');
 		$lDefaultTimeZone  = false;
 		
@@ -492,7 +497,7 @@ abstract class Model {
 	}
 	
 	protected function _fromId($pId, $pLocalObjectCollection = null) {
-		if (is_object($pId) || $pId == '') {
+		if (is_object($pId) || $pId === '') {
 			$pId = is_object($pId) ? json_encode($pId) : $pId;
 			throw new \Exception("malformed id '$pId' for model '{$this->mModelName}'");
 		}
@@ -507,13 +512,13 @@ abstract class Model {
 		return $this->_fillObjectwithId($this->getObjectInstance($pIsloaded), $pId);
 	}
 	
-	protected function _fillObjectwithId($pObject, $pId) {
+	protected function _fillObjectwithId(Object $pObject, $pId) {
 		if (!is_null($pId)) {
 			$lIdProperties = $this->getIdProperties();
 			if (count($lIdProperties) == 1) {
 				$pObject->setValue($lIdProperties[0], $pId);
 			} else {
-				$lIdValues = $this->_decodeId($pId);
+				$lIdValues = $this->decodeId($pId);
 				foreach ($this->getIdProperties() as $lIndex => $lPropertyName) {
 					$pObject->setValue($lPropertyName, $lIdValues[$lIndex]);
 				}
@@ -535,7 +540,7 @@ abstract class Model {
 				$lIdValues[] = null;
 			}
 		}
-		return $this->_encodeId($lIdValues);
+		return $this->encodeId($lIdValues);
 	}
 	
 	public function getIdFromXml($pXml) {
@@ -551,7 +556,7 @@ abstract class Model {
 				$lIdValues[] = null;
 			}
 		}
-		return $this->_encodeId($lIdValues);
+		return $this->encodeId($lIdValues);
 	}
 	
 	public function getIdFromSqlDatabase($pRow) {
@@ -569,7 +574,7 @@ abstract class Model {
 				$lIdValues[] = null;
 			}
 		}
-		return $this->_encodeId($lIdValues);
+		return $this->encodeId($lIdValues);
 	}
 	
 	/*
@@ -578,4 +583,10 @@ abstract class Model {
 	public function isEqual($pValue1, $pValue2) {
 		return $pValue1->isEqual($pValue2);
 	}
+	
+	/**
+	 * @param Object $pValue
+	 */
+	public function verifValue(Object $pValue) {}
+	
 }

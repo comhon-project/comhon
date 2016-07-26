@@ -173,4 +173,25 @@ if (InstanceModel::getInstance()->getInstanceModel('sqlTable') !== $lTestDbModel
 }
 
 $time_end = microtime(true);
-var_dump('model test exec time '.($time_end - $time_start));
+//var_dump('model test exec time '.($time_end - $time_start));
+
+
+$lObject = $lTestModel->loadObject('plop');
+$lName = $lObject->getValue('name');
+$lObjValue = null;
+$lObjValues = null;
+$lObjContainer = $lObject->getValue('objectContainer');
+$lObjForeignValues = $lObject->getValue('foreignObjectValues');
+
+$time_start = microtime(true);
+
+for ($i = 0; $i < 1000; $i++) {
+	$lObject->setValue('name', $lName);
+	$lObject->setValue('objectValue', $lObjValue);
+	$lObject->setValue('objectValues', $lObjValues);
+	$lObject->setValue('objectContainer', $lObjContainer);
+	$lObject->setValue('foreignObjectValues', $lObjForeignValues);
+}
+
+$time_end = microtime(true);
+var_dump('plop exec time '.($time_end - $time_start));

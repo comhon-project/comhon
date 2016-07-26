@@ -61,4 +61,6 @@ class ModelEnum extends ModelContainer {
 		return $lReturn;
 	}
 	
+	public function verifValue($pValue) {}
+	
 }
