@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-	<serialization>
-		<serialization type="sqlTable">home</serialization>
-	</serialization>
+	<serialization type="sqlTable">home</serialization>
 	<properties>
 		<beginDate serializationName="begin_date"/>
 		<endDate serializationName="end_date"/>
-		<person serializationName="person_id">
-			<serialization type="sqlTable">person</serialization>
-		</person>
-		<house serializationName="house_id">
-			<serialization type="sqlTable">house</serialization>
-		</house>
+		<person serializationName="person_id"/>
+		<house serializationName="house_id"/>
 	</properties>
 </manifest>

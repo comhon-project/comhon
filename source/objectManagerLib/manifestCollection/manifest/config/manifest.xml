@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<types>
+		<type id="dbOpt">
+			<properties>
+				<property type="string">charset</property>
+				<property type="string">timezone</property>
+			</properties>
+		</type>
+	</types>
+	
+	<properties>
+		<property type="dbOpt">database</property>
+		<property type="string">dateTimeFormat</property>
+		<property type="string">manifestObjectList</property>
+		<property type="string">manifestSerializationList</property>
+	</properties>
+</manifest>

@@ -3,10 +3,10 @@
 	<serialization type="person">person/manifest.xml</serialization>
 	<serialization type="woman">woman/manifest.xml</serialization>
 	<serialization type="man">man/manifest.xml</serialization>
-	<serialization type="sqlDatabase">sqlDatabase/manifest.xml</serialization>
-	<serialization type="sqlTable">sqlTable/manifest.xml</serialization>
 	<serialization type="house">house/manifest.xml</serialization>
 	<serialization type="home">home/manifest.xml</serialization>
 	<serialization type="place">place/manifest.xml</serialization>
 	<serialization type="town">town/manifest.xml</serialization>
+	<serialization type="test">test/manifest.xml</serialization>
+	<serialization type="testDb">testDb/manifest.xml</serialization>
 </list>

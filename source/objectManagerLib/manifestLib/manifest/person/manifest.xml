@@ -4,6 +4,7 @@
 		<property type="string" id="1">id</property>
 		<property type="string">firstName</property>
 		<property type="string">lastName</property>
+		<property type="integer">age</property>
 		<foreignProperty type="place">birthPlace</foreignProperty>
 		<property type="string">
 			<name>sex</name>
@@ -16,11 +17,11 @@
 		<foreignProperty type="person">mother</foreignProperty>
 		<foreignProperty type="array">
 			<name>children</name>
-			<values type="person"/>
+			<values type="person" name="child"/>
 		</foreignProperty>
 		<foreignProperty type="array">
 			<name>homes</name>
-			<values type="home"/>
+			<values type="home" name="home"/>
 		</foreignProperty>
 		<!--<foreignProperty type="array">
 			<name>realEstateProperties</name>

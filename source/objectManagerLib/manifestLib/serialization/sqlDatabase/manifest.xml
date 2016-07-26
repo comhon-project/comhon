@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest>
-	<serializations>
-		<serialization type="jsonFile">
-			<jsonFile saticPath="/var/data/database" staticName="database.json"/>
-		</serialization>
-	</serializations>
-</manifest>

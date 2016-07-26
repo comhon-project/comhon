@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-	<serialization>
-		<serialization type="sqlTable">town</serialization>
-	</serialization>
+	<serialization type="sqlTable">town</serialization>
 	<properties>
-		<town serializationName="city_hall">
-			<serialization type="sqlTable">place</serialization>
-		</town>
+		<cityHall serializationName="city_hall"/>
 	</properties>
 </manifest>
