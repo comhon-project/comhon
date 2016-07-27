@@ -172,26 +172,16 @@ if (InstanceModel::getInstance()->getInstanceModel('sqlTable') !== $lTestDbModel
 	throw new Exception('models haven\'t same instance');
 }
 
-$time_end = microtime(true);
-//var_dump('model test exec time '.($time_end - $time_start));
+$lObj        = $lTestModel->getObjectInstance();
+$lModelArray = new ModelArray($lTestModel, 'sesreer');
+$lObjArray   = $lModelArray->getObjectInstance();
+$lObjValue   = $lObj->getproperty('objectValue')->getModel()->getObjectInstance();
 
-
-$lObject = $lTestModel->loadObject('plop');
-$lName = $lObject->getValue('name');
-$lObjValue = null;
-$lObjValues = null;
-$lObjContainer = $lObject->getValue('objectContainer');
-$lObjForeignValues = $lObject->getValue('foreignObjectValues');
-
-$time_start = microtime(true);
-
-for ($i = 0; $i < 1000; $i++) {
-	$lObject->setValue('name', $lName);
-	$lObject->setValue('objectValue', $lObjValue);
-	$lObject->setValue('objectValues', $lObjValues);
-	$lObject->setValue('objectContainer', $lObjContainer);
-	$lObject->setValue('foreignObjectValues', $lObjForeignValues);
-}
+$lObj->setValue('name', 'sddsdfffff');
+$lObj->setValue('objectValue', $lObjValue);
+$lObj->setValue('objectValues', $lObjArray);
+$lObj->setValue('foreignObjectValues', $lObjArray);
 
 $time_end = microtime(true);
-var_dump('plop exec time '.($time_end - $time_start));
+var_dump('model test exec time '.($time_end - $time_start));
+

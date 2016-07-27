@@ -2,6 +2,7 @@
 namespace objectManagerLib\object\model;
 
 use objectManagerLib\object\object\ObjectArray;
+use objectManagerLib\object\object\Object;
 
 class ModelForeign extends ModelContainer {
 
@@ -57,4 +58,7 @@ class ModelForeign extends ModelContainer {
 		}
 	}
 	
+	public function verifValue(Object $pValue) {
+		$this->mModel->verifValue($pValue);
+	}
 }

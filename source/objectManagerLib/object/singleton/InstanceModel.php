@@ -48,8 +48,8 @@ class InstanceModel {
 		self::$_instance = $this;
 		$this->_registerSimpleModelClasses();
 		$this->_registerComplexModel(
-			__DIR__ . '/../../manifestCollection/manifest/manifestList.xml', 
-			__DIR__ . '/../../manifestCollection/serialization/serializationList.xml'
+			__DIR__ . DIRECTORY_SEPARATOR .'..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'manifestCollection' . DIRECTORY_SEPARATOR . 'manifest'. DIRECTORY_SEPARATOR .'manifestList.xml', 
+			__DIR__ . DIRECTORY_SEPARATOR .'..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'manifestCollection' . DIRECTORY_SEPARATOR . 'serialization' . DIRECTORY_SEPARATOR . 'serializationList.xml'
 		);
 		foreach ($this->mInstanceModels as $lModelName => $lValue) {
 			$this->getInstanceModel($lModelName);

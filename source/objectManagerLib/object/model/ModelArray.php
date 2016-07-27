@@ -209,4 +209,7 @@ class ModelArray extends ModelContainer {
 		}
 		return true;
 	}
+	
+	public function verifValue(ObjectArray $pValue) {}
+	
 }
