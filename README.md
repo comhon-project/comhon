@@ -1,5 +1,5 @@
 # Comhon!
-
+(under building, there's no release for the moment but you can use master branch)
 ## Synopsis
 
 Comhon! (Common Object Manager, Hashmap Or Nothing!) is an object manager based on gess what ?... hashmap!
