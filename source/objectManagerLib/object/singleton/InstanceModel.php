@@ -56,8 +56,8 @@ class InstanceModel {
 		}
 		
 		$this->_registerComplexModel(
-			Config::getInstance()->getValue('manifestObjectList'),
-			Config::getInstance()->getValue('manifestSerializationList')
+			Config::getInstance()->getValue('manifestList'),
+			Config::getInstance()->getValue('serializationList')
 		);
 	}	
 	

@@ -12,7 +12,7 @@
 	<properties>
 		<property type="dbOpt">database</property>
 		<property type="string">dateTimeFormat</property>
-		<property type="string">manifestObjectList</property>
-		<property type="string">manifestSerializationList</property>
+		<property type="string">manifestList</property>
+		<property type="string">serializationList</property>
 	</properties>
 </manifest>
