@@ -22,7 +22,7 @@ You don't have to create any classes (actually you can if you're not comfortable
 
 ## Manifest Example
 
-list of all your manifests in the fundamental file `manifestList.xml`
+The list of all your manifests must be referenced in an XML file. The path to this file must be defined in the file `config.json` with the key `manifestList` (see Installation chapter for more informations).
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <list>
@@ -116,8 +116,8 @@ create a json file named `config.json` in previous directory (absolute path woul
 and finaly put at least these two following entries to allow comhon library to find your manifests
 ```
 {
-  "manifestObjectList": "/absolute/path/to/directory/where/is/saved/file/manifestList.xml",
-  "manifestSerializationList": "/absolute/path/to/directory/where/is/saved/file/serializationList.xml",
+  "manifestList": "/absolute/path/to/directory/where/is/saved/file/manifestList.xml",
+  "serializationList": "/absolute/path/to/directory/where/is/saved/file/serializationList.xml",
 }
 ```
 

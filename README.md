@@ -117,7 +117,7 @@ and finaly put at least these two following entries to allow comhon library to f
 ```
 {
   "manifestList": "/absolute/path/to/directory/where/is/saved/file/manifestList.xml",
-  "serializationList": "/absolute/path/to/directory/where/is/saved/file/serializationList.xml",
+  "serializationList": "/absolute/path/to/directory/where/is/saved/file/serializationList.xml"
 }
 ```
 
