@@ -125,7 +125,7 @@ you're done, now you just have to include file `ObjectManagerLib.php` in your so
 
 ## API Reference
 
-`// TODO`
+for more informations take a look at [wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki)
 
 ## Tests
 
