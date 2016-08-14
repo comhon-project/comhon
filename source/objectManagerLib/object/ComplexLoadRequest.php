@@ -98,6 +98,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	/**
 	 * 
 	 * @param stdClass $pPhpObject
+	 * @return ComplexLoadRequest
 	 */
 	public static function buildObjectLoadRequest($pPhpObject) {
 		if (isset($pPhpObject->model)) {

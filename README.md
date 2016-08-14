@@ -15,7 +15,7 @@ You don't have to create any classes (actually you can if you're not comfortable
 
 ## Some others features
 * advanced object managment ([see wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Object-management))
-* provide API to request sql database and build automatically complexe sql requests without knowing sql syntaxe ([see wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Complex-objects-request-api))
+* provide API to request sql database and build automatically complexe sql requests without knowing sql syntaxe ([see wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Objects-request-api))
 
 ## Manifest Example
 

@@ -2,8 +2,9 @@
 
 use objectManagerLib\object\singleton\InstanceModel;
 use objectManagerLib\object\object\Object;
-use objectManagerLib\httpapi\ObjectService;
+use objectManagerLib\api\ObjectService;
 use objectManagerLib\object\object\SqlTable;
+use objectManagerLib\object\SimpleLoadRequest;
 
 $time_start = microtime(true);
 
@@ -224,6 +225,21 @@ $lObject = $lDbTestModel->loadObject('[1,1501774389]', true);
 if (json_encode($lObject->toObject()) !== json_encode($lObjectJson)) {
 	throw new Exception('bad object');
 }
+
+/** ****************************** test simple load request api ****************************** **/
+
+$lParams = new stdClass();
+$lParams->model = 'testDb';
+$lParams->id = '[1,1501774389]';
+$lResult = ObjectService::getObject($lParams);
+
+if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
+	throw new Exception('simple load request failed');
+}
+if (json_encode($lResult->result) !== json_encode($lObjectJson)) {
+	throw new Exception('bad object');
+}
+
 
 $time_end = microtime(true);
 var_dump('model test exec time '.($time_end - $time_start));
