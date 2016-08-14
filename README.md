@@ -14,13 +14,13 @@ You don't have to create any classes (actually you can if you're not comfortable
 (properties map is not a simple map of string but to simplify you don't need to know more)
 
 ## Some others features
-* provide API to request sql database and build automatically complexe sql requests without knowing sql syntaxe ([see wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Complex-objects-request-api))
 * advanced object managment ([see wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Object-management))
+* provide API to request sql database and build automatically complexe sql requests without knowing sql syntaxe ([see wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Complex-objects-request-api))
 
 ## Manifest Example
 
 The list of all your manifests must be referenced in an XML file. The path to this file must be defined in the file `config.json` with the key `manifestList` (see Installation chapter for more informations).
-```
+```XML
 <?xml version="1.0" encoding="UTF-8"?>
 <list>
 	<manifest type="person">relative/path/to/person/manifest.xml</manifest>
@@ -29,7 +29,7 @@ The list of all your manifests must be referenced in an XML file. The path to th
 </list>
 ```
 
-simple manifest
+simple manifest to describe a person
 ```XML
 <manifest>
 	<properties>
