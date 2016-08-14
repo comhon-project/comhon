@@ -10,7 +10,11 @@ abstract class SerializationUnit extends Object {
 		return $this->_saveObject($pObject);
 	}
 	
-	public function loadObject($pObject) {
+	/**
+	 * @param Object $pObject
+	 * @throws \Exception
+	 */
+	public function loadObject(Object $pObject) {
 		if ($this !== $pObject->getModel()->getSerialization()) {
 			throw new \Exception('this serialization mismatch with parameter object serialization');
 		}
@@ -18,7 +22,11 @@ abstract class SerializationUnit extends Object {
 	}
 	
 	protected abstract function _saveObject($pObject);
-	protected abstract function _loadObject($pObject);
+	
+	/**
+	 * @param Object $pObject
+	 */
+	protected abstract function _loadObject(Object $pObject);
 	
 	public function loadComposition(ObjectArray $pObject, $pParentId, $pCompositionProperties, $pOnlyIds) {
 		throw new \Exception('error : property is not serialized in a sql table');

@@ -96,8 +96,12 @@ class SqlTable extends SerializationUnit {
 		return self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeSimpleQuery($lQuery, array_values($lMapOfString));
 	}
 	
-	private function _updateObject($pObject) {
-		if (!$pObject->hasCompleteId()) {
+	/**
+	 * @param Object $pObject
+	 * @throws \Exception
+	 */
+	private function _updateObject(Object $pObject) {
+		if (!$pObject->getModel()->hasIdProperty() || !$pObject->hasCompleteId()) {
 			throw new \Exception('update operation require complete id');
 		}
 		$lModel            = $pObject->getModel();
@@ -126,7 +130,11 @@ class SqlTable extends SerializationUnit {
 		return self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
 	}
 
-	protected function _loadObject($pObject) {
+	/**
+	 * (non-PHPdoc)
+	 * @see \objectManagerLib\object\object\SerializationUnit::_loadObject()
+	 */
+	protected function _loadObject(Object $pObject) {
 		$lWhereColumns = [];
 		$lModel = $pObject->getModel();
 		foreach ($lModel->getIdProperties() as $lPropertyName) {

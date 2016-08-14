@@ -15,7 +15,11 @@ class JsonFile extends SerializationUnit {
 		return file_put_contents($pPath, json_encode($pObject->toObject()));
 	}
 	
-	protected function _loadObject($pObject) {
+	/**
+	 * (non-PHPdoc)
+	 * @see \objectManagerLib\object\object\SerializationUnit::_loadObject()
+	 */
+	protected function _loadObject(Object $pObject) {
 		$lId = $pObject->getId();
 		$lPath = $this->getValue("saticPath") . DIRECTORY_SEPARATOR . $lId . DIRECTORY_SEPARATOR . $this->getValue("staticName");
 		if (!file_exists($lPath)) {
