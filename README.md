@@ -14,11 +14,8 @@ You don't have to create any classes (actually you can if you're not comfortable
 (properties map is not a simple map of string but to simplify you don't need to know more)
 
 ## Some others features
-* provide API to request sql database and build automatically complexe sql requests without knowing sql syntaxe
-* advanced object managment
- * an hashmap that refer objects by their id (named ObjectCollection)
- * do not load an object already loaded using ObjectCollection (let possibility to force it)
- * automatically replace foreign properties by already loaded object using ObjectCollection (for exemple model 'person' has a foreign property 'mother', sql database will probably have a column with the mother id. use case : first you load person 'Marie', second you load person 'Paul' and Marie is Paul's mother. the value 'mother' of Paul will automatically be populated with existing object person 'Marie')
+* provide API to request sql database and build automatically complexe sql requests without knowing sql syntaxe ([see wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Complex-objects-request-api))
+* advanced object managment ([see wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Object-management))
 
 ## Manifest Example
 
@@ -33,48 +30,19 @@ The list of all your manifests must be referenced in an XML file. The path to th
 ```
 
 simple manifest
-```
+```XML
 <manifest>
 	<properties>
 		<property type="string">firstName</property>
 		<property type="string">lastName</property>
 		<property type="integer">age</property>
-	</properties>
-</manifest>
-```
-advanced manifest
-```
-<manifest>
-	<properties>
-		<property type="string" id="1">id</property>
-		<property type="string">firstName</property>
-		<property type="string">lastName</property>
-		<property type="integer">age</property>
-		<foreignProperty type="place">birthPlace</foreignProperty>
-		<property type="string">
-			<name>sex</name>
-			<enum>
-				<value>male</value>
-				<value>female</value>
-			</enum>
-		</property>
-		<foreignProperty type="person">father</foreignProperty>
-		<foreignProperty type="person">mother</foreignProperty>
-		<foreignProperty type="array">
-			<name>children</name>
-			<values type="person" name="child"/>
-		</foreignProperty>
-		<foreignProperty type="array">
-			<name>homes</name>
-			<values type="home" name="home"/>
-		</foreignProperty>
 	</properties>
 </manifest>
 ```
 
 ## Code Example
 
-```
+```PHP
 // first way to instanciate an object
 $personModel = InstanceModel::getInstance()->getInstanceModel('person');
 $person = $personModel->getObjectInstance();
@@ -98,12 +66,12 @@ $simpleXmlElement = $person->toXml();
 // load, update and save an object (from/to sql database or xml file or json file)
 $loadedPerson = $personModel->loadObject('id_of_a_person');
 $loadedPerson->setValue('age', 25);
-$loadedPerson->save()
+$loadedPerson->save();
 ```
 
 ## Motivation
 
-give a chance to make a comhon object managment in your project and avoid many specifics cases in your code source ( that is evil for me :) ) that make your project unmaintainable and hard to improve
+give a chance to make a comhon object managment in your project and avoid many specifics cases in your code source that make your project unmaintainable and hard to improve
 
 ## Installation
 
@@ -126,7 +94,3 @@ you're done, now you just have to include file `ObjectManagerLib.php` in your so
 ## API Reference
 
 for more informations take a look at [wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki)
-
-## Tests
-
-`// TODO`
