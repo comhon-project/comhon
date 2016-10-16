@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<serialization type="sqlTable">mainTestDb</serialization>
+	<properties>
+		<childrenTestDb>
+			<compositions>
+				<composition>mainParentTestDb</composition>
+			</compositions>
+		</childrenTestDb>
+	</properties>
+</manifest>

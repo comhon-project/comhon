@@ -17,5 +17,6 @@
 		<property type="object">object</property>
 		<property type="string">string</property>
 		<property type="integer">integer</property>
+		<foreignProperty type="mainTestDb">mainParentTestDb</foreignProperty>
 	</properties>
 </manifest>

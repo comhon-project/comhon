@@ -9,4 +9,5 @@
 	<serialization type="town">town/manifest.xml</serialization>
 	<serialization type="test">test/manifest.xml</serialization>
 	<serialization type="testDb">testDb/manifest.xml</serialization>
+	<serialization type="mainTestDb">mainTestDb/manifest.xml</serialization>
 </list>

@@ -59,8 +59,8 @@ if ($lLocalPersonModel !== InstanceModel::getInstance()->getInstanceModel('perso
 if ($lLocalPersonModel->getModelName() !== 'personLocal') {
 	throw new Exception('model hasn\'t good name');
 }
-if (json_encode($lLocalPersonModel->getPropertiesNames()) !== '["id","firstName","lastName","age","sex","birthPlace","father","mother","children","homes"]') {
-	throw new Exception("model {$lLocalPersonModel->getModelName()} hasn't good properties");
+if (json_encode($lLocalPersonModel->getPropertiesNames()) !== '["id","firstName","lastName","age","birthPlace","sex","father","mother","children","homes"]') {
+	throw new Exception("model {$lLocalPersonModel->getModelName()} hasn't good properties : ".json_encode($lLocalPersonModel->getPropertiesNames()));
 }
 
 /** ****************************** test load status of model 'place' ****************************** **/
@@ -114,8 +114,8 @@ $lTestDbModel = InstanceModel::getInstance()->getInstanceModel('testDb');
 if ($lTestDbModel->getModelName() !== 'testDb') {
 	throw new Exception('model hasn\'t good name');
 }
-if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","string","integer"]') {
-	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good properties");
+if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","string","integer","mainParentTestDb"]') {
+	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good properties : ".json_encode($lTestDbModel->getPropertiesNames()));
 }
 $lDbModel = $lTestDbModel->getSerialization()->getModel()->getPropertyModel('database');
 if ($lDbModel->getModelName() !== 'sqlDatabase') {

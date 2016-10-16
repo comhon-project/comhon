@@ -16,6 +16,10 @@ class Property {
 		$this->mName = $pName;
 		$this->mSerializationName = is_null($pSerializationName) ? $this->mName : $pSerializationName;
 		$this->mIsId = $pIsId;
+		
+		if ($this->mIsId && !($this->mModel instanceof SimpleModel)) {
+			throw new \Exception("id property with name '$pName' must be a simple model");
+		}
 	}
 	
 	/**

@@ -183,15 +183,15 @@ if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
-if (json_encode($lResult->result) != '[{"id1":"1","id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-07-18T21:49:34+02:00","string":"aaaa","integer":"0"},{"id1":"1","id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-07-18T21:49:34+02:00","object":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":"2"}]') {
-	throw new Exception('bad objects');
+if (json_encode($lResult->result) != '[{"id1":"1","id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T18:21:18+02:00","string":"aaaa","integer":"0","mainParentTestDb":"1"},{"id1":"1","id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":"2","mainParentTestDb":"1"}]') {
+	throw new Exception('bad objects : '.json_encode($lResult->result));
 }
 
 /** ****************************** test following export import objects ****************************** **/
 
 $lBasedObjects  = [
-	json_decode('{"id1":"1","id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-07-18T21:49:34+02:00","string":"aaaa","integer":0}'),
-	json_decode('{"id1":"1","id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-07-18T21:49:34+02:00","string":"cccc","integer":2,"object":{"plop":"plop","plop2":"plop2"}}')
+	json_decode('{"id1":"1","id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T18:21:18+02:00","string":"aaaa","integer":0,"mainParentTestDb":"1"}'),
+	json_decode('{"id1":"1","id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T18:21:18+02:00","string":"cccc","integer":2,"object":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":"1"}')
 ];
 
 $lObject = null;
@@ -203,7 +203,7 @@ foreach ($lResult->result as $lIndex => $lPhpObject) {
 	$lObject2->fromXml($lObject->toXml(false));
 	
 	if (json_encode($lObject2->toObject(false, 'Europe/Berlin')) !== json_encode($lBasedObjects[$lIndex])) {
-		throw new Exception('bad object');
+		throw new Exception('bad object : '.json_encode($lObject2->toObject(false, 'Europe/Berlin')));
 	}
 }
 
