@@ -16,6 +16,16 @@ use objectManagerLib\visitor\ObjectCollectionCreator;
 
 $time_start = microtime(true);
 
+if (!InstanceModel::getInstance()->hasInstanceModel('config')) {
+	throw new Exception('model not initialized');
+}
+if (!InstanceModel::getInstance()->isModelLoaded('config')) {
+	throw new Exception('model must be loaded');
+}
+if (InstanceModel::getInstance()->hasInstanceModel('sqlTable')) {
+	throw new Exception('model already initialized');
+}
+
 $lTestModel    = InstanceModel::getInstance()->getInstanceModel('test');
 $lTestModelTow = InstanceModel::getInstance()->getInstanceModel('test');
 
@@ -114,7 +124,7 @@ $lTestDbModel = InstanceModel::getInstance()->getInstanceModel('testDb');
 if ($lTestDbModel->getModelName() !== 'testDb') {
 	throw new Exception('model hasn\'t good name');
 }
-if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","string","integer","mainParentTestDb"]') {
+if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb"]') {
 	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good properties : ".json_encode($lTestDbModel->getPropertiesNames()));
 }
 $lDbModel = $lTestDbModel->getSerialization()->getModel()->getPropertyModel('database');
@@ -181,6 +191,10 @@ $lObj->setValue('name', 'sddsdfffff');
 $lObj->setValue('objectValue', $lObjValue);
 $lObj->setValue('objectValues', $lObjArray);
 $lObj->setValue('foreignObjectValues', $lObjArray);
+
+if (!InstanceModel::getInstance()->hasInstanceModel('sqlTable')) {
+	throw new Exception('model already initialized');
+}
 
 $time_end = microtime(true);
 var_dump('model test exec time '.($time_end - $time_start));

@@ -40,7 +40,7 @@ class ObjectArray extends Object {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		$this->resetValues();
-		$this->mModel->fromObject($lPhpValue, $pMergeType, $pTimeZone);
+		$this->setValues($this->mModel->fromObject($pArray, $pMergeType, $pTimeZone)->getValues());
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();
 		}
@@ -51,7 +51,7 @@ class ObjectArray extends Object {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		$this->resetValues();
-		$this->mModel->fromXml($lChild, $pMergeType, $pTimeZone);
+		$this->setValues($this->mModel->fromXml($pXml, $pMergeType, $pTimeZone)->getValues());
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();
 		}
@@ -62,7 +62,7 @@ class ObjectArray extends Object {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
 		$this->resetValues();
-		$this->mModel->fromSqlDataBase($lRow, $pMergeType, $pTimeZone, $pAddUnloadValues);
+		$this->setValues($this->mModel->fromSqlDataBase($pRows, $pMergeType, $pTimeZone, $pAddUnloadValues)->getValues());
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();
 		}

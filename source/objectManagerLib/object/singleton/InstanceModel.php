@@ -49,13 +49,11 @@ class InstanceModel {
 		self::$_instance = $this;
 		$this->_registerSimpleModelClasses();
 		ManifestParser::registerComplexModels(
-			__DIR__ . DIRECTORY_SEPARATOR .'..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'manifestCollection' . DIRECTORY_SEPARATOR . 'manifest'. DIRECTORY_SEPARATOR .'manifestList.xml', 
-			__DIR__ . DIRECTORY_SEPARATOR .'..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'manifestCollection' . DIRECTORY_SEPARATOR . 'serialization' . DIRECTORY_SEPARATOR . 'serializationList.xml',
+			__DIR__ . DIRECTORY_SEPARATOR .'..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'manifestCollection' . DIRECTORY_SEPARATOR . 'manifest'. DIRECTORY_SEPARATOR .'manifestList.json', 
+			__DIR__ . DIRECTORY_SEPARATOR .'..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'manifestCollection' . DIRECTORY_SEPARATOR . 'serialization' . DIRECTORY_SEPARATOR . 'serializationList.json',
 			$this->mInstanceModels
 		);
-		foreach ($this->mInstanceModels as $lModelName => $lValue) {
-			$this->getInstanceModel($lModelName);
-		}
+		
 		ManifestParser::registerComplexModels(
 			Config::getInstance()->getValue('manifestList'),
 			Config::getInstance()->getValue('serializationList'),

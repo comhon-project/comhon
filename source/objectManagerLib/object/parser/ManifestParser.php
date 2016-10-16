@@ -10,6 +10,7 @@ use objectManagerLib\object\model\ForeignProperty;
 use objectManagerLib\object\model\CompositionProperty;
 use objectManagerLib\object\model\Property;
 use objectManagerLib\object\model\MainModel;
+use objectManagerLib\object\parser\json\JsonManifestParser;
 
 abstract class ManifestParser {
 
@@ -148,6 +149,9 @@ abstract class ManifestParser {
 			case 'xml':
 				$lSerializationMap = XmlManifestParser::_getSerializationMap($pSerializationListPath_afe);
 				break;
+			case 'json':
+				$lSerializationMap = JsonManifestParser::_getSerializationMap($pSerializationListPath_afe);
+				break;
 			default:
 				throw new \Exception('extension not recognized for serialization manifest list file : '.$pSerializationListPath_afe);
 		}
@@ -155,6 +159,9 @@ abstract class ManifestParser {
 		switch (mb_strtolower(pathinfo($pManifestListPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
 				XmlManifestParser::_registerComplexModels($pManifestListPath_afe, $lSerializationMap, $pModelMap);
+				break;
+			case 'json':
+				JsonManifestParser::_registerComplexModels($pManifestListPath_afe, $lSerializationMap, $pModelMap);
 				break;
 			default:
 				throw new \Exception('extension not recognized for manifest list file : '.$pManifestListPath_afe);

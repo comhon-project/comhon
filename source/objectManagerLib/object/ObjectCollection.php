@@ -31,6 +31,15 @@ class ObjectCollection {
 	}
 	
 	/**
+	 * get all Objects with specified Model if exists
+	 * @param string $pModelName
+	 * @return Object|null
+	 */
+	public function getModelObjects($pModelName) {
+		return array_key_exists($pModelName, $this->mMap) ? $this->mMap[$pModelName] : null;
+	}
+	
+	/**
 	 * add object with Model (if not already added)
 	 * @param Object $pObject
 	 * @param boolean $pThrowException throw exception if object can't be added (no complete id or object already added)

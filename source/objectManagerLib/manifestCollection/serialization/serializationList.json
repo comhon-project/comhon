@@ -1,0 +1,4 @@
+{
+	"sqlDatabase":"sqlDatabase/manifest.xml",
+	"sqlTable"   :"sqlTable/manifest.xml"
+}

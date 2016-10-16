@@ -1,0 +1,6 @@
+{
+	"config"     :"config/manifest.xml",
+	"sqlDatabase":"sqlDatabase/manifest.xml",
+	"sqlTable"   :"sqlTable/manifest.xml",
+	"jsonFile"   :"jsonFile/manifest.xml"
+}

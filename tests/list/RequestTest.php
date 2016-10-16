@@ -5,6 +5,7 @@ use objectManagerLib\object\object\Object;
 use objectManagerLib\api\ObjectService;
 use objectManagerLib\object\object\SqlTable;
 use objectManagerLib\object\SimpleLoadRequest;
+use objectManagerLib\object\MainObjectCollection;
 
 $time_start = microtime(true);
 
@@ -183,15 +184,15 @@ if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
-if (json_encode($lResult->result) != '[{"id1":"1","id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T18:21:18+02:00","string":"aaaa","integer":"0","mainParentTestDb":"1"},{"id1":"1","id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":"2","mainParentTestDb":"1"}]') {
+if (json_encode($lResult->result) != '[{"id1":"1","id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","string":"aaaa","integer":"0","mainParentTestDb":"1"},{"id1":"1","id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":"2","mainParentTestDb":"1"}]') {
 	throw new Exception('bad objects : '.json_encode($lResult->result));
 }
 
 /** ****************************** test following export import objects ****************************** **/
 
 $lBasedObjects  = [
-	json_decode('{"id1":"1","id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T18:21:18+02:00","string":"aaaa","integer":0,"mainParentTestDb":"1"}'),
-	json_decode('{"id1":"1","id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T18:21:18+02:00","string":"cccc","integer":2,"object":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":"1"}')
+	json_decode('{"id1":"1","id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","string":"aaaa","integer":0,"mainParentTestDb":"1"}'),
+	json_decode('{"id1":"1","id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","string":"cccc","integer":2,"object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":"1"}')
 ];
 
 $lObject = null;
@@ -239,7 +240,6 @@ if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 if (json_encode($lResult->result) !== json_encode($lObjectJson)) {
 	throw new Exception('bad object');
 }
-
 
 $time_end = microtime(true);
 var_dump('model test exec time '.($time_end - $time_start));

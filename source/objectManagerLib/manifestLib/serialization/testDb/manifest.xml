@@ -4,6 +4,7 @@
 	<properties>
 		<id1 serializationName="id_1"/>
 		<id2 serializationName="id_2"/>
+		<objectWithId serializationName="object_with_id"/>
 		<mainParentTestDb serializationName="main_test_id"/>
 	</properties>
 </manifest>

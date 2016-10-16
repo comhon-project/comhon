@@ -1,6 +1,6 @@
 <?php
 
-namespace objectManagerLib\object\parser\xml;
+namespace objectManagerLib\object\parser\json;
 
 use \Exception;
 use objectManagerLib\object\model\ModelArray;
@@ -23,7 +23,7 @@ use objectManagerLib\object\object\Config;
 use objectManagerLib\object\parser\ManifestParser;
 use objectManagerLib\object\parser\SerializationManifestParser;
 
-class XmlManifestParser extends ManifestParser {
+class JsonManifestParser extends ManifestParser {
 
 	
 	/**
@@ -36,18 +36,16 @@ class XmlManifestParser extends ManifestParser {
 	protected static function _registerComplexModels($pManifestListPath_afe, $pSerializationMap, &$pModelMap) {
 		$lManifestListFolder_ad = dirname($pManifestListPath_afe);
 		
-		$lManifestList = simplexml_load_file($pManifestListPath_afe);
+		$lManifestList = json_decode(file_get_contents($pManifestListPath_afe));
 		if ($lManifestList === false || is_null($lManifestList)) {
 			throw new \Exception("manifestList file not found or malformed '$pManifestListPath_afe'");
 		}
-		foreach ($lManifestList->manifest as $lManifest) {
-			$lType = (string) $lManifest['type'];
-			if (array_key_exists($lType, $pModelMap)) {
-				throw new Exception("several model with same type : '$lType'");
+		foreach ($lManifestList as $lModelName => $lManifestPath_rfe) {
+			if (array_key_exists($lModelName, $pModelMap)) {
+				throw new Exception("several model with same type : '$lModelName'");
 			}
-			$lManifestPath_rfe = (string) $lManifest;
-			$lSerializationPath_afe = array_key_exists($lType, $pSerializationMap) ? $pSerializationMap[$lType] : null;
-			$pModelMap[$lType] = array($lManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe);
+			$lSerializationPath_afe = array_key_exists($lModelName, $pSerializationMap) ? $pSerializationMap[$lModelName] : null;
+			$pModelMap[$lModelName] = array($lManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe);
 		}
 	}
 	
@@ -61,13 +59,12 @@ class XmlManifestParser extends ManifestParser {
 		$lSerializationMap = [];
 		$pSerializationListFolrder_ad = dirname($pSerializationListPath_afe);
 	
-		$lSerializationList = simplexml_load_file($pSerializationListPath_afe);
+		$lSerializationList = json_decode(file_get_contents($pSerializationListPath_afe));
 		if ($lSerializationList === false || is_null($lSerializationList)) {
 			throw new \Exception("serializationList file not found or malformed '$pSerializationListPath_afe'");
 		}
-		foreach ($lSerializationList->serialization as $lSerialization) {
-			$lSerializationPath_rfe = (string) $lSerialization;
-			$lSerializationMap[(string) $lSerialization['type']] = $pSerializationListFolrder_ad.'/'.$lSerializationPath_rfe;
+		foreach ($lSerializationList as $lModelName => $lSerializationPath_rfe) {
+			$lSerializationMap[$lModelName] = $pSerializationListFolrder_ad.'/'.$lSerializationPath_rfe;
 		}
 	
 		return $lSerializationMap;
