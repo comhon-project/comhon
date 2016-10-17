@@ -1,0 +1,76 @@
+{
+	"manifests": {
+		"personLocal": "..\/person\/manifest.xml"
+	},
+	"types": {
+		"objectContainer": {
+			"properties": {
+				"foreignObjectValue": {
+					"type": "object",
+					"is_foreign": true
+				},
+				"objectValueTwo": {
+					"type": "objectTwo"
+				},
+				"person": {
+					"type": "personLocal"
+				}
+			}
+		},
+		"object": {
+			"properties": {
+				"id": {
+					"type": "string",
+					"is_id": true
+				},
+				"propertyOne": {
+					"type": "string"
+				},
+				"propertyTwo": {
+					"type": "string"
+				}
+			}
+		},
+		"objectTwo": {
+			"properties": {
+				"id": {
+					"type": "string",
+					"is_id": true
+				},
+				"propertyTwoOne": {
+					"type": "string"
+				},
+				"propertyTwoTwo": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"properties": {
+		"name": {
+			"type": "string",
+			"is_id": true
+		},
+		"objectValue": {
+			"type": "object"
+		},
+		"objectValues": {
+			"values": {
+				"type": "object",
+				"name": "objectValue"
+			},
+			"type": "array"
+		},
+		"objectContainer": {
+			"type": "objectContainer"
+		},
+		"foreignObjectValues": {
+			"values": {
+				"type": "object",
+				"name": "foreignObjectValue"
+			},
+			"type": "array",
+			"is_foreign": true
+		}
+	}
+}
