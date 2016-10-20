@@ -5,7 +5,7 @@
 Comhon! (Common Object Manager, Hashmap Or Nothing!) is an object manager based on gess what ?... hashmap!
 
 It will allow you to import, export, serialize (in sql database, xml file, json file) objects without any line of code.
-You just have to describe your model in a manifest (xml file or soon json file) that will match with an sql table for exemple and you will be able to Select/Insert/Update without write your sql query (actually like an ORM)
+You just have to describe your model in a manifest (xml file or json file) that will match with an sql table for exemple and you will be able to Select/Insert/Update without write your sql query (actually like an ORM)
 
 You don't have to create any classes (actually you can if you're not comfortable without them) :
 * your object will be represent by an hashmap :```['first_name' => 'john', 'last_name' => 'john', 'age' => 21]```
