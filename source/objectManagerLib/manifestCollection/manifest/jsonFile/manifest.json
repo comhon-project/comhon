@@ -1,0 +1,11 @@
+{
+	"object": "objectManagerLib\\object\\object\\JsonFile",
+	"properties": {
+		"saticPath": {
+			"type": "string"
+		},
+		"staticName": {
+			"type": "string"
+		}
+	}
+}

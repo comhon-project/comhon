@@ -6,6 +6,13 @@ use objectManagerLib\object\object\Object;
 
 class ModelForeign extends ModelContainer {
 
+	public function __construct($pModel) {
+		parent::__construct($pModel);
+		if ($this->mModel instanceof SimpleModel) {
+			throw new Exception("model of foreign model can't be a simple model");
+		}
+	}
+	
 	protected function _toObject($pValue, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if (is_null($pValue)) {
 			return null;

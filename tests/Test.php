@@ -6,3 +6,4 @@ require_once 'ObjectManagerLib.php';
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'list' . DIRECTORY_SEPARATOR . 'ModelTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'list' . DIRECTORY_SEPARATOR . 'RequestTest.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'list' . DIRECTORY_SEPARATOR . 'ValueTest.php';

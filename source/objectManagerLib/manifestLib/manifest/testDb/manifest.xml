@@ -7,6 +7,12 @@
 				<property type="string">plop2</property>
 			</properties>
 		</type>
+		<type id="objectWithId">
+			<properties>
+				<property type="string" id="1">plop</property>
+				<property type="string">plop2</property>
+			</properties>
+		</type>
 	</types>
 	
 	<properties>
@@ -15,7 +21,9 @@
 		<property type="dateTime">date</property>
 		<property type="dateTime">timestamp</property>
 		<property type="object">object</property>
+		<property type="objectWithId">objectWithId</property>
 		<property type="string">string</property>
 		<property type="integer">integer</property>
+		<foreignProperty type="mainTestDb">mainParentTestDb</foreignProperty>
 	</properties>
 </manifest>

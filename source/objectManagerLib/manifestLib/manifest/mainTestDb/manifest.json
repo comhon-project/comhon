@@ -1,0 +1,19 @@
+{
+	"properties": {
+		"id": {
+			"type": "integer",
+			"is_id": true
+		},
+		"name": {
+			"type": "string"
+		},
+		"childrenTestDb": {
+			"values": {
+				"type": "testDb",
+				"name": "childTestDb"
+			},
+			"type": "array",
+			"is_foreign": true
+		}
+	}
+}

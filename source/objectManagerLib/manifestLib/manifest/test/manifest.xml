@@ -2,7 +2,7 @@
 <manifest>
 
 	<manifests>
-		<manifest type="personLocal">person/manifest.xml</manifest>
+		<manifest type="personLocal">../person/manifest.xml</manifest>
 	</manifests>
 
 	<types>

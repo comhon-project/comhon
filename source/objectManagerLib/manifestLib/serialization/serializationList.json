@@ -1,0 +1,10 @@
+{
+	"person"     : "person/manifest.json",
+	"house"      : "house/manifest.json",
+	"home"       : "home/manifest.json",
+	"place"      : "place/manifest.json",
+	"town"       : "town/manifest.json",
+	"test"       : "test/manifest.json",
+	"testDb"     : "testDb/manifest.json",
+	"mainTestDb" : "mainTestDb/manifest.json"
+}

@@ -1,0 +1,28 @@
+{
+	"types": {
+		"dbOpt": {
+			"properties": {
+				"charset": {
+					"type": "string"
+				},
+				"timezone": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"properties": {
+		"database": {
+			"type": "dbOpt"
+		},
+		"dateTimeFormat": {
+			"type": "string"
+		},
+		"manifestList": {
+			"type": "string"
+		},
+		"serializationList": {
+			"type": "string"
+		}
+	}
+}

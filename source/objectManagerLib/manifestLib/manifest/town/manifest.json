@@ -1,0 +1,18 @@
+{
+	"properties": {
+		"id": {
+			"type": "integer",
+			"is_id": true
+		},
+		"name": {
+			"type": "string"
+		},
+		"surface": {
+			"type": "integer"
+		},
+		"cityHall": {
+			"type": "place",
+			"is_foreign": true
+		}
+	}
+}

@@ -1,0 +1,33 @@
+{
+	"properties": {
+		"id": {
+			"type": "integer",
+			"is_id": true
+		},
+		"number": {
+			"type": "integer"
+		},
+		"type": {
+			"enum": [
+				"street",
+				"avenue",
+				"boulevard",
+				"square"
+			],
+			"type": "string"
+		},
+		"name": {
+			"type": "string"
+		},
+		"geographicLatitude": {
+			"type": "float"
+		},
+		"geographicLongitude": {
+			"type": "float"
+		},
+		"town": {
+			"type": "town",
+			"is_foreign": true
+		}
+	}
+}

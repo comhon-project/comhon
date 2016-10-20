@@ -1,0 +1,20 @@
+{
+	"serialization": {
+		"type": "sqlTable",
+		"id": "home"
+	},
+	"properties": {
+		"beginDate": {
+			"serializationName": "begin_date"
+		},
+		"endDate": {
+			"serializationName": "end_date"
+		},
+		"person": {
+			"serializationName": "person_id"
+		},
+		"house": {
+			"serializationName": "house_id"
+		}
+	}
+}

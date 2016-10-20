@@ -1,0 +1,18 @@
+{
+	"properties": {
+		"beginDate": {
+			"type": "string"
+		},
+		"endDate": {
+			"type": "string"
+		},
+		"person": {
+			"type": "person",
+			"is_foreign": true
+		},
+		"house": {
+			"type": "house",
+			"is_foreign": true
+		}
+	}
+}

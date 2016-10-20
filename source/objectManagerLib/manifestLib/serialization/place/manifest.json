@@ -1,0 +1,14 @@
+{
+	"serialization": {
+		"type": "sqlTable",
+		"id": "place"
+	},
+	"properties": {
+		"geographicLatitude": {
+			"serializationName": "geographic_latitude"
+		},
+		"geographicLongitude": {
+			"serializationName": "geographic_longitude"
+		}
+	}
+}

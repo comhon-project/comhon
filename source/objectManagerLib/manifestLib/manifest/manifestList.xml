@@ -7,4 +7,5 @@
 	<manifest type="town">town/manifest.xml</manifest>
 	<manifest type="test">test/manifest.xml</manifest>
 	<manifest type="testDb">testDb/manifest.xml</manifest>
+	<manifest type="mainTestDb">mainTestDb/manifest.xml</manifest>
 </list>

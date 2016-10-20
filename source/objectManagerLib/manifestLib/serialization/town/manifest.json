@@ -1,0 +1,11 @@
+{
+	"serialization": {
+		"type": "sqlTable",
+		"id": "town"
+	},
+	"properties": {
+		"cityHall": {
+			"serializationName": "city_hall"
+		}
+	}
+}

@@ -1,0 +1,9 @@
+{
+	"serialization": {
+		"type": "jsonFile",
+		"value": {
+			"saticPath": "/var/data/database",
+			"staticName": "database.json"
+		}
+	}
+}

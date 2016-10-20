@@ -1,0 +1,4 @@
+{
+	"sqlDatabase":"sqlDatabase/manifest.json",
+	"sqlTable"   :"sqlTable/manifest.json"
+}
