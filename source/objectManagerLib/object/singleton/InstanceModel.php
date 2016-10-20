@@ -144,7 +144,6 @@ class InstanceModel {
 			$lMainModel = $this->getInstanceModel($pMainModelName);
 			$lInstanceModels =& $this->mLocalTypes[$pMainModelName];
 		}
-		
 		if (!array_key_exists($pModelName, $lInstanceModels)) { // model doesn't exists
 			throw new Exception("'$pModelName' doesn't exists, you must define it");
 		}
@@ -246,36 +245,44 @@ class InstanceModel {
 	}
 	
 	private function _buildLocalTypes($pModel, $pManifestPath_ad) {
-		// if localTypeIndex is different than -1 we are already building a local type (we can't define local type in another local type)
-		if (($this->mManifestParser->getLocalTypeIndex() == -1) && ($pModel instanceof MainModel)) {
+		if ($this->mManifestParser->isFocusOnLocalTypes()) {
+			throw new \Exception('cannot define local types in local types');
+		}
+		if (!($pModel instanceof MainModel)) {
+			// perhaps allow local models defined in there own manifest to have local types
+			return;
+		}
+		$this->mLocalTypes[$pModel->getModelName()] = [];
+		if ($this->mManifestParser->getLocalTypesCount() > 0) {
 			$lXmlLocalTypes = [];
 			$lMainModelName = $pModel->getModelName();
-			$this->mLocalTypes[$lMainModelName] = array();
 			
 			$this->mManifestParser->registerComplexLocalModels($this->mLocalTypes[$lMainModelName], $pManifestPath_ad);
+			$this->mManifestParser->activateFocusOnLocalTypes();
 			
-			while ($this->mManifestParser->nextLocalType()) {
+			do {
 				$lTypeId = $this->mManifestParser->getCurrentLocalTypeId();
 				
 				if (array_key_exists($lTypeId, $this->mLocalTypes[$lMainModelName])) {
 					throw new Exception("several local model with same type '$lTypeId' in main model '$lMainModelName'");
 				}
 				$this->mLocalTypes[$lMainModelName][$lTypeId] = new LocalModel($lTypeId, $lMainModelName, false);
-			}
-			$this->mManifestParser->resetLocalTypeIndex();
+			} while ($this->mManifestParser->nextLocalType());
 			
-			while ($this->mManifestParser->nextLocalType()) {
+			$this->mManifestParser->activateFocusOnLocalTypes();
+			do {
 				$lTypeId = $this->mManifestParser->getCurrentLocalTypeId();
 				$this->mLocalTypes[$lMainModelName][$lTypeId]->load();
-			}
-			$this->mManifestParser->resetLocalTypeIndex();
+			} while ($this->mManifestParser->nextLocalType());
+			
+			$this->mManifestParser->desactivateFocusOnLocalTypes();
 		}
 	}
 	
 	private function _buildProperties($pMainModel) {
 		$lProperties = [];
 	
-		while ($this->mManifestParser->nextProperty()) {
+		do {
 			$lModelName     = $this->mManifestParser->getCurrentPropertyModelName();
 			$lMainModelName = $pMainModel->getMainModelName();
 			
@@ -290,7 +297,7 @@ class InstanceModel {
 			$lProperty      = $this->mManifestParser->getCurrentProperty($lPropertyModel);
 			
 			$lProperties[$lProperty->getName()] = $lProperty;
-		}
+		} while ($this->mManifestParser->nextProperty());
 	
 		return $lProperties;
 	}

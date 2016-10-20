@@ -1,0 +1,57 @@
+{
+	"types": {
+		"object": {
+			"properties": {
+				"plop": {
+					"type": "string"
+				},
+				"plop2": {
+					"type": "string"
+				}
+			}
+		},
+		"objectWithId": {
+			"properties": {
+				"plop": {
+					"type": "string",
+					"is_id": true
+				},
+				"plop2": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"properties": {
+		"id1": {
+			"type": "string",
+			"is_id": true
+		},
+		"id2": {
+			"type": "string",
+			"is_id": true
+		},
+		"date": {
+			"type": "dateTime"
+		},
+		"timestamp": {
+			"type": "dateTime"
+		},
+		"object": {
+			"type": "object"
+		},
+		"objectWithId": {
+			"type": "objectWithId"
+		},
+		"string": {
+			"type": "string"
+		},
+		"integer": {
+			"type": "integer"
+		},
+		"mainParentTestDb": {
+			"type": "mainTestDb",
+			"is_foreign": true
+		}
+	}
+}

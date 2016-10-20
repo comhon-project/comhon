@@ -1,0 +1,13 @@
+{
+	"serialization": {
+		"type": "sqlTable",
+		"id": "mainTestDb"
+	},
+	"properties": {
+		"childrenTestDb": {
+			"compositions": [
+				"mainParentTestDb"
+			]
+		}
+	}
+}

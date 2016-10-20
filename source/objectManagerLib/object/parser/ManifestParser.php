@@ -20,23 +20,20 @@ abstract class ManifestParser {
 	protected $mManifest;
 	protected $mSerializationManifestParser;
 
-	private $mLocalTypesLastIndex;
-	protected $mLocalTypeIndex = -1;
-	
+	protected $mFocusLocalTypes = false;
+	protected $mLocalTypes;
 	protected $mCurrentProperties;
-	protected $mCurrentPropertyIndex = -1;
-	private $mCurrentPropertiesLastIndex;
 
 	public abstract function getExtends();
 	public abstract function getObjectClass();
 	public abstract function getCurrentLocalTypeId();
 	public abstract function getCurrentPropertyModelName();
 	
+	protected abstract function _getLocalTypes();
 	protected abstract function _loadManifest($pManifestPath_afe);
 	protected abstract function _getCurrentProperties();
-	protected abstract function _getLocalTypesCount();
 	protected abstract function _getBaseInfosProperty(Model $pPropertyModel);
-	protected abstract function _getCurrentPropertyStatus();
+	protected abstract function _isCurrentPropertyForeign();
 	
 	/**
 	 * @param Model $pModel
@@ -45,10 +42,12 @@ abstract class ManifestParser {
 	 */
 	public final function __construct(Model $pModel, $pManifestPath_afe, $pSerializationManifestPath_afe = null) {
 		$this->_loadManifest($pManifestPath_afe);
-		$this->mLocalTypesLastIndex = $this->_getLocalTypesCount() - 1;
 		$this->mCurrentProperties = $this->_getCurrentProperties();
-		$this->mCurrentPropertiesLastIndex = count($this->mCurrentProperties) - 1;
+		$this->mLocalTypes        = $this->_getLocalTypes();
 		
+		if (empty($this->mCurrentProperties)) {
+			throw new \Exception('manifest must have at least one property');
+		}
 		if (($pModel instanceof MainModel) && !is_null($pSerializationManifestPath_afe)) {
 			$this->mSerializationManifestParser = SerializationManifestParser::getInstance($pModel, $pSerializationManifestPath_afe);
 		}
@@ -62,15 +61,32 @@ abstract class ManifestParser {
 		return is_null($this->mSerializationManifestParser) ? null : $this->mSerializationManifestParser->getSerialization($pModel);
 	}
 	
-	public function getLocalTypeIndex() {
-		return $this->mLocalTypeIndex;
+	public function getLocalTypesCount() {
+		return count($this->mLocalTypes);
 	}
 	
-	public function resetLocalTypeIndex() {
-		$this->mLocalTypeIndex         = -1;
-		$this->mCurrentProperties      = $this->_getCurrentProperties();
-		$this->mCurrentPropertyIndex   = -1;
-		$this->mCurrentPropertiesLastIndex = count($this->mCurrentProperties) - 1;
+	public function isFocusOnLocalTypes() {
+		return $this->mFocusLocalTypes;
+	}
+	
+	public function activateFocusOnLocalTypes() {
+		reset($this->mLocalTypes);
+		$this->mFocusLocalTypes   = true;
+		$this->mCurrentProperties = $this->_getCurrentProperties();
+		
+		if (empty($this->mCurrentProperties)) {
+			throw new \Exception('manifest must have at least one property');
+		}
+	}
+	
+	public function desactivateFocusOnLocalTypes() {
+		reset($this->mLocalTypes);
+		$this->mFocusLocalTypes   = false;
+		$this->mCurrentProperties = $this->_getCurrentProperties();
+		
+		if (empty($this->mCurrentProperties)) {
+			throw new \Exception('manifest must have at least one property');
+		}
 	}
 	
 	/**
@@ -78,11 +94,12 @@ abstract class ManifestParser {
 	 * @return boolean false if cannot go to next element (typically when current element is the last)
 	 */
 	public function nextLocalType() {
-		if ($this->mLocalTypeIndex < $this->mLocalTypesLastIndex) {
-			$this->mLocalTypeIndex++;
-			$this->mCurrentProperties      = $this->_getCurrentProperties();
-			$this->mCurrentPropertyIndex   = -1;
-			$this->mCurrentPropertiesLastIndex = count($this->mCurrentProperties) - 1;
+		if ($this->mFocusLocalTypes && (next($this->mLocalTypes) !== false)) {
+			$this->mCurrentProperties = $this->_getCurrentProperties();
+			
+			if (empty($this->mCurrentProperties)) {
+				throw new \Exception('local type must have at least one property');
+			}
 			return true;
 		}
 		return false;
@@ -93,11 +110,7 @@ abstract class ManifestParser {
 	 * @return boolean false if cannot go to next element (typically when current element is the last)
 	 */
 	public function nextProperty() {
-		if ($this->mCurrentPropertyIndex < $this->mCurrentPropertiesLastIndex) {
-			$this->mCurrentPropertyIndex++;
-			return true;
-		}
-		return false;
+		return next($this->mCurrentProperties) !== false;
 	}
 	
 	/**
@@ -107,30 +120,28 @@ abstract class ManifestParser {
 	 * @return Property
 	 */
 	public function getCurrentProperty(Model $pPropertyModel) {
-		switch ($this->_getCurrentPropertyStatus()) {
-			case 'property':
-				list($lName, $lModel, $lIsId) = $this->_getBaseInfosProperty($pPropertyModel);
-				list($lSerializationName, $lCompositions) = $this->_getBaseSerializationInfosProperty($lName);
-				
-				$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId);
-				break;
-			case 'foreignProperty':
-				list($lName, $lModel, $lIsId) = $this->_getBaseInfosProperty($pPropertyModel);
-				list($lSerializationName, $lCompositions) = $this->_getBaseSerializationInfosProperty($lName);
-				
-				$lModelForeign = new ModelForeign($lModel);
-				if (is_null($lCompositions)) {
-					$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName);
-				} else {
-					$lProperty = new CompositionProperty($lModelForeign, $lName, $lCompositions, $lSerializationName);
-				}
-				break;
+		if ($this->_isCurrentPropertyForeign()) {
+			list($lName, $lModel, $lIsId) = $this->_getBaseInfosProperty($pPropertyModel);
+			list($lSerializationName, $lCompositions) = $this->_getBaseSerializationInfosProperty($lName);
+			
+			$lModelForeign = new ModelForeign($lModel);
+			if (is_null($lCompositions)) {
+				$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName);
+			} else {
+				$lProperty = new CompositionProperty($lModelForeign, $lName, $lCompositions, $lSerializationName);
+			}
+		}
+		else {
+			list($lName, $lModel, $lIsId) = $this->_getBaseInfosProperty($pPropertyModel);
+			list($lSerializationName, $lCompositions) = $this->_getBaseSerializationInfosProperty($lName);
+			
+			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId);
 		}
 		return $lProperty;
 	}
 	
 	private function _getBaseSerializationInfosProperty($pPropertyName) {
-		if (($this->mLocalTypeIndex == -1) && !is_null($this->mSerializationManifestParser)) {
+		if (!$this->mFocusLocalTypes && !is_null($this->mSerializationManifestParser)) {
 			return $this->mSerializationManifestParser->getPropertySerializationInfos($pPropertyName);
 		}
 		return [null, null];
@@ -180,6 +191,9 @@ abstract class ManifestParser {
 		switch (mb_strtolower(pathinfo($pManifestPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
 				return new XmlManifestParser($pModel, $pManifestPath_afe, $pSerializationManifestPath_afe);
+				break;
+			case 'json':
+				return new JsonManifestParser($pModel, $pManifestPath_afe, $pSerializationManifestPath_afe);
 				break;
 			default:
 				throw new \Exception('extension not recognized for manifest file : '.$pManifestPath_afe);

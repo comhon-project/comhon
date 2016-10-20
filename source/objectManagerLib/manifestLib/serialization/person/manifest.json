@@ -1,0 +1,32 @@
+{
+	"serialization": {
+		"type": "sqlTable",
+		"id": "person"
+	},
+	"properties": {
+		"id": {},
+		"firstName": {
+			"serializationName": "first_name"
+		},
+		"birthPlace": {
+			"serializationName": "birth_place"
+		},
+		"father": {
+			"serializationName": "father_id"
+		},
+		"mother": {
+			"serializationName": "mother_id"
+		},
+		"children": {
+			"compositions": [
+				"mother",
+				"father"
+			]
+		},
+		"homes": {
+			"compositions": [
+				"person"
+			]
+		}
+	}
+}

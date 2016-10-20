@@ -1,6 +1,6 @@
 {
 	"manifests": {
-		"personLocal": "..\/person\/manifest.xml"
+		"personLocal": "..\/person\/manifest.json"
 	},
 	"types": {
 		"objectContainer": {

@@ -36,7 +36,7 @@ class JsonManifestParser extends ManifestParser {
 	protected static function _registerComplexModels($pManifestListPath_afe, $pSerializationMap, &$pModelMap) {
 		$lManifestListFolder_ad = dirname($pManifestListPath_afe);
 		
-		$lManifestList = json_decode(file_get_contents($pManifestListPath_afe));
+		$lManifestList = json_decode(file_get_contents($pManifestListPath_afe), true);
 		if ($lManifestList === false || is_null($lManifestList)) {
 			throw new \Exception("manifestList file not found or malformed '$pManifestListPath_afe'");
 		}
@@ -59,7 +59,7 @@ class JsonManifestParser extends ManifestParser {
 		$lSerializationMap = [];
 		$pSerializationListFolrder_ad = dirname($pSerializationListPath_afe);
 	
-		$lSerializationList = json_decode(file_get_contents($pSerializationListPath_afe));
+		$lSerializationList = json_decode(file_get_contents($pSerializationListPath_afe), true);
 		if ($lSerializationList === false || is_null($lSerializationList)) {
 			throw new \Exception("serializationList file not found or malformed '$pSerializationListPath_afe'");
 		}
@@ -74,57 +74,49 @@ class JsonManifestParser extends ManifestParser {
 	 * @param string $pManifestPath_afe
 	 */
 	public function _loadManifest($pManifestPath_afe) {
-		$this->mManifest = simplexml_load_file($pManifestPath_afe);
+		$this->mManifest = json_decode(file_get_contents($pManifestPath_afe), true);
 	
 		if ($this->mManifest === false || is_null($this->mManifest)) {
-			throw new \Exception("manifest file not found '$pManifestPath_afe'");
+			throw new \Exception("manifest file not found or malformed '$pManifestPath_afe'");
 		}
 	}
 	
 	public function getExtends() {
-		if ($this->mLocalTypeIndex == -1)  {
-			return isset($this->mManifest[self::_EXTENDS]) ? (string) $this->mManifest[self::_EXTENDS] : null;
+		if ($this->mFocusLocalTypes)  {
+			return isset(current($this->mLocalTypes)[self::_EXTENDS]) ? current($this->mLocalTypes)[self::_EXTENDS] : null;
 		} else {
-			return isset($this->mManifest->types->type[$this->mLocalTypeIndex][self::_EXTENDS]) ? (string) $this->mManifest->types->type[$this->mLocalTypeIndex][self::_EXTENDS] : null;
+			return isset($this->mManifest[self::_EXTENDS]) ? $this->mManifest[self::_EXTENDS] : null;
 		}
 	}
 	
 	public function getObjectClass() {
-		if ($this->mLocalTypeIndex == -1)  {
-			return isset($this->mManifest[self::_OBJECT]) ? (string) $this->mManifest[self::_OBJECT] : null;
+		if ($this->mFocusLocalTypes)  {
+			return isset(current($this->mLocalTypes)[self::_OBJECT]) ? current($this->mLocalTypes)[self::_OBJECT] : null;
 		} else {
-			return isset($this->mManifest->types->type[$this->mLocalTypeIndex][self::_OBJECT]) ? (string) $this->mManifest->types->type[$this->mLocalTypeIndex][self::_OBJECT] : null;
+			return isset($this->mManifest[self::_OBJECT]) ? $this->mManifest[self::_OBJECT] : null;
 		}
 	}
 	
 	public function getCurrentLocalTypeId() {
-		return isset($this->mManifest->types->type[$this->mLocalTypeIndex])
-		? (string) $this->mManifest->types->type[$this->mLocalTypeIndex]['id']
-		: null;
+		return key($this->mLocalTypes);
 	}
 	
-	protected function _getLocalTypesCount() {
-		return isset($this->mManifest->types->type)
-					? count($this->mManifest->types->type)
-					: 0;
+	protected function _getLocalTypes() {
+		return array_key_exists('types', $this->mManifest) ? $this->mManifest['types'] : [];
 	}
 	
 	protected function _getCurrentProperties() {
-		return $this->mLocalTypeIndex == -1
-				? $this->mManifest->properties->children()
-				: $this->mManifest->types->type[$this->mLocalTypeIndex]->properties->children();
+		return $this->mFocusLocalTypes ? current($this->mLocalTypes)['properties'] : $this->mManifest['properties'];
 	}
 	
 	public function getCurrentPropertyModelName() {
-		return isset($this->mCurrentProperties[$this->mCurrentPropertyIndex])
-				? $this->_getPropertyModelName($this->mCurrentProperties[$this->mCurrentPropertyIndex])
-				: null;
+		return $this->_getPropertyModelName(current($this->mCurrentProperties));
 	}
 	
 	private function _getPropertyModelName($pProperty) {
-		$lModelName = (string) $pProperty['type'];
+		$lModelName = $pProperty['type'];
 		if ($lModelName == 'array') {
-			$lModelName = $this->_getPropertyModelName($pProperty->values);
+			$lModelName = $this->_getPropertyModelName($pProperty['values']);
 		}
 		return $lModelName;
 	}
@@ -132,73 +124,59 @@ class JsonManifestParser extends ManifestParser {
 	/**
 	 * @return string
 	 */
-	protected function _getCurrentPropertyStatus() {
-		return isset($this->mCurrentProperties[$this->mCurrentPropertyIndex])
-				? $this->mCurrentProperties[$this->mCurrentPropertyIndex]->getName()
-				: null;
+	protected function _isCurrentPropertyForeign() {
+		$lCurrentProperty = current($this->mCurrentProperties);
+		return isset($lCurrentProperty['is_foreign']) && $lCurrentProperty['is_foreign'];
 	}
 	
 	protected function _getBaseInfosProperty(Model $pPropertyModel) {
-		if (!isset($this->mCurrentProperties[$this->mCurrentPropertyIndex])) {
-			throw new \Exception("current property index '$this->mCurrentPropertyIndex' doesn't exists");
-		}
-		$lCurrentPropertyXml = $this->mCurrentProperties[$this->mCurrentPropertyIndex];
-		
-		$lName   = isset($lCurrentPropertyXml->name) ? (string) $lCurrentPropertyXml->name : (string) $lCurrentPropertyXml;
-		$lIsId   = (isset($lCurrentPropertyXml["id"]) && ((string) $lCurrentPropertyXml["id"] == "1")) ? true : false;
-		$lModel  = $this->_completePropertyModel($lCurrentPropertyXml, $pPropertyModel);
-		
+		$lCurrentPropertyJson = current($this->mCurrentProperties);
+	
+		$lName   = key($this->mCurrentProperties);
+		$lIsId   = array_key_exists('is_id', $lCurrentPropertyJson) && $lCurrentPropertyJson['is_id'];
+		$lModel  = $this->_completePropertyModel($lCurrentPropertyJson, $pPropertyModel);
+	
 		return array($lName, $lModel, $lIsId);
 	}
 	
 	/**
 	 * add model container if needed
-	 * @param \SimpleXMLElement $pPropertyXml
+	 * @param \SimpleJsonElement $pPropertyJson
 	 * @param Model $pModel
 	 * @throws \Exception
 	 * @return Model
 	 */
-	private function _completePropertyModel($pPropertyXml, $pModel) {
+	private function _completePropertyModel($pPropertyJson, $pModel) {
 		$lPropertyModel = null;
-		$lTypeId        = (string) $pPropertyXml['type'];
+		$lTypeId        = $pPropertyJson['type'];
 	
 		if ($lTypeId == 'array') {
-			if (!isset($pPropertyXml->values['name'])) {
-				throw new \Exception('type array must have a values name. property : '.(string) $pPropertyXml->name);
+			if (!isset($pPropertyJson['values']['name'])) {
+				throw new \Exception('type array must have a values name. property');
 			}
-			$lPropertyModel = new ModelArray($this->_completePropertyModel($pPropertyXml->values, $pModel), (string) $pPropertyXml->values['name']);
+			$lPropertyModel = new ModelArray($this->_completePropertyModel($pPropertyJson['values'], $pModel), $pPropertyJson['values']['name']);
 		}
 		else {
 			if ($pModel->getModelName() !== $lTypeId) {
 				throw new \Exception('model doesn\'t match with type');
 			}
-			if (isset($pPropertyXml->enum)) {
-				$lEnum = array();
-				foreach ($pPropertyXml->enum->value as $lValue) {
-					$lEnum[] = (string) $lValue;
-				}
-				$lPropertyModel = new ModelEnum($pModel, $lEnum);
-			}else {
-				$lPropertyModel = $pModel;
-			}
+			$lPropertyModel = isset($pPropertyJson['enum']) ? new ModelEnum($pModel, $pPropertyJson['enum']) : $pModel;
 		}
 		return $lPropertyModel;
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param array $pInstanceModels
 	 * @throws Exception
 	 */
 	public function registerComplexLocalModels(&$pInstanceModels, $pManifestPath_ad) {
-		if (isset($this->mManifest->manifests->manifest)) {
-			foreach ($this->mManifest->manifests->manifest as $lManifest) {
-				$lType = (string) $lManifest['type'];
+		if (isset($this->mManifest['manifests'])) {
+			foreach ($this->mManifest['manifests'] as $lType => $lManifestPath_rfe) {
 				if (array_key_exists($lType, $pInstanceModels)) {
 					throw new Exception("several model with same type : '$lType'");
 				}
-				$pManifestPath_rfe = (string) $lManifest;
-				$pInstanceModels[$lType] = array($pManifestPath_ad.'/'.$pManifestPath_rfe, null);
+				$pInstanceModels[$lType] = array($pManifestPath_ad.'/'.$lManifestPath_rfe, null);
 			}
 		}
 	}

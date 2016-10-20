@@ -5,6 +5,7 @@ namespace objectManagerLib\object\parser;
 use objectManagerLib\object\model\Model;
 use objectManagerLib\object\parser\xml\XmlSerializationManifestParser;
 use objectManagerLib\object\model\MainModel;
+use objectManagerLib\object\parser\json\JsonSerializationManifestParser;
 
 abstract class SerializationManifestParser {
 	
@@ -36,6 +37,9 @@ abstract class SerializationManifestParser {
 		switch (mb_strtolower(pathinfo($pSerializationManifestPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
 				return new XmlSerializationManifestParser($pModel, $pSerializationManifestPath_afe);
+				break;
+			case 'json':
+				return new JsonSerializationManifestParser($pModel, $pSerializationManifestPath_afe);
 				break;
 			default:
 				throw new \Exception('extension not recognized for manifest file : '.$pSerializationManifestPath_afe);

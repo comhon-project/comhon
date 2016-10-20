@@ -1,0 +1,13 @@
+{
+	"object": "objectManagerLib\\object\\object\\SqlTable",
+	"properties": {
+		"name": {
+			"type": "string",
+			"is_id": true
+		},
+		"database": {
+			"type": "sqlDatabase",
+			"is_foreign": true
+		}
+	}
+}

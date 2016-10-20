@@ -80,48 +80,52 @@ class XmlManifestParser extends ManifestParser {
 		$this->mManifest = simplexml_load_file($pManifestPath_afe);
 	
 		if ($this->mManifest === false || is_null($this->mManifest)) {
-			throw new \Exception("manifest file not found '$pManifestPath_afe'");
+			throw new \Exception("manifest file not found or malformed '$pManifestPath_afe'");
 		}
 	}
 	
 	public function getExtends() {
-		if ($this->mLocalTypeIndex == -1)  {
-			return isset($this->mManifest[self::_EXTENDS]) ? (string) $this->mManifest[self::_EXTENDS] : null;
+		if ($this->mFocusLocalTypes)  {
+			return isset(current($this->mLocalTypes)[self::_EXTENDS]) ? (string) current($this->mLocalTypes)[self::_EXTENDS] : null;
 		} else {
-			return isset($this->mManifest->types->type[$this->mLocalTypeIndex][self::_EXTENDS]) ? (string) $this->mManifest->types->type[$this->mLocalTypeIndex][self::_EXTENDS] : null;
+			return isset($this->mManifest[self::_EXTENDS]) ? (string) $this->mManifest[self::_EXTENDS] : null;
 		}
 	}
 	
 	public function getObjectClass() {
-		if ($this->mLocalTypeIndex == -1)  {
-			return isset($this->mManifest[self::_OBJECT]) ? (string) $this->mManifest[self::_OBJECT] : null;
+		if ($this->mFocusLocalTypes)  {
+			return isset(current($this->mLocalTypes)[self::_OBJECT]) ? (string) current($this->mLocalTypes)[self::_OBJECT] : null;
 		} else {
-			return isset($this->mManifest->types->type[$this->mLocalTypeIndex][self::_OBJECT]) ? (string) $this->mManifest->types->type[$this->mLocalTypeIndex][self::_OBJECT] : null;
+			return isset($this->mManifest[self::_OBJECT]) ? (string) $this->mManifest[self::_OBJECT] : null;
 		}
 	}
 	
 	public function getCurrentLocalTypeId() {
-		return isset($this->mManifest->types->type[$this->mLocalTypeIndex])
-		? (string) $this->mManifest->types->type[$this->mLocalTypeIndex]['id']
-		: null;
+		return (string) current($this->mLocalTypes)['id'];
 	}
 	
-	protected function _getLocalTypesCount() {
-		return isset($this->mManifest->types->type)
-					? count($this->mManifest->types->type)
-					: 0;
+	protected function _getLocalTypes() {
+		$lArrayLocaltTypes = [];
+		if (isset($this->mManifest->types->type)) {
+			foreach ($this->mManifest->types->type as $lXmlLocalType) {
+				$lArrayLocaltTypes[] = $lXmlLocalType;
+			}
+		}
+		return $lArrayLocaltTypes;
 	}
 	
 	protected function _getCurrentProperties() {
-		return $this->mLocalTypeIndex == -1
-				? $this->mManifest->properties->children()
-				: $this->mManifest->types->type[$this->mLocalTypeIndex]->properties->children();
+		$lArrayProperties = [];
+		$lXmlProperties   = $this->mFocusLocalTypes ? current($this->mLocalTypes)->properties : $this->mManifest->properties;
+		
+		foreach ($lXmlProperties->children() as $lXmlProperty) {
+			$lArrayProperties[] = $lXmlProperty;
+		}
+		return $lArrayProperties;
 	}
 	
 	public function getCurrentPropertyModelName() {
-		return isset($this->mCurrentProperties[$this->mCurrentPropertyIndex])
-				? $this->_getPropertyModelName($this->mCurrentProperties[$this->mCurrentPropertyIndex])
-				: null;
+		return $this->_getPropertyModelName(current($this->mCurrentProperties));
 	}
 	
 	private function _getPropertyModelName($pProperty) {
@@ -135,20 +139,20 @@ class XmlManifestParser extends ManifestParser {
 	/**
 	 * @return string
 	 */
-	protected function _getCurrentPropertyStatus() {
-		return isset($this->mCurrentProperties[$this->mCurrentPropertyIndex])
-				? $this->mCurrentProperties[$this->mCurrentPropertyIndex]->getName()
-				: null;
+	protected function _isCurrentPropertyForeign() {
+		if (current($this->mCurrentProperties)->getName() == 'property') {
+			return false;
+		} else if (current($this->mCurrentProperties)->getName() == 'foreignProperty') {
+			return true;
+		}
+		throw new \Exception('property node name not recognized');
 	}
 	
 	protected function _getBaseInfosProperty(Model $pPropertyModel) {
-		if (!isset($this->mCurrentProperties[$this->mCurrentPropertyIndex])) {
-			throw new \Exception("current property index '$this->mCurrentPropertyIndex' doesn't exists");
-		}
-		$lCurrentPropertyXml = $this->mCurrentProperties[$this->mCurrentPropertyIndex];
+		$lCurrentPropertyXml = current($this->mCurrentProperties);
 		
 		$lName   = isset($lCurrentPropertyXml->name) ? (string) $lCurrentPropertyXml->name : (string) $lCurrentPropertyXml;
-		$lIsId   = (isset($lCurrentPropertyXml["id"]) && ((string) $lCurrentPropertyXml["id"] == "1")) ? true : false;
+		$lIsId   = isset($lCurrentPropertyXml["id"]) && ((string) $lCurrentPropertyXml["id"] == "1");
 		$lModel  = $this->_completePropertyModel($lCurrentPropertyXml, $pPropertyModel);
 		
 		return array($lName, $lModel, $lIsId);

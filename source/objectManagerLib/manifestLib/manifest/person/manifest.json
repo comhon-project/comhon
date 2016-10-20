@@ -1,0 +1,52 @@
+{
+	"properties": {
+		"id": {
+			"type": "string",
+			"is_id": true
+		},
+		"firstName": {
+			"type": "string"
+		},
+		"lastName": {
+			"type": "string"
+		},
+		"age": {
+			"type": "integer"
+		},
+		"birthPlace": {
+			"type": "place",
+			"is_foreign": true
+		},
+		"sex": {
+			"enum": [
+				"male",
+				"female"
+			],
+			"type": "string"
+		},
+		"father": {
+			"type": "person",
+			"is_foreign": true
+		},
+		"mother": {
+			"type": "person",
+			"is_foreign": true
+		},
+		"children": {
+			"values": {
+				"type": "person",
+				"name": "child"
+			},
+			"type": "array",
+			"is_foreign": true
+		},
+		"homes": {
+			"values": {
+				"type": "home",
+				"name": "home"
+			},
+			"type": "array",
+			"is_foreign": true
+		}
+	}
+}

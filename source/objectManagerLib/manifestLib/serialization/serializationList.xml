@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list>
 	<serialization type="person">person/manifest.xml</serialization>
-	<serialization type="woman">woman/manifest.xml</serialization>
-	<serialization type="man">man/manifest.xml</serialization>
 	<serialization type="house">house/manifest.xml</serialization>
 	<serialization type="home">home/manifest.xml</serialization>
 	<serialization type="place">place/manifest.xml</serialization>

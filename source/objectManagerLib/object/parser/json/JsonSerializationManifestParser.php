@@ -14,7 +14,7 @@ class JsonSerializationManifestParser extends SerializationManifestParser {
 	 * @param string $pManifestPath_afe
 	 */
 	protected function _loadManifest($pManifestPath_afe) {
-		$this->mManifest = simplexml_load_file($pManifestPath_afe);
+		$this->mManifest = json_decode(file_get_contents($pManifestPath_afe), true);
 		
 		if ($this->mManifest === false || is_null($this->mManifest)) {
 			throw new \Exception("serialization manifest file not found '$pManifestPath_afe'");
@@ -26,15 +26,15 @@ class JsonSerializationManifestParser extends SerializationManifestParser {
 		$lSerializationName = null;
 		$lCompositions      = null;
 		
-		if (isset($this->mManifest->properties->$pPropertyName)) {
-			$lSerializationNode = $this->mManifest->properties->$pPropertyName;
+		if (isset($this->mManifest['properties'][$pPropertyName])) {
+			$lSerializationNode = $this->mManifest['properties'][$pPropertyName];
 			if (isset($lSerializationNode['serializationName'])) {
-				$lSerializationName = (string) $lSerializationNode['serializationName'];
+				$lSerializationName = $lSerializationNode['serializationName'];
 			}
-			if (isset($lSerializationNode->compositions->composition)) {
+			if (isset($lSerializationNode['compositions'])) {
 				$lCompositions = [];
-				foreach ($lSerializationNode->compositions->composition as $lComposition) {
-					$lCompositions[] = (string) $lComposition;
+				foreach ($lSerializationNode['compositions'] as $lComposition) {
+					$lCompositions[] = $lComposition;
 				}
 			}
 		}
@@ -43,23 +43,24 @@ class JsonSerializationManifestParser extends SerializationManifestParser {
 	}
 	
 	protected function _getSerialization() {
-		return isset($this->mManifest->serialization)
-					? $this->_buildSerialization($this->mManifest->serialization)
+		return isset($this->mManifest['serialization'])
+					? $this->_buildSerialization($this->mManifest['serialization'])
 					: null;
 	}
 	
 	private function _buildSerialization($pSerializationNode) {
-		$lType = (string) $pSerializationNode["type"];
-		if (isset($pSerializationNode->$lType)) {
-			$lObjectXml = $pSerializationNode->$lType;
+		$lType = $pSerializationNode['type'];
+		if (isset($pSerializationNode['value'])) {
 			$lSerialization = InstanceModel::getInstance()->getInstanceModel($lType)->getObjectInstance();
-			$lSerialization->fromXml($lObjectXml);
-		} else {
-			$lId = (string) $pSerializationNode;
+			$lSerialization->fromObject($pSerializationNode['value']);
+		} else if (isset($pSerializationNode['id'])) {
+			$lId = $pSerializationNode['id'];
 			if (empty($lId)) {
 				throw new \Exception('malformed serialization, must have description or id');
 			}
 			$lSerialization =  InstanceModel::getInstance()->getInstanceModel($lType)->loadObject($lId);
+		} else {
+			throw new \Exception('malformed serialization');
 		}
 		return $lSerialization;
 	}

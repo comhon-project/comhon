@@ -1,6 +1,6 @@
 {
-	"config"     :"config/manifest.xml",
-	"sqlDatabase":"sqlDatabase/manifest.xml",
-	"sqlTable"   :"sqlTable/manifest.xml",
-	"jsonFile"   :"jsonFile/manifest.xml"
+	"config"     :"config/manifest.json",
+	"sqlDatabase":"sqlDatabase/manifest.json",
+	"sqlTable"   :"sqlTable/manifest.json",
+	"jsonFile"   :"jsonFile/manifest.json"
 }

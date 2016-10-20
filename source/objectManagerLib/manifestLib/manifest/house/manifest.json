@@ -1,0 +1,28 @@
+{
+	"properties": {
+		"id": {
+			"type": "integer",
+			"is_id": true
+		},
+		"surface": {
+			"type": "float"
+		},
+		"type": {
+			"type": "string"
+		},
+		"garden": {
+			"type": "boolean"
+		},
+		"garage": {
+			"type": "boolean"
+		},
+		"residents": {
+			"values": {
+				"type": "home",
+				"name": "resident"
+			},
+			"type": "array",
+			"is_foreign": true
+		}
+	}
+}
