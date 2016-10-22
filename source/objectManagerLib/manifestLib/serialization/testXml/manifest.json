@@ -1,0 +1,9 @@
+{
+	"serialization": {
+		"type": "xmlFile",
+		"value": {
+			"saticPath": "/var/data/test_xml",
+			"staticName": "test.xml"
+		}
+	}
+}

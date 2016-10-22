@@ -6,5 +6,6 @@
 	"town"       : "town/manifest.json",
 	"test"       : "test/manifest.json",
 	"testDb"     : "testDb/manifest.json",
+	"testXml"    : "testXml/manifest.json",
 	"mainTestDb" : "mainTestDb/manifest.json"
 }

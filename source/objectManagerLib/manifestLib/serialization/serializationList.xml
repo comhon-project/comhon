@@ -7,5 +7,6 @@
 	<town>town/manifest.xml</town>
 	<test>test/manifest.xml</test>
 	<testDb>testDb/manifest.xml</testDb>
+	<testXml>testXml/manifest.xml</testXml>
 	<mainTestDb>mainTestDb/manifest.xml</mainTestDb>
 </serializations>

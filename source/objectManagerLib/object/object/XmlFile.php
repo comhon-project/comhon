@@ -1,16 +1,16 @@
 <?php
 namespace objectManagerLib\object\object;
 
-class JsonFile extends SerializationUnit {
+class XmlFile extends SerializationUnit {
 	
 	protected function _saveObject($pObject) {
 		$lPath = $this->getValue("saticPath") . DIRECTORY_SEPARATOR . $pObject->getId() . DIRECTORY_SEPARATOR . $this->getValue("staticName");
 		if (!file_exists(dirname($lPath))) {
 			if (!mkdir(dirname($lPath), 0777, true)) {
-				throw new \Exception("cannot save json file (id : {$pObject->getId()})");
+				throw new \Exception("cannot save xml file (id : {$pObject->getId()})");
 			}
 		}
-		return file_put_contents($lPath, json_encode($pObject->toObject()));
+		return $pObject->toXml()->asXML($lPath);
 	}
 	
 	/**
@@ -21,11 +21,11 @@ class JsonFile extends SerializationUnit {
 		$lId = $pObject->getId();
 		$lPath = $this->getValue("saticPath") . DIRECTORY_SEPARATOR . $lId . DIRECTORY_SEPARATOR . $this->getValue("staticName");
 		if (!file_exists($lPath)) {
-			throw new \Exception("cannot load json file, file doesn't exists (id : $lId)");
+			throw new \Exception("cannot load xml file, file doesn't exists (id : $lId)");
 		}
-		$lStdClassObject = json_decode(file_get_contents($lPath));
-		if ($lStdClassObject !== false) {
-			$pObject->fromObject($lStdClassObject);
+		$lSimpleXmlElement = simplexml_load_file($lPath);
+		if ($lSimpleXmlElement !== false && !is_null($lSimpleXmlElement)) {
+			$pObject->fromXml($lSimpleXmlElement);
 			return true;
 		}else {
 			return false;

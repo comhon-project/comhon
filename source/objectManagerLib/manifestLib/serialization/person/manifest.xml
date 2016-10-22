@@ -2,7 +2,6 @@
 <manifest>
 	<serialization type="sqlTable">person</serialization>
 	<properties>
-		<id autoIncrement="true" />
 		<firstName serializationName="first_name"/>
 		<birthPlace serializationName="birth_place"/>
 		<father serializationName="father_id"/>

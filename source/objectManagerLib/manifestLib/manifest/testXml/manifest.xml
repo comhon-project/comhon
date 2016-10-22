@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+	<manifests>
+		<personLocal>../person/manifest.xml</personLocal>
+	</manifests>
+
+	<types>
+		<objectContainer>
+			<properties>
+				<foreignProperty type="object">foreignObjectValue</foreignProperty>
+				<property type="objectTwo">objectValueTwo</property>
+				<property type="personLocal">person</property>
+			</properties>
+		</objectContainer>
+		<object>
+			<properties>
+				<property type="string" id="1">id</property>
+				<property type="string">propertyOne</property>
+				<property type="string">propertyTwo</property>
+			</properties>
+		</object>
+		<objectTwo>
+			<properties>
+				<property type="string" id="1">id</property>
+				<property type="string">propertyTwoOne</property>
+				<property type="string">propertyTwoTwo</property>
+			</properties>
+		</objectTwo>
+	</types>
+	
+	<properties>
+		<property type="string" id="1">name</property>
+		<property type="object">objectValue</property>
+		<property type="array">
+			<name>objectValues</name>
+			<values type="object" name="objectValue"/>
+		</property>
+		<property type="objectContainer">objectContainer</property>
+		<foreignProperty type="array">
+			<name>foreignObjectValues</name>
+			<values type="object" name="foreignObjectValue"/>
+		</foreignProperty>
+	</properties>
+</manifest>
