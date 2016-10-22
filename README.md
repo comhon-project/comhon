@@ -18,18 +18,9 @@ You don't have to create any classes (actually you can if you're not comfortable
 * provide API to request sql database and build automatically complexe sql requests without knowing sql syntaxe ([see wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Objects-request-api))
 
 ## Manifest Example
+A Manifest permit to describe a concept by listing its properties. Manifests can be defined in XML or JSON format
 
-The list of all your manifests must be referenced in an XML file. The path to this file must be defined in the file `config.json` with the key `manifestList` (see Installation chapter for more informations).
-```XML
-<?xml version="1.0" encoding="UTF-8"?>
-<list>
-	<manifest type="person">relative/path/to/person/manifest.xml</manifest>
-	<manifest type="house">relative/path/to/house/manifest.xml</manifest>
-	<manifest type="town">relative/path/to/town/manifest.xml</manifest>
-</list>
-```
-
-simple manifest to describe a person
+simple XML manifest to describe a person
 ```XML
 <manifest>
 	<properties>
@@ -39,6 +30,18 @@ simple manifest to describe a person
 	</properties>
 </manifest>
 ```
+
+simple JSON manifest to describe a person
+```JSON
+{
+	"properties": {
+		"firstName": {"type": "string"},
+		"lastName" : {"type": "string"},
+		"age"      : {"type": "integer"}
+	}
+}
+```
+for more informations to build complexes manifests take a look at [manifest wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Manifest)
 
 ## Code Example
 
@@ -75,21 +78,7 @@ give a chance to make a comhon object managment in your project and avoid many s
 
 ## Installation
 
-download and copy this project folder where you want on your system
-
-create the directory `/etc/comhon`
-
-create a json file named `config.json` in previous directory (absolute path would be `/etc/comhon/config.json`)
-
-and finaly put at least these two following entries to allow comhon library to find your manifests
-```
-{
-  "manifestList": "/absolute/path/to/directory/where/is/saved/file/manifestList.xml",
-  "serializationList": "/absolute/path/to/directory/where/is/saved/file/serializationList.xml"
-}
-```
-
-you're done, now you just have to include file `ObjectManagerLib.php` in your sources
+for more informations take a look at [installation wiki page] (https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Installation)
 
 ## API Reference
 
