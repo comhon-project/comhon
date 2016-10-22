@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest object="comhon\object\object\JsonFile">
+	<properties>
+		<property type="string">saticPath</property>
+		<property type="string">staticName</property>
+	</properties>
+</manifest>

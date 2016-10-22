@@ -2,9 +2,9 @@
 
 set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/public_html/ObjectManagerLib');
 
-require_once 'ObjectManagerLib.php';
+require_once 'Comhon.php';
 
-use objectManagerLib\object\singleton\InstanceModel;
+use comhon\object\singleton\InstanceModel;
 
 $lTestXmlModel = InstanceModel::getInstance()->getInstanceModel('testXml');
 $lTestXml = $lTestXmlModel->loadObject('plop2');

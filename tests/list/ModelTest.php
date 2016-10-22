@@ -1,18 +1,18 @@
 <?php
 
-use objectManagerLib\object\singleton\InstanceModel;
-use objectManagerLib\object\ComplexLoadRequest;
-use objectManagerLib\object\object\Object;
-use objectManagerLib\object\SimpleLoadRequest;
-use objectManagerLib\object\MainObjectCollection;
-use objectManagerLib\object\model\ModelArray;
-use objectManagerLib\object\model\Model;
-use objectManagerLib\object\model\MainModel;
-use objectManagerLib\object\model\ModelForeign;
+use comhon\object\singleton\InstanceModel;
+use comhon\object\ComplexLoadRequest;
+use comhon\object\object\Object;
+use comhon\object\SimpleLoadRequest;
+use comhon\object\MainObjectCollection;
+use comhon\object\model\ModelArray;
+use comhon\object\model\Model;
+use comhon\object\model\MainModel;
+use comhon\object\model\ModelForeign;
 
-use objectManagerLib\controller\CompositionLoader;
-use objectManagerLib\controller\ForeignObjectLoader;
-use objectManagerLib\visitor\ObjectCollectionCreator;
+use comhon\controller\CompositionLoader;
+use comhon\controller\ForeignObjectLoader;
+use comhon\visitor\ObjectCollectionCreator;
 
 $time_start = microtime(true);
 

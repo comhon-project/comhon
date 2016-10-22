@@ -1,11 +1,11 @@
 <?php
 
-use objectManagerLib\object\singleton\InstanceModel;
-use objectManagerLib\object\object\Object;
-use objectManagerLib\api\ObjectService;
-use objectManagerLib\object\object\SqlTable;
-use objectManagerLib\object\SimpleLoadRequest;
-use objectManagerLib\object\MainObjectCollection;
+use comhon\object\singleton\InstanceModel;
+use comhon\object\object\Object;
+use comhon\api\ObjectService;
+use comhon\object\object\SqlTable;
+use comhon\object\SimpleLoadRequest;
+use comhon\object\MainObjectCollection;
 
 $time_start = microtime(true);
 

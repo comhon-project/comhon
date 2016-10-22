@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest object="comhon\object\object\SqlTable">
+	<properties>
+		<property type="string" id="1">name</property>
+		<foreignProperty type="sqlDatabase">database</foreignProperty>
+	</properties>
+</manifest>

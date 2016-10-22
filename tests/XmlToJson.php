@@ -1,8 +1,8 @@
 <?php
 
 $lFolders = [
-	'/home/jean-philippe/ReposGit/ObjectManagerLib/source/objectManagerLib/manifestLib/',
-	'/home/jean-philippe/ReposGit/ObjectManagerLib/source/objectManagerLib/manifestCollection/'
+	'/home/jean-philippe/ReposGit/ObjectManagerLib/source/comhon/manifestLib/',
+	'/home/jean-philippe/ReposGit/ObjectManagerLib/source/comhon/manifestCollection/'
 ];
 
 foreach ($lFolders as $lFolder) {

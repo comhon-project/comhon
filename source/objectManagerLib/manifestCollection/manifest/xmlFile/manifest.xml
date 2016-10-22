@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest object="objectManagerLib\object\object\XmlFile">
-	<properties>
-		<property type="string">saticPath</property>
-		<property type="string">staticName</property>
-	</properties>
-</manifest>
