@@ -2,31 +2,31 @@
 <manifest>
 
 	<manifests>
-		<manifest type="personLocal">../person/manifest.xml</manifest>
+		<personLocal>../person/manifest.xml</personLocal>
 	</manifests>
 
 	<types>
-		<type id="objectContainer">
+		<objectContainer>
 			<properties>
 				<foreignProperty type="object">foreignObjectValue</foreignProperty>
 				<property type="objectTwo">objectValueTwo</property>
 				<property type="personLocal">person</property>
 			</properties>
-		</type>
-		<type id="object">
+		</objectContainer>
+		<object>
 			<properties>
 				<property type="string" id="1">id</property>
 				<property type="string">propertyOne</property>
 				<property type="string">propertyTwo</property>
 			</properties>
-		</type>
-		<type id="objectTwo">
+		</object>
+		<objectTwo>
 			<properties>
 				<property type="string" id="1">id</property>
 				<property type="string">propertyTwoOne</property>
 				<property type="string">propertyTwoTwo</property>
 			</properties>
-		</type>
+		</objectTwo>
 	</types>
 	
 	<properties>

@@ -40,14 +40,14 @@ class XmlManifestParser extends ManifestParser {
 		if ($lManifestList === false || is_null($lManifestList)) {
 			throw new \Exception("manifestList file not found or malformed '$pManifestListPath_afe'");
 		}
-		foreach ($lManifestList->manifest as $lManifest) {
-			$lType = (string) $lManifest['type'];
-			if (array_key_exists($lType, $pModelMap)) {
-				throw new Exception("several model with same type : '$lType'");
+		foreach ($lManifestList->children() as $lManifest) {
+			$lModelName = $lManifest->getName();
+			if (array_key_exists($lModelName, $pModelMap)) {
+				throw new Exception("several model with same type : '$lModelName'");
 			}
 			$lManifestPath_rfe = (string) $lManifest;
-			$lSerializationPath_afe = array_key_exists($lType, $pSerializationMap) ? $pSerializationMap[$lType] : null;
-			$pModelMap[$lType] = array($lManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe);
+			$lSerializationPath_afe = array_key_exists($lModelName, $pSerializationMap) ? $pSerializationMap[$lModelName] : null;
+			$pModelMap[$lModelName] = array($lManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe);
 		}
 	}
 	
@@ -65,9 +65,9 @@ class XmlManifestParser extends ManifestParser {
 		if ($lSerializationList === false || is_null($lSerializationList)) {
 			throw new \Exception("serializationList file not found or malformed '$pSerializationListPath_afe'");
 		}
-		foreach ($lSerializationList->serialization as $lSerialization) {
+		foreach ($lSerializationList->children() as $lSerialization) {
 			$lSerializationPath_rfe = (string) $lSerialization;
-			$lSerializationMap[(string) $lSerialization['type']] = $pSerializationListFolrder_ad.'/'.$lSerializationPath_rfe;
+			$lSerializationMap[$lSerialization->getName()] = $pSerializationListFolrder_ad.'/'.$lSerializationPath_rfe;
 		}
 	
 		return $lSerializationMap;
@@ -101,13 +101,13 @@ class XmlManifestParser extends ManifestParser {
 	}
 	
 	public function getCurrentLocalTypeId() {
-		return (string) current($this->mLocalTypes)['id'];
+		return current($this->mLocalTypes)->getName();
 	}
 	
 	protected function _getLocalTypes() {
 		$lArrayLocaltTypes = [];
-		if (isset($this->mManifest->types->type)) {
-			foreach ($this->mManifest->types->type as $lXmlLocalType) {
+		if (isset($this->mManifest->types)) {
+			foreach ($this->mManifest->types->children() as $lXmlLocalType) {
 				$lArrayLocaltTypes[] = $lXmlLocalType;
 			}
 		}
@@ -198,14 +198,14 @@ class XmlManifestParser extends ManifestParser {
 	 * @throws Exception
 	 */
 	public function registerComplexLocalModels(&$pInstanceModels, $pManifestPath_ad) {
-		if (isset($this->mManifest->manifests->manifest)) {
-			foreach ($this->mManifest->manifests->manifest as $lManifest) {
-				$lType = (string) $lManifest['type'];
-				if (array_key_exists($lType, $pInstanceModels)) {
-					throw new Exception("several model with same type : '$lType'");
+		if (isset($this->mManifest->manifests)) {
+			foreach ($this->mManifest->manifests->children() as $lManifest) {
+				$lModelName = $lManifest->getName();
+				if (array_key_exists($lModelName, $pInstanceModels)) {
+					throw new Exception("several model with same type : '$lModelName'");
 				}
 				$pManifestPath_rfe = (string) $lManifest;
-				$pInstanceModels[$lType] = array($pManifestPath_ad.'/'.$pManifestPath_rfe, null);
+				$pInstanceModels[$lModelName] = array($pManifestPath_ad.'/'.$pManifestPath_rfe, null);
 			}
 		}
 	}

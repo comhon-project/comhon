@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<list>
-	<manifest type="person">person/manifest.xml</manifest>
-	<manifest type="house">house/manifest.xml</manifest>
-	<manifest type="home">home/manifest.xml</manifest>
-	<manifest type="place">place/manifest.xml</manifest>
-	<manifest type="town">town/manifest.xml</manifest>
-	<manifest type="test">test/manifest.xml</manifest>
-	<manifest type="testDb">testDb/manifest.xml</manifest>
-	<manifest type="mainTestDb">mainTestDb/manifest.xml</manifest>
-</list>
+<manifests>
+	<person>person/manifest.xml</person>
+	<house>house/manifest.xml</house>
+	<home>home/manifest.xml</home>
+	<place>place/manifest.xml</place>
+	<town>town/manifest.xml</town>
+	<test>test/manifest.xml</test>
+	<testDb>testDb/manifest.xml</testDb>
+	<mainTestDb>mainTestDb/manifest.xml</mainTestDb>
+</manifests>

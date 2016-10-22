@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<list>
-	<serialization type="person">person/manifest.xml</serialization>
-	<serialization type="house">house/manifest.xml</serialization>
-	<serialization type="home">home/manifest.xml</serialization>
-	<serialization type="place">place/manifest.xml</serialization>
-	<serialization type="town">town/manifest.xml</serialization>
-	<serialization type="test">test/manifest.xml</serialization>
-	<serialization type="testDb">testDb/manifest.xml</serialization>
-	<serialization type="mainTestDb">mainTestDb/manifest.xml</serialization>
-</list>
+<serializations>
+	<person>person/manifest.xml</person>
+	<house>house/manifest.xml</house>
+	<home>home/manifest.xml</home>
+	<place>place/manifest.xml</place>
+	<town>town/manifest.xml</town>
+	<test>test/manifest.xml</test>
+	<testDb>testDb/manifest.xml</testDb>
+	<mainTestDb>mainTestDb/manifest.xml</mainTestDb>
+</serializations>

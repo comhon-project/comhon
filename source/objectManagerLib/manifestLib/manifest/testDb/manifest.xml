@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
 	<types>
-		<type id="object">
+		<object>
 			<properties>
 				<property type="string">plop</property>
 				<property type="string">plop2</property>
 			</properties>
-		</type>
-		<type id="objectWithId">
+		</object>
+		<objectWithId>
 			<properties>
 				<property type="string" id="1">plop</property>
 				<property type="string">plop2</property>
 			</properties>
-		</type>
+		</objectWithId>
 	</types>
 	
 	<properties>

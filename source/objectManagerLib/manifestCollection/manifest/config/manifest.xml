@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
 	<types>
-		<type id="dbOpt">
+		<dbOpt>
 			<properties>
 				<property type="string">charset</property>
 				<property type="string">timezone</property>
 			</properties>
-		</type>
+		</dbOpt>
 	</types>
 	
 	<properties>
