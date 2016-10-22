@@ -20,7 +20,7 @@ You don't have to create any classes (actually you can if you're not comfortable
 ## Manifest Example
 A Manifest permit to describe a concept by listing its properties. Manifests can be defined in XML or JSON format
 
-simple XML manifest to describe a person
+simple XML manifest to describe a person :
 ```XML
 <manifest>
 	<properties>
@@ -31,7 +31,7 @@ simple XML manifest to describe a person
 </manifest>
 ```
 
-simple JSON manifest to describe a person
+simple JSON manifest to describe a person :
 ```JSON
 {
 	"properties": {
