@@ -8,17 +8,21 @@ class ForeignProperty extends Property {
 	
 	private $mCompositionProperties = null;
 	
-	public function __construct($pModel, $pName, $pSerializationName = null) {
-		parent::__construct($pModel, $pName, $pSerializationName);
+	public function __construct($pModel, $pName, $pSerializationName = null, $pIsPrivate = false) {
+		parent::__construct($pModel, $pName, $pSerializationName, false, $pIsPrivate);
 	}
 	
 	public function loadValue(Object $pObject) {
-		if ($pObject->getModel() !== $this->getUniqueModel()) {
-			throw new \Exception('object not compatible with property ');
+		if ($pObject->isLoaded()) {
+			return false;
+		}
+		if ($pObject->getModel() !== $this->getUniqueModel() && !$pObject->getModel()->isInheritedFrom($this->getUniqueModel())) {
+			$lReflexion1 = new \ReflectionClass(get_class($pObject->getModel()));
+			$lReflexion2 = new \ReflectionClass(get_class($this->getUniqueModel()));
+			throw new \Exception("object not compatible with property : {$pObject->getModel()->getModelName()} ({$lReflexion1->getShortName()}) | {$this->getUniqueModel()->getModelName()} ({$lReflexion2->getShortName()})");
 		}
 		$lSerializationUnit = $this->getUniqueModel()->getSerialization();
 		if (is_null($lSerializationUnit)) {
-			trigger_error("+++++++++ no serial +++++++++");
 			return false;
 		}
 		return $lSerializationUnit->loadObject($pObject);
@@ -40,4 +44,7 @@ class ForeignProperty extends Property {
 		return $this->getUniqueModel()->getSqlTableUnit();
 	}
 	
+	public function isForeign() {
+		return true;
+	}
 }

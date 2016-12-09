@@ -44,33 +44,33 @@ class HavingLiteral extends Literal {
 		return sprintf("%s(%s.%s) %s %s", $this->mFunction, $this->mTable, $this->mColumn, $this->mOperator, $this->mValue);
 	}
 	
-	private static function _verifPhpObject($pPhpObject) {
-		if (!is_object($pPhpObject) || !isset($pPhpObject->function) || !isset($pPhpObject->node) || !isset($pPhpObject->column) || !isset($pPhpObject->operator) ||!isset($pPhpObject->value)) {
-			throw new \Exception("malformed phpObject literal : ".json_encode($pPhpObject));
+	private static function _verifStdObject($pStdObject) {
+		if (!is_object($pStdObject) || !isset($pStdObject->function) || !isset($pStdObject->node) || !isset($pStdObject->column) || !isset($pStdObject->operator) ||!isset($pStdObject->value)) {
+			throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
 		}
 	}
 	
 	/**
-	 * @param stdClass $pPhpObject
+	 * @param stdClass $pStdObject
 	 * @param Tree $pJoinTree
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function phpObjectToLiteral($pPhpObject, &$pLeftJoins, $pLiteralCollection = null) {
-		self::_verifPhpObject($pPhpObject);
-		$lLiteral  = new HavingLiteral($pPhpObject->function, $pPhpObject->node, $pPhpObject->column, $pPhpObject->operator, $pPhpObject->value);
+	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null) {
+		self::_verifStdObject($pStdObject);
+		$lLiteral  = new HavingLiteral($pStdObject->function, $pStdObject->node, $pStdObject->column, $pStdObject->operator, $pStdObject->value);
 		return $lLiteral;
 	}
 	
 	/**
-	 * @param stdClass $pPhpObject
+	 * @param stdClass $pStdObject
 	 * @param Tree $pJoinTree
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function phpObjectToHavingLiteral($pPhpObject) {
-		self::_verifPhpObject($pPhpObject);
-		$lLiteral  = new HavingLiteral($pPhpObject->function, $pPhpObject->node, $pPhpObject->column, $pPhpObject->operator, $pPhpObject->value);
+	public static function stdObjectToHavingLiteral($pStdObject) {
+		self::_verifStdObject($pStdObject);
+		$lLiteral  = new HavingLiteral($pStdObject->function, $pStdObject->node, $pStdObject->column, $pStdObject->operator, $pStdObject->value);
 		return $lLiteral;
 	}
 	

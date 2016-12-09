@@ -220,19 +220,19 @@ class LogicalJunction {
 		return $lSatisfied;
 	}
 	
-	public static function phpObjectToLogicalJunction($pPhpObject, &$pLeftJoins, $pLiteralCollection = null) {
-		if (!isset($pPhpObject->type) || (isset($pPhpObject->logicalJunctions) && !is_array($pPhpObject->logicalJunctions)) || (isset($pPhpObject->literals) && !is_array($pPhpObject->literals))) {
-			throw new \Exception("malformed phpObject LogicalJunction : ".json_encode($pPhpObject));
+	public static function stdObjectToLogicalJunction($pStdObject, &$pLeftJoins, $pLiteralCollection = null) {
+		if (!isset($pStdObject->type) || (isset($pStdObject->logicalJunctions) && !is_array($pStdObject->logicalJunctions)) || (isset($pStdObject->literals) && !is_array($pStdObject->literals))) {
+			throw new \Exception("malformed stdObject LogicalJunction : ".json_encode($pStdObject));
 		}
-		$lLogicalJunction = new LogicalJunction($pPhpObject->type);
-		if (isset($pPhpObject->logicalJunctions)) {
-			foreach ($pPhpObject->logicalJunctions as $lPhpObjectLogicalJunction) {
-				$lLogicalJunction->addLogicalJunction(LogicalJunction::phpObjectToLogicalJunction($lPhpObjectLogicalJunction, $pLeftJoins, $pLiteralCollection));
+		$lLogicalJunction = new LogicalJunction($pStdObject->type);
+		if (isset($pStdObject->logicalJunctions)) {
+			foreach ($pStdObject->logicalJunctions as $lStdObjectLogicalJunction) {
+				$lLogicalJunction->addLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($lStdObjectLogicalJunction, $pLeftJoins, $pLiteralCollection));
 			}
 		}
-		if (isset($pPhpObject->literals)) {
-			foreach ($pPhpObject->literals as $lPhpObjectLiteral) {
-				$lLogicalJunction->addLiteral(Literal::phpObjectToLiteral($lPhpObjectLiteral, $pLeftJoins, $pLiteralCollection));
+		if (isset($pStdObject->literals)) {
+			foreach ($pStdObject->literals as $lStdObjectLiteral) {
+				$lLogicalJunction->addLiteral(Literal::stdObjectToLiteral($lStdObjectLiteral, $pLeftJoins, $pLiteralCollection));
 			}
 		}
 		return $lLogicalJunction;

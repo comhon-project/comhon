@@ -97,52 +97,52 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	/**
 	 * 
-	 * @param stdClass $pPhpObject
+	 * @param stdClass $pStdObject
 	 * @return ComplexLoadRequest
 	 */
-	public static function buildObjectLoadRequest($pPhpObject) {
-		if (isset($pPhpObject->model)) {
-			$lObjectLoadRequest = new ComplexLoadRequest($pPhpObject->model);
-		} else if (isset($pPhpObject->tree) && isset($pPhpObject->tree->model)) {
-			$lObjectLoadRequest = new ComplexLoadRequest($pPhpObject->tree->model);
-			$lObjectLoadRequest->importModelTree($pPhpObject->tree);
+	public static function buildObjectLoadRequest($pStdObject) {
+		if (isset($pStdObject->model)) {
+			$lObjectLoadRequest = new ComplexLoadRequest($pStdObject->model);
+		} else if (isset($pStdObject->tree) && isset($pStdObject->tree->model)) {
+			$lObjectLoadRequest = new ComplexLoadRequest($pStdObject->tree->model);
+			$lObjectLoadRequest->importModelTree($pStdObject->tree);
 		} else {
 			throw new Exception("request doesn't have model");
 		}
-		if (isset($pPhpObject->logicalJunction) && isset($pPhpObject->literal)) {
+		if (isset($pStdObject->logicalJunction) && isset($pStdObject->literal)) {
 			throw new Exception('can\'t have logicalJunction and literal properties in same time');
 		}
-		if (isset($pPhpObject->literalCollection)) {
-			$lObjectLoadRequest->importLiteralCollection($pPhpObject->literalCollection);
+		if (isset($pStdObject->literalCollection)) {
+			$lObjectLoadRequest->importLiteralCollection($pStdObject->literalCollection);
 		}
-		if (isset($pPhpObject->logicalJunction)) {
-			$lObjectLoadRequest->importLogicalJunction($pPhpObject->logicalJunction);
+		if (isset($pStdObject->logicalJunction)) {
+			$lObjectLoadRequest->importLogicalJunction($pStdObject->logicalJunction);
 		}
-		else if (isset($pPhpObject->literal)) {
-			$lObjectLoadRequest->importLiteral($pPhpObject->literal);
+		else if (isset($pStdObject->literal)) {
+			$lObjectLoadRequest->importLiteral($pStdObject->literal);
 		}
-		if (isset($pPhpObject->maxLength)) {
-			$lObjectLoadRequest->setMaxLength($pPhpObject->maxLength);
+		if (isset($pStdObject->maxLength)) {
+			$lObjectLoadRequest->setMaxLength($pStdObject->maxLength);
 		}
-		if (isset($pPhpObject->offset)) {
-			$lObjectLoadRequest->setOffset($pPhpObject->offset);
+		if (isset($pStdObject->offset)) {
+			$lObjectLoadRequest->setOffset($pStdObject->offset);
 		}
-		if (isset($pPhpObject->order)) {
-			if (!is_array($pPhpObject->order)) {
+		if (isset($pStdObject->order)) {
+			if (!is_array($pStdObject->order)) {
 				throw new Exception("order parameter must be an array");
 			}
-			foreach ($pPhpObject->order as $lOrder) {
+			foreach ($pStdObject->order as $lOrder) {
 				if (!isset($lOrder->property)) {
 					throw new Exception("an order element doesn't have property");
 				}
 				$lObjectLoadRequest->addOrder($lOrder->property, isset($lOrder->type) ? $lOrder->type : SelectQuery::ASC);
 			}
 		}
-		if (isset($pPhpObject->requestChildren)) {
-			$lObjectLoadRequest->requestChildren($pPhpObject->requestChildren);
+		if (isset($pStdObject->requestChildren)) {
+			$lObjectLoadRequest->requestChildren($pStdObject->requestChildren);
 		}
-		if (isset($pPhpObject->loadForeignProperties)) {
-			$lObjectLoadRequest->loadForeignProperties($pPhpObject->loadForeignProperties);
+		if (isset($pStdObject->loadForeignProperties)) {
+			$lObjectLoadRequest->loadForeignProperties($pStdObject->loadForeignProperties);
 		}
 		return $lObjectLoadRequest;
 	}
@@ -187,13 +187,13 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		return $this;
 	}
 	
-	public function importLiteralCollection($pPhpObjectLiteralCollection) {
+	public function importLiteralCollection($pStdObjectLiteralCollection) {
 		if (is_null($this->mLeftJoins)) {
 			throw new \Exception('model tree must be set');
 		}
-		if (is_array($pPhpObjectLiteralCollection)) {
-			foreach ($pPhpObjectLiteralCollection as $pPhpObjectLiteral) {
-				$this->addliteralToCollection(Literal::phpObjectToLiteral($pPhpObjectLiteral, $this->mLeftJoins));
+		if (is_array($pStdObjectLiteralCollection)) {
+			foreach ($pStdObjectLiteralCollection as $pStdObjectLiteral) {
+				$this->addliteralToCollection(Literal::stdObjectToLiteral($pStdObjectLiteral, $this->mLeftJoins));
 			}
 		}
 	}
@@ -208,7 +208,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$this->mLiteralCollection[$pLiteral->getId()] = $pLiteral;
 	}
 	
-	public function importLogicalJunction($pPhpObjectLogicalJunction) {
+	public function importLogicalJunction($pStdObjectLogicalJunction) {
 		if (is_null($this->mLeftJoins)) {
 			$lMainTableName = $this->mModel->getSqlTableUnit()->getValue("name");
 			$this->mSelectQuery = new SelectQuery($lMainTableName);
@@ -216,10 +216,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$this->mLeftJoins[$lMainTableName] = array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lMainTableName, "right_table_alias" => null);
 
 			$lModels = array();
-			$this->_getModelLiterals($pPhpObjectLogicalJunction, $lMainTableName, $lModels);
+			$this->_getModelLiterals($pStdObjectLogicalJunction, $lMainTableName, $lModels);
 			$this->_buildModelTree($lModels);
 		}
-		$this->setLogicalJunction(LogicalJunction::phpObjectToLogicalJunction($pPhpObjectLogicalJunction, $this->mLeftJoins, $this->mLiteralCollection));
+		$this->setLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($pStdObjectLogicalJunction, $this->mLeftJoins, $this->mLiteralCollection));
 		
 		array_shift($this->mLeftJoins);
 		foreach ($this->mLeftJoins as $lLeftJoin) {
@@ -228,11 +228,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		}
 	}
 	
-	public function importLiteral($pPhpObjectLiteral) {
+	public function importLiteral($pStdObjectLiteral) {
 		if (is_null($this->mLeftJoins)) {
-			$this->_buildModelTree(array($pPhpObjectLiteral->model => null));
+			$this->_buildModelTree(array($pStdObjectLiteral->model => null));
 		}
-		$this->setLiteral(Literal::phpObjectToLiteral($pPhpObjectLiteral, $this->mLeftJoins, $this->mLiteralCollection));
+		$this->setLiteral(Literal::stdObjectToLiteral($pStdObjectLiteral, $this->mLeftJoins, $this->mLiteralCollection));
 	}
 	
 	private function finalize() {
@@ -269,11 +269,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		return $this->mSelectQuery;
 	}
 	
-	private function _getModelLiterals($pPhpObjectLogicalJunction, $pMainTableName, &$pModels) {
-		if (isset($pPhpObjectLogicalJunction->literals)) {
-			foreach ($pPhpObjectLogicalJunction->literals as $lLiteral) {
+	private function _getModelLiterals($pStdObjectLogicalJunction, $pMainTableName, &$pModels) {
+		if (isset($pStdObjectLogicalJunction->literals)) {
+			foreach ($pStdObjectLogicalJunction->literals as $lLiteral) {
 				if (!isset($lLiteral->model)) {
-					throw new \Exception("malformed phpObject literal : ".json_encode($lLiteral));
+					throw new \Exception("malformed stdObject literal : ".json_encode($lLiteral));
 				}
 				InstanceModel::getInstance()->getInstanceModel($lLiteral->model); // verify if model exists
 				if (!array_key_exists($lLiteral->model, $pModels)) {
@@ -288,8 +288,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				unset($lLiteral->model);
 			}
 		}
-		if (isset($pPhpObjectLogicalJunction->logicalJunctions)) {
-			foreach ($pPhpObjectLogicalJunction->logicalJunctions as $lLogicalJunction) {
+		if (isset($pStdObjectLogicalJunction->logicalJunctions)) {
+			foreach ($pStdObjectLogicalJunction->logicalJunctions as $lLogicalJunction) {
 				$this->_getModelLiterals($lLogicalJunction, $pMainTableName, $pModels);
 			}
 		}
@@ -438,117 +438,20 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	private function _buildObjectsWithRows($pRows) {
+		$lSqlTable = $this->mModel->getSqlTableUnit();
+		
+		if (!is_null($lSqlTable->getInheritanceKey())) {
+			foreach ($pRows as &$lRow) {
+				$lModel = $lSqlTable->getInheritedModel($lRow, $this->mModel);
+				if ($lModel !== $this->mModel) {
+					$lRow[Model::INHERITANCE_KEY] = $lModel->getModelName();
+				}
+			}
+		}
 		$lModelArray = new ModelArray($this->mModel, $this->mModel->getModelName());
-		$lObjectArray = $lModelArray->fromSqlDataBase($pRows, Model::MERGE, SqlTable::getDatabaseConnectionTimeZone());
+		$lObjectArray = $lModelArray->fromSqlDatabase($pRows, Model::MERGE, SqlTable::getDatabaseConnectionTimeZone());
+		
 		return $this->_updateObjects($lObjectArray);
-	}
-	
-	/*
-	 * $pOperationList is an array of sdtClass objects.
-	 * exemple :
-	 *    [
-	 *    	0 : {operation : "update", id : "12", metada : {...}},
-	 *    	1 : {operation : "create", metada : {...}},
-	 *    	2 : {operation : "delete", id : "12"}
-	 *    ]
-	 */
-	public function manageObjectList($pOperationList, $pSaveData = true) {
-		$lReturn = array();
-		
-		foreach ($pOperationList as $lStdClassObject) {
-			try {
-				if (!isset($lStdClassObject->operation)) {
-					throw new Exception("operation missing");
-				}
-				switch ($lStdClassObject->operation) {
-					case self::CREATE:
-						$lResult = $this->_createOrUpdateObject($lStdClassObject, true);
-					break;
-					case self::UPDATE:
-						$lResult = $this->_createOrUpdateObject($lStdClassObject, false);
-					break;
-					case self::CREATE_OR_UPDATE:
-						if (isset($lStdClassObject->id)) {// if there is an id that means the object has already been created so we do an update
-							$lResult = $this->_createOrUpdateObject($lStdClassObject, false);
-						}else {// else we do an insert
-							$lResult = $this->_createOrUpdateObject($lStdClassObject, true);
-						}
-					break;
-					case self::DELETE_CASCADE:
-						 //TODO if it's possible remove children and then go in DELETE
-					case self::DELETE:
-						$lResult = $this->_deleteObject($lStdClassObject->id);
-					break;
-					default:
-						throw new Exception("operation not recognize : ".$lStdClassObject->operation);
-					break;
-				}
-			}catch (Exception $e) {
-				trigger_error(get_class($this));
-				$lResult = $this->_setErrorObject($e, $lStdClassObject->id);
-			}
-			$lReturn[] = $lResult;
-		}
-		/*if ($pSaveData) {
-			$lExchangePointController = ExchangePointController::getInstance();
-			$lExchangePointController->sendAllData();
-		}*/
-		return $lReturn;
-	}
-	
-	/*
-	 * update the dataBase
-	 * just put files in $pBasePath will not save them. They must be sent to ADFData so $pBasePath should be a path to an exchange point
-	 * 
-	 * $pCreate indicate if object must be created or updated
-	 * 
-	 */
-	protected function _createOrUpdateObject($pStdClassObject, $pCreate) {
-		try {
-			$this->_checkSentModel($pStdClassObject, $pCreate);
-			$lObject = $this->_getOrCreateObject($pStdClassObject, $pCreate);
-			$lResult = $lObject->toObjectPrimayKey();
-			$lResult->success = true;
-		}catch (Exception $e) {
-			$lResult = $this->_setErrorObject($e, $pStdClassObject->id);
-		}
-		return $lResult;
-	}
-	
-	protected function _checkSentModel($pStdClassObject, $pCreate) {
-		if ((!$pCreate && !isset($pStdClassObject->id)) || ($pCreate && (!isset($pStdClassObject->metadata)))) {
-			throw new Exception("Bad object");
-		}
-	}
-	
-	protected function _getOrCreateObject($pStdClassObject, $pCreate) {
-		if ($pCreate) {
-			$lObject = clone $this->mObjectReference;
-			$lId = (isset($pStdClassObject->id)) ? $pStdClassObject->id : null;
-			$this->_createObject($lObject, $pStdClassObject->metadata, $lId);
-		}else {
-			$lObject = $this->_getObjectfromSqlDataBaseWithId($pStdClassObject->id);
-			if (is_null($lObject)) {
-				throw new Exception("object does not exist");
-			}
-			if (isset($pStdClassObject->metadata)) {
-				$this->_updateObject($lObject, $pStdClassObject->metadata);
-			}
-		}
-		return $lObject;
-	}
-	
-	protected function _setErrorObject($pException, $pId = null) {
-		$lResult = new stdClass();
-		$lResult->success = false;
-		$lResult->error = new stdClass();
-		$lResult->error->code = $pException->getCode();
-		$lResult->error->message = $pException->getMessage();
-		if (!is_null($pId)) {
-			$lResult->id = $pId;
-		}
-		
-		return $lResult;
 	}
 	
 }

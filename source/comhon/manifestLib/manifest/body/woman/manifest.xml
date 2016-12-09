@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest extends="body">
+	<properties>
+		<property type="string">chestSize</property>
+		<foreignProperty type="woman">owner</foreignProperty>
+	</properties>
+</manifest>

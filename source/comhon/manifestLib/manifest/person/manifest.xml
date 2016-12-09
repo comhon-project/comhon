@@ -4,17 +4,11 @@
 		<property type="string" id="1">id</property>
 		<property type="string">firstName</property>
 		<property type="string">lastName</property>
-		<property type="integer">age</property>
+		<property type="dateTime">birthDate</property>
 		<foreignProperty type="place">birthPlace</foreignProperty>
-		<property type="string">
-			<name>sex</name>
-			<enum>
-				<value>male</value>
-				<value>female</value>
-			</enum>
-		</property>
-		<foreignProperty type="person">father</foreignProperty>
-		<foreignProperty type="person">mother</foreignProperty>
+		<foreignProperty type="person">bestFriend</foreignProperty>
+		<foreignProperty type="man">father</foreignProperty>
+		<foreignProperty type="woman">mother</foreignProperty>
 		<foreignProperty type="array">
 			<name>children</name>
 			<values type="person" name="child"/>
@@ -27,17 +21,5 @@
 			<name>realEstateProperties</name>
 			<values type="home"/>
 		</foreignProperty>-->
-		
-		<!-- test
-		<property type="array">
-			<name>otherNames</name>
-			<values type="string">
-				<enum>
-					<value>paul</value>
-					<value>marcel</value>
-				</enum>
-			</values>
-		</property>
-		 -->
 	</properties>
 </manifest>

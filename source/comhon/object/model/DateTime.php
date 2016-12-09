@@ -11,23 +11,23 @@ class DateTime extends SimpleModel {
 		$this->mModelName = self::ID;
 	}
 	
-	protected function _toObject($pValue, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		return $this->toString($pValue, $pDateTimeZone);
 	}
 	
-	protected function _fromObject($pValue, $pDateTimeZone, $pLocalObjectCollection = null) {
+	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection = null) {
 		return $this->fromString($pValue, $pDateTimeZone);
 	}
 	
-	protected function _toXml($pValue, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		return $this->toString($pValue, $pDateTimeZone);
 	}
 	
-	protected function _fromXml($pValue, $pDateTimeZone, $pLocalObjectCollection = null) {
+	protected function _fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection = null) {
 		return $this->fromString((string) $pValue,$pDateTimeZone);
 	}
 	
-	protected function _fromSqlColumn($pValue, $pDateTimeZone, $pLocalObjectCollection = null) {
+	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection = null) {
 		return $this->fromString($pValue, $pDateTimeZone);
 	}
 	
@@ -58,5 +58,21 @@ class DateTime extends SimpleModel {
 		}
 		
 		return $pDateTime->format('c');
+	}
+	
+	public function  isCheckedValueType($pValue) {
+		return $pValue instanceof \DateTime;
+	}
+	
+	public function castValue($pValue) {
+		throw new \Exception('cannot cast datetime object');
+	}
+	
+	public function verifValue($pValue) {
+		if (!($pValue instanceof \DateTime)) {
+			$lNodes = debug_backtrace();
+			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
+			throw new \Exception("Argument 2 passed to {$lNodes[1]['class']}::{$lNodes[1]['function']}() must be an instance of dateTime, instance of $lClass given, called in {$lNodes[1]['file']} on line {$lNodes[1]['line']} and defined in {$lNodes[0]['file']}");
+		}
 	}
 }

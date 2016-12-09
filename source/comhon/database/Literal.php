@@ -185,35 +185,35 @@ class Literal {
 	}
 	
 	/**
-	 * @param stdClass $pPhpObject
+	 * @param stdClass $pStdObject
 	 * @param array $pLeftJoins
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function phpObjectToLiteral($pPhpObject, &$pLeftJoins, $pLiteralCollection = null) {
-		if (isset($pPhpObject->id) && !is_null($pLiteralCollection)) {
-			if (!array_key_exists($pPhpObject->id, $pLiteralCollection)) {
-				throw new \Exception("literal id '{$pPhpObject->id}' is not defined in literal collection");
+	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null) {
+		if (isset($pStdObject->id) && !is_null($pLiteralCollection)) {
+			if (!array_key_exists($pStdObject->id, $pLiteralCollection)) {
+				throw new \Exception("literal id '{$pStdObject->id}' is not defined in literal collection");
 			}
-			return $pLiteralCollection[$pPhpObject->id];
+			return $pLiteralCollection[$pStdObject->id];
 		}
-		self::_verifPhpObject($pPhpObject);
-		if (!array_key_exists($pPhpObject->node, $pLeftJoins)) {
-			throw new \Exception("node doesn't exist in join tree : ".json_encode($pPhpObject));
+		self::_verifStdObject($pStdObject);
+		if (!array_key_exists($pStdObject->node, $pLeftJoins)) {
+			throw new \Exception("node doesn't exist in join tree : ".json_encode($pStdObject));
 		}
 		
-		$lLeftJoin      = $pLeftJoins[$pPhpObject->node];
+		$lLeftJoin      = $pLeftJoins[$pStdObject->node];
 		$lLeftModel     = $lLeftJoin['left_model'];
 		$lRightodel     = $lLeftJoin['right_model'];
-		$lTable         = $pPhpObject->node;
+		$lTable         = $pStdObject->node;
 		
-		if (isset($pPhpObject->queue)) {
-			$lSubQueryTables   = self::_queuetoLeftJoins($lLeftModel, $lTable, $pPhpObject->queue);
-			$lLeftJoin         = $pLeftJoins[$pPhpObject->node];
+		if (isset($pStdObject->queue)) {
+			$lSubQueryTables   = self::_queuetoLeftJoins($lLeftModel, $lTable, $pStdObject->queue);
+			$lLeftJoin         = $pLeftJoins[$pStdObject->node];
 			$lLeftColumn       = $lLeftJoin['left_model']->getProperty($lLeftJoin['left_model']->getFirstIdPropertyName())->getSerializationName();
 			$lLeftTable        = array_key_exists('right_table_alias', $lLeftJoin) && !is_null($lLeftJoin['right_table_alias']) ? $lLeftJoin['right_table_alias'] : $lLeftJoin['right_table'];
 			$lColumnIdSubQuery = $lSubQueryTables[0]['right_column'][0];
-			$lSelectQuery      = self::_setSubSelectQuery($lSubQueryTables, $pPhpObject);
+			$lSelectQuery      = self::_setSubSelectQuery($lSubQueryTables, $pStdObject);
 			$lRigthTableAlias  = 't_'.self::$sIndex++;
 			
 			while (array_key_exists($lRigthTableAlias, $pLeftJoins)) {
@@ -230,28 +230,28 @@ class Literal {
 			$lLiteral = new Literal($lJoinTable['right_table_alias'], $lColumnIdSubQuery, Literal::DIFF, null);
 		}
 		else {
-			$lProperty =  $lRightodel->getProperty($pPhpObject->property, true);
+			$lProperty =  $lRightodel->getProperty($pStdObject->property, true);
 			if ($lProperty->isComposition()) {
-				throw new \Exception("literal cannot contain foreign porperty '{$pPhpObject->property}'");
+				throw new \Exception("literal cannot contain foreign porperty '{$pStdObject->property}'");
 			}
-			$lLiteral  = new Literal($lTable, $lProperty->getSerializationName(), $pPhpObject->operator, $pPhpObject->value);
+			$lLiteral  = new Literal($lTable, $lProperty->getSerializationName(), $pStdObject->operator, $pStdObject->value);
 		}
-		if (isset($pPhpObject->id)) {
-			$lLiteral->setId($pPhpObject->id);
+		if (isset($pStdObject->id)) {
+			$lLiteral->setId($pStdObject->id);
 		}
 		return $lLiteral;
 	}
 	
-	private static function _verifPhpObject($pPhpObject) {
-		if (!isset($pPhpObject->node)) {
-			throw new \Exception("malformed phpObject literal : ".json_encode($pPhpObject));
+	private static function _verifStdObject($pStdObject) {
+		if (!isset($pStdObject->node)) {
+			throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
 		}
-		if (isset($pPhpObject->queue)) {
-			if (!(isset($pPhpObject->havingLiteral) xor isset($pPhpObject->havingLogicalJunction)) || !is_object($pPhpObject->queue)) {
-				throw new \Exception("malformed phpObject literal : ".json_encode($pPhpObject));
+		if (isset($pStdObject->queue)) {
+			if (!(isset($pStdObject->havingLiteral) xor isset($pStdObject->havingLogicalJunction)) || !is_object($pStdObject->queue)) {
+				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
 			}
-		} else if (!isset($pPhpObject->property) || !isset($pPhpObject->operator) || !isset($pPhpObject->value) || !isset($pPhpObject->node)) {
-			throw new \Exception("malformed phpObject literal : ".json_encode($pPhpObject));
+		} else if (!isset($pStdObject->property) || !isset($pStdObject->operator) || !isset($pStdObject->value) || !isset($pStdObject->node)) {
+			throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
 		}
 	}
 	
@@ -272,7 +272,7 @@ class Literal {
 		$lCurrentNode = $pQueue;
 		while (!is_null($lCurrentNode)) {
 			if (!is_object($lCurrentNode) || !isset($lCurrentNode->property)) {
-				throw new \Exception("malformed phpObject literal : ".json_encode($pPhpObject));
+				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
 			}
 			$lLeftTableName = is_null($lLeftAliasTable) ? $lLeftTable->getValue("name") : $lLeftAliasTable;
 			$lProperty      = $lLeftModel->getProperty($lCurrentNode->property, true);
@@ -306,8 +306,8 @@ class Literal {
 		return $lReturn;
 	}
 	
-	private static function _setSubSelectQuery($pSubQueryTables, $pPhpObject) {
-		if (isset($pPhpObject->subQuery)) {
+	private static function _setSubSelectQuery($pSubQueryTables, $pStdObject) {
+		if (isset($pStdObject->subQuery)) {
 			// TODO
 		} else {
 			$lSelectQuery = new SelectQuery($pSubQueryTables[0]['right_table'], $pSubQueryTables[0]['right_table_alias']);
@@ -326,47 +326,47 @@ class Literal {
 		$lFirstColumnId = $lFirstQueryTable['right_column'][0];
 		$lSelectQuery->setFirstTableCurrentTable()->addSelectColumn($lFirstColumnId)->addGroupColumn($lFirstColumnId);
 		
-		if (isset($pPhpObject->havingLogicalJunction)) {
-			$lSubLogicalJunction = self::phpObjectToHavingLogicalJunction($pPhpObject->havingLogicalJunction, $lFirstTableName, $lFirstColumnId, $lLastTableName, $lLastQueryTable["right_model"]);
+		if (isset($pStdObject->havingLogicalJunction)) {
+			$lSubLogicalJunction = self::stdObjectToHavingLogicalJunction($pStdObject->havingLogicalJunction, $lFirstTableName, $lFirstColumnId, $lLastTableName, $lLastQueryTable["right_model"]);
 		} else {
-			self::_completeHavingLiteral($pPhpObject->havingLiteral, $lFirstTableName, $lFirstColumnId, $lLastTableName, $lLastQueryTable["right_model"]);
+			self::_completeHavingLiteral($pStdObject->havingLiteral, $lFirstTableName, $lFirstColumnId, $lLastTableName, $lLastQueryTable["right_model"]);
 			$lSubLogicalJunction = new HavingLogicalJunction(LogicalJunction::CONJUNCTION);
-			$lSubLogicalJunction->addLiteral(HavingLiteral::phpObjectToHavingLiteral($pPhpObject->havingLiteral));
+			$lSubLogicalJunction->addLiteral(HavingLiteral::stdObjectToHavingLiteral($pStdObject->havingLiteral));
 		}
 		$lSelectQuery->setHavingLogicalJunction($lSubLogicalJunction);
 		return $lSelectQuery;
 	}
 	
-	public static function phpObjectToHavingLogicalJunction($pPhpObject, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel) {
-		if (!is_object($pPhpObject) || !isset($pPhpObject->type) || (isset($pPhpObject->logicalJunctions) && !is_array($pPhpObject->logicalJunctions)) || (isset($pPhpObject->literals) && !is_array($pPhpObject->literals))) {
-			throw new \Exception("malformed phpObject LogicalJunction : ".json_encode($pPhpObject));
+	public static function stdObjectToHavingLogicalJunction($pStdObject, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel) {
+		if (!is_object($pStdObject) || !isset($pStdObject->type) || (isset($pStdObject->logicalJunctions) && !is_array($pStdObject->logicalJunctions)) || (isset($pStdObject->literals) && !is_array($pStdObject->literals))) {
+			throw new \Exception("malformed stdObject LogicalJunction : ".json_encode($pStdObject));
 		}
-		$lLogicalJunction = new HavingLogicalJunction($pPhpObject->type);
-		if (isset($pPhpObject->logicalJunctions)) {
-			foreach ($pPhpObject->logicalJunctions as $lPhpObjectLogicalJunction) {
-				$lLogicalJunction->addLogicalJunction(self::phpObjectToHavingLogicalJunction($lPhpObjectLogicalJunction, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel));
+		$lLogicalJunction = new HavingLogicalJunction($pStdObject->type);
+		if (isset($pStdObject->logicalJunctions)) {
+			foreach ($pStdObject->logicalJunctions as $lStdObjectLogicalJunction) {
+				$lLogicalJunction->addLogicalJunction(self::stdObjectToHavingLogicalJunction($lStdObjectLogicalJunction, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel));
 			}
 		}
-		if (isset($pPhpObject->literals)) {
-			foreach ($pPhpObject->literals as $lPhpObjectLiteral) {
-				self::_completeHavingLiteral($lPhpObjectLiteral, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel);
-				$lLogicalJunction->addLiteral(HavingLiteral::phpObjectToHavingLiteral($lPhpObjectLiteral));
+		if (isset($pStdObject->literals)) {
+			foreach ($pStdObject->literals as $lStdObjectLiteral) {
+				self::_completeHavingLiteral($lStdObjectLiteral, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel);
+				$lLogicalJunction->addLiteral(HavingLiteral::stdObjectToHavingLiteral($lStdObjectLiteral));
 			}
 		}
 		return $lLogicalJunction;
 	}
 	
-	private static function _completeHavingLiteral($pPhpObjectLiteral, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel) {
-		if ($pPhpObjectLiteral->function == HavingLiteral::COUNT) {
-			$pPhpObjectLiteral->node   = $pFirstTableName;
-			$pPhpObjectLiteral->column = $pFirstColumnId;
+	private static function _completeHavingLiteral($pStdObjectLiteral, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel) {
+		if ($pStdObjectLiteral->function == HavingLiteral::COUNT) {
+			$pStdObjectLiteral->node   = $pFirstTableName;
+			$pStdObjectLiteral->column = $pFirstColumnId;
 		}
 		else {
-			if (!isset($pPhpObjectLiteral->property)) {
-				throw new \Exception("malformed phpObject literal : ".json_encode($pPhpObjectLiteral));
+			if (!isset($pStdObjectLiteral->property)) {
+				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObjectLiteral));
 			}
-			$pPhpObjectLiteral->node   = $pLastTableName;
-			$pPhpObjectLiteral->column = $pLastModel->getProperty($pPhpObjectLiteral->property, true)->getSerializationName();
+			$pStdObjectLiteral->node   = $pLastTableName;
+			$pStdObjectLiteral->column = $pLastModel->getProperty($pStdObjectLiteral->property, true)->getSerializationName();
 		
 		}
 	}

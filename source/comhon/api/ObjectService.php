@@ -15,7 +15,7 @@ class ObjectService {
 				throw new \Exception('request doesn\'t have id');
 			}
 			$lObjects = SimpleLoadRequest::buildObjectLoadRequest($pParams)->execute($pParams->id);
-			return self::_setSuccessReturn($lObjects->toObject(false));
+			return self::_setSuccessReturn($lObjects->toPublicStdObject());
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}
@@ -24,7 +24,7 @@ class ObjectService {
 	public static function getObjects($pParams) {
 		try {
 			$lObjects = ComplexLoadRequest::buildObjectLoadRequest($pParams)->execute();
-			return self::_setSuccessReturn($lObjects->toObject(false));
+			return self::_setSuccessReturn($lObjects->toPublicStdObject());
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}

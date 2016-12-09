@@ -18,6 +18,8 @@
 				<property type="string" id="1">id</property>
 				<property type="string">propertyOne</property>
 				<property type="string">propertyTwo</property>
+				<property type="string" default="plop2">stringValue</property>
+				<property type="boolean" default="0">booleanValue</property>
 			</properties>
 		</object>
 		<objectTwo>
@@ -31,6 +33,10 @@
 	
 	<properties>
 		<property type="string" id="1">name</property>
+		<property type="string" default="plop">stringValue</property>
+		<property type="float" default="1.5">floatValue</property>
+		<property type="boolean" default="1">booleanValue</property>
+		<property type="dateTime" default="2016-11-13 20:04:05">dateValue</property>
 		<property type="object">objectValue</property>
 		<property type="array">
 			<name>objectValues</name>
@@ -41,5 +47,30 @@
 			<name>foreignObjectValues</name>
 			<values type="object" name="foreignObjectValue"/>
 		</foreignProperty>
+		<property type="string">
+			<name>enumValue</name>
+			<enum>
+				<value>plop1</value>
+				<value>plop2</value>
+			</enum>
+		</property>
+		<property type="array">
+			<name>enumIntArray</name>
+			<values type="integer" name="enumArrayValue">
+				<enum>
+					<value>1</value>
+					<value>3</value>
+				</enum>
+			</values>
+		</property>
+		<property type="array">
+			<name>enumFloatArray</name>
+			<values type="float" name="enumArrayValue">
+				<enum>
+					<value>1.5</value>
+					<value>3.5</value>
+				</enum>
+			</values>
+		</property>
 	</properties>
 </manifest>

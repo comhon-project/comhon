@@ -10,12 +10,16 @@ class Property {
 	protected $mName;
 	protected $mSerializationName;
 	protected $mIsId;
+	protected $mIsPrivate;
+	protected $mDefault;
 	
-	public function __construct($pModel, $pName, $pSerializationName = null, $pIsId = false) {
+	public function __construct($pModel, $pName, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pDefault = null) {
 		$this->mModel = $pModel;
 		$this->mName = $pName;
 		$this->mSerializationName = is_null($pSerializationName) ? $this->mName : $pSerializationName;
 		$this->mIsId = $pIsId;
+		$this->mIsPrivate = $pIsPrivate;
+		$this->mDefault = $pDefault;
 		
 		if ($this->mIsId && !($this->mModel instanceof SimpleModel)) {
 			throw new \Exception("id property with name '$pName' must be a simple model");
@@ -51,8 +55,19 @@ class Property {
 		return $this->mIsId;
 	}
 	
-	public function save($pObject) {
-		return $this->getModel()->toObject($pObject);
+	public function isPrivate() {
+		return $this->mIsPrivate;
+	}
+	
+	public function hasDefaultValue() {
+		return !is_null($this->mDefault);
+	}
+	
+	public function getDefaultValue() {
+		if ($this->mModel instanceof DateTime) {
+			return new \DateTime($this->mDefault);
+		}
+		return $this->mDefault;
 	}
 	
 	public function getSerialization() {
@@ -60,6 +75,10 @@ class Property {
 	}
 	
 	public function isComposition() {
+		return false;
+	}
+	
+	public function isForeign() {
 		return false;
 	}
 	
@@ -71,7 +90,7 @@ class Property {
 		throw new \Exception('cannot load object, property is not foreign property');
 	}
 	
-	public function loadValueIds(ObjectArray $pObject, $pParentId) {
+	public function loadValueIds(ObjectArray $pObject, Object $pParentObject) {
 		throw new \Exception('cannot load composition ids, property is not composition property');
 	}
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest extends="person">
+	<properties>
+		<foreignProperty type="array">
+			<name>bodies</name>
+			<values type="womanBody" name="body"/>
+		</foreignProperty>
+	</properties>
+</manifest>

@@ -1,0 +1,14 @@
+{
+	"serialization": {
+		"type": "sqlTable",
+		"id": "woman_body"
+	},
+	"properties": {
+		"chestSize": {
+			"serializationName": "chest_size"
+		},
+		"owner": {
+			"serializationName": "owner_id"
+		}
+	}
+}

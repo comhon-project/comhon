@@ -17,11 +17,11 @@ class LocalObjectCollection extends ObjectCollection {
 		if (!($pObject->getModel() instanceof LocalModel)) {
 			throw new \Exception('mdodel must be instance of LocalModel');
 		}
-		$lReturn = false;
-		$lId     = $pObject->getId();
+		$lSuccess = false;
+		$lId      = $pObject->getId();
 		
 		if (!$pObject->getModel()->hasIdProperty() || !$pObject->hasCompleteId()) {
-			return $lReturn;
+			return $lSuccess;
 		}
 		$pModelName = $pObject->getModel()->getModelName();
 		if (!array_key_exists($pModelName, $this->mMap)) {
@@ -29,12 +29,12 @@ class LocalObjectCollection extends ObjectCollection {
 		}
 		if (!array_key_exists($lId, $this->mMap[$pModelName])) {
 			$this->mMap[$pModelName][$lId] = $pObject;
-			$lReturn = true;
+			$lSuccess = true;
 		} else if ($pThrowException) {
 			throw new \Exception('object already added');
 		}
 		
-		return $lReturn;
+		return $lSuccess;
 	}
 	
 }

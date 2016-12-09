@@ -3,6 +3,7 @@ namespace comhon\object;
 
 use comhon\object\object\Object;
 use comhon\object\model\Model;
+use comhon\utils\Utils;
 
 class ObjectCollection {
 	
@@ -44,8 +45,10 @@ class ObjectCollection {
 	 * @param Object $pObject
 	 * @param boolean $pThrowException throw exception if object can't be added (no complete id or object already added)
 	 * @throws \Exception
+	 * @return boolean true if object is added
 	 */
 	public function addObject(Object $pObject, $pThrowException = true) {
+		$lSuccess = false;
 		
 		if ($pObject->hasCompleteId()) {
 			if ($pObject->getModel()->hasIdProperty()) {
@@ -54,37 +57,34 @@ class ObjectCollection {
 				if (!array_key_exists($lModelName, $this->mMap)) {
 					$this->mMap[$lModelName] = array();
 				}
-				// if object NOT already added, we can add it and create attached LocalObjectCollection
+				// if object NOT already added, we can add it
 				if(!array_key_exists($lId, $this->mMap[$lModelName])) {
 					$this->mMap[$lModelName][$lId] = $pObject;
+					$lSuccess = true;
 				}
-				// else if must throw exception => throw exception
 				else if ($pThrowException) {
 					throw new \Exception('object already added');
 				}
 			}
 		}
-		// else if must throw exception => throw exception
 		else if ($pThrowException) {
-			trigger_error(json_encode($pObject->toObject()));
-			trigger_error($pObject->getModel()->getModelName());
-			trigger_error(json_encode($pObject->getModel()->getIdproperties()));
 			throw new \Exception('object can\'t be added, object has no id or id is incomplete');
 		}
+		return $lSuccess;
 	}
 	
-	public function toObject() {
+	public function toStdObject($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null) {
 		$lArray = array();
 		foreach ($this->mMap as $lModelName => $lObjectById) {
 			$lArray[$lModelName] = array();
 			foreach ($lObjectById as $lId => $lObject) {
-				$lArray[$lModelName][$lId] = $lObject->toObject();
+				$lArray[$lModelName][$lId] = $lObject->toStdObject($pPrivate, $pUseSerializationName, $pTimeZone);
 			}
 		}
 		return $lArray;
 	}
 	
-	public function toString() {
-		return json_encode($this->toObject());
+	public function toString($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null) {
+		return json_encode($this->toStdObject($pPrivate, $pUseSerializationName, $pTimeZone));
 	}
 }

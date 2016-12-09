@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
-	<serialization type="sqlTable">mainTestDb</serialization>
+	<serialization type="sqlTable">main_test</serialization>
 	<properties>
 		<childrenTestDb>
 			<compositions>

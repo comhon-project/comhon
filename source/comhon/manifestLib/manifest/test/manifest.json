@@ -1,6 +1,6 @@
 {
 	"manifests": {
-		"personLocal": "..\/person\/manifest.json"
+		"personLocal": "../person/manifest.xml"
 	},
 	"types": {
 		"objectContainer": {
@@ -28,6 +28,14 @@
 				},
 				"propertyTwo": {
 					"type": "string"
+				},
+				"stringValue": {
+					"type": "string",
+					"default": "plop2"
+				},
+				"booleanValue": {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		},
@@ -51,6 +59,22 @@
 			"type": "string",
 			"is_id": true
 		},
+		"stringValue": {
+			"type": "string",
+			"default": "plop"
+		},
+		"floatValue": {
+			"type": "float",
+			"default": 1.5
+		},
+		"booleanValue": {
+			"type": "boolean",
+			"default": true
+		},
+		"dateValue": {
+			"type": "dateTime",
+			"default": "2016-11-13 20:04:05"
+		},
 		"objectValue": {
 			"type": "object"
 		},
@@ -71,6 +95,35 @@
 			},
 			"type": "array",
 			"is_foreign": true
+		},
+		"enumValue": {
+			"enum": [
+				"plop1",
+				"plop2"
+			],
+			"type": "string"
+		},
+		"enumIntArray": {
+			"values": {
+				"type": "integer",
+				"name": "enumArrayValue",
+				"enum": [
+					1,
+					3
+				]
+			},
+			"type": "array"
+		},
+		"enumFloatArray": {
+			"values": {
+				"type": "float",
+				"name": "enumArrayValue",
+				"enum": [
+					1.5,
+					3.5
+				]
+			},
+			"type": "array"
 		}
 	}
 }

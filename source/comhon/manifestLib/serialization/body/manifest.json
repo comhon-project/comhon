@@ -1,0 +1,19 @@
+{
+	"properties": {
+		"hairColor": {
+			"serializationName": "hair_color"
+		},
+		"hairCut": {
+			"serializationName": "hair_cut"
+		},
+		"eyesColor": {
+			"serializationName": "eyes_color"
+		},
+		"physicalAppearance": {
+			"serializationName": "physical_appearance"
+		},
+		"owner": {
+			"serializationName": "owner_id"
+		}
+	}
+}

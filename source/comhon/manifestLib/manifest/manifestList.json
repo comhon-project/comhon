@@ -1,5 +1,10 @@
 {
 	"person"     : "person/manifest.json",
+	"man"        : "person/man/manifest.json",
+	"woman"      : "person/woman/manifest.json",
+	"body"       : "body/manifest.json",
+	"manBody"    : "body/man/manifest.json",
+	"womanBody"  : "body/woman/manifest.json",
 	"house"      : "house/manifest.json",
 	"home"       : "home/manifest.json",
 	"place"      : "place/manifest.json",

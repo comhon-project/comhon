@@ -1,7 +1,7 @@
 {
 	"serialization": {
 		"type": "sqlTable",
-		"id": "mainTestDb"
+		"id": "main_test"
 	},
 	"properties": {
 		"childrenTestDb": {

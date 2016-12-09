@@ -22,32 +22,34 @@ abstract class SimpleModel extends Model {
 		throw new \Exception('simple models don\'t have associated class');
 	}
 	
-	protected function _toObject($pValue, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		return $pValue;
 	}
 	
-	protected function _fromObject($pValue, $pDateTimeZone = null, $pLocalObjectCollection = null) {
+	protected function _fromStdObject($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pLocalObjectCollection = null) {
 		return $pValue;
 	}
 	
-	protected function _fromXml($pValue, $pDateTimeZone = null, $pLocalObjectCollection = null) {
+	public function fromXmlAttribute($pValue) {
+		return $this->_fromXml($pValue);
+	}
+	
+	protected function _fromXml($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pLocalObjectCollection = null) {
 		return (string) $pValue;
 	}
 	
-	protected function _toXml($pValue, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		return $pValue;
 	}
 	
-	protected function _fromSqlColumn($pValue, $pDateTimeZone = null, $pLocalObjectCollection = null) {
+	protected function _fromFlattenedValue($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pLocalObjectCollection = null) {
 		return $pValue;
 	}
-	
-	/*
-	 * return true if $pValue1 and $pValue2 are equals
-	 */
-	public function isEqual($pValue1, $pValue2) {
-		return $pValue1 == $pValue2;
-	}
-	
+
 	public function verifValue($pValue) {}
+	
+
+	public abstract function  isCheckedValueType($pValue);
+	public abstract function castValue($pValue);
+	
 }

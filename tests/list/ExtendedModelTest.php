@@ -1,0 +1,114 @@
+<?php
+
+use comhon\object\singleton\InstanceModel;
+use comhon\object\object\Object;
+use comhon\api\ObjectService;
+use comhon\object\object\SqlTable;
+use comhon\object\SimpleLoadRequest;
+use comhon\object\MainObjectCollection;
+use comhon\object\model\Model;
+use comhon\object\model\MainModel;
+
+$time_start = microtime(true);
+
+if (InstanceModel::getInstance()->hasInstanceModel('body')) {
+	throw new Exception('model already initialized');
+}
+if (InstanceModel::getInstance()->hasInstanceModel('womanBody')) {
+	throw new Exception('model already initialized');
+}
+if (!InstanceModel::getInstance()->hasInstanceModel('person')) {
+	throw new Exception('model not initialized');
+}
+if (InstanceModel::getInstance()->isModelLoaded('person')) {
+	throw new Exception('model already loaded');
+}
+$lPersonModel = InstanceModel::getInstance()->getInstanceModel('person');
+
+if (!InstanceModel::getInstance()->isModelLoaded('person')) {
+	throw new Exception('model not initialized');
+}
+if (InstanceModel::getInstance()->isModelLoaded('woman')) {
+	throw new Exception('model already initialized');
+}
+
+$lWomanModel = InstanceModel::getInstance()->getInstanceModel('woman');
+
+if (!InstanceModel::getInstance()->isModelLoaded('woman')) {
+	throw new Exception('model not initialized');
+}
+if (json_encode(array_keys($lWomanModel->getProperties())) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","bodies"]') {
+	throw new Exception('bad model properties');
+}
+if ($lWomanModel->getSerialization() !== $lPersonModel->getSerialization()) {
+	throw new Exception('not same serialization');
+}
+if (InstanceModel::getInstance()->getInstanceModel('man')->getSerialization() !== $lPersonModel->getSerialization()) {
+	throw new Exception('not same serialization');
+}
+
+if ($lWomanModel->getProperty('id') !== $lPersonModel->getProperty('id')) {
+	throw new Exception('not same instance of property');
+}
+
+if (InstanceModel::getInstance()->hasInstanceModel('body')) {
+	throw new Exception('model already initialized');
+}
+if (!InstanceModel::getInstance()->hasInstanceModel('womanBody')) {
+	throw new Exception('model not initialized');
+}
+if (InstanceModel::getInstance()->isModelLoaded('womanBody')) {
+	throw new Exception('model already loaded');
+}
+$lWomanBodyModel = $lWomanModel->getProperty('bodies')->getModel()->getModel()->getModel();
+if (!InstanceModel::getInstance()->isModelLoaded('womanBody')) {
+	throw new Exception('model not loaded');
+}
+if ($lWomanBodyModel->getModelName() !== 'womanBody') {
+	throw new Exception('bad model name');
+}
+if (!$lWomanBodyModel->isLoaded()) {
+	throw new Exception('model not loaded');
+}
+if (!InstanceModel::getInstance()->hasInstanceModel('body')) {
+	throw new Exception('model not initialized');
+}
+if (!InstanceModel::getInstance()->isModelLoaded('body')) {
+	throw new Exception('model not loaded');
+}
+if (json_encode(array_keys($lWomanBodyModel->getProperties())) !== '["id","height","weight","hairColor","hairCut","eyesColor","type","tatoos","piercings","arts","owner","chestSize"]') {
+	throw new Exception('bad model properties');
+}
+$lBodyModel = InstanceModel::getInstance()->getInstanceModel('body');
+if (json_encode(array_keys($lBodyModel->getProperties())) !== '["id","height","weight","hairColor","hairCut","eyesColor","type","tatoos","piercings","arts","owner"]') {
+	throw new Exception('bad model properties');
+}
+if ($lBodyModel->getProperty('hairColor') !== $lWomanBodyModel->getProperty('hairColor')) {
+	throw new Exception('not same instance of property');
+}
+if ($lBodyModel->getProperty('owner') === $lWomanBodyModel->getProperty('owner')) {
+	throw new Exception('same instance of property');
+}
+
+$lTatooModel = $lWomanBodyModel->getProperty('tatoos')->getModel()->getModel();
+if ($lTatooModel->getModelName() !== 'tatoo') {
+	throw new Exception('bad model name');
+}
+if (json_encode(array_keys($lTatooModel->getProperties())) !== '["type","location","tatooArtist"]') {
+	throw new Exception('bad model properties');
+}
+$lArtModel = $lTatooModel->getExtendsModel();
+$lArtModelTow = InstanceModel::getInstance()->getInstanceModel('art', 'body');
+
+if ($lArtModel !== $lArtModelTow) {
+	throw new Exception('not same instance of model');
+}
+if (json_encode(array_keys($lArtModel->getProperties())) !== '["type","location"]') {
+	throw new Exception('bad model properties');
+}
+if ($lTatooModel->getProperty('location') !== $lArtModel->getProperty('location')) {
+	throw new Exception('not same instance of property');
+}
+
+$time_end = microtime(true);
+var_dump('extended model test exec time '.($time_end - $time_start));

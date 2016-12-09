@@ -9,7 +9,7 @@ class Config extends Object {
 		if (!isset(self::$_instance)) {
 			$lConfig_afe = DIRECTORY_SEPARATOR .'etc'.DIRECTORY_SEPARATOR.'comhon'.DIRECTORY_SEPARATOR.'config.json';
 			self::$_instance = new self('config');
-			self::$_instance->fromObject(json_decode(file_get_contents($lConfig_afe)));
+			self::$_instance->fromStdObject(json_decode(file_get_contents($lConfig_afe)));
 		}
 		
 		return self::$_instance;

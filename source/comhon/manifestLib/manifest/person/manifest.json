@@ -10,26 +10,23 @@
 		"lastName": {
 			"type": "string"
 		},
-		"age": {
-			"type": "integer"
+		"birthDate": {
+			"type": "dateTime"
 		},
 		"birthPlace": {
 			"type": "place",
 			"is_foreign": true
 		},
-		"sex": {
-			"enum": [
-				"male",
-				"female"
-			],
-			"type": "string"
-		},
-		"father": {
+		"bestFriend": {
 			"type": "person",
 			"is_foreign": true
 		},
+		"father": {
+			"type": "man",
+			"is_foreign": true
+		},
 		"mother": {
-			"type": "person",
+			"type": "woman",
 			"is_foreign": true
 		},
 		"children": {

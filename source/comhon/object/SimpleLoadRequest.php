@@ -28,13 +28,13 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 	
 	/**
 	 *
-	 * @param stdClass $pPhpObject
+	 * @param stdClass $pStdObject
 	 * @return SimpleLoadRequest
 	 */
-	public static function buildObjectLoadRequest($pPhpObject) {
-		if (!isset($pPhpObject->model)) {
+	public static function buildObjectLoadRequest($pStdObject) {
+		if (!isset($pStdObject->model)) {
 			throw new \Exception('request doesn\'t have model');
 		}
-		return new SimpleLoadRequest($pPhpObject->model);
+		return new SimpleLoadRequest($pStdObject->model);
 	}
 }

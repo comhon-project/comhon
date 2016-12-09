@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<serialization type="sqlTable">person</serialization>
+	<properties>
+		<bodies>
+			<compositions>
+				<composition>owner</composition>
+			</compositions>
+		</bodies>
+	</properties>
+</manifest>

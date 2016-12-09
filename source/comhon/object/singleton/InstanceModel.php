@@ -16,18 +16,18 @@ use comhon\object\model\LocalModel;
 use comhon\object\model\Property;
 use comhon\object\model\ModelForeign;
 use comhon\object\model\SimpleModel;
-use comhon\object\model\SerializationUnit;
 use comhon\object\model\ForeignProperty;
 use comhon\object\model\CompositionProperty;
+use comhon\object\object\SerializationUnit;
 use comhon\object\object\Config;
 use comhon\object\parser\ManifestParser;
-use comhon\utils\Utils;
 
 class InstanceModel {
 
 	const PROPERTIES     = 'properties';
 	const OBJECT_CLASS   = 'objectClass';
 	const SERIALIZATION  = 'serialization';
+	const EXTENDS_MODEL  = 'extendsModel';
 	
 	private $mInstanceModels;
 	private $mCurrentXmlSerialization;
@@ -209,6 +209,7 @@ class InstanceModel {
 		if (is_null($this->mManifestParser) && is_object($lInstanceModels[$pModel->getModelName()]) && $lInstanceModels[$pModel->getModelName()]->isLoaded()) {
 			$lReturn = array(
 				self::PROPERTIES     => $pModel->getProperties(), 
+				self::EXTENDS_MODEL  => $pModel->getExtendsModel(),
 				self::OBJECT_CLASS   => $pModel->getObjectClass()
 			);
 			if ($pModel instanceof MainModel) {
@@ -226,13 +227,12 @@ class InstanceModel {
 				$this->_addInstanceModel($pModel);
 				$this->_buildLocalTypes($pModel, $lManifestPath_ad);
 			}
+			$lExtendsModel = $this->_getExtendsModel($pModel);
 			
-			$lExtends     = $this->mManifestParser->getExtends(); // TODO manage extends
-			$lObjectClass = $this->mManifestParser->getObjectClass();
-			$lReturn      = [
-				self::PROPERTIES   => array(),
-				self::OBJECT_CLASS => $lObjectClass,
-				self::PROPERTIES   => $this->_buildProperties($pModel)
+			$lReturn = [
+				self::EXTENDS_MODEL => $lExtendsModel,
+				self::OBJECT_CLASS  => $this->mManifestParser->getObjectClass(),
+				self::PROPERTIES    => $this->_buildProperties($pModel, $lExtendsModel)
 			];
 			
 			if ($lUnsetManifestParser) {
@@ -279,12 +279,40 @@ class InstanceModel {
 		}
 	}
 	
-	private function _buildProperties($pMainModel) {
-		$lProperties = [];
+	private function _getExtendsModel(Model $pModel) {
+		$lModel = null;
+		$lModelName = $this->mManifestParser->getExtends();
+		if (!is_null($lModelName)) {
+			$lMainModelName = $pModel->getMainModelName();
+			if ($pModel instanceof MainModel) {
+				$lMainModelName = null;
+			}
+			else if (array_key_exists($lModelName, $this->mInstanceModels)) {
+				if (!is_null($lMainModelName) && array_key_exists($lModelName, $this->mLocalTypes[$lMainModelName])) {
+					throw new \Exception("cannot determine if property '$lModelName' is local or main model");
+				}
+				$lMainModelName = null;
+			}
+			$lManifestParser = $this->mManifestParser;
+			$this->mManifestParser = null;
+			$lModel = $this->getInstanceModel($lModelName, $lMainModelName);
+			$this->mManifestParser = $lManifestParser;
+		}
+		return $lModel;
+	}
+	
+	/**
+	 * @param Model $pCurrentModel
+	 * @param Model $lExtendsModel
+	 * @throws \Exception
+	 * @return Property[]
+	 */
+	private function _buildProperties(Model $pCurrentModel, Model $lExtendsModel = null) {
+		$lProperties = is_null($lExtendsModel) ? [] : $lExtendsModel->getProperties();
 	
 		do {
 			$lModelName     = $this->mManifestParser->getCurrentPropertyModelName();
-			$lMainModelName = $pMainModel->getMainModelName();
+			$lMainModelName = $pCurrentModel->getMainModelName();
 			
 			if (array_key_exists($lModelName, $this->mInstanceModels)) {
 				if (!is_null($lMainModelName) && array_key_exists($lModelName, $this->mLocalTypes[$lMainModelName])) {
@@ -305,10 +333,34 @@ class InstanceModel {
 	public function getSerialization(MainModel $pModel) {
 		if (!is_null($this->mSerializationManifestParser)) {
 			$lSerialization = $this->mSerializationManifestParser->getSerialization($pModel);
+			$lSerialization = $this->_getUniqueSerialization($pModel, $lSerialization);
 			unset($this->mSerializationManifestParser);
 			$this->mSerializationManifestParser = null;
 			return $lSerialization;
 		}
-		return null;
+		return $this->_getUniqueSerialization($pModel, null);
+	}
+	
+	private function _getUniqueSerialization(MainModel $pModel, SerializationUnit $pSerialization = null) {
+		if (!is_null($pModel->getExtendsModel()) && !is_null($pModel->getExtendsModel()->getSerialization())) {
+			$lExtendedSerialization = $pModel->getExtendsModel()->getSerialization();
+			
+			if (is_null($pSerialization)) {
+				$pSerialization = $lExtendedSerialization;
+			}
+			else if ($pSerialization !== $lExtendedSerialization && $pSerialization->getModel()->getModelName() == $lExtendedSerialization->getModel()->getModelName()) {
+				$lSame = true;
+				foreach ($pSerialization->getModel()->getProperties() as $lProperty) {
+					if ($pSerialization->getValue($lProperty->getName()) !== $lExtendedSerialization->getValue($lProperty->getName())) {
+						$lSame = false;
+						break;
+					}
+				}
+				if ($lSame) {
+					$pSerialization = $lExtendedSerialization;
+				}
+			}
+		}
+		return $pSerialization;
 	}
 }

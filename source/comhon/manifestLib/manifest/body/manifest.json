@@ -1,0 +1,88 @@
+{
+	"types": {
+		"art": {
+			"properties": {
+				"type": {
+					"type": "string"
+				},
+				"location": {
+					"type": "string"
+				}
+			}
+		},
+		"tatoo": {
+			"extends": "art",
+			"properties": {
+				"tatooArtist": {
+					"type": "person",
+					"is_foreign": true
+				}
+			}
+		},
+		"piercing": {
+			"extends": "art",
+			"properties": {
+				"piercer": {
+					"type": "person",
+					"is_foreign": true
+				}
+			}
+		}
+	},
+	"properties": {
+		"id": {
+			"type": "integer",
+			"is_id": true
+		},
+		"height": {
+			"type": "float"
+		},
+		"weight": {
+			"type": "float"
+		},
+		"hairColor": {
+			"type": "string"
+		},
+		"hairCut": {
+			"type": "string"
+		},
+		"eyesColor": {
+			"type": "string"
+		},
+		"type": {
+			"enum": [
+				"slim",
+				"average",
+				"athletic",
+				"muscular",
+				"fat"
+			],
+			"type": "string"
+		},
+		"tatoos": {
+			"values": {
+				"type": "tatoo",
+				"name": "tatoo"
+			},
+			"type": "array"
+		},
+		"piercings": {
+			"values": {
+				"type": "piercing",
+				"name": "piercing"
+			},
+			"type": "array"
+		},
+		"arts": {
+			"values": {
+				"type": "art",
+				"name": "art"
+			},
+			"type": "array"
+		},
+		"owner": {
+			"type": "person",
+			"is_foreign": true
+		}
+	}
+}

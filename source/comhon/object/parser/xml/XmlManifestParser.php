@@ -16,7 +16,6 @@ use comhon\object\model\LocalModel;
 use comhon\object\model\Property;
 use comhon\object\model\ModelForeign;
 use comhon\object\model\SimpleModel;
-use comhon\object\model\SerializationUnit;
 use comhon\object\model\ForeignProperty;
 use comhon\object\model\CompositionProperty;
 use comhon\object\object\Config;
@@ -151,11 +150,29 @@ class XmlManifestParser extends ManifestParser {
 	protected function _getBaseInfosProperty(Model $pPropertyModel) {
 		$lCurrentPropertyXml = current($this->mCurrentProperties);
 		
-		$lName   = isset($lCurrentPropertyXml->name) ? (string) $lCurrentPropertyXml->name : (string) $lCurrentPropertyXml;
-		$lIsId   = isset($lCurrentPropertyXml["id"]) && ((string) $lCurrentPropertyXml["id"] == "1");
-		$lModel  = $this->_completePropertyModel($lCurrentPropertyXml, $pPropertyModel);
+		$lName      = isset($lCurrentPropertyXml->name) ? (string) $lCurrentPropertyXml->name : (string) $lCurrentPropertyXml;
+		$lIsId      = isset($lCurrentPropertyXml["id"]) && ((string) $lCurrentPropertyXml["id"] == "1");
+		$lIsPrivate = isset($lCurrentPropertyXml["private"]) && ((string) $lCurrentPropertyXml["private"] == "1");
+		$lModel     = $this->_completePropertyModel($lCurrentPropertyXml, $pPropertyModel);
 		
-		return array($lName, $lModel, $lIsId);
+		if (isset($lCurrentPropertyXml["default"])) {
+			if ($lModel instanceof DateTime) {
+				$lDefault = (string) $lCurrentPropertyXml["default"];
+				if (new DateTime($lDefault) === false) {
+					throw new \Exception('invalid default value time format : '.$lDefault);
+				}
+			} else if ($lModel instanceof SimpleModel) {
+				$lDefault = $lModel->fromXmlAttribute($lCurrentPropertyXml["default"]);
+			} else if ($lModel instanceof ModelEnum) {
+				$lDefault = $lModel->getModel()->fromXmlAttribute($lCurrentPropertyXml["default"]);
+			} else {
+				throw new \Exception('default value can\'t be applied on complex model');
+			}
+		} else {
+			$lDefault = null;
+		}
+		
+		return array($lName, $lModel, $lIsId, $lIsPrivate, $lDefault);
 	}
 	
 	/**

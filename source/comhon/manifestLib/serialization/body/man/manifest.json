@@ -1,0 +1,6 @@
+{
+	"serialization": {
+		"type": "sqlTable",
+		"id": "man_body"
+	}
+}

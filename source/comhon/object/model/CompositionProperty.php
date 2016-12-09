@@ -9,8 +9,8 @@ class CompositionProperty extends ForeignProperty {
 	
 	private $mCompositionProperties = null;
 	
-	public function __construct($pModel, $pName, $pCompositionProperties, $pSerializationName = null) {
-		parent::__construct($pModel, $pName, $pSerializationName);
+	public function __construct($pModel, $pName, $pCompositionProperties, $pSerializationName = null, $pIsPrivate = false) {
+		parent::__construct($pModel, $pName, $pSerializationName, $pIsPrivate);
 		if (empty($pCompositionProperties)) {
 			throw new \Exception('composition must have at least one composition property');
 		}
@@ -28,16 +28,18 @@ class CompositionProperty extends ForeignProperty {
 	/**
 	 *
 	 * @param Object $pObjectArray
-	 * @param strong|integer $pParentId
+	 * @param strong|integer $pParentObject
 	 * @return boolean true if success
 	 */
-	public function loadValue(Object $pObjectArray, $pParentId = null) {
-		$lSerializationUnit = $this->getUniqueModel()->getSerialization();
-		if (is_null($lSerializationUnit)) {
-			trigger_error("+++++++++ no serial +++++++++");
+	public function loadValue(ObjectArray $pObjectArray, Object $pParentObject) {
+		if ($pObjectArray->isLoaded()) {
 			return false;
 		}
-		return $lSerializationUnit->loadComposition($pObjectArray, $pParentId, $this->mCompositionProperties, false);
+		$lSerializationUnit = $this->getUniqueModel()->getSerialization();
+		if (is_null($lSerializationUnit)) {
+			throw new \Exception('composition has not model with sql serialization');
+		}
+		return $lSerializationUnit->loadComposition($pObjectArray, $pParentObject->getId(), $this->mCompositionProperties, false);
 	}
 	
 	/**
@@ -46,12 +48,11 @@ class CompositionProperty extends ForeignProperty {
 	 * @param strong|integer $pParentId
 	 * @return boolean true if success
 	 */
-	public function loadValueIds(ObjectArray $pObjectArray, $pParentId) {
+	public function loadValueIds(ObjectArray $pObjectArray, Object $pParentObject) {
 		if (is_null($lSqlTableUnit = $this->getSqlTableUnit())) {
-			trigger_error("+++++++++ no serial +++++++++");
-			return false;
+			throw new \Exception('composition has not model with sql serialization');
 		}
-		return $lSqlTableUnit->loadComposition($pObjectArray, $pParentId, $this->mCompositionProperties, true);
+		return $lSqlTableUnit->loadComposition($pObjectArray, $pParentObject->getId(), $this->mCompositionProperties, true);
 	}
 	
 }

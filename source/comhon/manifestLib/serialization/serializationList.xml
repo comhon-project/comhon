@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <serializations>
 	<person>person/manifest.xml</person>
+	<woman>person/woman/manifest.xml</woman>
+	<man>person/man/manifest.xml</man>
+	<body>body/manifest.xml</body>
+	<manBody>body/man/manifest.xml</manBody>
+	<womanBody>body/woman/manifest.xml</womanBody>
 	<house>house/manifest.xml</house>
 	<home>home/manifest.xml</home>
 	<place>place/manifest.xml</place>

@@ -1,5 +1,9 @@
 {
 	"properties": {
+		"id": {
+			"type": "integer",
+			"is_id": true
+		},
 		"beginDate": {
 			"type": "string"
 		},

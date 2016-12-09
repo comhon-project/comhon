@@ -1,0 +1,12 @@
+{
+	"extends": "body",
+	"properties": {
+		"chestSize": {
+			"type": "string"
+		},
+		"owner": {
+			"type": "woman",
+			"is_foreign": true
+		}
+	}
+}

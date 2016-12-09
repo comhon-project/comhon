@@ -1,7 +1,7 @@
 {
 	"serialization": {
 		"type": "sqlTable",
-		"id": "testDb"
+		"id": "test"
 	},
 	"properties": {
 		"id1": {
@@ -15,6 +15,21 @@
 		},
 		"mainParentTestDb": {
 			"serializationName": "main_test_id"
+		},
+		"objectsWithId": {
+			"serializationName": "objects_with_id"
+		},
+		"foreignObjects": {
+			"serializationName": "foreign_objects"
+		},
+		"lonelyForeignObject": {
+			"serializationName": "lonely_foreign_object"
+		},
+		"lonelyForeignObjectTwo": {
+			"serializationName": "lonely_foreign_object_two"
+		},
+		"defaultValue": {
+			"serializationName": "default_value"
 		}
 	}
 }

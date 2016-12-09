@@ -1,0 +1,13 @@
+{
+	"serialization": {
+		"type": "sqlTable",
+		"id": "person"
+	},
+	"properties": {
+		"bodies": {
+			"compositions": [
+				"owner"
+			]
+		}
+	}
+}

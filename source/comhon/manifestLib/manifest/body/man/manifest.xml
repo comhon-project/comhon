@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest extends="body">
+	<properties>
+		<property type="boolean">baldness</property>
+	</properties>
+</manifest>

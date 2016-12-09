@@ -1,0 +1,9 @@
+{
+	"properties": {
+		"bodies": {
+			"compositions": [
+				"owner"
+			]
+		}
+	}
+}

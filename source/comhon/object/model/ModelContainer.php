@@ -85,26 +85,20 @@ abstract class ModelContainer extends Model {
 		return $this->getModel()->getSerialization();
 	}
 	
-	protected function _toObject($pValue, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		throw new \Exception('must be overrided');
 	}
 	
-	protected function _toXml($pObject, $pXmlNode, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toXml($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		throw new \Exception('must be overrided');
 	}
 	
-	protected function _fromObject($pValue, $pDateTimeZone, $pLocalObjectCollection)  {
+	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection)  {
 		throw new \Exception('must be overrided');
 	}
 	
-	protected function _fromSqlColumn($pValue, $pDateTimeZone, $pLocalObjectCollection) {
+	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
 		throw new \Exception('must be overrided');
 	}
 	
-	/*
-	 * return true if $pValue1 and $pValue2 are equals
-	 */
-	public function isEqual($pValue1, $pValue2) {
-		return $pValue1 == $pValue2;
-	}
 }

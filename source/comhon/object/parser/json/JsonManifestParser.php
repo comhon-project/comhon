@@ -16,7 +16,6 @@ use comhon\object\model\LocalModel;
 use comhon\object\model\Property;
 use comhon\object\model\ModelForeign;
 use comhon\object\model\SimpleModel;
-use comhon\object\model\SerializationUnit;
 use comhon\object\model\ForeignProperty;
 use comhon\object\model\CompositionProperty;
 use comhon\object\object\Config;
@@ -132,11 +131,27 @@ class JsonManifestParser extends ManifestParser {
 	protected function _getBaseInfosProperty(Model $pPropertyModel) {
 		$lCurrentPropertyJson = current($this->mCurrentProperties);
 	
-		$lName   = key($this->mCurrentProperties);
-		$lIsId   = array_key_exists('is_id', $lCurrentPropertyJson) && $lCurrentPropertyJson['is_id'];
-		$lModel  = $this->_completePropertyModel($lCurrentPropertyJson, $pPropertyModel);
-	
-		return array($lName, $lModel, $lIsId);
+		$lName      = key($this->mCurrentProperties);
+		$lIsId      = array_key_exists('is_id', $lCurrentPropertyJson) && $lCurrentPropertyJson['is_id'];
+		$lIsPrivate = array_key_exists('is_private', $lCurrentPropertyJson) && $lCurrentPropertyJson['is_private'];
+		$lModel     = $this->_completePropertyModel($lCurrentPropertyJson, $pPropertyModel);
+		
+		if (array_key_exists('default', $lCurrentPropertyJson)) {
+			if ($lModel instanceof DateTime) {
+				$lDefault = $lCurrentPropertyJson['default'];
+				if (new DateTime($lDefault) === false) {
+					throw new \Exception('invalid default value time format : '.$lDefault);
+				}
+			} else if (($lModel instanceof SimpleModel) || ($lModel instanceof ModelEnum)) {
+				$lDefault = $lCurrentPropertyJson['default'];
+			} else {
+				throw new \Exception('default value can\'t be applied on complex model');
+			}
+		} else {
+			$lDefault = null;
+		}
+		
+		return array($lName, $lModel, $lIsId, $lIsPrivate, $lDefault);
 	}
 	
 	/**

@@ -13,17 +13,38 @@
 				<property type="string">plop2</property>
 			</properties>
 		</objectWithId>
+		<objectWithIdAndMore extends='objectWithId'>
+			<properties>
+				<property type="string" private="1">plop3</property>
+			</properties>
+		</objectWithIdAndMore>
+		<objectWithIdAndMoreMore extends='objectWithIdAndMore'>
+			<properties>
+				<property type="string">plop4</property>
+			</properties>
+		</objectWithIdAndMoreMore>
 	</types>
 	
 	<properties>
-		<property type="string" id="1">id1</property>
+		<property type="integer" id="1">id1</property>
 		<property type="string" id="1">id2</property>
 		<property type="dateTime">date</property>
 		<property type="dateTime">timestamp</property>
 		<property type="object">object</property>
 		<property type="objectWithId">objectWithId</property>
-		<property type="string">string</property>
+		<property type="string" private="1">string</property>
 		<property type="integer">integer</property>
 		<foreignProperty type="mainTestDb">mainParentTestDb</foreignProperty>
+		<property type="array">
+			<name>objectsWithId</name>
+			<values type="objectWithId" name="objectWithId"/>
+		</property>
+		<foreignProperty type="array">
+			<name>foreignObjects</name>
+			<values type="objectWithId" name="foreignObject"/>
+		</foreignProperty>
+		<foreignProperty type="objectWithId">lonelyForeignObject</foreignProperty>
+		<foreignProperty type="objectWithIdAndMore">lonelyForeignObjectTwo</foreignProperty>
+		<property type="string" default="default">defaultValue</property>
 	</properties>
 </manifest>

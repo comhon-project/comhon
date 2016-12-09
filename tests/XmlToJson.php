@@ -71,19 +71,29 @@ function transformManifest($xml, $dir) {
 		$lJson->object = (string) $xml['object'];
 	}
 	
+	if (isset($xml['extends'])) {
+		$lJson->extends = (string) $xml['extends'];
+	}
+	
 	if (isset($xml->manifests)) {
 		$lJson->manifests = new stdClass();
-		foreach ($xml->manifests->manifest as $manifest) {
+		foreach ($xml->manifests->children() as $manifest) {
 			$lPath = (string) $manifest;
-			$lType = (string) $manifest['type'];
+			$lType = (string) $manifest->getName();
 			$lJson->manifests->$lType = $lPath;
 		}
 	}
 	if (isset($xml->types)) {
 		$lJson->types = new stdClass();
-		foreach ($xml->types->type as $type) {
-			$lType = (string) $type['id'];
+		foreach ($xml->types->children() as $type) {
+			$lType = $type->getName();
 			$lJson->types->$lType = new stdClass();
+			if (isset($type['object'])) {
+				$lJson->types->$lType->object = (string) $type['object'];
+			}
+			if (isset($type['extends'])) {
+				$lJson->types->$lType->extends = (string) $type['extends'];
+			}
 			$lJson->types->$lType->properties = getProperties($type->properties);
 		}
 	}
@@ -120,12 +130,27 @@ function getProperties($xml) {
 			$lJson->values = new stdClass();
 			$lJson->values->type = (string) $lChild->values['type'];
 			$lJson->values->name = (string) $lChild->values['name'];
+			
+			if (isset($lChild->values->enum)) {
+				$lJson->values->enum = [];
+				foreach ($lChild->values->enum->value as $value) {
+					if ($lJson->values->type == 'integer') {
+						$lJson->values->enum[] = (integer) $value;
+					} else if ($lJson->values->type == 'float') {
+						$lJson->values->enum[] = (float) $value;
+					} else {
+						$lJson->values->enum[] = (string) $value;
+					}
+				}
+			}
 		}
 		else if (isset($lChild->enum)) {
 			$lPropertyName = (string) $lChild->name;
 			$lJson->enum = [];
 			foreach ($lChild->enum->value as $value) {
-				if ($lTypeId == 'integer') {
+			if ($lTypeId == 'integer') {
+					$lJson->enum[] = (integer) $value;
+				}else if ($lTypeId == 'float') {
 					$lJson->enum[] = (integer) $value;
 				} else {
 					$lJson->enum[] = (string) $value;
@@ -141,6 +166,20 @@ function getProperties($xml) {
 		}
 		if (isset($lChild['id']) && ((string) $lChild['id'] == '1')) {
 			$lJson->is_id = true;
+		}
+		if (isset($lChild['private']) && ((string) $lChild['private'] == '1')) {
+			$lJson->is_private = true;
+		}
+		if (isset($lChild['default'])) {
+			if ($lTypeId == 'boolean') {
+				$lJson->default = (string) $lChild['default'] === "1";
+			} else if ($lTypeId == 'integer') {
+				$lJson->default = (integer) $lChild['default'];
+			} else if ($lTypeId == 'float') {
+				$lJson->default = (float) $lChild['default'];
+			} else {
+				$lJson->default = (string) $lChild['default'];
+			}
 		}
 		$lPropertiesJson->$lPropertyName = $lJson;
 	}

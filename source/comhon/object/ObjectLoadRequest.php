@@ -58,19 +58,4 @@ abstract class ObjectLoadRequest {
 		return $pObject;
 	}
 	
-	
-	
-	protected function _setErrorObject($pException, $pId = null) {
-		$lResult = new stdClass();
-		$lResult->success = false;
-		$lResult->error = new stdClass();
-		$lResult->error->code = $pException->getCode();
-		$lResult->error->message = $pException->getMessage();
-		if (!is_null($pId)) {
-			$lResult->id = $pId;
-		}
-		
-		return $lResult;
-	}
-	
 }

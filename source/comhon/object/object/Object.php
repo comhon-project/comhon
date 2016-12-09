@@ -9,78 +9,127 @@ use comhon\object\model\ModelContainer;
 use comhon\object\model\ModelEnum;
 use comhon\object\model\ModelArray;
 use comhon\object\model\SimpleModel;
+use comhon\object\MainObjectCollection;
 
 class Object {
 
-	protected $mModel;
-	protected $mIsLoaded;
-	protected $mValues = array();
+	private $mModel;
+	private $mIsLoaded;
+	private $mValues = [];
 	
 	
-	public final function __construct($pModelName, $lIsLoaded = true) {
-		if (($pModelName instanceof Model) || ($pModelName instanceof ModelContainer)) {
-			$this->mModel = $pModelName;
+	/**
+	 * 
+	 * @param string|Model $pModel can be a model name or an instance of model
+	 * @param boolean $lIsLoaded
+	 */
+	public final function __construct($pModel, $lIsLoaded = true) {
+		if (is_object($pModel) && ($pModel instanceof Model)) {
+			$this->mModel = $pModel;
 		}else {
-			$this->mModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
+			$this->mModel = InstanceModel::getInstance()->getInstanceModel($pModel);
+		}
+		if (($this instanceof ObjectArray) && !($this->mModel instanceof ModelArray)) {
+			throw new \Exception('ObjectArray must have ModelArray');
 		}
 		$this->mIsLoaded = $lIsLoaded;
+		
+		foreach ($this->mModel->getPropertiesWithDefaultValues() as $lProperty) {
+			$this->setValue($lProperty->getName(), $lProperty->getDefaultValue());
+		}
+		foreach ($this->mModel->getCompositions() as $lProperty) {
+			$this->initValue($lProperty->getName(), false);
+		}
 	}
 	
-	public function getModel() {
+	/**
+	 * 
+	 * @return Model
+	 */
+	public final function getModel() {
 		return $this->mModel;
 	}
 	
-	public function getValue($pName) {
+	public final function getValue($pName) {
 		return ($this->hasValue($pName)) ? $this->mValues[$pName] : null;
 	}
 	
-	public function getInstanceValue($pPropertyName, $pIsLoaded = true) {
+	public final function getInstanceValue($pPropertyName, $pIsLoaded = true) {
 		return $this->getProperty($pPropertyName, true)->getModel()->getObjectInstance($pIsLoaded);
 	}
 	
-	public function resetValues() {
+	protected final function _setValues(array $pValues) {
+		$this->mValues = $pValues;
+	}
+	
+	protected final function _pushValue($pValue, $pStrict = true) {
+			if ($pStrict && !is_null($pValue)) {
+				if ($this instanceof ObjectArray) {
+					$this->mModel->getModel()->verifValue($pValue);
+				} else {
+					$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
+				}
+			}
+		$this->mValues[] = $pValue;
+	}
+	
+	public final function resetValues() {
 		$this->mValues = array();
 	}
 	
-	public function getValues() {
+	public final function getValues() {
 		return $this->mValues;
 	}
 	
-	public function &getRefValues() {
-		return $this->mValues;
-	}
-	
-	public function isLoaded() {
+	public final function isLoaded() {
 		return $this->mIsLoaded;
 	}
 	
-	public function setLoadStatus() {
+	public final function setLoadStatus() {
 		$this->mIsLoaded = true;
 	}
 	
-	public function setUnLoadStatus() {
+	public final function setUnLoadStatus() {
 		$this->mIsLoaded = false;
 	}
 	
-	public function loadValue($pName) {
-		if ($this->hasProperty($pName) && ($this->getProperty($pName) instanceof ForeignProperty) && is_object($this->getValue($pName)) && !$this->getValue($pName)->isLoaded()) {
-			$lIdValue = $this->getProperty($pName)->isComposition() ? $this->getId() : null;
-			if (! $this->getProperty($pName)->loadValue($this->getValue($pName), $lIdValue)) {
-				throw new \Exception("cannot load object with name '$pName' and id '".$this->getValue($pName)->getId()."'");
-			}
-			return $this->getValue($pName);
+	public final function cast(Model $pModel) {
+		if ($this instanceof ObjectArray) {
+			throw new \Exception('object array cannot be casted');
 		}
-		return null;
+		if (!$pModel->isInheritedFrom($this->mModel)) {
+			throw new \Exception("Cannot cast object, '{$pModel->getModelName()}' is not inherited from '{$this->mModel->getModelName()}'");
+		}
+		$lhasCompleteId = $this->hasCompleteId();
+		if ($lhasCompleteId) {
+			if (MainObjectCollection::getInstance()->hasObject($this->getId(), $pModel->getModelName(), false)) {
+				throw new \Exception("Cannot cast object to '{$pModel->getModelName()}'. Object with id '{$this->getId()}' and model '{$pModel->getModelName()}' already exists in MainModelCollection");
+			}
+		}
+		$this->mModel = $pModel;
+		if($this->mModel instanceof MainModel) {
+			foreach ($this->mModel->getProperties() as $lProperty) {
+				if ($lProperty->isComposition()) {
+					$this->initValue($lProperty->getName(), false);
+				}
+			}
+			if ($lhasCompleteId) {
+				MainObjectCollection::getInstance()->addObject($this);
+			}
+		}
 	}
 	
-	public function loadValueIds($pName) {
-		if (is_object($this->getValue($pName)) && !$this->getValue($pName)->isLoaded()) {
-			if (! $this->getProperty($pName)->loadValueIds($this->getValue($pName), $this->getId())) {
-				throw new \Exception("cannot load object with name '$pName'");
-			}
-			return $this->getValue($pName);
-		}
-		return null;
+	/**
+	 * 
+	 * @param string $pName
+	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
+	 */
+	public function loadValue($pName) {
+		return $this->getProperty($pName, true)->loadValue($this->getValue($pName), $this);
+	}
+	
+	public final function loadValueIds($pName) {
+		return $this->getProperty($pName, true)->loadValueIds($this->getValue($pName), $this);
 	}
 	
 	public function getId() {
@@ -95,7 +144,7 @@ class Object {
 		return $this->mModel->encodeId($lValues);
 	}
 	
-	public function hasCompleteId() {
+	public final function hasCompleteId() {
 		foreach ($this->mModel->getIdProperties() as $lPropertyName) {
 			if(is_null($this->getValue($lPropertyName)) || $this->getValue($lPropertyName) == '') {
 				return false;
@@ -104,7 +153,7 @@ class Object {
 		return true;
 	}
 	
-	public function verifCompleteId() {
+	public final function verifCompleteId() {
 		foreach ($this->mModel->getIdProperties() as $lPropertyName) {
 			if(is_null($this->getValue($lPropertyName)) || $this->getValue($lPropertyName) == '') {
 				throw new \Excpetion("id is not complete, property '$lPropertyName' is empty");
@@ -112,14 +161,18 @@ class Object {
 		}
 	}
 	
-	public function setValue($pName, $pValue, $pStrict = true) {
+	public final function setValue($pName, $pValue, $pStrict = true) {
 			if ($pStrict && !is_null($pValue)) {
-				$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
+				if ($this instanceof ObjectArray) {
+					$this->mModel->getModel()->verifValue($pValue);
+				} else {
+					$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
+				}
 			}
 			$this->mValues[$pName] = $pValue;
 	}
 	
-	public function deleteValue($pName) {
+	public final function deleteValue($pName) {
 		if ($this->hasValue($pName)) {
 			unset($this->mValues[$pName]);
 		}
@@ -131,16 +184,16 @@ class Object {
 	 * @param string $pIsLoaded
 	 * @return Object
 	 */
-	public function initValue($pPropertyName, $pIsLoaded = true) {
+	public final function initValue($pPropertyName, $pIsLoaded = true) {
 		$this->mValues[$pPropertyName] = $this->getInstanceValue($pPropertyName, $pIsLoaded);
 		return $this->mValues[$pPropertyName];
 	}
 	
-	public function hasValue($pName) {
+	public final function hasValue($pName) {
 		return array_key_exists($pName, $this->mValues);
 	}
 	
-	public function hasValues($Names) {
+	public final function hasValues($Names) {
 		foreach ($Names as $lName) {
 			if (!$this->hasValue($lName)) {
 				return false;
@@ -149,86 +202,149 @@ class Object {
 		return true;
 	}
 	
-	public function hasProperty($pPropertyName) {
+	public final function hasProperty($pPropertyName) {
 		return $this->mModel->hasProperty($pPropertyName);
 	}
 	
-	public function getProperties() {
+	public final function getProperties() {
 		return $this->mModel->getProperties();
 	}
 	
-	public function getPropertiesNames() {
+	public final function getPropertiesNames() {
 		return array_keys($this->mModel->getProperties());
 	}
 	
-	public function getProperty($pPropertyName, $pThrowException = false) {
+	public final function getProperty($pPropertyName, $pThrowException = false) {
 		return $this->mModel->getProperty($pPropertyName, $pThrowException);
 	}
 	
-	/*
-	 * return true if the object is a new object and doesn't exist in database
-	 */
-	public function isNew() {
-		//TODO
-		return true;
-	}
-	
-	public function fromObject($pPhpObject, $pTimeZone = null, $pUpdateLoadStatus = true) {
-		$this->mModel->fillObjectFromPhpObject($this, $pPhpObject, $pTimeZone, $pUpdateLoadStatus);
-	}
-	
-	public function toObject($pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->mModel->toObject($this, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
-	}
-	
-	public function fromXml($pXml, $pTimeZone = null, $pUpdateLoadStatus = true) {
-		$this->mModel->fillObjectFromXml($this, $pXml, $pTimeZone, $pUpdateLoadStatus);
-	}
-	
-	public function toXml($pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
-		$lXmlNode = new \SimpleXmlElement("<{$this->getModel()->getModelName()}/>");
-		$this->mModel->toXml($this, $lXmlNode, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
-		return $lXmlNode;
-	}
-	
-	public function fromSqlDataBase($pRow, $pTimeZone = null, $pUpdateLoadStatus = true, $pAddUnloadValues = true) {
-		$this->mModel->fillObjectFromSqlDatabase($this, $pRow, $pTimeZone, $pUpdateLoadStatus, $pAddUnloadValues);
-	}
-	
-	public function toSqlDataBase($pUseSerializationName = true, $pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->mModel->toSqlDataBase($this, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
-	}
-	
 	/**
-	 * 
+	 *
 	 * @param string $pOperation specify it only if object serialization is sqlDatabase
 	 * @throws \Exception
 	 */
-	public function save($pOperation = null) {
+	public final function save($pOperation = null) {
 		if (is_null($this->getModel()->getSerialization())) {
 			throw new \Exception('model doesn\'t have serialization');
 		}
 		return $this->getModel()->getSerialization()->saveObject($this, $pOperation);
 	}
 	
-	/*
-	 * return true if $this is equal to $pObject
-	 */
-	public function isEqual($pObject) {
-		if (count($this->mValues) != count($pObject->getValues())) {
-			return false;
-		}
-		foreach ($this->mValues as $lName => $lValue1) {
-			if ($pObject->hasValue($lName)) {
-				$lValue2 = $pObject->getValue($lName);
-				if (($lValue1->getModel()->getModelName() != $lValue2->getModel()->getModelName()) ||  
-					(!$lValue1->getModel()->isEqual($lValue1, $lValue2))) {
-					return false;
-				}
-			}else {
-				return false;
-			}
-		}
-		return true;
+	/***********************************************************************************************\
+	|                                                                                               |
+	|                                           Php Object                                          |
+	|                                                                                               |
+	\***********************************************************************************************/
+	
+	public final function fromSerializedStdObject($pStdObject, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->fromStdObject($pStdObject, true, true, $pTimeZone, $pUpdateLoadStatus);
 	}
+	
+	public final function fromPublicStdObject($pStdObject, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->fromStdObject($pStdObject, false, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function fromPrivateStdObject($pStdObject, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->fromStdObject($pStdObject, true, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function fromStdObject($pStdObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->mModel->fillObjectFromStdObject($this, $pStdObject, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toSerialStdObject($pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->toStdObject(true, true, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toPublicStdObject($pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->toStdObject(false, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toPrivateStdObject($pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->toStdObject(true, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toStdObject($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->mModel->toStdObject($this, $pPrivate, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
+	}
+	
+	/***********************************************************************************************\
+	|                                                                                               |
+	|                                              XML                                              |
+	|                                                                                               |
+	\***********************************************************************************************/
+	
+	public final function fromSerializedXml($pXml, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->fromXml($pXml, true, true, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function fromPublicXml($pXml, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->fromXml($pXml, false, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function fromPrivateXml($pXml, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->fromXml($pXml, true, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function fromXml($pXml, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->mModel->fillObjectFromXml($this, $pXml, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toSerialXml($pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->toXml(true, true, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toPublicXml($pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->toXml(false, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toPrivateXml($pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->toXml(true, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toXml($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		$lXmlNode = new \SimpleXmlElement("<{$this->getModel()->getModelName()}/>");
+		$this->mModel->toXml($this, $lXmlNode, $pPrivate, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
+		return $lXmlNode;
+	}
+
+	
+	/***********************************************************************************************\
+	|                                                                                               |
+	|                                sql database - flattened array                                 |
+	|                                                                                               |
+	\***********************************************************************************************/
+	
+	public final function fromSqlDatabase($pRow, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->fromFlattenedArray($pRow, true, true, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function fromPublicFlattenedArray($pRow, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->fromFlattenedArray($pRow, false, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function fromPrivateFlattenedArray($pRow, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->fromFlattenedArray($pRow, true, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function fromFlattenedArray($pRow, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true) {
+		$this->mModel->fillObjectFromFlattenedArray($this, $pRow, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toSqlDatabase($pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->toFlattenedArray(true, true, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toPublicFlattenedArray($pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->toFlattenedArray(false, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toPrivateFlattenedArray($pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->toFlattenedArray(true, false, $pTimeZone, $pUpdateLoadStatus);
+	}
+	
+	public final function toFlattenedArray($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+		return $this->mModel->toFlattenedArray($this, $pPrivate, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
+	}
+	
 }

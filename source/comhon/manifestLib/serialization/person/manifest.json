@@ -1,14 +1,21 @@
 {
 	"serialization": {
 		"type": "sqlTable",
+		"inheritanceKey": "sex",
 		"id": "person"
 	},
 	"properties": {
 		"firstName": {
 			"serializationName": "first_name"
 		},
+		"birthDate": {
+			"serializationName": "birth_date"
+		},
 		"birthPlace": {
 			"serializationName": "birth_place"
+		},
+		"bestFriend": {
+			"serializationName": "best_friend"
 		},
 		"father": {
 			"serializationName": "father_id"

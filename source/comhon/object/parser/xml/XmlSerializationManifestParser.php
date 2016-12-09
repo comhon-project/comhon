@@ -49,17 +49,23 @@ class XmlSerializationManifestParser extends SerializationManifestParser {
 	}
 	
 	private function _buildSerialization($pSerializationNode) {
-		$lType = (string) $pSerializationNode["type"];
+		$lType = (string) $pSerializationNode['type'];
 		if (isset($pSerializationNode->$lType)) {
 			$lObjectXml = $pSerializationNode->$lType;
 			$lSerialization = InstanceModel::getInstance()->getInstanceModel($lType)->getObjectInstance();
-			$lSerialization->fromXml($lObjectXml);
+			$lSerialization->fromXml($lObjectXml, true, true);
 		} else {
 			$lId = (string) $pSerializationNode;
 			if (empty($lId)) {
 				throw new \Exception('malformed serialization, must have description or id');
 			}
 			$lSerialization =  InstanceModel::getInstance()->getInstanceModel($lType)->loadObject($lId);
+			if (is_null($lSerialization)) {
+				throw new \Exception("impossible to load $lType serialization with id '$lId'");
+			}
+		}
+		if (isset($pSerializationNode['inheritanceKey'])) {
+			$lSerialization->setInheritanceKey((string) $pSerializationNode['inheritanceKey']);
 		}
 		return $lSerialization;
 	}
