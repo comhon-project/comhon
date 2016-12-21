@@ -260,7 +260,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$lSqlTable = $this->mModel->getSqlTableUnit();
 		$lSqlTable->loadValue("database");
 		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
-		$lRows = $lDbInstance->executeQuery($this->mSelectQuery);
+		$lRows = $lDbInstance->executeSelectQuery($this->mSelectQuery);
 		return $this->_buildObjectsWithRows($lRows);
 	}
 	

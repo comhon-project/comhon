@@ -3,17 +3,30 @@ namespace comhon\object\object;
 
 use comhon\object\MainObjectCollection;
 use comhon\object\model\Model;
+use comhon\object\singleton\InstanceModel;
 
 class XmlFile extends SerializationUnit {
 	
 	protected function _saveObject(Object $pObject) {
+		if (!$pObject->getModel()->hasIdProperty()) {
+			throw new \Exception("Cannot save model without id in xml file");
+		}
+		if (!$pObject->hasCompleteId()) {
+			throw new \Exception("Cannot save object, object id is not complete");
+		}
 		$lPath = $this->getValue("saticPath") . DIRECTORY_SEPARATOR . $pObject->getId() . DIRECTORY_SEPARATOR . $this->getValue("staticName");
 		if (!file_exists(dirname($lPath))) {
 			if (!mkdir(dirname($lPath), 0777, true)) {
-				throw new \Exception("cannot save xml file (id : {$pObject->getId()})");
+				throw new \Exception("Cannot save object with id '{$pObject->getId()}'. Impossible to create directory '".dirname($lPath)."'");
 			}
 		}
-		return $pObject->toSerialXml()->asXML($lPath);
+		$lXml = $pObject->toSerialXml();
+		if (!is_null($this->getInheritanceKey())) {
+			$lXml[$this->getInheritanceKey()] = $pObject->getModel()->getModelName();
+		}
+		if ($lXml->asXML($lPath) === false) {
+			throw new \Exception("Cannot save object with id '{$pObject->getId()}'. Creation or filling file failed");
+		}
 	}
 	
 	/**
@@ -35,9 +48,6 @@ class XmlFile extends SerializationUnit {
 			$lModel = $this->getInheritedModel($lSimpleXmlElement, $lExtendsModel);
 			if ($lModel !== $lExtendsModel) {
 				$pObject->cast($lModel);
-				trigger_error('inherited and DIFFERENT model -> '.$lSimpleXmlElement->asXML());
-			} else {
-				trigger_error('inherited and SAME model -> '.$lSimpleXmlElement->asXML());
 			}
 		}
 		$pObject->fromSerializedXml($lSimpleXmlElement);

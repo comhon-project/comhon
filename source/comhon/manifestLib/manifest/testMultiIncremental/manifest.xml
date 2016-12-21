@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<properties>
+		<property type="integer" id="1">id1</property>
+		<property type="integer" id="1">id2</property>
+		<property type="string">plop</property>
+	</properties>
+</manifest>

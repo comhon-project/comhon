@@ -17,6 +17,23 @@ class Boolean extends SimpleModel {
 		return ((integer) $pValue === 1) ? true : false;
 	}
 	
+	protected function _fromFlattenedValue($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pLocalObjectCollection = null) {
+		if (is_bool($pValue)) {
+			return $pValue;
+		}
+		$lBoolean = filter_var($pValue, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+		if (is_null($lBoolean)) {
+			if ($pValue === 't') {
+				$lBoolean = true;
+			} else if ($pValue === 'f') {
+				$lBoolean = false;
+			} else {
+				$lBoolean = $pValue;
+			}
+		}
+		return $lBoolean;
+	}
+	
 	public function  isCheckedValueType($pValue) {
 		return is_bool($pValue);
 	}

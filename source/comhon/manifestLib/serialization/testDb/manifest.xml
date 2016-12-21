@@ -11,5 +11,9 @@
 		<lonelyForeignObject serializationName="lonely_foreign_object"/>
 		<lonelyForeignObjectTwo serializationName="lonely_foreign_object_two"/>
 		<defaultValue serializationName="default_value"/>
+		<manBodyJson serializationName="man_body_json_id"/>
+		<womanXml serializationName="woman_xml_id"/>
+		<notSerializedValue serializable="0"/>
+		<notSerializedForeignObject serializable="0"/>
 	</properties>
 </manifest>

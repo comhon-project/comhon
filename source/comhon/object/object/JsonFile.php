@@ -3,17 +3,30 @@ namespace comhon\object\object;
 
 use comhon\object\model\Model;
 use comhon\object\MainObjectCollection;
+use comhon\object\singleton\InstanceModel;
 
 class JsonFile extends SerializationUnit {
 	
 	protected function _saveObject(Object $pObject) {
+		if (!$pObject->getModel()->hasIdProperty()) {
+			throw new \Exception("Cannot save model without id in json file");
+		}
+		if (!$pObject->hasCompleteId()) {
+			throw new \Exception("Cannot save object, object id is not complete");
+		}
 		$lPath = $this->getValue("saticPath") . DIRECTORY_SEPARATOR . $pObject->getId() . DIRECTORY_SEPARATOR . $this->getValue("staticName");
 		if (!file_exists(dirname($lPath))) {
 			if (!mkdir(dirname($lPath), 0777, true)) {
-				throw new \Exception("cannot save json file (id : {$pObject->getId()})");
+				throw new \Exception("Cannot save object with id '{$pObject->getId()}'. Impossible to create directory '".dirname($lPath)."'");
 			}
 		}
-		return file_put_contents($lPath, json_encode($pObject->toSerialStdObject()));
+		$lStdObject = $pObject->toSerialStdObject();
+		if (!is_null($this->getInheritanceKey())) {
+			$lStdObject->{$this->getInheritanceKey()} = $pObject->getModel()->getModelName();
+		}
+		if (file_put_contents($lPath, json_encode($lStdObject)) === false) {
+			throw new \Exception("Cannot save object with id '{$pObject->getId()}'. Creation or filling file failed");
+		}
 	}
 	
 	/**
@@ -35,11 +48,7 @@ class JsonFile extends SerializationUnit {
 			$lModel = $this->getInheritedModel($lStdClassObject, $lExtendsModel);
 			if ($lModel !== $lExtendsModel) {
 				$pObject->cast($lModel);
-				trigger_error('inherited and DIFFERENT model -> '.json_encode($lStdClassObject));
-			} else {
-				trigger_error('inherited and SAME model -> '.json_encode($lStdClassObject));
 			}
-		
 		}
 		$pObject->fromSerializedStdObject($lStdClassObject);
 		return true;

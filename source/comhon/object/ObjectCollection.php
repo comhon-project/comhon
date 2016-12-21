@@ -73,6 +73,20 @@ class ObjectCollection {
 		return $lSuccess;
 	}
 	
+	/**
+	 * remove object from collection if exists
+	 * @param Object $pObject
+	 * @throws \Exception
+	 * @return boolean true if object is added
+	 */
+	public function removeObject(Object $pObject) {
+		if ($pObject->hasCompleteId() && $this->hasObject($pObject->getId(), $pObject->getModel()->getModelName())) {
+			unset($this->mMap[$pObject->getModel()->getModelName()][$pObject->getId()]);
+			return true;
+		}
+		return false;
+	}
+	
 	public function toStdObject($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null) {
 		$lArray = array();
 		foreach ($this->mMap as $lModelName => $lObjectById) {

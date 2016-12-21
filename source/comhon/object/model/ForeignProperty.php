@@ -8,8 +8,8 @@ class ForeignProperty extends Property {
 	
 	private $mCompositionProperties = null;
 	
-	public function __construct($pModel, $pName, $pSerializationName = null, $pIsPrivate = false) {
-		parent::__construct($pModel, $pName, $pSerializationName, false, $pIsPrivate);
+	public function __construct($pModel, $pName, $pSerializationName = null, $pIsPrivate = false, $pIsSerializable = true) {
+		parent::__construct($pModel, $pName, $pSerializationName, false, $pIsPrivate, $pIsSerializable);
 	}
 	
 	public function loadValue(Object $pObject) {

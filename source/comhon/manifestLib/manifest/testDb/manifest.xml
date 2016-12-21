@@ -46,5 +46,9 @@
 		<foreignProperty type="objectWithId">lonelyForeignObject</foreignProperty>
 		<foreignProperty type="objectWithIdAndMore">lonelyForeignObjectTwo</foreignProperty>
 		<property type="string" default="default">defaultValue</property>
+		<foreignProperty type="manBodyJson">manBodyJson</foreignProperty>
+		<foreignProperty type="womanXml">womanXml</foreignProperty>
+		<property type="string">notSerializedValue</property>
+		<foreignProperty type="objectWithId">notSerializedForeignObject</foreignProperty>
 	</properties>
 </manifest>

@@ -14,4 +14,9 @@
 	<testDb>testDb/manifest.xml</testDb>
 	<testXml>testXml/manifest.xml</testXml>
 	<mainTestDb>mainTestDb/manifest.xml</mainTestDb>
+	<womanXml>person/womanXml/manifest.xml</womanXml>
+	<manBodyJson>body/manJson/manifest.xml</manBodyJson>
+	<womanXmlExtended>person/womanXmlExtended/manifest.xml</womanXmlExtended>
+	<manBodyJsonExtended>body/manJsonExtended/manifest.xml</manBodyJsonExtended>
+	<testMultiIncremental>testMultiIncremental/manifest.xml</testMultiIncremental>
 </manifests>

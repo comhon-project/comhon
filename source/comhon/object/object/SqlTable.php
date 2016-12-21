@@ -11,34 +11,52 @@ use comhon\object\model\ModelArray;
 use comhon\object\object\ObjectArray;
 use comhon\object\model\Model;
 use comhon\object\MainObjectCollection;
+use comhon\object\model\MainModel;
 
 class SqlTable extends SerializationUnit {
 
 	const UPDATE = 'update';
 	const INSERT = 'insert';
 	
-	private static $sDbObjectById = array();
-
 	private $mInitialized = false;
 	private $mHasIncrementalId = false;
+	private $mDbController;
+	private $mAutoIncrementPropertyNames = [];
 	
 	private function _initDbObject() {
 		$this->loadValue("database");
-		self::$sDbObjectById[$this->getValue("database")->getValue("id")] = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
+		if (is_null($this->mDbController)) {
+			$this->mDbController = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
+		}
 	}
 	
-	private function _initColumnsProperties($pModel) {
-		$lQuery = 'SHOW COLUMNS FROM '.$this->getValue("name");
-		$lResult = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeSimpleQuery($lQuery);
-	
-		if ($pModel->hasUniqueIdProperty()) {
-			$lColumnId = $pModel->getProperty($pModel->getFirstIdPropertyName())->getSerializationName();
+	private function _initColumnsProperties(Model $pModel) {
+		$lAutoIncrementColumns = [];
+		
+		if ($this->mDbController->isSupportedLastInsertId()) {
+			$lQuery = 'SHOW COLUMNS FROM '.$this->getValue("name");
+			$lResult = $this->mDbController->executeSimpleQuery($lQuery)->fetchAll(\PDO::FETCH_ASSOC);
 			foreach ($lResult as $lRow) {
-				if ($lRow['Field'] == $lColumnId) {
-					if ($lRow['Extra'] == 'auto_increment') {
+				if ($lRow['Extra'] === 'auto_increment') {
+					$lAutoIncrementColumns[] = $lRow['Field'];
+					break;
+				}
+			}
+		}
+		// TODO manage sequence
+		// else if ($has_sequence) {
+		//   SELECT table_name, column_name, column_default from information_schema.columns where table_name='testing';
+		//   or
+		//   SELECT * from information_schema.columns where table_name = '<table_name>'
+		//   SELECT pg_get_serial_sequence('<table_name>', '<column_name>')
+		// }
+		if (!empty($lAutoIncrementColumns)) {
+			foreach ($pModel->getProperties() as $lProperty) {
+				if (in_array($lProperty->getSerializationName(), $lAutoIncrementColumns)) {
+					$this->mAutoIncrementPropertyNames[] = $lProperty->getName();
+					if ($lProperty->isId()) {
 						$this->mHasIncrementalId = true;
 					}
-					break;
 				}
 			}
 		}
@@ -49,22 +67,22 @@ class SqlTable extends SerializationUnit {
 		if ($this !== $pObject->getModel()->getSerialization()) {
 			throw new \Exception('this serialization mismatch with parameter object serialization');
 		}
-		return $this->_saveObject($pObject, $pOperation);
+		$this->_saveObject($pObject, $pOperation);
 	}
 	
 	protected function _saveObject(Object $pObject, $pOperation = null) {
-		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
+		if (is_null($this->mDbController)) {
 			$this->_initDbObject();
 		}
 		if (!$this->mInitialized) {
 			$this->_initColumnsProperties($pObject->getModel());
 		}
-		if (is_null($pOperation)) {
-			return $this->_saveObjectWithIncrementalId($pObject);
+		if ($this->mHasIncrementalId) {
+			$this->_saveObjectWithIncrementalId($pObject);
 		} else if ($pOperation == self::INSERT) {
-			return $this->_insertObject($pObject);
+			$this->_insertObject($pObject);
 		} else if ($pOperation == self::UPDATE) {
-			return $this->_updateObject($pObject);
+			$this->_updateObject($pObject);
 		} else {
 			throw new \Exception('unknown operation '.$pOperation);
 		}
@@ -75,17 +93,17 @@ class SqlTable extends SerializationUnit {
 			throw new \Exception('operation not specified');
 		}
 		if ($pObject->hasCompleteId()) {
-			return $this->_updateObject($pObject);
+			$this->_updateObject($pObject);
 		} else {
-			$lResult = $this->_insertObject($pObject);
-			$lId = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->lastInsertId();
-			$pObject->setValue($pObject->getModel()->getFirstIdPropertyName(), $lId);
-			return $lResult;
+			$this->_insertObject($pObject);
 		}
 	}
 	
 	private function _insertObject(Object $pObject) {
 		$lMapOfString = $pObject->toSqlDatabase(self::getDatabaseConnectionTimeZone());
+		if (!is_null($this->getInheritanceKey())) {
+			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getModelName();
+		}
 		
 		foreach ($pObject->getModel()->getEscapedDbColumns() as $lColumn => $lEscapedColumn) {
 			if (array_key_exists($lColumn, $lMapOfString)) {
@@ -93,8 +111,25 @@ class SqlTable extends SerializationUnit {
 				unset($lMapOfString[$lColumn]);
 			}
 		}
-		$lQuery = "INSERT INTO ".$this->getValue("name")." (".implode(", ", array_keys($lMapOfString)).") VALUES (".implode(", ", array_fill(0, count($lMapOfString), '?')).");";
-		return self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeSimpleQuery($lQuery, array_values($lMapOfString));
+		if (is_null($this->mDbController->getInsertReturn())) {
+			$lQuery = "INSERT INTO ".$this->getValue("name")." (".implode(", ", array_keys($lMapOfString)).") VALUES (".implode(", ", array_fill(0, count($lMapOfString), '?')).");";
+		}else if ($this->mDbController->getInsertReturn() == 'RETURNING') {
+			// TODO
+			throw new \Exception('not supported yet');
+		}else if ($this->mDbController->getInsertReturn() == 'OUTPUT') {
+			// TODO
+			throw new \Exception('not supported yet');
+		}
+		$this->mDbController->executeSimpleQuery($lQuery, array_values($lMapOfString));
+		
+		if (!empty($this->mAutoIncrementPropertyNames)) {
+			if ($this->mDbController->isSupportedLastInsertId()) {
+				$lIncrementalValue = $this->mDbController->lastInsertId();
+				$pObject->setValue($this->mAutoIncrementPropertyNames[0], $lIncrementalValue);
+			} else {
+				// TODO manage sequence with return value
+			}
+		}
 	}
 	
 	/**
@@ -106,12 +141,15 @@ class SqlTable extends SerializationUnit {
 			throw new \Exception('update operation require complete id');
 		}
 		$lModel            = $pObject->getModel();
-		$lConditions       = array();
-		$lUpdates          = array();
-		$lUpdateValues     = array();
-		$lConditionsValues = array();
+		$lConditions       = [];
+		$lUpdates          = [];
+		$lUpdateValues     = [];
+		$lConditionsValues = [];
 
-		$lMapOfString      = $pObject->toSqlDatabase(self::getDatabaseConnectionTimeZone());
+		$lMapOfString = $pObject->toSqlDatabase(self::getDatabaseConnectionTimeZone());
+		if (!is_null($this->getInheritanceKey())) {
+			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getModelName();
+		}
 		$lEscapedDbColumns = $pObject->getModel()->getEscapedDbColumns();
 		
 		foreach ($pObject->getModel()->getIdProperties() as $lIdProperty) {
@@ -132,7 +170,7 @@ class SqlTable extends SerializationUnit {
 			$lUpdateValues[] = $lValue;
 		}
 		$lQuery = "UPDATE ".$this->getValue("name")." SET ".implode(", ", $lUpdates)." WHERE ".implode(" and ", $lConditions).";";
-		return self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
+		$this->mDbController->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
 	}
 
 	/**
@@ -153,8 +191,8 @@ class SqlTable extends SerializationUnit {
 		$lReturn        = false;
 		$lModel         = $pObject->getModel()->getUniqueModel();
 		$lWhereColumns  = $this->getCompositionColumns($lModel, $pCompositionProperties);
-		$lSelectColumns = array();
-		$lWhereValues   = array();
+		$lSelectColumns = [];
+		$lWhereValues   = [];
 		$lIdProperties  = $lModel->getIdProperties();
 		
 		if (empty($lWhereColumns)) {
@@ -185,7 +223,7 @@ class SqlTable extends SerializationUnit {
 	 */
 	private function _loadObjectFromDatabase($pObject, $pSelectColumns, $pWhereColumns, $lLogicalJunctionType) {
 		$lSuccess = false;
-		if (!array_key_exists($this->getValue("database")->getValue("id"), self::$sDbObjectById)) {
+		if (is_null($this->mDbController)) {
 			$this->_initDbObject();
 		}
 		if (!$this->mInitialized) {
@@ -200,7 +238,7 @@ class SqlTable extends SerializationUnit {
 		foreach ($pSelectColumns as $lColumn) {
 			$lSelectQuery->addSelectColumn($lColumn);
 		}
-		$lRows         = self::$sDbObjectById[$this->getValue("database")->getValue("id")]->executeQuery($lSelectQuery);
+		$lRows         = $this->mDbController->executeSelectQuery($lSelectQuery);
 		$lIsModelArray = $pObject->getModel() instanceof ModelArray;
 		
 		if (is_array($lRows) && ($lIsModelArray || (count($lRows) == 1))) {
@@ -229,7 +267,7 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	public function getCompositionColumns($pModel, $pCompositionProperties) {
-		$lColumns = array();
+		$lColumns = [];
 		foreach ($pCompositionProperties as $lCompositionProperty) {
 			$lColumns[] = $pModel->getProperty($lCompositionProperty, true)->getSerializationName();
 		}

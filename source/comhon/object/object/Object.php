@@ -227,7 +227,7 @@ class Object {
 		if (is_null($this->getModel()->getSerialization())) {
 			throw new \Exception('model doesn\'t have serialization');
 		}
-		return $this->getModel()->getSerialization()->saveObject($this, $pOperation);
+		$this->getModel()->getSerialization()->saveObject($this, $pOperation);
 	}
 	
 	/***********************************************************************************************\
@@ -253,15 +253,15 @@ class Object {
 	}
 	
 	public final function toSerialStdObject($pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->toStdObject(true, true, $pTimeZone, $pUpdateLoadStatus);
+		return $this->toStdObject(true, true, $pTimeZone, $pMainForeignObjects);
 	}
 	
 	public final function toPublicStdObject($pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->toStdObject(false, false, $pTimeZone, $pUpdateLoadStatus);
+		return $this->toStdObject(false, false, $pTimeZone, $pMainForeignObjects);
 	}
 	
 	public final function toPrivateStdObject($pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->toStdObject(true, false, $pTimeZone, $pUpdateLoadStatus);
+		return $this->toStdObject(true, false, $pTimeZone, $pMainForeignObjects);
 	}
 	
 	public final function toStdObject($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
@@ -291,15 +291,15 @@ class Object {
 	}
 	
 	public final function toSerialXml($pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->toXml(true, true, $pTimeZone, $pUpdateLoadStatus);
+		return $this->toXml(true, true, $pTimeZone, $pMainForeignObjects);
 	}
 	
 	public final function toPublicXml($pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->toXml(false, false, $pTimeZone, $pUpdateLoadStatus);
+		return $this->toXml(false, false, $pTimeZone, $pMainForeignObjects);
 	}
 	
 	public final function toPrivateXml($pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->toXml(true, false, $pTimeZone, $pUpdateLoadStatus);
+		return $this->toXml(true, false, $pTimeZone, $pMainForeignObjects);
 	}
 	
 	public final function toXml($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
@@ -332,15 +332,15 @@ class Object {
 	}
 	
 	public final function toSqlDatabase($pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->toFlattenedArray(true, true, $pTimeZone, $pUpdateLoadStatus);
+		return $this->toFlattenedArray(true, true, $pTimeZone, $pMainForeignObjects);
 	}
 	
 	public final function toPublicFlattenedArray($pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->toFlattenedArray(false, false, $pTimeZone, $pUpdateLoadStatus);
+		return $this->toFlattenedArray(false, false, $pTimeZone, $pMainForeignObjects);
 	}
 	
 	public final function toPrivateFlattenedArray($pTimeZone = null, &$pMainForeignObjects = null) {
-		return $this->toFlattenedArray(true, false, $pTimeZone, $pUpdateLoadStatus);
+		return $this->toFlattenedArray(true, false, $pTimeZone, $pMainForeignObjects);
 	}
 	
 	public final function toFlattenedArray($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {

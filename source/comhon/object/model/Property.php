@@ -12,14 +12,16 @@ class Property {
 	protected $mIsId;
 	protected $mIsPrivate;
 	protected $mDefault;
+	protected $mIsSerializable;
 	
-	public function __construct($pModel, $pName, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pDefault = null) {
+	public function __construct($pModel, $pName, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pIsSerializable = true, $pDefault = null) {
 		$this->mModel = $pModel;
 		$this->mName = $pName;
 		$this->mSerializationName = is_null($pSerializationName) ? $this->mName : $pSerializationName;
 		$this->mIsId = $pIsId;
 		$this->mIsPrivate = $pIsPrivate;
 		$this->mDefault = $pDefault;
+		$this->mIsSerializable = $pIsSerializable;
 		
 		if ($this->mIsId && !($this->mModel instanceof SimpleModel)) {
 			throw new \Exception("id property with name '$pName' must be a simple model");
@@ -57,6 +59,10 @@ class Property {
 	
 	public function isPrivate() {
 		return $this->mIsPrivate;
+	}
+	
+	public function isSerializable() {
+		return $this->mIsSerializable;
 	}
 	
 	public function hasDefaultValue() {

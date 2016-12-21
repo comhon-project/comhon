@@ -53,7 +53,9 @@ function transformSerializationt($xml, $dir) {
 				}
 				$lproperty->compositions = $compositions;
 			}
-				
+			if (isset($lChild['serializable'])) {
+				$lproperty->is_serializable = (string) $lChild['serializable'] !== '0';
+			}	
 			$lJson->properties->{$lChild->getName()} = $lproperty;
 		}
 		if (!$keep) {

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<properties>
+		<property type="integer" id="1">id</property>
+		<property type="dateTime">date</property>
+		<property type="float">height</property>
+		<property type="float">weight</property>
+		<property type="string">hairColor</property>
+		<property type="string">hairCut</property>
+		<property type="string">eyesColor</property>
+		<property type="boolean">baldness</property>
+	</properties>
+</manifest>

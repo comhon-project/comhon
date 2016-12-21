@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<serialization type="jsonFile" inheritanceKey="key">
+		<jsonFile saticPath="/var/data/man_body_json" staticName="man_body.json"/>
+	</serialization>
+</manifest>

@@ -1,0 +1,8 @@
+{
+	"extends": "manBodyJson",
+	"properties": {
+		"value": {
+			"type": "string"
+		}
+	}
+}

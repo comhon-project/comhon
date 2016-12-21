@@ -8,6 +8,7 @@ use comhon\object\SimpleLoadRequest;
 use comhon\object\MainObjectCollection;
 use comhon\object\object\ObjectArray;
 use comhon\object\model\ModelArray;
+use comhon\object\model\Model;
 
 $time_start = microtime(true);
 
@@ -209,6 +210,72 @@ $lTest->getValue('enumIntArray')->setValue(1, 3);
 $lTest->getValue('enumFloatArray')->pushValue(1.5);
 $lTest->getValue('enumFloatArray')->pushValue(3.5);
 $lTest->getValue('enumFloatArray')->pushValue(4.5, false);
+
+/** ****************************** test import with no merge and reference to root object ****************************** **/
+
+$lTest->setValue('name', 'plopplop');
+MainObjectCollection::getInstance()->addObject($lTest);
+$lObjectRefParent = $lTest->initValue('objectRefParent');
+$lObjectRefParent->setValue('name', 'hahahahaha');
+$lObjectRefParent->setValue('parent', $lTest);
+
+$lTest2 = $lTestModel->fromPrivateStdObject($lTest->toPrivateStdObject());
+if ($lTest2 !== $lTest || $lTest2 !== $lTest2->getValue('objectRefParent')->getValue('parent')) {
+	throw new \Exception('not same instance');
+}
+$lTest3 = $lTestModel->fromPrivateStdObject($lTest->toPrivateStdObject(), Model::NO_MERGE);
+if ($lTest3 === $lTest) {
+	throw new \Exception('same instance');
+}
+if ($lTest === $lTest3->getValue('objectRefParent')->getValue('parent')) {
+	throw new \Exception('same instance');
+}
+if ($lTest3 !== $lTest3->getValue('objectRefParent')->getValue('parent')) {
+	throw new \Exception('not same instance');
+}
+
+if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getModelName())) {
+	throw new \Exception('not same instance');
+}
+
+$lTest2 = $lTestModel->fromPrivateXml($lTest->toPrivateXml());
+if ($lTest2 !== $lTest || $lTest2 !== $lTest2->getValue('objectRefParent')->getValue('parent')) {
+	throw new \Exception('not same instance');
+}
+$lTest3 = $lTestModel->fromPrivateXml($lTest->toPrivateXml(), Model::NO_MERGE);
+if ($lTest3 === $lTest) {
+	throw new \Exception('same instance');
+}
+if ($lTest === $lTest3->getValue('objectRefParent')->getValue('parent')) {
+	throw new \Exception('same instance');
+}
+if ($lTest3 !== $lTest3->getValue('objectRefParent')->getValue('parent')) {
+	throw new \Exception('not same instance');
+}
+
+if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getModelName())) {
+	throw new \Exception('not same instance');
+}
+
+$lTest2 = $lTestModel->fromPrivateFlattenedArray($lTest->toPrivateFlattenedArray());
+if ($lTest2 !== $lTest || $lTest2 !== $lTest2->getValue('objectRefParent')->getValue('parent')) {
+	throw new \Exception('not same instance');
+}
+$lTest3 = $lTestModel->fromPrivateFlattenedArray($lTest->toPrivateFlattenedArray(), Model::NO_MERGE);
+if ($lTest3 === $lTest) {
+	throw new \Exception('same instance');
+}
+if ($lTest === $lTest3->getValue('objectRefParent')->getValue('parent')) {
+	throw new \Exception('same instance');
+}
+if ($lTest3 !== $lTest3->getValue('objectRefParent')->getValue('parent')) {
+	throw new \Exception('not same instance');
+}
+
+if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getModelName())) {
+	throw new \Exception('not same instance');
+}
+
 
 $time_end = microtime(true);
 var_dump('value test exec time '.($time_end - $time_start));

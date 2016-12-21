@@ -25,6 +25,7 @@ class JsonSerializationManifestParser extends SerializationManifestParser {
 	public function getPropertySerializationInfos($pPropertyName) {
 		$lSerializationName = null;
 		$lCompositions      = null;
+		$lIsSerializable    = true;
 		
 		if (isset($this->mManifest->properties->$pPropertyName)) {
 			$lSerializationNode = $this->mManifest->properties->$pPropertyName;
@@ -37,9 +38,12 @@ class JsonSerializationManifestParser extends SerializationManifestParser {
 					$lCompositions[] = $lComposition;
 				}
 			}
+			if (isset($lSerializationNode->is_serializable)) {
+				$lIsSerializable = $lSerializationNode->is_serializable;
+			}
 		}
 		
-		return array($lSerializationName, $lCompositions);
+		return array($lSerializationName, $lCompositions, $lIsSerializable);
 	}
 	
 	protected function _getSerialization() {

@@ -1,0 +1,15 @@
+{
+	"properties": {
+		"id1": {
+			"type": "integer",
+			"is_id": true
+		},
+		"id2": {
+			"type": "integer",
+			"is_id": true
+		},
+		"plop": {
+			"type": "string"
+		}
+	}
+}

@@ -29,6 +29,12 @@
 				<property type="string">propertyTwoTwo</property>
 			</properties>
 		</objectTwo>
+		<objectRefParent>
+			<properties>
+				<foreignProperty type="test">parent</foreignProperty>
+				<property type="string">name</property>
+			</properties>
+		</objectRefParent>
 	</types>
 	
 	<properties>
@@ -72,5 +78,6 @@
 				</enum>
 			</values>
 		</property>
+		<property type="objectRefParent">objectRefParent</property>
 	</properties>
 </manifest>

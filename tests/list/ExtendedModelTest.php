@@ -76,11 +76,11 @@ if (!InstanceModel::getInstance()->hasInstanceModel('body')) {
 if (!InstanceModel::getInstance()->isModelLoaded('body')) {
 	throw new Exception('model not loaded');
 }
-if (json_encode(array_keys($lWomanBodyModel->getProperties())) !== '["id","height","weight","hairColor","hairCut","eyesColor","type","tatoos","piercings","arts","owner","chestSize"]') {
-	throw new Exception('bad model properties');
+if (json_encode(array_keys($lWomanBodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner","chestSize"]') {
+	throw new Exception('bad model properties '.json_encode(array_keys($lWomanBodyModel->getProperties())));
 }
 $lBodyModel = InstanceModel::getInstance()->getInstanceModel('body');
-if (json_encode(array_keys($lBodyModel->getProperties())) !== '["id","height","weight","hairColor","hairCut","eyesColor","type","tatoos","piercings","arts","owner"]') {
+if (json_encode(array_keys($lBodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner"]') {
 	throw new Exception('bad model properties');
 }
 if ($lBodyModel->getProperty('hairColor') !== $lWomanBodyModel->getProperty('hairColor')) {

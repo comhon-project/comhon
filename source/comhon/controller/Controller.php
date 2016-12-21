@@ -76,8 +76,7 @@ abstract class Controller {
 		else if (!array_key_exists(spl_object_hash($pObject), $this->mInstanceObjectHash)) {
 			$this->mInstanceObjectHash[spl_object_hash($pObject)] = $pObject;
 			foreach ($pObject->getModel()->getProperties() as $lPropertyName => $lProperty) {
-				$lModel = ($lProperty->getModel() instanceof ModelContainer) ? $lProperty->getModel()->getModel() : $lProperty->getModel();
-				if (! ($lModel instanceof SimpleModel)) {
+				if (! ($lProperty->getUniqueModel() instanceof SimpleModel)) {
 					$this->_accept($pObject, $lPropertyName, $lPropertyName);
 				}
 			}

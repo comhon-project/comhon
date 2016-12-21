@@ -38,7 +38,7 @@ if ($lTestModel !== $lTestModelTow) {
 if ($lTestModel->getModelName() !== 'test') {
 	throw new Exception('model hasn\'t good name');
 }
-if (json_encode($lTestModel->getPropertiesNames()) !== '["name","stringValue","floatValue","booleanValue","dateValue","objectValue","objectValues","objectContainer","foreignObjectValues","enumValue","enumIntArray","enumFloatArray"]') {
+if (json_encode($lTestModel->getPropertiesNames()) !== '["name","stringValue","floatValue","booleanValue","dateValue","objectValue","objectValues","objectContainer","foreignObjectValues","enumValue","enumIntArray","enumFloatArray","objectRefParent"]') {
 	throw new Exception("model {$lTestModel->getModelName()} hasn't good properties : ".json_encode($lTestModel->getPropertiesNames()));
 }
 
@@ -124,7 +124,7 @@ $lTestDbModel = InstanceModel::getInstance()->getInstanceModel('testDb');
 if ($lTestDbModel->getModelName() !== 'testDb') {
 	throw new Exception('model hasn\'t good name');
 }
-if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb","objectsWithId","foreignObjects","lonelyForeignObject","lonelyForeignObjectTwo","defaultValue"]') {
+if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb","objectsWithId","foreignObjects","lonelyForeignObject","lonelyForeignObjectTwo","defaultValue","manBodyJson","womanXml","notSerializedValue","notSerializedForeignObject"]') {
 	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good properties : ".json_encode($lTestDbModel->getPropertiesNames()));
 }
 $lDbModel = $lTestDbModel->getSerialization()->getModel()->getPropertyModel('database');
@@ -143,6 +143,16 @@ if (!$lTestDbModel->getProperty('string')->isPrivate()) {
 $lLocalModel = InstanceModel::getInstance()->getInstanceModel('objectWithIdAndMoreMore', 'testDb');
 if (!$lLocalModel->getProperty('plop3')->isPrivate()) {
 	throw new Exception('is not private');
+}
+
+if (!$lTestDbModel->getProperty('timestamp')->isSerializable()) {
+	throw new Exception('is not serializable');
+}
+if ($lTestDbModel->getProperty('notSerializedValue')->isSerializable()) {
+	throw new Exception('is serializable');
+}
+if ($lTestDbModel->getProperty('notSerializedForeignObject')->isSerializable()) {
+	throw new Exception('is serializable');
 }
 
 /** ****************************** test serialization before load ****************************** **/

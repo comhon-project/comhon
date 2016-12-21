@@ -30,6 +30,18 @@
 		},
 		"defaultValue": {
 			"serializationName": "default_value"
+		},
+		"manBodyJson": {
+			"serializationName": "man_body_json_id"
+		},
+		"womanXml": {
+			"serializationName": "woman_xml_id"
+		},
+		"notSerializedValue": {
+			"is_serializable": false
+		},
+		"notSerializedForeignObject": {
+			"is_serializable": false
 		}
 	}
 }

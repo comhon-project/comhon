@@ -2,6 +2,8 @@
 
 use comhon\object\object\Object;
 use comhon\object\object\ObjectArray;
+use comhon\object\singleton\InstanceModel;
+use comhon\object\object\SqlTable;
 set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/ObjectManagerLib/source/');
 
 require_once 'Comhon.php';
@@ -14,6 +16,5 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'list' . DIRECTORY_SEPARATOR . 'Ext
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'list' . DIRECTORY_SEPARATOR . 'XmlSerializationTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'list' . DIRECTORY_SEPARATOR . 'ImportExportTest.php';
 
-// getIdfrom via pulic 'from' method
-// fromObject NO_MERGE root object and main foreign object not retrieved from mainobjectcollection
+// getId from via pulic 'from' method
 // property ids not overridable manifest

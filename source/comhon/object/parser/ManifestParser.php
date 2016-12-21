@@ -122,20 +122,20 @@ abstract class ManifestParser {
 	public function getCurrentProperty(Model $pPropertyModel) {
 		if ($this->_isCurrentPropertyForeign()) {
 			list($lName, $lModel, $lIsId, $lIsPrivate, $lDefault) = $this->_getBaseInfosProperty($pPropertyModel);
-			list($lSerializationName, $lCompositions) = $this->_getBaseSerializationInfosProperty($lName);
+			list($lSerializationName, $lCompositions, $lIsSerializable) = $this->_getBaseSerializationInfosProperty($lName);
 			
 			$lModelForeign = new ModelForeign($lModel);
 			if (is_null($lCompositions)) {
-				$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName, $lIsPrivate);
+				$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName, $lIsPrivate, $lIsSerializable);
 			} else {
 				$lProperty = new CompositionProperty($lModelForeign, $lName, $lCompositions, $lSerializationName, $lIsPrivate);
 			}
 		}
 		else {
 			list($lName, $lModel, $lIsId, $lIsPrivate, $lDefault) = $this->_getBaseInfosProperty($pPropertyModel);
-			list($lSerializationName, $lCompositions) = $this->_getBaseSerializationInfosProperty($lName);
+			list($lSerializationName, $lCompositions, $lIsSerializable) = $this->_getBaseSerializationInfosProperty($lName);
 			
-			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId, $lIsPrivate, $lDefault);
+			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId, $lIsPrivate, $lIsSerializable, $lDefault);
 		}
 		return $lProperty;
 	}
@@ -144,7 +144,7 @@ abstract class ManifestParser {
 		if (!$this->mFocusLocalTypes && !is_null($this->mSerializationManifestParser)) {
 			return $this->mSerializationManifestParser->getPropertySerializationInfos($pPropertyName);
 		}
-		return [null, null];
+		return [null, null, true];
 	}
 	
 	/**

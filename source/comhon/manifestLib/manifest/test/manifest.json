@@ -52,6 +52,17 @@
 					"type": "string"
 				}
 			}
+		},
+		"objectRefParent": {
+			"properties": {
+				"parent": {
+					"type": "test",
+					"is_foreign": true
+				},
+				"name": {
+					"type": "string"
+				}
+			}
 		}
 	},
 	"properties": {
@@ -124,6 +135,9 @@
 				]
 			},
 			"type": "array"
+		},
+		"objectRefParent": {
+			"type": "objectRefParent"
 		}
 	}
 }

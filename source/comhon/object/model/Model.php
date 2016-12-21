@@ -375,7 +375,7 @@ abstract class Model {
 		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
 				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getModelName()}' can't be exported");
-				return $this->_toObjectId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone);
+				return $this->_toStdObjectId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone);
 			}
 		} else {
 			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
@@ -384,7 +384,7 @@ abstract class Model {
 		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
 			if ($pObject->getModel()->hasProperty($lPropertyName)) {
 				$lProperty = $pObject->getModel()->getProperty($lPropertyName);
-				if ($pPrivate || !$lProperty->isPrivate()) {
+				if (($pPrivate || !$lProperty->isPrivate()) && (!$pUseSerializationName || $lProperty->isSerializable())) {
 					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
 					$lReturn->$lName = $lProperty->getModel()->_toStdObject($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 				}
@@ -400,7 +400,7 @@ abstract class Model {
 		return $lReturn;
 	}
 	
-	protected function _toObjectId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toStdObjectId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if ($pObject->getModel() !== $this) {
 			if (!$pObject->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
@@ -438,7 +438,7 @@ abstract class Model {
 		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
 			if ($pObject->getModel()->hasProperty($lPropertyName)) {
 				$lProperty =  $pObject->getModel()->getProperty($lPropertyName);
-				if ($pPrivate || !$lProperty->isPrivate()) {
+				if (($pPrivate || !$lProperty->isPrivate()) && (!$pUseSerializationName || $lProperty->isSerializable())) {
 					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
 					if (($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum)){
 						$pXmlNode[$lName] = $lProperty->getModel()->_toXml($lValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
@@ -713,7 +713,7 @@ abstract class Model {
 		$lIdProperties = $this->getIdProperties();
 		if (count($lIdProperties) == 1) {
 			$lPropertyName = $pUseSerializationName ? $this->getProperty($lIdProperties[0], true)->getSerializationName() : $this->getProperty($lIdProperties[0], true)->getName();
-			return $this->getPropertyModel($lIdProperties[0])->_fromStdObject($pStdObject->$lPropertyName);
+			return isset($pStdObject->$lPropertyName) ? $this->getPropertyModel($lIdProperties[0])->_fromStdObject($pStdObject->$lPropertyName) : null;
 		}
 		$lIdValues = [];
 		foreach ($lIdProperties as $lIdProperty) {
@@ -731,7 +731,7 @@ abstract class Model {
 		$lIdProperties = $this->getIdProperties();
 		if (count($lIdProperties) == 1) {
 			$lPropertyName = $pUseSerializationName ? $this->getProperty($lIdProperties[0], true)->getSerializationName() : $this->getProperty($lIdProperties[0], true)->getName();
-			return $this->getPropertyModel($lIdProperties[0])->_fromXml($pXml[$lPropertyName]);
+			return isset($pXml[$lPropertyName]) ? $this->getPropertyModel($lIdProperties[0])->_fromXml($pXml[$lPropertyName]) : null;
 		}
 		$lIdValues = [];
 		foreach ($lIdProperties as $lIdProperty) {
@@ -749,7 +749,7 @@ abstract class Model {
 		$lIdProperties = $this->getIdProperties();
 		if (count($lIdProperties) == 1) {
 			$lPropertyName = $pUseSerializationName ? $this->getProperty($lIdProperties[0], true)->getSerializationName() : $this->getProperty($lIdProperties[0], true)->getName();
-			return $this->getPropertyModel($lIdProperties[0])->_fromFlattenedValue($pRow[$lPropertyName]);
+			return isset($pRow[$lPropertyName]) ? $this->getPropertyModel($lIdProperties[0])->_fromFlattenedValue($pRow[$lPropertyName]) : null;
 		}
 		$lIdValues = [];
 		foreach ($lIdProperties as $lIdProperty) {

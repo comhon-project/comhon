@@ -18,7 +18,7 @@ class ModelForeign extends ModelContainer {
 			return null;
 		}
 		if ($this->getUniqueModel()->hasIdProperty()) {
-			return $this->getModel()->_toObjectId($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+			return $this->getModel()->_toStdObjectId($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 		} else {
 			if (!($this->getUniqueModel() instanceof MainModel)) {
 				throw new \Exception('foreign property with local model must have id');

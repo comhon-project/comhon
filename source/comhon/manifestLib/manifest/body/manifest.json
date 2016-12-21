@@ -34,6 +34,9 @@
 			"type": "integer",
 			"is_id": true
 		},
+		"date": {
+			"type": "dateTime"
+		},
 		"height": {
 			"type": "float"
 		},
@@ -49,7 +52,7 @@
 		"eyesColor": {
 			"type": "string"
 		},
-		"type": {
+		"physicalAppearance": {
 			"enum": [
 				"slim",
 				"average",

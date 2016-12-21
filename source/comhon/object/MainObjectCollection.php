@@ -10,8 +10,6 @@ class MainObjectCollection extends ObjectCollection {
 	
 	private  static $_instance;
 	
-	private $mInheritanceMap = [];
-	
 	public static function getInstance() {
 		if (!isset(self::$_instance)) {
 			self::$_instance = new self();
@@ -36,10 +34,14 @@ class MainObjectCollection extends ObjectCollection {
 			$lSerialization = $lCurrentModel->getSerialization();
 			
 			if (!is_null($lSerialization)) {
+				$lModelNames = [];
 				$lModel = $lCurrentModel->getExtendsModel();
 				while (!is_null($lModel) && $lModel->getSerialization() === $lSerialization) {
+					$lModelNames[] = $lModel->getModelName();
 					if (isset($this->mMap[$lModel->getModelName()][$pId])) {
-						$lObject = $this->mMap[$lModel->getModelName()][$pId];
+						if (in_array($this->mMap[$lModel->getModelName()][$pId]->getModel()->getModelName(), $lModelNames)) {
+							$lObject = $this->mMap[$lModel->getModelName()][$pId];
+						}
 						break;
 					}
 					$lModel = $lModel->getExtendsModel();
@@ -63,10 +65,12 @@ class MainObjectCollection extends ObjectCollection {
 			$lSerialization = $lCurrentModel->getSerialization();
 			
 			if (!is_null($lSerialization)) {
+				$lModelNames = [];
 				$lModel = $lCurrentModel->getExtendsModel();
 				while (!is_null($lModel) && $lModel->getSerialization() === $lSerialization) {
+					$lModelNames[] = $lModel->getModelName();
 					if (isset($this->mMap[$lModel->getModelName()][$pId])) {
-						$lHasObject = true;
+						$lHasObject = in_array($this->mMap[$lModel->getModelName()][$pId]->getModel()->getModelName(), $lModelNames);
 						break;
 					}
 					$lModel = $lModel->getExtendsModel();
@@ -98,7 +102,7 @@ class MainObjectCollection extends ObjectCollection {
 				while (!is_null($lModel) && $lModel->getSerialization() === $lSerialization) {
 					if (isset($this->mMap[$lModel->getModelName()][$lId])) {
 						if ($this->mMap[$lModel->getModelName()][$lId] !== $pObject) {
-							throw new \Exception('extends model already have diferent object instance with same id');
+							throw new \Exception('extends model already has different object instance with same id');
 						}
 						break;
 					}
@@ -110,4 +114,35 @@ class MainObjectCollection extends ObjectCollection {
 		return $lSuccess;
 	}
 	
+	
+	/**
+	 * add object with mainModel (if not already added)
+	 * @param Object $pObject
+	 * @param boolean $pThrowException throw exception if object can't be added (no complete id or object already added)
+	 * @throws \Exception
+	 * @return boolean true if object is added
+	 */
+	public function removeObject(Object $pObject) {
+		if (!($pObject->getModel() instanceof MainModel)) {
+			throw new \Exception('mdodel must be instance of MainModel');
+		}
+		$lSuccess = parent::removeObject($pObject);
+	
+		if ($lSuccess) {
+			$lId            = $pObject->getId();
+			$lSerialization = $pObject->getModel()->getSerialization();
+				
+			if (!is_null($lSerialization)) {
+				$lModel = $pObject->getModel()->getExtendsModel();
+				while (!is_null($lModel) && $lModel->getSerialization() === $lSerialization) {
+					if (!isset($this->mMap[$lModel->getModelName()][$lId]) || $this->mMap[$lModel->getModelName()][$lId] !== $pObject) {
+						throw new \Exception('extends model doesn\'t have object or has different object instance with same id');
+					}
+					unset($this->mMap[$lModel->getModelName()][$lId]);
+					$lModel = $lModel->getExtendsModel();
+				}
+			}
+		}
+		return $lSuccess;
+	}
 }

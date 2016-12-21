@@ -1,0 +1,10 @@
+{
+	"serialization": {
+		"type": "xmlFile",
+		"inheritanceKey": "attribute",
+		"value": {
+			"saticPath": "/var/data/woman_xml",
+			"staticName": "woman.xml"
+		}
+	}
+}

@@ -12,5 +12,8 @@
 	"test"       : "test/manifest.json",
 	"testDb"     : "testDb/manifest.json",
 	"testXml"    : "testXml/manifest.json",
-	"mainTestDb" : "mainTestDb/manifest.json"
+	"mainTestDb" : "mainTestDb/manifest.json",
+	"womanXml"   : "person/womanXml/manifest.json",
+	"manBodyJson": "body/manJson/manifest.json",
+	"testMultiIncremental": "testMultiIncremental/manifest.json"
 }

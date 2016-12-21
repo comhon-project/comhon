@@ -238,7 +238,12 @@ $lObject->save(SqlTable::UPDATE);
 
 $lObject = $lDbTestModel->loadObject('[1,1501774389]', true);
 $lObject->getValue('timestamp')->add(new DateInterval('P0Y0M0DT5H0M0S'));
+$lObject->setValue('notSerializedValue', 'azezaeaze');
+$lObject->setValue('notSerializedForeignObject', $lObject->getValue('lonelyForeignObject'));
 $lObject->save(SqlTable::UPDATE);
+
+$lObject->deleteValue('notSerializedValue');
+$lObject->deleteValue('notSerializedForeignObject');
 
 $lObject = $lDbTestModel->loadObject('[1,1501774389]', true);
 

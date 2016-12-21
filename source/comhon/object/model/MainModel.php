@@ -77,8 +77,16 @@ class MainModel extends Model {
 				$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, new LocalObjectCollection());
 				break;
 			case self::NO_MERGE:
-				$lObject = $this->getObjectInstance();
-				$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, new LocalObjectCollection());
+				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromStdObject($pStdObject, $pUseSerializationName), $this->mModelName);
+				if (!is_null($lExistingObject)) {
+					MainObjectCollection::getInstance()->removeObject($lExistingObject);
+				}
+				$lObject = $this->_fromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
+				
+				if (!is_null($lExistingObject)) {
+					MainObjectCollection::getInstance()->removeObject($lObject);
+					MainObjectCollection::getInstance()->addObject($lExistingObject);
+				}
 				break;
 			default:
 				throw new \Exception('undefined merge type '.$pMergeType);
@@ -112,8 +120,16 @@ class MainModel extends Model {
 				$this->_fillObjectFromXml($lObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, new LocalObjectCollection());
 				break;
 			case self::NO_MERGE:
-				$lObject = $this->getObjectInstance();
-				$this->_fillObjectFromXml($lObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, new LocalObjectCollection());
+				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromXml($pXml, $pUseSerializationName), $this->mModelName);
+				if (!is_null($lExistingObject)) {
+					MainObjectCollection::getInstance()->removeObject($lExistingObject);
+				}
+				$lObject = $this->_fromXml($pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
+				
+				if (!is_null($lExistingObject)) {
+					MainObjectCollection::getInstance()->removeObject($lObject);
+					MainObjectCollection::getInstance()->addObject($lExistingObject);
+				}
 				break;
 			default:
 				throw new \Exception('undefined merge type '.$pMergeType);
@@ -147,8 +163,16 @@ class MainModel extends Model {
 				$this->_fillObjectFromFlattenedArray($lObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, new LocalObjectCollection());
 				break;
 			case self::NO_MERGE:
-				$lObject = $this->getObjectInstance();
-				$this->_fillObjectFromFlattenedArray($lObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, new LocalObjectCollection());
+				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromFlattenedArray($pRow, $pUseSerializationName), $this->mModelName);
+				if (!is_null($lExistingObject)) {
+					MainObjectCollection::getInstance()->removeObject($lExistingObject);
+				}
+				$lObject = $this->_fromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
+				
+				if (!is_null($lExistingObject)) {
+					MainObjectCollection::getInstance()->removeObject($lObject);
+					MainObjectCollection::getInstance()->addObject($lExistingObject);
+				}
 				break;
 			default:
 				throw new \Exception('undefined merge type '.$pMergeType);
@@ -283,8 +307,8 @@ class MainModel extends Model {
 		}
 	}
 	
-	protected function _toObjectId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
-		$lId = parent::_toObjectId($pObject, $pPrivate, $pUseSerializationName, $pMainForeignObjects);
+	protected function _toStdObjectId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		$lId = parent::_toStdObjectId($pObject, $pPrivate, $pUseSerializationName, $pMainForeignObjects);
 		
 		if (is_array($pMainForeignObjects)) {
 			$lValueId   = is_object($lId) ? $lId->id : $lId;
@@ -322,7 +346,7 @@ class MainModel extends Model {
 	public function loadObject($pId, $pForceLoad = false) {
 		$this->load();
 		if (!$this->hasIdProperty()) {
-			throw new \Exception("model must have at least one id property");
+			throw new \Exception("model '$this->mModelName' must have at least one id property to load object");
 		}
 		if (!$this->hasUniqueIdProperty()) {
 			// we decode and encode id to be sure to have good type on each id-values,

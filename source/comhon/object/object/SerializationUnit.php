@@ -33,7 +33,7 @@ abstract class SerializationUnit extends Object {
 		if ($this !== $pObject->getModel()->getSerialization()) {
 			throw new \Exception('this serialization mismatch with parameter object serialization');
 		}
-		return $this->_saveObject($pObject);
+		$this->_saveObject($pObject);
 	}
 	
 	/**

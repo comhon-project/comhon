@@ -84,7 +84,7 @@ class ModelArray extends ModelContainer {
 		return $lReturn;
 	}
 	
-	protected function _toObjectId($pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toStdObjectId($pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if (is_null($pObjectArray)) {
 			return null;
 		}
@@ -94,7 +94,7 @@ class ModelArray extends ModelContainer {
 		$lReturn = [];
 		if (!is_null($pObjectArray)) {
 			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-				$lReturn[$lKey] = $this->getModel()->_toObjectId($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+				$lReturn[$lKey] = $this->getModel()->_toStdObjectId($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 			}
 		}
 		return $lReturn;

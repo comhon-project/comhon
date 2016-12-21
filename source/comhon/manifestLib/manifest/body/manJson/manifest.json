@@ -1,0 +1,29 @@
+{
+	"properties": {
+		"id": {
+			"type": "integer",
+			"is_id": true
+		},
+		"date": {
+			"type": "dateTime"
+		},
+		"height": {
+			"type": "float"
+		},
+		"weight": {
+			"type": "float"
+		},
+		"hairColor": {
+			"type": "string"
+		},
+		"hairCut": {
+			"type": "string"
+		},
+		"eyesColor": {
+			"type": "string"
+		},
+		"baldness": {
+			"type": "boolean"
+		}
+	}
+}

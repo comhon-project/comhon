@@ -97,6 +97,21 @@
 		"defaultValue": {
 			"type": "string",
 			"default": "default"
+		},
+		"manBodyJson": {
+			"type": "manBodyJson",
+			"is_foreign": true
+		},
+		"womanXml": {
+			"type": "womanXml",
+			"is_foreign": true
+		},
+		"notSerializedValue": {
+			"type": "string"
+		},
+		"notSerializedForeignObject": {
+			"type": "objectWithId",
+			"is_foreign": true
 		}
 	}
 }

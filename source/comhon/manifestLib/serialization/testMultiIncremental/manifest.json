@@ -1,0 +1,6 @@
+{
+	"serialization": {
+		"type": "sqlTable",
+		"id": "test_multi_increment"
+	}
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<properties>
+		<property type="string" id="1">id</property>
+		<property type="string">firstName</property>
+		<property type="string">lastName</property>
+		<property type="dateTime">birthDate</property>
+	</properties>
+</manifest>
