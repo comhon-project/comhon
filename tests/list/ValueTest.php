@@ -77,6 +77,22 @@ if (!$lMainParentTestDb->isLoaded()) {
 	throw new Exception('foreign value must be loaded');
 }
 
+$lId = $lMainParentTestDb->getValue('id');
+$lMainParentTestDb->deleteValue('id');
+
+try {
+	$lTestDb->toStdObject();
+	$lThrow = true;
+} catch (Exception $e) {
+	$lThrow = false;
+}
+if ($lThrow) {
+	throw new Exception('should not export foreign object without complete id');
+}
+
+$lId = $lMainParentTestDb->setValue('id', $lId);
+$lTestDb->toStdObject();
+
 /** ****************************** test load ids composition value ****************************** **/
 
 $lTestDbs = MainObjectCollection::getInstance()->getModelObjects('testDb');

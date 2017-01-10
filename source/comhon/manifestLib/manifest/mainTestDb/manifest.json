@@ -1,4 +1,16 @@
 {
+	"types": {
+		"object": {
+			"properties": {
+				"plop": {
+					"type": "string"
+				},
+				"plop2": {
+					"type": "string"
+				}
+			}
+		}
+	},
 	"properties": {
 		"id": {
 			"type": "integer",
@@ -6,6 +18,9 @@
 		},
 		"name": {
 			"type": "string"
+		},
+		"obj": {
+			"type": "object"
 		},
 		"childrenTestDb": {
 			"values": {

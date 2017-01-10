@@ -50,5 +50,7 @@
 		<foreignProperty type="womanXml">womanXml</foreignProperty>
 		<property type="string">notSerializedValue</property>
 		<foreignProperty type="objectWithId">notSerializedForeignObject</foreignProperty>
+		<property type="boolean">boolean</property>
+		<property type="boolean">boolean2</property>
 	</properties>
 </manifest>

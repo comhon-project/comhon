@@ -5,11 +5,11 @@ namespace comhon\object\singleton;
 use \Exception;
 use comhon\object\model\ModelArray;
 use comhon\object\model\ModelEnum;
-use comhon\object\model\Integer;
-use comhon\object\model\Float;
-use comhon\object\model\Boolean;
-use comhon\object\model\String;
-use comhon\object\model\DateTime;
+use comhon\object\model\ModelInteger;
+use comhon\object\model\ModelFloat;
+use comhon\object\model\ModelBoolean;
+use comhon\object\model\ModelString;
+use comhon\object\model\ModelDateTime;
 use comhon\object\model\Model;
 use comhon\object\model\MainModel;
 use comhon\object\model\LocalModel;
@@ -63,11 +63,11 @@ class InstanceModel {
 	
 	private function _registerSimpleModelClasses() {
 		$this->mInstanceModels = array(
-			Integer::ID  => new Integer(),
-			Float::ID    => new Float(),
-			Boolean::ID  => new Boolean(),
-			String::ID   => new String(),
-			DateTime::ID => new DateTime()
+			ModelInteger::ID  => new ModelInteger(),
+			ModelFloat::ID    => new ModelFloat(),
+			ModelBoolean::ID  => new ModelBoolean(),
+			ModelString::ID   => new ModelString(),
+			ModelDateTime::ID => new ModelDateTime()
 		);
 	}
 	

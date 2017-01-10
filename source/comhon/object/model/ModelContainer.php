@@ -97,6 +97,10 @@ abstract class ModelContainer extends Model {
 		throw new \Exception('must be overrided');
 	}
 	
+	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		throw new \Exception('must be overrided');
+	}
+	
 	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
 		throw new \Exception('must be overrided');
 	}

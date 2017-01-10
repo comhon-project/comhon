@@ -1,7 +1,7 @@
 <?php
 namespace comhon\object\model;
 
-class Integer extends SimpleModel {
+class ModelInteger extends SimpleModel {
 	
 	const ID = "integer";
 	

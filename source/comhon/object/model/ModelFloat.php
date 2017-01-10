@@ -1,7 +1,7 @@
 <?php
 namespace comhon\object\model;
 
-class Float extends SimpleModel {
+class ModelFloat extends SimpleModel {
 	
 	const ID = "float";
 	

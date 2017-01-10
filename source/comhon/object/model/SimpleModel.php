@@ -42,6 +42,10 @@ abstract class SimpleModel extends Model {
 		return $pValue;
 	}
 	
+	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		return $pValue;
+	}
+	
 	protected function _fromFlattenedValue($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pLocalObjectCollection = null) {
 		return $pValue;
 	}

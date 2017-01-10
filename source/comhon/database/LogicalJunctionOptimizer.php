@@ -175,7 +175,7 @@ abstract class LogicalJunctionOptimizer {
 					}
 					$j++;
 				}
-				$lAllConjunctionsMatches = Utils::array_merge_extended($lAllConjunctionsMatches, $lConjunctionsMatches);
+				$lAllConjunctionsMatches = Utils::array_merge($lAllConjunctionsMatches, $lConjunctionsMatches);
 				$lEssentialPrimeImplicants[] = $pPrimeImplicants[$lIndexConjunctionsMatches];
 			}
 		}

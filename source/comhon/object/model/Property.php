@@ -70,7 +70,7 @@ class Property {
 	}
 	
 	public function getDefaultValue() {
-		if ($this->mModel instanceof DateTime) {
+		if ($this->mModel instanceof ModelDateTime) {
 			return new \DateTime($this->mDefault);
 		}
 		return $this->mDefault;

@@ -112,6 +112,12 @@
 		"notSerializedForeignObject": {
 			"type": "objectWithId",
 			"is_foreign": true
+		},
+		"boolean": {
+			"type": "boolean"
+		},
+		"boolean2": {
+			"type": "boolean"
 		}
 	}
 }

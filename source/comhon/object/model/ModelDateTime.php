@@ -3,7 +3,7 @@ namespace comhon\object\model;
 
 use comhon\object\object\Config;
 
-class DateTime extends SimpleModel {
+class ModelDateTime extends SimpleModel {
 	
 	const ID = "dateTime";
 	
@@ -25,6 +25,10 @@ class DateTime extends SimpleModel {
 	
 	protected function _fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection = null) {
 		return $this->fromString((string) $pValue,$pDateTimeZone);
+	}
+	
+	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		return $this->toString($pValue, $pDateTimeZone);
 	}
 	
 	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection = null) {

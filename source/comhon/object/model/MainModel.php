@@ -321,6 +321,20 @@ class MainModel extends Model {
 		return $lId;
 	}
 	
+	protected function _toFlattenedValueId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		$lId = parent::_toFlattenedValueId($pObject, $pPrivate, $pUseSerializationName, $pMainForeignObjects);
+	
+		if (is_array($pMainForeignObjects)) {
+			$lValueId   = is_array($lId) ? $lId['id'] : $lId;
+			$lModelName = $pObject->getModel()->getModelName();
+			if (!(array_key_exists($lModelName, $pMainForeignObjects) && array_key_exists($lValueId, $pMainForeignObjects[$lModelName]))) {
+				$pMainForeignObjects[$lModelName][$lValueId] = null;
+				$pMainForeignObjects[$lModelName][$lValueId] = $this->_toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+			}
+		}
+		return $lId;
+	}
+	
 	protected function _toXmlId(Object $pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		$lId = parent::_toXmlId($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pMainForeignObjects);
 		

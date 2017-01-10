@@ -5,11 +5,11 @@ namespace comhon\object\parser\xml;
 use \Exception;
 use comhon\object\model\ModelArray;
 use comhon\object\model\ModelEnum;
-use comhon\object\model\Integer;
-use comhon\object\model\Float;
-use comhon\object\model\Boolean;
-use comhon\object\model\String;
-use comhon\object\model\DateTime;
+use comhon\object\model\ModelInteger;
+use comhon\object\model\ModelFloat;
+use comhon\object\model\ModelBoolean;
+use comhon\object\model\ModelString;
+use comhon\object\model\ModelDateTime;
 use comhon\object\model\Model;
 use comhon\object\model\MainModel;
 use comhon\object\model\LocalModel;
@@ -156,9 +156,9 @@ class XmlManifestParser extends ManifestParser {
 		$lModel     = $this->_completePropertyModel($lCurrentPropertyXml, $pPropertyModel);
 		
 		if (isset($lCurrentPropertyXml["default"])) {
-			if ($lModel instanceof DateTime) {
+			if ($lModel instanceof ModelDateTime) {
 				$lDefault = (string) $lCurrentPropertyXml["default"];
-				if (new DateTime($lDefault) === false) {
+				if (new \DateTime($lDefault) === false) {
 					throw new \Exception('invalid default value time format : '.$lDefault);
 				}
 			} else if ($lModel instanceof SimpleModel) {

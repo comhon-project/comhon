@@ -12,29 +12,37 @@ use comhon\object\object\ObjectArray;
 use comhon\object\model\Model;
 use comhon\object\MainObjectCollection;
 use comhon\object\model\MainModel;
+use comhon\utils\SqlUtils;
 
 class SqlTable extends SerializationUnit {
 
 	const UPDATE = 'update';
 	const INSERT = 'insert';
-	
-	private $mInitialized = false;
-	private $mHasIncrementalId = false;
+
 	private $mDbController;
+	private $mHasIncrementalId = false;
 	private $mAutoIncrementPropertyNames = [];
+	private $mKeysToEscape = [];
 	
-	private function _initDbObject() {
-		$this->loadValue("database");
+	private function _initDatabaseConnection(Model $pModel) {
 		if (is_null($this->mDbController)) {
-			$this->mDbController = DatabaseController::getInstanceWithDataBaseObject($this->getValue("database"));
+			$this->loadValue('database');
+			$this->mDbController = DatabaseController::getInstanceWithDataBaseObject($this->getValue('database'));
+			$this->_initColumnsProperties($pModel);
 		}
 	}
 	
 	private function _initColumnsProperties(Model $pModel) {
+		$lDBSM = $this->getValue('database')->getValue('DBMS');
+		foreach ($pModel->getProperties() as $lPropertyName => $lProperty) {
+			if (SqlUtils::isReservedWorld($lDBSM, $lProperty->getSerializationName())) {
+				$this->mKeysToEscape[$lProperty->getSerializationName()] = '`'.$lProperty->getSerializationName().'`';
+			}
+		}
+
 		$lAutoIncrementColumns = [];
-		
 		if ($this->mDbController->isSupportedLastInsertId()) {
-			$lQuery = 'SHOW COLUMNS FROM '.$this->getValue("name");
+			$lQuery = 'SHOW COLUMNS FROM '.$this->getValue('name');
 			$lResult = $this->mDbController->executeSimpleQuery($lQuery)->fetchAll(\PDO::FETCH_ASSOC);
 			foreach ($lResult as $lRow) {
 				if ($lRow['Extra'] === 'auto_increment') {
@@ -60,7 +68,6 @@ class SqlTable extends SerializationUnit {
 				}
 			}
 		}
-		$this->mInitialized = true;
 	}
 	
 	public function saveObject($pObject, $pOperation = null) {
@@ -71,12 +78,8 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	protected function _saveObject(Object $pObject, $pOperation = null) {
-		if (is_null($this->mDbController)) {
-			$this->_initDbObject();
-		}
-		if (!$this->mInitialized) {
-			$this->_initColumnsProperties($pObject->getModel());
-		}
+		$this->_initDatabaseConnection($pObject->getModel());
+		
 		if ($this->mHasIncrementalId) {
 			$this->_saveObjectWithIncrementalId($pObject);
 		} else if ($pOperation == self::INSERT) {
@@ -105,14 +108,9 @@ class SqlTable extends SerializationUnit {
 			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getModelName();
 		}
 		
-		foreach ($pObject->getModel()->getEscapedDbColumns() as $lColumn => $lEscapedColumn) {
-			if (array_key_exists($lColumn, $lMapOfString)) {
-				$lMapOfString[$lEscapedColumn] = $lMapOfString[$lColumn];
-				unset($lMapOfString[$lColumn]);
-			}
-		}
 		if (is_null($this->mDbController->getInsertReturn())) {
-			$lQuery = "INSERT INTO ".$this->getValue("name")." (".implode(", ", array_keys($lMapOfString)).") VALUES (".implode(", ", array_fill(0, count($lMapOfString), '?')).");";
+			$lQuery = 'INSERT INTO '.$this->getValue('name').' ('.$this->_getSelectColumnString($lMapOfString)
+					.') VALUES ('.implode(', ', array_fill(0, count($lMapOfString), '?')).');';
 		}else if ($this->mDbController->getInsertReturn() == 'RETURNING') {
 			// TODO
 			throw new \Exception('not supported yet');
@@ -129,6 +127,27 @@ class SqlTable extends SerializationUnit {
 			} else {
 				// TODO manage sequence with return value
 			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param [] $pMapOfString
+	 * @return string
+	 */
+	private function _getSelectColumnString($pMapOfString) {
+		if (empty($this->mKeysToEscape)) {
+			return implode(", ", array_keys($pMapOfString));
+		} else {
+			$lColumns = [];
+			foreach ($pMapOfString as $lColumn => $lString) {
+				if (array_key_exists($lColumn, $this->mKeysToEscape)) {
+					$lColumns[] = $this->mKeysToEscape[$lColumn];
+				} else {
+					$lColumns[] = $lColumn;
+				}
+			}
+			return implode(", ", $lColumns);
 		}
 	}
 	
@@ -150,7 +169,6 @@ class SqlTable extends SerializationUnit {
 		if (!is_null($this->getInheritanceKey())) {
 			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getModelName();
 		}
-		$lEscapedDbColumns = $pObject->getModel()->getEscapedDbColumns();
 		
 		foreach ($pObject->getModel()->getIdProperties() as $lIdProperty) {
 			$lColumn = $pObject->getModel()->getProperty($lIdProperty)->getSerializationName();
@@ -163,13 +181,13 @@ class SqlTable extends SerializationUnit {
 			$lConditionsValues[] = $lValue;
 		}
 		foreach ($lMapOfString as $lColumn => $lValue) {
-			if (array_key_exists($lColumn, $lEscapedDbColumns)) {
-				$lColumn   = $lEscapedDbColumns[$lColumn];
+			if (array_key_exists($lColumn, $this->mKeysToEscape)) {
+				$lColumn   = $this->mKeysToEscape[$lColumn];
 			}
 			$lUpdates[]      = "$lColumn = ?";
 			$lUpdateValues[] = $lValue;
 		}
-		$lQuery = "UPDATE ".$this->getValue("name")." SET ".implode(", ", $lUpdates)." WHERE ".implode(" and ", $lConditions).";";
+		$lQuery = "UPDATE ".$this->getValue('name')." SET ".implode(", ", $lUpdates)." WHERE ".implode(" and ", $lConditions).";";
 		$this->mDbController->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
 	}
 
@@ -223,17 +241,13 @@ class SqlTable extends SerializationUnit {
 	 */
 	private function _loadObjectFromDatabase($pObject, $pSelectColumns, $pWhereColumns, $lLogicalJunctionType) {
 		$lSuccess = false;
-		if (is_null($this->mDbController)) {
-			$this->_initDbObject();
-		}
-		if (!$this->mInitialized) {
-			$this->_initColumnsProperties($pObject->getModel());
-		}
+		$this->_initDatabaseConnection($pObject->getModel());
+		
 		$lLinkedLiteral = new LogicalJunction($lLogicalJunctionType);
 		foreach ($pWhereColumns as $lColumn => $lValue) {
-			$lLinkedLiteral->addLiteral(new Literal($this->getValue("name"), $lColumn, "=", $lValue));
+			$lLinkedLiteral->addLiteral(new Literal($this->getValue('name'), $lColumn, "=", $lValue));
 		}
-		$lSelectQuery = new SelectQuery($this->getValue("name"));
+		$lSelectQuery = new SelectQuery($this->getValue('name'));
 		$lSelectQuery->setWhereLogicalJunction($lLinkedLiteral);
 		foreach ($pSelectColumns as $lColumn) {
 			$lSelectQuery->addSelectColumn($lColumn);

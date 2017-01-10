@@ -41,6 +41,14 @@ class ModelEnum extends ModelContainer {
 		return $lReturn;
 	}
 	
+	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		$lReturn = $this->mModel->_toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+		if (!in_array($lReturn, $this->mEnum)) {
+			$lReturn = null;
+		}
+		return $lReturn;
+	}
+	
 	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
 		$lReturn = $this->mModel->_fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection);
 		if (!in_array($lReturn, $this->mEnum)) {

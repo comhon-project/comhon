@@ -1,7 +1,7 @@
 <?php
 namespace comhon\object\model;
 
-class Boolean extends SimpleModel {
+class ModelBoolean extends SimpleModel {
 	
 	const ID = "boolean";
 	

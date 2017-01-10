@@ -165,7 +165,7 @@ class ModelArray extends ModelContainer {
 		return $lObjectArray;
 	}
 	
-	protected function _fromObjectId($pArray, $pLocalObjectCollection) {
+	protected function _fromStdObjectId($pArray, $pLocalObjectCollection) {
 		if (is_null($pArray)) {
 			return null;
 		}
@@ -174,7 +174,7 @@ class ModelArray extends ModelContainer {
 		}
 		$lReturn = $this->getObjectInstance();
 		foreach ($pArray as $lKey => $lValue) {
-			$lReturn->setValue($lKey, $this->getModel()->_fromObjectId($lValue, $pLocalObjectCollection));
+			$lReturn->setValue($lKey, $this->getModel()->_fromStdObjectId($lValue, $pLocalObjectCollection));
 		}
 		return $lReturn;
 	}
@@ -198,6 +198,46 @@ class ModelArray extends ModelContainer {
 		} else {
 			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
 				$lReturn[$lKey] = $this->getModel()->_toFlattenedArray($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+			}
+		}
+		return $lReturn;
+	}
+	
+	protected function _toFlattenedValue($pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		if (is_null($pObjectArray)) {
+			return null;
+		}
+		if (!$pObjectArray->isLoaded()) {
+			return  ObjectArray::__UNLOAD__;
+		}
+		$lReturn = [];
+	
+		if ($this->getModel() instanceof ModelEnum) {
+			$lEnum = $this->getModel()->getEnum();
+			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+				if (in_array($lValue, $lEnum)) {
+					$lReturn[$lKey] = $this->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+				}
+			}
+		} else {
+			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+				$lReturn[$lKey] = $this->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+			}
+		}
+		return $lReturn;
+	}
+	
+	protected function _toFlattenedValueId($pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+		if (is_null($pObjectArray)) {
+			return null;
+		}
+		if (!$pObjectArray->isLoaded()) {
+			return  ObjectArray::__UNLOAD__;
+		}
+		$lReturn = [];
+		if (!is_null($pObjectArray)) {
+			foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+				$lReturn[$lKey] = $this->getModel()->_toFlattenedValueId($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 			}
 		}
 		return $lReturn;
@@ -237,6 +277,9 @@ class ModelArray extends ModelContainer {
 	protected function _fromFlattenedValue($pJsonEncodedObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
 		if (is_null($pJsonEncodedObject)) {
 			return null;
+		}
+		if (is_string($pJsonEncodedObject) && $pJsonEncodedObject == ObjectArray::__UNLOAD__) {
+			return $this->getObjectInstance(false);
 		}
 		$lStdObject = json_decode($pJsonEncodedObject);
 		return $this->_fromStdObject($lStdObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection);
@@ -385,7 +428,10 @@ class ModelArray extends ModelContainer {
 	}
 
 	protected function _fromFlattenedValueId($pValue, $pLocalObjectCollection) {
-		return $this->_fromObjectId(json_decode($pValue), $pLocalObjectCollection);
+		if ($pValue == ObjectArray::__UNLOAD__) {
+			return $this->getObjectInstance(false);
+		}
+		return $this->_fromStdObjectId(json_decode($pValue), $pLocalObjectCollection);
 	}
 	
 	public function verifValue($pValue) {

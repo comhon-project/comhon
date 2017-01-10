@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
+	<types>
+		<object>
+			<properties>
+				<property type="string">plop</property>
+				<property type="string">plop2</property>
+			</properties>
+		</object>
+	</types>
 	<properties>
 		<property type="integer" id="1">id</property>
 		<property type="string">name</property>
+		<property type="object">obj</property>
 		<foreignProperty type="array">
 			<name>childrenTestDb</name>
 			<values type="testDb" name="childTestDb"/>

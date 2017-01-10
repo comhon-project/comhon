@@ -1,7 +1,7 @@
 <?php
 namespace comhon\object\model;
 
-class String extends SimpleModel {
+class ModelString extends SimpleModel {
 	
 	const ID = "string";
 	
