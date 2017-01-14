@@ -391,13 +391,13 @@ $lObject = $lDbTestModel->loadObject('[40,50]');
 $lObject->loadValue('mainParentTestDb');
 $lArray = [];
 $lObject->toPrivateStdObject(null, $lArray);
-if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":"1567","date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false,"__inheritance__":"manBodyJsonExtended"}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith","__inheritance__":"womanXmlExtended"}}}') {
+if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":"1567","date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}') {
 	var_dump(json_encode($lArray));
 	throw new \Exception('not same foreign objects');
 }
 $lArray = [];
 $lObject->toPrivateFlattenedArray(null, $lArray);
-if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":"1567","date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false,"__inheritance__":"manBodyJsonExtended"}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith","__inheritance__":"womanXmlExtended"}}}') {
+if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":"1567","date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}') {
 	var_dump(json_encode($lArray));
 	throw new \Exception('not same foreign objects');
 }
@@ -410,7 +410,7 @@ foreach ($lArray as $lModelName => $plop) {
 		$lArrayString[$lModelName][$lId] = $lXml->asXML();
 	}
 }
-if (json_encode($lArrayString) !== '{"testDb":[],"mainTestDb":{"2":"<?xml version=\"1.0\"?>\n<mainTestDb id=\"2\" name=\"qsdqsd\"><childrenTestDb __UNLOAD__=\"1\"\/><obj plop=\"ploooop\" plop2=\"ploooop2\"\/><\/mainTestDb>\n"},"manBodyJsonExtended":{"1567":"<?xml version=\"1.0\"?>\n<manBodyJson id=\"1567\" date=\"2010-12-24T00:00:00+01:00\" height=\"1.8\" weight=\"80\" baldness=\"0\" __inheritance__=\"manBodyJsonExtended\"\/>\n"},"womanXmlExtended":{"3":"<?xml version=\"1.0\"?>\n<womanXml id=\"3\" lastName=\"Smith\" __inheritance__=\"womanXmlExtended\"\/>\n"}}') {
+if (json_encode($lArrayString) !== '{"testDb":[],"mainTestDb":{"2":"<?xml version=\"1.0\"?>\n<mainTestDb id=\"2\" name=\"qsdqsd\"><childrenTestDb __UNLOAD__=\"1\"\/><obj plop=\"ploooop\" plop2=\"ploooop2\"\/><\/mainTestDb>\n"},"manBodyJsonExtended":{"1567":"<?xml version=\"1.0\"?>\n<manBodyJson id=\"1567\" date=\"2010-12-24T00:00:00+01:00\" height=\"1.8\" weight=\"80\" baldness=\"0\"\/>\n"},"womanXmlExtended":{"3":"<?xml version=\"1.0\"?>\n<womanXml id=\"3\" lastName=\"Smith\"\/>\n"}}') {
 	var_dump(json_encode($lArrayString));
 	throw new \Exception('not same foreign objects');
 }

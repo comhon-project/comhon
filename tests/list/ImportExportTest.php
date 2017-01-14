@@ -460,6 +460,24 @@ if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObject) {
 	throw new \Exception('bad serial object value');
 }
 
+/********************************** test composition export *************************************/
+
+$lMainTestDb = MainObjectCollection::getInstance()->getObject(2, 'mainTestDb');
+$lMainTestDb->loadValueIds('childrenTestDb');
+if (!isset($lMainTestDb->toPrivateStdObject()->childrenTestDb)) {
+	throw new \Exception('compostion must be exported');
+}
+if (isset($lMainTestDb->toSerialStdObject()->childrenTestDb)) {
+	throw new \Exception('compostion should not be exported');
+}
+if (isset($lMainTestDb->toSerialXml()->childrenTestDb)) {
+	throw new \Exception('compostion should not be exported');
+}
+$lArray = $lMainTestDb->toSqlDatabase();
+if (isset($lArray['childrenTestDb'])) {
+	throw new \Exception('compostion should not be exported');
+}
+
 
 $time_end = microtime(true);
 var_dump('import export test exec time '.($time_end - $time_start));

@@ -316,6 +316,9 @@ class MainModel extends Model {
 			if (!(array_key_exists($lModelName, $pMainForeignObjects) && array_key_exists($lValueId, $pMainForeignObjects[$lModelName]))) {
 				$pMainForeignObjects[$lModelName][$lValueId] = null;
 				$pMainForeignObjects[$lModelName][$lValueId] = $this->_toStdObject($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+				if ($pObject->getModel() !== $this) {
+					unset($pMainForeignObjects[$lModelName][$lValueId]->{self::INHERITANCE_KEY});
+				}
 			}
 		}
 		return $lId;
@@ -330,6 +333,9 @@ class MainModel extends Model {
 			if (!(array_key_exists($lModelName, $pMainForeignObjects) && array_key_exists($lValueId, $pMainForeignObjects[$lModelName]))) {
 				$pMainForeignObjects[$lModelName][$lValueId] = null;
 				$pMainForeignObjects[$lModelName][$lValueId] = $this->_toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+				if ($pObject->getModel() !== $this) {
+					unset($pMainForeignObjects[$lModelName][$lValueId][self::INHERITANCE_KEY]);
+				}
 			}
 		}
 		return $lId;
@@ -345,6 +351,9 @@ class MainModel extends Model {
 				$pMainForeignObjects[$lModelName][$lId] = null;
 				$this->_toXml($pObject, $lXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 				$pMainForeignObjects[$lModelName][$lId] = $lXmlNode;
+				if ($pObject->getModel() !== $this) {
+					unset($pMainForeignObjects[$lModelName][$lId][self::INHERITANCE_KEY]);
+				}
 			}
 		}
 		return $lId;
