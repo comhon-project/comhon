@@ -18,9 +18,56 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'list' . DIRECTORY_SEPARATOR . 'Ext
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'list' . DIRECTORY_SEPARATOR . 'XmlSerializationTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'list' . DIRECTORY_SEPARATOR . 'ImportExportTest.php';
 
-// id properties in specific map
+
+$lObj = new Object('mainTestDb');
+$start = microtime(true);
+for ($i = 0; $i < 10000; $i++) {
+	$lObj->setIdValue('id', $i);
+}
+var_dump(microtime(true) - $start);
+
+$lObj = new Object('mainTestDb');
+$start = microtime(true);
+for ($i = 0; $i < 10000; $i++) {
+	$lObj->setUndefinedValue('id', $i);
+}
+var_dump(microtime(true) - $start);
+
+$lObj = new Object('mainTestDb');
+$start = microtime(true);
+for ($i = 0; $i < 10000; $i++) {
+	$lObj->setUndefinedValueplop('id', $i);
+}
+var_dump(microtime(true) - $start);
+var_dump("+++++++++++++++++++++++");
+$lObj = new Object('mainTestDb');
+$start = microtime(true);
+for ($i = 0; $i < 10000; $i++) {
+	$lObj->setIdValue('id', $i, false);
+}
+var_dump(microtime(true) - $start);
+
+$lObj = new Object('mainTestDb');
+$start = microtime(true);
+for ($i = 0; $i < 10000; $i++) {
+	$lObj->setUndefinedValue('id', $i, false);
+}
+var_dump(microtime(true) - $start);
+
+$lObj = new Object('mainTestDb');
+$start = microtime(true);
+for ($i = 0; $i < 10000; $i++) {
+	$lObj->setUndefinedValueplop('id', $i, false);
+}
+var_dump(microtime(true) - $start);
+
+// id value merge
+// mandatory value for import
+// update id update mainobjectcollection
+// test complex request
 // getId from via pulic 'from' method (id must be public ?) 
 // property ids not overridable manifest (sure ?)
 // replace composition by agregation
 // manage foreign property with several id
 
+// versionning get instance model 3eme parametre version

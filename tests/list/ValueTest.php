@@ -77,8 +77,8 @@ if (!$lMainParentTestDb->isLoaded()) {
 	throw new Exception('foreign value must be loaded');
 }
 
-$lId = $lMainParentTestDb->getValue('id');
-$lMainParentTestDb->deleteValue('id');
+$lId = $lMainParentTestDb->getId();
+$lMainParentTestDb->deleteIdValue('id');
 
 try {
 	$lTestDb->toStdObject();
@@ -90,7 +90,7 @@ if ($lThrow) {
 	throw new Exception('should not export foreign object without complete id');
 }
 
-$lId = $lMainParentTestDb->setValue('id', $lId);
+$lId = $lMainParentTestDb->setId($lId);
 $lTestDb->toStdObject();
 
 /** ****************************** test load ids composition value ****************************** **/
@@ -114,7 +114,7 @@ if (!$lMainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
 	throw new Exception('foreign value must be loaded');
 }
 if (count($lMainParentTestDb->getValue('childrenTestDb')->getValues()) != 6) {
-	throw new Exception('bad children count');
+	throw new Exception('bad children count : '.count($lMainParentTestDb->getValue('childrenTestDb')->getValues()));
 }
 
 foreach ($lMainParentTestDb->getValue('childrenTestDb')->getValues() as $lValue) {
@@ -140,7 +140,7 @@ foreach ($lTestDbs as $lTestDb) {
 }
 
 $lMainParentTestDb->deleteValue('childrenTestDb');
-$lMainParentTestDb->setValue('childrenTestDb', $lMainParentTestDb->getModel()->getpropertyModel('childrenTestDb')->getObjectInstance(false));
+$lMainParentTestDb->setValue('childrenTestDb', $lMainParentTestDb->getModel()->getproperty('childrenTestDb')->getModel()->getObjectInstance(false));
 
 if ($lMainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
 	throw new Exception('foreign value must be unloaded');
@@ -229,7 +229,7 @@ $lTest->getValue('enumFloatArray')->pushValue(4.5, false);
 
 /** ****************************** test import with no merge and reference to root object ****************************** **/
 
-$lTest->setValue('name', 'plopplop');
+$lTest->setId('plopplop');
 MainObjectCollection::getInstance()->addObject($lTest);
 $lObjectRefParent = $lTest->initValue('objectRefParent');
 $lObjectRefParent->setValue('name', 'hahahahaha');

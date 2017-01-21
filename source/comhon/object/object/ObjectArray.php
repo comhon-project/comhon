@@ -27,6 +27,9 @@ class ObjectArray extends Object {
 	}
 	
 	public final function pushValue($pValue, $pStrict = true) {
+		if ($pStrict && !is_null($pValue)) {
+			$this->getModel()->getModel()->verifValue($pValue);
+		}
 		$this->_pushValue($pValue, $pStrict);
 	}
 	

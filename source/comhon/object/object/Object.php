@@ -16,6 +16,7 @@ class Object {
 	private $mModel;
 	private $mIsLoaded;
 	private $mValues = [];
+	private $mIdValues = [];
 	
 	
 	/**
@@ -54,6 +55,10 @@ class Object {
 		return ($this->hasValue($pName)) ? $this->mValues[$pName] : null;
 	}
 	
+	public final function getIdValue($pName) {
+		return ($this->hasIdValue($pName)) ? $this->mIdValues[$pName] : null;
+	}
+	
 	public final function getInstanceValue($pPropertyName, $pIsLoaded = true) {
 		return $this->getProperty($pPropertyName, true)->getModel()->getObjectInstance($pIsLoaded);
 	}
@@ -62,23 +67,19 @@ class Object {
 		$this->mValues = $pValues;
 	}
 	
-	protected final function _pushValue($pValue, $pStrict = true) {
-			if ($pStrict && !is_null($pValue)) {
-				if ($this instanceof ObjectArray) {
-					$this->mModel->getModel()->verifValue($pValue);
-				} else {
-					$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
-				}
-			}
-		$this->mValues[] = $pValue;
-	}
-	
-	public final function resetValues() {
-		$this->mValues = array();
+	public final function resetValues($pResetIdValues = true) {
+		$this->mValues = [];
+		if ($pResetIdValues) {
+			$this->mIdValues = [];
+		}
 	}
 	
 	public final function getValues() {
 		return $this->mValues;
+	}
+	
+	public final function getIdValues() {
+		return $this->mIdValues;
 	}
 	
 	public final function isLoaded() {
@@ -132,21 +133,39 @@ class Object {
 		return $this->getProperty($pName, true)->loadValueIds($this->getValue($pName), $this);
 	}
 	
+	public function setId($pId) {
+		$lIdProperties = $this->mModel->getIdProperties();
+		if (count($lIdProperties) == 1) {
+			$this->setIdValue(key($lIdProperties), $pId);
+		}
+		else {
+			$lIdValues = $this->mModel->decodeId($pId);
+			if (count($lIdProperties) !== count($lIdValues)) {
+				throw new \Exception('invalid id : '.$pId);
+			}
+			$i = 0;
+			foreach ($lIdProperties as $lPropertyName => $lProperty) {
+				$this->setIdValue($lPropertyName, $lIdValues[$i]);
+				$i++;
+			}
+		}
+	}
+	
 	public function getId() {
 		$lIdProperties = $this->mModel->getIdProperties();
 		if (count($lIdProperties) == 1) {
-			return $this->getValue($lIdProperties[0]);
+			return $this->getIdValue(key($lIdProperties));
 		}
-		$lValues = array();
-		foreach ($lIdProperties as $lPropertyName) {
-			$lValues[] = $this->getValue($lPropertyName);
+		$lValues = [];
+		foreach ($lIdProperties as $lPropertyName => $lProperty) {
+			$lValues[] = $this->getIdValue($lPropertyName);
 		}
 		return $this->mModel->encodeId($lValues);
 	}
 	
 	public final function hasCompleteId() {
-		foreach ($this->mModel->getIdProperties() as $lPropertyName) {
-			if(is_null($this->getValue($lPropertyName)) || $this->getValue($lPropertyName) == '') {
+		foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
+			if(is_null($this->getIdValue($lPropertyName)) || $this->getIdValue($lPropertyName) == '') {
 				return false;
 			}
 		}
@@ -154,28 +173,83 @@ class Object {
 	}
 	
 	public final function verifCompleteId() {
-		foreach ($this->mModel->getIdProperties() as $lPropertyName) {
-			if(is_null($this->getValue($lPropertyName)) || $this->getValue($lPropertyName) == '') {
+		foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
+			if(is_null($this->getIdValue($lPropertyName)) || $this->getIdValue($lPropertyName) == '') {
 				throw new \Excpetion("id is not complete, property '$lPropertyName' is empty");
 			}
 		}
 	}
 	
 	public final function setValue($pName, $pValue, $pStrict = true) {
-			if ($pStrict && !is_null($pValue)) {
-				if ($this instanceof ObjectArray) {
-					$this->mModel->getModel()->verifValue($pValue);
-				} else {
-					$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
-				}
+		if ($pStrict && !is_null($pValue)) {
+			if ($this instanceof ObjectArray) {
+				$this->mModel->getModel()->verifValue($pValue);
+			} else {
+				$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
 			}
+		}
+		$this->mValues[$pName] = $pValue;
+	}
+	
+	public final function setIdValue($pName, $pValue, $pStrict = true) {
+		if ($pStrict && !is_null($pValue)) {
+			if ($this instanceof ObjectArray) {
+				$this->mModel->getModel()->verifValue($pValue);
+			} else {
+				$this->mModel->getIdProperty($pName, true)->getModel()->verifValue($pValue);
+			}
+		}
+		$this->mIdValues[$pName] = $pValue;
+	}
+	
+	public final function setUndefinedValue($pName, $pValue, $pStrict = true) {
+		if ($pStrict && !is_null($pValue)) {
+			if ($this instanceof ObjectArray) {
+				$this->mModel->getModel()->verifValue($pValue);
+			} else {
+				$this->mModel->getIdProperty($pName, true)->getModel()->verifValue($pValue);
+			}
+		}
+		if ($this->mModel->getIdProperty($pName, true)->isId()) {
+			$this->mIdValues[$pName] = $pValue;
+		} else {
 			$this->mValues[$pName] = $pValue;
+		}
+	}
+	
+	public final function setUndefinedValueplop($pName, $pValue, $pStrict = true) {
+		if ($pStrict && !is_null($pValue)) {
+			if ($this instanceof ObjectArray) {
+				$this->mModel->getModel()->verifValue($pValue);
+			} else {
+				$this->mModel->getIdProperty($pName, true)->getModel()->verifValue($pValue);
+			}
+		}
+		if ($this->mModel->hasIdProperty($pName)) {
+			$this->mIdValues[$pName] = $pValue;
+		} else {
+			$this->mValues[$pName] = $pValue;
+		}
+	}
+	
+	protected final function _pushValue($pValue, $pStrict = true) {
+		$this->mValues[] = $pValue;
 	}
 	
 	public final function deleteValue($pName) {
 		if ($this->hasValue($pName)) {
 			unset($this->mValues[$pName]);
 		}
+	}
+	
+	public final function deleteIdValue($pName) {
+		if ($this->hasIdValue($pName)) {
+			unset($this->mIdValues[$pName]);
+		}
+	}
+	
+	public final function deleteId() {
+		$this->mIdValues = [];
 	}
 	
 	/**
@@ -191,6 +265,10 @@ class Object {
 	
 	public final function hasValue($pName) {
 		return array_key_exists($pName, $this->mValues);
+	}
+	
+	public final function hasIdValue($pName) {
+		return array_key_exists($pName, $this->mIdValues);
 	}
 	
 	public final function hasValues($Names) {
@@ -210,7 +288,7 @@ class Object {
 		return $this->mModel->getProperties();
 	}
 	
-	public final function getPropertiesNames() {
+	public final function getAllPropertiesNames() {
 		return array_keys($this->mModel->getProperties());
 	}
 	

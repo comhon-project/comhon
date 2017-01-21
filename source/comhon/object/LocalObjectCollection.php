@@ -20,7 +20,7 @@ class LocalObjectCollection extends ObjectCollection {
 		$lSuccess = false;
 		$lId      = $pObject->getId();
 		
-		if (!$pObject->getModel()->hasIdProperty() || !$pObject->hasCompleteId()) {
+		if (!$pObject->getModel()->hasIdProperties() || !$pObject->hasCompleteId()) {
 			return $lSuccess;
 		}
 		$pModelName = $pObject->getModel()->getModelName();

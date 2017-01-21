@@ -278,7 +278,7 @@ class MainModel extends Model {
 		if ($pObject->getModel() !== $this) {
 			throw new \Exception('current model instance must be same instance of object model');
 		}
-		if (!$this->hasIdProperty()) {
+		if (!$this->hasIdProperties()) {
 			return ;
 		}
 		if (!$pObject->hasCompleteId()) {
@@ -368,7 +368,7 @@ class MainModel extends Model {
 	 */
 	public function loadObject($pId, $pForceLoad = false) {
 		$this->load();
-		if (!$this->hasIdProperty()) {
+		if (!$this->hasIdProperties()) {
 			throw new \Exception("model '$this->mModelName' must have at least one id property to load object");
 		}
 		if (!$this->hasUniqueIdProperty()) {
@@ -431,7 +431,7 @@ class MainModel extends Model {
 			}
 		}
 		
-		if (!$lModel->hasIdProperty()) {
+		if (!$lModel->hasIdProperties()) {
 			$lMainObject = $lModel->getObjectInstance($pIsloaded);
 			MainObjectCollection::getInstance()->addObject($lMainObject);
 			//trigger_error("new main without id $pId, $lModel->mModelName");

@@ -210,7 +210,7 @@ class Literal {
 		if (isset($pStdObject->queue)) {
 			$lSubQueryTables   = self::_queuetoLeftJoins($lLeftModel, $lTable, $pStdObject->queue);
 			$lLeftJoin         = $pLeftJoins[$pStdObject->node];
-			$lLeftColumn       = $lLeftJoin['left_model']->getProperty($lLeftJoin['left_model']->getFirstIdPropertyName())->getSerializationName();
+			$lLeftColumn       = $lLeftJoin['left_model']->getFirstIdProperty()->getSerializationName();
 			$lLeftTable        = array_key_exists('right_table_alias', $lLeftJoin) && !is_null($lLeftJoin['right_table_alias']) ? $lLeftJoin['right_table_alias'] : $lLeftJoin['right_table'];
 			$lColumnIdSubQuery = $lSubQueryTables[0]['right_column'][0];
 			$lSelectQuery      = self::_setSubSelectQuery($lSubQueryTables, $pStdObject);
@@ -230,7 +230,7 @@ class Literal {
 			$lLiteral = new Literal($lJoinTable['right_table_alias'], $lColumnIdSubQuery, Literal::DIFF, null);
 		}
 		else {
-			$lProperty =  $lRightodel->getProperty($pStdObject->property, true);
+			$lProperty =  $lRightodel->getUnidentifiedProperty($pStdObject->property, true);
 			if ($lProperty->isComposition()) {
 				throw new \Exception("literal cannot contain foreign porperty '{$pStdObject->property}'");
 			}
@@ -258,12 +258,12 @@ class Literal {
 	private static function _queuetoLeftJoins($pModel, $pAlias, $pQueue, $pTableNameUsed = array()) {
 		$lLeftModel      = $pModel;
 		$lLeftTable      = $pModel->getSqlTableUnit();
-		$lLeftAliasTable = self::_getAlias($lLeftTable->getValue("name"), $pTableNameUsed);
+		$lLeftAliasTable = self::_getAlias($lLeftTable->getIdValue('name'), $pTableNameUsed);
 		$lLeftJoins      = array(
 			array(
 				'left_model'        => $pModel,
 				'right_model'       => $pModel,
-				'right_table'       => $lLeftTable->getValue("name"),
+				'right_table'       => $lLeftTable->getIdValue('name'),
 				'right_table_alias' => $lLeftAliasTable,
 				'right_column'      => $pModel->getSerializationIds()
 			)
@@ -274,8 +274,8 @@ class Literal {
 			if (!is_object($lCurrentNode) || !isset($lCurrentNode->property)) {
 				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
 			}
-			$lLeftTableName = is_null($lLeftAliasTable) ? $lLeftTable->getValue("name") : $lLeftAliasTable;
-			$lProperty      = $lLeftModel->getProperty($lCurrentNode->property, true);
+			$lLeftTableName = is_null($lLeftAliasTable) ? $lLeftTable->getIdValue('name') : $lLeftAliasTable;
+			$lProperty      = $lLeftModel->getUnidentifiedProperty($lCurrentNode->property, true);
 			$lLeftJoin      = ComplexLoadRequest::prepareLeftJoin($lLeftTable, $lLeftModel, $lProperty);
 				
 			$lLeftJoin["left_table"]        = $lLeftTableName;
@@ -366,7 +366,7 @@ class Literal {
 				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObjectLiteral));
 			}
 			$pStdObjectLiteral->node   = $pLastTableName;
-			$pStdObjectLiteral->column = $pLastModel->getProperty($pStdObjectLiteral->property, true)->getSerializationName();
+			$pStdObjectLiteral->column = $pLastModel->getUnidentifiedProperty($pStdObjectLiteral->property, true)->getSerializationName();
 		
 		}
 	}

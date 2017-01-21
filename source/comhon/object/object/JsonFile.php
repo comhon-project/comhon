@@ -8,7 +8,7 @@ use comhon\object\singleton\InstanceModel;
 class JsonFile extends SerializationUnit {
 	
 	protected function _saveObject(Object $pObject) {
-		if (!$pObject->getModel()->hasIdProperty()) {
+		if (!$pObject->getModel()->hasIdProperties()) {
 			throw new \Exception("Cannot save model without id in json file");
 		}
 		if (!$pObject->hasCompleteId()) {

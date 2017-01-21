@@ -8,7 +8,7 @@ use comhon\object\singleton\InstanceModel;
 class XmlFile extends SerializationUnit {
 	
 	protected function _saveObject(Object $pObject) {
-		if (!$pObject->getModel()->hasIdProperty()) {
+		if (!$pObject->getModel()->hasIdProperties()) {
 			throw new \Exception("Cannot save model without id in xml file");
 		}
 		if (!$pObject->hasCompleteId()) {

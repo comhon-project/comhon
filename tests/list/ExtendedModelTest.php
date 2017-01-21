@@ -37,7 +37,7 @@ $lWomanModel = InstanceModel::getInstance()->getInstanceModel('woman');
 if (!InstanceModel::getInstance()->isModelLoaded('woman')) {
 	throw new Exception('model not initialized');
 }
-if (json_encode(array_keys($lWomanModel->getProperties())) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","bodies"]') {
+if (json_encode(array_keys($lWomanModel->getAllProperties())) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","bodies"]') {
 	throw new Exception('bad model properties');
 }
 if ($lWomanModel->getSerialization() !== $lPersonModel->getSerialization()) {
@@ -76,11 +76,11 @@ if (!InstanceModel::getInstance()->hasInstanceModel('body')) {
 if (!InstanceModel::getInstance()->isModelLoaded('body')) {
 	throw new Exception('model not loaded');
 }
-if (json_encode(array_keys($lWomanBodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner","chestSize"]') {
+if (json_encode(array_keys($lWomanBodyModel->getAllProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner","chestSize"]') {
 	throw new Exception('bad model properties '.json_encode(array_keys($lWomanBodyModel->getProperties())));
 }
 $lBodyModel = InstanceModel::getInstance()->getInstanceModel('body');
-if (json_encode(array_keys($lBodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner"]') {
+if (json_encode(array_keys($lBodyModel->getAllProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner"]') {
 	throw new Exception('bad model properties');
 }
 if ($lBodyModel->getProperty('hairColor') !== $lWomanBodyModel->getProperty('hairColor')) {

@@ -4,6 +4,7 @@ namespace comhon\database;
 use \PDO;
 use \Exception;
 use comhon\object\object\Config;
+use comhon\object\object\Object;
 
 class DatabaseController {
 	
@@ -49,7 +50,7 @@ class DatabaseController {
 		if (!array_key_exists($pDbReference->getValue("DBMS"), self::$sInsertReturns)) {
 			throw new \Exception("DBMS '{$pDbReference->getValue("DBMS")}' not supported yet");
 		}
-		$this->mId = $pDbReference->getValue("id");
+		$this->mId = $pDbReference->getIdValue('id');
 		$lDataSourceName = sprintf('%s:dbname=%s;host=%s', $pDbReference->getValue("DBMS"), $pDbReference->getValue("name"), $pDbReference->getValue("host"));
 		if ($pDbReference->hasValue("port")) {
 			$lDataSourceName .= sprintf(';port=%s', $pDbReference->getValue("port"));
@@ -104,6 +105,10 @@ class DatabaseController {
 		
 		$this->mDbHandle->exec("SET NAMES $lCharset;");
 		$this->mDbHandle->exec("SET time_zone = '$lOffset';");
+
+		// do not transform int to string (doesn't work)
+		// $this->mDbHandle->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+		// $this->mDbHandle->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
 	}
 
 	/**
@@ -122,12 +127,15 @@ class DatabaseController {
 	 * @param Object $pDbReference
 	 * @return DatabaseController
 	 */
-	public static function getInstanceWithDataBaseObject($pDbReference) {
+	public static function getInstanceWithDataBaseObject(Object $pDbReference) {
 		$lReturn = null;
-		$lId = $pDbReference->getvalue("id");
+		if (!$pDbReference->hasIdValue('id')) {
+			throw new \Exception("malformed database reference");
+		}
+		$lId = $pDbReference->getIdValue("id");
 		if (array_key_exists($lId, self::$sInstances)) {
 			$lReturn = self::$sInstances[$lId];
-		}else if ($pDbReference->hasValues(array("id", "DBMS", "host", "name", "user", "password"))) {
+		}else if ($pDbReference->hasValues(["DBMS", "host", "name", "user", "password"])) {
 			$lReturn = new DatabaseController($pDbReference);
 			self::$sInstances[$lId] = $lReturn;
 		}else {

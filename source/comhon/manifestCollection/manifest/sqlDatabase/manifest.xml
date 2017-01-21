@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
 	<properties>
-		<property type="integer" id="1">id</property>
+		<property type="string" id="1">id</property>
 		<property type="string">DBMS</property>
 		<property type="string">host</property>
 		<property type="string">name</property>

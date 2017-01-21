@@ -22,10 +22,10 @@ abstract class Model {
 	protected $mIsLoaded     = false;
 	protected $mIsLoading    = false;
 	
-	private $mProperties;
 	private $mExtendsModel;
 	private $mObjectClass     = 'comhon\object\object\Object';
-	private $mIds             = [];
+	private $mIdProperties    = [];
+	private $mProperties      = [];
 	private $mCompositions    = [];
 	private $mPropertiesWithDefaultValues = [];
 	
@@ -44,13 +44,9 @@ abstract class Model {
 		if (!$this->mIsLoaded && !$this->mIsLoading) {
 			$this->mIsLoading = true;
 			$lResult = InstanceModel::getInstance()->getProperties($this);
-			$this->mProperties = $lResult[InstanceModel::PROPERTIES];
 			$this->mExtendsModel = $lResult[InstanceModel::EXTENDS_MODEL];
-			foreach ($this->mProperties as $lProperty) {
-				if ($lProperty->isId()) {
-					$this->mIds[] = $lProperty->getName();
-				}
-			}
+			$this->_setProperties($lResult[InstanceModel::PROPERTIES]);
+			
 			if (!is_null($lResult[InstanceModel::OBJECT_CLASS])) {
 				$this->mObjectClass = $lResult[InstanceModel::OBJECT_CLASS];
 			}
@@ -58,14 +54,6 @@ abstract class Model {
 			$this->_init();
 			$this->mIsLoaded  = true;
 			$this->mIsLoading = false;
-			
-			foreach ($this->mProperties as $lPropertyName => $lProperty) {
-				if ($lProperty->hasDefaultValue()) {
-					$this->mPropertiesWithDefaultValues[] = $lProperty;
-				} else if ($lProperty->isComposition()) {
-					$this->mCompositions[] = $lProperty;
-				}
-			}
 		}
 	}
 	
@@ -170,8 +158,12 @@ abstract class Model {
 		return $this->mProperties;
 	}
 	
-	public function getPropertiesNames() {
-		return array_keys($this->mProperties);
+	public function getAllProperties() {
+		return array_merge($this->mIdProperties, $this->mProperties);
+	}
+	
+	public function getAllPropertiesNames() {
+		return array_merge(array_keys($this->mIdProperties), array_keys($this->mProperties));
 	}
 	
 	/**
@@ -191,23 +183,72 @@ abstract class Model {
 		return null;
 	}
 	
+	/**
+	 *
+	 * @param string $pPropertyName
+	 * @param string $pThrowException
+	 * @throws PropertyException
+	 * @return Property
+	 */
+	public function getIdProperty($pPropertyName, $pThrowException = false) {
+		if ($this->hasIdProperties($pPropertyName)) {
+			return $this->mIdProperties[$pPropertyName];
+		}
+		else if ($pThrowException) {
+			throw new PropertyException($this, $pPropertyName);
+		}
+		return null;
+	}
+	
+	/**
+	 *
+	 * @param string $pPropertyName
+	 * @param string $pThrowException
+	 * @throws PropertyException
+	 * @return Property
+	 */
+	public function getUnidentifiedProperty($pPropertyName, $pThrowException = false) {
+		if ($this->hasProperty($pPropertyName)) {
+			return $this->mProperties[$pPropertyName];
+		}
+		else if ($this->hasIdProperties($pPropertyName)) {
+			return $this->mIdProperties[$pPropertyName];
+		}
+		else if ($pThrowException) {
+			throw new PropertyException($this, $pPropertyName);
+		}
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param Property[] $pProperties
+	 */
 	protected function _setProperties($pProperties) {
-		$this->mProperties = array();
-		$this->mIds        = array();
-		foreach ($pProperties as $pProperty) {
-			$this->mProperties[$pProperty->getName()] = $pProperty;
-			if ($pProperty->isId()) {
-				$this->mIds[] = $pProperty->getName();
+		foreach ($pProperties as $lProperty) {
+			if ($lProperty->isId()) {
+				$this->mIdProperties[$lProperty->getName()] = $lProperty;
+			} else {
+				$this->mProperties[$lProperty->getName()] = $lProperty;
+				if ($lProperty->hasDefaultValue()) {
+					$this->mPropertiesWithDefaultValues[] = $lProperty;
+				} else if ($lProperty->isComposition()) {
+					$this->mCompositions[] = $lProperty;
+				}
 			}
 		}
 	}
 	
-	public function getPropertyModel($pPropertyName) {
-		return $this->hasProperty($pPropertyName) ? $this->mProperties[$pPropertyName]->getModel() : null;
-	}
-	
 	public function hasProperty($pPropertyName) {
 		return array_key_exists($pPropertyName, $this->mProperties);
+	}
+	
+	public function hasIdProperty($pPropertyName) {
+		return array_key_exists($pPropertyName, $this->mIdProperties);
+	}
+	
+	public function hasUnidentifiedProperty($pPropertyName) {
+		return array_key_exists($pPropertyName, $this->mProperties) || array_key_exists($pPropertyName, $this->mIdProperties);
 	}
 	
 	/**
@@ -224,15 +265,15 @@ abstract class Model {
 	}
 	
 	public function getIdProperties() {
-		return $this->mIds;
+		return $this->mIdProperties;
 	}
 	
 	public function hasUniqueIdProperty() {
-		return count($this->mIds) == 1;
+		return count($this->mIdProperties) == 1;
 	}
 	
-	public function hasIdProperty() {
-		return !empty($this->mIds);
+	public function hasIdProperties() {
+		return !empty($this->mIdProperties);
 	}
 	
 	/**
@@ -253,14 +294,15 @@ abstract class Model {
 	
 	public function getSerializationIds() {
 		$lSerializationIds = array();
-		foreach ($this->mIds as $lIdPropertyName) {
-			$lSerializationIds[] = $this->getProperty($lIdPropertyName)->getSerializationName();
+		foreach ($this->mIdProperties as $lIdProperty) {
+			$lSerializationIds[] = $lIdProperty->getSerializationName();
 		}
 		return $lSerializationIds;
 	}
 	
-	public function getFirstIdPropertyName() {
-		return empty($this->mIds) ? null : $this->mIds[0];
+	public function getFirstIdProperty() {
+		reset($this->mIdProperties);
+		return empty($this->mIdProperties) ? null : current($this->mIdProperties);
 	}
 	
 	public function isLoaded() {
@@ -294,9 +336,9 @@ abstract class Model {
 			return null;
 		}
 		$i = 0;
-		foreach ($this->getIdProperties() as $lPropertyName) {
-			if (!is_null($pIdValues[$i]) && !$this->getPropertyModel($lPropertyName)->isCheckedValueType($pIdValues[$i])) {
-				$pIdValues[$i] = $this->getPropertyModel($lPropertyName)->castValue($pIdValues[$i]);
+		foreach ($this->getIdProperties() as $lPropertyName => $lProperty) {
+			if (!is_null($pIdValues[$i]) && !$lProperty->getModel()->isCheckedValueType($pIdValues[$i])) {
+				$pIdValues[$i] = $lProperty->getModel()->castValue($pIdValues[$i]);
 			}
 			$i++;
 		}
@@ -370,6 +412,22 @@ abstract class Model {
 			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]++;
+		foreach ($pObject->getIdValues() as $lPropertyName => $lValue) {
+			if ($pObject->getModel()->hasIdProperties($lPropertyName)) {
+				$lProperty = $pObject->getModel()->getIdProperty($lPropertyName);
+				if (($pPrivate || !$lProperty->isPrivate()) && (!$pUseSerializationName || $lProperty->isSerializable())) {
+					if ($pUseSerializationName) {
+						if (!$lProperty->isComposition()) {
+							$lReturn->{$lProperty->getSerializationName()} = $lProperty->getModel()->_toStdObject($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+						} else if (is_array($pMainForeignObjects)) {
+							$lProperty->getModel()->_toStdObject($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+						}
+					} else {
+						$lReturn->$lPropertyName = $lProperty->getModel()->_toStdObject($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+					}
+				}
+			}
+		}
 		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
 			if ($pObject->getModel()->hasProperty($lPropertyName)) {
 				$lProperty = $pObject->getModel()->getProperty($lPropertyName);
@@ -432,6 +490,15 @@ abstract class Model {
 			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]++;
+		foreach ($pObject->getIdValues() as $lPropertyName => $lValue) {
+			if ($pObject->getModel()->hasIdProperties($lPropertyName)) {
+				$lProperty =  $pObject->getModel()->getIdProperty($lPropertyName);
+				if (($pPrivate || !$lProperty->isPrivate()) && (!$pUseSerializationName || $lProperty->isSerializable())) {
+					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
+					$pXmlNode[$lName] = $lProperty->getModel()->_toXml($lValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+				}
+			}
+		}
 		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
 			if ($pObject->getModel()->hasProperty($lPropertyName)) {
 				$lProperty =  $pObject->getModel()->getProperty($lPropertyName);
@@ -518,6 +585,22 @@ abstract class Model {
 			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]++;
+		foreach ($pObject->getIdValues() as $lPropertyName => $lValue) {
+			if ($pObject->getModel()->hasIdProperties($lPropertyName)) {
+				$lProperty = $pObject->getModel()->getIdProperty($lPropertyName);
+				if (($pPrivate || !$lProperty->isPrivate()) && (!$pUseSerializationName || $lProperty->isSerializable())) {
+					if ($pUseSerializationName) {
+						if (!$lProperty->isComposition()) {
+							$lReturn[$lProperty->getSerializationName()] = $lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+						} else if (is_array($pMainForeignObjects)) {
+							$lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+						}
+					} else {
+						$lReturn[$lPropertyName] = $lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+					}
+				}
+			}
+		}
 		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
 			if ($pObject->getModel()->hasProperty($lPropertyName)) {
 				$lProperty = $pObject->getModel()->getProperty($lPropertyName);
@@ -590,6 +673,18 @@ abstract class Model {
 		if ($lModel !== $this && !$lModel->isInheritedFrom($this)) {
 			throw new \Exception('object doesn\'t have good model');
 		}
+		foreach ($lModel->getIdProperties() as $lPropertyName => $lProperty) {
+			if ($pPrivate || !$lProperty->isPrivate()) {
+				$lStdObjectPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lPropertyName;
+				if (isset($pStdObject->$lStdObjectPropertyName)) {
+					if (is_null($pStdObject->$lStdObjectPropertyName)) {
+						$pObject->setIdValue($lPropertyName, null);
+					} else {
+						$pObject->setIdValue($lPropertyName, $lProperty->getModel()->_fromStdObject($pStdObject->$lStdObjectPropertyName, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+					}
+				}
+			}
+		}
 		foreach ($lModel->getProperties() as $lPropertyName => $lProperty) {
 			if ($pPrivate || !$lProperty->isPrivate()) {
 				$lStdObjectPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lPropertyName;
@@ -614,6 +709,15 @@ abstract class Model {
 		$lModel = $pObject->getModel();
 		if ($lModel !== $this && !$lModel->isInheritedFrom($this)) {
 			throw new \Exception('object doesn\'t have good model');
+		}
+		foreach ($lModel->getIdProperties() as $lPropertyName => $lProperty) {
+			if ($pPrivate || !$lProperty->isPrivate()) {
+				$lXmlPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lPropertyName;
+				if (isset($pXml[$lXmlPropertyName])) {
+					$pObject->setIdValue($lPropertyName,  $lProperty->getModel()->_fromXml($pXml[$lXmlPropertyName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+					$lHasValue = true;
+				}
+			}
 		}
 		foreach ($lModel->getProperties() as $lPropertyName => $lProperty) {
 			if ($pPrivate || !$lProperty->isPrivate()) {
@@ -643,6 +747,17 @@ abstract class Model {
 		$lModel = $pObject->getModel();
 		if ($lModel !== $this && !$lModel->isInheritedFrom($this)) {
 			throw new \Exception('object doesn\'t have good model');
+		}
+		foreach ($lModel->getIdProperties() as $lPropertyName => $lProperty) {
+			if ($pPrivate || !$lProperty->isPrivate()) {
+				$lFlattenedPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lPropertyName;
+				if (array_key_exists($lFlattenedPropertyName, $pRow)) {
+					if (is_null($pRow[$lFlattenedPropertyName])) {
+						continue;
+					}
+					$pObject->setIdValue($lPropertyName, $lProperty->getModel()->_fromFlattenedValue($pRow[$lFlattenedPropertyName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+				}
+			}
 		}
 		foreach ($lModel->getProperties() as $lPropertyName => $lProperty) {
 			if ($pPrivate || !$lProperty->isPrivate()) {
@@ -728,17 +843,7 @@ abstract class Model {
 			throw new \Exception('object doesn\'t have good model');
 		}
 		if (!is_null($pId)) {
-			$lIdProperties = $this->getIdProperties();
-			if (count($lIdProperties) == 1) {
-				$pObject->setValue($lIdProperties[0], $pId);
-			} else {
-				$lIdValues = $this->decodeId($pId);
-				foreach ($this->getIdProperties() as $lIndex => $lPropertyName) {
-					if (!is_null($lIdValues[$lIndex])) {
-						$pObject->setValue($lPropertyName, $lIdValues[$lIndex]);
-					}
-				}
-			}
+			$pObject->setId($pId);
 		}
 		return $pObject;
 	}
@@ -746,14 +851,14 @@ abstract class Model {
 	public function getIdFromStdObject($pStdObject, $pUseSerializationName) {
 		$lIdProperties = $this->getIdProperties();
 		if (count($lIdProperties) == 1) {
-			$lPropertyName = $pUseSerializationName ? $this->getProperty($lIdProperties[0], true)->getSerializationName() : $this->getProperty($lIdProperties[0], true)->getName();
-			return isset($pStdObject->$lPropertyName) ? $this->getPropertyModel($lIdProperties[0])->_fromStdObject($pStdObject->$lPropertyName) : null;
+			$lPropertyName = $pUseSerializationName ? current($lIdProperties)->getSerializationName() : current($lIdProperties)->getName();
+			return isset($pStdObject->$lPropertyName) ? current($lIdProperties)->getModel()->_fromStdObject($pStdObject->$lPropertyName) : null;
 		}
 		$lIdValues = [];
 		foreach ($lIdProperties as $lIdProperty) {
-			$lPropertyName = $pUseSerializationName ? $this->getProperty($lIdProperty, true)->getSerializationName() : $this->getProperty($lIdProperty, true)->getName();
+			$lPropertyName = $pUseSerializationName ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
 			if (isset($pStdObject->$lPropertyName)) {
-				$lIdValues[] = $this->getPropertyModel($lIdProperty)->_fromStdObject($pStdObject->$lPropertyName);
+				$lIdValues[] = $lIdProperty->getModel()->_fromStdObject($pStdObject->$lPropertyName);
 			} else {
 				$lIdValues[] = null;
 			}
@@ -764,14 +869,14 @@ abstract class Model {
 	public function getIdFromXml($pXml, $pUseSerializationName) {
 		$lIdProperties = $this->getIdProperties();
 		if (count($lIdProperties) == 1) {
-			$lPropertyName = $pUseSerializationName ? $this->getProperty($lIdProperties[0], true)->getSerializationName() : $this->getProperty($lIdProperties[0], true)->getName();
-			return isset($pXml[$lPropertyName]) ? $this->getPropertyModel($lIdProperties[0])->_fromXml($pXml[$lPropertyName]) : null;
+			$lPropertyName = $pUseSerializationName ? current($lIdProperties)->getSerializationName() : current($lIdProperties)->getName();
+			return isset($pXml[$lPropertyName]) ? current($lIdProperties)->getModel()->_fromXml($pXml[$lPropertyName]) : null;
 		}
 		$lIdValues = [];
 		foreach ($lIdProperties as $lIdProperty) {
-			$lPropertyName = $pUseSerializationName ? $this->getProperty($lIdProperty, true)->getSerializationName() : $this->getProperty($lIdProperty, true)->getName();
+			$lPropertyName = $pUseSerializationName ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
 			if (isset($pXml[$lPropertyName])) {
-				$lIdValues[] = $this->getPropertyModel($lIdProperty)->_fromXml($pXml[$lPropertyName]);
+				$lIdValues[] = $lIdProperty->getModel()->_fromXml($pXml[$lPropertyName]);
 			} else {
 				$lIdValues[] = null;
 			}
@@ -782,14 +887,14 @@ abstract class Model {
 	public function getIdFromFlattenedArray($pRow, $pUseSerializationName) {
 		$lIdProperties = $this->getIdProperties();
 		if (count($lIdProperties) == 1) {
-			$lPropertyName = $pUseSerializationName ? $this->getProperty($lIdProperties[0], true)->getSerializationName() : $this->getProperty($lIdProperties[0], true)->getName();
-			return isset($pRow[$lPropertyName]) ? $this->getPropertyModel($lIdProperties[0])->_fromFlattenedValue($pRow[$lPropertyName]) : null;
+			$lPropertyName = $pUseSerializationName ? current($lIdProperties)->getSerializationName() : current($lIdProperties)->getName();
+			return isset($pRow[$lPropertyName]) ? current($lIdProperties)->getModel()->_fromFlattenedValue($pRow[$lPropertyName]) : null;
 		}
 		$lIdValues = [];
 		foreach ($lIdProperties as $lIdProperty) {
-			$lPropertyName = $pUseSerializationName ? $this->getProperty($lIdProperty, true)->getSerializationName() : $this->getProperty($lIdProperty, true)->getName();
+			$lPropertyName = $pUseSerializationName ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
 			if (isset($pRow[$lPropertyName])) {
-				$lIdValues[] = $this->getPropertyModel($lIdProperty)->_fromFlattenedValue($pRow[$lPropertyName]);
+				$lIdValues[] = $lIdProperty->getModel()->_fromFlattenedValue($pRow[$lPropertyName]);
 			} else {
 				$lIdValues[] = null;
 			}

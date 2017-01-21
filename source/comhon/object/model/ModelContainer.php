@@ -30,12 +30,12 @@ abstract class ModelContainer extends Model {
 		return $this->getModel()->getProperties();
 	}
 	
-	public function getPropertiesNames() {
-		return $this->getModel()->getPropertiesNames();
+	public function getAllProperties() {
+		return array_merge($this->getModel()->getIdProperties(), $this->getModel()->getProperties());
 	}
 	
-	public function getPropertyModel($pPropertyName) {
-		return $this->getModel()->getPropertyModel($pPropertyName);
+	public function getAllPropertiesNames() {
+		return $this->getModel()->getAllPropertiesNames();
 	}
 	
 	public function getModel() {
@@ -73,8 +73,8 @@ abstract class ModelContainer extends Model {
 		return $this->getModel()->hasUniqueIdProperty();
 	}
 	
-	public function getFirstIdPropertyName() {
-		return $this->getModel()->getFirstIdPropertyName();
+	public function getFirstIdProperty() {
+		return $this->getModel()->getFirstIdProperty();
 	}
 	
 	public function isLoaded() {

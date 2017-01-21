@@ -208,7 +208,7 @@ class InstanceModel {
 		
 		if (is_null($this->mManifestParser) && is_object($lInstanceModels[$pModel->getModelName()]) && $lInstanceModels[$pModel->getModelName()]->isLoaded()) {
 			$lReturn = array(
-				self::PROPERTIES     => $pModel->getProperties(), 
+				self::PROPERTIES     => $pModel->getAllProperties(), 
 				self::EXTENDS_MODEL  => $pModel->getExtendsModel(),
 				self::OBJECT_CLASS   => $pModel->getObjectClass()
 			);
@@ -308,7 +308,7 @@ class InstanceModel {
 	 * @return Property[]
 	 */
 	private function _buildProperties(Model $pCurrentModel, Model $lExtendsModel = null) {
-		$lProperties = is_null($lExtendsModel) ? [] : $lExtendsModel->getProperties();
+		$lProperties = is_null($lExtendsModel) ? [] : $lExtendsModel->getAllProperties();
 	
 		do {
 			$lModelName     = $this->mManifestParser->getCurrentPropertyModelName();
@@ -350,10 +350,18 @@ class InstanceModel {
 			}
 			else if ($pSerialization !== $lExtendedSerialization && $pSerialization->getModel()->getModelName() == $lExtendedSerialization->getModel()->getModelName()) {
 				$lSame = true;
-				foreach ($pSerialization->getModel()->getProperties() as $lProperty) {
-					if ($pSerialization->getValue($lProperty->getName()) !== $lExtendedSerialization->getValue($lProperty->getName())) {
+				foreach ($pSerialization->getModel()->getIdProperties() as $lProperty) {
+					if ($pSerialization->getIdValue($lProperty->getName()) !== $lExtendedSerialization->getIdValue($lProperty->getName())) {
 						$lSame = false;
 						break;
+					}
+				}
+				if ($lSame) {
+					foreach ($pSerialization->getModel()->getProperties() as $lProperty) {
+						if ($pSerialization->getValue($lProperty->getName()) !== $lExtendedSerialization->getValue($lProperty->getName())) {
+							$lSame = false;
+							break;
+						}
 					}
 				}
 				if ($lSame) {

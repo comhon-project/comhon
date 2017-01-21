@@ -84,7 +84,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	public function setPropertiesFilter($pPropertiesFilter) {
 		$this->mSelectedColumns = array();
 		foreach ($pPropertiesFilter as $pPropertyName) {
-			$lProperty = $this->mModel->getProperty($pPropertyName, true);
+			$lProperty = $this->mModel->getUnidentifiedProperty($pPropertyName, true);
 			if (!$lProperty->isComposition()) {
 				$this->mSelectedColumns[] = $lProperty->getSerializationName();
 			}
@@ -159,11 +159,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		}
 		$lSqlTable = $this->mModel->getSqlTableUnit();
 		$lAlias = isset($pModelTree->id) ? $pModelTree->id : null;
-		$this->mSelectQuery = new SelectQuery($lSqlTable->getValue("name"), $lAlias);
+		$this->mSelectQuery = new SelectQuery($lSqlTable->getIdValue('name'), $lAlias);
 		
 		$this->mLeftJoins = array();
-		$lTableName = is_null($lAlias) ? $lSqlTable->getValue("name") : $lAlias;
-		$this->mLeftJoins[$lTableName] = array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lSqlTable->getValue("name"), "right_table_alias" => $lAlias);
+		$lTableName = is_null($lAlias) ? $lSqlTable->getIdValue('name') : $lAlias;
+		$this->mLeftJoins[$lTableName] = array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lSqlTable->getIdValue('name'), "right_table_alias" => $lAlias);
 		
 		$lStack = array(array($this->mModel, $lSqlTable, $lAlias, $pModelTree));
 		while (!empty($lStack)) {
@@ -171,11 +171,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$lLeftModel      = $lLastElement[0];
 			$lLeftTable      = $lLastElement[1];
 			$lLeftAliasTable = $lLastElement[2];
-			$lLeftTableName  = is_null($lLeftAliasTable) ? $lLeftTable->getValue("name") : $lLeftAliasTable;
+			$lLeftTableName  = is_null($lLeftAliasTable) ? $lLeftTable->getIdValue('name') : $lLeftAliasTable;
 			$lChildrenNodes  = isset($lLastElement[3]->children) ? $lLastElement[3]->children : array();
 			
 			foreach ($lChildrenNodes as $lChildNode) {
-				$lProperty                      = $lLeftModel->getProperty($lChildNode->property, true);
+				$lProperty                      = $lLeftModel->getUnidentifiedProperty($lChildNode->property, true);
 				$lLeftJoin                      = self::prepareLeftJoin($lLeftTable, $lLeftModel, $lProperty);
 				$lLeftJoin["left_table"]        = $lLeftTableName;
 				$lLeftJoin["right_table_alias"] = isset($lChildNode->id) ? $lChildNode->id : null;
@@ -210,7 +210,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	public function importLogicalJunction($pStdObjectLogicalJunction) {
 		if (is_null($this->mLeftJoins)) {
-			$lMainTableName = $this->mModel->getSqlTableUnit()->getValue("name");
+			$lMainTableName = $this->mModel->getSqlTableUnit()->getIdValue('name');
 			$this->mSelectQuery = new SelectQuery($lMainTableName);
 			$this->mLeftJoins   = array();
 			$this->mLeftJoins[$lMainTableName] = array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lMainTableName, "right_table_alias" => null);
@@ -261,6 +261,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$lSqlTable->loadValue("database");
 		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
 		$lRows = $lDbInstance->executeSelectQuery($this->mSelectQuery);
+		SqlTable::castStringifiedColumns($lRows, $this->mModel);
+		
 		return $this->_buildObjectsWithRows($lRows);
 	}
 	
@@ -308,7 +310,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$lStackVisitedModels = array();
 		$lArrayVisitedModels = array();
 		$lStack              = array();
-		$lMainModelTableName = $this->mModel->getSqlTableUnit()->getValue("name");
+		$lMainModelTableName = $this->mModel->getSqlTableUnit()->getIdValue('name');
 		
 		// stack initialisation with $pModel
 		$this->_extendsStacks($this->mModel, $this->mModel->getSqlTableUnit(), $pModels, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
@@ -394,17 +396,18 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$lReturn = array(
 			"left_model"   => $pLeftModel,
 			"right_model"  => $pRightProperty->getUniqueModel(),
-			"left_table"   => $pLeftTable->getValue("name"),
-			"right_table"  => $lRightTable->getValue("name")
+			"left_table"   => $pLeftTable->getIdValue('name'),
+			"right_table"  => $lRightTable->getIdValue('name')
 		);
 		$lColumn = $pRightProperty->getSerializationName();
 		if ($pRightProperty->isComposition()) {
-			$lReturn["left_column"] = $pLeftModel->getProperty($pLeftModel->getFirstIdPropertyName())->getSerializationName();
+			$lIdProperties = $pLeftModel->getIdProperties();
+			$lReturn["left_column"] = $pLeftModel->getFirstIdProperty()->getSerializationName();
 			$lReturn["right_column"] = $lRightTable->getCompositionColumns($pLeftModel, $lColumn);
 		}else {
 			$lRightModel = $pRightProperty->getUniqueModel();
 			$lReturn["left_column"] = $lColumn;
-			$lReturn["right_column"] = $lRightModel->getProperty($lRightModel->getFirstIdPropertyName())->getSerializationName();
+			$lReturn["right_column"] = $lRightModel->getFirstIdProperty()->getSerializationName();
 		}
 		return $lReturn;
 	}
@@ -425,15 +428,15 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	private function _addGroupedColumns() {
 		$this->mSelectQuery->resetGroupColumns();
-		foreach ($this->mModel->getIdProperties() as $lPropertyName) {
-			$this->mSelectQuery->addGroupColumn($this->mModel->getProperty($lPropertyName)->getSerializationName());
+		foreach ($this->mModel->getIdProperties() as $lProperty) {
+			$this->mSelectQuery->addGroupColumn($lProperty->getSerializationName());
 		}
 	}
 	
 	private function _addOrderColumns() {
 		$this->mSelectQuery->resetOrderColumns();
 		foreach ($this->mOrder as $lOrder) {
-			$this->mSelectQuery->addOrderColumn($this->mModel->getProperty($lOrder[0], true)->getSerializationName(), $lOrder[1]);
+			$this->mSelectQuery->addOrderColumn($this->mModel->getUnidentifiedProperty($lOrder[0], true)->getSerializationName(), $lOrder[1]);
 		}
 	}
 	

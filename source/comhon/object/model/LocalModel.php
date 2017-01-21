@@ -48,7 +48,7 @@ class LocalModel extends Model {
 			}
 		}
 		
-		if (!$lModel->hasIdProperty()) {
+		if (!$lModel->hasIdProperties()) {
 			$lObject = $lModel->getObjectInstance($pIsloaded);
 			//trigger_error("new local whithout id $pId, $lModel->mModelName, {$lModel->mMainModel->getModelName()}");
 		}

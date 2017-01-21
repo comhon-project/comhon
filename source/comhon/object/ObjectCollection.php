@@ -51,7 +51,7 @@ class ObjectCollection {
 		$lSuccess = false;
 		
 		if ($pObject->hasCompleteId()) {
-			if ($pObject->getModel()->hasIdProperty()) {
+			if ($pObject->getModel()->hasIdProperties()) {
 				$lModelName = $pObject->getModel()->getModelName();
 				$lId = $pObject->getId();
 				if (!array_key_exists($lModelName, $this->mMap)) {

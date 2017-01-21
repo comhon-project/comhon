@@ -65,6 +65,16 @@ class Property {
 		return $this->mIsSerializable;
 	}
 	
+	public function isInteger() {
+		return ($this->mModel instanceof ModelInteger) 
+		|| (($this->mModel instanceof ModelEnum) && ($this->mModel->getModel() instanceof ModelInteger));
+	}
+	
+	public function isFloat() {
+		return ($this->mModel instanceof ModelFloat)
+		|| (($this->mModel instanceof ModelEnum) && ($this->mModel->getModel() instanceof ModelFloat));
+	}
+	
 	public function hasDefaultValue() {
 		return !is_null($this->mDefault);
 	}
