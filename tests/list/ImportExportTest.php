@@ -496,14 +496,12 @@ $lObj1->setValue('propertyOne', 'azeaze1');
 $lObjs->pushValue($lObj1);
 //--------------
 $lObj2 = $lObjs->getModel()->getModel()->getObjectInstance();
-$lObj2->setValue('id1', 10);
-$lObj2->setValue('id2', 20);
+$lObj2->setId(json_encode([10, 20]));
 $lObj2->setValue('propertyOne', 'azeaze10');
 $lObjs->pushValue($lObj2);
 //--------------
 $lObj3 = $lObjs->getModel()->getModel()->getObjectInstance();
-$lObj3->setValue('id1', 100);
-$lObj3->setValue('id2', 200);
+$lObj3->setId(json_encode([100, 200]));
 $lObj3->setValue('propertyOne', 'azeaze100');
 $lObjs->pushValue($lObj3);
 //--------------
@@ -525,17 +523,49 @@ $lForeignMainObjs->pushValue($lTestPrivateId);
 
 $lPrivateStdObject = '{"id":"1","name":"test 1","objectValues":[{"id1":1,"id2":2,"propertyOne":"azeaze1"},{"id1":10,"id2":20,"propertyOne":"azeaze10"},{"id1":100,"id2":200,"propertyOne":"azeaze100"}],"foreignObjectValue":"[1,2]","foreignObjectValues":["[10,20]","[100,200]"],"foreignTestPrivateId":"2","foreignTestPrivateIds":["3","1"]}';
 if (json_encode($lTestPrivateId->toPrivateStdObject()) !== $lPrivateStdObject) {
-	throw new \Exception('bad private object value');
+	throw new \Exception('bad private object value : '.json_encode($lTestPrivateId->toPrivateStdObject()));
+}
+if (json_encode($lTestPrivateId->toSerialStdObject()) !== $lPrivateStdObject) {
+	throw new \Exception('bad serial object value : '.json_encode($lTestPrivateId->toPrivateStdObject()));
 }
 if (json_encode($lTestPrivateId->toPublicStdObject()) !== '{"name":"test 1","objectValues":[{"id2":2,"propertyOne":"azeaze1"},{"id2":20,"propertyOne":"azeaze10"},{"id2":200,"propertyOne":"azeaze100"}]}') {
-	throw new \Exception('bad public object value');
+	throw new \Exception('bad public object value : '.json_encode($lTestPrivateId->toPublicStdObject()));
 }
-
 if (json_encode($lTestPrivateIdModel->fromPrivateStdObject($lTestPrivateId->toPrivateStdObject())->toPrivateStdObject()) !== $lPrivateStdObject) {
-	throw new \Exception('bad private object value');
+	throw new \Exception('bad private object value : '.json_encode($lTestPrivateIdModel->fromPrivateStdObject($lTestPrivateId->toPrivateStdObject())->toPrivateStdObject()));
 }
 if (json_encode($lTestPrivateIdModel->fromPublicStdObject($lTestPrivateId->toPrivateStdObject())->toPrivateStdObject()) !== '{"name":"test 1","objectValues":[{"id1":null,"id2":2,"propertyOne":"azeaze1"},{"id1":null,"id2":20,"propertyOne":"azeaze10"},{"id1":null,"id2":200,"propertyOne":"azeaze100"}]}') {
-	throw new \Exception('bad public object value');
+	throw new \Exception('bad public object value : '.json_encode($lTestPrivateIdModel->fromPublicStdObject($lTestPrivateId->toPrivateStdObject())->toPrivateStdObject()));
+}
+
+
+$lPrivateFlattenedArray = '{"id":"1","name":"test 1","objectValues":"[{\"id1\":1,\"id2\":2,\"propertyOne\":\"azeaze1\"},{\"id1\":10,\"id2\":20,\"propertyOne\":\"azeaze10\"},{\"id1\":100,\"id2\":200,\"propertyOne\":\"azeaze100\"}]","foreignObjectValue":"[1,2]","foreignObjectValues":"[\"[10,20]\",\"[100,200]\"]","foreignTestPrivateId":"2","foreignTestPrivateIds":"[\"3\",\"1\"]"}';
+if (json_encode($lTestPrivateId->toPrivateFlattenedArray()) !== $lPrivateFlattenedArray) {
+	throw new \Exception('bad private object value : '.json_encode($lTestPrivateId->toPrivateFlattenedArray()));
+}
+if (json_encode($lTestPrivateId->toPublicFlattenedArray()) !== '{"name":"test 1","objectValues":"[{\"id2\":2,\"propertyOne\":\"azeaze1\"},{\"id2\":20,\"propertyOne\":\"azeaze10\"},{\"id2\":200,\"propertyOne\":\"azeaze100\"}]"}') {
+	throw new \Exception('bad public object value : '.json_encode($lTestPrivateId->toPublicFlattenedArray()));
+}
+if (json_encode($lTestPrivateIdModel->fromPrivateFlattenedArray($lTestPrivateId->toPrivateFlattenedArray())->toPrivateFlattenedArray()) !== $lPrivateFlattenedArray) {
+	throw new \Exception('bad private object value : '.json_encode($lTestPrivateIdModel->fromPrivateFlattenedArray($lTestPrivateId->toPrivateFlattenedArray())->toPrivateFlattenedArray()));
+}
+if (json_encode($lTestPrivateIdModel->fromPublicFlattenedArray($lTestPrivateId->toPrivateFlattenedArray())->toPrivateFlattenedArray()) !== '{"name":"test 1","objectValues":"[{\"id1\":null,\"id2\":2,\"propertyOne\":\"azeaze1\"},{\"id1\":null,\"id2\":20,\"propertyOne\":\"azeaze10\"},{\"id1\":null,\"id2\":200,\"propertyOne\":\"azeaze100\"}]"}') {
+	throw new \Exception('bad public object value : '.json_encode($lTestPrivateIdModel->fromPublicFlattenedArray($lTestPrivateId->toPrivateFlattenedArray())->toPrivateFlattenedArray()));
+}
+
+
+$lPrivateXml = '<testPrivateId id="1" name="test 1"><objectValues><objectValue id1="1" id2="2" propertyOne="azeaze1"/><objectValue id1="10" id2="20" propertyOne="azeaze10"/><objectValue id1="100" id2="200" propertyOne="azeaze100"/></objectValues><foreignObjectValue>[1,2]</foreignObjectValue><foreignObjectValues><foreignObjectValue>[10,20]</foreignObjectValue><foreignObjectValue>[100,200]</foreignObjectValue></foreignObjectValues><foreignTestPrivateId>2</foreignTestPrivateId><foreignTestPrivateIds><foreignTestPrivateId>3</foreignTestPrivateId><foreignTestPrivateId>1</foreignTestPrivateId></foreignTestPrivateIds></testPrivateId>';
+if (trim(str_replace("<?xml version=\"1.0\"?>", '', $lTestPrivateId->toPrivateXml()->asXML())) !== $lPrivateXml) {
+	throw new \Exception('bad private object value : '.$lTestPrivateId->toPrivateXml()->asXML());
+}
+if (trim(str_replace("<?xml version=\"1.0\"?>", '', $lTestPrivateId->toPublicXml()->asXML())) !== '<testPrivateId name="test 1"><objectValues><objectValue id2="2" propertyOne="azeaze1"/><objectValue id2="20" propertyOne="azeaze10"/><objectValue id2="200" propertyOne="azeaze100"/></objectValues></testPrivateId>') {
+	throw new \Exception('bad public object value : '.$lTestPrivateId->toPublicXml()->asXML());
+}
+if (trim(str_replace("<?xml version=\"1.0\"?>", '', $lTestPrivateIdModel->fromPrivateXml($lTestPrivateId->toPrivateXml())->toPrivateXml()->asXML())) !== $lPrivateXml) {
+	throw new \Exception('bad private object value : '.$lTestPrivateIdModel->fromPrivateXml($lTestPrivateId->toPrivateXml())->toPrivateXml()->asXML());
+}
+if (trim(str_replace("<?xml version=\"1.0\"?>", '', $lTestPrivateIdModel->fromPublicXml($lTestPrivateId->toPrivateXml())->toPrivateXml()->asXML())) !== '<testPrivateId name="test 1"><objectValues><objectValue id2="2" propertyOne="azeaze1"/><objectValue id2="20" propertyOne="azeaze10"/><objectValue id2="200" propertyOne="azeaze100"/></objectValues></testPrivateId>') {
+	throw new \Exception('bad public object value : '.$lTestPrivateIdModel->fromPublicXml($lTestPrivateId->toPrivateXml())->toPrivateXml()->asXML());
 }
 
 

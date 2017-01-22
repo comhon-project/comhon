@@ -197,7 +197,7 @@ class Object {
 		}
 	}
 	
-	protected final function _pushValue($pValue, $pStrict = true) {
+	protected final function _pushValue($pValue) {
 		$this->mValues[] = $pValue;
 	}
 	

@@ -28,7 +28,6 @@ abstract class Model {
 	private $mIdProperties = [];
 	private $mCompositions = [];
 	private $mPublicProperties  = [];
-	private $mPublicIdProperties  = [];
 	private $mSerializableProperties = [];
 	private $mPublicSerializableProperties = [];
 	private $mPropertiesWithDefaultValues = [];
@@ -198,14 +197,6 @@ abstract class Model {
 		return $this->mPublicProperties;
 	}
 	
-	/**
-	 *
-	 * @return Property[]
-	 */
-	public function getPublicIdProperties() {
-		return $this->mPublicIdProperties;
-	}
-	
 	public function getPropertiesNames() {
 		return array_keys($this->mProperties);
 	}
@@ -249,12 +240,14 @@ abstract class Model {
 	 * @param Property[] $pProperties
 	 */
 	protected function _setProperties($pProperties) {
+		$lPublicIdProperties = [];
+		
 		// first we register id properties to be sure to have them in first positions
 		foreach ($pProperties as $lProperty) {
 			if ($lProperty->isId()) {
 				$this->mIdProperties[$lProperty->getName()] = $lProperty;
 				if (!$lProperty->isPrivate()) {
-					$this->mPublicIdProperties[$lProperty->getName()] = $lProperty;
+					$lPublicIdProperties[$lProperty->getName()] = $lProperty;
 				}
 				if ($lProperty->isSerializable()) {
 					$this->mSerializableProperties[$lProperty->getName()] = $lProperty;
@@ -292,7 +285,7 @@ abstract class Model {
 			reset($this->mIdProperties);
 			$this->mUniqueIdProperty = current($this->mIdProperties);
 		}
-		if (count($this->mIdProperties) != count($this->mPublicIdProperties)) {
+		if (count($this->mIdProperties) != count($lPublicIdProperties)) {
 			$this->mHasPrivateIdProperty = true;
 		}
 	}
@@ -306,7 +299,9 @@ abstract class Model {
 	}
 	
 	/**
+	 * get foreign properties that have their own serialization
 	 * @param string $pSerializationType ("sqlTable", "jsonFile"...)
+	 * @return Property[]
 	 */
 	public function getForeignSerializableProperties($pSerializationType) {
 		$lProperties = array();
@@ -547,7 +542,7 @@ abstract class Model {
 		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
 			if (array_key_exists($lPropertyName, $lProperties)) {
 				$lProperty = $lProperties[$lPropertyName];
-				if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
+				if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName) && !is_null($lValue)) {
 					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
 					if (($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum)){
 						$pXmlNode[$lName] = $lProperty->getModel()->_toXml($lValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
@@ -842,7 +837,7 @@ abstract class Model {
 	
 	public function getIdFromStdObject($pStdObject, $pPrivate, $pUseSerializationName) {
 		if (!is_null($this->mUniqueIdProperty)) {
-			if ($this->mUniqueIdProperty->IsPrivate() && !$pPrivate) {
+			if (!$this->mUniqueIdProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				return null;
 			}
 			$lPropertyName = $pUseSerializationName ? $this->mUniqueIdProperty->getSerializationName() : $this->mUniqueIdProperty->getName();
@@ -850,7 +845,7 @@ abstract class Model {
 		}
 		$lIdValues = [];
 		foreach ($this->getIdProperties() as $lIdProperty) {
-			if ($pPrivate || !$lIdProperty->IsPrivate()) {
+			if ($lIdProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				$lPropertyName = $pUseSerializationName ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
 				if (isset($pStdObject->$lPropertyName)) {
 					$lIdValues[] = $lIdProperty->getModel()->_fromStdObject($pStdObject->$lPropertyName);
@@ -866,7 +861,7 @@ abstract class Model {
 	
 	public function getIdFromXml($pXml, $pPrivate, $pUseSerializationName) {
 		if (!is_null($this->mUniqueIdProperty)) {
-			if ($this->mUniqueIdProperty->IsPrivate() && !$pPrivate) {
+			if (!$this->mUniqueIdProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				return null;
 			}
 			$lPropertyName = $pUseSerializationName ? $this->mUniqueIdProperty->getSerializationName() : $this->mUniqueIdProperty->getName();
@@ -874,7 +869,7 @@ abstract class Model {
 		}
 		$lIdValues = [];
 		foreach ($this->getIdProperties() as $lIdProperty) {
-			if ($pPrivate || !$lIdProperty->IsPrivate()) {
+			if ($lIdProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				$lPropertyName = $pUseSerializationName ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
 				if (isset($pXml[$lPropertyName])) {
 					$lIdValues[] = $lIdProperty->getModel()->_fromXml($pXml[$lPropertyName]);
@@ -890,7 +885,7 @@ abstract class Model {
 	
 	public function getIdFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName) {
 		if (!is_null($this->mUniqueIdProperty)) {
-			if ($this->mUniqueIdProperty->IsPrivate() && !$pPrivate) {
+			if (!$this->mUniqueIdProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				return null;
 			}
 			$lPropertyName = $pUseSerializationName ? $this->mUniqueIdProperty->getSerializationName() : $this->mUniqueIdProperty->getName();
@@ -898,7 +893,7 @@ abstract class Model {
 		}
 		$lIdValues = [];
 		foreach ($this->getIdProperties() as $lIdProperty) {
-			if ($pPrivate || !$lIdProperty->IsPrivate()) {
+			if ($lIdProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				$lPropertyName = $pUseSerializationName ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
 				if (isset($pRow[$lPropertyName])) {
 					$lIdValues[] = $lIdProperty->getModel()->_fromFlattenedValue($pRow[$lPropertyName]);

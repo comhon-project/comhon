@@ -30,7 +30,7 @@ class ObjectArray extends Object {
 		if ($pStrict && !is_null($pValue)) {
 			$this->getModel()->getModel()->verifValue($pValue);
 		}
-		$this->_pushValue($pValue, $pStrict);
+		$this->_pushValue($pValue);
 	}
 	
 	public function fromSqlDatabaseId($pRows, $pTimeZone = null, $pUpdateLoadStatus = true) {
