@@ -230,7 +230,7 @@ class Literal {
 			$lLiteral = new Literal($lJoinTable['right_table_alias'], $lColumnIdSubQuery, Literal::DIFF, null);
 		}
 		else {
-			$lProperty =  $lRightodel->getUnidentifiedProperty($pStdObject->property, true);
+			$lProperty =  $lRightodel->getProperty($pStdObject->property, true);
 			if ($lProperty->isComposition()) {
 				throw new \Exception("literal cannot contain foreign porperty '{$pStdObject->property}'");
 			}
@@ -258,12 +258,12 @@ class Literal {
 	private static function _queuetoLeftJoins($pModel, $pAlias, $pQueue, $pTableNameUsed = array()) {
 		$lLeftModel      = $pModel;
 		$lLeftTable      = $pModel->getSqlTableUnit();
-		$lLeftAliasTable = self::_getAlias($lLeftTable->getIdValue('name'), $pTableNameUsed);
+		$lLeftAliasTable = self::_getAlias($lLeftTable->getValue('name'), $pTableNameUsed);
 		$lLeftJoins      = array(
 			array(
 				'left_model'        => $pModel,
 				'right_model'       => $pModel,
-				'right_table'       => $lLeftTable->getIdValue('name'),
+				'right_table'       => $lLeftTable->getValue('name'),
 				'right_table_alias' => $lLeftAliasTable,
 				'right_column'      => $pModel->getSerializationIds()
 			)
@@ -274,8 +274,8 @@ class Literal {
 			if (!is_object($lCurrentNode) || !isset($lCurrentNode->property)) {
 				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
 			}
-			$lLeftTableName = is_null($lLeftAliasTable) ? $lLeftTable->getIdValue('name') : $lLeftAliasTable;
-			$lProperty      = $lLeftModel->getUnidentifiedProperty($lCurrentNode->property, true);
+			$lLeftTableName = is_null($lLeftAliasTable) ? $lLeftTable->getValue('name') : $lLeftAliasTable;
+			$lProperty      = $lLeftModel->getProperty($lCurrentNode->property, true);
 			$lLeftJoin      = ComplexLoadRequest::prepareLeftJoin($lLeftTable, $lLeftModel, $lProperty);
 				
 			$lLeftJoin["left_table"]        = $lLeftTableName;
@@ -366,7 +366,7 @@ class Literal {
 				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObjectLiteral));
 			}
 			$pStdObjectLiteral->node   = $pLastTableName;
-			$pStdObjectLiteral->column = $pLastModel->getUnidentifiedProperty($pStdObjectLiteral->property, true)->getSerializationName();
+			$pStdObjectLiteral->column = $pLastModel->getProperty($pStdObjectLiteral->property, true)->getSerializationName();
 		
 		}
 	}

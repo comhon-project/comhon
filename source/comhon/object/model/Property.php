@@ -98,6 +98,15 @@ class Property {
 		return false;
 	}
 	
+	/**
+	 * check if property is interfaceable for export/import in model/serialization mode
+	 * @param boolean $pPrivate if true serialization mode, otherwise model mode
+	 * @return boolean true if property is interfaceable
+	 */
+	public function isInterfaceable($pPrivate, $pSerialization) {
+		return ($pPrivate || !$this->mIsPrivate) && (!$pSerialization || $this->mIsSerializable);
+	}
+	
 	public function getCompositionProperties() {
 		return null;
 	}

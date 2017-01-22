@@ -2,6 +2,7 @@
 namespace comhon\database;
 
 use comhon\utils\Utils;
+
 abstract class LogicalJunctionOptimizer {
 	
 	/**

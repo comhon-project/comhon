@@ -45,7 +45,7 @@ class SqlTable extends SerializationUnit {
 
 		$lAutoIncrementColumns = [];
 		if ($this->mDbController->isSupportedLastInsertId()) {
-			$lQuery = 'SHOW COLUMNS FROM '.$this->getIdValue('name');
+			$lQuery = 'SHOW COLUMNS FROM '.$this->getValue('name');
 			$lResult = $this->mDbController->executeSimpleQuery($lQuery)->fetchAll(\PDO::FETCH_ASSOC);
 			foreach ($lResult as $lRow) {
 				if ($lRow['Extra'] === 'auto_increment') {
@@ -62,7 +62,7 @@ class SqlTable extends SerializationUnit {
 		//   SELECT pg_get_serial_sequence('<table_name>', '<column_name>')
 		// }
 		if (!empty($lAutoIncrementColumns)) {
-			foreach ($pModel->getProperties() as $lProperty) {
+			foreach ($pModel->getSerializableProperties() as $lProperty) {
 				if (in_array($lProperty->getSerializationName(), $lAutoIncrementColumns)) {
 					$this->mAutoIncrementProperties[] = $lProperty;
 					if ($lProperty->isId()) {
@@ -112,7 +112,7 @@ class SqlTable extends SerializationUnit {
 		}
 		
 		if (is_null($this->mDbController->getInsertReturn())) {
-			$lQuery = 'INSERT INTO '.$this->getIdValue('name').' ('.$this->_getSelectColumnString($lMapOfString)
+			$lQuery = 'INSERT INTO '.$this->getValue('name').' ('.$this->_getSelectColumnString($lMapOfString)
 					.') VALUES ('.implode(', ', array_fill(0, count($lMapOfString), '?')).');';
 		}else if ($this->mDbController->getInsertReturn() == 'RETURNING') {
 			// TODO
@@ -126,11 +126,7 @@ class SqlTable extends SerializationUnit {
 		if (!empty($this->mAutoIncrementProperties)) {
 			if ($this->mDbController->isSupportedLastInsertId()) {
 				$lIncrementalValue = $this->mDbController->lastInsertId();
-				if ($this->mAutoIncrementProperties[0]->isId()) {
-					$pObject->setIdValue($this->mAutoIncrementProperties[0]->getName(), $lIncrementalValue);
-				} else {
-					$pObject->setValue($this->mAutoIncrementProperties[0]->getName(), $lIncrementalValue);
-				}
+				$pObject->setValue($this->mAutoIncrementProperties[0]->getName(), $lIncrementalValue);
 			} else {
 				// TODO manage sequence with return value
 			}
@@ -179,7 +175,7 @@ class SqlTable extends SerializationUnit {
 		
 		foreach ($pObject->getModel()->getIdProperties() as $lIdPropertyName => $lIdProperty) {
 			$lColumn = $lIdProperty->getSerializationName();
-			$lValue  = $pObject->getIdValue($lIdPropertyName);
+			$lValue  = $pObject->getValue($lIdPropertyName);
 			if (is_null($lValue)) {
 				throw new \Exception('update failed, id is not set');
 			}
@@ -194,7 +190,7 @@ class SqlTable extends SerializationUnit {
 			$lUpdates[]      = "$lColumn = ?";
 			$lUpdateValues[] = $lValue;
 		}
-		$lQuery = "UPDATE ".$this->getIdValue('name')." SET ".implode(", ", $lUpdates)." WHERE ".implode(" and ", $lConditions).";";
+		$lQuery = "UPDATE ".$this->getValue('name')." SET ".implode(", ", $lUpdates)." WHERE ".implode(" and ", $lConditions).";";
 		$this->mDbController->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
 	}
 
@@ -206,7 +202,7 @@ class SqlTable extends SerializationUnit {
 		$lWhereColumns = [];
 		$lModel = $pObject->getModel();
 		foreach ($lModel->getIdProperties() as $lPropertyName => $lProperty) {
-			$lWhereColumns[$lProperty->getSerializationName()] = $pObject->getIdValue($lPropertyName);
+			$lWhereColumns[$lProperty->getSerializationName()] = $pObject->getValue($lPropertyName);
 		}
 		$lReturn = $this->_loadObjectFromDatabase($pObject, [], $lWhereColumns, LogicalJunction::CONJUNCTION);
 		return $lReturn;
@@ -252,9 +248,9 @@ class SqlTable extends SerializationUnit {
 		
 		$lLinkedLiteral = new LogicalJunction($lLogicalJunctionType);
 		foreach ($pWhereColumns as $lColumn => $lValue) {
-			$lLinkedLiteral->addLiteral(new Literal($this->getIdValue('name'), $lColumn, "=", $lValue));
+			$lLinkedLiteral->addLiteral(new Literal($this->getValue('name'), $lColumn, "=", $lValue));
 		}
-		$lSelectQuery = new SelectQuery($this->getIdValue('name'));
+		$lSelectQuery = new SelectQuery($this->getValue('name'));
 		$lSelectQuery->setWhereLogicalJunction($lLinkedLiteral);
 		foreach ($pSelectColumns as $lColumn) {
 			$lSelectQuery->addSelectColumn($lColumn);
@@ -357,16 +353,7 @@ class SqlTable extends SerializationUnit {
 		if (!array_key_exists($pModel->getModelName(), self::$sStringCastColumns)) {
 			$lCastIntegerColumns = [];
 			$lCastFloatColumns = [];
-			foreach ($pModel->getIdProperties() as $lProperty) {
-				if ($lProperty->isSerializable()) {
-					if ($lProperty->isInteger()) {
-						$lCastIntegerColumns[] = $lProperty->getSerializationName();
-					} else if ($lProperty->isFloat()) {
-						$lCastFloatColumns[] = $lProperty->getSerializationName();
-					}
-				}
-			}
-			foreach ($pModel->getProperties() as $lProperty) {
+			foreach ($pModel->getSerializableProperties() as $lProperty) {
 				if ($lProperty->isSerializable()) {
 					if (!$lProperty->isForeign()) {
 						if ($lProperty->isInteger()) {

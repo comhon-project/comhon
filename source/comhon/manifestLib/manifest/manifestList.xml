@@ -19,4 +19,5 @@
 	<womanXmlExtended>person/womanXmlExtended/manifest.xml</womanXmlExtended>
 	<manBodyJsonExtended>body/manJsonExtended/manifest.xml</manBodyJsonExtended>
 	<testMultiIncremental>testMultiIncremental/manifest.xml</testMultiIncremental>
+	<testPrivateId>testPrivateId/manifest.xml</testPrivateId>
 </manifests>

@@ -78,7 +78,7 @@ if (!$lMainParentTestDb->isLoaded()) {
 }
 
 $lId = $lMainParentTestDb->getId();
-$lMainParentTestDb->deleteIdValue('id');
+$lMainParentTestDb->deleteValue('id');
 
 try {
 	$lTestDb->toStdObject();
@@ -292,6 +292,31 @@ if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $
 	throw new \Exception('not same instance');
 }
 
+$lId = 'plopplop';
+if ($lTest->getId() !== $lId) {
+	throw new \Exception('not good id');
+}
+$lNewId = 'hehe';
+$lTest->setId($lNewId);
+if ($lTest->getId() !== $lNewId) {
+	throw new \Exception('id not updated');
+}
+if (!is_null(MainObjectCollection::getInstance()->getObject($lId, $lTest->getModel()->getModelName()))) {
+	throw new \Exception('object not moved');
+}
+if (is_null(MainObjectCollection::getInstance()->getObject($lNewId, $lTest->getModel()->getModelName()))) {
+	throw new \Exception('object not moved');
+}
+$lTest->setId($lId);
+if ($lTest->getId() !== $lId) {
+	throw new \Exception('id not updated');
+}
+if (is_null(MainObjectCollection::getInstance()->getObject($lId, $lTest->getModel()->getModelName()))) {
+	throw new \Exception('object not moved');
+}
+if (!is_null(MainObjectCollection::getInstance()->getObject($lNewId, $lTest->getModel()->getModelName()))) {
+	throw new \Exception('object not moved');
+}
 
 $time_end = microtime(true);
 var_dump('value test exec time '.($time_end - $time_start));

@@ -47,4 +47,14 @@ class ForeignProperty extends Property {
 	public function isForeign() {
 		return true;
 	}
+	
+	/**
+	 * check if property is interfaceable for export/import in model/serialization mode
+	 * @param boolean $pPrivate if true private mode, otherwise public mode
+	 * @return boolean true if property is interfaceable
+	 */
+	public function isInterfaceable($pPrivate, $pSerialization) {
+		return parent::isInterfaceable($pPrivate, $pSerialization) && ($pPrivate || !$this->getUniqueModel()->hasPrivateIdProperty());
+	}
+	
 }

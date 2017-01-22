@@ -30,12 +30,8 @@ abstract class ModelContainer extends Model {
 		return $this->getModel()->getProperties();
 	}
 	
-	public function getAllProperties() {
-		return array_merge($this->getModel()->getIdProperties(), $this->getModel()->getProperties());
-	}
-	
-	public function getAllPropertiesNames() {
-		return $this->getModel()->getAllPropertiesNames();
+	public function getPropertiesNames() {
+		return $this->getModel()->getPropertiesNames();
 	}
 	
 	public function getModel() {

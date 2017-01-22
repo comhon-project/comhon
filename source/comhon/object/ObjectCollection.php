@@ -3,7 +3,6 @@ namespace comhon\object;
 
 use comhon\object\object\Object;
 use comhon\object\model\Model;
-use comhon\utils\Utils;
 
 class ObjectCollection {
 	
@@ -43,32 +42,27 @@ class ObjectCollection {
 	/**
 	 * add object with Model (if not already added)
 	 * @param Object $pObject
-	 * @param boolean $pThrowException throw exception if object can't be added (no complete id or object already added)
+	 * @param boolean $pThrowException throw exception if object already added
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
 	public function addObject(Object $pObject, $pThrowException = true) {
 		$lSuccess = false;
 		
-		if ($pObject->hasCompleteId()) {
-			if ($pObject->getModel()->hasIdProperties()) {
-				$lModelName = $pObject->getModel()->getModelName();
-				$lId = $pObject->getId();
-				if (!array_key_exists($lModelName, $this->mMap)) {
-					$this->mMap[$lModelName] = array();
-				}
-				// if object NOT already added, we can add it
-				if(!array_key_exists($lId, $this->mMap[$lModelName])) {
-					$this->mMap[$lModelName][$lId] = $pObject;
-					$lSuccess = true;
-				}
-				else if ($pThrowException) {
-					throw new \Exception('object already added');
-				}
+		if ($pObject->hasCompleteId() && $pObject->getModel()->hasIdProperties()) {
+			$lModelName = $pObject->getModel()->getModelName();
+			$lId = $pObject->getId();
+			if (!array_key_exists($lModelName, $this->mMap)) {
+				$this->mMap[$lModelName] = array();
 			}
-		}
-		else if ($pThrowException) {
-			throw new \Exception('object can\'t be added, object has no id or id is incomplete');
+			// if object NOT already added, we can add it
+			if(!array_key_exists($lId, $this->mMap[$lModelName])) {
+				$this->mMap[$lModelName][$lId] = $pObject;
+				$lSuccess = true;
+			}
+			else if ($pThrowException) {
+				throw new \Exception('object already added');
+			}
 		}
 		return $lSuccess;
 	}
@@ -80,7 +74,7 @@ class ObjectCollection {
 	 * @return boolean true if object is added
 	 */
 	public function removeObject(Object $pObject) {
-		if ($pObject->hasCompleteId() && $this->hasObject($pObject->getId(), $pObject->getModel()->getModelName())) {
+		if ($pObject->hasCompleteId() && $this->getObject($pObject->getId(), $pObject->getModel()->getModelName()) === $pObject) {
 			unset($this->mMap[$pObject->getModel()->getModelName()][$pObject->getId()]);
 			return true;
 		}

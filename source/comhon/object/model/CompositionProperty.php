@@ -10,7 +10,7 @@ class CompositionProperty extends ForeignProperty {
 	private $mCompositionProperties = null;
 	
 	public function __construct($pModel, $pName, $pCompositionProperties, $pSerializationName = null, $pIsPrivate = false) {
-		parent::__construct($pModel, $pName, $pSerializationName, $pIsPrivate, true);
+		parent::__construct($pModel, $pName, $pSerializationName, $pIsPrivate, false);
 		if (empty($pCompositionProperties)) {
 			throw new \Exception('composition must have at least one composition property');
 		}

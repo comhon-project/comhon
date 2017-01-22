@@ -16,7 +16,6 @@ class Object {
 	private $mModel;
 	private $mIsLoaded;
 	private $mValues = [];
-	private $mIdValues = [];
 	
 	
 	/**
@@ -55,10 +54,6 @@ class Object {
 		return ($this->hasValue($pName)) ? $this->mValues[$pName] : null;
 	}
 	
-	public final function getIdValue($pName) {
-		return ($this->hasIdValue($pName)) ? $this->mIdValues[$pName] : null;
-	}
-	
 	public final function getInstanceValue($pPropertyName, $pIsLoaded = true) {
 		return $this->getProperty($pPropertyName, true)->getModel()->getObjectInstance($pIsLoaded);
 	}
@@ -67,19 +62,25 @@ class Object {
 		$this->mValues = $pValues;
 	}
 	
-	public final function resetValues($pResetIdValues = true) {
+	public final function resetValues() {
 		$this->mValues = [];
-		if ($pResetIdValues) {
-			$this->mIdValues = [];
-		}
 	}
 	
 	public final function getValues() {
 		return $this->mValues;
 	}
 	
-	public final function getIdValues() {
-		return $this->mIdValues;
+	/**
+	 * reoder values in same order than properties
+	 */
+	public final function reorderValues() {
+		$lValues = [];
+		foreach ($this->mModel->getProperties() as $lPropertyName => $lProperty) {
+			if (array_key_exists($lPropertyName, $this->mValues)) {
+				$lValues[$lPropertyName] = $this->mValues[$lPropertyName];
+			}
+		}
+		$this->mValues = $lValues;
 	}
 	
 	public final function isLoaded() {
@@ -109,8 +110,8 @@ class Object {
 		}
 		$this->mModel = $pModel;
 		if($this->mModel instanceof MainModel) {
-			foreach ($this->mModel->getProperties() as $lProperty) {
-				if ($lProperty->isComposition()) {
+			foreach ($this->mModel->getCompositions() as $lProperty) {
+				if (!array_key_exists($lProperty->getName(), $this->mValues)) {
 					$this->initValue($lProperty->getName(), false);
 				}
 			}
@@ -134,38 +135,36 @@ class Object {
 	}
 	
 	public function setId($pId) {
-		$lIdProperties = $this->mModel->getIdProperties();
-		if (count($lIdProperties) == 1) {
-			$this->setIdValue(key($lIdProperties), $pId);
+		if ($this->mModel->hasUniqueIdProperty()) {
+			$this->setValue($this->mModel->getUniqueIdProperty()->getName(), $pId);
 		}
 		else {
 			$lIdValues = $this->mModel->decodeId($pId);
-			if (count($lIdProperties) !== count($lIdValues)) {
+			if (count($this->mModel->getIdProperties()) !== count($lIdValues)) {
 				throw new \Exception('invalid id : '.$pId);
 			}
 			$i = 0;
-			foreach ($lIdProperties as $lPropertyName => $lProperty) {
-				$this->setIdValue($lPropertyName, $lIdValues[$i]);
+			foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
+				$this->setValue($lPropertyName, $lIdValues[$i]);
 				$i++;
 			}
 		}
 	}
 	
 	public function getId() {
-		$lIdProperties = $this->mModel->getIdProperties();
-		if (count($lIdProperties) == 1) {
-			return $this->getIdValue(key($lIdProperties));
+		if ($this->mModel->hasUniqueIdProperty()) {
+			return $this->getValue($this->mModel->getUniqueIdProperty()->getName());
 		}
 		$lValues = [];
-		foreach ($lIdProperties as $lPropertyName => $lProperty) {
-			$lValues[] = $this->getIdValue($lPropertyName);
+		foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
+			$lValues[] = $this->getValue($lPropertyName);
 		}
 		return $this->mModel->encodeId($lValues);
 	}
 	
 	public final function hasCompleteId() {
 		foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
-			if(is_null($this->getIdValue($lPropertyName)) || $this->getIdValue($lPropertyName) == '') {
+			if(is_null($this->getValue($lPropertyName)) || $this->getValue($lPropertyName) == '') {
 				return false;
 			}
 		}
@@ -174,7 +173,7 @@ class Object {
 	
 	public final function verifCompleteId() {
 		foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
-			if(is_null($this->getIdValue($lPropertyName)) || $this->getIdValue($lPropertyName) == '') {
+			if(is_null($this->getValue($lPropertyName)) || $this->getValue($lPropertyName) == '') {
 				throw new \Excpetion("id is not complete, property '$lPropertyName' is empty");
 			}
 		}
@@ -188,45 +187,11 @@ class Object {
 				$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
 			}
 		}
-		$this->mValues[$pName] = $pValue;
-	}
-	
-	public final function setIdValue($pName, $pValue, $pStrict = true) {
-		if ($pStrict && !is_null($pValue)) {
-			if ($this instanceof ObjectArray) {
-				$this->mModel->getModel()->verifValue($pValue);
-			} else {
-				$this->mModel->getIdProperty($pName, true)->getModel()->verifValue($pValue);
-			}
-		}
-		$this->mIdValues[$pName] = $pValue;
-	}
-	
-	public final function setUndefinedValue($pName, $pValue, $pStrict = true) {
-		if ($pStrict && !is_null($pValue)) {
-			if ($this instanceof ObjectArray) {
-				$this->mModel->getModel()->verifValue($pValue);
-			} else {
-				$this->mModel->getIdProperty($pName, true)->getModel()->verifValue($pValue);
-			}
-		}
-		if ($this->mModel->getIdProperty($pName, true)->isId()) {
-			$this->mIdValues[$pName] = $pValue;
-		} else {
+		if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel) 
+				&& MainObjectCollection::getInstance()->getObject($this->getId(), $this->mModel->getModelName()) === $this) {
+			MainObjectCollection::getInstance()->removeObject($this);
 			$this->mValues[$pName] = $pValue;
-		}
-	}
-	
-	public final function setUndefinedValueplop($pName, $pValue, $pStrict = true) {
-		if ($pStrict && !is_null($pValue)) {
-			if ($this instanceof ObjectArray) {
-				$this->mModel->getModel()->verifValue($pValue);
-			} else {
-				$this->mModel->getIdProperty($pName, true)->getModel()->verifValue($pValue);
-			}
-		}
-		if ($this->mModel->hasIdProperty($pName)) {
-			$this->mIdValues[$pName] = $pValue;
+			MainObjectCollection::getInstance()->addObject($this);
 		} else {
 			$this->mValues[$pName] = $pValue;
 		}
@@ -242,16 +207,6 @@ class Object {
 		}
 	}
 	
-	public final function deleteIdValue($pName) {
-		if ($this->hasIdValue($pName)) {
-			unset($this->mIdValues[$pName]);
-		}
-	}
-	
-	public final function deleteId() {
-		$this->mIdValues = [];
-	}
-	
 	/**
 	 * instanciate an Object and add it to values
 	 * @param unknown $pPropertyName
@@ -265,10 +220,6 @@ class Object {
 	
 	public final function hasValue($pName) {
 		return array_key_exists($pName, $this->mValues);
-	}
-	
-	public final function hasIdValue($pName) {
-		return array_key_exists($pName, $this->mIdValues);
 	}
 	
 	public final function hasValues($Names) {
@@ -288,8 +239,8 @@ class Object {
 		return $this->mModel->getProperties();
 	}
 	
-	public final function getAllPropertiesNames() {
-		return array_keys($this->mModel->getProperties());
+	public final function getPropertiesNames() {
+		return $this->mModel->getPropertiesNames();
 	}
 	
 	public final function getProperty($pPropertyName, $pThrowException = false) {

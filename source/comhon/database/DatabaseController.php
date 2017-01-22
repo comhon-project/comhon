@@ -50,7 +50,7 @@ class DatabaseController {
 		if (!array_key_exists($pDbReference->getValue("DBMS"), self::$sInsertReturns)) {
 			throw new \Exception("DBMS '{$pDbReference->getValue("DBMS")}' not supported yet");
 		}
-		$this->mId = $pDbReference->getIdValue('id');
+		$this->mId = $pDbReference->getValue('id');
 		$lDataSourceName = sprintf('%s:dbname=%s;host=%s', $pDbReference->getValue("DBMS"), $pDbReference->getValue("name"), $pDbReference->getValue("host"));
 		if ($pDbReference->hasValue("port")) {
 			$lDataSourceName .= sprintf(';port=%s', $pDbReference->getValue("port"));
@@ -129,10 +129,10 @@ class DatabaseController {
 	 */
 	public static function getInstanceWithDataBaseObject(Object $pDbReference) {
 		$lReturn = null;
-		if (!$pDbReference->hasIdValue('id')) {
+		if (!$pDbReference->hasValue('id')) {
 			throw new \Exception("malformed database reference");
 		}
-		$lId = $pDbReference->getIdValue("id");
+		$lId = $pDbReference->getValue("id");
 		if (array_key_exists($lId, self::$sInstances)) {
 			$lReturn = self::$sInstances[$lId];
 		}else if ($pDbReference->hasValues(["DBMS", "host", "name", "user", "password"])) {

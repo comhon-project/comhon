@@ -8,7 +8,6 @@ use comhon\object\model\ForeignProperty;
 use comhon\object\model\MainModel;
 use comhon\object\model\ModelArray;
 use comhon\object\ObjectCollection;
-use comhon\object\LocalObjectCollection;
 
 /**
  * instanciate and populate ObjectCollection
@@ -29,7 +28,7 @@ class ObjectCollectionCreator extends Controller {
 		if (!($pObject->getModel() instanceof MainModel)) {
 			throw new \Exception('visitor ObjectCollectionCreator must be applied on object with main model');
 		}
-		$this->mLocalObjectCollection = new LocalObjectCollection();
+		$this->mLocalObjectCollection = new ObjectCollection();
 	}
 	
 	protected function _visit($pParentObject, $pKey, $pPropertyNameStack) {

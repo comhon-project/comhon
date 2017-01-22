@@ -17,5 +17,6 @@
 	"manBodyJson": "body/manJson/manifest.json",
 	"womanXmlExtended"    : "person/womanXmlExtended/manifest.json",
 	"manBodyJsonExtended" : "body/manJsonExtended/manifest.json",
-	"testMultiIncremental": "testMultiIncremental/manifest.json"
+	"testMultiIncremental": "testMultiIncremental/manifest.json",
+	"testPrivateId": "testPrivateId/manifest.json"
 }

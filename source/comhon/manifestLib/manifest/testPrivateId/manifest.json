@@ -1,0 +1,61 @@
+{
+	"types": {
+		"object": {
+			"properties": {
+				"id1": {
+					"type": "integer",
+					"is_id": true,
+					"is_private": true
+				},
+				"id2": {
+					"type": "integer",
+					"is_id": true
+				},
+				"propertyOne": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"properties": {
+		"id": {
+			"type": "string",
+			"is_id": true,
+			"is_private": true
+		},
+		"name": {
+			"type": "string"
+		},
+		"objectValues": {
+			"values": {
+				"type": "object",
+				"name": "objectValue"
+			},
+			"type": "array"
+		},
+		"foreignObjectValue": {
+			"type": "object",
+			"is_foreign": true
+		},
+		"foreignObjectValues": {
+			"values": {
+				"type": "object",
+				"name": "foreignObjectValue"
+			},
+			"type": "array",
+			"is_foreign": true
+		},
+		"foreignTestPrivateId": {
+			"type": "testPrivateId",
+			"is_foreign": true
+		},
+		"foreignTestPrivateIds": {
+			"values": {
+				"type": "testPrivateId",
+				"name": "foreignTestPrivateId"
+			},
+			"type": "array",
+			"is_foreign": true
+		}
+	}
+}

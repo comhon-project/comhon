@@ -83,7 +83,7 @@ class MainObjectCollection extends ObjectCollection {
 	/**
 	 * add object with mainModel (if not already added)
 	 * @param Object $pObject
-	 * @param boolean $pThrowException throw exception if object can't be added (no complete id or object already added)
+	 * @param boolean $pThrowException throw exception if object already added
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */

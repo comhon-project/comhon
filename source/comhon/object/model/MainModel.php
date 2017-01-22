@@ -6,7 +6,6 @@ use comhon\object\object\SqlTable;
 use comhon\object\object\Object;
 use comhon\object\object\ObjectArray;
 use comhon\object\MainObjectCollection;
-use comhon\object\LocalObjectCollection;
 use comhon\exception\PropertyException;
 use comhon\visitor\ObjectCollectionCreator;
 use \stdClass;
@@ -72,12 +71,12 @@ class MainModel extends Model {
 				$lObject = $this->_fromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
 				break;
 			case self::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromObject($pStdObject, $pUseSerializationName, null);
+				$lObject = $this->_getOrCreateObjectInstanceFromObject($pStdObject, $pPrivate, $pUseSerializationName, null);
 				$lObject->resetValues();
-				$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, new LocalObjectCollection());
+				$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, new ObjectCollection());
 				break;
 			case self::NO_MERGE:
-				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromStdObject($pStdObject, $pUseSerializationName), $this->mModelName);
+				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromStdObject($pStdObject, $pPrivate, $pUseSerializationName), $this->mModelName);
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lExistingObject);
 				}
@@ -115,12 +114,12 @@ class MainModel extends Model {
 				$lObject = $this->_fromXml($pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
 				break;
 			case self::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromXml($pXml, $pUseSerializationName, null);
+				$lObject = $this->_getOrCreateObjectInstanceFromXml($pXml, $pPrivate, $pUseSerializationName, null);
 				$lObject->resetValues();
-				$this->_fillObjectFromXml($lObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, new LocalObjectCollection());
+				$this->_fillObjectFromXml($lObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, new ObjectCollection());
 				break;
 			case self::NO_MERGE:
-				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromXml($pXml, $pUseSerializationName), $this->mModelName);
+				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromXml($pXml, $pPrivate, $pUseSerializationName), $this->mModelName);
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lExistingObject);
 				}
@@ -158,12 +157,12 @@ class MainModel extends Model {
 				$lObject = $this->_fromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
 				break;
 			case self::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, $pUseSerializationName, null);
+				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, null);
 				$lObject->resetValues();
-				$this->_fillObjectFromFlattenedArray($lObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, new LocalObjectCollection());
+				$this->_fillObjectFromFlattenedArray($lObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, new ObjectCollection());
 				break;
 			case self::NO_MERGE:
-				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromFlattenedArray($pRow, $pUseSerializationName), $this->mModelName);
+				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName), $this->mModelName);
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lExistingObject);
 				}
@@ -185,16 +184,16 @@ class MainModel extends Model {
 		
 		switch ($pMergeType) {
 			case self::MERGE:
-				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, true, null, false, false);
+				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, true, true, null, false, false);
 				break;
 			case self::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, true, null, false, false);
+				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, true, true, null, false, false);
 				$lObject->resetValues();
-				$this->_fillObjectwithId($lObject, $this->getIdFromFlattenedArray($pRow, true));
+				$this->_fillObjectwithId($lObject, $this->getIdFromFlattenedArray($pRow, true, true));
 				$lObject->setUnLoadStatus();
 				break;
 			case self::NO_MERGE:
-				$lObject = $this->_buildObjectFromId($this->getIdFromFlattenedArray($pRow, true), false);
+				$lObject = $this->_buildObjectFromId($this->getIdFromFlattenedArray($pRow, true, true), false);
 				break;
 			default:
 				throw new \Exception('undefined merge type '.$pMergeType);
@@ -216,7 +215,7 @@ class MainModel extends Model {
 	
 	public function fillObjectFromStdObject(Object $pObject, $pStdObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		$this->load();
-		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromStdObject($pStdObject, $pUseSerializationName));
+		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromStdObject($pStdObject, $pPrivate, $pUseSerializationName));
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 		
 		MainObjectCollection::getInstance()->addObject($pObject, false);
@@ -241,7 +240,7 @@ class MainModel extends Model {
 	public function fillObjectFromXml(Object $pObject, $pXml, $pPrivate, $pUseSerializationName, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
-		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromXml($pXml, $pUseSerializationName));
+		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromXml($pXml, $pPrivate, $pUseSerializationName));
 		
 		MainObjectCollection::getInstance()->addObject($pObject, false);
 		$this->_fillObjectFromXml($pObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, $this->_loadLocalObjectCollection($pObject));
@@ -265,7 +264,7 @@ class MainModel extends Model {
 	public function fillObjectFromFlattenedArray(Object $pObject, $pRow, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
-		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromFlattenedArray($pRow, $pUseSerializationName));
+		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName));
 		
 		MainObjectCollection::getInstance()->addObject($pObject, false);
 		$this->_fillObjectFromFlattenedArray($pObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, $this->_loadLocalObjectCollection($pObject));
@@ -290,15 +289,15 @@ class MainModel extends Model {
 		$lObjectId = $pObject->getId();
 		if ($pId === 0) {
 			if ($lObjectId !== 0 && $lObjectId !== '0') {
-				throw new \Exception("id must be the same as stdObject : {$pObject->getId()} !== {$this->getIdFromStdObject($pStdObject, false)}");
+				throw new \Exception("id must be the same as stdObject : {$pObject->getId()} !== {$this->getIdFromStdObject($pStdObject, true, false)}");
 			}
 		} else if ($lObjectId === 0) {
 			if ($pId !== 0 && $pId !== '0') {
-				throw new \Exception("id must be the same as stdObject : {$pObject->getId()} !== {$this->getIdFromStdObject($pStdObject, false)}");
+				throw new \Exception("id must be the same as stdObject : {$pObject->getId()} !== {$this->getIdFromStdObject($pStdObject, true, false)}");
 			}
 		}
 		else if ($pObject->getId() != $pId) {
-			throw new \Exception("id must be the same as stdObject : {$pObject->getId()} !== {$this->getIdFromStdObject($pStdObject, false)}");
+			throw new \Exception("id must be the same as stdObject : {$pObject->getId()} !== {$this->getIdFromStdObject($pStdObject, true, false)}");
 		}
 		$lObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
 		if (!is_null($lObject) && $lObject !== $pObject) {
@@ -409,7 +408,7 @@ class MainModel extends Model {
 	 * get or create an instance of Object
 	 * @param string|integer $pId
 	 * @param string $pInheritanceModelName
-	 * @param LocalObjectCollection $pLocalObjectCollection not used but we need to have it to match with LocalModel
+	 * @param ObjectCollection $pLocalObjectCollection not used but we need to have it to match with LocalModel
 	 * @param boolean $pIsloaded
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status
 	 * @return Object
@@ -462,8 +461,8 @@ class MainModel extends Model {
 	/**
 	 *
 	 * @param Object $pObject
-	 * @param LocalObjectCollection $pLocalObjectCollection
-	 * @return LocalObjectCollection
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @return ObjectCollection
 	 */
 	protected function _getLocalObjectCollection($pObject, $pLocalObjectCollection) {
 		return $this->_loadLocalObjectCollection($pObject);
@@ -472,7 +471,7 @@ class MainModel extends Model {
 	/**
 	 * 
 	 * @param Object $pObject
-	 * @return LocalObjectCollection
+	 * @return ObjectCollection
 	 */
 	private function _loadLocalObjectCollection($pObject) {
 		$lObjectCollectionCreator = new ObjectCollectionCreator();

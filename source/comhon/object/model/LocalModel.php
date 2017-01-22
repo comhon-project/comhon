@@ -33,7 +33,7 @@ class LocalModel extends Model {
 	 * get or create an instance of Object
 	 * @param string|integer $pId
 	 * @param string $pInheritanceModelName
-	 * @param LocalObjectCollection $pLocalObjectCollection
+	 * @param ObjectCollection $pLocalObjectCollection
 	 * @param boolean $pIsloaded
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status 
 	 * @return Object
