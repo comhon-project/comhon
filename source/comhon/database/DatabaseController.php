@@ -132,14 +132,14 @@ class DatabaseController {
 		if (!$pDbReference->hasValue('id')) {
 			throw new \Exception("malformed database reference");
 		}
-		$lId = $pDbReference->getValue("id");
+		$lId = $pDbReference->getValue('id');
 		if (array_key_exists($lId, self::$sInstances)) {
 			$lReturn = self::$sInstances[$lId];
-		}else if ($pDbReference->hasValues(["DBMS", "host", "name", "user", "password"])) {
+		}else if ($pDbReference->hasValues(['id', 'DBMS', 'host', 'name', 'user', 'password'])) {
 			$lReturn = new DatabaseController($pDbReference);
 			self::$sInstances[$lId] = $lReturn;
 		}else {
-			throw new \Exception("malformed database reference");
+			throw new \Exception('malformed database reference');
 		}
 		return $lReturn;
 	}
