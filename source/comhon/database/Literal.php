@@ -231,7 +231,7 @@ class Literal {
 		}
 		else {
 			$lProperty =  $lRightodel->getProperty($pStdObject->property, true);
-			if ($lProperty->isComposition()) {
+			if ($lProperty->isAggregation()) {
 				throw new \Exception("literal cannot contain foreign porperty '{$pStdObject->property}'");
 			}
 			$lLiteral  = new Literal($lTable, $lProperty->getSerializationName(), $pStdObject->operator, $pStdObject->value);

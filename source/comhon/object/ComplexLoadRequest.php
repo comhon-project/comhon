@@ -17,7 +17,7 @@ use comhon\object\model\SimpleModel;
 use comhon\object\model\ModelContainer;
 use comhon\object\model\ForeignProperty;
 use comhon\controller\ForeignObjectLoader;
-use comhon\controller\CompositionLoader;
+use comhon\controller\AggregationLoader;
 use comhon\dataStructure\Tree;
 use comhon\exception\PropertyException;
 use \Exception;
@@ -85,7 +85,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$this->mSelectedColumns = array();
 		foreach ($pPropertiesFilter as $pPropertyName) {
 			$lProperty = $this->mModel->getProperty($pPropertyName, true);
-			if (!$lProperty->isComposition()) {
+			if (!$lProperty->isAggregation()) {
 				$this->mSelectedColumns[] = $lProperty->getSerializationName();
 			}
 			else {
@@ -400,9 +400,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			"right_table"  => $lRightTable->getValue('name')
 		);
 		$lColumn = $pRightProperty->getSerializationName();
-		if ($pRightProperty->isComposition()) {
+		if ($pRightProperty->isAggregation()) {
 			$lReturn["left_column"] = $pLeftModel->getFirstIdProperty()->getSerializationName();
-			$lReturn["right_column"] = $lRightTable->getCompositionColumns($pLeftModel, $lColumn);
+			$lReturn["right_column"] = $lRightTable->getAggregationColumns($pLeftModel, $lColumn);
 		}else {
 			$lRightModel = $pRightProperty->getUniqueModel();
 			$lReturn["left_column"] = $lColumn;

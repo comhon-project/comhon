@@ -93,7 +93,7 @@ if ($lThrow) {
 $lId = $lMainParentTestDb->setId($lId);
 $lTestDb->toStdObject();
 
-/** ****************************** test load ids composition value ****************************** **/
+/** ****************************** test load ids aggregation value ****************************** **/
 
 $lTestDbs = MainObjectCollection::getInstance()->getModelObjects('testDb');
 $lTestDbById = [];
@@ -127,7 +127,7 @@ foreach ($lMainParentTestDb->getValue('childrenTestDb')->getValues() as $lValue)
 	}
 }
 
-/** ****************************** test load ids composition value ****************************** **/
+/** ****************************** test load ids aggregation value ****************************** **/
 
 $lTestDbs = MainObjectCollection::getInstance()->getModelObjects('testDb');
 $lTestDbById = [];

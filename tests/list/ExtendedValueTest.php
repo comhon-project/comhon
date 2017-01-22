@@ -6,7 +6,7 @@ use comhon\api\ObjectService;
 use comhon\object\object\SqlTable;
 use comhon\object\SimpleLoadRequest;
 use comhon\object\MainObjectCollection;
-use comhon\controller\CompositionLoader;
+use comhon\controller\AggregationLoader;
 use comhon\object\model\Model;
 
 $time_start = microtime(true);

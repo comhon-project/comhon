@@ -10,12 +10,12 @@ use comhon\object\ObjectCollection;
 
 class ForeignObjectLoader extends Controller {
 
-	private $mLoadCompositions      = true;
+	private $mLoadAggregations      = true;
 	private $mLoadedValues          = array();
 	
 	protected function _init($pObject) {
 		if (array_key_exists(0, $this->mParams)) {
-			$this->mLoadCompositions = $this->mParams[0];
+			$this->mLoadAggregations = $this->mParams[0];
 		}
 	}
 	
@@ -27,8 +27,8 @@ class ForeignObjectLoader extends Controller {
 		$lVisitChildren = true;
 		$lObject = $pParentObject->getValue($pKey);
 		if (!is_null($lObject)) {
-			$lIsComposition = $pParentObject->hasProperty($pKey) && $pParentObject->getProperty($pKey)->isComposition();
-			if (!$lObject->isLoaded() && (!$lIsComposition || $this->mLoadCompositions)) {
+			$lIsAggregation = $pParentObject->hasProperty($pKey) && $pParentObject->getProperty($pKey)->isAggregation();
+			if (!$lObject->isLoaded() && (!$lIsAggregation || $this->mLoadAggregations)) {
 				$pParentObject->loadValue($pKey);
 				$this->mLoadedValues[spl_object_hash($lObject)] = null;
 			}

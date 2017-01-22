@@ -37,7 +37,7 @@ class Object {
 		foreach ($this->mModel->getPropertiesWithDefaultValues() as $lProperty) {
 			$this->setValue($lProperty->getName(), $lProperty->getDefaultValue());
 		}
-		foreach ($this->mModel->getCompositions() as $lProperty) {
+		foreach ($this->mModel->getAggregations() as $lProperty) {
 			$this->initValue($lProperty->getName(), false);
 		}
 	}
@@ -110,7 +110,7 @@ class Object {
 		}
 		$this->mModel = $pModel;
 		if($this->mModel instanceof MainModel) {
-			foreach ($this->mModel->getCompositions() as $lProperty) {
+			foreach ($this->mModel->getAggregations() as $lProperty) {
 				if (!array_key_exists($lProperty->getName(), $this->mValues)) {
 					$this->initValue($lProperty->getName(), false);
 				}

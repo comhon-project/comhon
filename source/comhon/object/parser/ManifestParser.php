@@ -7,7 +7,7 @@ use comhon\object\model\Model;
 use comhon\object\model\SimpleModel;
 use comhon\object\model\ModelForeign;
 use comhon\object\model\ForeignProperty;
-use comhon\object\model\CompositionProperty;
+use comhon\object\model\AggregationProperty;
 use comhon\object\model\Property;
 use comhon\object\model\MainModel;
 use comhon\object\parser\json\JsonManifestParser;
@@ -122,18 +122,18 @@ abstract class ManifestParser {
 	public function getCurrentProperty(Model $pPropertyModel) {
 		if ($this->_isCurrentPropertyForeign()) {
 			list($lName, $lModel, $lIsId, $lIsPrivate, $lDefault) = $this->_getBaseInfosProperty($pPropertyModel);
-			list($lSerializationName, $lCompositions, $lIsSerializable) = $this->_getBaseSerializationInfosProperty($lName);
+			list($lSerializationName, $lAggregations, $lIsSerializable) = $this->_getBaseSerializationInfosProperty($lName);
 			
 			$lModelForeign = new ModelForeign($lModel);
-			if (is_null($lCompositions)) {
+			if (is_null($lAggregations)) {
 				$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName, $lIsPrivate, $lIsSerializable);
 			} else {
-				$lProperty = new CompositionProperty($lModelForeign, $lName, $lCompositions, $lSerializationName, $lIsPrivate);
+				$lProperty = new AggregationProperty($lModelForeign, $lName, $lAggregations, $lSerializationName, $lIsPrivate);
 			}
 		}
 		else {
 			list($lName, $lModel, $lIsId, $lIsPrivate, $lDefault) = $this->_getBaseInfosProperty($pPropertyModel);
-			list($lSerializationName, $lCompositions, $lIsSerializable) = $this->_getBaseSerializationInfosProperty($lName);
+			list($lSerializationName, $lAggregations, $lIsSerializable) = $this->_getBaseSerializationInfosProperty($lName);
 			
 			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId, $lIsPrivate, $lIsSerializable, $lDefault);
 		}

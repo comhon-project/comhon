@@ -73,11 +73,11 @@ abstract class SerializationUnit extends Object {
 	 * 
 	 * @param ObjectArray $pObject
 	 * @param string|integer $pParentId
-	 * @param string[] $pCompositionProperties
+	 * @param string[] $pAggregationProperties
 	 * @param boolean $pOnlyIds
 	 * @throws \Exception
 	 */
-	public function loadComposition(ObjectArray $pObject, $pParentId, $pCompositionProperties, $pOnlyIds) {
+	public function loadAggregation(ObjectArray $pObject, $pParentId, $pAggregationProperties, $pOnlyIds) {
 		throw new \Exception('error : property is not serialized in a sql table');
 	}
 }

@@ -15,7 +15,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'list' . DIRECTORY_SEPARATOR . 'Imp
 
 // test complex request
 // property ids not overridable manifest with same serialization (sure ?)
-// replace composition by agregation
+// replace aggregation by agregation
 // mandatory value when serialize
 // manage foreign property with several id
 

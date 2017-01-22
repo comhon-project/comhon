@@ -3,9 +3,9 @@
 	<serialization type="sqlTable">main_test</serialization>
 	<properties>
 		<childrenTestDb>
-			<compositions>
-				<composition>mainParentTestDb</composition>
-			</compositions>
+			<aggregations>
+				<aggregation>mainParentTestDb</aggregation>
+			</aggregations>
 		</childrenTestDb>
 	</properties>
 </manifest>

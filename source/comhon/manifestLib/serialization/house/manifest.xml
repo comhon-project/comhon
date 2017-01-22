@@ -3,9 +3,9 @@
 	<serialization type="sqlTable">house</serialization>
 	<properties>
 		<residents>
-			<compositions>
-				<composition>house</composition>
-			</compositions>
+			<aggregations>
+				<aggregation>house</aggregation>
+			</aggregations>
 		</residents>
 	</properties>
 </manifest>

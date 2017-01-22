@@ -16,7 +16,7 @@ use comhon\object\model\ForeignProperty;
 use comhon\object\ObjectCollection;
 use comhon\controller\Controller;
 use comhon\controller\ForeignObjectLoader;
-use comhon\controller\CompositionLoader;
+use comhon\controller\AggregationLoader;
 
 abstract class ObjectLoadRequest {
 
@@ -46,10 +46,10 @@ abstract class ObjectLoadRequest {
 	
 	protected function _updateObjects($pObject) {
 		$lForeignObjectLoader       = new ForeignObjectLoader();
-		$lCompositionLoader         = new CompositionLoader();
+		$lAggregationLoader         = new AggregationLoader();
 
 		if ($this->mRequestChildren && !$this->mLoadForeignProperties) {
-			$lCompositionLoader->execute($pObject, array(CompositionLoader::LOAD_CHILDREN => $this->mLoadForeignProperties));
+			$lAggregationLoader->execute($pObject, array(AggregationLoader::LOAD_CHILDREN => $this->mLoadForeignProperties));
 		}
 		else if ($this->mLoadForeignProperties) {
 			$lForeignObjectLoader->execute($pObject, array($this->mRequestChildren));

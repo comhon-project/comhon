@@ -1,7 +1,7 @@
 {
 	"properties": {
 		"bodies": {
-			"compositions": [
+			"aggregations": [
 				"owner"
 			]
 		}

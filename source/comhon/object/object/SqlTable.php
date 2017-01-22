@@ -208,16 +208,16 @@ class SqlTable extends SerializationUnit {
 		return $lReturn;
 	}
 	
-	public function loadComposition(ObjectArray $pObject, $pParentId, $pCompositionProperties, $pOnlyIds) {
+	public function loadAggregation(ObjectArray $pObject, $pParentId, $pAggregationProperties, $pOnlyIds) {
 		$lReturn        = false;
 		$lModel         = $pObject->getModel()->getUniqueModel();
-		$lWhereColumns  = $this->getCompositionColumns($lModel, $pCompositionProperties);
+		$lWhereColumns  = $this->getAggregationColumns($lModel, $pAggregationProperties);
 		$lSelectColumns = [];
 		$lWhereValues   = [];
 		$lIdProperties  = $lModel->getIdProperties();
 		
 		if (empty($lWhereColumns)) {
-			throw new \Exception('error : property is not serialized in database composition');
+			throw new \Exception('error : property is not serialized in database aggregation');
 		}
 		foreach ($lWhereColumns as $lColumn) {
 			$lWhereValues[$lColumn] = $pParentId;
@@ -290,10 +290,10 @@ class SqlTable extends SerializationUnit {
 		return $lSuccess;
 	}
 	
-	public function getCompositionColumns($pModel, $pCompositionProperties) {
+	public function getAggregationColumns($pModel, $pAggregationProperties) {
 		$lColumns = [];
-		foreach ($pCompositionProperties as $lCompositionProperty) {
-			$lColumns[] = $pModel->getProperty($lCompositionProperty, true)->getSerializationName();
+		foreach ($pAggregationProperties as $lAggregationProperty) {
+			$lColumns[] = $pModel->getProperty($lAggregationProperty, true)->getSerializationName();
 		}
 		return $lColumns;
 	}
@@ -362,7 +362,7 @@ class SqlTable extends SerializationUnit {
 							$lCastFloatColumns[] = $lProperty->getSerializationName();
 						}
 					}
-					else if (!$lProperty->isComposition() && $lProperty->getModel()->hasUniqueIdProperty()) {
+					else if (!$lProperty->isAggregation() && $lProperty->getModel()->hasUniqueIdProperty()) {
 						if ($lProperty->getModel()->getFirstIdProperty()->isInteger()) {
 							$lCastIntegerColumns[] = $lProperty->getSerializationName();
 						} else if ($lProperty->getModel()->getFirstIdProperty()->isFloat()) {

@@ -6,7 +6,7 @@ use comhon\object\object\Object;
 
 class ForeignProperty extends Property {
 	
-	private $mCompositionProperties = null;
+	private $mAggregationProperties = null;
 	
 	public function __construct($pModel, $pName, $pSerializationName = null, $pIsPrivate = false, $pIsSerializable = true) {
 		parent::__construct($pModel, $pName, $pSerializationName, false, $pIsPrivate, $pIsSerializable);

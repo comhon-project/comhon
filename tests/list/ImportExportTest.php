@@ -463,7 +463,7 @@ if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObject) {
 	throw new \Exception('bad serial object value');
 }
 
-/********************************** test composition export *************************************/
+/********************************** test aggregation export *************************************/
 
 $lMainTestDb = MainObjectCollection::getInstance()->getObject(2, 'mainTestDb');
 $lMainTestDb->loadValueIds('childrenTestDb');

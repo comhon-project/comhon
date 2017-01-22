@@ -90,7 +90,7 @@ class Property {
 		return null;
 	}
 	
-	public function isComposition() {
+	public function isAggregation() {
 		return false;
 	}
 	
@@ -108,7 +108,7 @@ class Property {
 		return ($pPrivate || !$this->mIsPrivate) && (!$pSerialization || $this->mIsSerializable);
 	}
 	
-	public function getCompositionProperties() {
+	public function getAggregationProperties() {
 		return null;
 	}
 	
@@ -117,6 +117,6 @@ class Property {
 	}
 	
 	public function loadValueIds(ObjectArray $pObject, Object $pParentObject) {
-		throw new \Exception('cannot load composition ids, property is not composition property');
+		throw new \Exception('cannot load aggregation ids, property is not aggregation property');
 	}
 }

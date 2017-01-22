@@ -24,13 +24,13 @@
 			"serializationName": "mother_id"
 		},
 		"children": {
-			"compositions": [
+			"aggregations": [
 				"mother",
 				"father"
 			]
 		},
 		"homes": {
-			"compositions": [
+			"aggregations": [
 				"person"
 			]
 		}

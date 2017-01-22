@@ -14,7 +14,7 @@ use comhon\object\model\SimpleModel;
 use comhon\object\model\ModelContainer;
 use comhon\object\model\ForeignProperty;
 use comhon\controller\ForeignObjectLoader;
-use comhon\controller\CompositionLoader;
+use comhon\controller\AggregationLoader;
 
 class SimpleLoadRequest extends ObjectLoadRequest {
 

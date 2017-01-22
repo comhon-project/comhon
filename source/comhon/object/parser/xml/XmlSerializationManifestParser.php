@@ -24,7 +24,7 @@ class XmlSerializationManifestParser extends SerializationManifestParser {
 	
 	public function getPropertySerializationInfos($pPropertyName) {
 		$lSerializationName = null;
-		$lCompositions      = null;
+		$lAggregations      = null;
 		$lIsSerializable    = true;
 		
 		if (isset($this->mManifest->properties->$pPropertyName)) {
@@ -32,10 +32,10 @@ class XmlSerializationManifestParser extends SerializationManifestParser {
 			if (isset($lSerializationNode['serializationName'])) {
 				$lSerializationName = (string) $lSerializationNode['serializationName'];
 			}
-			if (isset($lSerializationNode->compositions->composition)) {
-				$lCompositions = [];
-				foreach ($lSerializationNode->compositions->composition as $lComposition) {
-					$lCompositions[] = (string) $lComposition;
+			if (isset($lSerializationNode->aggregations->aggregation)) {
+				$lAggregations = [];
+				foreach ($lSerializationNode->aggregations->aggregation as $lAggregation) {
+					$lAggregations[] = (string) $lAggregation;
 				}
 			}
 			if (isset($lSerializationNode["serializable"])) {
@@ -43,7 +43,7 @@ class XmlSerializationManifestParser extends SerializationManifestParser {
 			}
 		}
 		
-		return array($lSerializationName, $lCompositions, $lIsSerializable);
+		return array($lSerializationName, $lAggregations, $lIsSerializable);
 	}
 	
 	protected function _getSerialization() {

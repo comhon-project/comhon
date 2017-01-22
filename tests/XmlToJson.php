@@ -46,12 +46,12 @@ function transformSerializationt($xml, $dir) {
 			if (isset($lChild['serializationName'])) {
 				$lproperty->serializationName = (string) $lChild['serializationName'];
 			}
-			if (isset($lChild->compositions->composition)) {
-				$compositions = [];
-				foreach ($lChild->compositions->composition as $lCompo) {
-					$compositions[] = (string) $lCompo;
+			if (isset($lChild->aggregations->aggregation)) {
+				$aggregations = [];
+				foreach ($lChild->aggregations->aggregation as $lCompo) {
+					$aggregations[] = (string) $lCompo;
 				}
-				$lproperty->compositions = $compositions;
+				$lproperty->aggregations = $aggregations;
 			}
 			if (isset($lChild['serializable'])) {
 				$lproperty->is_serializable = (string) $lChild['serializable'] !== '0';

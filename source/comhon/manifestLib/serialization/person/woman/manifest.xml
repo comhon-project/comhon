@@ -3,9 +3,9 @@
 	<serialization type="sqlTable">person</serialization>
 	<properties>
 		<bodies>
-			<compositions>
-				<composition>owner</composition>
-			</compositions>
+			<aggregations>
+				<aggregation>owner</aggregation>
+			</aggregations>
 		</bodies>
 	</properties>
 </manifest>

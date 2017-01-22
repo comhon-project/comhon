@@ -26,7 +26,7 @@ abstract class Model {
 	private $mObjectClass  = 'comhon\object\object\Object';
 	private $mProperties   = [];
 	private $mIdProperties = [];
-	private $mCompositions = [];
+	private $mAggregations = [];
 	private $mPublicProperties  = [];
 	private $mSerializableProperties = [];
 	private $mPublicSerializableProperties = [];
@@ -266,8 +266,8 @@ abstract class Model {
 			if (!$lProperty->isId()) {
 				if ($lProperty->hasDefaultValue()) {
 					$this->mPropertiesWithDefaultValues[] = $lProperty;
-				} else if ($lProperty->isComposition()) {
-					$this->mCompositions[] = $lProperty;
+				} else if ($lProperty->isAggregation()) {
+					$this->mAggregations[] = $lProperty;
 				}
 				if ($lProperty->isSerializable()) {
 					$this->mSerializableProperties[$lProperty->getName()] = $lProperty;
@@ -351,10 +351,10 @@ abstract class Model {
 	
 	/**
 	 * 
-	 * @return CompositionProperty:
+	 * @return AggregationProperty:
 	 */
-	public function getCompositions() {
-		return $this->mCompositions;
+	public function getAggregations() {
+		return $this->mAggregations;
 	}
 	
 	public function getSerializationIds() {

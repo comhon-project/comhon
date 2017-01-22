@@ -10,7 +10,7 @@ use comhon\object\model\Model;
 use comhon\object\model\MainModel;
 use comhon\object\model\ModelForeign;
 
-use comhon\controller\CompositionLoader;
+use comhon\controller\AggregationLoader;
 use comhon\controller\ForeignObjectLoader;
 use comhon\visitor\ObjectCollectionCreator;
 

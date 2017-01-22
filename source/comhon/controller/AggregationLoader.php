@@ -7,12 +7,12 @@ use comhon\object\model\ForeignProperty;
 use comhon\object\model\ModelArray;
 use comhon\object\ObjectCollection;
 
-class CompositionLoader extends Controller {
+class AggregationLoader extends Controller {
 
 	const LOAD_CHILDREN = 'loadChildren';
 
 	private $mLoadChildren        = false;
-	private $mLoadedCompositions = array();
+	private $mLoadedAggregations = array();
 	
 	protected function _getMandatoryParameters() {
 		return array();
@@ -27,18 +27,18 @@ class CompositionLoader extends Controller {
 	protected function _visit($pParentObject, $pKey, $pPropertyNameStack) {
 		$lVisitChildren = true;
 		$lObject        = $pParentObject->getValue($pKey);
-		$lIsComposition = $pParentObject->hasProperty($pKey) && $pParentObject->getProperty($pKey)->isComposition();
+		$lIsAggregation = $pParentObject->hasProperty($pKey) && $pParentObject->getProperty($pKey)->isAggregation();
 		
-		if ($lIsComposition && !is_null($lObject) && ($lObject instanceof ObjectArray)) {
+		if ($lIsAggregation && !is_null($lObject) && ($lObject instanceof ObjectArray)) {
 			if (!$lObject->isLoaded()) {
 				if ($this->mLoadChildren) {
 					$pParentObject->loadValue($pKey);
 				} else {
 					$pParentObject->loadValueIds($pKey);
 				}
-				$this->mLoadedCompositions[spl_object_hash($lObject)] = null;
+				$this->mLoadedAggregations[spl_object_hash($lObject)] = null;
 			}
-			$lVisitChildren = !array_key_exists(spl_object_hash($lObject), $this->mLoadedCompositions);
+			$lVisitChildren = !array_key_exists(spl_object_hash($lObject), $this->mLoadedAggregations);
 		}
 		
 		return $lVisitChildren;
@@ -47,7 +47,7 @@ class CompositionLoader extends Controller {
 	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack) {}
 	
 	protected function _finalize($pObject) {
-		$this->mLoadedCompositions = array();
+		$this->mLoadedAggregations = array();
 	}
 	
 }
