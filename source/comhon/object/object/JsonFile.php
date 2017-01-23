@@ -3,7 +3,7 @@ namespace comhon\object\object;
 
 use comhon\object\model\Model;
 use comhon\object\MainObjectCollection;
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 
 class JsonFile extends SerializationUnit {
 	
@@ -62,7 +62,7 @@ class JsonFile extends SerializationUnit {
 	 */
 	protected function getInheritedModel($pValue, Model $pExtendsModel) {
 		return isset($pValue->{$this->mInheritanceKey}) 
-				? InstanceModel::getInstance()->getInstanceModel($pValue->{$this->mInheritanceKey}) : $pExtendsModel;
+				? ModelManager::getInstance()->getInstanceModel($pValue->{$this->mInheritanceKey}) : $pExtendsModel;
 	}
 	
 }

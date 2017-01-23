@@ -6,10 +6,6 @@ class ModelEnum extends ModelContainer {
 
 	private $mEnum;
 	
-	/**
-	 * don't instanciate a model by yourself because it take time
-	 * to get a model instance use singleton InstanceModel
-	 */
 	public final function __construct($pModel, $pEnum) {
 		if (!($pModel instanceof SimpleModel)) {
 			throw new Exception("model parameter must be an instanceof SimpleModel");

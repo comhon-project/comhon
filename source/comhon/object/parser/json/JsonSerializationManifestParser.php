@@ -5,74 +5,43 @@ namespace comhon\object\parser\json;
 use comhon\object\model\Model;
 use comhon\object\model\MainModel;
 use comhon\object\parser\SerializationManifestParser;
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 
-class JsonSerializationManifestParser extends SerializationManifestParser {
+abstract class JsonSerializationManifestParser extends SerializationManifestParser {
 
-	
 	/**
-	 * @param string $pManifestPath_afe
+	 * verifiy if manifest has good type
+	 * @param [] $pManifest
 	 */
-	protected function _loadManifest($pManifestPath_afe) {
-		$this->mManifest = json_decode(file_get_contents($pManifestPath_afe));
-		
-		if ($this->mManifest === false || is_null($this->mManifest)) {
-			throw new \Exception("serialization manifest file not found '$pManifestPath_afe'");
+	public function _verifManifest($pManifest) {
+		if (!($pManifest instanceof \stdClass)) {
+			throw new \Exception('loaded manifest should be an instance of stdClass');
 		}
-	}	
+	}
 
+	/**
+	 *
+	 * @param Model $pModel
+	 * @param string $pManifestPath_afe
+	 * @param string $pSerializationManifestPath_afe
+	 * @throws \Exception
+	 * @return ManifestParser
+	 */
+	public static function getVersionnedInstance($pModel, $pSerializationManifestPath_afe) {
+		$lManifest = json_decode(file_get_contents($pSerializationManifestPath_afe));
 	
-	public function getPropertySerializationInfos($pPropertyName) {
-		$lSerializationName = null;
-		$lAggregations      = null;
-		$lIsSerializable    = true;
-		
-		if (isset($this->mManifest->properties->$pPropertyName)) {
-			$lSerializationNode = $this->mManifest->properties->$pPropertyName;
-			if (isset($lSerializationNode->serializationName)) {
-				$lSerializationName = $lSerializationNode->serializationName;
-			}
-			if (isset($lSerializationNode->aggregations)) {
-				$lAggregations = [];
-				foreach ($lSerializationNode->aggregations as $lAggregation) {
-					$lAggregations[] = $lAggregation;
-				}
-			}
-			if (isset($lSerializationNode->is_serializable)) {
-				$lIsSerializable = $lSerializationNode->is_serializable;
-			}
+		if ($lManifest === false || is_null($lManifest)) {
+			throw new \Exception("serialization manifest file not found or malformed '$pSerializationManifestPath_afe'");
 		}
-		
-		return array($lSerializationName, $lAggregations, $lIsSerializable);
-	}
 	
-	protected function _getSerialization() {
-		return isset($this->mManifest->serialization)
-					? $this->_buildSerialization($this->mManifest->serialization)
-					: null;
-	}
-	
-	private function _buildSerialization($pSerializationNode) {
-		$lType = $pSerializationNode->type;
-		if (isset($pSerializationNode->value)) {
-			$lSerialization = InstanceModel::getInstance()->getInstanceModel($lType)->getObjectInstance();
-			$lSerialization->fromStdObject($pSerializationNode->value, true, true);
-		} else if (isset($pSerializationNode->id)) {
-			$lId = $pSerializationNode->id;
-			if (empty($lId)) {
-				throw new \Exception('malformed serialization, must have description or id');
-			}
-			$lSerialization =  InstanceModel::getInstance()->getInstanceModel($lType)->loadObject($lId);
-			if (is_null($lSerialization)) {
-				throw new \Exception("impossible to load $lType serialization with id '$lId'");
-			}
-		} else {
-			throw new \Exception('malformed serialization');
+		if (!isset($lManifest->version)) {
+			throw new \Exception("serialization manifest '$pSerializationManifestPath_afe' doesn't have version");
 		}
-		if (isset($pSerializationNode->inheritanceKey)) {
-			$lSerialization->setInheritanceKey($pSerializationNode->inheritanceKey);
+		$lVersion = (string) $lManifest->version;
+		switch ($lVersion) {
+			case '2.0': return new v_2_0\JsonSerializationManifestParser($pModel, $lManifest);
+			default:    throw new \Exception("version $lVersion not recognized for manifest $pSerializationManifestPath_afe");
 		}
-		return $lSerialization;
 	}
 	
 }

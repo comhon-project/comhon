@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifests>
+<manifests version="2.0">
 	<person>person/manifest.xml</person>
 	<man>person/man/manifest.xml</man>
 	<woman>person/woman/manifest.xml</woman>

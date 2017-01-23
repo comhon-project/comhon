@@ -1,8 +1,8 @@
 <?php
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 
-$lTestXmlModel = InstanceModel::getInstance()->getInstanceModel('testXml');
+$lTestXmlModel = ModelManager::getInstance()->getInstanceModel('testXml');
 $lTestXml = $lTestXmlModel->loadObject('plop2');
 
 $lTestXml->setId('plop4');

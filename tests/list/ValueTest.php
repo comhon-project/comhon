@@ -1,6 +1,6 @@
 <?php
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\object\Object;
 use comhon\api\ObjectService;
 use comhon\object\object\SqlTable;
@@ -168,7 +168,7 @@ foreach ($lMainParentTestDb->getValue('childrenTestDb')->getValues() as $lValue)
 
 /** ****************************** test default values ****************************** **/
 
-$lTestModel = InstanceModel::getInstance()->getInstanceModel('test');
+$lTestModel = ModelManager::getInstance()->getInstanceModel('test');
 $lTest = $lTestModel->getObjectInstance();
 $lTest->initValue('objectValue');
 

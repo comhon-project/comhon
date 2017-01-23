@@ -4,7 +4,7 @@ namespace comhon\api;
 use comhon\database\LogicalJunction;
 use comhon\database\Literal;
 use comhon\object\ComplexLoadRequest;
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\SimpleLoadRequest;
 
 class ObjectService {

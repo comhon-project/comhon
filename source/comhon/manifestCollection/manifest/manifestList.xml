@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifests>
+<manifests version="2.0">
 	<config>config/manifest.xml</config>
 	<sqlDatabase>sqlDatabase/manifest.xml</sqlDatabase>
 	<sqlTable>sqlTable/manifest.xml</sqlTable>

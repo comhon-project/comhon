@@ -1,7 +1,7 @@
 <?php
 namespace comhon\object\model;
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\object\SqlTable;
 use comhon\object\object\Object;
 use comhon\object\object\ObjectArray;
@@ -14,10 +14,10 @@ class LocalModel extends Model {
 	
 	/**
 	 * don't instanciate a model by yourself because it take time
-	 * to get a model instance use singleton InstanceModel
+	 * to get a model instance use singleton ModelManager
 	 */
 	public function __construct($pModelName, $pMainModelName, $pLoadModel) {
-		$this->mMainModel = InstanceModel::getInstance()->getInstanceModel($pMainModelName);
+		$this->mMainModel = ModelManager::getInstance()->getInstanceModel($pMainModelName);
 		parent::__construct($pModelName, $pLoadModel);
 	}
 	
@@ -42,7 +42,7 @@ class LocalModel extends Model {
 		if (is_null($pInheritanceModelName)) {
 			$lModel = $this;
 		} else {
-			$lModel = InstanceModel::getInstance()->getInstanceModel($pInheritanceModelName, $this->getMainModelName());
+			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $this->getMainModelName());
 			if (!$lModel->isInheritedFrom($this)) {
 				throw new \Exception("model '{$lModel->getModelName()}' doesn't inherit from '{$this->getModelName()}'");
 			}

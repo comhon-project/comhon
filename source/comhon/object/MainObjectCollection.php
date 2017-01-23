@@ -4,7 +4,7 @@ namespace comhon\object;
 use comhon\object\object\Object;
 use comhon\object\model\Model;
 use comhon\object\model\MainModel;
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 
 class MainObjectCollection extends ObjectCollection {
 	
@@ -30,7 +30,7 @@ class MainObjectCollection extends ObjectCollection {
 	public function getObject($pId, $pModelName, $pInlcudeInheritance = true) {
 		$lObject = parent::getObject($pId, $pModelName);
 		if (is_null($lObject) && $pInlcudeInheritance) {
-			$lCurrentModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
+			$lCurrentModel = ModelManager::getInstance()->getInstanceModel($pModelName);
 			$lSerialization = $lCurrentModel->getSerialization();
 			
 			if (!is_null($lSerialization)) {
@@ -61,7 +61,7 @@ class MainObjectCollection extends ObjectCollection {
 	public function hasObject($pId, $pModelName, $pInlcudeInheritance = true) {
 		$lHasObject = parent::hasObject($pId, $pModelName);
 		if (!$lHasObject && $pInlcudeInheritance) {
-			$lCurrentModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
+			$lCurrentModel = ModelManager::getInstance()->getInstanceModel($pModelName);
 			$lSerialization = $lCurrentModel->getSerialization();
 			
 			if (!is_null($lSerialization)) {

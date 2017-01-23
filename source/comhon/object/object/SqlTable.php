@@ -5,7 +5,7 @@ use comhon\database\DatabaseController;
 use comhon\database\LogicalJunction;
 use comhon\database\SelectQuery;
 use comhon\database\Literal;
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\model\ModelForeign;
 use comhon\object\model\ModelArray;
 use comhon\object\object\ObjectArray;
@@ -305,7 +305,7 @@ class SqlTable extends SerializationUnit {
 	 */
 	protected function getInheritedModel($pValue, Model $pExtendsModel) {
 		return array_key_exists($this->mInheritanceKey, $pValue) && !is_null($pValue[$this->mInheritanceKey]) 
-				? InstanceModel::getInstance()->getInstanceModel($pValue[$this->mInheritanceKey]) : $pExtendsModel;
+				? ModelManager::getInstance()->getInstanceModel($pValue[$this->mInheritanceKey]) : $pExtendsModel;
 	}
 	
 	public static function getDatabaseConnectionTimeZone() {

@@ -1,7 +1,10 @@
 {
-	"config"     :"config/manifest.json",
-	"sqlDatabase":"sqlDatabase/manifest.json",
-	"sqlTable"   :"sqlTable/manifest.json",
-	"jsonFile"   :"jsonFile/manifest.json",
-	"xmlFile"    :"xmlFile/manifest.json"
+	"version" : "2.0",
+	"list" : {
+		"config"     :"config/manifest.json",
+		"sqlDatabase":"sqlDatabase/manifest.json",
+		"sqlTable"   :"sqlTable/manifest.json",
+		"jsonFile"   :"jsonFile/manifest.json",
+		"xmlFile"    :"xmlFile/manifest.json"
+	}
 }

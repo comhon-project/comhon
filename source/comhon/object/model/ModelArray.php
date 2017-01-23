@@ -13,10 +13,6 @@ class ModelArray extends ModelContainer {
 	 */
 	private $mElementName;
 	
-	/**
-	 * don't instanciate a model by yourself because it take time
-	 * to get a model instance use singleton InstanceModel
-	 */
 	public function __construct($pModel, $pElementName) {
 		parent::__construct($pModel);
 		$this->mElementName = $pElementName;

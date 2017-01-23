@@ -1,7 +1,7 @@
 <?php
 namespace comhon\database;
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\model\ForeignProperty;
 use comhon\object\model\ModelContainer;
 use comhon\object\ComplexLoadRequest;

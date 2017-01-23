@@ -1,7 +1,7 @@
 <?php
 namespace comhon\object\model;
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\object\SqlTable;
 use comhon\object\object\Object;
 use comhon\object\object\ObjectArray;
@@ -36,7 +36,7 @@ abstract class Model {
 	
 	/**
 	 * don't instanciate a model by yourself because it take time
-	 * to get a model instance use singleton InstanceModel
+	 * to get a model instance use singleton ModelManager
 	 */
 	public function __construct($pModelName, $pLoadModel) {
 		$this->mModelName = $pModelName;
@@ -48,12 +48,12 @@ abstract class Model {
 	public final function load() {
 		if (!$this->mIsLoaded && !$this->mIsLoading) {
 			$this->mIsLoading = true;
-			$lResult = InstanceModel::getInstance()->getProperties($this);
-			$this->mExtendsModel = $lResult[InstanceModel::EXTENDS_MODEL];
-			$this->_setProperties($lResult[InstanceModel::PROPERTIES]);
+			$lResult = ModelManager::getInstance()->getProperties($this);
+			$this->mExtendsModel = $lResult[ModelManager::EXTENDS_MODEL];
+			$this->_setProperties($lResult[ModelManager::PROPERTIES]);
 			
-			if (!is_null($lResult[InstanceModel::OBJECT_CLASS])) {
-				$this->mObjectClass = $lResult[InstanceModel::OBJECT_CLASS];
+			if (!is_null($lResult[ModelManager::OBJECT_CLASS])) {
+				$this->mObjectClass = $lResult[ModelManager::OBJECT_CLASS];
 			}
 			$this->_setSerialization();
 			$this->_init();
@@ -83,6 +83,10 @@ abstract class Model {
 	
 	public function getExtendsModel() {
 		return $this->mExtendsModel;
+	}
+	
+	public function hasExtendsModel() {
+		return !is_null($this->mExtendsModel);
 	}
 	
 	public function isInheritedFrom(Model $pModel) {

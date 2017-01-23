@@ -55,4 +55,20 @@ class AggregationProperty extends ForeignProperty {
 		return $lSqlTableUnit->loadAggregation($pObjectArray, $pParentObject->getId(), $this->mAggregationProperties, true);
 	}
 	
+	/**
+	 *
+	 * @param Property $pProperty
+	 * @return boolean
+	 */
+	public function isEqual(Property $pProperty) {
+		if (count($this->mAggregationProperties) != count($pProperty->getAggregationProperties())) {
+			return false;
+		}
+		foreach ($pProperty->getAggregationProperties() as $lPropertyName) {
+			if (!in_array($lPropertyName, $this->mAggregationProperties)) {
+				return false;
+			}
+		}
+		return parent::isEqual($pProperty);
+	}
 }

@@ -22,8 +22,17 @@ use comhon\object\object\Config;
 use comhon\object\parser\ManifestParser;
 use comhon\object\parser\SerializationManifestParser;
 
-class JsonManifestParser extends ManifestParser {
+abstract class JsonManifestParser extends ManifestParser {
 
+	/**
+	 * verifiy if manifest has good type
+	 * @param [] $pManifest
+	 */
+	public function _verifManifest($pManifest) {
+		if (!is_array($pManifest)) {
+			throw new \Exception('loaded manifest should be an associative array');
+		}
+	}
 	
 	/**
 	 * register path of each manifest
@@ -39,12 +48,30 @@ class JsonManifestParser extends ManifestParser {
 		if ($lManifestList === false || is_null($lManifestList)) {
 			throw new \Exception("manifestList file not found or malformed '$pManifestListPath_afe'");
 		}
-		foreach ($lManifestList as $lModelName => $lManifestPath_rfe) {
+		if (!isset($lManifestList['version'])) {
+			throw new \Exception("manifest list '$pManifestListPath_afe' doesn't have version");
+		}
+		$lVersion = $lManifestList['version'];
+		switch ($lVersion) {
+			case '2.0': return self::_registerComplexModels_2_0($lManifestList, $lManifestListFolder_ad, $pSerializationMap, $pModelMap);
+			default:    throw new \Exception("version $lVersion not recognized for manifest list $pManifestListPath_afe");
+		}
+	}
+	
+	/**
+	 *
+	 * @param [] $pManifestList
+	 * @param string $pManifestListFolder_ad
+	 * @param string[] $pSerializationMap
+	 * @param array $pModelMap
+	 */
+	protected static function _registerComplexModels_2_0($pManifestList, $pManifestListFolder_ad, $pSerializationMap, &$pModelMap) {
+		foreach ($pManifestList['list'] as $lModelName => $lManifestPath_rfe) {
 			if (array_key_exists($lModelName, $pModelMap)) {
 				throw new Exception("several model with same type : '$lModelName'");
 			}
 			$lSerializationPath_afe = array_key_exists($lModelName, $pSerializationMap) ? $pSerializationMap[$lModelName] : null;
-			$pModelMap[$lModelName] = array($lManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe);
+			$pModelMap[$lModelName] = array($pManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe);
 		}
 	}
 	
@@ -62,137 +89,52 @@ class JsonManifestParser extends ManifestParser {
 		if ($lSerializationList === false || is_null($lSerializationList)) {
 			throw new \Exception("serializationList file not found or malformed '$pSerializationListPath_afe'");
 		}
-		foreach ($lSerializationList as $lModelName => $lSerializationPath_rfe) {
-			$lSerializationMap[$lModelName] = $pSerializationListFolrder_ad.'/'.$lSerializationPath_rfe;
+		if (!isset($lSerializationList['version'])) {
+			throw new \Exception("serialization list '$pSerializationListPath_afe' doesn't have version");
 		}
-	
-		return $lSerializationMap;
-	}
-	
-	/**
-	 * @param string $pManifestPath_afe
-	 */
-	public function _loadManifest($pManifestPath_afe) {
-		$this->mManifest = json_decode(file_get_contents($pManifestPath_afe), true);
-	
-		if ($this->mManifest === false || is_null($this->mManifest)) {
-			throw new \Exception("manifest file not found or malformed '$pManifestPath_afe'");
+		$lVersion = (string) $lSerializationList['version'];
+		switch ($lVersion) {
+			case '2.0': return self::_getSerializationMap_2_0($lSerializationList, $pSerializationListFolrder_ad);
+			default:    throw new \Exception("version $lVersion not recognized for serialization list $pSerializationListPath_afe");
 		}
-	}
-	
-	public function getExtends() {
-		if ($this->mFocusLocalTypes)  {
-			return isset(current($this->mLocalTypes)[self::_EXTENDS]) ? current($this->mLocalTypes)[self::_EXTENDS] : null;
-		} else {
-			return isset($this->mManifest[self::_EXTENDS]) ? $this->mManifest[self::_EXTENDS] : null;
-		}
-	}
-	
-	public function getObjectClass() {
-		if ($this->mFocusLocalTypes)  {
-			return isset(current($this->mLocalTypes)[self::_OBJECT]) ? current($this->mLocalTypes)[self::_OBJECT] : null;
-		} else {
-			return isset($this->mManifest[self::_OBJECT]) ? $this->mManifest[self::_OBJECT] : null;
-		}
-	}
-	
-	public function getCurrentLocalTypeId() {
-		return key($this->mLocalTypes);
-	}
-	
-	protected function _getLocalTypes() {
-		return array_key_exists('types', $this->mManifest) ? $this->mManifest['types'] : [];
-	}
-	
-	protected function _getCurrentProperties() {
-		return $this->mFocusLocalTypes ? current($this->mLocalTypes)['properties'] : $this->mManifest['properties'];
-	}
-	
-	public function getCurrentPropertyModelName() {
-		return $this->_getPropertyModelName(current($this->mCurrentProperties));
-	}
-	
-	private function _getPropertyModelName($pProperty) {
-		$lModelName = $pProperty['type'];
-		if ($lModelName == 'array') {
-			$lModelName = $this->_getPropertyModelName($pProperty['values']);
-		}
-		return $lModelName;
-	}
-	
-	/**
-	 * @return string
-	 */
-	protected function _isCurrentPropertyForeign() {
-		$lCurrentProperty = current($this->mCurrentProperties);
-		return isset($lCurrentProperty['is_foreign']) && $lCurrentProperty['is_foreign'];
-	}
-	
-	protected function _getBaseInfosProperty(Model $pPropertyModel) {
-		$lCurrentPropertyJson = current($this->mCurrentProperties);
-	
-		$lName      = key($this->mCurrentProperties);
-		$lIsId      = array_key_exists('is_id', $lCurrentPropertyJson) && $lCurrentPropertyJson['is_id'];
-		$lIsPrivate = array_key_exists('is_private', $lCurrentPropertyJson) && $lCurrentPropertyJson['is_private'];
-		$lModel     = $this->_completePropertyModel($lCurrentPropertyJson, $pPropertyModel);
-		
-		if (array_key_exists('default', $lCurrentPropertyJson)) {
-			if ($lModel instanceof ModelDateTime) {
-				$lDefault = $lCurrentPropertyJson['default'];
-				if (new \DateTime($lDefault) === false) {
-					throw new \Exception('invalid default value time format : '.$lDefault);
-				}
-			} else if (($lModel instanceof SimpleModel) || ($lModel instanceof ModelEnum)) {
-				$lDefault = $lCurrentPropertyJson['default'];
-			} else {
-				throw new \Exception('default value can\'t be applied on complex model');
-			}
-		} else {
-			$lDefault = null;
-		}
-		
-		return array($lName, $lModel, $lIsId, $lIsPrivate, $lDefault);
-	}
-	
-	/**
-	 * add model container if needed
-	 * @param \SimpleJsonElement $pPropertyJson
-	 * @param Model $pModel
-	 * @throws \Exception
-	 * @return Model
-	 */
-	private function _completePropertyModel($pPropertyJson, $pModel) {
-		$lPropertyModel = null;
-		$lTypeId        = $pPropertyJson['type'];
-	
-		if ($lTypeId == 'array') {
-			if (!isset($pPropertyJson['values']['name'])) {
-				throw new \Exception('type array must have a values name. property');
-			}
-			$lPropertyModel = new ModelArray($this->_completePropertyModel($pPropertyJson['values'], $pModel), $pPropertyJson['values']['name']);
-		}
-		else {
-			if ($pModel->getModelName() !== $lTypeId) {
-				throw new \Exception('model doesn\'t match with type');
-			}
-			$lPropertyModel = isset($pPropertyJson['enum']) ? new ModelEnum($pModel, $pPropertyJson['enum']) : $pModel;
-		}
-		return $lPropertyModel;
 	}
 	
 	/**
 	 *
-	 * @param array $pInstanceModels
-	 * @throws Exception
+	 * @param [] $pSerializationList
+	 * @param string $pSerializationListFolrder_ad
+	 * @return string[]
 	 */
-	public function registerComplexLocalModels(&$pInstanceModels, $pManifestPath_ad) {
-		if (isset($this->mManifest['manifests'])) {
-			foreach ($this->mManifest['manifests'] as $lType => $lManifestPath_rfe) {
-				if (array_key_exists($lType, $pInstanceModels)) {
-					throw new Exception("several model with same type : '$lType'");
-				}
-				$pInstanceModels[$lType] = array($pManifestPath_ad.'/'.$lManifestPath_rfe, null);
-			}
+	protected static function _getSerializationMap_2_0($pSerializationList, $pSerializationListFolrder_ad) {
+		$lSerializationMap = [];
+		foreach ($pSerializationList['list'] as $lModelName => $lSerializationPath_rfe) {
+			$lSerializationMap[$lModelName] = $pSerializationListFolrder_ad.'/'.$lSerializationPath_rfe;
+		}
+		return $lSerializationMap;
+	}
+	
+	/**
+	 *
+	 * @param Model $pModel
+	 * @param string $pManifestPath_afe
+	 * @param string $pSerializationManifestPath_afe
+	 * @throws \Exception
+	 * @return ManifestParser
+	 */
+	public static function getVersionnedInstance($pModel, $pManifestPath_afe, $pSerializationManifestPath_afe) {
+		$lManifest = json_decode(file_get_contents($pManifestPath_afe), true);
+	
+		if ($lManifest === false || is_null($lManifest)) {
+			throw new \Exception("manifest file not found or malformed '$pManifestPath_afe'");
+		}
+	
+		if (!isset($lManifest['version'])) {
+			throw new \Exception("manifest '$pManifestPath_afe' doesn't have version");
+		}
+		$lVersion = (string) $lManifest['version'];
+		switch ($lVersion) {
+			case '2.0': return new v_2_0\JsonManifestParser($pModel, $lManifest, $pSerializationManifestPath_afe);
+			default:    throw new \Exception("version $lVersion not recognized for manifest $pManifestPath_afe");
 		}
 	}
 	

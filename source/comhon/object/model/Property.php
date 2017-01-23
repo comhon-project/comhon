@@ -119,4 +119,22 @@ class Property {
 	public function loadValueIds(ObjectArray $pObject, Object $pParentObject) {
 		throw new \Exception('cannot load aggregation ids, property is not aggregation property');
 	}
+	
+	/**
+	 * 
+	 * @param Property $pProperty
+	 * @return boolean
+	 */
+	public function isEqual(Property $pProperty) {
+		return $this === $pProperty || (
+			get_class($this)          === get_class($pProperty) &&
+			$this->mModel             === $pProperty->getModel() &&
+			$this->mName              === $pProperty->getName() &&
+			$this->mIsId              === $pProperty->isId() &&
+			$this->mIsPrivate         === $pProperty->isPrivate() &&
+			$this->mDefault           === $pProperty->getDefaultValue() &&
+			$this->mIsSerializable    === $pProperty->isSerializable() &&
+			$this->mSerializationName === $pProperty->getSerializationName()
+		);
+	}
 }

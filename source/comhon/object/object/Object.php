@@ -1,7 +1,7 @@
 <?php
 namespace comhon\object\object;
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\model\ForeignProperty;
 use comhon\object\model\Model;
 use comhon\object\model\MainModel;
@@ -27,7 +27,7 @@ class Object {
 		if (is_object($pModel) && ($pModel instanceof Model)) {
 			$this->mModel = $pModel;
 		}else {
-			$this->mModel = InstanceModel::getInstance()->getInstanceModel($pModel);
+			$this->mModel = ModelManager::getInstance()->getInstanceModel($pModel);
 		}
 		if (($this instanceof ObjectArray) && !($this->mModel instanceof ModelArray)) {
 			throw new \Exception('ObjectArray must have ModelArray');

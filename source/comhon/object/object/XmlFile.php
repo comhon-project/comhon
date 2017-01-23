@@ -3,7 +3,7 @@ namespace comhon\object\object;
 
 use comhon\object\MainObjectCollection;
 use comhon\object\model\Model;
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 
 class XmlFile extends SerializationUnit {
 	
@@ -61,7 +61,7 @@ class XmlFile extends SerializationUnit {
 	 */
 	protected function getInheritedModel($pValue, Model $pExtendsModel) {
 		return isset($pValue[$this->mInheritanceKey]) 
-				? InstanceModel::getInstance()->getInstanceModel((string) $pValue[$this->mInheritanceKey]) : $pExtendsModel;
+				? ModelManager::getInstance()->getInstanceModel((string) $pValue[$this->mInheritanceKey]) : $pExtendsModel;
 	}
 	
 }

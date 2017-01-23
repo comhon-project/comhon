@@ -14,16 +14,17 @@ abstract class SerializationManifestParser {
 
 	public abstract function getPropertySerializationInfos($pPropertyName);
 	
-	protected abstract function _loadManifest($pManifestPath_afe);
+	protected abstract function _verifManifest($pManifestPath);
 	protected abstract function _getSerialization();
 	
 	/**
 	 * @param Model $pModel
-	 * @param string $pManifestPath_afe
+	 * @param string $pManifest
 	 */
-	public final function __construct(MainModel $pModel, $pManifestPath_afe) {
+	public final function __construct(MainModel $pModel, $pManifest) {
+		$this->_verifManifest($pManifest);
 		$this->mModel    = $pModel;
-		$this->_loadManifest($pManifestPath_afe);
+		$this->mManifest = $pManifest;
 	}
 	
 	/**
@@ -36,10 +37,10 @@ abstract class SerializationManifestParser {
 	public static function getInstance(Model $pModel, $pSerializationManifestPath_afe) {
 		switch (mb_strtolower(pathinfo($pSerializationManifestPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
-				return new XmlSerializationManifestParser($pModel, $pSerializationManifestPath_afe);
+				return XmlSerializationManifestParser::getVersionnedInstance($pModel, $pSerializationManifestPath_afe);
 				break;
 			case 'json':
-				return new JsonSerializationManifestParser($pModel, $pSerializationManifestPath_afe);
+				return JsonSerializationManifestParser::getVersionnedInstance($pModel, $pSerializationManifestPath_afe);
 				break;
 			default:
 				throw new \Exception('extension not recognized for manifest file : '.$pSerializationManifestPath_afe);

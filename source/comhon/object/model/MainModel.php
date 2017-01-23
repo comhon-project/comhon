@@ -1,7 +1,7 @@
 <?php
 namespace comhon\object\model;
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\object\SqlTable;
 use comhon\object\object\Object;
 use comhon\object\object\ObjectArray;
@@ -18,8 +18,18 @@ class MainModel extends Model {
 	
 	protected final function _setSerialization() {
 		if (!$this->mSerializationInitialised) {
-			$this->mSerialization = InstanceModel::getInstance()->getSerialization($this);
+			$this->mSerialization = ModelManager::getInstance()->getSerialization($this);
 			$this->mSerializationInitialised = true;
+		}
+		if ($this->hasExtendsModel()) {
+			if (count($this->getIdProperties()) != count($this->getExtendsModel()->getIdProperties())) {
+				throw new \Exception('extended model with same serialization doesn\'t have same id(s)');
+			}
+			foreach ($this->getExtendsModel()->getIdProperties() as $lPropertyName => $lProperty) {
+				if (!$this->hasIdProperty($lPropertyName) || !$lProperty->isEqual($this->getIdProperty($lPropertyName))) {
+					throw new \Exception('extended model with same serialization doesn\'t have same id(s)');
+				}
+			}
 		}
 	}
 	
@@ -417,13 +427,13 @@ class MainModel extends Model {
 		if (is_null($pInheritanceModelName)) {
 			$lModel = $this;
 		} else {
-			if (InstanceModel::getInstance()->hasModel($pInheritanceModelName)) {
-				if (InstanceModel::getInstance()->hasModel($pInheritanceModelName, $this->mModelName)) {
+			if (ModelManager::getInstance()->hasModel($pInheritanceModelName)) {
+				if (ModelManager::getInstance()->hasModel($pInheritanceModelName, $this->mModelName)) {
 					throw new \Exception("cannot determine if model '$pInheritanceModelName' is local or main model");
 				}
-				$lModel = InstanceModel::getInstance()->getInstanceModel($pInheritanceModelName);
+				$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName);
 			} else {
-				$lModel = InstanceModel::getInstance()->getInstanceModel($pInheritanceModelName, $this->mModelName);
+				$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $this->mModelName);
 			}
 			if (!$lModel->isInheritedFrom($this)) {
 				throw new \Exception("model '{$lModel->getModelName()}' doesn't inherit from '{$this->getModelName()}'");

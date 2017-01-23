@@ -28,9 +28,9 @@ abstract class ManifestParser {
 	public abstract function getObjectClass();
 	public abstract function getCurrentLocalTypeId();
 	public abstract function getCurrentPropertyModelName();
-	
+
+	protected abstract function _verifManifest($pManifest);
 	protected abstract function _getLocalTypes();
-	protected abstract function _loadManifest($pManifestPath_afe);
 	protected abstract function _getCurrentProperties();
 	protected abstract function _getBaseInfosProperty(Model $pPropertyModel);
 	protected abstract function _isCurrentPropertyForeign();
@@ -40,8 +40,9 @@ abstract class ManifestParser {
 	 * @param string $pManifestPath_afe
 	 * @param string $pSerializationManifestPath_afe
 	 */
-	public final function __construct(Model $pModel, $pManifestPath_afe, $pSerializationManifestPath_afe = null) {
-		$this->_loadManifest($pManifestPath_afe);
+	public final function __construct(Model $pModel, $pManifest, $pSerializationManifestPath_afe = null) {
+		$this->_verifManifest($pManifest);
+		$this->mManifest          = $pManifest;
 		$this->mCurrentProperties = $this->_getCurrentProperties();
 		$this->mLocalTypes        = $this->_getLocalTypes();
 		
@@ -190,10 +191,10 @@ abstract class ManifestParser {
 	public static function getInstance(Model $pModel, $pManifestPath_afe, $pSerializationManifestPath_afe) {
 		switch (mb_strtolower(pathinfo($pManifestPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
-				return new XmlManifestParser($pModel, $pManifestPath_afe, $pSerializationManifestPath_afe);
+				return XmlManifestParser::getVersionnedInstance($pModel, $pManifestPath_afe, $pSerializationManifestPath_afe);
 				break;
 			case 'json':
-				return new JsonManifestParser($pModel, $pManifestPath_afe, $pSerializationManifestPath_afe);
+				return JsonManifestParser::getVersionnedInstance($pModel, $pManifestPath_afe, $pSerializationManifestPath_afe);
 				break;
 			default:
 				throw new \Exception('extension not recognized for manifest file : '.$pManifestPath_afe);

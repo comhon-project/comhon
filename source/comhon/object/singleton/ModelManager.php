@@ -22,7 +22,7 @@ use comhon\object\object\SerializationUnit;
 use comhon\object\object\Config;
 use comhon\object\parser\ManifestParser;
 
-class InstanceModel {
+class ModelManager {
 
 	const PROPERTIES     = 'properties';
 	const OBJECT_CLASS   = 'objectClass';

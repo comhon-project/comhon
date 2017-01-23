@@ -1,6 +1,6 @@
 <?php
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\ComplexLoadRequest;
 use comhon\object\object\Object;
 use comhon\object\SimpleLoadRequest;
@@ -16,18 +16,18 @@ use comhon\visitor\ObjectCollectionCreator;
 
 $time_start = microtime(true);
 
-if (!InstanceModel::getInstance()->hasInstanceModel('config')) {
+if (!ModelManager::getInstance()->hasInstanceModel('config')) {
 	throw new Exception('model not initialized');
 }
-if (!InstanceModel::getInstance()->isModelLoaded('config')) {
+if (!ModelManager::getInstance()->isModelLoaded('config')) {
 	throw new Exception('model must be loaded');
 }
-if (InstanceModel::getInstance()->hasInstanceModel('sqlTable')) {
+if (ModelManager::getInstance()->hasInstanceModel('sqlTable')) {
 	throw new Exception('model already initialized');
 }
 
-$lTestModel    = InstanceModel::getInstance()->getInstanceModel('test');
-$lTestModelTow = InstanceModel::getInstance()->getInstanceModel('test');
+$lTestModel    = ModelManager::getInstance()->getInstanceModel('test');
+$lTestModelTow = ModelManager::getInstance()->getInstanceModel('test');
 
 /** ****************************** same test model instance ****************************** **/
 if ($lTestModel !== $lTestModelTow) {
@@ -43,17 +43,17 @@ if (json_encode($lTestModel->getPropertiesNames()) !== '["name","stringValue","f
 }
 
 /** ******************** test local model 'personLocal' load status ******************** **/
-if (!InstanceModel::getInstance()->hasInstanceModel('personLocal', 'test')) {
+if (!ModelManager::getInstance()->hasInstanceModel('personLocal', 'test')) {
 	throw new Exception('model not initialized');
 }
-if (InstanceModel::getInstance()->isModelLoaded('personLocal', 'test')) {
+if (ModelManager::getInstance()->isModelLoaded('personLocal', 'test')) {
 	throw new Exception('model must be not loaded');
 }
 /** ******************** load model 'personLocal' by calling getmodel() ******************** **/
 $lLocalPersonModel = $lTestModel->getProperty('objectContainer')->getModel()->getProperty('person')->getModel();
 
 /** ******************** test local model 'personLocal' load status ******************** **/
-if (!InstanceModel::getInstance()->isModelLoaded('personLocal', 'test')) {
+if (!ModelManager::getInstance()->isModelLoaded('personLocal', 'test')) {
 	throw new Exception('model must be loaded');
 }
 if (!$lLocalPersonModel->isLoaded()) {
@@ -61,7 +61,7 @@ if (!$lLocalPersonModel->isLoaded()) {
 }
 
 /** ****************************** same model instance ****************************** **/
-if ($lLocalPersonModel !== InstanceModel::getInstance()->getInstanceModel('personLocal', 'test')) {
+if ($lLocalPersonModel !== ModelManager::getInstance()->getInstanceModel('personLocal', 'test')) {
 	throw new Exception('models haven\'t same instance');
 }
 
@@ -75,10 +75,10 @@ if (json_encode($lLocalPersonModel->getPropertiesNames()) !== '["id","firstName"
 
 /** ****************************** test load status of model 'place' ****************************** **/
 
-if (!InstanceModel::getInstance()->hasInstanceModel('place')) {
+if (!ModelManager::getInstance()->hasInstanceModel('place')) {
 	throw new Exception('model \'place\' not initialized');
 }
-if (InstanceModel::getInstance()->isModelLoaded('place')) {
+if (ModelManager::getInstance()->isModelLoaded('place')) {
 	throw new Exception('model must be not loaded');
 }
 
@@ -93,14 +93,14 @@ if (!($lPlaceModel instanceof MainModel)) {
 }
 
 
-if (!InstanceModel::getInstance()->hasInstanceModel('place')) {
+if (!ModelManager::getInstance()->hasInstanceModel('place')) {
 	throw new Exception('model \'place\' not initialized');
 }
-if (!InstanceModel::getInstance()->isModelLoaded('place')) {
+if (!ModelManager::getInstance()->isModelLoaded('place')) {
 	throw new Exception('model must be loaded');
 }
 
-$lPlaceModelTow = InstanceModel::getInstance()->getInstanceModel('place');
+$lPlaceModelTow = ModelManager::getInstance()->getInstanceModel('place');
 
 /** ****************************** same place model instance ****************************** **/
 if ($lPlaceModel !== $lPlaceModelTow) {
@@ -111,15 +111,15 @@ if ($lPlaceModel !== $lPlaceModelTow) {
 /** ****************************** basic test for model 'testDb' ****************************** **/
 
 /*
- if (InstanceModel::getInstance()->hasInstanceModel('sqlDatabase')) {
+ if (ModelManager::getInstance()->hasInstanceModel('sqlDatabase')) {
 throw new Exception("model must be not initialized");
 }
-if (InstanceModel::getInstance()->isModelLoaded('sqlDatabase')) {
+if (ModelManager::getInstance()->isModelLoaded('sqlDatabase')) {
 throw new Exception("model must be not loaded");
 }
 */
 
-$lTestDbModel = InstanceModel::getInstance()->getInstanceModel('testDb');
+$lTestDbModel = ModelManager::getInstance()->getInstanceModel('testDb');
 
 if ($lTestDbModel->getModelName() !== 'testDb') {
 	throw new Exception('model hasn\'t good name');
@@ -140,7 +140,7 @@ if (!$lTestDbModel->getProperty('string')->isPrivate()) {
 if (!$lTestDbModel->getProperty('string')->isPrivate()) {
 	throw new Exception('is not private');
 }
-$lLocalModel = InstanceModel::getInstance()->getInstanceModel('objectWithIdAndMoreMore', 'testDb');
+$lLocalModel = ModelManager::getInstance()->getInstanceModel('objectWithIdAndMoreMore', 'testDb');
 if (!$lLocalModel->getProperty('plop3')->isPrivate()) {
 	throw new Exception('is not private');
 }
@@ -184,10 +184,10 @@ if (!$lTestDbModel->getSerialization()->getValue('database')->isLoaded()) {
 }
 
 /** ****************************** test load status of model 'sqlDatabase' ****************************** **/
-if (!InstanceModel::getInstance()->hasInstanceModel('sqlDatabase')) {
+if (!ModelManager::getInstance()->hasInstanceModel('sqlDatabase')) {
 	throw new Exception('model \'sqlDatabase\' not initialized');
 }
-if (!InstanceModel::getInstance()->isModelLoaded('sqlDatabase')) {
+if (!ModelManager::getInstance()->isModelLoaded('sqlDatabase')) {
 	throw new Exception('model must be loaded');
 }
 
@@ -200,11 +200,11 @@ if ($lPlaceModel->getSerialization()->getModel() !== $lTestDbModel->getSerializa
 	throw new Exception('models haven\'t same instance');
 }
 
-if (InstanceModel::getInstance()->getInstanceModel('sqlDatabase') !== $lTestDbModel->getSerialization()->getValue('database')->getModel()) {
+if (ModelManager::getInstance()->getInstanceModel('sqlDatabase') !== $lTestDbModel->getSerialization()->getValue('database')->getModel()) {
 	throw new Exception('models haven\'t same instance');
 }
 
-if (InstanceModel::getInstance()->getInstanceModel('sqlTable') !== $lTestDbModel->getSerialization()->getModel()) {
+if (ModelManager::getInstance()->getInstanceModel('sqlTable') !== $lTestDbModel->getSerialization()->getModel()) {
 	throw new Exception('models haven\'t same instance');
 }
 
@@ -218,7 +218,7 @@ $lObj->setValue('objectValue', $lObjValue);
 $lObj->setValue('objectValues', $lObjArray);
 $lObj->setValue('foreignObjectValues', $lObjArray);
 
-if (!InstanceModel::getInstance()->hasInstanceModel('sqlTable')) {
+if (!ModelManager::getInstance()->hasInstanceModel('sqlTable')) {
 	throw new Exception('model already initialized');
 }
 

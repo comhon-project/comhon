@@ -1,13 +1,13 @@
 <?php
 namespace comhon\object\model;
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 
 abstract class SimpleModel extends Model {
 	
 	/**
 	 * don't instanciate a model by yourself because it take time
-	 * to get a model instance use singleton InstanceModel
+	 * to get a model instance use singleton ModelManager
 	 */
 	public final function __construct() {
 		$this->mIsLoaded = true;

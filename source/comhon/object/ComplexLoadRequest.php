@@ -8,7 +8,7 @@ use comhon\database\Literal;
 use comhon\database\ComplexLiteral;
 use comhon\database\HavingLiteral;
 use comhon\database\SelectQuery;
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\object\Object;
 use comhon\object\object\ObjectArray;
 use comhon\object\model\Model;
@@ -277,7 +277,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				if (!isset($lLiteral->model)) {
 					throw new \Exception("malformed stdObject literal : ".json_encode($lLiteral));
 				}
-				InstanceModel::getInstance()->getInstanceModel($lLiteral->model); // verify if model exists
+				ModelManager::getInstance()->getInstanceModel($lLiteral->model); // verify if model exists
 				if (!array_key_exists($lLiteral->model, $pModels)) {
 					$pModels[$lLiteral->model] = array();
 				}

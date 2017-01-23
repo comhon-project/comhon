@@ -1,6 +1,6 @@
 <?php
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\object\Object;
 use comhon\api\ObjectService;
 use comhon\object\object\SqlTable;
@@ -12,7 +12,7 @@ use comhon\object\model\ModelArray;
 
 $time_start = microtime(true);
 
-$lDbTestModel = InstanceModel::getInstance()->getInstanceModel('testDb');
+$lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[1,1501774389]');
 $lObject->reorderValues();
 
@@ -484,7 +484,7 @@ if (isset($lArray['childrenTestDb'])) {
 
 /********************************** test foreign property with private id export *************************************/
 
-$lTestPrivateIdModel = InstanceModel::getInstance()->getInstanceModel('testPrivateId');
+$lTestPrivateIdModel = ModelManager::getInstance()->getInstanceModel('testPrivateId');
 $lTestPrivateId = $lTestPrivateIdModel->getObjectInstance();
 $lTestPrivateId->setValue('id', "1");
 $lTestPrivateId->setValue('name', 'test 1');

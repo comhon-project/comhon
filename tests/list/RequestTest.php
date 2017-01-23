@@ -1,6 +1,6 @@
 <?php
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\object\Object;
 use comhon\api\ObjectService;
 use comhon\object\object\SqlTable;
@@ -235,7 +235,7 @@ foreach ($lResult->result as $lIndex => $lStdObject) {
 
 /** ****************************** test DateTime/DateTimeZone with database serialization ****************************** **/
 
-$lDbTestModel = InstanceModel::getInstance()->getInstanceModel('testDb');
+$lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 
 $lObject = $lDbTestModel->loadObject('[1,1501774389]');
 $lObjectJson = $lObject->toPrivateStdObject();

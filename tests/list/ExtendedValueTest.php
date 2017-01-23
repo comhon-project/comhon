@@ -1,6 +1,6 @@
 <?php
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\object\Object;
 use comhon\api\ObjectService;
 use comhon\object\object\SqlTable;
@@ -11,9 +11,9 @@ use comhon\object\model\Model;
 
 $time_start = microtime(true);
 
-$lWomanModel  = InstanceModel::getInstance()->getInstanceModel('woman');
-$lManModel    = InstanceModel::getInstance()->getInstanceModel('man');
-$lPersonModel = InstanceModel::getInstance()->getInstanceModel('person');
+$lWomanModel  = ModelManager::getInstance()->getInstanceModel('woman');
+$lManModel    = ModelManager::getInstance()->getInstanceModel('man');
+$lPersonModel = ModelManager::getInstance()->getInstanceModel('person');
 
 $lWoman  = MainObjectCollection::getInstance()->getObject(2, 'woman');
 $lPerson = MainObjectCollection::getInstance()->getObject(2, 'person');
@@ -221,7 +221,7 @@ if (json_encode($lManSql) !== json_encode($lManImported->toPrivateFlattenedArray
 	throw new \Exception('not same string object');
 }
 
-$lDbTestModel = InstanceModel::getInstance()->getInstanceModel('testDb');
+$lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[1,1501774389]');
 $lObject->reorderValues();
 
@@ -335,10 +335,10 @@ if ($lObject->getValue('lonelyForeignObjectTwo') !== $lObject->getValue('lonelyF
 }
 /** ****************************** test load new value ****************************** **/
 
-$lWomanModelXml   = InstanceModel::getInstance()->getInstanceModel('womanXml');
-$lWomanModelXmlEX = InstanceModel::getInstance()->getInstanceModel('womanXmlExtended');
-$lManModelJson    = InstanceModel::getInstance()->getInstanceModel('manBodyJson');
-$lManModelJsonEx  = InstanceModel::getInstance()->getInstanceModel('manBodyJsonExtended');
+$lWomanModelXml   = ModelManager::getInstance()->getInstanceModel('womanXml');
+$lWomanModelXmlEX = ModelManager::getInstance()->getInstanceModel('womanXmlExtended');
+$lManModelJson    = ModelManager::getInstance()->getInstanceModel('manBodyJson');
+$lManModelJsonEx  = ModelManager::getInstance()->getInstanceModel('manBodyJsonExtended');
 
 $lObj = $lManModelJson->loadObject(156);
 if ($lObj->getModel()->getModelName() !== $lManModelJson->getModelName()) {
@@ -365,7 +365,7 @@ if ($lObj->getModel()->getModelName() !== $lWomanModelXmlEX->getModelName()) {
 }
 $lObj->save();
 
-$lDbTestModel = InstanceModel::getInstance()->getInstanceModel('testDb');
+$lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[4,50]');
 
 if ($lObject->getValue('womanXml')->isLoaded()) {
@@ -388,7 +388,7 @@ if ($lObj !== $lObject->getValue('manBodyJson')) {
 	throw new \Exception('not same instance object');
 }
 
-$lDbTestModel = InstanceModel::getInstance()->getInstanceModel('testDb');
+$lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[40,50]');
 $lObject->loadValue('mainParentTestDb');
 $lArray = [];

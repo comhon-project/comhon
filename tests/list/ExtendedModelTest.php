@@ -1,6 +1,6 @@
 <?php
 
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\object\Object;
 use comhon\api\ObjectService;
 use comhon\object\object\SqlTable;
@@ -11,30 +11,30 @@ use comhon\object\model\MainModel;
 
 $time_start = microtime(true);
 
-if (InstanceModel::getInstance()->hasInstanceModel('body')) {
+if (ModelManager::getInstance()->hasInstanceModel('body')) {
 	throw new Exception('model already initialized');
 }
-if (InstanceModel::getInstance()->hasInstanceModel('womanBody')) {
+if (ModelManager::getInstance()->hasInstanceModel('womanBody')) {
 	throw new Exception('model already initialized');
 }
-if (!InstanceModel::getInstance()->hasInstanceModel('person')) {
+if (!ModelManager::getInstance()->hasInstanceModel('person')) {
 	throw new Exception('model not initialized');
 }
-if (InstanceModel::getInstance()->isModelLoaded('person')) {
+if (ModelManager::getInstance()->isModelLoaded('person')) {
 	throw new Exception('model already loaded');
 }
-$lPersonModel = InstanceModel::getInstance()->getInstanceModel('person');
+$lPersonModel = ModelManager::getInstance()->getInstanceModel('person');
 
-if (!InstanceModel::getInstance()->isModelLoaded('person')) {
+if (!ModelManager::getInstance()->isModelLoaded('person')) {
 	throw new Exception('model not initialized');
 }
-if (InstanceModel::getInstance()->isModelLoaded('woman')) {
+if (ModelManager::getInstance()->isModelLoaded('woman')) {
 	throw new Exception('model already initialized');
 }
 
-$lWomanModel = InstanceModel::getInstance()->getInstanceModel('woman');
+$lWomanModel = ModelManager::getInstance()->getInstanceModel('woman');
 
-if (!InstanceModel::getInstance()->isModelLoaded('woman')) {
+if (!ModelManager::getInstance()->isModelLoaded('woman')) {
 	throw new Exception('model not initialized');
 }
 if (json_encode(array_keys($lWomanModel->getProperties())) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","bodies"]') {
@@ -43,7 +43,7 @@ if (json_encode(array_keys($lWomanModel->getProperties())) !== '["id","firstName
 if ($lWomanModel->getSerialization() !== $lPersonModel->getSerialization()) {
 	throw new Exception('not same serialization');
 }
-if (InstanceModel::getInstance()->getInstanceModel('man')->getSerialization() !== $lPersonModel->getSerialization()) {
+if (ModelManager::getInstance()->getInstanceModel('man')->getSerialization() !== $lPersonModel->getSerialization()) {
 	throw new Exception('not same serialization');
 }
 
@@ -51,17 +51,17 @@ if ($lWomanModel->getProperty('id') !== $lPersonModel->getProperty('id')) {
 	throw new Exception('not same instance of property');
 }
 
-if (InstanceModel::getInstance()->hasInstanceModel('body')) {
+if (ModelManager::getInstance()->hasInstanceModel('body')) {
 	throw new Exception('model already initialized');
 }
-if (!InstanceModel::getInstance()->hasInstanceModel('womanBody')) {
+if (!ModelManager::getInstance()->hasInstanceModel('womanBody')) {
 	throw new Exception('model not initialized');
 }
-if (InstanceModel::getInstance()->isModelLoaded('womanBody')) {
+if (ModelManager::getInstance()->isModelLoaded('womanBody')) {
 	throw new Exception('model already loaded');
 }
 $lWomanBodyModel = $lWomanModel->getProperty('bodies')->getModel()->getModel()->getModel();
-if (!InstanceModel::getInstance()->isModelLoaded('womanBody')) {
+if (!ModelManager::getInstance()->isModelLoaded('womanBody')) {
 	throw new Exception('model not loaded');
 }
 if ($lWomanBodyModel->getModelName() !== 'womanBody') {
@@ -70,16 +70,16 @@ if ($lWomanBodyModel->getModelName() !== 'womanBody') {
 if (!$lWomanBodyModel->isLoaded()) {
 	throw new Exception('model not loaded');
 }
-if (!InstanceModel::getInstance()->hasInstanceModel('body')) {
+if (!ModelManager::getInstance()->hasInstanceModel('body')) {
 	throw new Exception('model not initialized');
 }
-if (!InstanceModel::getInstance()->isModelLoaded('body')) {
+if (!ModelManager::getInstance()->isModelLoaded('body')) {
 	throw new Exception('model not loaded');
 }
 if (json_encode(array_keys($lWomanBodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner","chestSize"]') {
 	throw new Exception('bad model properties '.json_encode(array_keys($lWomanBodyModel->getProperties())));
 }
-$lBodyModel = InstanceModel::getInstance()->getInstanceModel('body');
+$lBodyModel = ModelManager::getInstance()->getInstanceModel('body');
 if (json_encode(array_keys($lBodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner"]') {
 	throw new Exception('bad model properties');
 }
@@ -98,7 +98,7 @@ if (json_encode(array_keys($lTatooModel->getProperties())) !== '["type","locatio
 	throw new Exception('bad model properties');
 }
 $lArtModel = $lTatooModel->getExtendsModel();
-$lArtModelTow = InstanceModel::getInstance()->getInstanceModel('art', 'body');
+$lArtModelTow = ModelManager::getInstance()->getInstanceModel('art', 'body');
 
 if ($lArtModel !== $lArtModelTow) {
 	throw new Exception('not same instance of model');

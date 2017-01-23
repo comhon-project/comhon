@@ -7,7 +7,7 @@ use comhon\database\LogicalJunctionOptimizer;
 use comhon\database\ComplexLiteral;
 use comhon\database\HavingLiteral;
 use comhon\database\SelectQuery;
-use comhon\object\singleton\InstanceModel;
+use comhon\object\singleton\ModelManager;
 use comhon\object\object\Object;
 use comhon\object\model\Model;
 use comhon\object\model\SimpleModel;
@@ -25,7 +25,7 @@ abstract class ObjectLoadRequest {
 	protected $mLoadForeignProperties    = false;
 	
 	public function __construct($pModelName) {
-		$this->mModel = InstanceModel::getInstance()->getInstanceModel($pModelName);
+		$this->mModel = ModelManager::getInstance()->getInstanceModel($pModelName);
 	}
 	
 	public abstract function execute($pValue);
