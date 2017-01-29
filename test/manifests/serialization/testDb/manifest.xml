@@ -15,5 +15,10 @@
 		<womanXml serializationName="woman_xml_id"/>
 		<notSerializedValue serializable="0"/>
 		<notSerializedForeignObject serializable="0"/>
+		<childrenTestDb>
+			<aggregations>
+				<aggregation>parentTestDb</aggregation>
+			</aggregations>
+		</childrenTestDb>
 	</properties>
 </manifest>

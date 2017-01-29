@@ -1,7 +1,7 @@
 <?php
 namespace comhon\object\model;
 
-use comhon\object\object\Config;
+use comhon\object\object\config\Config;
 
 class ModelDateTime extends SimpleModel {
 	

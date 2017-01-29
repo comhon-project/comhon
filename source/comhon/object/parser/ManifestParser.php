@@ -11,6 +11,7 @@ use comhon\object\model\AggregationProperty;
 use comhon\object\model\Property;
 use comhon\object\model\MainModel;
 use comhon\object\parser\json\JsonManifestParser;
+use comhon\object\model\MultipleForeignProperty;
 
 abstract class ManifestParser {
 
@@ -123,10 +124,20 @@ abstract class ManifestParser {
 	public function getCurrentProperty(Model $pPropertyModel) {
 		if ($this->_isCurrentPropertyForeign()) {
 			list($lName, $lModel, $lIsId, $lIsPrivate, $lDefault) = $this->_getBaseInfosProperty($pPropertyModel);
-			list($lSerializationName, $lAggregations, $lIsSerializable) = $this->_getBaseSerializationInfosProperty($lName);
+			list($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames) = $this->_getBaseSerializationInfosProperty($lName);
 			
 			$lModelForeign = new ModelForeign($lModel);
-			if (is_null($lAggregations)) {
+			if (!empty($lSerializationNames)) {
+				if (count($lSerializationNames) < 2) {
+					throw new \Exception('serializationNames must have at least two elements');
+				}else if (!is_null($lSerializationName)) {
+					throw new \Exception('serializationName and serializationNames cannot cohexist');
+				} else if (!is_null($lAggregations)) {
+					throw new \Exception('aggregation and serializationNames cannot cohexist');
+				}
+				$lProperty = new MultipleForeignProperty($lModelForeign, $lName, $lSerializationNames, $lIsPrivate, $lIsSerializable);
+			}
+			else if (is_null($lAggregations)) {
 				$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName, $lIsPrivate, $lIsSerializable);
 			} else {
 				$lProperty = new AggregationProperty($lModelForeign, $lName, $lAggregations, $lSerializationName, $lIsPrivate);
@@ -134,7 +145,11 @@ abstract class ManifestParser {
 		}
 		else {
 			list($lName, $lModel, $lIsId, $lIsPrivate, $lDefault) = $this->_getBaseInfosProperty($pPropertyModel);
-			list($lSerializationName, $lAggregations, $lIsSerializable) = $this->_getBaseSerializationInfosProperty($lName);
+			list($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames) = $this->_getBaseSerializationInfosProperty($lName);
+			
+			if (!empty($lSerializationNames)) {
+				throw new \Exception('several serialization names only allowed for foreign properties');
+			}
 			
 			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId, $lIsPrivate, $lIsSerializable, $lDefault);
 		}
@@ -145,7 +160,7 @@ abstract class ManifestParser {
 		if (!$this->mFocusLocalTypes && !is_null($this->mSerializationManifestParser)) {
 			return $this->mSerializationManifestParser->getPropertySerializationInfos($pPropertyName);
 		}
-		return [null, null, true];
+		return [null, null, true, []];
 	}
 	
 	/**

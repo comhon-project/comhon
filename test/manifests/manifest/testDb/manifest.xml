@@ -52,5 +52,9 @@
 		<foreignProperty type="objectWithId">notSerializedForeignObject</foreignProperty>
 		<property type="boolean">boolean</property>
 		<property type="boolean">boolean2</property>
+		<foreignProperty type="array">
+			<name>childrenTestDb</name>
+			<values type="childTestDb" name="childTestDb"/>
+		</foreignProperty>
 	</properties>
 </manifest>

@@ -17,4 +17,5 @@
 	<womanXml>person/womanXml/manifest.xml</womanXml>
 	<manBodyJson>body/manJson/manifest.xml</manBodyJson>
 	<testMultiIncremental>testMultiIncremental/manifest.xml</testMultiIncremental>
+	<childTestDb>childTestDb/manifest.xml</childTestDb>
 </serializations>

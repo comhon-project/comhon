@@ -1,7 +1,7 @@
 <?php
 namespace comhon\object\model;
 
-use comhon\object\object\SqlTable;
+use comhon\object\object\serialization\SqlTable;
 use comhon\object\object\Object;
 
 class ForeignProperty extends Property {

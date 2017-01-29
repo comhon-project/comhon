@@ -3,7 +3,7 @@ namespace comhon\database;
 
 use \PDO;
 use \Exception;
-use comhon\object\object\Config;
+use comhon\object\object\config\Config;
 use comhon\object\object\Object;
 
 class DatabaseController {
@@ -206,6 +206,7 @@ class DatabaseController {
 	 */
 	public function executeSelectQuery(SelectQuery $pSelectQuery, $pFetchStyle = PDO::FETCH_ASSOC) {
 		list($lQuery, $lValues) = $pSelectQuery->export();
+		//var_dump("\n\n".vsprintf(str_replace('?', "%s", $lQuery), $lValues));
 		return $this->executeSimpleQuery($lQuery, $lValues)->fetchAll($pFetchStyle);
 	}
 	

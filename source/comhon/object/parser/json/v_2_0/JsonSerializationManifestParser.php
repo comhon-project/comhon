@@ -11,27 +11,35 @@ use comhon\object\parser\json\JsonSerializationManifestParser as ParentJsonSeria
 class JsonSerializationManifestParser extends ParentJsonSerializationManifestParser {
 
 	public function getPropertySerializationInfos($pPropertyName) {
-		$lSerializationName = null;
-		$lAggregations      = null;
-		$lIsSerializable    = true;
+		$lSerializationName  = null;
+		$lAggregations       = null;
+		$lIsSerializable     = true;
+		$lSerializationNames = [];
 		
 		if (isset($this->mManifest->properties->$pPropertyName)) {
 			$lSerializationNode = $this->mManifest->properties->$pPropertyName;
 			if (isset($lSerializationNode->serializationName)) {
 				$lSerializationName = $lSerializationNode->serializationName;
-			}
-			if (isset($lSerializationNode->aggregations)) {
-				$lAggregations = [];
-				foreach ($lSerializationNode->aggregations as $lAggregation) {
-					$lAggregations[] = $lAggregation;
+				if (isset($lSerializationNode->serializationNames)) {
+					throw new \Exception('serializationName and serializationNames cannot cohexist');
 				}
+			}
+			else if (isset($lSerializationNode->serializationNames) && is_object($lSerializationNode->serializationNames)) {
+				$lSerializationNames = [];
+				// transform stdclass to associative array
+				foreach ($lSerializationNode->serializationNames as $lIdProperty => $lMultiSerializationName) {
+					$lSerializationNames[$lIdProperty] = $lMultiSerializationName;
+				}
+			}
+			if (isset($lSerializationNode->aggregations) && is_array($lSerializationNode->aggregations)) {
+				$lAggregations = $lSerializationNode->aggregations;
 			}
 			if (isset($lSerializationNode->is_serializable)) {
 				$lIsSerializable = $lSerializationNode->is_serializable;
 			}
 		}
 		
-		return array($lSerializationName, $lAggregations, $lIsSerializable);
+		return array($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames);
 	}
 	
 	protected function _getSerialization() {

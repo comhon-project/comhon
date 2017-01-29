@@ -1,0 +1,16 @@
+{
+	"version": "2.0",
+	"properties": {
+		"id": {
+			"type": "integer",
+			"is_id": true
+		},
+		"name": {
+			"type": "string"
+		},
+		"parentTestDb": {
+			"type": "testDb",
+			"is_foreign": true
+		}
+	}
+}

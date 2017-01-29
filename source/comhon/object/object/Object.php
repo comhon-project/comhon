@@ -251,12 +251,25 @@ class Object {
 	 *
 	 * @param string $pOperation specify it only if object serialization is sqlDatabase
 	 * @throws \Exception
+	 * @return integer
 	 */
 	public final function save($pOperation = null) {
 		if (is_null($this->getModel()->getSerialization())) {
 			throw new \Exception('model doesn\'t have serialization');
 		}
-		$this->getModel()->getSerialization()->saveObject($this, $pOperation);
+		return $this->getModel()->getSerialization()->saveObject($this, $pOperation);
+	}
+	
+	/**
+	 *
+	 * @throws \Exception
+	 * @return integer
+	 */
+	public final function delete() {
+		if (is_null($this->getModel()->getSerialization())) {
+			throw new \Exception('model doesn\'t have serialization');
+		}
+		return $this->getModel()->getSerialization()->deleteObject($this);
 	}
 	
 	/***********************************************************************************************\

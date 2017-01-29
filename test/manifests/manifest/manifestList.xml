@@ -20,4 +20,5 @@
 	<manBodyJsonExtended>body/manJsonExtended/manifest.xml</manBodyJsonExtended>
 	<testMultiIncremental>testMultiIncremental/manifest.xml</testMultiIncremental>
 	<testPrivateId>testPrivateId/manifest.xml</testPrivateId>
+	<childTestDb>childTestDb/manifest.xml</childTestDb>
 </manifests>

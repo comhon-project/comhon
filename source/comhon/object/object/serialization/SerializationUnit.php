@@ -1,9 +1,14 @@
 <?php
-namespace comhon\object\object;
+namespace comhon\object\object\serialization;
 
 use comhon\object\model\Model;
+use comhon\object\object\ObjectArray;
+use comhon\object\object\Object;
 
 abstract class SerializationUnit extends Object {
+
+	const UPDATE = 'update';
+	const CREATE = 'create';
 	
 	/** @var string */
 	protected $mInheritanceKey;
@@ -29,11 +34,14 @@ abstract class SerializationUnit extends Object {
 	 * @param Object $pObject
 	 * @throws \Exception
 	 */
-	public function saveObject(Object $pObject) {
+	public function saveObject(Object $pObject, $pOperation = null) {
 		if ($this !== $pObject->getModel()->getSerialization()) {
 			throw new \Exception('this serialization mismatch with parameter object serialization');
 		}
-		$this->_saveObject($pObject);
+		if (!is_null($pOperation) && ($pOperation !== self::CREATE) && ($pOperation !== self::UPDATE)) {
+			throw new \Exception("operation '$pOperation' not recognized");
+		}
+		return $this->_saveObject($pObject, $pOperation);
 	}
 	
 	/**
@@ -50,10 +58,22 @@ abstract class SerializationUnit extends Object {
 	}
 	
 	/**
+	 *
+	 * @param Object $pObject
+	 * @throws \Exception
+	 */
+	public function deleteObject(Object $pObject) {
+		if ($this !== $pObject->getModel()->getSerialization()) {
+			throw new \Exception('this serialization mismatch with parameter object serialization');
+		}
+		return $this->_deleteObject($pObject);
+	}
+	
+	/**
 	 * 
 	 * @param Object $pObject
 	 */
-	protected abstract function _saveObject(Object $pObject);
+	protected abstract function _saveObject(Object $pObject, $pOperation = null);
 	
 	/**
 	 * 
@@ -67,7 +87,13 @@ abstract class SerializationUnit extends Object {
 	 * @param Model $pExtendsModel
 	 * @return Model
 	 */
-	protected abstract function getInheritedModel($pValue, Model $pExtendsModel);
+	public abstract function getInheritedModel($pValue, Model $pExtendsModel);
+	
+	/**
+	 * @param Object $pObject
+	 * @throws \Exception
+	 */
+	protected abstract function _deleteObject(Object $pObject);
 	
 	/**
 	 * 

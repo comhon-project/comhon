@@ -19,6 +19,19 @@ class Utils{
 	}
 	
 	/**
+	 * 
+	 * @param string $pDir
+	 * @return boolean true if success
+	 */
+	public static function delTree($pDir) {
+		$lFiles = array_diff(scandir($pDir), array('.','..'));
+		foreach ($lFiles as $lFile) {
+			(is_dir("$pDir/$lFile")) ? self::delTree("$pDir/$lFile") : unlink("$pDir/$lFile");
+		}
+		return rmdir($pDir);
+	}
+	
+	/**
 	 * print called function
 	 */
 	public static function printStack() {

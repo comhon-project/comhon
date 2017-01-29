@@ -18,8 +18,8 @@ use comhon\object\model\ModelForeign;
 use comhon\object\model\SimpleModel;
 use comhon\object\model\ForeignProperty;
 use comhon\object\model\AggregationProperty;
-use comhon\object\object\SerializationUnit;
-use comhon\object\object\Config;
+use comhon\object\object\serialization\SerializationUnit;
+use comhon\object\object\config\Config;
 use comhon\object\parser\ManifestParser;
 
 class ModelManager {

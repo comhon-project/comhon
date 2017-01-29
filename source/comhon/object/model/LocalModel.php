@@ -2,7 +2,7 @@
 namespace comhon\object\model;
 
 use comhon\object\singleton\ModelManager;
-use comhon\object\object\SqlTable;
+use comhon\object\object\serialization\SqlTable;
 use comhon\object\object\Object;
 use comhon\object\object\ObjectArray;
 use comhon\object\ObjectCollection;

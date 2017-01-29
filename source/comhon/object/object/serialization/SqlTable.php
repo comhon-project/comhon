@@ -1,5 +1,5 @@
 <?php
-namespace comhon\object\object;
+namespace comhon\object\object\serialization;
 
 use comhon\database\DatabaseController;
 use comhon\database\LogicalJunction;
@@ -14,11 +14,10 @@ use comhon\object\MainObjectCollection;
 use comhon\object\model\MainModel;
 use comhon\utils\SqlUtils;
 use comhon\object\model\ModelInteger;
+use comhon\object\object\Object;
+use comhon\object\object\config\Config;
 
 class SqlTable extends SerializationUnit {
-
-	const UPDATE = 'update';
-	const INSERT = 'insert';
 
 	private $mDbController;
 	private $mHasIncrementalId = false;
@@ -73,38 +72,48 @@ class SqlTable extends SerializationUnit {
 		}
 	}
 	
-	public function saveObject($pObject, $pOperation = null) {
-		if ($this !== $pObject->getModel()->getSerialization()) {
-			throw new \Exception('this serialization mismatch with parameter object serialization');
-		}
-		$this->_saveObject($pObject, $pOperation);
-	}
-	
+	/**
+	 * @param Object $pObject
+	 * @param string $pOperation
+	 * @return integer
+	 */
 	protected function _saveObject(Object $pObject, $pOperation = null) {
 		$this->_initDatabaseConnection($pObject->getModel());
 		
 		if ($this->mHasIncrementalId) {
-			$this->_saveObjectWithIncrementalId($pObject);
-		} else if ($pOperation == self::INSERT) {
-			$this->_insertObject($pObject);
+			return $this->_saveObjectWithIncrementalId($pObject);
+		} else if ($pOperation == self::CREATE) {
+			return $this->_insertObject($pObject);
 		} else if ($pOperation == self::UPDATE) {
-			$this->_updateObject($pObject);
+			return $this->_updateObject($pObject);
 		} else {
 			throw new \Exception('unknown operation '.$pOperation);
 		}
 	}
 	
-	private function _saveObjectWithIncrementalId($pObject) {
+	/**
+	 *
+	 * @param Object $pObject
+	 * @throws \Exception
+	 * @return integer
+	 */
+	private function _saveObjectWithIncrementalId(Object $pObject) {
 		if (!$this->mHasIncrementalId) {
 			throw new \Exception('operation not specified');
 		}
 		if ($pObject->hasCompleteId()) {
-			$this->_updateObject($pObject);
+			return $this->_updateObject($pObject);
 		} else {
-			$this->_insertObject($pObject);
+			return $this->_insertObject($pObject);
 		}
 	}
 	
+	/**
+	 * 
+	 * @param Object $pObject
+	 * @throws \Exception
+	 * @return integer
+	 */
 	private function _insertObject(Object $pObject) {
 		$lMapOfString = $pObject->toSqlDatabase(self::getDatabaseConnectionTimeZone());
 		if (!is_null($this->getInheritanceKey())) {
@@ -121,16 +130,18 @@ class SqlTable extends SerializationUnit {
 			// TODO
 			throw new \Exception('not supported yet');
 		}
-		$this->mDbController->executeSimpleQuery($lQuery, array_values($lMapOfString));
+		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, array_values($lMapOfString));
+		$lAffectedRows = $lStatement->rowCount();
 		
-		if (!empty($this->mAutoIncrementProperties)) {
+		if (($lAffectedRows > 0) && !empty($this->mAutoIncrementProperties)) {
 			if ($this->mDbController->isSupportedLastInsertId()) {
-				$lIncrementalValue = $this->mDbController->lastInsertId();
+				$lIncrementalValue = $this->mAutoIncrementProperties[0]->getModel()->castValue($this->mDbController->lastInsertId());
 				$pObject->setValue($this->mAutoIncrementProperties[0]->getName(), $lIncrementalValue);
 			} else {
 				// TODO manage sequence with return value
 			}
 		}
+		return $lAffectedRows;
 	}
 	
 	/**
@@ -155,8 +166,10 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
+	 * 
 	 * @param Object $pObject
 	 * @throws \Exception
+	 * @return integer
 	 */
 	private function _updateObject(Object $pObject) {
 		if (!$pObject->getModel()->hasIdProperties() || !$pObject->hasCompleteId()) {
@@ -191,36 +204,66 @@ class SqlTable extends SerializationUnit {
 			$lUpdateValues[] = $lValue;
 		}
 		$lQuery = "UPDATE ".$this->getValue('name')." SET ".implode(", ", $lUpdates)." WHERE ".implode(" and ", $lConditions).";";
-		$this->mDbController->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
+		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
+		
+		return $lStatement->rowCount();
 	}
-
+	
+	/**
+	 * 
+	 * @param Object $pObject
+	 * @throws \Exception
+	 * @return integer
+	 */
+	protected function _deleteObject(Object $pObject) {
+		if (!$pObject->getModel()->hasIdProperties() || !$pObject->hasCompleteId()) {
+			throw new \Exception('delete operation require complete id');
+		}
+		$this->_initDatabaseConnection($pObject->getModel());
+		
+		$lModel            = $pObject->getModel();
+		$lConditions       = [];
+		$lConditionsValues = [];
+	
+		foreach ($pObject->getModel()->getIdProperties() as $lIdPropertyName => $lIdProperty) {
+			$lColumn = $lIdProperty->getSerializationName();
+			$lValue  = $pObject->getValue($lIdPropertyName);
+			if (is_null($lValue)) {
+				throw new \Exception('delete failed, id is not set');
+			}
+			$lConditions[]       = "$lColumn = ?";
+			$lConditionsValues[] = $lValue;
+		}
+		$lQuery = "DELETE FROM ".$this->getValue('name')." WHERE ".implode(" and ", $lConditions).";";
+		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, $lConditionsValues);
+		
+		return $lStatement->rowCount();
+	}
+	
 	/**
 	 * (non-PHPdoc)
-	 * @see \comhon\object\object\SerializationUnit::_loadObject()
+	 * @see \comhon\object\object\serialization\SerializationUnit::_loadObject()
 	 */
 	protected function _loadObject(Object $pObject) {
 		$lWhereColumns = [];
 		$lModel = $pObject->getModel();
+		$lConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 		foreach ($lModel->getIdProperties() as $lPropertyName => $lProperty) {
-			$lWhereColumns[$lProperty->getSerializationName()] = $pObject->getValue($lPropertyName);
+			$lConjunction->addLiteral(new Literal($this->getValue('name'), $lProperty->getSerializationName(), "=", $pObject->getValue($lPropertyName)));
 		}
-		$lReturn = $this->_loadObjectFromDatabase($pObject, [], $lWhereColumns, LogicalJunction::CONJUNCTION);
+		$lReturn = $this->_loadObjectFromDatabase($pObject, [], $lConjunction);
 		return $lReturn;
 	}
 	
 	public function loadAggregation(ObjectArray $pObject, $pParentId, $pAggregationProperties, $pOnlyIds) {
 		$lReturn        = false;
 		$lModel         = $pObject->getModel()->getUniqueModel();
-		$lWhereColumns  = $this->getAggregationColumns($lModel, $pAggregationProperties);
+		$lDisjunction   = $this->getAggregationConditions($lModel, $pParentId, $pAggregationProperties);
 		$lSelectColumns = [];
-		$lWhereValues   = [];
 		$lIdProperties  = $lModel->getIdProperties();
 		
-		if (empty($lWhereColumns)) {
+		if (count($lDisjunction->getLiterals()) == 0 && count($lDisjunction->getLogicalJunction()) == 0) {
 			throw new \Exception('error : property is not serialized in database aggregation');
-		}
-		foreach ($lWhereColumns as $lColumn) {
-			$lWhereValues[$lColumn] = $pParentId;
 		}
 		if ($pOnlyIds) {
 			if (empty($lIdProperties)) {
@@ -230,7 +273,7 @@ class SqlTable extends SerializationUnit {
 				$lSelectColumns[] = $lIdProperty->getSerializationName();
 			}
 		}
-		$lReturn = $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lWhereValues, LogicalJunction::DISJUNCTION);
+		$lReturn = $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lDisjunction);
 		return $lReturn;
 	}
 	
@@ -238,20 +281,15 @@ class SqlTable extends SerializationUnit {
 	 * 
 	 * @param Object $pObject
 	 * @param string[] $pSelectColumns
-	 * @param string[] $pWhereColumns
-	 * @param string $lLogicalJunctionType
+	 * @param logic$lLogicalJunctionType
 	 * @return boolean
 	 */
-	private function _loadObjectFromDatabase($pObject, $pSelectColumns, $pWhereColumns, $lLogicalJunctionType) {
+	private function _loadObjectFromDatabase($pObject, $pSelectColumns, LogicalJunction $pLogicalJunction) {
 		$lSuccess = false;
 		$this->_initDatabaseConnection($pObject->getModel());
 		
-		$lLinkedLiteral = new LogicalJunction($lLogicalJunctionType);
-		foreach ($pWhereColumns as $lColumn => $lValue) {
-			$lLinkedLiteral->addLiteral(new Literal($this->getValue('name'), $lColumn, "=", $lValue));
-		}
 		$lSelectQuery = new SelectQuery($this->getValue('name'));
-		$lSelectQuery->setWhereLogicalJunction($lLinkedLiteral);
+		$lSelectQuery->setWhereLogicalJunction($pLogicalJunction);
 		foreach ($pSelectColumns as $lColumn) {
 			$lSelectQuery->addSelectColumn($lColumn);
 		}
@@ -290,12 +328,24 @@ class SqlTable extends SerializationUnit {
 		return $lSuccess;
 	}
 	
-	public function getAggregationColumns($pModel, $pAggregationProperties) {
-		$lColumns = [];
+	public function getAggregationConditions($pModel, $pParentId, $pAggregationProperties) {
+		
+		$lDisjunction = new LogicalJunction(LogicalJunction::DISJUNCTION);
 		foreach ($pAggregationProperties as $lAggregationProperty) {
-			$lColumns[] = $pModel->getProperty($lAggregationProperty, true)->getSerializationName();
+			$lProperty = $pModel->getProperty($lAggregationProperty, true);
+			if ($lProperty->hasMultipleSerializationNames()) {
+				$lDecodedId = json_decode($pParentId);
+				$lConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
+				foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lMultipleForeignProperty) {
+					$lConjunction->addLiteral(new Literal($this->getValue('name'), $lSerializationName, "=", current($lDecodedId)));
+					next($lDecodedId);
+				}
+				$lDisjunction->addLogicalJunction($lConjunction);
+			} else {
+				$lDisjunction->addLiteral(new Literal($this->getValue('name'), $pModel->getProperty($lAggregationProperty, true)->getSerializationName(), "=", $pParentId));
+			}
 		}
-		return $lColumns;
+		return $lDisjunction;
 	}
 	
 	/**
@@ -303,7 +353,7 @@ class SqlTable extends SerializationUnit {
 	 * @param Model $pExtendsModel
 	 * @return Model
 	 */
-	protected function getInheritedModel($pValue, Model $pExtendsModel) {
+	public function getInheritedModel($pValue, Model $pExtendsModel) {
 		return array_key_exists($this->mInheritanceKey, $pValue) && !is_null($pValue[$this->mInheritanceKey]) 
 				? ModelManager::getInstance()->getInstanceModel($pValue[$this->mInheritanceKey]) : $pExtendsModel;
 	}
@@ -362,11 +412,22 @@ class SqlTable extends SerializationUnit {
 							$lCastFloatColumns[] = $lProperty->getSerializationName();
 						}
 					}
-					else if (!$lProperty->isAggregation() && $lProperty->getModel()->hasUniqueIdProperty()) {
-						if ($lProperty->getModel()->getFirstIdProperty()->isInteger()) {
-							$lCastIntegerColumns[] = $lProperty->getSerializationName();
-						} else if ($lProperty->getModel()->getFirstIdProperty()->isFloat()) {
-							$lCastFloatColumns[] = $lProperty->getSerializationName();
+					else if (!$lProperty->isAggregation()) {
+						if ($lProperty->hasMultipleSerializationNames()) {
+							foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lProperty) {
+								if ($lProperty->isInteger()) {
+									$lCastIntegerColumns[] = $lSerializationName;
+								} else if ($lProperty->isFloat()) {
+									$lCastFloatColumns[] = $lSerializationName;
+								}
+							}
+						}
+						else if ($lProperty->getModel()->hasUniqueIdProperty()) {
+							if ($lProperty->getModel()->getFirstIdProperty()->isInteger()) {
+								$lCastIntegerColumns[] = $lProperty->getSerializationName();
+							} else if ($lProperty->getModel()->getFirstIdProperty()->isFloat()) {
+								$lCastFloatColumns[] = $lProperty->getSerializationName();
+							}
 						}
 					}
 				}

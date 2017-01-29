@@ -124,7 +124,7 @@ $lTestDbModel = ModelManager::getInstance()->getInstanceModel('testDb');
 if ($lTestDbModel->getModelName() !== 'testDb') {
 	throw new Exception('model hasn\'t good name');
 }
-if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb","objectsWithId","foreignObjects","lonelyForeignObject","lonelyForeignObjectTwo","defaultValue","manBodyJson","womanXml","notSerializedValue","notSerializedForeignObject","boolean","boolean2"]') {
+if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb","objectsWithId","foreignObjects","lonelyForeignObject","lonelyForeignObjectTwo","defaultValue","manBodyJson","womanXml","notSerializedValue","notSerializedForeignObject","boolean","boolean2","childrenTestDb"]') {
 	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good properties : ".json_encode($lTestDbModel->getPropertiesNames()));
 }
 $lDbModel = $lTestDbModel->getSerialization()->getProperty('database')->getModel();

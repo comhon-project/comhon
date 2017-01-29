@@ -1,5 +1,7 @@
 <?php
-namespace comhon\object\object;
+namespace comhon\object\object\config;
+
+use comhon\object\object\Object;
 
 class Config extends Object {
 	

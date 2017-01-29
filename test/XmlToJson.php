@@ -1,7 +1,7 @@
 <?php
 
 $lFolders = [
-	'/home/jean-philippe/ReposGit/ObjectManagerLib/source/comhon/manifestLib/',
+	'/home/jean-philippe/ReposGit/ObjectManagerLib/test/manifests/',
 	'/home/jean-philippe/ReposGit/ObjectManagerLib/source/comhon/manifestCollection/'
 ];
 
@@ -14,7 +14,7 @@ foreach ($lFolders as $lFolder) {
 		if (basename($lFile) == 'manifest.xml' && !file_exists($dir.'/manifest.json')) {
 			$xml = simplexml_load_file($lFile);
 			if (isset($xml->serialization)) {
-				transformSerializationt($xml, $dir);
+				transformSerialization($xml, $dir);
 			} else {
 				transformManifest($xml, $dir);
 			}
@@ -22,9 +22,10 @@ foreach ($lFolders as $lFolder) {
 	}
 }
 
-function transformSerializationt($xml, $dir) {
+function transformSerialization($xml, $dir) {
 	$lJson = new stdClass();
-	
+
+	$lJson->version = (string) $xml['version'];
 	$lJson->serialization = new stdClass();
 	$lType = (string) $xml->serialization['type'];
 	$lJson->serialization->type = $lType;
@@ -45,6 +46,13 @@ function transformSerializationt($xml, $dir) {
 			$lproperty = new stdClass();
 			if (isset($lChild['serializationName'])) {
 				$lproperty->serializationName = (string) $lChild['serializationName'];
+			}
+			if (isset($lChild->serializationNames->serializationName)) {
+				$serializationNames = [];
+				foreach ($lChild->serializationNames->serializationName as $serializationName) {
+					$serializationNames[] = (string) $serializationName;
+				}
+				$lproperty->serializationNames = $serializationNames;
 			}
 			if (isset($lChild->aggregations->aggregation)) {
 				$aggregations = [];
@@ -68,6 +76,7 @@ function transformSerializationt($xml, $dir) {
 
 function transformManifest($xml, $dir) {
 	$lJson = new stdClass();
+	$lJson->version = (string) $xml['version'];
 	
 	if (isset($xml['object'])) {
 		$lJson->object = (string) $xml['object'];

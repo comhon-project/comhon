@@ -18,7 +18,7 @@ use comhon\object\model\ModelForeign;
 use comhon\object\model\SimpleModel;
 use comhon\object\model\ForeignProperty;
 use comhon\object\model\AggregationProperty;
-use comhon\object\object\Config;
+use comhon\object\object\config\Config;
 use comhon\object\parser\ManifestParser;
 use comhon\object\parser\SerializationManifestParser;
 use comhon\object\parser\xml\XmlManifestParser as ParentXmlManifestParser;

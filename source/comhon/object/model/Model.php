@@ -2,11 +2,11 @@
 namespace comhon\object\model;
 
 use comhon\object\singleton\ModelManager;
-use comhon\object\object\SqlTable;
+use comhon\object\object\serialization\SqlTable;
 use comhon\object\object\Object;
 use comhon\object\object\ObjectArray;
 use comhon\exception\PropertyException;
-use comhon\object\object\Config;
+use comhon\object\object\config\Config;
 
 abstract class Model {
 
@@ -31,6 +31,7 @@ abstract class Model {
 	private $mSerializableProperties = [];
 	private $mPublicSerializableProperties = [];
 	private $mPropertiesWithDefaultValues = [];
+	private $mMultipleForeignProperties = [];
 	private $mUniqueIdProperty;
 	private $mHasPrivateIdProperty;
 	
@@ -269,9 +270,11 @@ abstract class Model {
 		foreach ($pProperties as $lProperty) {
 			if (!$lProperty->isId()) {
 				if ($lProperty->hasDefaultValue()) {
-					$this->mPropertiesWithDefaultValues[] = $lProperty;
+					$this->mPropertiesWithDefaultValues[$lProperty->getName()] = $lProperty;
 				} else if ($lProperty->isAggregation()) {
-					$this->mAggregations[] = $lProperty;
+					$this->mAggregations[$lProperty->getName()] = $lProperty;
+				} else if ($lProperty->hasMultipleSerializationNames()) {
+					$this->mMultipleForeignProperties[$lProperty->getName()] = $lProperty;
 				}
 				if ($lProperty->isSerializable()) {
 					$this->mSerializableProperties[$lProperty->getName()] = $lProperty;
@@ -496,6 +499,17 @@ abstract class Model {
 				}
 			}
 		}
+		if ($pUseSerializationName) {
+			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
+				if ($pObject->hasValue($lPropertyName) && ($pObject->getValue($lPropertyName) instanceof Object)) {
+					foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
+						$lReturn->$lSerializationName = $lIdProperty->getModel()->_toStdObject(
+							$pObject->getValue($lPropertyName)->getValue($lIdProperty->getName()), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects
+						);
+					}
+				}
+			}
+		}
 		if ($pObject->getModel() !== $this) {
 			if (!$pObject->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
@@ -557,6 +571,17 @@ abstract class Model {
 				} else if ($lProperty->isForeign() && is_array($pMainForeignObjects)) {
 					$pXmlChildNode = new SimpleXMLElement('<root/>');
 					$lProperty->getModel()->_toXml($lValue, $pXmlChildNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+				}
+			}
+		}
+		if ($pUseSerializationName) {
+			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
+				if ($pObject->hasValue($lPropertyName) && ($pObject->getValue($lPropertyName) instanceof Object)) {
+					foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
+						$pXmlNode[$lSerializationName] = $lIdProperty->getModel()->_toXml(
+							$pObject->getValue($lPropertyName)->getValue($lIdProperty->getName()), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects
+						);
+					}
 				}
 			}
 		}
@@ -637,6 +662,17 @@ abstract class Model {
 				}
 			}
 		}
+		if ($pUseSerializationName) {
+			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
+				if ($pObject->hasValue($lPropertyName) && ($pObject->getValue($lPropertyName) instanceof Object)) {
+					foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
+						$lReturn[$lSerializationName] = $lIdProperty->getModel()->_toFlattenedValue(
+							$pObject->getValue($lPropertyName)->getValue($lIdProperty->getName()), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects
+						);
+					}
+				}
+			}
+		}
 		if ($pObject->getModel() !== $this) {
 			if (!$pObject->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
@@ -706,6 +742,15 @@ abstract class Model {
 				}
 			}
 		}
+		if ($pUseSerializationName) {
+			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
+				$lId = [];
+				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
+					$lId[] = isset($pStdObject->$lSerializationName) ? $pStdObject->$lSerializationName : null;
+				}
+				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+			}
+		}
 	}
 	
 	protected function _fromXml($pXml, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
@@ -734,6 +779,15 @@ abstract class Model {
 				}
 			}
 		}
+		if ($pUseSerializationName) {
+			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
+				$lId = [];
+				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
+					$lId[] = isset($pXml[$lSerializationName]) ? $lIdProperty->getModel()->_fromXml($pXml[$lSerializationName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) : null;
+				}
+				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+			}
+		}
 		return $lHasValue;
 	}
 	
@@ -759,6 +813,15 @@ abstract class Model {
 					}
 					$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromFlattenedValue($pRow[$lFlattenedPropertyName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
 				}
+			}
+		}
+		if ($pUseSerializationName) {
+			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
+				$lId = [];
+				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
+					$lId[] = isset($pRow[$lSerializationName]) ? $pRow[$lSerializationName] : null;
+				}
+				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
 			}
 		}
 	}

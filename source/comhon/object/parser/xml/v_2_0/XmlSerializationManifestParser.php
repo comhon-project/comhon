@@ -11,14 +11,24 @@ use comhon\object\parser\xml\XmlSerializationManifestParser as ParentXmlSerializ
 class XmlSerializationManifestParser extends ParentXmlSerializationManifestParser {
 	
 	public function getPropertySerializationInfos($pPropertyName) {
-		$lSerializationName = null;
-		$lAggregations      = null;
-		$lIsSerializable    = true;
+		$lSerializationName  = null;
+		$lAggregations       = null;
+		$lIsSerializable     = true;
+		$lSerializationNames = [];
 		
 		if (isset($this->mManifest->properties->$pPropertyName)) {
 			$lSerializationNode = $this->mManifest->properties->$pPropertyName;
 			if (isset($lSerializationNode['serializationName'])) {
 				$lSerializationName = (string) $lSerializationNode['serializationName'];
+				if (isset($lSerializationNode['serializationNames'])) {
+					throw new \Exception('serializationName and serializationNames cannot cohexist');
+				}
+			}
+			else if (isset($lSerializationNode->serializationNames)) {
+				$lSerializationNames = [];
+				foreach ($lSerializationNode->serializationNames->children() as $lMultiSerializationName) {
+					$lSerializationNames[$lMultiSerializationName->getName()] = (string) $lMultiSerializationName;
+				}
 			}
 			if (isset($lSerializationNode->aggregations->aggregation)) {
 				$lAggregations = [];
@@ -31,7 +41,7 @@ class XmlSerializationManifestParser extends ParentXmlSerializationManifestParse
 			}
 		}
 		
-		return array($lSerializationName, $lAggregations, $lIsSerializable);
+		return array($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames);
 	}
 	
 	protected function _getSerialization() {

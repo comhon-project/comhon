@@ -34,6 +34,10 @@ abstract class ModelContainer extends Model {
 		return $this->getModel()->getPropertiesNames();
 	}
 	
+	public function getSerializableProperties() {
+		return $this->getModel()->getSerializableProperties();
+	}
+	
 	public function getModel() {
 		$this->mModel->load();
 		return $this->mModel;

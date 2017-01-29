@@ -17,6 +17,7 @@
 		"mainTestDb" : "mainTestDb/manifest.json",
 		"womanXml"   : "person/womanXml/manifest.json",
 		"manBodyJson": "body/manJson/manifest.json",
+		"childTestDb": "childTestDb/manifest.json",
 		"testMultiIncremental": "testMultiIncremental/manifest.json"
 	}
 }

@@ -3,7 +3,7 @@
 use comhon\object\singleton\ModelManager;
 use comhon\object\object\Object;
 use comhon\api\ObjectService;
-use comhon\object\object\SqlTable;
+use comhon\object\object\serialization\SqlTable;
 use comhon\object\SimpleLoadRequest;
 use comhon\object\MainObjectCollection;
 
@@ -191,7 +191,7 @@ if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
-if (json_encode($lResult->result) != '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]') {
+if (json_encode($lResult->result) != '[{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]') {
 	var_dump(json_encode($lResult->result));
 	throw new Exception('bad objects : '.json_encode($lResult->result));
 }
@@ -199,8 +199,8 @@ if (json_encode($lResult->result) != '[{"defaultValue":"default","id1":1,"id2":"
 /** ****************************** test following export import objects ****************************** **/
 
 $lBasedObjects  = [
-	json_decode('{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}'),
-	json_decode('{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}')
+	json_decode('{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}'),
+	json_decode('{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}')
 ];
 
 $lObject = null;

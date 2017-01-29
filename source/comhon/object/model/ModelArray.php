@@ -140,6 +140,9 @@ class ModelArray extends ModelContainer {
 	}
 	
 	public function fromStdObject($pArray, $pPrivate = false, $pUseSerializationName = false, $pMergeType = self::MERGE, $pTimeZone = null) {
+		if (is_null($pArray)) {
+			return null;
+		}
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
@@ -151,6 +154,9 @@ class ModelArray extends ModelContainer {
 	}
 	
 	protected function _fromStdObject($pArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
+		if (is_null($pArray)) {
+			return null;
+		}
 		if (is_string($pArray) && $pArray == ObjectArray::__UNLOAD__) {
 			return $this->getObjectInstance(false);
 		}

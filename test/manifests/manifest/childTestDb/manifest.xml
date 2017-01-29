@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0">
+	<properties>
+		<property type="integer" id="1">id</property>
+		<property type="string">name</property>
+		<foreignProperty type="testDb">parentTestDb</foreignProperty>
+	</properties>
+</manifest>

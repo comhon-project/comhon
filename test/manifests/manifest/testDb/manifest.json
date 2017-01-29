@@ -119,6 +119,14 @@
 		},
 		"boolean2": {
 			"type": "boolean"
+		},
+		"childrenTestDb": {
+			"values": {
+				"type": "childTestDb",
+				"name": "childTestDb"
+			},
+			"type": "array",
+			"is_foreign": true
 		}
 	}
 }

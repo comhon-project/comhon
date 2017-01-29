@@ -90,10 +90,6 @@ class Literal {
 		return $this->mTable;
 	}
 	
-	public function setTable($pTableName) {
-		$this->mTable = $pTableName;
-	}
-	
 	public function getPropertyName() {
 		return $this->mColumn;
 	}
@@ -232,7 +228,7 @@ class Literal {
 		else {
 			$lProperty =  $lRightodel->getProperty($pStdObject->property, true);
 			if ($lProperty->isAggregation()) {
-				throw new \Exception("literal cannot contain foreign porperty '{$pStdObject->property}'");
+				throw new \Exception("literal cannot contain aggregation porperty '{$pStdObject->property}'");
 			}
 			$lLiteral  = new Literal($lTable, $lProperty->getSerializationName(), $pStdObject->operator, $pStdObject->value);
 		}

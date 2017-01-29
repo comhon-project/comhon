@@ -21,16 +21,10 @@ use comhon\controller\AggregationLoader;
 use comhon\dataStructure\Tree;
 use comhon\exception\PropertyException;
 use \Exception;
-use comhon\object\object\SqlTable;
+use comhon\object\object\serialization\SqlTable;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	
-	const CREATE = "create";
-	const UPDATE = "update";
-	const DELETE = "delete";
-	const DELETE_CASCADE = "deleteCascade";
-	const CREATE_OR_UPDATE = "createOrUpdate";
-
 	private $mLeftJoins;
 	private $mSelectQuery;
 	private $mLiteralCollection = array();
@@ -393,18 +387,22 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			throw new Exception("property '{$lCurrentNode->property}' in model '{$lLeftModel->getModelName()}' hasn't sql serialization");
 		}
 		$lRightTable = $pRightProperty->getSqlTableUnit();
+		$lRightModel = $pRightProperty->getUniqueModel();
 		$lReturn = array(
 			"left_model"   => $pLeftModel,
-			"right_model"  => $pRightProperty->getUniqueModel(),
+			"right_model"  => $lRightModel,
 			"left_table"   => $pLeftTable->getValue('name'),
 			"right_table"  => $lRightTable->getValue('name')
 		);
 		$lColumn = $pRightProperty->getSerializationName();
 		if ($pRightProperty->isAggregation()) {
+			$lColumns = [];
+			foreach ($pRightProperty->getAggregationProperties() as $lAggregationProperty) {
+				$lColumns[] = $lRightModel->getProperty($lAggregationProperty, true)->getSerializationName();
+			}
 			$lReturn["left_column"] = $pLeftModel->getFirstIdProperty()->getSerializationName();
-			$lReturn["right_column"] = $lRightTable->getAggregationColumns($pLeftModel, $lColumn);
+			$lReturn["right_column"] = $lColumns;
 		}else {
-			$lRightModel = $pRightProperty->getUniqueModel();
 			$lReturn["left_column"] = $lColumn;
 			$lReturn["right_column"] = $lRightModel->getFirstIdProperty()->getSerializationName();
 		}

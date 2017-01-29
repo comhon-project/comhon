@@ -1,6 +1,6 @@
 {
 	"version": "2.0",
-	"object": "comhon\\object\\object\\SqlTable",
+	"object": "comhon\\object\\object\\serialization\\SqlTable",
 	"properties": {
 		"name": {
 			"type": "string",
