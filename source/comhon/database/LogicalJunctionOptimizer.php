@@ -41,8 +41,8 @@ abstract class LogicalJunctionOptimizer {
 	 * 								actually, optimization is exponential and it can take more time than request itself
 	 */
 	public static function optimizeLiterals($pLogicalJunction, $pCountMax = 10) {
-		$lFlattenedLiterals = $pLogicalJunction->getFlattenedLiterals("md5");
-		$lLiteralKeys = array();
+		$lFlattenedLiterals = $pLogicalJunction->getFlattenedLiterals('md5');
+		$lLiteralKeys = [];
 		foreach ($lFlattenedLiterals as $lKey => $lLiteral) {
 			$lLiteralKeys[] = $lKey;
 		
@@ -60,9 +60,9 @@ abstract class LogicalJunctionOptimizer {
 	}
 	
 	private static function _setLogicalConjunctions($pLogicalJunction, $pFlattenedLiterals, $pLiteralKeys) {
-		$lLiteralValues = array();
-		$lLiterals = array();
-		$lLogicalConjunctions = array();
+		$lLiteralValues = [];
+		$lLiterals = [];
+		$lLogicalConjunctions = [];
 		foreach ($pFlattenedLiterals as $lKey => $lLiteral) {
 			$lLiteralValues[] = false;
 			$lLiterals[$lKey] = false;
@@ -94,7 +94,7 @@ abstract class LogicalJunctionOptimizer {
 	}
 	
 	private static function _execQuineMcCluskeyAlgorithm(&$pLogicalConjunctions) {
-		$lPrimeImplicants = array();
+		$lPrimeImplicants = [];
 		self::_findPrimeImplicants($pLogicalConjunctions, $lPrimeImplicants);
 		return self::_findEssentialPrimeImplicants($pLogicalConjunctions, $lPrimeImplicants);
 	}
@@ -102,10 +102,10 @@ abstract class LogicalJunctionOptimizer {
 	private static function _findPrimeImplicants($pLogicalConjunctions, &$lPrimeImplicants) {
 		$i = 0;
 		$lNbVisitedConjunctions = 0;
-		$lNewLogicalConjunctions = array();
-		$lPreviousLastAddedConjunctions = array();
+		$lNewLogicalConjunctions = [];
+		$lPreviousLastAddedConjunctions = [];
 		while ($lNbVisitedConjunctions < count($pLogicalConjunctions)) {
-			$lLastAddedConjunctions = array();
+			$lLastAddedConjunctions = [];
 			$k = $i + 1;
 			if ((array_key_exists($i, $pLogicalConjunctions))) {
 				foreach ($pLogicalConjunctions[$i] as $lFirstIndex => $lBaseValues) {
@@ -149,20 +149,20 @@ abstract class LogicalJunctionOptimizer {
 	}
 	
 	private static function _findEssentialPrimeImplicants($pAllLogicalConjunctions, $pPrimeImplicants) {
-		$lEssentialPrimeImplicants = array();
+		$lEssentialPrimeImplicants = [];
 		$lMatrix = self::_buildMatrix($pAllLogicalConjunctions, $pPrimeImplicants);
 		
-		$lAllConjunctionsMatches = array();
+		$lAllConjunctionsMatches = [];
 		for ($i = 0; $i < count($lMatrix); $i++) {
 			if (!array_key_exists($i, $lAllConjunctionsMatches)) {
 				$lNbImplicantsMatches = array_pop($lMatrix[$i]);
 				$lCurrentNbImplicantsMatches = 0;
 				$lIndexConjunctionsMatches = 0;
-				$lConjunctionsMatches = array();
+				$lConjunctionsMatches = [];
 				$j = 0;
 				while (($j < count($lMatrix[$i])) && ($lCurrentNbImplicantsMatches < $lNbImplicantsMatches)) {
 					if ($lMatrix[$i][$j]) {
-						$lArrayMatches = array();
+						$lArrayMatches = [];
 						$lCurrentNbImplicantsMatches++;
 						for ($k = 0; $k < count($lMatrix); $k++) {
 							if ($lMatrix[$k][$j] && (!array_key_exists($i, $lAllConjunctionsMatches))) {
@@ -184,11 +184,11 @@ abstract class LogicalJunctionOptimizer {
 	}
 	
 	private static function _buildMatrix($pAllLogicalConjunctions, $pPrimeImplicants) {
-		$lMatrix = array();
+		$lMatrix = [];
 		foreach ($pAllLogicalConjunctions as $lKey => $lLogicalConjunctions) {
 			foreach ($lLogicalConjunctions as $lIndex => $lValues) {
 				$lNbMatches = 0;
-				$lMatches = array();
+				$lMatches = [];
 				foreach ($pPrimeImplicants as $lPrimeImplicant) {
 					$lMatch = true;
 					for ($i = 0; $i < count($lValues); $i++) {
@@ -206,7 +206,7 @@ abstract class LogicalJunctionOptimizer {
 				$lMatrix[] = $lMatches;
 			}
 		}
-		usort($lMatrix, array("comhon\database\LogicalJunctionOptimizer", "sortByLastValue"));
+		usort($lMatrix, ['comhon\database\LogicalJunctionOptimizer', 'sortByLastValue']);
 		return $lMatrix;
 	}
 	
@@ -223,7 +223,7 @@ abstract class LogicalJunctionOptimizer {
 	 * @return array
 	 */
 	private static function _findLiteralsToFactoryze($pEssentialPrimeImplicants) {
-		$lLiteralsToFactoryze = array();
+		$lLiteralsToFactoryze = [];
 		if (!empty($pEssentialPrimeImplicants)) {
 			foreach ($pEssentialPrimeImplicants[0] as  $i => $lValue) {
 				if (!is_null($lValue)) {
@@ -231,7 +231,7 @@ abstract class LogicalJunctionOptimizer {
 				}
 			}
 			foreach ($pEssentialPrimeImplicants as $lEssentialPrimeImplicantValues) {
-				$lIndexes = array();
+				$lIndexes = [];
 				foreach ($lLiteralsToFactoryze as $i => $lValue) {
 					if ($lValue !== $lEssentialPrimeImplicantValues[$i]) {
 						$lIndexes[] = $i;
@@ -249,7 +249,7 @@ abstract class LogicalJunctionOptimizer {
 	}
 	
 	private static function _setFinalLogicalJunction($pEssentialPrimeImplicants, $pFlattenedLiterals, $pLiteralsToFactoryze, $pLiteralKeys) {
-		$lLiteralsToFactoryzeByKey = array();
+		$lLiteralsToFactoryzeByKey = [];
 		$lFirstConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 		if (!empty($pLiteralsToFactoryze)) {
 			foreach ($pLiteralsToFactoryze as $pLiteralIndex) {

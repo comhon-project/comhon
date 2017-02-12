@@ -312,7 +312,7 @@ class MainModel extends Model {
 		$lObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
 		if (!is_null($lObject) && $lObject !== $pObject) {
 		 	throw new \Exception("A different instance object with same id '$pId' already exists in MainObjectCollection.\n"
-		 						."If you want to build a new instance with this id, you must go through Model and specify merge type as ".Model::NO_MERGE.' (no merge)');
+		 						.'If you want to build a new instance with this id, you must go through Model and specify merge type as '.Model::NO_MERGE.' (no merge)');
 		}
 	}
 	
@@ -406,7 +406,7 @@ class MainModel extends Model {
 		$lSuccess = false;
 		$this->load();
 		if (is_null($lSerializationUnit = $this->getSerialization())) {
-			throw new \Exception("model doesn't have serialization");
+			throw new \Exception('model doesn\'t have serialization');
 		}
 		if (!$pObject->isLoaded() || $pForceLoad) {
 			$lSuccess = $lSerializationUnit->loadObject($pObject);

@@ -6,7 +6,7 @@ use comhon\object\model\Model;
 
 class ObjectCollection {
 	
-	protected $mMap = array();
+	protected $mMap = [];
 	
 	/**
 	 * get Object with Model if exists
@@ -53,7 +53,7 @@ class ObjectCollection {
 			$lModelName = $pObject->getModel()->getModelName();
 			$lId = $pObject->getId();
 			if (!array_key_exists($lModelName, $this->mMap)) {
-				$this->mMap[$lModelName] = array();
+				$this->mMap[$lModelName] = [];
 			}
 			// if object NOT already added, we can add it
 			if(!array_key_exists($lId, $this->mMap[$lModelName])) {
@@ -82,9 +82,9 @@ class ObjectCollection {
 	}
 	
 	public function toStdObject($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null) {
-		$lArray = array();
+		$lArray = [];
 		foreach ($this->mMap as $lModelName => $lObjectById) {
-			$lArray[$lModelName] = array();
+			$lArray[$lModelName] = [];
 			foreach ($lObjectById as $lId => $lObject) {
 				$lArray[$lModelName][$lId] = $lObject->toStdObject($pPrivate, $pUseSerializationName, $pTimeZone);
 			}

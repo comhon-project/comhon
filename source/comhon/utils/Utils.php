@@ -24,7 +24,7 @@ class Utils{
 	 * @return boolean true if success
 	 */
 	public static function delTree($pDir) {
-		$lFiles = array_diff(scandir($pDir), array('.','..'));
+		$lFiles = array_diff(scandir($pDir), ['.','..']);
 		foreach ($lFiles as $lFile) {
 			(is_dir("$pDir/$lFile")) ? self::delTree("$pDir/$lFile") : unlink("$pDir/$lFile");
 		}
@@ -37,7 +37,7 @@ class Utils{
 	public static function printStack() {
         $lNodes = debug_backtrace();
         for ($i = 1; $i < count($lNodes); $i++) {
-        	trigger_error("$i. ".basename($lNodes[$i]['file']) ." : " .$lNodes[$i]['function'] ."(" .$lNodes[$i]['line'].")");
+        	trigger_error("$i. ".basename($lNodes[$i]['file']) .' : ' .$lNodes[$i]['function'] .'(' .$lNodes[$i]['line'].')');
         }
     } 
     

@@ -11,8 +11,8 @@ abstract class Graph {
 	
 	public function __construct($pValue) {
 		$this->mVisitedNodes = new DoublyLinkedList();
-		$this->mSavedNodes = array();
-		$this->InstanceMap = array();
+		$this->mSavedNodes = [];
+		$this->InstanceMap = [];
 		$this->mCurrentNode = new Node($pValue);
 	}
 	
@@ -166,7 +166,7 @@ abstract class Graph {
 			$this->mCallBackVisit = function () {
 				return $this->mVisitedNodes->pop();
 			};
-			$this->InstanceMap = array();
+			$this->InstanceMap = [];
 		}
 	}
 	
@@ -175,7 +175,7 @@ abstract class Graph {
 			$this->mCallBackVisit = function () {
 				return $this->mVisitedNodes->shift();
 			};
-			$this->InstanceMap = array();
+			$this->InstanceMap = [];
 		}
 	}
 	
@@ -284,7 +284,7 @@ abstract class Graph {
 	protected function _deleteNeighborLinkAt($pNeighborIndex) {
 		$lReturn = false;
 		if (!$this->mVisitedNodes->isEmpty()) {
-			throw new \Exception("can't delete node while visiting, call resetVisit function before");
+			throw new \Exception('can\'t delete node while visiting, call resetVisit function before');
 		}
 		return $this->mCurrentNode->deleteNeighborAt($pNeighborIndex);
 	}
@@ -297,7 +297,7 @@ abstract class Graph {
 	protected function _deleteNeighborAt($pNeighborIndex) {
 		$lReturn = false;
 		if (!$this->mVisitedNodes->isEmpty()) {
-			throw new \Exception("can't delete node while visiting, call resetVisit function before");
+			throw new \Exception('can\'t delete node while visiting, call resetVisit function before');
 		}
 		if (!is_null($this->mCurrentNode) && (($lNeighbor = $this->mCurrentNode->getNeighborAt($pNeighborIndex))!== false)) {
 			$lReturn = $lNeighbor;

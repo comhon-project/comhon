@@ -8,10 +8,10 @@ class ModelEnum extends ModelContainer {
 	
 	public final function __construct($pModel, $pEnum) {
 		if (!($pModel instanceof SimpleModel)) {
-			throw new Exception("model parameter must be an instanceof SimpleModel");
+			throw new Exception('model parameter must be an instanceof SimpleModel');
 		}
 		if (!is_array($pEnum)) {
-			throw new Exception("enum parameter must be an array");
+			throw new Exception('enum parameter must be an array');
 		}
 		$this->mModel    = $pModel;
 		$this->mEnum     = $pEnum;

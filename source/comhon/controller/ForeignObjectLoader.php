@@ -11,7 +11,7 @@ use comhon\object\ObjectCollection;
 class ForeignObjectLoader extends Controller {
 
 	private $mLoadAggregations      = true;
-	private $mLoadedValues          = array();
+	private $mLoadedValues          = [];
 	
 	protected function _init($pObject) {
 		if (array_key_exists(0, $this->mParams)) {
@@ -20,7 +20,7 @@ class ForeignObjectLoader extends Controller {
 	}
 	
 	protected function _getMandatoryParameters() {
-		return array();
+		return [];
 	}
 	
 	protected function _visit($pParentObject, $pKey, $pPropertyNameStack) {
@@ -40,7 +40,7 @@ class ForeignObjectLoader extends Controller {
 	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack) {}
 	
 	protected function _finalize($pObject) {
-		$this->mLoadedValues = array();
+		$this->mLoadedValues = [];
 	}
 	
 }

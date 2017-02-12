@@ -36,12 +36,12 @@ class XmlSerializationManifestParser extends ParentXmlSerializationManifestParse
 					$lAggregations[] = (string) $lAggregation;
 				}
 			}
-			if (isset($lSerializationNode["serializable"])) {
-				$lIsSerializable = (string) $lSerializationNode["serializable"] !== "0";
+			if (isset($lSerializationNode['serializable'])) {
+				$lIsSerializable = (string) $lSerializationNode['serializable'] !== '0';
 			}
 		}
 		
-		return array($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames);
+		return [$lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames];
 	}
 	
 	protected function _getSerialization() {

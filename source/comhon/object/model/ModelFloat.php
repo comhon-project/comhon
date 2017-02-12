@@ -3,7 +3,7 @@ namespace comhon\object\model;
 
 class ModelFloat extends SimpleModel {
 	
-	const ID = "float";
+	const ID = 'float';
 	
 	protected function _init() {
 		$this->mModelName = self::ID;

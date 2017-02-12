@@ -12,25 +12,25 @@ use comhon\database\DatabaseController;
  */
 class ComplexLiteral extends WhereLiteral {
 
-	const IN     = "IN";
-	const NOT_IN = "NOT IN";
+	const IN     = 'IN';
+	const NOT_IN = 'NOT IN';
 	
-	protected static $sAcceptedOperators = array(
+	protected static $sAcceptedOperators = [
 			self::IN     => null,
 			self::NOT_IN => null
-	);
+	];
 	
-	protected static $sOppositeOperator = array(
+	protected static $sOppositeOperator = [
 			self::IN     => self::NOT_IN,
 			self::NOT_IN => self::IN
-	);
+	];
 	
 	protected function _verifLiteral() {
 		if (!array_key_exists($this->mOperator, self::$sAcceptedOperators)) {
-			throw new \Exception("operator '".$this->mOperator."' doesn't exists");
+			throw new \Exception('operator \''.$this->mOperator.'\' doesn\'t exists');
 		}
 		if (!is_null($this->mValue) && !($this->mValue instanceof SelectQuery)) {
-			throw new \Exception("complex literal must have a query value");
+			throw new \Exception('complex literal must have a query value');
 		}
 	}
 	
@@ -43,7 +43,7 @@ class ComplexLiteral extends WhereLiteral {
 		foreach ($lValues as $lValue) {
 			$pValues[] = $lValue;
 		}
-		return sprintf("%s.%s %s (%s)", $this->mTable, $this->mColumn, $this->mOperator, $lQuery);
+		return sprintf('%s.%s %s (%s)', $this->mTable, $this->mColumn, $this->mOperator, $lQuery);
 	}
 	
 	/**
@@ -51,6 +51,6 @@ class ComplexLiteral extends WhereLiteral {
 	 * @return string
 	 */
 	public function exportWithValue() {
-		return sprintf("%s.%s %s (%s)", $this->mTable, $this->mColumn, $this->mOperator, $this->mValue->exportWithValue());
+		return sprintf('%s.%s %s (%s)', $this->mTable, $this->mColumn, $this->mOperator, $this->mValue->exportWithValue());
 	}
 }

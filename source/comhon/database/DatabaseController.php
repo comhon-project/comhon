@@ -8,8 +8,8 @@ use comhon\object\object\Object;
 
 class DatabaseController {
 	
-	const MYSQL = "mysql";
-	const PGSQL = "pgsql";
+	const MYSQL = 'mysql';
+	const PGSQL = 'pgsql';
 
 	private static $sInstances = [];
 	
@@ -47,17 +47,17 @@ class DatabaseController {
 	 * @throws Exception
 	 */
 	private function __construct($pDbReference) {
-		if (!array_key_exists($pDbReference->getValue("DBMS"), self::$sInsertReturns)) {
-			throw new \Exception("DBMS '{$pDbReference->getValue("DBMS")}' not supported yet");
+		if (!array_key_exists($pDbReference->getValue('DBMS'), self::$sInsertReturns)) {
+			throw new \Exception("DBMS '{$pDbReference->getValue('DBMS')}' not supported yet");
 		}
 		$this->mId = $pDbReference->getValue('id');
-		$lDataSourceName = sprintf('%s:dbname=%s;host=%s', $pDbReference->getValue("DBMS"), $pDbReference->getValue("name"), $pDbReference->getValue("host"));
-		if ($pDbReference->hasValue("port")) {
-			$lDataSourceName .= sprintf(';port=%s', $pDbReference->getValue("port"));
+		$lDataSourceName = sprintf('%s:dbname=%s;host=%s', $pDbReference->getValue('DBMS'), $pDbReference->getValue('name'), $pDbReference->getValue('host'));
+		if ($pDbReference->hasValue('port')) {
+			$lDataSourceName .= sprintf(';port=%s', $pDbReference->getValue('port'));
 		}
-		$this->mDbHandle = new PDO($lDataSourceName, $pDbReference->getValue("user"), $pDbReference->getValue("password"));
-		$this->mIsSupportedLastInsertId = in_array($pDbReference->getValue("DBMS"), self::$sSupportedLastInsertId);
-		$this->mInsertReturn = self::$sInsertReturns[$pDbReference->getValue("DBMS")];
+		$this->mDbHandle = new PDO($lDataSourceName, $pDbReference->getValue('user'), $pDbReference->getValue('password'));
+		$this->mIsSupportedLastInsertId = in_array($pDbReference->getValue('DBMS'), self::$sSupportedLastInsertId);
+		$this->mInsertReturn = self::$sInsertReturns[$pDbReference->getValue('DBMS')];
 		$this->_setDatabaseOptions();
 	}
 	
@@ -130,7 +130,7 @@ class DatabaseController {
 	public static function getInstanceWithDataBaseObject(Object $pDbReference) {
 		$lReturn = null;
 		if (!$pDbReference->hasValue('id')) {
-			throw new \Exception("malformed database reference");
+			throw new \Exception('malformed database reference');
 		}
 		$lId = $pDbReference->getValue('id');
 		if (array_key_exists($lId, self::$sInstances)) {

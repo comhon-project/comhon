@@ -71,7 +71,7 @@ abstract class JsonManifestParser extends ManifestParser {
 				throw new Exception("several model with same type : '$lModelName'");
 			}
 			$lSerializationPath_afe = array_key_exists($lModelName, $pSerializationMap) ? $pSerializationMap[$lModelName] : null;
-			$pModelMap[$lModelName] = array($pManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe);
+			$pModelMap[$lModelName] = [$pManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe];
 		}
 	}
 	

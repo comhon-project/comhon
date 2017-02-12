@@ -93,8 +93,8 @@ class XmlManifestParser extends ParentXmlManifestParser {
 		$lCurrentPropertyXml = current($this->mCurrentProperties);
 		
 		$lName      = isset($lCurrentPropertyXml->name) ? (string) $lCurrentPropertyXml->name : (string) $lCurrentPropertyXml;
-		$lIsId      = isset($lCurrentPropertyXml["id"]) && ((string) $lCurrentPropertyXml["id"] == "1");
-		$lIsPrivate = isset($lCurrentPropertyXml["private"]) && ((string) $lCurrentPropertyXml["private"] == "1");
+		$lIsId      = isset($lCurrentPropertyXml['id']) && ((string) $lCurrentPropertyXml['id'] == '1');
+		$lIsPrivate = isset($lCurrentPropertyXml['private']) && ((string) $lCurrentPropertyXml['private'] == '1');
 		$lModel     = $this->_completePropertyModel($lCurrentPropertyXml, $pPropertyModel);
 		
 		if (isset($lCurrentPropertyXml['xml'])) {
@@ -110,16 +110,16 @@ class XmlManifestParser extends ParentXmlManifestParser {
 			$lInterfaceAsNodeXml = null;
 		}
 		
-		if (isset($lCurrentPropertyXml["default"])) {
+		if (isset($lCurrentPropertyXml['default'])) {
 			if ($lModel instanceof ModelDateTime) {
-				$lDefault = (string) $lCurrentPropertyXml["default"];
+				$lDefault = (string) $lCurrentPropertyXml['default'];
 				if (new \DateTime($lDefault) === false) {
 					throw new \Exception('invalid default value time format : '.$lDefault);
 				}
 			} else if ($lModel instanceof SimpleModel) {
-				$lDefault = $lModel->fromXmlAttribute($lCurrentPropertyXml["default"]);
+				$lDefault = $lModel->fromXmlAttribute($lCurrentPropertyXml['default']);
 			} else if ($lModel instanceof ModelEnum) {
-				$lDefault = $lModel->getModel()->fromXmlAttribute($lCurrentPropertyXml["default"]);
+				$lDefault = $lModel->getModel()->fromXmlAttribute($lCurrentPropertyXml['default']);
 			} else {
 				throw new \Exception('default value can\'t be applied on complex model');
 			}
@@ -127,7 +127,7 @@ class XmlManifestParser extends ParentXmlManifestParser {
 			$lDefault = null;
 		}
 		
-		return array($lName, $lModel, $lIsId, $lIsPrivate, $lDefault, $lInterfaceAsNodeXml);
+		return [$lName, $lModel, $lIsId, $lIsPrivate, $lDefault, $lInterfaceAsNodeXml];
 	}
 	
 	/**
@@ -152,7 +152,7 @@ class XmlManifestParser extends ParentXmlManifestParser {
 				throw new \Exception('model doesn\'t match with type');
 			}
 			if (isset($pPropertyXml->enum)) {
-				$lEnum = array();
+				$lEnum = [];
 				foreach ($pPropertyXml->enum->value as $lValue) {
 					$lEnum[] = (string) $lValue;
 				}
@@ -177,7 +177,7 @@ class XmlManifestParser extends ParentXmlManifestParser {
 					throw new Exception("several model with same type : '$lModelName'");
 				}
 				$pManifestPath_rfe = (string) $lManifest;
-				$pInstanceModels[$lModelName] = array($pManifestPath_ad.'/'.$pManifestPath_rfe, null);
+				$pInstanceModels[$lModelName] = [$pManifestPath_ad.'/'.$pManifestPath_rfe, null];
 			}
 		}
 	}

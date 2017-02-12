@@ -12,10 +12,10 @@ class AggregationLoader extends Controller {
 	const LOAD_CHILDREN = 'loadChildren';
 
 	private $mLoadChildren        = false;
-	private $mLoadedAggregations = array();
+	private $mLoadedAggregations = [];
 	
 	protected function _getMandatoryParameters() {
-		return array();
+		return [];
 	}
 	
 	protected function _init($pObject) {
@@ -47,7 +47,7 @@ class AggregationLoader extends Controller {
 	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack) {}
 	
 	protected function _finalize($pObject) {
-		$this->mLoadedAggregations = array();
+		$this->mLoadedAggregations = [];
 	}
 	
 }

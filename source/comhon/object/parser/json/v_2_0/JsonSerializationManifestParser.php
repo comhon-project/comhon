@@ -39,7 +39,7 @@ class JsonSerializationManifestParser extends ParentJsonSerializationManifestPar
 			}
 		}
 		
-		return array($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames);
+		return [$lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames];
 	}
 	
 	protected function _getSerialization() {

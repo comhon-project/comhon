@@ -73,7 +73,7 @@ abstract class XmlManifestParser extends ManifestParser {
 			}
 			$lManifestPath_rfe = (string) $lManifest;
 			$lSerializationPath_afe = array_key_exists($lModelName, $pSerializationMap) ? $pSerializationMap[$lModelName] : null;
-			$pModelMap[$lModelName] = array($pManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe);
+			$pModelMap[$lModelName] = [$pManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe];
 		}
 	}
 	

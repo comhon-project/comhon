@@ -3,25 +3,25 @@ namespace comhon\database;
 
 class SelectQuery {
 
-	const INNER_JOIN = "inner join";
-	const LEFT_JOIN  = "left join";
-	const RIGHT_JOIN = "right join";
-	const FULL_JOIN  = "full join";
+	const INNER_JOIN = 'inner join';
+	const LEFT_JOIN  = 'left join';
+	const RIGHT_JOIN = 'right join';
+	const FULL_JOIN  = 'full join';
 	
-	const ASC  = "ASC";
-	const DESC = "DESC";
+	const ASC  = 'ASC';
+	const DESC = 'DESC';
 	
-	private static $sAccpetedJoins = array(
+	private static $sAccpetedJoins = [
 		self::INNER_JOIN => null,
 		self::LEFT_JOIN  => null,
 		self::RIGHT_JOIN => null,
 		self::FULL_JOIN  => null
-	);
+	];
 	
-	private static $sAccpetedOrders = array(
+	private static $sAccpetedOrders = [
 			self::ASC  => null,
 			self::DESC => null
-	);
+	];
 
 	private $mMainTable;
 	private $mCurrentTableName;
@@ -226,38 +226,38 @@ class SelectQuery {
 	public function export() {
 		$lValues = [];
 	
-		$lQuery = "SELECT ".$this->_getColumnsForQuery()." FROM ".$this->_exportJoinedTables($lValues);
+		$lQuery = 'SELECT '.$this->_getColumnsForQuery().' FROM '.$this->_exportJoinedTables($lValues);
 	
 		if (!is_null($lClause = $this->_getClauseForQuery($this->mWhere, $lValues))) {
-			$lQuery .= " WHERE ".$lClause;
+			$lQuery .= ' WHERE '.$lClause;
 		}
 		if (!empty($this->mGroup)) {
-			$lQuery .= " GROUP BY ".implode(",", $this->mGroup);
+			$lQuery .= ' GROUP BY '.implode(',', $this->mGroup);
 		}
 		if (!empty($this->mOrder)) {
-			$lQuery .= " ORDER BY ".implode(",", $this->mOrder);
+			$lQuery .= ' ORDER BY '.implode(',', $this->mOrder);
 		}
 		if (!is_null($lClause = $this->_getClauseForQuery($this->mHaving, $lValues))) {
-			$lQuery .= " HAVING ".$lClause;
+			$lQuery .= ' HAVING '.$lClause;
 		}
 		if (!is_null($this->mLimit)) {
 			if (empty($this->mOrder)) {
 				trigger_error('Warning, limit is used without ordering');
 			}
-			$lQuery .= " LIMIT ".$this->mLimit;
+			$lQuery .= ' LIMIT '.$this->mLimit;
 		}
 		if (!is_null($this->mOffset)) {
 			if (empty($this->mOrder)) {
 				trigger_error('Warning, offset is used without ordering');
 			}
-			$lQuery .= " OFFSET ".$this->mOffset;
+			$lQuery .= ' OFFSET '.$this->mOffset;
 		}
-		return array($lQuery, $lValues);
+		return [$lQuery, $lValues];
 	}
 	
 	public function exportWithValue() {
 		list($lQuery, $lValues) = $this->export();
-		return vsprintf(str_replace('?', "%s", $lQuery), $lValues);
+		return vsprintf(str_replace('?', '%s', $lQuery), $lValues);
 	}
 	
 	private function _getColumnsForQuery() {
@@ -304,18 +304,18 @@ class SelectQuery {
 	 */
 	private function _exportJoinedTables(&$lValues) {
 		list($lExportedTable, $lSubValues) = $this->mMainTable->exportTable();
-		$lJoinedTables = " ".$lExportedTable;
+		$lJoinedTables = ' '.$lExportedTable;
 		
 		foreach ($this->mJoinedTables as $lJoinedTable) {
 			list($lExportedTable, $lSubValues) = $lJoinedTable[0]->exportTable();
 			$lValues = array_merge($lValues, $lSubValues);
 			
-			$lJoinedTables .= " ".$lJoinedTable[1];
-			$lJoinedTables .= " ".$lExportedTable;
-			$lJoinedTables .= " on ".$lJoinedTable[2]->export($lValues);
+			$lJoinedTables .= ' '.$lJoinedTable[1];
+			$lJoinedTables .= ' '.$lExportedTable;
+			$lJoinedTables .= ' on '.$lJoinedTable[2]->export($lValues);
 		}
 		
-		return $lJoinedTables." ";
+		return $lJoinedTables.' ';
 	}
 	
 }

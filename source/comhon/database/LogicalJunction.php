@@ -12,13 +12,13 @@ class LogicalJunction {
 	const CONJUNCTION = 'conjunction';
 	
 	protected $mType;
-	protected $mLiterals = array();
-	protected $mLogicalJunction = array();
+	protected $mLiterals = [];
+	protected $mLogicalJunction = [];
 	
-	private static $sAcceptedTypes = array(
+	private static $sAcceptedTypes = [
 		self::DISJUNCTION => 'or',
 		self::CONJUNCTION => 'and'
-	);
+	];
 	
 	/**
 	 * 
@@ -71,10 +71,10 @@ class LogicalJunction {
 	 * @param string $pKeyType can be "index" or "md5"
 	 * @return array:
 	 */
-	public function getLiterals($pKeyType = "index") {
+	public function getLiterals($pKeyType = 'index') {
 		$lReturn = $this->mLiterals;
-		if ($pKeyType == "md5") {
-			$lReturn = array();
+		if ($pKeyType == 'md5') {
+			$lReturn = [];
 			foreach ($this->mLiterals as $lLiteral) {
 				$lReturn[md5($lLiteral->exportWithValue())] = $lLiteral;
 			}
@@ -91,8 +91,8 @@ class LogicalJunction {
 	 * @param string $pKeyType can be "index" or "md5"
 	 * @return array
 	 */
-	public function getFlattenedLiterals($pKeyType = "index") {
-		$lLiterals = array();
+	public function getFlattenedLiterals($pKeyType = 'index') {
+		$lLiterals = [];
 		$this->getFlattenedLiteralsWithRefParam($lLiterals, $pKeyType);
 		return $lLiterals;
 	}
@@ -105,7 +105,7 @@ class LogicalJunction {
 	public function getFlattenedLiteralsWithRefParam(&$pLiterals, $pKeyType) {
 		foreach ($this->mLiterals as $lLiteral) {
 			switch ($pKeyType) {
-				case "md5":
+				case 'md5':
 					$pLiterals[md5($lLiteral->exportWithValue())] = $lLiteral;
 					break;
 				default:
@@ -123,34 +123,34 @@ class LogicalJunction {
 	 * @return string
 	 */
 	public function export(&$pValues) {
-		$lArray = array();
+		$lArray = [];
 		foreach ($this->mLiterals as $lLiteral) {
 			$lArray[] = $lLiteral->export($pValues);
 		}
 		foreach ($this->mLogicalJunction as $lLogicalJunction) {
 			$lResult = $lLogicalJunction->export($pValues);
-			if ($lResult != "") {
+			if ($lResult != '') {
 				$lArray[] = $lResult;
 			}
 		}
-		return (!empty($lArray)) ? "(".implode(" ".$this->getOperator()." ", $lArray).")" : "";
+		return (!empty($lArray)) ? '('.implode(' '.$this->getOperator().' ', $lArray).')' : '';
 	}
 	
 	/**
 	 * @return string
 	 */
 	public function exportDebug() {
-		$lArray = array();
+		$lArray = [];
 		foreach ($this->mLiterals as $lLiteral) {
 			$lArray[] = $lLiteral->exportWithValue();
 		}
 		foreach ($this->mLogicalJunction as $lLogicalJunction) {
 			$lResult = $lLogicalJunction->exportDebug();
-			if ($lResult != "") {
+			if ($lResult != '') {
 				$lArray[] = $lResult;
 			}
 		}
-		return (!empty($lArray)) ? "(".implode(" ".$this->getOperator()." ", $lArray).")" : "";
+		return (!empty($lArray)) ? '('.implode(' '.$this->getOperator().' ', $lArray).')' : '';
 	}
 	
 	public function hasOnlyOneLiteral() {
@@ -196,7 +196,7 @@ class LogicalJunction {
 	}
 	
 	private function _isSatisfiedConjunction($pPredicates) {
-		foreach ($this->getLiterals("md5") as $lKey => $lLiteral) {
+		foreach ($this->getLiterals('md5') as $lKey => $lLiteral) {
 			if (!$pPredicates[$lKey]) {
 				return false;
 			}
@@ -211,7 +211,7 @@ class LogicalJunction {
 	
 	private function _isSatisfiedDisjunction($pPredicates) {
 		$lSatisfied = false;
-		foreach ($this->getLiterals("md5") as $lKey => $lLiteral) {
+		foreach ($this->getLiterals('md5') as $lKey => $lLiteral) {
 			$lSatisfied = $lSatisfied || $pPredicates[$lKey];
 		}
 		foreach ($this->mLogicalJunction as $lLogicalJunction) {
@@ -231,7 +231,7 @@ class LogicalJunction {
 	 */
 	public static function stdObjectToLogicalJunction($pStdObject, $pModelByNodeId, $pLiteralCollection = null, $pSelectQuery = null) {
 		if (!isset($pStdObject->type) || (isset($pStdObject->logicalJunctions) && !is_array($pStdObject->logicalJunctions)) || (isset($pStdObject->literals) && !is_array($pStdObject->literals))) {
-			throw new \Exception("malformed stdObject LogicalJunction : ".json_encode($pStdObject));
+			throw new \Exception('malformed stdObject LogicalJunction : '.json_encode($pStdObject));
 		}
 		$lLogicalJunction = new LogicalJunction($pStdObject->type);
 		if (isset($pStdObject->logicalJunctions)) {

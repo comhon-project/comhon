@@ -9,7 +9,7 @@ class Node {
 	private $mNextNodes;
 	private $mNextEdges;
 	
-	public function __construct($pValue, $pPreviousNode = null, $pNextNodes = array()) {
+	public function __construct($pValue, $pPreviousNode = null, $pNextNodes = []) {
 		$this->mValue = $pValue;
 		$this->mPreviousNode = $pPreviousNode;
 		$this->mNextNodes = $pNextNodes;
@@ -43,7 +43,7 @@ class Node {
 	
 	public function setNext($pNode) {
 		if (is_null($pNode) || (is_object($pNode) && ($pNode instanceof Node))) {
-			$this->mNextNodes = array($pNode);
+			$this->mNextNodes = [$pNode];
 		}
 	}
 	
@@ -140,7 +140,7 @@ class Node {
 	 */
 	public function deleteNeighbors() {
 		$lReturn = $this->mNextNodes;
-		$this->mNextNodes = array();
+		$this->mNextNodes = [];
 		return $lReturn;
 	}
 	

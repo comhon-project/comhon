@@ -32,7 +32,7 @@ class OnLiteral extends Literal {
 	public function export(&$pValues) {
 		$lLeft = (($this->mTable instanceof TableNode) ? $this->mTable->getExportName() : $this->mTable) . '.' . $this->mColumn;
 		$lRight = (($this->mValue instanceof TableNode) ? $this->mValue->getExportName() : $this->mValue) . '.' . $this->mColumnRight;
-		return sprintf("%s %s %s", $lLeft, $this->mOperator, $lRight);
+		return sprintf('%s %s %s', $lLeft, $this->mOperator, $lRight);
 	}
 	
 	/**
@@ -41,7 +41,7 @@ class OnLiteral extends Literal {
 	 * @throws \Exception
 	 */
 	private static function _verifStdObject($pStdObject) {
-		throw new \Exception("cannot build OnLiteral from stdClass object");
+		throw new \Exception('cannot build OnLiteral from stdClass object');
 	}
 	
 	/**
@@ -52,7 +52,7 @@ class OnLiteral extends Literal {
 	 * @throws \Exception
 	 */
 	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null) {
-		throw new \Exception("cannot build OnLiteral from stdClass object");
+		throw new \Exception('cannot build OnLiteral from stdClass object');
 	}
 	
 }

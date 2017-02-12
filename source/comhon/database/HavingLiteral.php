@@ -5,19 +5,19 @@ class HavingLiteral extends Literal {
 
 	private $mFunction;
 
-	const COUNT = "COUNT";
-	const SUM   = "SUM";
-	const AVG   = "AVG";
-	const MIN   = "MIN";
-	const MAX   = "MAX";
+	const COUNT = 'COUNT';
+	const SUM   = 'SUM';
+	const AVG   = 'AVG';
+	const MIN   = 'MIN';
+	const MAX   = 'MAX';
 	
-	protected static $sAcceptedFunctions = array(
+	protected static $sAcceptedFunctions = [
 			self::COUNT => null,
 			self::SUM   => null,
 			self::AVG   => null,
 			self::MIN   => null,
 			self::MAX   => null
-	);
+	];
 	
 	public function __construct($pFunction, $pTable, $pColumn, $pOperator, $pValue) {
 		$this->mFunction = $pFunction;
@@ -26,13 +26,13 @@ class HavingLiteral extends Literal {
 	
 	protected function _verifLiteral() {
 		if (!array_key_exists($this->mOperator, self::$sAcceptedOperators)) {
-			throw new \Exception("operator '".$this->mOperator."' doesn't exists");
+			throw new \Exception('operator \''.$this->mOperator.'\' doesn\'t exists');
 		}
 		if (!array_key_exists($this->mFunction, self::$sAcceptedFunctions)) {
-			throw new \Exception("function '".$this->mFunction."' doesn't exists");
+			throw new \Exception('function \''.$this->mFunction.'\' doesn\'t exists');
 		}
 		if (!is_int($this->mValue)) {
-			throw new \Exception("having literal must have an integer value");
+			throw new \Exception('having literal must have an integer value');
 		}
 	}
 	
@@ -43,12 +43,12 @@ class HavingLiteral extends Literal {
 	public function export(&$pValues) {
 		$lColumnTable = is_null($this->mColumn) ? '*'
 			: ((($this->mTable instanceof TableNode) ? $this->mTable->getExportName() : $this->mTable) . '.' . $this->mColumn);
-		return sprintf("%s(%s) %s %s", $this->mFunction, $lColumnTable, $this->mOperator, $this->mValue);
+		return sprintf('%s(%s) %s %s', $this->mFunction, $lColumnTable, $this->mOperator, $this->mValue);
 	}
 	
 	private static function _verifStdObject($pStdObject) {
 		if (!is_object($pStdObject) || !isset($pStdObject->function) || !isset($pStdObject->operator) ||!isset($pStdObject->value)) {
-			throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
+			throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
 		}
 	}
 	
@@ -70,7 +70,7 @@ class HavingLiteral extends Literal {
 			}
 			$lColumn = $pModel->getProperty($pStdObject->property, true)->getSerializationName();
 		} else {
-			throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
+			throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
 		}
 		
 		if (isset($pStdObject->node)) {

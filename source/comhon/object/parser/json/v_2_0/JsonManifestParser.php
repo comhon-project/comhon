@@ -109,7 +109,7 @@ class JsonManifestParser extends ParentJsonManifestParser {
 			$lDefault = null;
 		}
 		
-		return array($lName, $lModel, $lIsId, $lIsPrivate, $lDefault, $lInterfaceAsNodeXml);
+		return [$lName, $lModel, $lIsId, $lIsPrivate, $lDefault, $lInterfaceAsNodeXml];
 	}
 	
 	/**
@@ -149,7 +149,7 @@ class JsonManifestParser extends ParentJsonManifestParser {
 				if (array_key_exists($lType, $pInstanceModels)) {
 					throw new Exception("several model with same type : '$lType'");
 				}
-				$pInstanceModels[$lType] = array($pManifestPath_ad.'/'.$lManifestPath_rfe, null);
+				$pInstanceModels[$lType] = [$pManifestPath_ad.'/'.$lManifestPath_rfe, null];
 			}
 		}
 	}

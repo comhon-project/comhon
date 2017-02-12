@@ -16,7 +16,7 @@ abstract class Controller {
 	
 	protected $mMainObject;
 	protected $mParams;
-	private   $mInstanceObjectHash = array();
+	private   $mInstanceObjectHash = [];
 	private   $mPropertyNameStack;
 	
 	/**
@@ -26,10 +26,10 @@ abstract class Controller {
 	 * @param array $pVisitRootObject
 	 * @return unknown|boolean
 	 */
-	public final function execute(Object $pObject, $pParams = array()) {
+	public final function execute(Object $pObject, $pParams = []) {
 		$this->_verifParameters($pParams);
 		if (($pObject->getModel() instanceof Model) || ($pObject->getModel() instanceof ModelArray)) {
-			$this->mPropertyNameStack = array();
+			$this->mPropertyNameStack = [];
 			$this->mMainObject        = $pObject;
 			$this->mParams            = $pParams;	
 
@@ -38,7 +38,7 @@ abstract class Controller {
 			if ($this->_isVisitRootObject()) {
 				$lModelName   = $pObject->getModel()->getModelName();
 				$lProperty    = new ForeignProperty($pObject->getModel(), $lModelName);
-				$lCustomModel = new ModelCustom('modelCustom', array($lProperty));
+				$lCustomModel = new ModelCustom('modelCustom', [$lProperty]);
 				$lRootObject  = $lCustomModel->getObjectInstance();
 				$lRootObject->setValue($lModelName, $pObject);
 				$this->_accept($lRootObject, $lModelName, $lModelName);

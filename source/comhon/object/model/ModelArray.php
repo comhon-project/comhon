@@ -313,7 +313,7 @@ class ModelArray extends ModelContainer {
 	protected function _toXml($pObjectArray, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if (!is_null($pObjectArray)) {
 			if (!$pObjectArray->isLoaded()) {
-				$pXmlNode[ObjectArray::__UNLOAD__] = "1";
+				$pXmlNode[ObjectArray::__UNLOAD__] = '1';
 			}
 			else if ($this->getModel() instanceof ModelEnum) {
 				$lEnum = $this->getModel()->getEnum();
@@ -340,7 +340,7 @@ class ModelArray extends ModelContainer {
 	protected function _toXmlId($pObjectArray, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
 		if (!is_null($pObjectArray)) {
 			if (!$pObjectArray->isLoaded()) {
-				$pXmlNode[ObjectArray::__UNLOAD__] = "1";
+				$pXmlNode[ObjectArray::__UNLOAD__] = '1';
 			}
 			else {
 				foreach ($pObjectArray->getValues() as $lKey => $lValue) {
@@ -406,7 +406,7 @@ class ModelArray extends ModelContainer {
 	}
 	
 	protected function _fromXml($pXml, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
-		if (isset($pXml[ObjectArray::__UNLOAD__]) && ((string) $pXml[ObjectArray::__UNLOAD__] == "1")) {
+		if (isset($pXml[ObjectArray::__UNLOAD__]) && ((string) $pXml[ObjectArray::__UNLOAD__] == '1')) {
 			$lObjectArray = $this->getObjectInstance(false);
 		} else {
 			$lObjectArray = $this->getObjectInstance();
@@ -418,7 +418,7 @@ class ModelArray extends ModelContainer {
 	}
 	
 	protected function _fromXmlId($pXml, $pLocalObjectCollection) {
-		if (isset($pXml[ObjectArray::__UNLOAD__]) && ((string) $pXml[ObjectArray::__UNLOAD__] == "1")) {
+		if (isset($pXml[ObjectArray::__UNLOAD__]) && ((string) $pXml[ObjectArray::__UNLOAD__] == '1')) {
 			$lValue = $this->getObjectInstance(false);
 		} else {
 			$lValue = $this->getObjectInstance();

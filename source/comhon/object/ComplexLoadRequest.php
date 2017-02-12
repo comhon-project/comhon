@@ -42,8 +42,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	public function __construct($pModelName) {
 		parent::__construct($pModelName);
 		if (!$this->mModel->hasSqlTableUnit()) {
-			trigger_error("error : resquested model must have a database serialization");
-			throw new Exception("error : resquested model must have a database serialization");
+			trigger_error('error : resquested model must have a database serialization');
+			throw new Exception('error : resquested model must have a database serialization');
 		}
 		$this->mLogicalJunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 	}
@@ -54,7 +54,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	public function addOrder($pPropertyName, $pType = SelectQuery::ASC) {
-		$this->mOrder[] = array($pPropertyName, $pType);
+		$this->mOrder[] = [$pPropertyName, $pType];
 		return $this;
 	}
 	
@@ -108,7 +108,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$lObjectLoadRequest = new ComplexLoadRequest($pStdObject->tree->model);
 			$lObjectLoadRequest->importModelTree($pStdObject->tree);
 		} else {
-			throw new Exception("request doesn't have model");
+			throw new Exception('request doesn\'t have model');
 		}
 		if (isset($pStdObject->logicalJunction) && isset($pStdObject->literal)) {
 			throw new Exception('can\'t have logicalJunction and literal properties in same time');
@@ -130,11 +130,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		}
 		if (isset($pStdObject->order)) {
 			if (!is_array($pStdObject->order)) {
-				throw new Exception("order parameter must be an array");
+				throw new Exception('order parameter must be an array');
 			}
 			foreach ($pStdObject->order as $lOrder) {
 				if (!isset($lOrder->property)) {
-					throw new Exception("an order element doesn't have property");
+					throw new Exception('an order element doesn\'t have property');
 				}
 				$lObjectLoadRequest->addOrder($lOrder->property, isset($lOrder->type) ? $lOrder->type : SelectQuery::ASC);
 			}
@@ -153,18 +153,18 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public function importModelTree($pModelTree) {
 		if (!isset($pModelTree->model)) {
-			throw new Exception("model tree doesn't have model");
+			throw new Exception('model tree doesn\'t have model');
 		}
 		if ($pModelTree->model != $this->mModel->getModelName()) {
-			throw new Exception("root model in model tree is not the same as model specified in constructor");
+			throw new Exception('root model in model tree is not the same as model specified in constructor');
 		}
 		
-		$lTableNode = new TableNode($this->mModel->getSqlTableUnit()->getValue("name"), isset($pModelTree->id) ? $pModelTree->id : null);
+		$lTableNode = new TableNode($this->mModel->getSqlTableUnit()->getValue('name'), isset($pModelTree->id) ? $pModelTree->id : null);
 		$this->mSelectQuery = new SelectQuery($lTableNode);
 		
 		$this->mModelByNodeId = [$lTableNode->getExportName() => $this->mModel];
 		
-		$lStack = array(array($this->mModel, $lTableNode, $pModelTree));
+		$lStack = [[$this->mModel, $lTableNode, $pModelTree]];
 		while (!empty($lStack)) {
 			$lLastElement    = array_pop($lStack);
 			$lLeftModel      = $lLastElement[0];
@@ -242,7 +242,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	private function finalize() {
 		if (is_null($this->mSelectQuery)) {
-			throw new \Exception("query not initialized");
+			throw new \Exception('query not initialized');
 		}
 		if ($this->mOptimizeLiterals) {
 			$this->mLogicalJunction = LogicalJunctionOptimizer::optimizeLiterals($this->mLogicalJunction);
@@ -263,8 +263,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	public function execute($pValue = null) {
 		$this->finalize();
 		$lSqlTable = $this->mModel->getSqlTableUnit();
-		$lSqlTable->loadValue("database");
-		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue("database"));
+		$lSqlTable->loadValue('database');
+		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue('database'));
 		$lRows = $lDbInstance->executeSelectQuery($this->mSelectQuery);
 		SqlTable::castStringifiedColumns($lRows, $this->mModel);
 		
@@ -291,7 +291,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	private function _getLiteralByModelName($pLiteral, $pMainTableName, &$pLitralsByModelName) {
 		if (!isset($pLiteral->model)) {
-			throw new \Exception("malformed stdObject literal : ".json_encode($pLiteral));
+			throw new \Exception('malformed stdObject literal : '.json_encode($pLiteral));
 		}
 		ModelManager::getInstance()->getInstanceModel($pLiteral->model); // verify if model exists
 		if (!array_key_exists($pLiteral->model, $pLitralsByModelName)) {
@@ -323,15 +323,15 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 		// Depth-first search to build all left joins
 		while (!empty($lStack)) {
-			if ($lStack[count($lStack) - 1]["current"] != -1) {
+			if ($lStack[count($lStack) - 1]['current'] != -1) {
 				array_pop($lTemporaryLeftJoins);
 				$lModelName = array_pop($lStackVisitedModels);
 				$lArrayVisitedModels[$lModelName] -= 1;
 			}
-			$lStack[count($lStack) - 1]["current"]++;
-			if ($lStack[count($lStack) - 1]["current"] < count($lStack[count($lStack) - 1]["properties"])) {
+			$lStack[count($lStack) - 1]['current']++;
+			if ($lStack[count($lStack) - 1]['current'] < count($lStack[count($lStack) - 1]['properties'])) {
 				$lStackIndex     = count($lStack) - 1;
-				$lRightProperty  = $lStack[$lStackIndex]["properties"][$lStack[$lStackIndex]["current"]];
+				$lRightProperty  = $lStack[$lStackIndex]['properties'][$lStack[$lStackIndex]['current']];
 				$lRightModel     = $lRightProperty->getUniqueModel();
 				$lRightModelName = $lRightModel->getModelName();
 				
@@ -360,7 +360,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				$this->_extendsStacks($lRightModel, $pLitralsByModelName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
 	
 				// if no added model we can delete last stack element
-				if (empty($lStack[count($lStack) - 1]["properties"])) {
+				if (empty($lStack[count($lStack) - 1]['properties'])) {
 					array_pop($lStack);
 				}
 			}
@@ -386,13 +386,13 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	private function _extendsStacks($pModel, $pLiteralsByModelName, &$pStack, &$pStackVisitedModels, &$pArrayVisitedModels) {
 		if (array_key_exists($pModel->getModelName(), $pArrayVisitedModels) && array_key_exists($pModel->getModelName(), $pLiteralsByModelName)) {
-			throw new Exception("Cannot resolve literal. Literal with model '".$pModel->getModelName()."' can be applied on several properties");
+			throw new Exception('Cannot resolve literal. Literal with model \''.$pModel->getModelName().'\' can be applied on several properties');
 		}
-		$pStack[] = array(
-				"left_model" => $pModel,
-				"properties" => $pModel->getForeignSerializableProperties("sqlTable"),
-				"current"    => -1
-		);
+		$pStack[] = [
+				'left_model' => $pModel,
+				'properties' => $pModel->getForeignSerializableProperties('sqlTable'),
+				'current'    => -1
+		];
 		
 		$lHigherRightModelName = $pModel->getModelName();
 		$lModel = $pModel->getExtendsModel();

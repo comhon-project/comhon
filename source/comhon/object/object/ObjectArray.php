@@ -7,7 +7,7 @@ use comhon\object\model\Model;
 
 class ObjectArray extends Object {
 
-	const __UNLOAD__ = "__UNLOAD__";
+	const __UNLOAD__ = '__UNLOAD__';
 	
 	/**
 	 *

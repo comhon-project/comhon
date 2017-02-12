@@ -311,7 +311,7 @@ abstract class Model {
 	 * @return Property[]
 	 */
 	public function getForeignSerializableProperties($pSerializationType) {
-		$lProperties = array();
+		$lProperties = [];
 		foreach ($this->mProperties as $lPropertyName => $lProperty) {
 			if (($lProperty instanceof ForeignProperty) && $lProperty->hasSerializationUnit($pSerializationType)) {
 				$lProperties[] = $lProperty;
@@ -365,7 +365,7 @@ abstract class Model {
 	}
 	
 	public function getSerializationIds() {
-		$lSerializationIds = array();
+		$lSerializationIds = [];
 		foreach ($this->mIdProperties as $lIdProperty) {
 			$lSerializationIds[] = $lIdProperty->getSerializationName();
 		}

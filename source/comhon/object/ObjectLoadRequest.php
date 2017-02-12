@@ -49,10 +49,10 @@ abstract class ObjectLoadRequest {
 		$lAggregationLoader         = new AggregationLoader();
 
 		if ($this->mRequestChildren && !$this->mLoadForeignProperties) {
-			$lAggregationLoader->execute($pObject, array(AggregationLoader::LOAD_CHILDREN => $this->mLoadForeignProperties));
+			$lAggregationLoader->execute($pObject, [AggregationLoader::LOAD_CHILDREN => $this->mLoadForeignProperties]);
 		}
 		else if ($this->mLoadForeignProperties) {
-			$lForeignObjectLoader->execute($pObject, array($this->mRequestChildren));
+			$lForeignObjectLoader->execute($pObject, [$this->mRequestChildren]);
 		}
 		
 		return $pObject;

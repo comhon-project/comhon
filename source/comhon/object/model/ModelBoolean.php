@@ -3,7 +3,7 @@ namespace comhon\object\model;
 
 class ModelBoolean extends SimpleModel {
 	
-	const ID = "boolean";
+	const ID = 'boolean';
 	
 	protected function _init() {
 		$this->mModelName = self::ID;

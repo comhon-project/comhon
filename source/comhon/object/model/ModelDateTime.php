@@ -5,7 +5,7 @@ use comhon\object\object\config\Config;
 
 class ModelDateTime extends SimpleModel {
 	
-	const ID = "dateTime";
+	const ID = 'dateTime';
 	
 	protected function _init() {
 		$this->mModelName = self::ID;

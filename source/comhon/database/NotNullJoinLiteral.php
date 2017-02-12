@@ -28,7 +28,7 @@ class NotNullJoinLiteral extends Literal {
 	 * @throws \Exception
 	 */
 	private static function _verifStdObject($pStdObject) {
-		throw new \Exception("cannot build NotNullLiteral from stdClass object");
+		throw new \Exception('cannot build NotNullLiteral from stdClass object');
 	}
 	
 	/**
@@ -39,7 +39,7 @@ class NotNullJoinLiteral extends Literal {
 	 * @throws \Exception
 	 */
 	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null) {
-		throw new \Exception("cannot build NotNullLiteral from stdClass object");
+		throw new \Exception('cannot build NotNullLiteral from stdClass object');
 	}
 	
 }

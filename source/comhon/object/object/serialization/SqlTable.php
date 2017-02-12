@@ -151,7 +151,7 @@ class SqlTable extends SerializationUnit {
 	 */
 	private function _getSelectColumnString($pMapOfString) {
 		if (empty($this->mKeysToEscape)) {
-			return implode(", ", array_keys($pMapOfString));
+			return implode(', ', array_keys($pMapOfString));
 		} else {
 			$lColumns = [];
 			foreach ($pMapOfString as $lColumn => $lString) {
@@ -161,7 +161,7 @@ class SqlTable extends SerializationUnit {
 					$lColumns[] = $lColumn;
 				}
 			}
-			return implode(", ", $lColumns);
+			return implode(', ', $lColumns);
 		}
 	}
 	
@@ -203,7 +203,7 @@ class SqlTable extends SerializationUnit {
 			$lUpdates[]      = "$lColumn = ?";
 			$lUpdateValues[] = $lValue;
 		}
-		$lQuery = "UPDATE ".$this->getValue('name')." SET ".implode(", ", $lUpdates)." WHERE ".implode(" and ", $lConditions).";";
+		$lQuery = 'UPDATE '.$this->getValue('name').' SET '.implode(', ', $lUpdates).' WHERE '.implode(' and ', $lConditions).';';
 		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
 		
 		return $lStatement->rowCount();
@@ -234,7 +234,7 @@ class SqlTable extends SerializationUnit {
 			$lConditions[]       = "$lColumn = ?";
 			$lConditionsValues[] = $lValue;
 		}
-		$lQuery = "DELETE FROM ".$this->getValue('name')." WHERE ".implode(" and ", $lConditions).";";
+		$lQuery = 'DELETE FROM '.$this->getValue('name').' WHERE '.implode(' and ', $lConditions).';';
 		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, $lConditionsValues);
 		
 		return $lStatement->rowCount();
@@ -249,7 +249,7 @@ class SqlTable extends SerializationUnit {
 		$lModel = $pObject->getModel();
 		$lConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 		foreach ($lModel->getIdProperties() as $lPropertyName => $lProperty) {
-			$lConjunction->addLiteral(new Literal($this->getValue('name'), $lProperty->getSerializationName(), "=", $pObject->getValue($lPropertyName)));
+			$lConjunction->addLiteral(new Literal($this->getValue('name'), $lProperty->getSerializationName(), '=', $pObject->getValue($lPropertyName)));
 		}
 		$lReturn = $this->_loadObjectFromDatabase($pObject, [], $lConjunction);
 		return $lReturn;
@@ -337,12 +337,12 @@ class SqlTable extends SerializationUnit {
 				$lDecodedId = json_decode($pParentId);
 				$lConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 				foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lMultipleForeignProperty) {
-					$lConjunction->addLiteral(new Literal($this->getValue('name'), $lSerializationName, "=", current($lDecodedId)));
+					$lConjunction->addLiteral(new Literal($this->getValue('name'), $lSerializationName, '=', current($lDecodedId)));
 					next($lDecodedId);
 				}
 				$lDisjunction->addLogicalJunction($lConjunction);
 			} else {
-				$lDisjunction->addLiteral(new Literal($this->getValue('name'), $pModel->getProperty($lAggregationProperty, true)->getSerializationName(), "=", $pParentId));
+				$lDisjunction->addLiteral(new Literal($this->getValue('name'), $pModel->getProperty($lAggregationProperty, true)->getSerializationName(), '=', $pParentId));
 			}
 		}
 		return $lDisjunction;

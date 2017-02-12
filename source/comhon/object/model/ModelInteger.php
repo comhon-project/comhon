@@ -3,7 +3,7 @@ namespace comhon\object\model;
 
 class ModelInteger extends SimpleModel {
 	
-	const ID = "integer";
+	const ID = 'integer';
 	
 	protected function _init() {
 		$this->mModelName = self::ID;

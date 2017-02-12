@@ -62,13 +62,13 @@ class ModelManager {
 	}	
 	
 	private function _registerSimpleModelClasses() {
-		$this->mInstanceModels = array(
+		$this->mInstanceModels = [
 			ModelInteger::ID  => new ModelInteger(),
 			ModelFloat::ID    => new ModelFloat(),
 			ModelBoolean::ID  => new ModelBoolean(),
 			ModelString::ID   => new ModelString(),
 			ModelDateTime::ID => new ModelDateTime()
-		);
+		];
 	}
 	
 	
@@ -161,7 +161,7 @@ class ModelManager {
 				
 				if (is_object($lInstanceModels[$pModelName])) {
 					if ($lInstanceModels[$pModelName] !== $lReturn) {
-						throw new \Exception("already exists ".$pModelName.' '.var_export($pMainModelName, true));
+						throw new \Exception('already exists '.$pModelName.' '.var_export($pMainModelName, true));
 					}
 					if (!$pLoadModel) {
 						throw new \Exception('model has been loaded');
@@ -207,11 +207,11 @@ class ModelManager {
 		}
 		
 		if (is_null($this->mManifestParser) && is_object($lInstanceModels[$pModel->getModelName()]) && $lInstanceModels[$pModel->getModelName()]->isLoaded()) {
-			$lReturn = array(
+			$lReturn = [
 				self::PROPERTIES     => $pModel->getProperties(), 
 				self::EXTENDS_MODEL  => $pModel->getExtendsModel(),
 				self::OBJECT_CLASS   => $pModel->getObjectClass()
-			);
+			];
 			if ($pModel instanceof MainModel) {
 				$lReturn[self::SERIALIZATION] = $pModel->getSerialization();
 			}

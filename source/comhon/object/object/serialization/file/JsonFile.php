@@ -16,7 +16,7 @@ class JsonFile extends SerializationFile {
 	 * @return string
 	 */
 	protected function _getPath(Object $pObject) {
-		return $this->getValue("saticPath") . DIRECTORY_SEPARATOR . $pObject->getId() . DIRECTORY_SEPARATOR . $this->getValue("staticName");
+		return $this->getValue('saticPath') . DIRECTORY_SEPARATOR . $pObject->getId() . DIRECTORY_SEPARATOR . $this->getValue('staticName');
 	}
 	
 	/**

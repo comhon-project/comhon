@@ -34,7 +34,7 @@ class HavingLogicalJunction extends LogicalJunction {
 	
 	public static function stdObjectToHavingLogicalJunction($pStdObject, $pFirstTable, $pLastTable, $pLastModel) {
 		if (!is_object($pStdObject) || !isset($pStdObject->type) || (isset($pStdObject->logicalJunctions) && !is_array($pStdObject->logicalJunctions)) || (isset($pStdObject->literals) && !is_array($pStdObject->literals))) {
-			throw new \Exception("malformed stdObject LogicalJunction : ".json_encode($pStdObject));
+			throw new \Exception('malformed stdObject LogicalJunction : '.json_encode($pStdObject));
 		}
 		$lLogicalJunction = new HavingLogicalJunction($pStdObject->type);
 		if (isset($pStdObject->logicalJunctions)) {

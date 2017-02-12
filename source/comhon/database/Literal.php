@@ -24,23 +24,23 @@ class Literal {
 	protected $mOperator;
 	protected $mValue;
 	
-	protected static $sAcceptedOperators = array(
+	protected static $sAcceptedOperators = [
 		self::EQUAL      => null,
 		self::SUPP       => null,
 		self::INF        => null,
 		self::SUPP_EQUAL => null,
 		self::INF_EQUAL  => null,
 		self::DIFF       => null
-	);
+	];
 	
-	protected static $sOppositeOperator = array(
+	protected static $sOppositeOperator = [
 		self::EQUAL      => self::DIFF,
 		self::INF        => self::SUPP_EQUAL,
 		self::INF_EQUAL  => self::SUPP,
 		self::SUPP       => self::INF_EQUAL,
 		self::SUPP_EQUAL => self::INF,
 		self::DIFF       => self::EQUAL
-	);
+	];
 	
 	/**
 	 * construtor
@@ -65,13 +65,13 @@ class Literal {
 	
 	protected function _verifLiteral() {
 		if (!array_key_exists($this->mOperator, self::$sAcceptedOperators)) {
-			throw new \Exception("operator '".$this->mOperator."' doesn't exists");
+			throw new \Exception('operator \''.$this->mOperator.'\' doesn\'t exists');
 		}
-		if (is_null($this->mValue) && ($this->mOperator != "=") && ($this->mOperator != "<>")) {
-			throw new \Exception("literal with operator '".$this->mOperator."' can't have null value");
+		if (is_null($this->mValue) && ($this->mOperator != '=') && ($this->mOperator != '<>')) {
+			throw new \Exception('literal with operator \''.$this->mOperator.'\' can\'t have null value');
 		}
-		if (is_array($this->mValue) && ($this->mOperator != "=") && ($this->mOperator != "<>")) {
-			throw new \Exception("literal with operator '".$this->mOperator."' can't have array value");
+		if (is_array($this->mValue) && ($this->mOperator != '=') && ($this->mOperator != '<>')) {
+			throw new \Exception('literal with operator \''.$this->mOperator.'\' can\'t have array value');
 		}
 	}
 
@@ -113,34 +113,34 @@ class Literal {
 	 */
 	public function export(&$pValues) {
 		$lColumnTable = (($this->mTable instanceof TableNode) ? $this->mTable->getExportName() : $this->mTable) . '.' . $this->mColumn;
-		if ((($this->mOperator == "=") || ($this->mOperator == "<>")) && is_array($this->mValue)) {
+		if ((($this->mOperator == '=') || ($this->mOperator == '<>')) && is_array($this->mValue)) {
 			$i = 0;
-			$lToReplaceValues = array();
+			$lToReplaceValues = [];
 			$lHasNullValue = false;
 			while ($i < count($this->mValue)) {
 				if (is_null($this->mValue[$i])) {
 					$lHasNullValue = true;
 				}else {
 					$pValues[] = $this->mValue[$i];
-					$lToReplaceValues[] = "?";
+					$lToReplaceValues[] = '?';
 				}
 				$i++;
 			}
-			$lOperator = ($this->mOperator == "=") ? " IN " : " NOT IN ";
-			$lToReplaceValues = "(".implode(",", $lToReplaceValues).")";
-			$lStringValue = sprintf("%s %s %s", $lColumnTable, $lOperator, $lToReplaceValues);
+			$lOperator = ($this->mOperator == '=') ? ' IN ' : ' NOT IN ';
+			$lToReplaceValues = '('.implode(',', $lToReplaceValues).')';
+			$lStringValue = sprintf('%s %s %s', $lColumnTable, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
-				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lConnector = ($this->mOperator == "=") ? 'or' : 'and';
-				$lStringValue = sprintf("(%s %s %s %s)", $lStringValue, $lConnector, $lColumnTable, $lOperator);
+				$lOperator = ($this->mOperator == '=') ? 'is null' : 'is not null';
+				$lConnector = ($this->mOperator == '=') ? 'or' : 'and';
+				$lStringValue = sprintf('(%s %s %s %s)', $lStringValue, $lConnector, $lColumnTable, $lOperator);
 			}
 		}else {
 			if (is_null($this->mValue)) {
-				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lStringValue = sprintf("%s %s", $lColumnTable, $lOperator);
+				$lOperator = ($this->mOperator == '=') ? 'is null' : 'is not null';
+				$lStringValue = sprintf('%s %s', $lColumnTable, $lOperator);
 			}else {
 				$pValues[] = $this->mValue;
-				$lStringValue = sprintf("%s %s ?", $lColumnTable, $this->mOperator);
+				$lStringValue = sprintf('%s %s ?', $lColumnTable, $this->mOperator);
 			}
 		}
 		return $lStringValue;
@@ -151,9 +151,9 @@ class Literal {
 	 * @return string
 	 */
 	public function exportWithValue() {
-		if ((($this->mOperator == "=") || ($this->mOperator == "<>")) && is_array($this->mValue)) {
+		if ((($this->mOperator == '=') || ($this->mOperator == '<>')) && is_array($this->mValue)) {
 			$i = 0;
-			$lToReplaceValues = array();
+			$lToReplaceValues = [];
 			$lHasNullValue = false;
 			while ($i < count($this->mValue)) {
 				if (is_null($this->mValue[$i])) {
@@ -163,20 +163,20 @@ class Literal {
 				}
 				$i++;
 			}
-			$lOperator = ($this->mOperator == "=") ? " IN " : " NOT IN ";
-			$lToReplaceValues = "(".implode(",", $lToReplaceValues).")";
-			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mColumn, $lOperator, $lToReplaceValues);
+			$lOperator = ($this->mOperator == '=') ? ' IN ' : ' NOT IN ';
+			$lToReplaceValues = '('.implode(',', $lToReplaceValues).')';
+			$lStringValue = sprintf('%s.%s %s %s', $this->mTable, $this->mColumn, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
-				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lConnector = ($this->mOperator == "=") ? 'or' : 'and';
-				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mColumn, $lOperator);
+				$lOperator = ($this->mOperator == '=') ? 'is null' : 'is not null';
+				$lConnector = ($this->mOperator == '=') ? 'or' : 'and';
+				$lStringValue = sprintf('(%s %s %s.%s %s)', $lStringValue, $lConnector, $this->mTable, $this->mColumn, $lOperator);
 			}
 		}else {
 			if (is_null($this->mValue)) {
-				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lStringValue = sprintf("%s.%s %s", $this->mTable, $this->mColumn, $lOperator);
+				$lOperator = ($this->mOperator == '=') ? 'is null' : 'is not null';
+				$lStringValue = sprintf('%s.%s %s', $this->mTable, $this->mColumn, $lOperator);
 			}else {
-				$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mColumn, $this->mOperator, $this->mValue);
+				$lStringValue = sprintf('%s.%s %s %s', $this->mTable, $this->mColumn, $this->mOperator, $this->mValue);
 			}
 		}
 		return $lStringValue;
@@ -232,14 +232,14 @@ class Literal {
 	
 	private static function _verifStdObject($pStdObject) {
 		if (!isset($pStdObject->node)) {
-			throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
+			throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
 		}
 		if (isset($pStdObject->queue)) {
 			if (!(isset($pStdObject->havingLiteral) xor isset($pStdObject->havingLogicalJunction)) || !is_object($pStdObject->queue)) {
-				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
+				throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
 			}
 		} else if (!isset($pStdObject->property) || !isset($pStdObject->operator) || !isset($pStdObject->value) || !isset($pStdObject->node)) {
-			throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
+			throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
 		}
 	}
 	
@@ -264,7 +264,7 @@ class Literal {
 		
 		while (!is_null($lCurrentNode)) {
 			if (!is_object($lCurrentNode) || !isset($lCurrentNode->property)) {
-				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
+				throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
 			}
 			$lProperty       = $lLeftModel->getProperty($lCurrentNode->property, true);
 			$lLeftJoin       = ComplexLoadRequest::prepareJoinedTable($lLeftTable, $lProperty, self::_getAlias());

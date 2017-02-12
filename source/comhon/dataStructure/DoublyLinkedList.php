@@ -152,7 +152,7 @@ class DoublyLinkedList {
 	 * @param integer $pPosition the position where to insert the node (-1 => before the current node, 1 => after the current node). by default set to 1
 	 */
 	public function insert($pValue, $pPosition = 1) {
-		$lNode = new Node($pValue, null, array(null));
+		$lNode = new Node($pValue, null, [null]);
 		$this->_insert($lNode, $pPosition);
 	}
 	
@@ -198,7 +198,7 @@ class DoublyLinkedList {
 	 * @param value $pValue the value that will be in the new node
 	 */
 	public function unshift($pValue) {
-		$lNode = new Node($pValue, null, array(null));
+		$lNode = new Node($pValue, null, [null]);
 		if (!is_null($this->mCurrentNode)) {
 			$lCurrentNode = $this->mCurrentNode;
 			$this->mCurrentNode = $this->mFirstNode;
@@ -214,7 +214,7 @@ class DoublyLinkedList {
 	 * @param value $pValue the value that will be in the new node
 	 */
 	public function push($pValue) {
-		$lNode = new Node($pValue, null, array(null));
+		$lNode = new Node($pValue, null, [null]);
 		if (!is_null($this->mCurrentNode)) {
 			$lCurrentNode = $this->mCurrentNode;
 			$this->mCurrentNode = $this->mLastNode;
@@ -401,10 +401,10 @@ class DoublyLinkedList {
 	
 	public function to_pretty_string($lNode, $pCallBack = null) {
 		if (is_null($lNode)) {
-			return "[]";
+			return '[]';
 		}
 		$lCurrentNode = $lNode;
-		$lArray = array();
+		$lArray = [];
 		
 		/*------------ add previous nodes -------------*/
 		while (!is_null($lPrevious = $lCurrentNode->getPrevious())) {
@@ -424,7 +424,7 @@ class DoublyLinkedList {
 		}else {
 			$lValue = $pCallBack($lCurrentNode->getValue());
 		}
-		$lArray[] = "<<".var_export($lValue, true).">>";
+		$lArray[] = '<<'.var_export($lValue, true).'>>';
 		
 		/*------------ add next nodes -------------*/
 		while (!is_null($lNext = $lCurrentNode->getNext())) {
@@ -437,6 +437,6 @@ class DoublyLinkedList {
 			$lCurrentNode = $lNext;
 		}
 		
-		return "[ ".implode(" <=> ", $lArray)." ]";
+		return '[ '.implode(' <=> ', $lArray).' ]';
 	}
 }

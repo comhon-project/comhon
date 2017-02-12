@@ -3,7 +3,7 @@ namespace comhon\object\model;
 
 class ModelString extends SimpleModel {
 	
-	const ID = "string";
+	const ID = 'string';
 	
 	protected function _init() {
 		$this->mModelName = self::ID;

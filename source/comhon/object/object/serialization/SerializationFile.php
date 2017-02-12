@@ -55,10 +55,10 @@ abstract class SerializationFile extends SerializationUnit {
 	 */
 	protected function _saveObject(Object $pObject, $pOperation = null) {
 		if (!$pObject->getModel()->hasIdProperties()) {
-			throw new \Exception("Cannot save model without id in xml file");
+			throw new \Exception('Cannot save model without id in xml file');
 		}
 		if (!$pObject->hasCompleteId()) {
-			throw new \Exception("Cannot save object, object id is not complete");
+			throw new \Exception('Cannot save object, object id is not complete');
 		}
 		$lPath = $this->_getPath($pObject);
 		if (!is_null($pOperation)) {
@@ -74,7 +74,7 @@ abstract class SerializationFile extends SerializationUnit {
 		}
 		if (!file_exists(dirname($lPath))) {
 			if (!mkdir(dirname($lPath), 0777, true) && !file_exists(dirname($lPath))) {
-				throw new \Exception("Cannot save object with id '{$pObject->getId()}'. Impossible to create directory '".dirname($lPath)."'");
+				throw new \Exception("Cannot save object with id '{$pObject->getId()}'. Impossible to create directory '".dirname($lPath).'\'');
 			}
 		}
 		$lContent = $this->_transfromObject($pObject);
