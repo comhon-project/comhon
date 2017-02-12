@@ -1,18 +1,17 @@
 <?php
 namespace comhon\visitor;
 
-use comhon\controller\Controller;
-use comhon\object\object\Object;
-use comhon\object\object\ObjectArray;
-use comhon\object\model\ForeignProperty;
-use comhon\object\model\MainModel;
-use comhon\object\model\ModelArray;
-use comhon\object\ObjectCollection;
+use comhon\object\Object;
+use comhon\object\ObjectArray;
+use comhon\model\property\ForeignProperty;
+use comhon\model\MainModel;
+use comhon\model\ModelArray;
+use comhon\object\collection\ObjectCollection;
 
 /**
  * instanciate and populate ObjectCollection
  */
-class ObjectCollectionCreator extends Controller {
+class ObjectCollectionCreator extends Visitor {
 
 	private $mLocalObjectCollection;
 	

@@ -1,0 +1,12 @@
+{
+	"version": "2.0",
+	"object": "comhon\\object\\serialization\\file\\XmlFile",
+	"properties": {
+		"saticPath": {
+			"type": "string"
+		},
+		"staticName": {
+			"type": "string"
+		}
+	}
+}

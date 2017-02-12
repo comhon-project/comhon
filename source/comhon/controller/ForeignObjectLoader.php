@@ -1,14 +1,15 @@
 <?php
 namespace comhon\controller;
 
-use comhon\object\object\Object;
-use comhon\object\object\ObjectArray;
-use comhon\object\model\ForeignProperty;
-use comhon\object\model\ModelArray;
-use comhon\object\model\ModelContainer;
-use comhon\object\ObjectCollection;
+use comhon\visitor\Visitor;
+use comhon\object\Object;
+use comhon\object\ObjectArray;
+use comhon\model\property\ForeignProperty;
+use comhon\model\ModelArray;
+use comhon\model\ModelContainer;
+use comhon\object\collection\ObjectCollection;
 
-class ForeignObjectLoader extends Controller {
+class ForeignObjectLoader extends Visitor {
 
 	private $mLoadAggregations      = true;
 	private $mLoadedValues          = [];

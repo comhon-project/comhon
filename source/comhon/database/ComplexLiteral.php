@@ -1,7 +1,7 @@
 <?php
 namespace comhon\database;
 
-use comhon\object\singleton\ModelManager;
+use comhon\model\singleton\ModelManager;
 use comhon\database\DatabaseController;
 
 /**

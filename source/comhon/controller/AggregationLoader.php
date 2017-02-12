@@ -1,13 +1,14 @@
 <?php
 namespace comhon\controller;
 
-use comhon\object\object\Object;
-use comhon\object\object\ObjectArray;
-use comhon\object\model\ForeignProperty;
-use comhon\object\model\ModelArray;
-use comhon\object\ObjectCollection;
+use comhon\visitor\Visitor;
+use comhon\object\Object;
+use comhon\object\ObjectArray;
+use comhon\model\property\ForeignProperty;
+use comhon\model\ModelArray;
+use comhon\object\collection\ObjectCollection;
 
-class AggregationLoader extends Controller {
+class AggregationLoader extends Visitor {
 
 	const LOAD_CHILDREN = 'loadChildren';
 

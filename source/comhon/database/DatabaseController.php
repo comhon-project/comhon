@@ -3,8 +3,8 @@ namespace comhon\database;
 
 use \PDO;
 use \Exception;
-use comhon\object\object\config\Config;
-use comhon\object\object\Object;
+use comhon\object\config\Config;
+use comhon\object\Object;
 
 class DatabaseController {
 	

@@ -1,0 +1,14 @@
+{
+	"version": "2.0",
+	"object": "comhon\\object\\serialization\\SqlTable",
+	"properties": {
+		"name": {
+			"type": "string",
+			"is_id": true
+		},
+		"database": {
+			"type": "sqlDatabase",
+			"is_foreign": true
+		}
+	}
+}

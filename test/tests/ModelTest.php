@@ -1,14 +1,14 @@
 <?php
 
-use comhon\object\singleton\ModelManager;
-use comhon\object\ComplexLoadRequest;
-use comhon\object\object\Object;
-use comhon\object\SimpleLoadRequest;
-use comhon\object\MainObjectCollection;
-use comhon\object\model\ModelArray;
-use comhon\object\model\Model;
-use comhon\object\model\MainModel;
-use comhon\object\model\ModelForeign;
+use comhon\model\singleton\ModelManager;
+use comhon\request\ComplexLoadRequest;
+use comhon\object\Object;
+use comhon\request\SimpleLoadRequest;
+use comhon\object\collection\MainObjectCollection;
+use comhon\model\ModelArray;
+use comhon\model\Model;
+use comhon\model\MainModel;
+use comhon\model\ModelForeign;
 
 use comhon\controller\AggregationLoader;
 use comhon\controller\ForeignObjectLoader;
