@@ -23,152 +23,182 @@ class SelectQuery {
 			self::DESC => null
 	);
 
-	private $mFirstTable;
+	private $mMainTable;
 	private $mCurrentTableName;
-	private $mColumnsByTable;
-	private $mWhereLogicalJunction;
-	private $mHavingLogicalJunction;
+	private $mWhere;
+	private $mHaving;
 	private $mLimit;
 	private $mOffset;
 	
-	private $mJoinedTables = array();
-	private $mTableNames   = array();
-	private $mOrder        = array();
-	private $mGroup        = array();
+	private $mJoinedTables = [];
+	private $mTableByName  = [];
+	private $mOrder        = [];
+	private $mGroup        = [];
 	
 	/**
 	 * 
-	 * @param unknown $pTable
-	 * @param unknown $pAlias
+	 * @param string|TableNode $pTable
 	 */
-	public function __construct($pTable, $pAlias = null) {
-		$this->_setFirstTable($pTable, $pAlias);
+	public function __construct($pTable) {
+		$this->_setMainTable($pTable);
 	}
 	
-	public function init($pTable, $pAlias = null) {
-		$this->mFirstTable       = null;
-		$this->mJoinedTables     = array();
-		$this->mTableNames       = array();
+	/**
+	 *
+	 * @param string|TableNode $pTable
+	 */
+	public function init($pTable) {
+		$this->mMainTable        = null;
+		$this->mJoinedTables     = [];
+		$this->mTableByName      = [];
 		$this->mCurrentTableName = null;
-		$this->mColumnsByTable   = null;
-		$this->mOrder            = array();
-		$this->mGroup            = array();
+		$this->mOrder            = [];
+		$this->mGroup            = [];
 		$this->mLimit            = null;
 		$this->mOffset           = null;
-		$this->mWhereLogicalJunction  = null;
-		$this->mHavingLogicalJunction = null;
-		$this->_setFirstTable($pTable, $pAlias);
+		$this->mWhere            = null;
+		$this->mHaving           = null;
+		$this->_setMainTable($pTable);
 		return $this;
 	}
 	
-	private function _setFirstTable($pTable, $pAlias) {
-		$this->mFirstTable = is_null($pAlias) ? array($pTable) : array($pTable, $pAlias);
-		$this->mTableNames[$this->mFirstTable[count($this->mFirstTable) - 1]] = null;
-		$this->mCurrentTableName = $this->mFirstTable[count($this->mFirstTable) - 1];
+	/**
+	 * 
+	 * @param string|TableNode $pTable
+	 */
+	private function _setMainTable($pTable) {
+		if (is_string($pTable)) {
+			$this->mMainTable = new TableNode($pTable);
+		} else if ($pTable instanceof TableNode) {
+			$this->mMainTable = $pTable;
+		} else {
+			throw new \Exception('invalid parameter table, should be string or instance of TableNode');
+		}
+		$this->mTableByName[$this->mMainTable->getExportName()] = $this->mMainTable;
+		$this->mCurrentTableName = $this->mMainTable->getExportName();
 	}
 	
-	public function getCurrentTableName() {
-		return $this->mCurrentTableName;
+	/**
+	 *
+	 * @return TableNode $pTable
+	 */
+	public function getMainTable() {
+		return $this->mMainTable;
 	}
 	
+	/**
+	 * 
+	 * @param string $pCurrentTableName export name of a table
+	 * @return boolean true if success i.e. if wanted table has been added
+	 */
 	public function setCurrentTable($pCurrentTableName) {
-		if (!array_key_exists($pCurrentTableName, $this->mTableNames)) {
+		if (!array_key_exists($pCurrentTableName, $this->mTableByName)) {
 			return false;
 		}
 		$this->mCurrentTableName = $pCurrentTableName;
 		return true;
 	}
 	
-	public function getCurrentTable() {
+	/**
+	 * get the export name of current table
+	 * @return string
+	 */
+	public function getCurrentTableName() {
 		return $this->mCurrentTableName;
 	}
 	
-	public function setFirstTableCurrentTable() {
-		reset($this->mTableNames);
-		$this->mCurrentTableName = key($this->mTableNames);
+	/**
+	 * get current table
+	 * @return string
+	 */
+	public function getCurrentTable() {
+		return $this->mTableByName[$this->mCurrentTableName];
+	}
+	
+	/**
+	 * 
+	 * @return SelectQuery
+	 */
+	public function setMainTableAsCurrentTable() {
+		reset($this->mTableByName);
+		$this->mCurrentTableName = key($this->mTableByName);
 		return $this;
 	}
 	
 	/**
 	 * 
-	 * @param string|SelectQuery $pTable
-	 * @param string $pAlias if you don't want alias, put null value
 	 * @param string $pJoinType must be in array self::$sAccpetedJoins
-	 * @param string|array $pColumn can be a column or an array of columns
-	 * @param string $pForeignColumn must reference a column of a table already added
-	 * @param string $pForeignTable must reference a table name or an alias already added
+	 * @param string|TableNode $pTable
+	 * @param OnLiteral|OnLogicalJunction $pOn determine on which colmuns join will be applied
 	 */
-	public function addTable($pTable, $pAlias, $pJoinType, $pColumn, $pForeignColumn, $pForeignTable) {
-		if (is_object($pTable) && is_null($pAlias)) {
-			throw new \Exception("object table must have an alias");
+	public function join($pJoinType, $pTable, $pOn) {
+		if ($pTable instanceof TableNode) {
+			$lTable = $pTable;
+			$lTableName = $pTable->getExportName();
+		} else {
+			$lTable = new TableNode($pTable);
+			$lTableName = $pTable;
 		}
-		if (!array_key_exists($pForeignTable, $this->mTableNames)) {
-			throw new \Exception("foreign table '$pForeignTable' is not already added ".json_encode(array_keys($this->mTableNames)));
-		}
+		
 		if (!array_key_exists($pJoinType, self::$sAccpetedJoins)) {
 			throw new \Exception("undefined join type '$pJoinType'");
 		}
-		$lTable = is_null($pAlias) ? array($pTable) : array($pTable, $pAlias);
-		$lTableName = $lTable[count($lTable) - 1];
-		if (array_key_exists($lTableName, $this->mTableNames)) {
+		if (array_key_exists($lTableName, $this->mTableByName)) {
 			throw new \Exception("table already added '$lTableName'");
 		}
-		$this->mTableNames[$lTableName] = null;
+		$this->mTableByName[$lTableName] = $lTable;
 		$this->mCurrentTableName = $lTableName;
-		$this->mJoinedTables[] = array(
-			$pJoinType,
-			$lTable,
-			array($lTableName, $pColumn),
-			array($pForeignTable, $pForeignColumn)
-		);
-		return $this;
+		$this->mJoinedTables[] = [$lTable, $pJoinType, $pOn];
+		return $lTable;
 	}
 	
-	public function resetSelectColumns() {
-		$this->mColumnsByTable = array();
-	}
-	
-	public function addSelectColumn($pColumn, $pAlias = null) {
-		$lColumn = array($pColumn);
-		if (!is_null($pAlias)) {
-			$lColumn[] = $pAlias;
-		}
-		$this->mColumnsByTable[$this->mCurrentTableName][] = $lColumn;
+	/**
+	 * 
+	 * @param WhereLiteral|WhereLogicalJunction $pWhere
+	 * @return SelectQuery
+	 */
+	public function where($pWhere) {
+		$this->mWhere = $pWhere;
 		return $this;
 	}
 	
 	/**
-	 * add all columns of current table in selected columns
+	 *
+	 * @return WhereLiteral|WhereLogicalJunction
 	 */
-	public function addSelectTableColumns() {
-		$this->mColumnsByTable[$this->mCurrentTableName][] = array('*');
+	public function getWhere() {
+		return $this->mWhere;
 	}
 	
-	public function setWhereLogicalJunction($pWhereLogicalJunction) {
-		$this->mWhereLogicalJunction = $pWhereLogicalJunction;
+	/**
+	 *
+	 * @param HavingLiteral|HavingLogicalJunction $pHaving
+	 * @return SelectQuery
+	 */
+	public function having($pHaving) {
+		$this->mHaving = $pHaving;
 		return $this;
 	}
 	
-	public function getWhereLogicalJunction() {
-		return $this->mWhereLogicalJunction;
-	}
-	
-	public function setHavingLogicalJunction($pHavingLogicalJunction) {
-		$this->mHavingLogicalJunction = $pHavingLogicalJunction;
-		return $this;
-	}
-	
-	public function getHavingLogicalJunction() {
-		return $this->mHavingLogicalJunction;
+	/**
+	 *
+	 * @return HavingLiteral|HavingLogicalJunction
+	 */
+	public function getHaving() {
+		return $this->mHaving;
 	}
 	
 	public function resetGroupColumns() {
-		$this->mGroup = array();
+		$this->mGroup = [];
 	}
 	
 	public function addGroupColumn($pColumn) {
 		$this->mGroup[] = $this->mCurrentTableName.'.'.$pColumn;
 		return $this;
+	}
+	
+	public function resetOrderColumns() {
+		$this->mOrder = [];
 	}
 	
 	public function addOrderColumn($pColumn, $pType = self::ASC) {
@@ -183,27 +213,22 @@ class SelectQuery {
 		return $this;
 	}
 	
-	public function resetOrderColumns() {
-		$this->mOrder = array();
-	}
-	
-	public function setLimit($pLimit) {
+	public function limit($pLimit) {
 		$this->mLimit = $pLimit;
 		return $this;
 	}
 	
-	public function setOffset($pOffset) {
+	public function offset($pOffset) {
 		$this->mOffset = $pOffset;
 		return $this;
 	}
 	
 	public function export() {
-		$lValues = array();
+		$lValues = [];
 	
-		$lColumns = (empty($this->mColumnsByTable)) ? "*" : $this->_getColumnsForQuery();
-		$lQuery = "SELECT ".$lColumns." FROM ".$this->_exportJoinedTables($lValues);
+		$lQuery = "SELECT ".$this->_getColumnsForQuery()." FROM ".$this->_exportJoinedTables($lValues);
 	
-		if (!is_null($lClause = $this->_getClauseForQuery($this->mWhereLogicalJunction, $lValues))) {
+		if (!is_null($lClause = $this->_getClauseForQuery($this->mWhere, $lValues))) {
 			$lQuery .= " WHERE ".$lClause;
 		}
 		if (!empty($this->mGroup)) {
@@ -212,7 +237,7 @@ class SelectQuery {
 		if (!empty($this->mOrder)) {
 			$lQuery .= " ORDER BY ".implode(",", $this->mOrder);
 		}
-		if (!is_null($lClause = $this->_getClauseForQuery($this->mHavingLogicalJunction, $lValues))) {
+		if (!is_null($lClause = $this->_getClauseForQuery($this->mHaving, $lValues))) {
 			$lQuery .= " HAVING ".$lClause;
 		}
 		if (!is_null($this->mLimit)) {
@@ -236,13 +261,24 @@ class SelectQuery {
 	}
 	
 	private function _getColumnsForQuery() {
-		$lArray = array();
-		foreach ($this->mColumnsByTable as $lTable => $lColumns) {
-			foreach ($lColumns as $lColumn) {
-				$lArray[] = sprintf("%s.%s", $lTable, implode(" as ", $lColumn));
+		$lSelectAllColumns = true;
+		foreach ($this->mTableByName as $lTable) {
+			if (!$lTable->areAllColumnsSelected()) {
+				$lSelectAllColumns = false;
+				break;
 			}
 		}
-		return implode(",", $lArray);
+		if ($lSelectAllColumns) {
+			return '*';
+		} else {
+			$lArray = [];
+			foreach ($this->mTableByName as $lTable) {
+				if ($lTable->hasSelectedColumns()) {
+					$lArray[] = $lTable->exportSelectedColumns();
+				}
+			}
+			return implode(',', $lArray);
+		}
 	}
 	
 	/**
@@ -255,7 +291,7 @@ class SelectQuery {
 		$lClause = null;
 		if (!is_null($pLogicalJunction)) {
 			$lQueryLiterals = $pLogicalJunction->export($pValues);
-			if ($lQueryLiterals != "") {
+			if ($lQueryLiterals != '') {
 				$lClause = $lQueryLiterals;
 			}
 		}
@@ -267,26 +303,18 @@ class SelectQuery {
 	 * @return string
 	 */
 	private function _exportJoinedTables(&$lValues) {
-		$lJoinedTables = " ".implode(" as ", $this->mFirstTable);
+		list($lExportedTable, $lSubValues) = $this->mMainTable->exportTable();
+		$lJoinedTables = " ".$lExportedTable;
+		
 		foreach ($this->mJoinedTables as $lJoinedTable) {
-			$lJoinedTables .= " ".$lJoinedTable[0];
-			if (is_object($lJoinedTable[1][0])) {
-				list($lSubquery, $lSubValues) = $lJoinedTable[1][0]->export();
-				$lValues        = array_merge($lValues, $lSubValues);
-				$lJoinedTables .= " ($lSubquery) as {$lJoinedTable[1][1]}";
-			} else {
-				$lJoinedTables .= " ".implode(" as ", $lJoinedTable[1]);
-			}
-			if (is_array($lJoinedTable[2][1])) {
-				$lOnLiterals = array();
-				foreach ($lJoinedTable[2][1] as $lRightColumn) {
-					$lOnLiterals[] = $lJoinedTable[2][0].".".$lRightColumn."=".implode(".", $lJoinedTable[3]);
-				}
-				$lJoinedTables .= " on ".implode(" or ", $lOnLiterals);
-			} else {
-				$lJoinedTables .= " on ".implode(".", $lJoinedTable[2])."=".implode(".", $lJoinedTable[3]);
-			}
+			list($lExportedTable, $lSubValues) = $lJoinedTable[0]->exportTable();
+			$lValues = array_merge($lValues, $lSubValues);
+			
+			$lJoinedTables .= " ".$lJoinedTable[1];
+			$lJoinedTables .= " ".$lExportedTable;
+			$lJoinedTables .= " on ".$lJoinedTable[2]->export($lValues);
 		}
+		
 		return $lJoinedTables." ";
 	}
 	

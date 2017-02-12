@@ -220,19 +220,35 @@ class LogicalJunction {
 		return $lSatisfied;
 	}
 	
-	public static function stdObjectToLogicalJunction($pStdObject, &$pLeftJoins, $pLiteralCollection = null) {
+	/**
+	 * 
+	 * @param \stdClass $pStdObject
+	 * @param Model[] $pModelByNodeId
+	 * @param Literal[] $pLiteralCollection
+	 * @param SelectQuery $pSelectQuery
+	 * @throws \Exception
+	 * @return \comhon\database\LogicalJunction
+	 */
+	public static function stdObjectToLogicalJunction($pStdObject, $pModelByNodeId, $pLiteralCollection = null, $pSelectQuery = null) {
 		if (!isset($pStdObject->type) || (isset($pStdObject->logicalJunctions) && !is_array($pStdObject->logicalJunctions)) || (isset($pStdObject->literals) && !is_array($pStdObject->literals))) {
 			throw new \Exception("malformed stdObject LogicalJunction : ".json_encode($pStdObject));
 		}
 		$lLogicalJunction = new LogicalJunction($pStdObject->type);
 		if (isset($pStdObject->logicalJunctions)) {
 			foreach ($pStdObject->logicalJunctions as $lStdObjectLogicalJunction) {
-				$lLogicalJunction->addLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($lStdObjectLogicalJunction, $pLeftJoins, $pLiteralCollection));
+				$lLogicalJunction->addLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($lStdObjectLogicalJunction, $pModelByNodeId, $pLiteralCollection, $pSelectQuery));
 			}
 		}
 		if (isset($pStdObject->literals)) {
 			foreach ($pStdObject->literals as $lStdObjectLiteral) {
-				$lLogicalJunction->addLiteral(Literal::stdObjectToLiteral($lStdObjectLiteral, $pLeftJoins, $pLiteralCollection));
+				if (isset($lStdObjectLiteral->id)) {
+					$lModel = null;
+				} else if (isset($lStdObjectLiteral->node) && array_key_exists($lStdObjectLiteral->node, $pModelByNodeId)) {
+					$lModel = $pModelByNodeId[$lStdObjectLiteral->node];
+				} else {
+					throw new \Exception('node doesn\' exists or not recognized'.json_encode($lStdObjectLiteral));
+				}
+				$lLogicalJunction->addLiteral(Literal::stdObjectToLiteral($lStdObjectLiteral, $lModel, $pLiteralCollection, $pSelectQuery));
 			}
 		}
 		return $lLogicalJunction;

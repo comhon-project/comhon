@@ -595,6 +595,16 @@ if (trim(str_replace("<?xml version=\"1.0\"?>", '', $lTestPrivateIdModel->fromPu
 	throw new \Exception('bad public object value : '.$lTestPrivateIdModel->fromPublicXml($lTestPrivateId->toPrivateXml())->toPrivateXml()->asXML());
 }
 
+/** ************************************** test node/attribute xml ********************************************* **/
+
+$lTestXmlModel = ModelManager::getInstance()->getInstanceModel('testXml');
+$lTestXml = $lTestXmlModel->loadObject('plop2');
+
+if (trim(str_replace("<?xml version=\"1.0\"?>", '', $lTestXml->toPrivateXml()->asXML())) !== '<testXml name="plop2" textAttribute="attribute"><textNode>node</textNode><objectValue id="1" propertyOne="plop1" propertyTwo="plop11"/><objectValues><objectValue id="2" propertyOne="plop2" propertyTwo="plop22"/><objectValue id="3" propertyOne="plop3" propertyTwo="plop33"/></objectValues><objectContainer><foreignObjectValue>3</foreignObjectValue><objectValueTwo id="1" propertyTwoOne="2plop1"/><person id="1" firstName="Bernard" lastName="Dupond"><birthPlace>2</birthPlace><children><child __inheritance__="man">5</child><child __inheritance__="man">6</child></children></person></objectContainer><foreignObjectValues><foreignObjectValue>1</foreignObjectValue><foreignObjectValue>2</foreignObjectValue></foreignObjectValues></testXml>') {
+	var_dump(trim(str_replace("<?xml version=\"1.0\"?>", '', $lTestXml->toPrivateXml()->asXML())));
+	throw new Exception('bad value');
+}
+
 
 $time_end = microtime(true);
 var_dump('import export test exec time '.($time_end - $time_start));

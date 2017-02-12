@@ -5,6 +5,7 @@ use comhon\object\singleton\ModelManager;
 use comhon\object\model\ForeignProperty;
 use comhon\object\model\ModelContainer;
 use comhon\object\ComplexLoadRequest;
+use comhon\object\model\Model;
 
 class Literal {
 	
@@ -111,6 +112,7 @@ class Literal {
 	 * @return string
 	 */
 	public function export(&$pValues) {
+		$lColumnTable = (($this->mTable instanceof TableNode) ? $this->mTable->getExportName() : $this->mTable) . '.' . $this->mColumn;
 		if ((($this->mOperator == "=") || ($this->mOperator == "<>")) && is_array($this->mValue)) {
 			$i = 0;
 			$lToReplaceValues = array();
@@ -126,19 +128,19 @@ class Literal {
 			}
 			$lOperator = ($this->mOperator == "=") ? " IN " : " NOT IN ";
 			$lToReplaceValues = "(".implode(",", $lToReplaceValues).")";
-			$lStringValue = sprintf("%s.%s %s %s", $this->mTable, $this->mColumn, $lOperator, $lToReplaceValues);
+			$lStringValue = sprintf("%s %s %s", $lColumnTable, $lOperator, $lToReplaceValues);
 			if ($lHasNullValue) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
 				$lConnector = ($this->mOperator == "=") ? 'or' : 'and';
-				$lStringValue = sprintf("(%s %s %s.%s %s)", $lStringValue, $lConnector, $this->mTable, $this->mColumn, $lOperator);
+				$lStringValue = sprintf("(%s %s %s %s)", $lStringValue, $lConnector, $lColumnTable, $lOperator);
 			}
 		}else {
 			if (is_null($this->mValue)) {
 				$lOperator = ($this->mOperator == "=") ? "is null" : "is not null";
-				$lStringValue = sprintf("%s.%s %s", $this->mTable, $this->mColumn, $lOperator);
+				$lStringValue = sprintf("%s %s", $lColumnTable, $lOperator);
 			}else {
 				$pValues[] = $this->mValue;
-				$lStringValue = sprintf("%s.%s %s ?", $this->mTable, $this->mColumn, $this->mOperator);
+				$lStringValue = sprintf("%s %s ?", $lColumnTable, $this->mOperator);
 			}
 		}
 		return $lStringValue;
@@ -182,11 +184,13 @@ class Literal {
 	
 	/**
 	 * @param stdClass $pStdObject
-	 * @param array $pLeftJoins
+	 * @param Model $pMainModel
+	 * @param Literal[] $pLiteralCollection
+	 * @param SelectQuery $pSelectQuery
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null) {
+	public static function stdObjectToLiteral($pStdObject, $pMainModel, $pLiteralCollection = null, $pSelectQuery = null) {
 		if (isset($pStdObject->id) && !is_null($pLiteralCollection)) {
 			if (!array_key_exists($pStdObject->id, $pLiteralCollection)) {
 				throw new \Exception("literal id '{$pStdObject->id}' is not defined in literal collection");
@@ -194,39 +198,27 @@ class Literal {
 			return $pLiteralCollection[$pStdObject->id];
 		}
 		self::_verifStdObject($pStdObject);
-		if (!array_key_exists($pStdObject->node, $pLeftJoins)) {
-			throw new \Exception("node doesn't exist in join tree : ".json_encode($pStdObject));
-		}
-		
-		$lLeftJoin      = $pLeftJoins[$pStdObject->node];
-		$lLeftModel     = $lLeftJoin['left_model'];
-		$lRightodel     = $lLeftJoin['right_model'];
-		$lTable         = $pStdObject->node;
+		$lTable = $pStdObject->node;
 		
 		if (isset($pStdObject->queue)) {
-			$lSubQueryTables   = self::_queuetoLeftJoins($lLeftModel, $lTable, $pStdObject->queue);
-			$lLeftJoin         = $pLeftJoins[$pStdObject->node];
-			$lLeftColumn       = $lLeftJoin['left_model']->getFirstIdProperty()->getSerializationName();
-			$lLeftTable        = array_key_exists('right_table_alias', $lLeftJoin) && !is_null($lLeftJoin['right_table_alias']) ? $lLeftJoin['right_table_alias'] : $lLeftJoin['right_table'];
-			$lColumnIdSubQuery = $lSubQueryTables[0]['right_column'][0];
-			$lSelectQuery      = self::_setSubSelectQuery($lSubQueryTables, $pStdObject);
-			$lRigthTableAlias  = 't_'.self::$sIndex++;
+			list($lJoinedTables, $lOn) = self::_getJoinedTablesFromQueue($pMainModel, $pStdObject->queue);
+			$lSelectQuery = self::_setSubSelectQuery($lJoinedTables, $lOn, $pStdObject);
+			$lRigthTable  = new TableNode($lSelectQuery, 't_'.self::$sIndex++, false);
 			
-			while (array_key_exists($lRigthTableAlias, $pLeftJoins)) {
-				$lRigthTableAlias  = 't_'.self::$sIndex++;
+			if (!is_null($pSelectQuery)) {
+				$pSelectQuery->join(SelectQuery::LEFT_JOIN, $lRigthTable, self::_getJoinColumns($lTable, $lRigthTable->getExportName(), $lOn));
 			}
-			$lJoinTable = array(
-				'left_table'        => $lLeftTable,
-				'left_column'       => $lLeftColumn,
-				'right_table'       => $lSelectQuery,
-				'right_table_alias' => $lRigthTableAlias,
-				'right_column'      => $lColumnIdSubQuery
-			);
-			$pLeftJoins[$lJoinTable['right_table_alias']] = $lJoinTable;
-			$lLiteral = new Literal($lJoinTable['right_table_alias'], $lColumnIdSubQuery, Literal::DIFF, null);
+			if (count($lOn) == 1) {
+				$lLiteral = new Literal($lRigthTable->getExportName(), $lOn[0][1], Literal::DIFF, null);
+			} else {
+				$lLiteral = new NotNullJoinLiteral();
+				foreach ($lOn as $lLiteralArray) {
+					$lLiteral->addLiteral($lRigthTable->getExportName(), $lLiteralArray[1]);
+				}
+			}
 		}
 		else {
-			$lProperty =  $lRightodel->getProperty($pStdObject->property, true);
+			$lProperty =  $pMainModel->getProperty($pStdObject->property, true);
 			if ($lProperty->isAggregation()) {
 				throw new \Exception("literal cannot contain aggregation porperty '{$pStdObject->property}'");
 			}
@@ -251,119 +243,117 @@ class Literal {
 		}
 	}
 	
-	private static function _queuetoLeftJoins($pModel, $pAlias, $pQueue, $pTableNameUsed = array()) {
-		$lLeftModel      = $pModel;
-		$lLeftTable      = $pModel->getSqlTableUnit();
-		$lLeftAliasTable = self::_getAlias($lLeftTable->getValue('name'), $pTableNameUsed);
-		$lLeftJoins      = array(
-			array(
-				'left_model'        => $pModel,
-				'right_model'       => $pModel,
-				'right_table'       => $lLeftTable->getValue('name'),
-				'right_table_alias' => $lLeftAliasTable,
-				'right_column'      => $pModel->getSerializationIds()
-			)
-		);
-	
-		$lCurrentNode = $pQueue;
+	/**
+	 * 
+	 * @param Model $pModel
+	 * @param \stdClass $pQueue
+	 * @throws \Exception
+	 * @return [[], []]
+	 * - first element is array of joined tables
+	 * - second element is array of columns that will be use for group, select and joins with principale query
+	 */
+	private static function _getJoinedTablesFromQueue($pModel, $pQueue) {
+		$lFirstTable    = new TableNode($pModel->getSqlTableUnit()->getValue('name'), null, false);
+		$lLeftTable     = $lFirstTable;
+		$lFirstModel    = $pModel;
+		$lLeftModel     = $lFirstModel;
+		$lFirstNode     = $pQueue;
+		$lCurrentNode   = $lFirstNode;
+		$lJoinedTables  = [];
+		$lOn            = null;
+		
 		while (!is_null($lCurrentNode)) {
 			if (!is_object($lCurrentNode) || !isset($lCurrentNode->property)) {
 				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
 			}
-			$lLeftTableName = is_null($lLeftAliasTable) ? $lLeftTable->getValue('name') : $lLeftAliasTable;
-			$lProperty      = $lLeftModel->getProperty($lCurrentNode->property, true);
-			$lLeftJoin      = ComplexLoadRequest::prepareLeftJoin($lLeftTable, $lLeftModel, $lProperty);
-				
-			$lLeftJoin["left_table"]        = $lLeftTableName;
-			$lLeftJoin["right_table_alias"] = self::_getAlias($lLeftJoin["right_table"], $pTableNameUsed);
-	
-			$lLeftJoins[]    = $lLeftJoin;
-			$lLeftModel      = $lProperty->getUniqueModel();
-			$lLeftTable      = $lProperty->getSqlTableUnit();
-			$lLeftAliasTable = $lLeftJoin["right_table_alias"];
-			$lCurrentNode    = isset($lCurrentNode->child) ? $lCurrentNode->child : null;
+			$lProperty       = $lLeftModel->getProperty($lCurrentNode->property, true);
+			$lLeftJoin       = ComplexLoadRequest::prepareJoinedTable($lLeftTable, $lProperty, self::_getAlias());
+			$lJoinedTables[] = $lLeftJoin;
+			
+			
+			$lLeftModel   = $lLeftJoin['model'];
+			$lLeftTable   = $lLeftJoin['table'];
+			$lCurrentNode = isset($lCurrentNode->child) ? $lCurrentNode->child : null;
 		}
-		// if first left join has only one join column, first table is redundant so we can remove it.
-		if (count($lLeftJoins[1]['right_column']) == 1) {
-			array_shift($lLeftJoins);
-		}
-		return $lLeftJoins;
-	}
-	
-	private static function _getAlias($pTableName, &$pTableNameUsed) {
-		$lReturn = null;
-		if (array_key_exists($pTableName, $pTableNameUsed)) {
-			$pTableName = $pTableName.'_'.self::$sIndex++;
-			$pTableNameUsed[$pTableName] = null;
-			$lReturn = $pTableName;
-		} else {
-			$pTableNameUsed[$pTableName] = null;
-		}
-		return $lReturn;
-	}
-	
-	private static function _setSubSelectQuery($pSubQueryTables, $pStdObject) {
-		if (isset($pStdObject->subQuery)) {
-			// TODO
-		} else {
-			$lSelectQuery = new SelectQuery($pSubQueryTables[0]['right_table'], $pSubQueryTables[0]['right_table_alias']);
-			for ($i = 1; $i < count($pSubQueryTables); $i++) {
-				$lJoinTable = $pSubQueryTables[$i];
-				$lSelectQuery->addTable($lJoinTable["right_table"], $lJoinTable["right_table_alias"], SelectQuery::LEFT_JOIN, $lJoinTable["right_column"], $lJoinTable["left_column"], $lJoinTable["left_table"]);
+		if (!is_null($lFirstNode)) {
+			$lOn = [];
+			if (!($lJoinedTables[0]['join_on'] instanceof LogicalJunction) || $lJoinedTables[0]['join_on']->getType() !== LogicalJunction::DISJUNCTION) {
+				$lFirstJoinedTable = $lJoinedTables[0];
+				if ($lFirstJoinedTable['join_on'] instanceof LogicalJunction) {
+					foreach ($lFirstJoinedTable['join_on']->getLiterals() as $lLiteral) {
+						$lOn[] = [$lLiteral->getPropertyName(), $lLiteral->getColumnRight()];
+					}
+				} else {
+					$lOn[] = [$lFirstJoinedTable['join_on']->getPropertyName(), $lFirstJoinedTable['join_on']->getColumnRight()];
+				}
+			} else {
+				array_unshift($lJoinedTables, ['table' => $lFirstTable, 'model' => $lFirstModel]);
+				foreach ($pModel->getSerializationIds() as $lColumn) {
+					$lOn[] = [$lColumn, $lColumn];
+				}
 			}
 		}
-		$lFirstQueryTable = $pSubQueryTables[0];
-		$lFirstTableName  = array_key_exists('right_table_alias', $lFirstQueryTable) && !is_null($lFirstQueryTable['right_table_alias']) 
-							? $lFirstQueryTable['right_table_alias'] : $lFirstQueryTable['right_table'];
-		$lLastQueryTable  = $pSubQueryTables[count($pSubQueryTables) - 1];
-		$lLastTableName   = array_key_exists('right_table_alias', $lLastQueryTable) && !is_null($lLastQueryTable['right_table_alias'])
-							? $lLastQueryTable['right_table_alias'] : $lLastQueryTable['right_table'];
+		return [$lJoinedTables, $lOn];
+	}
+	
+	private static function _getAlias() {
+		return 't_'.self::$sIndex++;
+	}
+	
+	/**
+	 * 
+	 * @param TableNode $pMainTable
+	 * @param Model $pMainModel
+	 * @param [] $pJoinedTables
+	 * @param \stdClass $pStdObject
+	 * @return \comhon\database\SelectQuery
+	 */
+	private static function _setSubSelectQuery($pJoinedTables, $pGroupColumns, $pStdObject) {
+		$lMainTable   = $pJoinedTables[0]['table'];
+		$lSelectQuery = new SelectQuery($lMainTable);
+		
+		for ($i = 1; $i < count($pJoinedTables); $i++) {
+			$lJoinTable = $pJoinedTables[$i];
+			$lSelectQuery->join(SelectQuery::INNER_JOIN, $lJoinTable['table'], $lJoinTable['join_on']);
+		}
+			
+		$lLastTable = $pJoinedTables[count($pJoinedTables) - 1]['table'];
+		$lLastModel = $pJoinedTables[count($pJoinedTables) - 1]['model'];
 
-		$lFirstColumnId = $lFirstQueryTable['right_column'][0];
-		$lSelectQuery->setFirstTableCurrentTable()->addSelectColumn($lFirstColumnId)->addGroupColumn($lFirstColumnId);
+		$lSelectQuery->setMainTableAsCurrentTable();
+		foreach ($pGroupColumns as $lColumns) {
+			$lMainTable->addSelectedColumn($lColumns[1]);
+			$lSelectQuery->addGroupColumn($lColumns[1]);
+		}
 		
 		if (isset($pStdObject->havingLogicalJunction)) {
-			$lSubLogicalJunction = self::stdObjectToHavingLogicalJunction($pStdObject->havingLogicalJunction, $lFirstTableName, $lFirstColumnId, $lLastTableName, $lLastQueryTable["right_model"]);
+			$lHaving = HavingLogicalJunction::stdObjectToHavingLogicalJunction($pStdObject->havingLogicalJunction, $lMainTable, $lLastTable, $lLastModel);
 		} else {
-			self::_completeHavingLiteral($pStdObject->havingLiteral, $lFirstTableName, $lFirstColumnId, $lLastTableName, $lLastQueryTable["right_model"]);
-			$lSubLogicalJunction = new HavingLogicalJunction(LogicalJunction::CONJUNCTION);
-			$lSubLogicalJunction->addLiteral(HavingLiteral::stdObjectToHavingLiteral($pStdObject->havingLiteral));
+			$lTable  = isset($pStdObject->havingLiteral->function) && ($pStdObject->havingLiteral->function == HavingLiteral::COUNT) ? $lMainTable : $lLastTable;
+			$lHaving = HavingLiteral::stdObjectToHavingLiteral($pStdObject->havingLiteral, $lTable, $lLastModel);
 		}
-		$lSelectQuery->setHavingLogicalJunction($lSubLogicalJunction);
+		$lSelectQuery->having($lHaving);
 		return $lSelectQuery;
 	}
 	
-	public static function stdObjectToHavingLogicalJunction($pStdObject, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel) {
-		if (!is_object($pStdObject) || !isset($pStdObject->type) || (isset($pStdObject->logicalJunctions) && !is_array($pStdObject->logicalJunctions)) || (isset($pStdObject->literals) && !is_array($pStdObject->literals))) {
-			throw new \Exception("malformed stdObject LogicalJunction : ".json_encode($pStdObject));
-		}
-		$lLogicalJunction = new HavingLogicalJunction($pStdObject->type);
-		if (isset($pStdObject->logicalJunctions)) {
-			foreach ($pStdObject->logicalJunctions as $lStdObjectLogicalJunction) {
-				$lLogicalJunction->addLogicalJunction(self::stdObjectToHavingLogicalJunction($lStdObjectLogicalJunction, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel));
+	/**
+	 * 
+	 * @param string $lLeftTable
+	 * @param string $pRightTable
+	 * @param [] $pOn
+	 * @return OnLogicalJunction|OnLiteral
+	 */
+	private function _getJoinColumns($lLeftTable, $pRightTable, $pOn) {
+		if (count($pOn) == 1) {
+			$lOn = new OnLiteral($lLeftTable, $pOn[0][0], Literal::EQUAL, $pRightTable, $pOn[0][1]);
+		} else {
+			$lOn = new OnLogicalJunction(LogicalJunction::CONJUNCTION);
+			foreach ($pOn as $lOnLiteralArray) {
+				$lOnLiteral = new OnLiteral($lLeftTable, $lOnLiteralArray[0], Literal::EQUAL, $pRightTable, $lOnLiteralArray[1]);
+				$lOn->addLiteral($lOnLiteral);
 			}
 		}
-		if (isset($pStdObject->literals)) {
-			foreach ($pStdObject->literals as $lStdObjectLiteral) {
-				self::_completeHavingLiteral($lStdObjectLiteral, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel);
-				$lLogicalJunction->addLiteral(HavingLiteral::stdObjectToHavingLiteral($lStdObjectLiteral));
-			}
-		}
-		return $lLogicalJunction;
+		return $lOn;
 	}
 	
-	private static function _completeHavingLiteral($pStdObjectLiteral, $pFirstTableName, $pFirstColumnId, $pLastTableName, $pLastModel) {
-		if ($pStdObjectLiteral->function == HavingLiteral::COUNT) {
-			$pStdObjectLiteral->node   = $pFirstTableName;
-			$pStdObjectLiteral->column = $pFirstColumnId;
-		}
-		else {
-			if (!isset($pStdObjectLiteral->property)) {
-				throw new \Exception("malformed stdObject literal : ".json_encode($pStdObjectLiteral));
-			}
-			$pStdObjectLiteral->node   = $pLastTableName;
-			$pStdObjectLiteral->column = $pLastModel->getProperty($pStdObjectLiteral->property, true)->getSerializationName();
-		
-		}
-	}
 }

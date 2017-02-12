@@ -22,15 +22,19 @@ use comhon\dataStructure\Tree;
 use comhon\exception\PropertyException;
 use \Exception;
 use comhon\object\object\serialization\SqlTable;
+use comhon\database\TableNode;
+use comhon\database\OnLiteral;
+use comhon\database\OnLogicalJunction;
+use comhon\database\Disjunction;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	
-	private $mLeftJoins;
+	private $mModelByNodeId;
 	private $mSelectQuery;
-	private $mLiteralCollection = array();
+	private $mLiteralCollection = [];
 	private $mLogicalJunction;
 	private $mLoadLength;
-	private $mOrder = array();
+	private $mOrder = [];
 	private $mOffset;
 	private $mSelectedColumns;
 	private $mOptimizeLiterals = false;
@@ -76,7 +80,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	public function setPropertiesFilter($pPropertiesFilter) {
-		$this->mSelectedColumns = array();
+		$this->mSelectedColumns = [];
 		foreach ($pPropertiesFilter as $pPropertyName) {
 			$lProperty = $this->mModel->getProperty($pPropertyName, true);
 			if (!$lProperty->isAggregation()) {
@@ -96,6 +100,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public static function buildObjectLoadRequest($pStdObject) {
 		if (isset($pStdObject->model)) {
+			if (isset($pStdObject->tree)) {
+				throw new Exception('request cannot have model property and tree property in same time');
+			}
 			$lObjectLoadRequest = new ComplexLoadRequest($pStdObject->model);
 		} else if (isset($pStdObject->tree) && isset($pStdObject->tree->model)) {
 			$lObjectLoadRequest = new ComplexLoadRequest($pStdObject->tree->model);
@@ -151,43 +158,43 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if ($pModelTree->model != $this->mModel->getModelName()) {
 			throw new Exception("root model in model tree is not the same as model specified in constructor");
 		}
-		$lSqlTable = $this->mModel->getSqlTableUnit();
-		$lAlias = isset($pModelTree->id) ? $pModelTree->id : null;
-		$this->mSelectQuery = new SelectQuery($lSqlTable->getValue('name'), $lAlias);
 		
-		$this->mLeftJoins = array();
-		$lTableName = is_null($lAlias) ? $lSqlTable->getValue('name') : $lAlias;
-		$this->mLeftJoins[$lTableName] = array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lSqlTable->getValue('name'), "right_table_alias" => $lAlias);
+		$lTableNode = new TableNode($this->mModel->getSqlTableUnit()->getValue("name"), isset($pModelTree->id) ? $pModelTree->id : null);
+		$this->mSelectQuery = new SelectQuery($lTableNode);
 		
-		$lStack = array(array($this->mModel, $lSqlTable, $lAlias, $pModelTree));
+		$this->mModelByNodeId = [$lTableNode->getExportName() => $this->mModel];
+		
+		$lStack = array(array($this->mModel, $lTableNode, $pModelTree));
 		while (!empty($lStack)) {
 			$lLastElement    = array_pop($lStack);
 			$lLeftModel      = $lLastElement[0];
 			$lLeftTable      = $lLastElement[1];
-			$lLeftAliasTable = $lLastElement[2];
-			$lLeftTableName  = is_null($lLeftAliasTable) ? $lLeftTable->getValue('name') : $lLeftAliasTable;
-			$lChildrenNodes  = isset($lLastElement[3]->children) ? $lLastElement[3]->children : array();
 			
-			foreach ($lChildrenNodes as $lChildNode) {
-				$lProperty                      = $lLeftModel->getProperty($lChildNode->property, true);
-				$lLeftJoin                      = self::prepareLeftJoin($lLeftTable, $lLeftModel, $lProperty);
-				$lLeftJoin["left_table"]        = $lLeftTableName;
-				$lLeftJoin["right_table_alias"] = isset($lChildNode->id) ? $lChildNode->id : null;
-				
-				$this->mLeftJoins[$lLeftJoin["right_table_alias"]] = $lLeftJoin;
-				$lStack[] = array($lProperty->getUniqueModel(), $lProperty->getSqlTableUnit(), $lLeftJoin["right_table_alias"], $lChildNode);
+			if (isset($lLastElement[2]->children) && is_array($lLastElement[2]->children)) {
+				foreach ($lLastElement[2]->children as $lChildNode) {
+					$lRightTableAlias = isset($lChildNode->id) ? $lChildNode->id : null;
+					$lProperty        = $lLeftModel->getProperty($lChildNode->property, true);
+					$lJoinedTable     = self::prepareJoinedTable($lLeftTable, $lProperty, $lRightTableAlias);
+					
+					$this->mSelectQuery->join(SelectQuery::LEFT_JOIN, $lJoinedTable['table'], $lJoinedTable['join_on']);
+					$this->mModelByNodeId[$lJoinedTable['table']->getExportName()] = $lJoinedTable['model'];
+					$lStack[] = [$lProperty->getUniqueModel(), $lJoinedTable['table'], $lChildNode];
+				}
 			}
 		}
 		return $this;
 	}
 	
 	public function importLiteralCollection($pStdObjectLiteralCollection) {
-		if (is_null($this->mLeftJoins)) {
+		if (is_null($this->mModelByNodeId)) {
 			throw new \Exception('model tree must be set');
 		}
 		if (is_array($pStdObjectLiteralCollection)) {
 			foreach ($pStdObjectLiteralCollection as $pStdObjectLiteral) {
-				$this->addliteralToCollection(Literal::stdObjectToLiteral($pStdObjectLiteral, $this->mLeftJoins));
+				if (!isset($pStdObjectLiteral->node) || !array_key_exists($pStdObjectLiteral->node, $this->mModelByNodeId)) {
+					throw new \Exception('node doesn\' exists or not recognized');
+				}
+				$this->addliteralToCollection(Literal::stdObjectToLiteral($pStdObjectLiteral, $this->mModelByNodeId[$pStdObjectLiteral->node], null, $this->mSelectQuery));
 			}
 		}
 	}
@@ -203,30 +210,34 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	public function importLogicalJunction($pStdObjectLogicalJunction) {
-		if (is_null($this->mLeftJoins)) {
+		if (is_null($this->mModelByNodeId)) {
 			$lMainTableName = $this->mModel->getSqlTableUnit()->getValue('name');
-			$this->mSelectQuery = new SelectQuery($lMainTableName);
-			$this->mLeftJoins   = array();
-			$this->mLeftJoins[$lMainTableName] = array('left_model' => $this->mModel, 'right_model' => $this->mModel, "right_table" => $lMainTableName, "right_table_alias" => null);
+			$lMainTableNode = new TableNode($lMainTableName);
+			$this->mSelectQuery = new SelectQuery($lMainTableNode);
+			$this->mModelByNodeId = [$lMainTableName => $this->mModel];
 
-			$lModels = array();
-			$this->_getModelLiterals($pStdObjectLogicalJunction, $lMainTableName, $lModels);
-			$this->_buildModelTree($lModels);
+			$lLitralsByModelName = [];
+			$this->_getLiteralsByModelName($pStdObjectLogicalJunction, $lMainTableName, $lLitralsByModelName);
+			$this->_buildAndAddJoins($lLitralsByModelName);
 		}
-		$this->setLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($pStdObjectLogicalJunction, $this->mLeftJoins, $this->mLiteralCollection));
-		
-		array_shift($this->mLeftJoins);
-		foreach ($this->mLeftJoins as $lLeftJoin) {
-			$lAlias = array_key_exists('right_table_alias', $lLeftJoin) ? $lLeftJoin['right_table_alias'] : null;
-			$this->mSelectQuery->addTable($lLeftJoin["right_table"], $lAlias, SelectQuery::LEFT_JOIN, $lLeftJoin["right_column"], $lLeftJoin["left_column"], $lLeftJoin["left_table"]);
-		}
+		$this->setLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($pStdObjectLogicalJunction, $this->mModelByNodeId, $this->mLiteralCollection, $this->mSelectQuery));
 	}
 	
 	public function importLiteral($pStdObjectLiteral) {
-		if (is_null($this->mLeftJoins)) {
-			$this->_buildModelTree(array($pStdObjectLiteral->model => null));
+		if (is_null($this->mModelByNodeId)) {
+			$lMainTableName = $this->mModel->getSqlTableUnit()->getValue('name');
+			$lMainTableNode = new TableNode($lMainTableName);
+			$this->mSelectQuery = new SelectQuery($lMainTableNode);
+			$this->mModelByNodeId = [$lMainTableName => $this->mModel];
+			
+			$lLitralsByModelName = [];
+			$this->_getLiteralByModelName($pStdObjectLiteral, $lMainTableName, $lLitralsByModelName);
+			$this->_buildAndAddJoins($lLitralsByModelName);
 		}
-		$this->setLiteral(Literal::stdObjectToLiteral($pStdObjectLiteral, $this->mLeftJoins, $this->mLiteralCollection));
+		if (!isset($pStdObjectLiteral->node) || !array_key_exists($pStdObjectLiteral->node, $this->mModelByNodeId)) {
+			throw new \Exception('node doesn\' exists or not recognized');
+		}
+		$this->setLiteral(Literal::stdObjectToLiteral($pStdObjectLiteral, $this->mModelByNodeId[$pStdObjectLiteral->node], $this->mLiteralCollection, $this->mSelectQuery));
 	}
 	
 	private function finalize() {
@@ -236,9 +247,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if ($this->mOptimizeLiterals) {
 			$this->mLogicalJunction = LogicalJunctionOptimizer::optimizeLiterals($this->mLogicalJunction);
 		}
-		$this->mSelectQuery->setWhereLogicalJunction($this->mLogicalJunction);
-		$this->mSelectQuery->setLimit($this->mLoadLength)->setOffset($this->mOffset);
-		$this->mSelectQuery->setFirstTableCurrentTable();
+		$this->mSelectQuery->where($this->mLogicalJunction);
+		$this->mSelectQuery->limit($this->mLoadLength)->offset($this->mOffset);
+		$this->mSelectQuery->setMainTableAsCurrentTable();
 		$this->_addColumns();
 		$this->_addGroupedColumns();
 		$this->_addOrderColumns();
@@ -246,10 +257,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	/**
 	 * execute request
-	 * @param unknown $pFakeValue parent function has parameter so we add on to have same number of parameter
+	 * @param unknown $pValue not used : parent function has parameter so we add one to have same number of parameter
 	 * @return array
 	 */
-	public function execute($pFakeValue = null) {
+	public function execute($pValue = null) {
 		$this->finalize();
 		$lSqlTable = $this->mModel->getSqlTableUnit();
 		$lSqlTable->loadValue("database");
@@ -265,49 +276,50 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		return $this->mSelectQuery;
 	}
 	
-	private function _getModelLiterals($pStdObjectLogicalJunction, $pMainTableName, &$pModels) {
+	private function _getLiteralsByModelName($pStdObjectLogicalJunction, $pMainTableName, &$pLitralsByModelName) {
 		if (isset($pStdObjectLogicalJunction->literals)) {
 			foreach ($pStdObjectLogicalJunction->literals as $lLiteral) {
-				if (!isset($lLiteral->model)) {
-					throw new \Exception("malformed stdObject literal : ".json_encode($lLiteral));
-				}
-				ModelManager::getInstance()->getInstanceModel($lLiteral->model); // verify if model exists
-				if (!array_key_exists($lLiteral->model, $pModels)) {
-					$pModels[$lLiteral->model] = array();
-				}
-				if ($lLiteral->model == $this->mModel->getModelName()) {
-					$lLiteral->node = $pMainTableName;
-				}
-				else {
-					$pModels[$lLiteral->model][] = $lLiteral;
-				}
-				unset($lLiteral->model);
+				$this->_getLiteralByModelName($lLiteral, $pMainTableName, $pLitralsByModelName);
 			}
 		}
 		if (isset($pStdObjectLogicalJunction->logicalJunctions)) {
 			foreach ($pStdObjectLogicalJunction->logicalJunctions as $lLogicalJunction) {
-				$this->_getModelLiterals($lLogicalJunction, $pMainTableName, $pModels);
+				$this->_getLiteralsByModelName($lLogicalJunction, $pMainTableName, $pLitralsByModelName);
 			}
+		}
+	}
+	
+	private function _getLiteralByModelName($pLiteral, $pMainTableName, &$pLitralsByModelName) {
+		if (!isset($pLiteral->model)) {
+			throw new \Exception("malformed stdObject literal : ".json_encode($pLiteral));
+		}
+		ModelManager::getInstance()->getInstanceModel($pLiteral->model); // verify if model exists
+		if (!array_key_exists($pLiteral->model, $pLitralsByModelName)) {
+			$pLitralsByModelName[$pLiteral->model] = [];
+		}
+		if ($pLiteral->model == $this->mModel->getModelName()) {
+			$pLiteral->node = $pMainTableName;
+		}
+		else {
+			$pLitralsByModelName[$pLiteral->model][] = $pLiteral;
 		}
 	}
 	
 	/**
 	 * add table to query $mSelectQuery
-	 * @param array $pModels [modelName => alias]
+	 * @param array $pLitralsByModelName
 	 * @throws Exception
 	 */
-	private function _buildModelTree($pModels) {
-		if ((empty($pModels)) || ((count($pModels) == 1) && array_key_exists($this->mModel->getModelName(), $pModels))) {
+	private function _buildAndAddJoins($pLitralsByModelName) {
+		if ((empty($pLitralsByModelName)) || ((count($pLitralsByModelName) == 1) && array_key_exists($this->mModel->getModelName(), $pLitralsByModelName))) {
 			return;
 		}
-		$lTemporaryLeftJoins = array();
-		$lStackVisitedModels = array();
-		$lArrayVisitedModels = array();
-		$lStack              = array();
-		$lMainModelTableName = $this->mModel->getSqlTableUnit()->getValue('name');
+		$lTemporaryLeftJoins = [];
+		$lStackVisitedModels = [];
+		$lArrayVisitedModels = [];
+		$lStack              = [];
 		
-		// stack initialisation with $pModel
-		$this->_extendsStacks($this->mModel, $this->mModel->getSqlTableUnit(), $pModels, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
+		$this->_extendsStacks($this->mModel, $pLitralsByModelName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
 	
 		// Depth-first search to build all left joins
 		while (!empty($lStack)) {
@@ -322,22 +334,30 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				$lRightProperty  = $lStack[$lStackIndex]["properties"][$lStack[$lStackIndex]["current"]];
 				$lRightModel     = $lRightProperty->getUniqueModel();
 				$lRightModelName = $lRightModel->getModelName();
-	
-				if (array_key_exists($lRightModelName, $lArrayVisitedModels) && ($lArrayVisitedModels[$lRightModelName] > 0)) {
-					$lStackVisitedModels[] = $lRightModelName;
-					$lArrayVisitedModels[$lRightModelName] += 1;
+				
+				$lHigherRightModelName = $lRightModelName;
+				$lModel = $lRightModel->getExtendsModel();
+				while (!is_null($lModel) && $lModel->getSerialization() === $lRightModel->getSerialization()) {
+					$lHigherRightModelName = $lModel->getModelName();
+					$lModel = $lModel->getExtendsModel();
+				}
+				
+				if (array_key_exists($lHigherRightModelName, $lArrayVisitedModels) && ($lArrayVisitedModels[$lHigherRightModelName] > 0)) {
+					$lStackVisitedModels[] = $lHigherRightModelName;
+					$lArrayVisitedModels[$lHigherRightModelName] += 1;
 					$lTemporaryLeftJoins[] = null;
 					continue;
 				}
 				// add temporary leftJoin
-				// add leftjoin if model $lRightModel is in literals ($pModels)
-				$lTemporaryLeftJoins[] = self::prepareLeftJoin($lStack[$lStackIndex]["leftTable"], $lStack[$lStackIndex]["leftModel"], $lRightProperty);
-				if (array_key_exists($lRightModelName, $pModels)) {
-					$this->_addJoins($lTemporaryLeftJoins, $pModels[$lRightModelName]);
-					$lTemporaryLeftJoins = array();
+				// add leftjoin if model $lRightModel is in literals ($pLitralsByModelName)
+				$lLeftModel = $lStack[$lStackIndex]['left_model'];
+				$lTemporaryLeftJoins[] = self::prepareJoinedTable($lLeftModel->getSqlTableUnit()->getValue('name'), $lRightProperty);
+				if (array_key_exists($lRightModelName, $pLitralsByModelName)) {
+					$this->_joinTables($lTemporaryLeftJoins, $pLitralsByModelName[$lRightModelName]);
+					$lTemporaryLeftJoins = [];
 				}
 				// add serializable properties to stack
-				$this->_extendsStacks($lRightModel, $lRightProperty->getSqlTableUnit(), $pModels, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
+				$this->_extendsStacks($lRightModel, $pLitralsByModelName, $lStack, $lStackVisitedModels, $lArrayVisitedModels);
 	
 				// if no added model we can delete last stack element
 				if (empty($lStack[count($lStack) - 1]["properties"])) {
@@ -351,74 +371,125 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		}
 	}
 	
-	private function _addJoins($pLeftJoins, $pLiterals) {
+	private function _joinTables($pJoinedTables, $pLiterals) {
 		if (!empty($pLiterals)) {
-			foreach ($pLeftJoins as $lLeftJoin) {
-				$this->mLeftJoins[$lLeftJoin["right_table"]] = $lLeftJoin;
+			foreach ($pJoinedTables as $lJoinedTable) {
+				$this->mSelectQuery->join(SelectQuery::LEFT_JOIN, $lJoinedTable['table'], $lJoinedTable['join_on']);
+				$this->mModelByNodeId[$lJoinedTable['table']->getExportName()] = $lJoinedTable['model'];
 			}
-			$lLiteralNode     = $pLeftJoins[count($pLeftJoins) - 1]["right_table"];
+			$lNodeId = $pJoinedTables[count($pJoinedTables) - 1]['table']->getExportName();
 			foreach ($pLiterals as $pLiteral) {
-				$pLiteral->node = $lLiteralNode;
+				$pLiteral->node = $lNodeId;
 			}
 		}
 	}
 	
-	private function _getAlias($pModelName, $pSuffix) {
-		return is_null($pSuffix) ? $pModelName : $pModelName."_".$pSuffix;
-	}
-	
-	private function _extendsStacks($pModel, $pSqlTable, $pLiteralsByModelName, &$pStack, &$pStackVisitedModels, &$pArrayVisitedModels) {
+	private function _extendsStacks($pModel, $pLiteralsByModelName, &$pStack, &$pStackVisitedModels, &$pArrayVisitedModels) {
 		if (array_key_exists($pModel->getModelName(), $pArrayVisitedModels) && array_key_exists($pModel->getModelName(), $pLiteralsByModelName)) {
 			throw new Exception("Cannot resolve literal. Literal with model '".$pModel->getModelName()."' can be applied on several properties");
 		}
 		$pStack[] = array(
-				"leftTable"  => $pSqlTable,
-				"leftModel"  => $pModel,
+				"left_model" => $pModel,
 				"properties" => $pModel->getForeignSerializableProperties("sqlTable"),
 				"current"    => -1
 		);
-		$lModelName = $pModel->getModelName();
-		$pStackVisitedModels[] = $lModelName;
-		$pArrayVisitedModels[$lModelName] = array_key_exists($lModelName, $pArrayVisitedModels) ? $pArrayVisitedModels[$lModelName] + 1 : 1;
+		
+		$lHigherRightModelName = $pModel->getModelName();
+		$lModel = $pModel->getExtendsModel();
+		while (!is_null($lModel) && $lModel->getSerialization() === $pModel->getSerialization()) {
+			$lHigherRightModelName = $lModel->getModelName();
+			$lModel = $lModel->getExtendsModel();
+		}
+		
+		$pStackVisitedModels[] = $lHigherRightModelName;
+		$pArrayVisitedModels[$lHigherRightModelName] = array_key_exists($lHigherRightModelName, $pArrayVisitedModels) ? $pArrayVisitedModels[$lHigherRightModelName] + 1 : 1;
 	}
 	
-	public static function prepareLeftJoin($pLeftTable, $pLeftModel, $pRightProperty) {
+	public static function prepareJoinedTable($pLeftTable, $pRightProperty, $pRightAliasTable = null, $pSelectAllColumns = false) {
 		if (!($pRightProperty instanceof ForeignProperty) || !$pRightProperty->hasSqlTableUnit()) {
-			throw new Exception("property '{$lCurrentNode->property}' in model '{$lLeftModel->getModelName()}' hasn't sql serialization");
+			throw new Exception("property '{$pRightProperty->getName()}' hasn't sql serialization");
 		}
-		$lRightTable = $pRightProperty->getSqlTableUnit();
 		$lRightModel = $pRightProperty->getUniqueModel();
-		$lReturn = array(
-			"left_model"   => $pLeftModel,
-			"right_model"  => $lRightModel,
-			"left_table"   => $pLeftTable->getValue('name'),
-			"right_table"  => $lRightTable->getValue('name')
-		);
-		$lColumn = $pRightProperty->getSerializationName();
+		$lRightTable = new TableNode($lRightModel->getSqlTableUnit()->getValue('name'), $pRightAliasTable, $pSelectAllColumns);
+		
 		if ($pRightProperty->isAggregation()) {
-			$lColumns = [];
+			$lDisJunction = [];
 			foreach ($pRightProperty->getAggregationProperties() as $lAggregationProperty) {
-				$lColumns[] = $lRightModel->getProperty($lAggregationProperty, true)->getSerializationName();
+				$lRightForeignProperty = $lRightModel->getProperty($lAggregationProperty, true);
+				
+				if ($lRightForeignProperty->hasMultipleSerializationNames()) {
+					$lOn = new OnLogicalJunction(LogicalJunction::CONJUNCTION);
+					foreach ($lRightForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
+						$lOn->addLiteral(new OnLiteral(
+							$pLeftTable,
+							$lIdProperty->getSerializationName(),
+							Literal::EQUAL,
+							$lRightTable,
+							$lSerializationName
+						));
+					}
+					$lDisJunction[] = $lOn;
+				} else {
+					$lDisJunction[] = new OnLiteral(
+						$pLeftTable,
+						$lRightForeignProperty->getUniqueModel()->getFirstIdProperty()->getSerializationName(),
+						Literal::EQUAL,
+						$lRightTable,
+						$lRightForeignProperty->getSerializationName()
+					);
+				}
 			}
-			$lReturn["left_column"] = $pLeftModel->getFirstIdProperty()->getSerializationName();
-			$lReturn["right_column"] = $lColumns;
+			if (count($lDisJunction) == 1) {
+				$lOn = $lDisJunction[0];
+			} else {
+				$lOn = new OnLogicalJunction(LogicalJunction::DISJUNCTION);
+				foreach ($lDisJunction as $lOnElement) {
+					if ($lOnElement instanceof Literal) {
+						$lOn->addLiteral($lOnElement);
+					} else {
+						$lOn->addLogicalJunction($lOnElement);
+					}
+				}
+			}
 		}else {
-			$lReturn["left_column"] = $lColumn;
-			$lReturn["right_column"] = $lRightModel->getFirstIdProperty()->getSerializationName();
+			if ($pRightProperty->hasMultipleSerializationNames()) {
+				$lOn = new OnLogicalJunction(LogicalJunction::CONJUNCTION);
+				foreach ($pRightProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
+					$lOn->addLiteral(new OnLiteral(
+						$pLeftTable,
+						$lSerializationName,
+						Literal::EQUAL, 
+						$lRightTable,
+						$lIdProperty->getSerializationName()
+					));
+				}
+			} else {
+				$lOn = new OnLiteral(
+					$pLeftTable, 
+					$pRightProperty->getSerializationName(), 
+					Literal::EQUAL, 
+					$lRightTable, 
+					$lRightModel->getFirstIdProperty()->getSerializationName()
+				);
+			}
 		}
-		return $lReturn;
+		return [
+			'model'   => $lRightModel,
+			'table'   => $lRightTable,
+			'join_on' => $lOn
+		];
 	}
 	
 	/**
 	 * add select columns to $mSelectQuery
 	 */
 	private function _addColumns() {
-		$this->mSelectQuery->resetSelectColumns();
 		if (is_null($this->mSelectedColumns)) {
-			$this->mSelectQuery->addSelectTableColumns();
+			$this->mSelectQuery->getMainTable()->selectAllColumns(true);
 		} else {
+			$lMainTable = $this->mSelectQuery->getMainTable();
 			foreach ($this->mSelectedColumns as $lColumn) {
-				$this->mSelectQuery->addSelectColumn($lColumn);
+				$lMainTable->addSelectedColumn($lColumn);
 			}
 		}
 	}

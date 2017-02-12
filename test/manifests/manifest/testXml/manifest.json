@@ -52,6 +52,14 @@
 			"type": "string",
 			"is_id": true
 		},
+		"textNode": {
+			"type": "string",
+			"xml": "node"
+		},
+		"textAttribute": {
+			"type": "string",
+			"xml": "attribute"
+		},
 		"objectValue": {
 			"type": "object"
 		},

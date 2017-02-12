@@ -41,36 +41,47 @@ class HavingLiteral extends Literal {
 	 * @return string
 	 */
 	public function export(&$pValues) {
-		return sprintf("%s(%s.%s) %s %s", $this->mFunction, $this->mTable, $this->mColumn, $this->mOperator, $this->mValue);
+		$lColumnTable = is_null($this->mColumn) ? '*'
+			: ((($this->mTable instanceof TableNode) ? $this->mTable->getExportName() : $this->mTable) . '.' . $this->mColumn);
+		return sprintf("%s(%s) %s %s", $this->mFunction, $lColumnTable, $this->mOperator, $this->mValue);
 	}
 	
 	private static function _verifStdObject($pStdObject) {
-		if (!is_object($pStdObject) || !isset($pStdObject->function) || !isset($pStdObject->node) || !isset($pStdObject->column) || !isset($pStdObject->operator) ||!isset($pStdObject->value)) {
+		if (!is_object($pStdObject) || !isset($pStdObject->function) || !isset($pStdObject->operator) ||!isset($pStdObject->value)) {
 			throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
 		}
 	}
 	
 	/**
 	 * @param stdClass $pStdObject
-	 * @param Tree $pJoinTree
+	 * @param string|TableNode $pTable not necessary if proeprty 'node' is specified in $pStdObject
+	 * @param Model $pModel not necessary if function is COUNT
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null) {
+	public static function stdObjectToHavingLiteral($pStdObject, $pTable = null, $pModel = null) {
 		self::_verifStdObject($pStdObject);
-		$lLiteral  = new HavingLiteral($pStdObject->function, $pStdObject->node, $pStdObject->column, $pStdObject->operator, $pStdObject->value);
-		return $lLiteral;
-	}
-	
-	/**
-	 * @param stdClass $pStdObject
-	 * @param Tree $pJoinTree
-	 * @throws \Exception
-	 * @return Literal
-	 */
-	public static function stdObjectToHavingLiteral($pStdObject) {
-		self::_verifStdObject($pStdObject);
-		$lLiteral  = new HavingLiteral($pStdObject->function, $pStdObject->node, $pStdObject->column, $pStdObject->operator, $pStdObject->value);
+		
+		if ($pStdObject->function == HavingLiteral::COUNT) {
+			$lColumn = null;
+		} else if (isset($pStdObject->property)) {
+			if (is_null($pModel)) {
+				throw new \Exception('model can\'t be null if function is different than COUNT');
+			}
+			$lColumn = $pModel->getProperty($pStdObject->property, true)->getSerializationName();
+		} else {
+			throw new \Exception("malformed stdObject literal : ".json_encode($pStdObject));
+		}
+		
+		if (isset($pStdObject->node)) {
+			$lTable = $pStdObject->node;
+		} else if (!is_null($pTable)) {
+			$lTable = $pTable;
+		} else {
+			throw new \Exception('literal dosen\'t have property \'node\' and table is not specified in parameter : '.json_encode($pStdObject));
+		}
+		
+		$lLiteral  = new HavingLiteral($pStdObject->function, $lTable, $lColumn, $pStdObject->operator, $pStdObject->value);
 		return $lLiteral;
 	}
 	

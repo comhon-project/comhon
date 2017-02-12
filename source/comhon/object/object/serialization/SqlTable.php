@@ -289,9 +289,9 @@ class SqlTable extends SerializationUnit {
 		$this->_initDatabaseConnection($pObject->getModel());
 		
 		$lSelectQuery = new SelectQuery($this->getValue('name'));
-		$lSelectQuery->setWhereLogicalJunction($pLogicalJunction);
+		$lSelectQuery->where($pLogicalJunction);
 		foreach ($pSelectColumns as $lColumn) {
-			$lSelectQuery->addSelectColumn($lColumn);
+			$lSelectQuery->getMainTable()->addSelectedColumn($lColumn);
 		}
 		$lRows = $this->mDbController->executeSelectQuery($lSelectQuery);
 		

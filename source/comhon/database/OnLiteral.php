@@ -3,9 +3,26 @@ namespace comhon\database;
 
 class OnLiteral extends Literal {
 
+	private $mColumnRight;
+	
 	public function __construct($pTableLeft, $pColumnLeft, $pOperator, $pTableRight, $pColumnRight) {
-		$this->mFunction = $pFunction;
-		parent::__construct($pTableLeft, $pColumnLeft, $pOperator, $pTableRight.'.'.$pColumnRight);
+		$this->mColumnRight = $pColumnRight;
+		parent::__construct($pTableLeft, $pColumnLeft, $pOperator, $pTableRight);
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getColumnRight() {
+		return $this->mColumnRight;
+	}
+	
+	/**
+	 * 
+	 * @return string|TableNode
+	 */
+	public function getTableRight() {
+		return $this->mValue;
 	}
 	
 	/**
@@ -13,7 +30,9 @@ class OnLiteral extends Literal {
 	 * @return string
 	 */
 	public function export(&$pValues) {
-		return sprintf("%s.%s %s %s", $this->mFunction, $this->mTable, $this->mColumn, $this->mOperator, $this->mValue);
+		$lLeft = (($this->mTable instanceof TableNode) ? $this->mTable->getExportName() : $this->mTable) . '.' . $this->mColumn;
+		$lRight = (($this->mValue instanceof TableNode) ? $this->mValue->getExportName() : $this->mValue) . '.' . $this->mColumnRight;
+		return sprintf("%s %s %s", $lLeft, $this->mOperator, $lRight);
 	}
 	
 	/**

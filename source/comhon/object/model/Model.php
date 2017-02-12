@@ -562,11 +562,16 @@ abstract class Model {
 				$lProperty = $lProperties[$lPropertyName];
 				if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName) && !is_null($lValue)) {
 					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
-					if (($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum)){
-						$pXmlNode[$lName] = $lProperty->getModel()->_toXml($lValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+					if ($lProperty->isInterfacedAsNodeXml()) {
+						if (($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum)) {
+							$lValue = $lProperty->getModel()->_toXml($lValue, null, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+							$pXmlChildNode = $pXmlNode->addChild($lName, $lValue);
+						} else {
+							$pXmlChildNode = $pXmlNode->addChild($lName);
+							$lProperty->getModel()->_toXml($lValue, $pXmlChildNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+						}
 					} else {
-						$pXmlChildNode = $pXmlNode->addChild($lName);
-						$lProperty->getModel()->_toXml($lValue, $pXmlChildNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+						$pXmlNode[$lName] = $lProperty->getModel()->_toXml($lValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 					}
 				} else if ($lProperty->isForeign() && is_array($pMainForeignObjects)) {
 					$pXmlChildNode = new SimpleXMLElement('<root/>');
@@ -768,7 +773,7 @@ abstract class Model {
 		foreach ($lProperties as $lPropertyName => $lProperty) {
 			if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				$lXmlPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lPropertyName;
-				if (($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum)) {
+				if (!$lProperty->isInterfacedAsNodeXml()) {
 					if (isset($pXml[$lXmlPropertyName])) {
 						$pObject->setValue($lPropertyName,  $lProperty->getModel()->_fromXml($pXml[$lXmlPropertyName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
 						$lHasValue = true;

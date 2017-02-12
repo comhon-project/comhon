@@ -17,6 +17,9 @@ abstract class ManifestParser {
 
 	const _EXTENDS = 'extends';
 	const _OBJECT  = 'object';
+	
+	const XML_NODE = 'node';
+	const XML_ATTRIBUTE = 'attribute';
 
 	protected $mManifest;
 	protected $mSerializationManifestParser;
@@ -123,7 +126,7 @@ abstract class ManifestParser {
 	 */
 	public function getCurrentProperty(Model $pPropertyModel) {
 		if ($this->_isCurrentPropertyForeign()) {
-			list($lName, $lModel, $lIsId, $lIsPrivate, $lDefault) = $this->_getBaseInfosProperty($pPropertyModel);
+			list($lName, $lModel, $lIsId, $lIsPrivate, $lDefault, $lInterfaceAsNodeXml) = $this->_getBaseInfosProperty($pPropertyModel);
 			list($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames) = $this->_getBaseSerializationInfosProperty($lName);
 			
 			$lModelForeign = new ModelForeign($lModel);
@@ -144,14 +147,13 @@ abstract class ManifestParser {
 			}
 		}
 		else {
-			list($lName, $lModel, $lIsId, $lIsPrivate, $lDefault) = $this->_getBaseInfosProperty($pPropertyModel);
+			list($lName, $lModel, $lIsId, $lIsPrivate, $lDefault, $lInterfaceAsNodeXml) = $this->_getBaseInfosProperty($pPropertyModel);
 			list($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames) = $this->_getBaseSerializationInfosProperty($lName);
 			
 			if (!empty($lSerializationNames)) {
 				throw new \Exception('several serialization names only allowed for foreign properties');
 			}
-			
-			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId, $lIsPrivate, $lIsSerializable, $lDefault);
+			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId, $lIsPrivate, $lIsSerializable, $lDefault, $lInterfaceAsNodeXml);
 		}
 		return $lProperty;
 	}

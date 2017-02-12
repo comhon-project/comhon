@@ -87,6 +87,7 @@ $lParentObject->initValue('childrenTestDb', false);
 $lParentObject->loadValue('childrenTestDb');
 
 if (json_encode($lParentObject->getValue('childrenTestDb')->toPrivateStdObject()) !== '[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]') {
+	var_dump(json_encode($lParentObject->getValue('childrenTestDb')->toPrivateStdObject()));
 	throw new Exception('bad foreign object instance');
 }
 

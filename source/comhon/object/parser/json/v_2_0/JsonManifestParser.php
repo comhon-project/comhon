@@ -81,6 +81,19 @@ class JsonManifestParser extends ParentJsonManifestParser {
 		$lIsPrivate = array_key_exists('is_private', $lCurrentPropertyJson) && $lCurrentPropertyJson['is_private'];
 		$lModel     = $this->_completePropertyModel($lCurrentPropertyJson, $pPropertyModel);
 		
+		if (array_key_exists('xml', $lCurrentPropertyJson)) {
+			$lType = $lCurrentPropertyJson['xml'];
+			if ($lType === self::XML_ATTRIBUTE) {
+				$lInterfaceAsNodeXml = false;
+			} else if ($lType === self::XML_NODE) {
+				$lInterfaceAsNodeXml = true;
+			} else {
+				throw new \Exception('invalid xml value : '.$lType);
+			}
+		} else {
+			$lInterfaceAsNodeXml = null;
+		}
+		
 		if (array_key_exists('default', $lCurrentPropertyJson)) {
 			if ($lModel instanceof ModelDateTime) {
 				$lDefault = $lCurrentPropertyJson['default'];
@@ -96,7 +109,7 @@ class JsonManifestParser extends ParentJsonManifestParser {
 			$lDefault = null;
 		}
 		
-		return array($lName, $lModel, $lIsId, $lIsPrivate, $lDefault);
+		return array($lName, $lModel, $lIsId, $lIsPrivate, $lDefault, $lInterfaceAsNodeXml);
 	}
 	
 	/**

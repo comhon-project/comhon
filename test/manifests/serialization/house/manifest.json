@@ -9,6 +9,9 @@
 			"aggregations": [
 				"house"
 			]
+		},
+		"id": {
+			"serializationName": "id_serial"
 		}
 	}
 }

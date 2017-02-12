@@ -97,6 +97,19 @@ class XmlManifestParser extends ParentXmlManifestParser {
 		$lIsPrivate = isset($lCurrentPropertyXml["private"]) && ((string) $lCurrentPropertyXml["private"] == "1");
 		$lModel     = $this->_completePropertyModel($lCurrentPropertyXml, $pPropertyModel);
 		
+		if (isset($lCurrentPropertyXml['xml'])) {
+			$lType = (string) $lCurrentPropertyXml['xml'];
+			if ($lType === self::XML_ATTRIBUTE) {
+				$lInterfaceAsNodeXml = false;
+			} else if ($lType === self::XML_NODE) {
+				$lInterfaceAsNodeXml = true;
+			} else {
+				throw new \Exception('invalid xml value : '.$lType);
+			}
+		} else {
+			$lInterfaceAsNodeXml = null;
+		}
+		
 		if (isset($lCurrentPropertyXml["default"])) {
 			if ($lModel instanceof ModelDateTime) {
 				$lDefault = (string) $lCurrentPropertyXml["default"];
@@ -114,7 +127,7 @@ class XmlManifestParser extends ParentXmlManifestParser {
 			$lDefault = null;
 		}
 		
-		return array($lName, $lModel, $lIsId, $lIsPrivate, $lDefault);
+		return array($lName, $lModel, $lIsId, $lIsPrivate, $lDefault, $lInterfaceAsNodeXml);
 	}
 	
 	/**

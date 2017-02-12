@@ -160,60 +160,60 @@ $Json = '{
 // SELECT p1.* 
 // FROM   person AS p1 
 //        LEFT JOIN person AS p2 
-//               ON p2.mother_id = p1.id 
-//                   OR p2.father_id = p1.id 
+//               ON ( p1.id = p2.mother_id 
+//                     OR p1.id = p2.father_id ) 
 //        LEFT JOIN home AS homes 
-//               ON homes.person_id = p1.id 
+//               ON p1.id = homes.person_id 
 //        LEFT JOIN place AS birthPlace 
-//               ON birthPlace.id = p1.birth_place 
+//               ON p1.birth_place = birthPlace.id 
 //        LEFT JOIN town AS town 
-//               ON town.id = birthPlace.town 
+//               ON birthPlace.town = town.id 
 //        LEFT JOIN house AS house 
-//               ON house.id = homes.house_id 
+//               ON homes.house_id = house.id 
 //        LEFT JOIN person AS t_1 
-//               ON t_1.mother_id = p2.id 
-//                   OR t_1.father_id = p2.id 
+//               ON ( p2.id = t_1.mother_id 
+//                     OR p2.id = t_1.father_id ) 
 //        LEFT JOIN (SELECT person.id 
 //                   FROM   person 
-//                          LEFT JOIN person AS person_0 
-//                                 ON person_0.mother_id = person.id 
-//                                     OR person_0.father_id = person.id 
+//                          INNER JOIN person AS t_7 
+//                                  ON ( person.id = t_7.mother_id 
+//                                        OR person.id = t_7.father_id ) 
 //                   GROUP  BY person.id 
-//                   HAVING ( Count(person.id) = 3 )) AS t_2 
-//               ON t_2.id = p1.id 
+//                   HAVING ( Count(*) = 3 )) AS t_8 
+//               ON p1.id = t_8.id 
 //        LEFT JOIN (SELECT person.id 
 //                   FROM   person 
-//                          LEFT JOIN person AS person_3 
-//                                 ON person_3.mother_id = person.id 
-//                                     OR person_3.father_id = person.id 
+//                          INNER JOIN person AS t_9 
+//                                  ON ( person.id = t_9.mother_id 
+//                                        OR person.id = t_9.father_id ) 
 //                   GROUP  BY person.id 
-//                   HAVING ( Count(person.id) >= 3 )) AS t_4 
-//               ON t_4.id = p1.id 
-//        LEFT JOIN (SELECT home.person_id 
-//                   FROM   home 
-//                   GROUP  BY home.person_id 
-//                   HAVING ( Count(home.person_id) >= 3 )) AS t_5 
-//               ON t_5.person_id = p1.id 
-//        LEFT JOIN (SELECT home.person_id 
-//                   FROM   home 
-//                          LEFT JOIN house 
-//                                 ON house.id = home.house_id 
-//                   GROUP  BY home.person_id 
-//                   HAVING ( Avg(house.surface) = 170 
-//                            AND Count(home.person_id) = 3 )) AS t_6 
-//               ON t_6.person_id = p1.id 
+//                   HAVING ( Count(*) >= 3 )) AS t_10 
+//               ON p1.id = t_10.id 
+//        LEFT JOIN (SELECT t_11.person_id 
+//                   FROM   home AS t_11 
+//                   GROUP  BY t_11.person_id 
+//                   HAVING ( Count(*) >= 3 )) AS t_12 
+//               ON p1.id = t_12.person_id 
+//        LEFT JOIN (SELECT t_13.person_id 
+//                   FROM   home AS t_13 
+//                          INNER JOIN house AS t_14 
+//                                  ON t_13.house_id = t_14.id 
+//                   GROUP  BY t_13.person_id 
+//                   HAVING ( Avg(t_14.surface) = 170 
+//                            AND Count(*) = 3 )) AS t_15 
+//               ON p1.id = t_15.person_id 
 // WHERE  ( ( t_1.first_name IN ( "louise", "mouha" ) 
 //             OR t_1.first_name IS NULL ) 
 //          AND ( homes.end_date NOT IN ( "louise", "mouha" ) 
 //                AND homes.end_date IS NOT NULL ) 
 //          AND house.surface > 200 
-//          AND t_6.person_id IS NOT NULL 
-//          AND t_2.id IS NOT NULL 
+//          AND t_15.person_id IS NOT NULL 
+//          AND t_8.id IS NOT NULL 
 //          AND ( house.surface > 250 
-//                AND t_5.person_id IS NOT NULL 
+//                AND t_12.person_id IS NOT NULL 
 //                AND town.name = "montpellier" 
-//                AND t_2.id IS NOT NULL 
-//                AND t_4.id IS NOT NULL ) ) 
+//                AND t_8.id IS NOT NULL 
+//                AND t_10.id IS NOT NULL ) ) 
 // GROUP  BY p1.id 
 // ORDER  BY p1.id DESC 
 // LIMIT  1 offset 0 
@@ -221,6 +221,66 @@ $Json = '{
 
 $lResult = ObjectService::getObjects(json_decode($Json));
 if (json_encode($lResult) !== '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"__inheritance__":"man"}]}') {
+	var_dump(json_encode($lResult));
+	throw new \Exception('bad result');
+}
+
+$Json = '{
+	"requestChildren" : true,
+	"loadForeignProperties" : true,
+	"tree" : {
+		"model"   : "person",
+		"id"      : "p1",
+		"children" : [
+			{
+				"property" : "homes",
+				"id"       : "homes",
+				"children"  : [
+					{
+						"property" : "house",
+						"id"       : "houseux"
+					}
+				]
+			}
+		]
+	},
+	"literal" : {
+		"node"     : "houseux",
+		"property" : "surface",
+		"operator" : "=",
+		"value"    : 120
+	}
+}';
+
+// SELECT p1.* FROM  person AS p1 left join home AS homes on p1.id = homes.person_id left join house AS houseux on homes.house_id = houseux.id_serial  WHERE (houseux.surface = 120) GROUP BY p1.id
+
+$lResult = ObjectService::getObjects(json_decode($Json));
+if (json_encode($lResult) !== '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"__inheritance__":"man"}]}') {
+	var_dump(json_encode($lResult));
+	throw new \Exception('bad result');
+}
+
+
+$Json = '{
+	"requestChildren" : true,
+	"loadForeignProperties" : true,
+	"tree" : {
+		"model"   : "person",
+		"id"      : "p1"
+	},
+	"literal" : {
+		"node"     : "p1",
+		"property" : "firstName",
+		"operator" : "=",
+		"value"    : "Bernard"
+	}
+}';
+
+// SELECT * FROM  person AS p1  WHERE (p1.first_name = Bernard) GROUP BY p1.id
+
+$lResult = ObjectService::getObjects(json_decode($Json));
+if (json_encode($lResult) !== '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"__inheritance__":"man"}]}') {
+	var_dump(json_encode($lResult));
 	throw new \Exception('bad result');
 }
 

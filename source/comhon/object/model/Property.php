@@ -5,23 +5,35 @@ use comhon\object\object\ObjectArray;
 use comhon\object\object\Object;
 
 class Property {
-	
+
 	protected $mModel;
 	protected $mName;
 	protected $mSerializationName;
 	protected $mIsId;
 	protected $mIsPrivate;
-	protected $mDefault;
 	protected $mIsSerializable;
+	protected $mDefault;
+	protected $mInterfaceAsNodeXml;
 	
-	public function __construct($pModel, $pName, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pIsSerializable = true, $pDefault = null) {
+	public function __construct($pModel, $pName, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pIsSerializable = true, $pDefault = null, $pIsInterfacedAsNodeXml = null) {
 		$this->mModel = $pModel;
 		$this->mName = $pName;
 		$this->mSerializationName = is_null($pSerializationName) ? $this->mName : $pSerializationName;
 		$this->mIsId = $pIsId;
 		$this->mIsPrivate = $pIsPrivate;
-		$this->mDefault = $pDefault;
 		$this->mIsSerializable = $pIsSerializable;
+		$this->mDefault = $pDefault;
+		
+		if (($this->mModel instanceof SimpleModel) || ($this->mModel instanceof ModelEnum)) {
+			$this->mInterfaceAsNodeXml = is_null($pIsInterfacedAsNodeXml) ? false : $pIsInterfacedAsNodeXml;
+		} else {
+			if (!is_null($pIsInterfacedAsNodeXml) && !$pIsInterfacedAsNodeXml) {
+				trigger_error('warning! 8th parameter is ignored, property with complex model is inevitably interfaced as node xml');
+			}
+			// without inheritance foreign property may be exported as attribute because only id is exported
+			// but due to inheritance, model name can be exported with id so we need to export as node
+			$this->mInterfaceAsNodeXml = true;
+		}
 		
 		if ($this->mIsId && !($this->mModel instanceof SimpleModel)) {
 			throw new \Exception("id property with name '$pName' must be a simple model");
@@ -107,13 +119,21 @@ class Property {
 	}
 	
 	/**
-	 * check if property is interfaceable for export/import in public/private/serialization mode
+	 * verify if property is interfaceable for export/import in public/private/serialization mode
 	 * @param boolean $pPrivate if true private mode, otherwise public mode
 	 * @param boolean $pSerialization if true serialization mode, otherwise model mode
 	 * @return boolean true if property is interfaceable
 	 */
 	public function isInterfaceable($pPrivate, $pSerialization) {
 		return ($pPrivate || !$this->mIsPrivate) && (!$pSerialization || $this->mIsSerializable);
+	}
+	
+	/**
+	 * verify if property is exported/imported as node for xml export/import
+	 * @return boolean true if property is interfaceable
+	 */
+	public function isInterfacedAsNodeXml() {
+		return $this->mInterfaceAsNodeXml;
 	}
 	
 	public function getAggregationProperties() {
