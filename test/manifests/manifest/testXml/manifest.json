@@ -1,7 +1,7 @@
 {
 	"version": "2.0",
 	"manifests": {
-		"personLocal": "..\/person\/manifest.json"
+		"personLocal": "../person/manifest.xml"
 	},
 	"types": {
 		"objectContainer": {
@@ -50,7 +50,8 @@
 	"properties": {
 		"name": {
 			"type": "string",
-			"is_id": true
+			"is_id": true,
+			"xml": "node"
 		},
 		"textNode": {
 			"type": "string",

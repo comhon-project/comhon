@@ -18,41 +18,96 @@ use comhon\object\Object;
 use comhon\object\config\Config;
 
 class SqlTable extends SerializationUnit {
-
+	
+	const HAS_INCR_ID_INDEX          = 0;
+	const AUTO_INCR_PROPERTIES_INDEX = 1;
+	const COLUMS_TO_CAST_INDEX       = 2;
+	
+	const INTEGER_INDEX = 0;
+	const FLOAT_INDEX   = 1;
+	
 	private $mDbController;
-	private $mHasIncrementalId = false;
-	private $mAutoIncrementProperties = [];
-	private $mKeysToEscape = [];
+	private $mTableId;
+
+	private static $sAutoIncrementColumns = [];
+	private static $sColumnsToEscape = [];
+	private static $sModelInfos = [];
 	
-	private static $sStringCastColumns = [];
-	
-	private function _initDatabaseConnection(Model $pModel) {
+	private function _initDatabaseInterfacing(Model $pModel) {
 		if (is_null($this->mDbController)) {
-			$this->loadValue('database');
-			$this->mDbController = DatabaseController::getInstanceWithDataBaseObject($this->getValue('database'));
-			$this->_initColumnsProperties($pModel);
+			$this->mSettings->loadValue('database');
+			$this->mTableId = $this->mSettings->getValue('name').'_'.$this->mSettings->getValue('database')->getValue('id');
+			$this->mDbController = DatabaseController::getInstanceWithDataBaseObject($this->mSettings->getValue('database'));
+			$this->_initColumnsInfos();
+		}
+		$this->_initColumnsProperties($pModel);
+	}
+	
+	private function _initColumnsInfos() {
+		if (!array_key_exists($this->mTableId, self::$sAutoIncrementColumns)) {
+			list(self::$sAutoIncrementColumns[$this->mTableId], self::$sColumnsToEscape[$this->mTableId]) = $this->_getSpecifiqueColumns();
 		}
 	}
 	
-	private function _initColumnsProperties(Model $pModel) {
-		$lDBSM = $this->getValue('database')->getValue('DBMS');
-		foreach ($pModel->getProperties() as $lPropertyName => $lProperty) {
-			if (SqlUtils::isReservedWorld($lDBSM, $lProperty->getSerializationName())) {
-				$this->mKeysToEscape[$lProperty->getSerializationName()] = '`'.$lProperty->getSerializationName().'`';
-			}
+	private function _getTableId() {
+		return $this->mSettings->getValue('name').'_'.$this->mSettings->getValue('database')->getValue('id');
+	}
+	
+	/**
+	 * get auto incremental columns and columns to escape
+	 * @return [string[],string[]]
+	 */
+	private function _getSpecifiqueColumns() {
+	switch ($this->mSettings->getValue('database')->getValue('DBMS')) {
+			case 'mysql': return $this->_getSpecifiqueColumnsMySql();
+			//case 'pgsql':
+			//case 'cubrid':
+			//case 'dblib':
+			//case 'firebird':
+			//case 'ibm':
+			//case 'informix':
+			//case 'sqlsrv':
+			//case 'oci':
+			//case 'odbc':
+			//case 'sqlite':
+			//case '4D':
+			default: throw new \Exception("DBMS '{$this->mSettings->getValue('database')->getValue('DBMS')}' not managed");
 		}
-
+	}
+	
+	/**
+	 * get auto incremental columns and columns to escape
+	 * @return [string[],string[]]
+	 */
+	private function _getSpecifiqueColumnsMySql() {
+		$lDBMS = $this->mSettings->getValue('database')->getValue('DBMS');
 		$lAutoIncrementColumns = [];
-		if ($this->mDbController->isSupportedLastInsertId()) {
-			$lQuery = 'SHOW COLUMNS FROM '.$this->getValue('name');
-			$lResult = $this->mDbController->executeSimpleQuery($lQuery)->fetchAll(\PDO::FETCH_ASSOC);
-			foreach ($lResult as $lRow) {
-				if ($lRow['Extra'] === 'auto_increment') {
-					$lAutoIncrementColumns[] = $lRow['Field'];
-					break;
-				}
+		$lColumnsToEscape = [];
+		
+		$lQuery = 'SHOW COLUMNS FROM '.$this->mSettings->getValue('name');
+		$lResult = $this->mDbController->executeSimpleQuery($lQuery)->fetchAll(\PDO::FETCH_ASSOC);
+		
+		foreach ($lResult as $lRow) {
+			if ($lRow['Extra'] === 'auto_increment') {
+				$lAutoIncrementColumns[] = $lRow['Field'];
+				break;
+			}
+			if (SqlUtils::isReservedWorld($lDBMS, $lRow['Field'])) {
+				$lColumnsToEscape[$lRow['Field']] = '`'.$lRow['Field'].'`';
 			}
 		}
+		return [$lAutoIncrementColumns, $lColumnsToEscape];
+	}
+	
+	/**
+	 * get auto incremental columns and columns to escape
+	 * @return [string[],string[]]
+	 */
+	private function _getSpecifiqueColumnsPgSql() {
+		$lDBMS = $this->mSettings->getValue('database')->getValue('DBMS');
+		$lAutoIncrementColumns = [];
+		$lColumnsToEscape = [];
+	
 		// TODO manage sequence
 		// else if ($has_sequence) {
 		//   SELECT table_name, column_name, column_default from information_schema.columns where table_name='testing';
@@ -60,16 +115,72 @@ class SqlTable extends SerializationUnit {
 		//   SELECT * from information_schema.columns where table_name = '<table_name>'
 		//   SELECT pg_get_serial_sequence('<table_name>', '<column_name>')
 		// }
+		
+		return [$lAutoIncrementColumns, $lColumnsToEscape];
+	}
+	
+	private function _initColumnsProperties(Model $pModel) {
+		if (array_key_exists($pModel->getModelName(), self::$sModelInfos)) {
+			return;
+		}
+		$lAutoIncrementProperties = [];
+		$lHasIncrementalId = false;
+		
+		$lAutoIncrementColumns = self::$sAutoIncrementColumns[$this->mTableId];
 		if (!empty($lAutoIncrementColumns)) {
 			foreach ($pModel->getSerializableProperties() as $lProperty) {
 				if (in_array($lProperty->getSerializationName(), $lAutoIncrementColumns)) {
-					$this->mAutoIncrementProperties[] = $lProperty;
+					$lAutoIncrementProperties[] = $lProperty->getName();
 					if ($lProperty->isId()) {
-						$this->mHasIncrementalId = true;
+						$lHasIncrementalId = true;
 					}
 				}
 			}
 		}
+		
+		self::$sModelInfos[$pModel->getModelName()] = [
+			self::HAS_INCR_ID_INDEX          => $lHasIncrementalId,
+			self::AUTO_INCR_PROPERTIES_INDEX => $lAutoIncrementProperties,
+			self::COLUMS_TO_CAST_INDEX       => self::_initColumnsToCast($pModel),
+		];
+	}
+	
+	private static function _initColumnsToCast(Model $pModel) {
+		if (array_key_exists($pModel->getModelName(), self::$sModelInfos)) {
+			return self::$sModelInfos[$pModel->getModelName()][self::COLUMS_TO_CAST_INDEX];
+		}
+		$lCastIntegerColumns = [];
+		$lCastFloatColumns = [];
+		foreach ($pModel->getSerializableProperties() as $lProperty) {
+			if ($lProperty->isSerializable()) {
+				if (!$lProperty->isForeign()) {
+					if ($lProperty->isInteger()) {
+						$lCastIntegerColumns[] = $lProperty->getSerializationName();
+					} else if ($lProperty->isFloat()) {
+						$lCastFloatColumns[] = $lProperty->getSerializationName();
+					}
+				}
+				else if (!$lProperty->isAggregation()) {
+					if ($lProperty->hasMultipleSerializationNames()) {
+						foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lProperty) {
+							if ($lProperty->isInteger()) {
+								$lCastIntegerColumns[] = $lSerializationName;
+							} else if ($lProperty->isFloat()) {
+								$lCastFloatColumns[] = $lSerializationName;
+							}
+						}
+					}
+					else if ($lProperty->getModel()->hasUniqueIdProperty()) {
+						if ($lProperty->getModel()->getFirstIdProperty()->isInteger()) {
+							$lCastIntegerColumns[] = $lProperty->getSerializationName();
+						} else if ($lProperty->getModel()->getFirstIdProperty()->isFloat()) {
+							$lCastFloatColumns[] = $lProperty->getSerializationName();
+						}
+					}
+				}
+			}
+		}
+		return [$lCastIntegerColumns, $lCastFloatColumns];
 	}
 	
 	/**
@@ -78,9 +189,9 @@ class SqlTable extends SerializationUnit {
 	 * @return integer
 	 */
 	protected function _saveObject(Object $pObject, $pOperation = null) {
-		$this->_initDatabaseConnection($pObject->getModel());
+		$this->_initDatabaseInterfacing($pObject->getModel());
 		
-		if ($this->mHasIncrementalId) {
+		if (self::$sModelInfos[$pObject->getModel()->getModelName()][self::HAS_INCR_ID_INDEX]) {
 			return $this->_saveObjectWithIncrementalId($pObject);
 		} else if ($pOperation == self::CREATE) {
 			return $this->_insertObject($pObject);
@@ -98,7 +209,7 @@ class SqlTable extends SerializationUnit {
 	 * @return integer
 	 */
 	private function _saveObjectWithIncrementalId(Object $pObject) {
-		if (!$this->mHasIncrementalId) {
+		if (!self::$sModelInfos[$pObject->getModel()->getModelName()][self::HAS_INCR_ID_INDEX]) {
 			throw new \Exception('operation not specified');
 		}
 		if ($pObject->hasCompleteId()) {
@@ -121,7 +232,7 @@ class SqlTable extends SerializationUnit {
 		}
 		
 		if (is_null($this->mDbController->getInsertReturn())) {
-			$lQuery = 'INSERT INTO '.$this->getValue('name').' ('.$this->_getSelectColumnString($lMapOfString)
+			$lQuery = 'INSERT INTO '.$this->mSettings->getValue('name').' ('.$this->_getSelectColumnString($lMapOfString)
 					.') VALUES ('.implode(', ', array_fill(0, count($lMapOfString), '?')).');';
 		}else if ($this->mDbController->getInsertReturn() == 'RETURNING') {
 			// TODO
@@ -133,10 +244,11 @@ class SqlTable extends SerializationUnit {
 		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, array_values($lMapOfString));
 		$lAffectedRows = $lStatement->rowCount();
 		
-		if (($lAffectedRows > 0) && !empty($this->mAutoIncrementProperties)) {
+		$lAutoIncrementProperties = self::$sModelInfos[$pObject->getModel()->getModelName()][self::AUTO_INCR_PROPERTIES_INDEX];
+		if (($lAffectedRows > 0) && !empty($lAutoIncrementProperties)) {
 			if ($this->mDbController->isSupportedLastInsertId()) {
-				$lIncrementalValue = $this->mAutoIncrementProperties[0]->getModel()->castValue($this->mDbController->lastInsertId());
-				$pObject->setValue($this->mAutoIncrementProperties[0]->getName(), $lIncrementalValue);
+				$lIncrementalValue = $pObject->getProperty($lAutoIncrementProperties[0])->getModel()->castValue($this->mDbController->lastInsertId());
+				$pObject->setValue($lAutoIncrementProperties[0], $lIncrementalValue);
 			} else {
 				// TODO manage sequence with return value
 			}
@@ -150,13 +262,15 @@ class SqlTable extends SerializationUnit {
 	 * @return string
 	 */
 	private function _getSelectColumnString($pMapOfString) {
-		if (empty($this->mKeysToEscape)) {
+		$lColumnsToEscape = self::$sColumnsToEscape[$this->mTableId];
+		
+		if (empty($lColumnsToEscape)) {
 			return implode(', ', array_keys($pMapOfString));
 		} else {
 			$lColumns = [];
 			foreach ($pMapOfString as $lColumn => $lString) {
-				if (array_key_exists($lColumn, $this->mKeysToEscape)) {
-					$lColumns[] = $this->mKeysToEscape[$lColumn];
+				if (array_key_exists($lColumn, $lColumnsToEscape)) {
+					$lColumns[] = $lColumnsToEscape[$lColumn];
 				} else {
 					$lColumns[] = $lColumn;
 				}
@@ -196,14 +310,15 @@ class SqlTable extends SerializationUnit {
 			$lConditions[]       = "$lColumn = ?";
 			$lConditionsValues[] = $lValue;
 		}
+		$lColumnsToEscape = self::$sColumnsToEscape[$this->mTableId];
 		foreach ($lMapOfString as $lColumn => $lValue) {
-			if (array_key_exists($lColumn, $this->mKeysToEscape)) {
-				$lColumn   = $this->mKeysToEscape[$lColumn];
+			if (array_key_exists($lColumn, $lColumnsToEscape)) {
+				$lColumn   = $lColumnsToEscape[$lColumn];
 			}
 			$lUpdates[]      = "$lColumn = ?";
 			$lUpdateValues[] = $lValue;
 		}
-		$lQuery = 'UPDATE '.$this->getValue('name').' SET '.implode(', ', $lUpdates).' WHERE '.implode(' and ', $lConditions).';';
+		$lQuery = 'UPDATE '.$this->mSettings->getValue('name').' SET '.implode(', ', $lUpdates).' WHERE '.implode(' and ', $lConditions).';';
 		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
 		
 		return $lStatement->rowCount();
@@ -219,7 +334,7 @@ class SqlTable extends SerializationUnit {
 		if (!$pObject->getModel()->hasIdProperties() || !$pObject->hasCompleteId()) {
 			throw new \Exception('delete operation require complete id');
 		}
-		$this->_initDatabaseConnection($pObject->getModel());
+		$this->_initDatabaseInterfacing($pObject->getModel());
 		
 		$lModel            = $pObject->getModel();
 		$lConditions       = [];
@@ -234,7 +349,7 @@ class SqlTable extends SerializationUnit {
 			$lConditions[]       = "$lColumn = ?";
 			$lConditionsValues[] = $lValue;
 		}
-		$lQuery = 'DELETE FROM '.$this->getValue('name').' WHERE '.implode(' and ', $lConditions).';';
+		$lQuery = 'DELETE FROM '.$this->mSettings->getValue('name').' WHERE '.implode(' and ', $lConditions).';';
 		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, $lConditionsValues);
 		
 		return $lStatement->rowCount();
@@ -249,7 +364,7 @@ class SqlTable extends SerializationUnit {
 		$lModel = $pObject->getModel();
 		$lConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 		foreach ($lModel->getIdProperties() as $lPropertyName => $lProperty) {
-			$lConjunction->addLiteral(new Literal($this->getValue('name'), $lProperty->getSerializationName(), '=', $pObject->getValue($lPropertyName)));
+			$lConjunction->addLiteral(new Literal($this->mSettings->getValue('name'), $lProperty->getSerializationName(), '=', $pObject->getValue($lPropertyName)));
 		}
 		$lReturn = $this->_loadObjectFromDatabase($pObject, [], $lConjunction);
 		return $lReturn;
@@ -286,9 +401,9 @@ class SqlTable extends SerializationUnit {
 	 */
 	private function _loadObjectFromDatabase($pObject, $pSelectColumns, LogicalJunction $pLogicalJunction) {
 		$lSuccess = false;
-		$this->_initDatabaseConnection($pObject->getModel());
+		$this->_initDatabaseInterfacing($pObject->getModel());
 		
-		$lSelectQuery = new SelectQuery($this->getValue('name'));
+		$lSelectQuery = new SelectQuery($this->mSettings->getValue('name'));
 		$lSelectQuery->where($pLogicalJunction);
 		foreach ($pSelectColumns as $lColumn) {
 			$lSelectQuery->getMainTable()->addSelectedColumn($lColumn);
@@ -337,12 +452,12 @@ class SqlTable extends SerializationUnit {
 				$lDecodedId = json_decode($pParentId);
 				$lConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 				foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lMultipleForeignProperty) {
-					$lConjunction->addLiteral(new Literal($this->getValue('name'), $lSerializationName, '=', current($lDecodedId)));
+					$lConjunction->addLiteral(new Literal($this->mSettings->getValue('name'), $lSerializationName, '=', current($lDecodedId)));
 					next($lDecodedId);
 				}
 				$lDisjunction->addLogicalJunction($lConjunction);
 			} else {
-				$lDisjunction->addLiteral(new Literal($this->getValue('name'), $pModel->getProperty($lAggregationProperty, true)->getSerializationName(), '=', $pParentId));
+				$lDisjunction->addLiteral(new Literal($this->mSettings->getValue('name'), $pModel->getProperty($lAggregationProperty, true)->getSerializationName(), '=', $pParentId));
 			}
 		}
 		return $lDisjunction;
@@ -370,15 +485,15 @@ class SqlTable extends SerializationUnit {
 		if (empty($pRows)) {
 			return;
 		}
-		self::_initStringCastColumns($pModel);
+		$lColumnsToCast = self::_initColumnsToCast($pModel);
 		$lCastIntegerColumns = [];
 		$lCastFloatColumns = [];
-		foreach (self::$sStringCastColumns[$pModel->getModelName()][0] as $lColumn) {
+		foreach ($lColumnsToCast[self::INTEGER_INDEX] as $lColumn) {
 			if (isset($pRows[0][$lColumn]) && is_string($pRows[0][$lColumn])) {
 				$lCastIntegerColumns[] = $lColumn;
 			}
 		}
-		foreach (self::$sStringCastColumns[$pModel->getModelName()][1] as $lColumn) {
+		foreach ($lColumnsToCast[self::FLOAT_INDEX] as $lColumn) {
 			if (isset($pRows[0][$lColumn]) && is_string($pRows[0][$lColumn])) {
 				$lCastFloatColumns[] = $lColumn;
 			}
@@ -399,40 +514,4 @@ class SqlTable extends SerializationUnit {
 		}
 	}
 	
-	private function _initStringCastColumns(Model $pModel) {
-		if (!array_key_exists($pModel->getModelName(), self::$sStringCastColumns)) {
-			$lCastIntegerColumns = [];
-			$lCastFloatColumns = [];
-			foreach ($pModel->getSerializableProperties() as $lProperty) {
-				if ($lProperty->isSerializable()) {
-					if (!$lProperty->isForeign()) {
-						if ($lProperty->isInteger()) {
-							$lCastIntegerColumns[] = $lProperty->getSerializationName();
-						} else if ($lProperty->isFloat()) {
-							$lCastFloatColumns[] = $lProperty->getSerializationName();
-						}
-					}
-					else if (!$lProperty->isAggregation()) {
-						if ($lProperty->hasMultipleSerializationNames()) {
-							foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lProperty) {
-								if ($lProperty->isInteger()) {
-									$lCastIntegerColumns[] = $lSerializationName;
-								} else if ($lProperty->isFloat()) {
-									$lCastFloatColumns[] = $lSerializationName;
-								}
-							}
-						}
-						else if ($lProperty->getModel()->hasUniqueIdProperty()) {
-							if ($lProperty->getModel()->getFirstIdProperty()->isInteger()) {
-								$lCastIntegerColumns[] = $lProperty->getSerializationName();
-							} else if ($lProperty->getModel()->getFirstIdProperty()->isFloat()) {
-								$lCastFloatColumns[] = $lProperty->getSerializationName();
-							}
-						}
-					}
-				}
-			}
-			self::$sStringCastColumns[$pModel->getModelName()] = [$lCastIntegerColumns, $lCastFloatColumns];
-		}
-	}
 }

@@ -31,12 +31,12 @@ class MainObjectCollection extends ObjectCollection {
 		$lObject = parent::getObject($pId, $pModelName);
 		if (is_null($lObject) && $pInlcudeInheritance) {
 			$lCurrentModel = ModelManager::getInstance()->getInstanceModel($pModelName);
-			$lSerialization = $lCurrentModel->getSerialization();
+			$lSerialization = $lCurrentModel->getSerializationSettings();
 			
 			if (!is_null($lSerialization)) {
 				$lModelNames = [];
 				$lModel = $lCurrentModel->getExtendsModel();
-				while (!is_null($lModel) && $lModel->getSerialization() === $lSerialization) {
+				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
 					$lModelNames[] = $lModel->getModelName();
 					if (isset($this->mMap[$lModel->getModelName()][$pId])) {
 						if (in_array($this->mMap[$lModel->getModelName()][$pId]->getModel()->getModelName(), $lModelNames)) {
@@ -62,12 +62,12 @@ class MainObjectCollection extends ObjectCollection {
 		$lHasObject = parent::hasObject($pId, $pModelName);
 		if (!$lHasObject && $pInlcudeInheritance) {
 			$lCurrentModel = ModelManager::getInstance()->getInstanceModel($pModelName);
-			$lSerialization = $lCurrentModel->getSerialization();
+			$lSerialization = $lCurrentModel->getSerializationSettings();
 			
 			if (!is_null($lSerialization)) {
 				$lModelNames = [];
 				$lModel = $lCurrentModel->getExtendsModel();
-				while (!is_null($lModel) && $lModel->getSerialization() === $lSerialization) {
+				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
 					$lModelNames[] = $lModel->getModelName();
 					if (isset($this->mMap[$lModel->getModelName()][$pId])) {
 						$lHasObject = in_array($this->mMap[$lModel->getModelName()][$pId]->getModel()->getModelName(), $lModelNames);
@@ -95,11 +95,11 @@ class MainObjectCollection extends ObjectCollection {
 		
 		if ($lSuccess) {
 			$lId            = $pObject->getId();
-			$lSerialization = $pObject->getModel()->getSerialization();
+			$lSerialization = $pObject->getModel()->getSerializationSettings();
 			
 			if (!is_null($lSerialization)) {
 				$lModel = $pObject->getModel()->getExtendsModel();
-				while (!is_null($lModel) && $lModel->getSerialization() === $lSerialization) {
+				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
 					if (isset($this->mMap[$lModel->getModelName()][$lId])) {
 						if ($this->mMap[$lModel->getModelName()][$lId] !== $pObject) {
 							throw new \Exception('extends model already has different object instance with same id');
@@ -130,11 +130,11 @@ class MainObjectCollection extends ObjectCollection {
 	
 		if ($lSuccess) {
 			$lId            = $pObject->getId();
-			$lSerialization = $pObject->getModel()->getSerialization();
+			$lSerialization = $pObject->getModel()->getSerializationSettings();
 				
 			if (!is_null($lSerialization)) {
 				$lModel = $pObject->getModel()->getExtendsModel();
-				while (!is_null($lModel) && $lModel->getSerialization() === $lSerialization) {
+				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
 					if (!isset($this->mMap[$lModel->getModelName()][$lId]) || $this->mMap[$lModel->getModelName()][$lId] !== $pObject) {
 						throw new \Exception('extends model doesn\'t have object or has different object instance with same id');
 					}

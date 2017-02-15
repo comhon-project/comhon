@@ -21,10 +21,10 @@ $lPerson = MainObjectCollection::getInstance()->getObject(2, 'person');
 if (!is_null($lPerson) && !is_null($lWoman)) {
 	throw new Exception('object already initialized');
 }
-if ($lPersonModel->getSerialization() !== $lWomanModel->getSerialization()) {
+if ($lPersonModel->getSerializationSettings() !== $lWomanModel->getSerializationSettings()) {
 	throw new Exception('not same serialization instance');
 }
-if ($lPersonModel->getSerialization() !== $lManModel->getSerialization()) {
+if ($lPersonModel->getSerializationSettings() !== $lManModel->getSerializationSettings()) {
 	throw new Exception('not same serialization instance');
 }
 if ($lPersonModel->getSerialization()->getInheritanceKey() != 'sex') {

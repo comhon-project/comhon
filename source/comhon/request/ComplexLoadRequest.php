@@ -41,8 +41,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	public function __construct($pModelName) {
 		parent::__construct($pModelName);
 		if (!$this->mModel->hasSqlTableUnit()) {
-			trigger_error('error : resquested model must have a database serialization');
-			throw new Exception('error : resquested model must have a database serialization');
+			throw new Exception('error : resquested model '.$this->mModel->getModelName().' must have a database serialization');
 		}
 		$this->mLogicalJunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 	}
@@ -158,7 +157,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			throw new Exception('root model in model tree is not the same as model specified in constructor');
 		}
 		
-		$lTableNode = new TableNode($this->mModel->getSqlTableUnit()->getValue('name'), isset($pModelTree->id) ? $pModelTree->id : null);
+		$lTableNode = new TableNode($this->mModel->getSqlTableUnit()->getSettings()->getValue('name'), isset($pModelTree->id) ? $pModelTree->id : null);
 		$this->mSelectQuery = new SelectQuery($lTableNode);
 		
 		$this->mModelByNodeId = [$lTableNode->getExportName() => $this->mModel];
@@ -210,7 +209,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	public function importLogicalJunction($pStdObjectLogicalJunction) {
 		if (is_null($this->mModelByNodeId)) {
-			$lMainTableName = $this->mModel->getSqlTableUnit()->getValue('name');
+			$lMainTableName = $this->mModel->getSqlTableUnit()->getSettings()->getValue('name');
 			$lMainTableNode = new TableNode($lMainTableName);
 			$this->mSelectQuery = new SelectQuery($lMainTableNode);
 			$this->mModelByNodeId = [$lMainTableName => $this->mModel];
@@ -224,7 +223,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	public function importLiteral($pStdObjectLiteral) {
 		if (is_null($this->mModelByNodeId)) {
-			$lMainTableName = $this->mModel->getSqlTableUnit()->getValue('name');
+			$lMainTableName = $this->mModel->getSqlTableUnit()->getSettings()->getValue('name');
 			$lMainTableNode = new TableNode($lMainTableName);
 			$this->mSelectQuery = new SelectQuery($lMainTableNode);
 			$this->mModelByNodeId = [$lMainTableName => $this->mModel];
@@ -261,7 +260,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public function execute($pValue = null) {
 		$this->finalize();
-		$lSqlTable = $this->mModel->getSqlTableUnit();
+		$lSqlTable = $this->mModel->getSqlTableUnit()->getSettings();
 		$lSqlTable->loadValue('database');
 		$lDbInstance = DatabaseController::getInstanceWithDataBaseObject($lSqlTable->getValue('database'));
 		$lRows = $lDbInstance->executeSelectQuery($this->mSelectQuery);
@@ -336,7 +335,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				
 				$lHigherRightModelName = $lRightModelName;
 				$lModel = $lRightModel->getExtendsModel();
-				while (!is_null($lModel) && $lModel->getSerialization() === $lRightModel->getSerialization()) {
+				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lRightModel->getSerializationSettings()) {
 					$lHigherRightModelName = $lModel->getModelName();
 					$lModel = $lModel->getExtendsModel();
 				}
@@ -350,7 +349,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				// add temporary leftJoin
 				// add leftjoin if model $lRightModel is in literals ($pLitralsByModelName)
 				$lLeftModel = $lStack[$lStackIndex]['left_model'];
-				$lTemporaryLeftJoins[] = self::prepareJoinedTable($lLeftModel->getSqlTableUnit()->getValue('name'), $lRightProperty);
+				$lTemporaryLeftJoins[] = self::prepareJoinedTable($lLeftModel->getSqlTableUnit()->getSettings()->getValue('name'), $lRightProperty);
 				if (array_key_exists($lRightModelName, $pLitralsByModelName)) {
 					$this->_joinTables($lTemporaryLeftJoins, $pLitralsByModelName[$lRightModelName]);
 					$lTemporaryLeftJoins = [];
@@ -395,7 +394,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		
 		$lHigherRightModelName = $pModel->getModelName();
 		$lModel = $pModel->getExtendsModel();
-		while (!is_null($lModel) && $lModel->getSerialization() === $pModel->getSerialization()) {
+		while (!is_null($lModel) && $lModel->getSerializationSettings() === $pModel->getSerializationSettings()) {
 			$lHigherRightModelName = $lModel->getModelName();
 			$lModel = $lModel->getExtendsModel();
 		}
@@ -409,7 +408,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			throw new Exception("property '{$pRightProperty->getName()}' hasn't sql serialization");
 		}
 		$lRightModel = $pRightProperty->getUniqueModel();
-		$lRightTable = new TableNode($lRightModel->getSqlTableUnit()->getValue('name'), $pRightAliasTable, $pSelectAllColumns);
+		$lRightTable = new TableNode($lRightModel->getSqlTableUnit()->getSettings()->getValue('name'), $pRightAliasTable, $pSelectAllColumns);
 		
 		if ($pRightProperty->isAggregation()) {
 			$lDisJunction = [];
@@ -508,11 +507,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	private function _buildObjectsWithRows($pRows) {
-		$lSqlTable = $this->mModel->getSqlTableUnit();
+		$lSqlTableUnit = $this->mModel->getSqlTableUnit();
 		
-		if (!is_null($lSqlTable->getInheritanceKey())) {
+		if (!is_null($lSqlTableUnit->getInheritanceKey())) {
 			foreach ($pRows as &$lRow) {
-				$lModel = $lSqlTable->getInheritedModel($lRow, $this->mModel);
+				$lModel = $lSqlTableUnit->getInheritedModel($lRow, $this->mModel);
 				if ($lModel !== $this->mModel) {
 					$lRow[Model::INHERITANCE_KEY] = $lModel->getModelName();
 				}

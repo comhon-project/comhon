@@ -21,6 +21,7 @@ use comhon\model\property\AggregationProperty;
 use comhon\object\serialization\SerializationUnit;
 use comhon\object\config\Config;
 use comhon\manifest\parser\ManifestParser;
+use comhon\object\Object;
 
 class ModelManager {
 
@@ -330,37 +331,46 @@ class ModelManager {
 		return $lProperties;
 	}
 	
-	public function getSerialization(MainModel $pModel) {
+	public function getSerializationInstance(MainModel $pModel) {
 		if (!is_null($this->mSerializationManifestParser)) {
-			$lSerialization = $this->mSerializationManifestParser->getSerialization($pModel);
-			$lSerialization = $this->_getUniqueSerialization($pModel, $lSerialization);
+			$lInheritanceKey        =  $this->mSerializationManifestParser->getInheritanceKey();
+			$lSerializationSettings = $this->mSerializationManifestParser->getSerializationSettings($pModel);
+			$lSerialization         = $this->_getUniqueSerialization($pModel, $lSerializationSettings, $lInheritanceKey);
 			unset($this->mSerializationManifestParser);
 			$this->mSerializationManifestParser = null;
 			return $lSerialization;
 		}
-		return $this->_getUniqueSerialization($pModel, null);
+		return $this->_getUniqueSerialization($pModel);
 	}
 	
-	private function _getUniqueSerialization(MainModel $pModel, SerializationUnit $pSerialization = null) {
+	private function _getUniqueSerialization(MainModel $pModel, Object $pSerializationSettings = null, $pInheritanceKey = null) {
+		$lSerialization = null;
 		if (!is_null($pModel->getExtendsModel()) && !is_null($pModel->getExtendsModel()->getSerialization())) {
-			$lExtendedSerialization = $pModel->getExtendsModel()->getSerialization();
+			$lExtendedSerializationSettings = $pModel->getExtendsModel()->getSerialization()->getSettings();
+			$lExtendedInheritanceKey = $pModel->getExtendsModel()->getSerialization()->getInheritanceKey();
+			$lSame = false;
 			
-			if (is_null($pSerialization)) {
-				$pSerialization = $lExtendedSerialization;
-			}
-			else if ($pSerialization !== $lExtendedSerialization && $pSerialization->getModel()->getModelName() == $lExtendedSerialization->getModel()->getModelName()) {
+			if (is_null($pSerializationSettings) || $pSerializationSettings === $lExtendedSerializationSettings) {
 				$lSame = true;
-				foreach ($pSerialization->getModel()->getProperties() as $lProperty) {
-					if ($pSerialization->getValue($lProperty->getName()) !== $lExtendedSerialization->getValue($lProperty->getName())) {
+			}
+			else if ($pSerializationSettings->getModel()->getModelName() == $lExtendedSerializationSettings->getModel()->getModelName()) {
+				$lSame = true;
+				foreach ($pSerializationSettings->getModel()->getProperties() as $lProperty) {
+					if ($pSerializationSettings->getValue($lProperty->getName()) !== $lExtendedSerializationSettings->getValue($lProperty->getName())) {
 						$lSame = false;
 						break;
 					}
 				}
-				if ($lSame) {
-					$pSerialization = $lExtendedSerialization;
-				}
 			}
+			if ($lSame) {
+				$lInheritanceKey = is_null($pInheritanceKey) ? $lExtendedInheritanceKey : $pInheritanceKey;
+				$lSerialization = SerializationUnit::getInstance($lExtendedSerializationSettings, $lInheritanceKey);
+			} else {
+				$lSerialization = SerializationUnit::getInstance($pSerializationSettings, $pInheritanceKey);
+			}
+		} else if (!is_null($pSerializationSettings)) {
+			$lSerialization = SerializationUnit::getInstance($pSerializationSettings, $pInheritanceKey);
 		}
-		return $pSerialization;
+		return $lSerialization;
 	}
 }

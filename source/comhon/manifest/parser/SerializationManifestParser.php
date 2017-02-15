@@ -15,7 +15,8 @@ abstract class SerializationManifestParser {
 	public abstract function getPropertySerializationInfos($pPropertyName);
 	
 	protected abstract function _verifManifest($pManifestPath);
-	protected abstract function _getSerialization();
+	protected abstract function _getSerializationSettings();
+	public abstract function getInheritanceKey();
 	
 	/**
 	 * @param Model $pModel
@@ -47,16 +48,11 @@ abstract class SerializationManifestParser {
 		}
 	}
 	
-	public final function getSerialization(MainModel $pModel) {
+	public final function getSerializationSettings(MainModel $pModel) {
 		if ($this->mModel !== $pModel) {
 			throw new \Exception('not same models');
 		}
-		if ($this->mModel->hasLoadedSerialization()) {
-			$lSerialization = $this->mModel->getSerialization();
-		}
-		else {
-			$lSerialization = $this->_getSerialization();
-		}
-		return $lSerialization;
+		return $this->mModel->hasLoadedSerialization()
+			? $this->mModel->getSerialization()->getSettings() : $this->_getSerializationSettings();
 	}
 }

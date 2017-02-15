@@ -40,10 +40,10 @@ if (!ModelManager::getInstance()->isModelLoaded('woman')) {
 if (json_encode(array_keys($lWomanModel->getProperties())) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","bodies"]') {
 	throw new Exception('bad model properties');
 }
-if ($lWomanModel->getSerialization() !== $lPersonModel->getSerialization()) {
+if ($lWomanModel->getSerializationSettings() !== $lPersonModel->getSerializationSettings()) {
 	throw new Exception('not same serialization');
 }
-if (ModelManager::getInstance()->getInstanceModel('man')->getSerialization() !== $lPersonModel->getSerialization()) {
+if (ModelManager::getInstance()->getInstanceModel('man')->getSerializationSettings() !== $lPersonModel->getSerializationSettings()) {
 	throw new Exception('not same serialization');
 }
 

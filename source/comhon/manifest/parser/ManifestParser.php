@@ -62,10 +62,6 @@ abstract class ManifestParser {
 		return $this->mSerializationManifestParser;
 	}
 	
-	public function getSerialization(MainModel $pModel) {
-		return is_null($this->mSerializationManifestParser) ? null : $this->mSerializationManifestParser->getSerialization($pModel);
-	}
-	
 	public function getLocalTypesCount() {
 		return count($this->mLocalTypes);
 	}

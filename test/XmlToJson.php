@@ -2,7 +2,7 @@
 
 $lFolders = [
 	'/home/jean-philippe/ReposGit/ObjectManagerLib/test/manifests/',
-	'/home/jean-philippe/ReposGit/ObjectManagerLib/source/comhon/manifestCollection/'
+	'/home/jean-philippe/ReposGit/ObjectManagerLib/source/comhon/manifest/collection/'
 ];
 
 foreach ($lFolders as $lFolder) {
@@ -180,6 +180,9 @@ function getProperties($xml) {
 		}
 		if (isset($lChild['private']) && ((string) $lChild['private'] == '1')) {
 			$lJson->is_private = true;
+		}
+		if (isset($lChild['xml'])) {
+			$lJson->xml = (string) $lChild['xml'];
 		}
 		if (isset($lChild['default'])) {
 			if ($lTypeId == 'boolean') {

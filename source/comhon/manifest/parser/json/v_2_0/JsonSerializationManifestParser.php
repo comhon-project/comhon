@@ -42,13 +42,13 @@ class JsonSerializationManifestParser extends ParentJsonSerializationManifestPar
 		return [$lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames];
 	}
 	
-	protected function _getSerialization() {
+	protected function _getSerializationSettings() {
 		return isset($this->mManifest->serialization)
-					? $this->_buildSerialization($this->mManifest->serialization)
+					? $this->_buildSerializationSettings($this->mManifest->serialization)
 					: null;
 	}
 	
-	private function _buildSerialization($pSerializationNode) {
+	private function _buildSerializationSettings($pSerializationNode) {
 		$lType = $pSerializationNode->type;
 		if (isset($pSerializationNode->value)) {
 			$lSerialization = ModelManager::getInstance()->getInstanceModel($lType)->getObjectInstance();
@@ -65,10 +65,13 @@ class JsonSerializationManifestParser extends ParentJsonSerializationManifestPar
 		} else {
 			throw new \Exception('malformed serialization');
 		}
-		if (isset($pSerializationNode->inheritanceKey)) {
-			$lSerialization->setInheritanceKey($pSerializationNode->inheritanceKey);
-		}
 		return $lSerialization;
+	}
+	
+	public function getInheritanceKey() {
+		return isset($this->mManifest->serialization)
+			? isset($this->mManifest->serialization->inheritanceKey) ? $this->mManifest->serialization->inheritanceKey : null
+			: null;
 	}
 	
 }

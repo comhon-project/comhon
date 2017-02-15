@@ -113,7 +113,7 @@ abstract class Model {
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status
 	 * @throws \Exception
 	 */
-	protected function _getOrCreateObjectInstanceFromObject($pStdObject, $pPrivate, $pUseSerializationName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
+	protected function _getOrCreateObjectInstanceFromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		$lInheritanceModelName = isset($pStdObject->{self::INHERITANCE_KEY}) ? $pStdObject->{self::INHERITANCE_KEY} : null;
 		return $this->_getOrCreateObjectInstance($this->getIdFromStdObject($pStdObject, $pPrivate, $pUseSerializationName), $lInheritanceModelName, $pLocalObjectCollection, $pIsloaded, $pUpdateLoadStatus);
 	}
@@ -393,6 +393,13 @@ abstract class Model {
 	
 	public function hasSerializationUnit($pSerializationType) {
 		return false;
+	}
+	
+	/**
+	 * @return null
+	 */
+	public function getSerializationSettings() {
+		return null;
 	}
 	
 	public function hasSqlTableUnit() {
@@ -727,7 +734,7 @@ abstract class Model {
 		if (is_null($pStdObject)) {
 			return null;
 		}
-		$lObject = $this->_getOrCreateObjectInstanceFromObject($pStdObject, $pPrivate, $pUseSerializationName, $pLocalObjectCollection);
+		$lObject = $this->_getOrCreateObjectInstanceFromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $pLocalObjectCollection);
 		$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection));
 		return $lObject;
 	}
@@ -940,16 +947,20 @@ abstract class Model {
 				return null;
 			}
 			$lPropertyName = $pUseSerializationName ? $this->mUniqueIdProperty->getSerializationName() : $this->mUniqueIdProperty->getName();
-			return isset($pXml[$lPropertyName]) ? $this->mUniqueIdProperty->getModel()->_fromXml($pXml[$lPropertyName]) : null;
+			if ($this->mUniqueIdProperty->isInterfacedAsNodeXml()) {
+				return isset($pXml->$lPropertyName) ? $this->mUniqueIdProperty->getModel()->_fromXml($pXml->$lPropertyName) : null;
+			} else {
+				return isset($pXml[$lPropertyName]) ? $this->mUniqueIdProperty->getModel()->_fromXml($pXml[$lPropertyName]) : null;
+			}
 		}
 		$lIdValues = [];
 		foreach ($this->getIdProperties() as $lIdProperty) {
 			if ($lIdProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				$lPropertyName = $pUseSerializationName ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
-				if (isset($pXml[$lPropertyName])) {
-					$lIdValues[] = $lIdProperty->getModel()->_fromXml($pXml[$lPropertyName]);
+				if ($lIdProperty->isInterfacedAsNodeXml()) {
+					$lIdValues[] = isset($pXml->$lPropertyName) ? $lIdProperty->getModel()->_fromXml($pXml->$lPropertyName) : null;
 				} else {
-					$lIdValues[] = null;
+					$lIdValues[] = isset($pXml[$lPropertyName]) ? $lIdProperty->getModel()->_fromXml($pXml[$lPropertyName]) : null;
 				}
 			} else {
 				$lIdValues[] = null;

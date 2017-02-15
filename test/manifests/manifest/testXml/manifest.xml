@@ -30,7 +30,7 @@
 	</types>
 	
 	<properties>
-		<property type="string" id="1">name</property>
+		<property type="string" id="1" xml="node">name</property>
 		<property type="string" xml="node">textNode</property>
 		<property type="string" xml="attribute">textAttribute</property>
 		<property type="object">objectValue</property>

@@ -1,6 +1,7 @@
 <?php
 namespace comhon\model;
 use \Exception;
+use comhon\object\serialization\SerializationUnit;
 
 abstract class ModelContainer extends Model {
 
@@ -83,6 +84,13 @@ abstract class ModelContainer extends Model {
 	
 	public function getSerialization() {
 		return $this->getModel()->getSerialization();
+	}
+	
+	/**
+	 * @return SerializationUnit|null
+	 */
+	public function getSerializationSettings() {
+		return $this->getModel()->getSerializationSettings();
 	}
 	
 	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {

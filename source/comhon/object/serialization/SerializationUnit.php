@@ -4,14 +4,68 @@ namespace comhon\object\serialization;
 use comhon\model\Model;
 use comhon\object\ObjectArray;
 use comhon\object\Object;
+use comhon\model\MainModel;
+use comhon\model\ModelContainer;
+use comhon\object\serialization\file\XmlFile;
+use comhon\object\serialization\file\JsonFile;
 
-abstract class SerializationUnit extends Object {
+abstract class SerializationUnit {
 
 	const UPDATE = 'update';
 	const CREATE = 'create';
 	
+	const SQL_TABLE = 'sqlTable';
+	const JSON_FILE = 'jsonFile';
+	const XML_FILE  = 'xmlFile';
+	
+	/** @var Object */
+	protected $mSettings;
+	
 	/** @var string */
 	protected $mInheritanceKey;
+	
+	/**
+	 * 
+	 * @param Object $pSettings
+	 * @param string $pInheritanceKey
+	 */
+	private function __construct(Object $pSettings, $pInheritanceKey = null) {
+		$this->mSettings = $pSettings;
+		$this->mInheritanceKey = $pInheritanceKey;
+	}
+	
+	/**
+	 *
+	 * @param Object $pSettings
+	 * @param string $pInheritanceKey
+	 */
+	public static function getInstance(Object $pSettings, $pInheritanceKey = null, $pClass = null) {
+		if (!is_null($pClass)) {
+			return new $pClass($pSettings, $pInheritanceKey);
+		}
+		switch ($pSettings->getModel()->getModelName()) {
+			case self::SQL_TABLE: return new SqlTable($pSettings, $pInheritanceKey);
+			case self::XML_FILE : return new XmlFile($pSettings, $pInheritanceKey);
+			case self::JSON_FILE: return new JsonFile($pSettings, $pInheritanceKey);
+		}
+	}
+	
+	
+	/**
+	 *
+	 * @return MainModel
+	 */
+	public function getType() {
+		return $this->mSettings->getModel()->getModelName();
+	}
+	
+	/**
+	 *
+	 * @return Object
+	 */
+	public function getSettings() {
+		return $this->mSettings;
+	}
 	
 	/**
 	 * 
@@ -23,20 +77,12 @@ abstract class SerializationUnit extends Object {
 	
 	/**
 	 * 
-	 * @param string $pValue
-	 */
-	public function setInheritanceKey($pValue) {
-		$this->mInheritanceKey = $pValue;
-	}
-	
-	/**
-	 * 
 	 * @param Object $pObject
 	 * @throws \Exception
 	 */
 	public function saveObject(Object $pObject, $pOperation = null) {
-		if ($this !== $pObject->getModel()->getSerialization()) {
-			throw new \Exception('this serialization mismatch with parameter object serialization');
+		if ($this->mSettings !== $pObject->getModel()->getSerializationSettings()) {
+			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
 		}
 		if (!is_null($pOperation) && ($pOperation !== self::CREATE) && ($pOperation !== self::UPDATE)) {
 			throw new \Exception("operation '$pOperation' not recognized");
@@ -51,8 +97,8 @@ abstract class SerializationUnit extends Object {
 	 * @throws \Exception
 	 */
 	public function loadObject(Object $pObject) {
-		if ($this !== $pObject->getModel()->getSerialization()) {
-			throw new \Exception('this serialization mismatch with parameter object serialization');
+		if ($this->mSettings !== $pObject->getModel()->getSerializationSettings()) {
+			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
 		}
 		return $this->_loadObject($pObject);
 	}
@@ -63,8 +109,8 @@ abstract class SerializationUnit extends Object {
 	 * @throws \Exception
 	 */
 	public function deleteObject(Object $pObject) {
-		if ($this !== $pObject->getModel()->getSerialization()) {
-			throw new \Exception('this serialization mismatch with parameter object serialization');
+		if ($this->mSettings !== $pObject->getModel()->getSerializationSettings()) {
+			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
 		}
 		return $this->_deleteObject($pObject);
 	}

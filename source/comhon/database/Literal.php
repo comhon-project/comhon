@@ -6,6 +6,7 @@ use comhon\model\property\ForeignProperty;
 use comhon\model\ModelContainer;
 use comhon\request\ComplexLoadRequest;
 use comhon\model\Model;
+use comhon\model\MainModel;
 
 class Literal {
 	
@@ -245,15 +246,15 @@ class Literal {
 	
 	/**
 	 * 
-	 * @param Model $pModel
+	 * @param MainModel $pModel
 	 * @param \stdClass $pQueue
 	 * @throws \Exception
 	 * @return [[], []]
 	 * - first element is array of joined tables
 	 * - second element is array of columns that will be use for group, select and joins with principale query
 	 */
-	private static function _getJoinedTablesFromQueue($pModel, $pQueue) {
-		$lFirstTable    = new TableNode($pModel->getSqlTableUnit()->getValue('name'), null, false);
+	private static function _getJoinedTablesFromQueue(MainModel $pModel, $pQueue) {
+		$lFirstTable    = new TableNode($pModel->getSqlTableUnit()->getSettings()->getValue('name'), null, false);
 		$lLeftTable     = $lFirstTable;
 		$lFirstModel    = $pModel;
 		$lLeftModel     = $lFirstModel;

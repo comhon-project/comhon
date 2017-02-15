@@ -44,13 +44,13 @@ class XmlSerializationManifestParser extends ParentXmlSerializationManifestParse
 		return [$lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames];
 	}
 	
-	protected function _getSerialization() {
+	protected function _getSerializationSettings() {
 		return isset($this->mManifest->serialization)
-					? $this->_buildSerialization($this->mManifest->serialization)
+					? $this->_buildSerializationSettings($this->mManifest->serialization)
 					: null;
 	}
 	
-	private function _buildSerialization($pSerializationNode) {
+	private function _buildSerializationSettings($pSerializationNode) {
 		$lType = (string) $pSerializationNode['type'];
 		if (isset($pSerializationNode->$lType)) {
 			$lObjectXml = $pSerializationNode->$lType;
@@ -66,10 +66,13 @@ class XmlSerializationManifestParser extends ParentXmlSerializationManifestParse
 				throw new \Exception("impossible to load $lType serialization with id '$lId'");
 			}
 		}
-		if (isset($pSerializationNode['inheritanceKey'])) {
-			$lSerialization->setInheritanceKey((string) $pSerializationNode['inheritanceKey']);
-		}
 		return $lSerialization;
+	}
+	
+	public function getInheritanceKey() {
+		return isset($this->mManifest->serialization)
+		? isset($this->mManifest->serialization['inheritanceKey']) ? (string) $this->mManifest->serialization['inheritanceKey'] : null
+		: null;
 	}
 	
 }

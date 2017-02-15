@@ -18,11 +18,11 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Co
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'MultipleIdRequestTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'IntermediateVsComplexRequestTest.php';
 
-
-// refactor serialization management
+// add database object with update
 
 // mandatory value when serialize
 // common models/values in unique files
 // left/inner join simple/function litteral
 // versionning get instance model 3rd parameter version
 // inheritage with join table
+// manifest validator

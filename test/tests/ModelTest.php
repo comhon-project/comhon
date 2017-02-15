@@ -127,7 +127,7 @@ if ($lTestDbModel->getModelName() !== 'testDb') {
 if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb","objectsWithId","foreignObjects","lonelyForeignObject","lonelyForeignObjectTwo","defaultValue","manBodyJson","womanXml","notSerializedValue","notSerializedForeignObject","boolean","boolean2","childrenTestDb"]') {
 	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good properties : ".json_encode($lTestDbModel->getPropertiesNames()));
 }
-$lDbModel = $lTestDbModel->getSerialization()->getProperty('database')->getModel();
+$lDbModel = $lTestDbModel->getSerialization()->getSettings()->getProperty('database')->getModel();
 if ($lDbModel->getModelName() !== 'sqlDatabase') {
 	throw new Exception('model hasn\'t good name');
 }
@@ -156,30 +156,30 @@ if ($lTestDbModel->getProperty('notSerializedForeignObject')->isSerializable()) 
 }
 
 /** ****************************** test serialization before load ****************************** **/
-if (json_encode($lTestDbModel->getSerialization()->toPrivateStdObject()) !== '{"name":"test","database":"1"}') {
+if (json_encode($lTestDbModel->getSerialization()->getSettings()->toPrivateStdObject()) !== '{"name":"test","database":"1"}') {
 	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good values");
 }
 
-if (json_encode($lTestDbModel->getSerialization()->getValue('database')->toPrivateStdObject()) !== '{"id":"1"}') {
-	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good values : ".json_encode($lTestDbModel->getSerialization()->getValue('database')->toPrivateStdObject()));
+if (json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->toPrivateStdObject()) !== '{"id":"1"}') {
+	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good values : ".json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->toPrivateStdObject()));
 }
-if ($lTestDbModel->getSerialization()->getValue('database')->isLoaded()) {
+if ($lTestDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
 	throw new Exception('object must be not loaded');
 }
 
 // LOAD VALUE
-$lTestDbModel->getSerialization()->loadValue('database');
+$lTestDbModel->getSerialization()->getSettings()->loadValue('database');
 
 /** ****************************** test serialization after load ****************************** **/
-if (json_encode($lTestDbModel->getSerialization()->toPrivateStdObject()) !== '{"name":"test","database":"1"}') {
+if (json_encode($lTestDbModel->getSerialization()->getSettings()->toPrivateStdObject()) !== '{"name":"test","database":"1"}') {
 	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good values");
 }
-$lObjDb = $lTestDbModel->getSerialization()->getValue('database')->toPrivateStdObject();
+$lObjDb = $lTestDbModel->getSerialization()->getSettings()->getValue('database')->toPrivateStdObject();
 unset($lObjDb->password);
 if (json_encode($lObjDb) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}') {
 	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good values");
 }
-if (!$lTestDbModel->getSerialization()->getValue('database')->isLoaded()) {
+if (!$lTestDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
 	throw new Exception('object must be loaded');
 }
 
@@ -192,19 +192,19 @@ if (!ModelManager::getInstance()->isModelLoaded('sqlDatabase')) {
 }
 
 /** ****************************** same serialization object and model instance ****************************** **/
-if ($lPlaceModel->getSerialization()->getValue('database') !== $lTestDbModel->getSerialization()->getValue('database')) {
+if ($lPlaceModel->getSerialization()->getSettings()->getValue('database') !== $lTestDbModel->getSerialization()->getSettings()->getValue('database')) {
 	throw new Exception('models haven\'t same serialization');
 }
 
-if ($lPlaceModel->getSerialization()->getModel() !== $lTestDbModel->getSerialization()->getModel()) {
+if ($lPlaceModel->getSerialization()->getSettings()->getModel() !== $lTestDbModel->getSerialization()->getSettings()->getModel()) {
 	throw new Exception('models haven\'t same instance');
 }
 
-if (ModelManager::getInstance()->getInstanceModel('sqlDatabase') !== $lTestDbModel->getSerialization()->getValue('database')->getModel()) {
+if (ModelManager::getInstance()->getInstanceModel('sqlDatabase') !== $lTestDbModel->getSerialization()->getSettings()->getValue('database')->getModel()) {
 	throw new Exception('models haven\'t same instance');
 }
 
-if (ModelManager::getInstance()->getInstanceModel('sqlTable') !== $lTestDbModel->getSerialization()->getModel()) {
+if (ModelManager::getInstance()->getInstanceModel('sqlTable') !== $lTestDbModel->getSerialization()->getSettings()->getModel()) {
 	throw new Exception('models haven\'t same instance');
 }
 

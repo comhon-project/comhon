@@ -18,7 +18,7 @@ class MainModel extends Model {
 	
 	protected final function _setSerialization() {
 		if (!$this->mSerializationInitialised) {
-			$this->mSerialization = ModelManager::getInstance()->getSerialization($this);
+			$this->mSerialization = ModelManager::getInstance()->getSerializationInstance($this);
 			$this->mSerializationInitialised = true;
 		}
 		if ($this->hasExtendsModel()) {
@@ -57,7 +57,14 @@ class MainModel extends Model {
 	}
 	
 	public function hasSerializationUnit($pSerializationType) {
-		return !is_null($this->mSerialization) && ($this->mSerialization->getModel()->getModelName() == $pSerializationType);
+		return !is_null($this->mSerialization) && ($this->mSerialization->getType() == $pSerializationType);
+	}
+	
+	/**
+	 * @return Object
+	 */
+	public function getSerializationSettings() {
+		return is_null($this->mSerialization) ? null : $this->mSerialization->getSettings();
 	}
 	
 	public function fromSerializedStdObject($pStdObject, $pMergeType = self::MERGE, $pTimeZone = null) {
@@ -81,7 +88,7 @@ class MainModel extends Model {
 				$lObject = $this->_fromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
 				break;
 			case self::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromObject($pStdObject, $pPrivate, $pUseSerializationName, null);
+				$lObject = $this->_getOrCreateObjectInstanceFromStdObject($pStdObject, $pPrivate, $pUseSerializationName, null);
 				$lObject->resetValues();
 				$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, new ObjectCollection());
 				break;
@@ -299,15 +306,18 @@ class MainModel extends Model {
 		$lObjectId = $pObject->getId();
 		if ($pId === 0) {
 			if ($lObjectId !== 0 && $lObjectId !== '0') {
-				throw new \Exception("id must be the same as stdObject : {$pObject->getId()} !== {$this->getIdFromStdObject($pStdObject, true, false)}");
+				$lMessageId = is_null($pId) ? 'null' : $pId;
+				throw new \Exception("id must be the same as imported value id : {$pObject->getId()} !== $lMessageId");
 			}
 		} else if ($lObjectId === 0) {
 			if ($pId !== 0 && $pId !== '0') {
-				throw new \Exception("id must be the same as stdObject : {$pObject->getId()} !== {$this->getIdFromStdObject($pStdObject, true, false)}");
+				$lMessageId = is_null($pId) ? 'null' : $pId;
+				throw new \Exception("id must be the same as imported value id : {$pObject->getId()} !== $lMessageId");
 			}
 		}
 		else if ($pObject->getId() != $pId) {
-			throw new \Exception("id must be the same as stdObject : {$pObject->getId()} !== {$this->getIdFromStdObject($pStdObject, true, false)}");
+			$lMessageId = is_null($pId) ? 'null' : $pId;
+			throw new \Exception("id must be the same as imported value id : {$pObject->getId()} !== $lMessageId");
 		}
 		$lObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
 		if (!is_null($lObject) && $lObject !== $pObject) {
