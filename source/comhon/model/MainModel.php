@@ -331,7 +331,7 @@ class MainModel extends Model {
 		
 		if (is_array($pMainForeignObjects)) {
 			$lValueId   = is_object($lId) ? $lId->id : $lId;
-			$lModelName = $pObject->getModel()->getModelName();
+			$lModelName = $pObject->getModel()->getName();
 			if (!(array_key_exists($lModelName, $pMainForeignObjects) && array_key_exists($lValueId, $pMainForeignObjects[$lModelName]))) {
 				$pMainForeignObjects[$lModelName][$lValueId] = null;
 				$pMainForeignObjects[$lModelName][$lValueId] = $this->_toStdObject($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
@@ -348,7 +348,7 @@ class MainModel extends Model {
 	
 		if (is_array($pMainForeignObjects)) {
 			$lValueId   = is_array($lId) ? $lId['id'] : $lId;
-			$lModelName = $pObject->getModel()->getModelName();
+			$lModelName = $pObject->getModel()->getName();
 			if (!(array_key_exists($lModelName, $pMainForeignObjects) && array_key_exists($lValueId, $pMainForeignObjects[$lModelName]))) {
 				$pMainForeignObjects[$lModelName][$lValueId] = null;
 				$pMainForeignObjects[$lModelName][$lValueId] = $this->_toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
@@ -364,9 +364,9 @@ class MainModel extends Model {
 		$lId = parent::_toXmlId($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pMainForeignObjects);
 		
 		if (is_array($pMainForeignObjects)) {
-			$lModelName = $pObject->getModel()->getModelName();
+			$lModelName = $pObject->getModel()->getName();
 			if (!(array_key_exists($lModelName, $pMainForeignObjects) && array_key_exists($lId, $pMainForeignObjects[$lModelName]))) {
-				$lXmlNode = new \SimpleXmlElement("<{$this->getModelName()}/>");
+				$lXmlNode = new \SimpleXmlElement("<{$this->getName()}/>");
 				$pMainForeignObjects[$lModelName][$lId] = null;
 				$this->_toXml($pObject, $lXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
 				$pMainForeignObjects[$lModelName][$lId] = $lXmlNode;
@@ -446,7 +446,7 @@ class MainModel extends Model {
 				$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $this->mModelName);
 			}
 			if (!$lModel->isInheritedFrom($this)) {
-				throw new \Exception("model '{$lModel->getModelName()}' doesn't inherit from '{$this->getModelName()}'");
+				throw new \Exception("model '{$lModel->getName()}' doesn't inherit from '{$this->getName()}'");
 			}
 		}
 		

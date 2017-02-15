@@ -28,7 +28,7 @@ class ModelForeign extends ModelContainer {
 		if ($this->getUniqueModel()->hasIdProperties()) {
 			return $this->getModel()->_fromStdObjectId($pValue, $pLocalObjectCollection);
 		} else {
-			throw new \Exception("foreign property must have model with id ({$this->getModelName()})");
+			throw new \Exception("foreign property must have model with id ({$this->getName()})");
 		}
 	}
 	

@@ -62,7 +62,7 @@ class XmlFile extends SerializationFile {
 	 */
 	protected function _addInheritanceKey(Object $pObject, $pXml) {
 		if (!is_null($this->getInheritanceKey())) {
-			$pXml[$this->getInheritanceKey()] = $pObject->getModel()->getModelName();
+			$pXml[$this->getInheritanceKey()] = $pObject->getModel()->getName();
 		}
 	}
 	

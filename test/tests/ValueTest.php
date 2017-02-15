@@ -250,7 +250,7 @@ if ($lTest3 !== $lTest3->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
 
-if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getModelName())) {
+if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getName())) {
 	throw new \Exception('not same instance');
 }
 
@@ -269,7 +269,7 @@ if ($lTest3 !== $lTest3->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
 
-if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getModelName())) {
+if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getName())) {
 	throw new \Exception('not same instance');
 }
 
@@ -288,7 +288,7 @@ if ($lTest3 !== $lTest3->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
 
-if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getModelName())) {
+if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getName())) {
 	throw new \Exception('not same instance');
 }
 
@@ -301,20 +301,20 @@ $lTest->setId($lNewId);
 if ($lTest->getId() !== $lNewId) {
 	throw new \Exception('id not updated');
 }
-if (!is_null(MainObjectCollection::getInstance()->getObject($lId, $lTest->getModel()->getModelName()))) {
+if (!is_null(MainObjectCollection::getInstance()->getObject($lId, $lTest->getModel()->getName()))) {
 	throw new \Exception('object not moved');
 }
-if (is_null(MainObjectCollection::getInstance()->getObject($lNewId, $lTest->getModel()->getModelName()))) {
+if (is_null(MainObjectCollection::getInstance()->getObject($lNewId, $lTest->getModel()->getName()))) {
 	throw new \Exception('object not moved');
 }
 $lTest->setId($lId);
 if ($lTest->getId() !== $lId) {
 	throw new \Exception('id not updated');
 }
-if (is_null(MainObjectCollection::getInstance()->getObject($lId, $lTest->getModel()->getModelName()))) {
+if (is_null(MainObjectCollection::getInstance()->getObject($lId, $lTest->getModel()->getName()))) {
 	throw new \Exception('object not moved');
 }
-if (!is_null(MainObjectCollection::getInstance()->getObject($lNewId, $lTest->getModel()->getModelName()))) {
+if (!is_null(MainObjectCollection::getInstance()->getObject($lNewId, $lTest->getModel()->getName()))) {
 	throw new \Exception('object not moved');
 }
 

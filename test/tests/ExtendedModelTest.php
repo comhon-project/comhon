@@ -64,7 +64,7 @@ $lWomanBodyModel = $lWomanModel->getProperty('bodies')->getModel()->getModel()->
 if (!ModelManager::getInstance()->isModelLoaded('womanBody')) {
 	throw new Exception('model not loaded');
 }
-if ($lWomanBodyModel->getModelName() !== 'womanBody') {
+if ($lWomanBodyModel->getName() !== 'womanBody') {
 	throw new Exception('bad model name');
 }
 if (!$lWomanBodyModel->isLoaded()) {
@@ -91,7 +91,7 @@ if ($lBodyModel->getProperty('owner') === $lWomanBodyModel->getProperty('owner')
 }
 
 $lTatooModel = $lWomanBodyModel->getProperty('tatoos')->getModel()->getModel();
-if ($lTatooModel->getModelName() !== 'tatoo') {
+if ($lTatooModel->getName() !== 'tatoo') {
 	throw new Exception('bad model name');
 }
 if (json_encode(array_keys($lTatooModel->getProperties())) !== '["type","location","tatooArtist"]') {

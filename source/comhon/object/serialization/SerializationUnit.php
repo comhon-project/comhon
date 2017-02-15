@@ -43,7 +43,7 @@ abstract class SerializationUnit {
 		if (!is_null($pClass)) {
 			return new $pClass($pSettings, $pInheritanceKey);
 		}
-		switch ($pSettings->getModel()->getModelName()) {
+		switch ($pSettings->getModel()->getName()) {
 			case self::SQL_TABLE: return new SqlTable($pSettings, $pInheritanceKey);
 			case self::XML_FILE : return new XmlFile($pSettings, $pInheritanceKey);
 			case self::JSON_FILE: return new JsonFile($pSettings, $pInheritanceKey);
@@ -56,7 +56,7 @@ abstract class SerializationUnit {
 	 * @return MainModel
 	 */
 	public function getType() {
-		return $this->mSettings->getModel()->getModelName();
+		return $this->mSettings->getModel()->getName();
 	}
 	
 	/**

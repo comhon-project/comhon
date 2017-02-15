@@ -130,7 +130,7 @@ class JsonManifestParser extends ParentJsonManifestParser {
 			$lPropertyModel = new ModelArray($this->_completePropertyModel($pPropertyJson['values'], $pModel), $pPropertyJson['values']['name']);
 		}
 		else {
-			if ($pModel->getModelName() !== $lTypeId) {
+			if ($pModel->getName() !== $lTypeId) {
 				throw new \Exception('model doesn\'t match with type');
 			}
 			$lPropertyModel = isset($pPropertyJson['enum']) ? new ModelEnum($pModel, $pPropertyJson['enum']) : $pModel;

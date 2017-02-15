@@ -35,11 +35,11 @@ if ($lTestModel !== $lTestModelTow) {
 }
 
 /** ****************************** basic test for model 'test' ****************************** **/
-if ($lTestModel->getModelName() !== 'test') {
+if ($lTestModel->getName() !== 'test') {
 	throw new Exception('model hasn\'t good name');
 }
 if (json_encode($lTestModel->getPropertiesNames()) !== '["name","stringValue","floatValue","booleanValue","dateValue","objectValue","objectValues","objectContainer","foreignObjectValues","enumValue","enumIntArray","enumFloatArray","objectRefParent"]') {
-	throw new Exception("model {$lTestModel->getModelName()} hasn't good properties : ".json_encode($lTestModel->getPropertiesNames()));
+	throw new Exception("model {$lTestModel->getName()} hasn't good properties : ".json_encode($lTestModel->getPropertiesNames()));
 }
 
 /** ******************** test local model 'personLocal' load status ******************** **/
@@ -66,11 +66,11 @@ if ($lLocalPersonModel !== ModelManager::getInstance()->getInstanceModel('person
 }
 
 /** ****************************** basic test for model 'personLocal' ****************************** **/
-if ($lLocalPersonModel->getModelName() !== 'personLocal') {
+if ($lLocalPersonModel->getName() !== 'personLocal') {
 	throw new Exception('model hasn\'t good name');
 }
 if (json_encode($lLocalPersonModel->getPropertiesNames()) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes"]') {
-	throw new Exception("model {$lLocalPersonModel->getModelName()} hasn't good properties : ".json_encode($lLocalPersonModel->getPropertiesNames()));
+	throw new Exception("model {$lLocalPersonModel->getName()} hasn't good properties : ".json_encode($lLocalPersonModel->getPropertiesNames()));
 }
 
 /** ****************************** test load status of model 'place' ****************************** **/
@@ -121,14 +121,14 @@ throw new Exception("model must be not loaded");
 
 $lTestDbModel = ModelManager::getInstance()->getInstanceModel('testDb');
 
-if ($lTestDbModel->getModelName() !== 'testDb') {
+if ($lTestDbModel->getName() !== 'testDb') {
 	throw new Exception('model hasn\'t good name');
 }
 if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb","objectsWithId","foreignObjects","lonelyForeignObject","lonelyForeignObjectTwo","defaultValue","manBodyJson","womanXml","notSerializedValue","notSerializedForeignObject","boolean","boolean2","childrenTestDb"]') {
-	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good properties : ".json_encode($lTestDbModel->getPropertiesNames()));
+	throw new Exception("model {$lTestDbModel->getName()} hasn't good properties : ".json_encode($lTestDbModel->getPropertiesNames()));
 }
 $lDbModel = $lTestDbModel->getSerialization()->getSettings()->getProperty('database')->getModel();
-if ($lDbModel->getModelName() !== 'sqlDatabase') {
+if ($lDbModel->getName() !== 'sqlDatabase') {
 	throw new Exception('model hasn\'t good name');
 }
 if ($lTestDbModel->getProperty('integer')->isPrivate()) {
@@ -157,11 +157,11 @@ if ($lTestDbModel->getProperty('notSerializedForeignObject')->isSerializable()) 
 
 /** ****************************** test serialization before load ****************************** **/
 if (json_encode($lTestDbModel->getSerialization()->getSettings()->toPrivateStdObject()) !== '{"name":"test","database":"1"}') {
-	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good values");
+	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");
 }
 
 if (json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->toPrivateStdObject()) !== '{"id":"1"}') {
-	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good values : ".json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->toPrivateStdObject()));
+	throw new Exception("model {$lTestDbModel->getName()} hasn't good values : ".json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->toPrivateStdObject()));
 }
 if ($lTestDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
 	throw new Exception('object must be not loaded');
@@ -172,12 +172,12 @@ $lTestDbModel->getSerialization()->getSettings()->loadValue('database');
 
 /** ****************************** test serialization after load ****************************** **/
 if (json_encode($lTestDbModel->getSerialization()->getSettings()->toPrivateStdObject()) !== '{"name":"test","database":"1"}') {
-	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good values");
+	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");
 }
 $lObjDb = $lTestDbModel->getSerialization()->getSettings()->getValue('database')->toPrivateStdObject();
 unset($lObjDb->password);
 if (json_encode($lObjDb) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}') {
-	throw new Exception("model {$lTestDbModel->getModelName()} hasn't good values");
+	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");
 }
 if (!$lTestDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
 	throw new Exception('object must be loaded');

@@ -161,7 +161,7 @@ abstract class Model {
 		throw new \Exception('can\'t apply function. Only callable for MainModel or LocalModel');
 	}
 	
-	public function getModelName() {
+	public function getName() {
 		return $this->mModelName;
 	}
 	
@@ -446,7 +446,7 @@ abstract class Model {
 	
 	protected function _addMainCurrentObject(Object $pObject, &$pMainForeignObjects = null) {
 		if (($pObject->getModel() instanceof MainModel) && is_array($pMainForeignObjects) && !is_null($pObject->getId()) && $pObject->hasCompleteId()) {
-			$pMainForeignObjects[$pObject->getModel()->getModelName()][$pObject->getId()] = null;
+			$pMainForeignObjects[$pObject->getModel()->getName()][$pObject->getId()] = null;
 		}
 	}
 	
@@ -457,7 +457,7 @@ abstract class Model {
 	 */
 	protected function _removeMainCurrentObject(Object $pObject, &$pMainForeignObjects = null) {
 		if (is_array($pMainForeignObjects) && !is_null($pObject->getId()) && $pObject->hasCompleteId()) {
-			unset($pMainForeignObjects[$pObject->getModel()->getModelName()][$pObject->getId()]);
+			unset($pMainForeignObjects[$pObject->getModel()->getName()][$pObject->getId()]);
 		}
 	}
 	
@@ -487,7 +487,7 @@ abstract class Model {
 		}
 		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
-				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getModelName()}' can't be exported");
+				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getName()}' can't be exported");
 				return $this->_toStdObjectId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone);
 			}
 		} else {
@@ -524,7 +524,7 @@ abstract class Model {
 			if (!$pObject->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
 			}
-			$lReturn->{self::INHERITANCE_KEY} = $pObject->getModel()->getModelName();
+			$lReturn->{self::INHERITANCE_KEY} = $pObject->getModel()->getName();
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
 		return $lReturn;
@@ -537,7 +537,7 @@ abstract class Model {
 			}
 			$lObjectId = new \stdClass();
 			$lObjectId->id = $pObject->getModel()->_toId($pObject, $pUseSerializationName);
-			$lObjectId->{self::INHERITANCE_KEY} = $pObject->getModel()->getModelName();
+			$lObjectId->{self::INHERITANCE_KEY} = $pObject->getModel()->getName();
 			return $lObjectId;
 		}
 		return $this->_toId($pObject, $pUseSerializationName);
@@ -558,7 +558,7 @@ abstract class Model {
 		}
 		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
-				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getModelName()}' can't be exported");
+				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getName()}' can't be exported");
 				$this->_toXmlId($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone);
 				return;
 			}
@@ -604,7 +604,7 @@ abstract class Model {
 			if (!$pObject->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
 			}
-			$pXmlNode[self::INHERITANCE_KEY] = $pObject->getModel()->getModelName();
+			$pXmlNode[self::INHERITANCE_KEY] = $pObject->getModel()->getName();
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
 		return null;
@@ -619,7 +619,7 @@ abstract class Model {
 			if (!$pObject->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
 			}
-			$pXmlNode[self::INHERITANCE_KEY] = $pObject->getModel()->getModelName();
+			$pXmlNode[self::INHERITANCE_KEY] = $pObject->getModel()->getName();
 		}
 		return $lId;
 	}
@@ -655,7 +655,7 @@ abstract class Model {
 		}
 		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
-				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getModelName()}' can't be exported");
+				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getName()}' can't be exported");
 				return $this->_toFlattenedValueId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone);
 			}
 		} else {
@@ -692,7 +692,7 @@ abstract class Model {
 			if (!$pObject->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
 			}
-			$lReturn[self::INHERITANCE_KEY] = $pObject->getModel()->getModelName();
+			$lReturn[self::INHERITANCE_KEY] = $pObject->getModel()->getName();
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
 		return $lReturn;
@@ -705,7 +705,7 @@ abstract class Model {
 			}
 			$lArrayId = [];
 			$lArrayId['id'] = $pObject->getModel()->_toId($pObject, $pUseSerializationName);
-			$lArrayId[self::INHERITANCE_KEY] = $pObject->getModel()->getModelName();
+			$lArrayId[self::INHERITANCE_KEY] = $pObject->getModel()->getName();
 			return $lArrayId;
 		}
 		return $this->_toId($pObject, $pUseSerializationName);

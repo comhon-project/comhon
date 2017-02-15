@@ -35,7 +35,7 @@ class ModelArray extends ModelContainer {
 		if (is_array($pMainForeignObjects)) {
 			foreach ($pObject->getValues() as $lObject) {
 				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
-					$pMainForeignObjects[$lObject->getModel()->getModelName()][$lObject->getId()] = null;
+					$pMainForeignObjects[$lObject->getModel()->getName()][$lObject->getId()] = null;
 				}
 			}
 		}
@@ -50,7 +50,7 @@ class ModelArray extends ModelContainer {
 		if (is_array($pMainForeignObjects)) {
 			foreach ($pObject->getValues() as $lObject) {
 				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
-					unset($pMainForeignObjects[$lObject->getModel()->getModelName()][$lObject->getId()]);
+					unset($pMainForeignObjects[$lObject->getModel()->getName()][$lObject->getId()]);
 				}
 			}
 		}

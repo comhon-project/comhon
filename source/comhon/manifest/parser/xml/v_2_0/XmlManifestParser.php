@@ -148,7 +148,7 @@ class XmlManifestParser extends ParentXmlManifestParser {
 			$lPropertyModel = new ModelArray($this->_completePropertyModel($pPropertyXml->values, $pModel), (string) $pPropertyXml->values['name']);
 		}
 		else {
-			if ($pModel->getModelName() !== $lTypeId) {
+			if ($pModel->getName() !== $lTypeId) {
 				throw new \Exception('model doesn\'t match with type');
 			}
 			if (isset($pPropertyXml->enum)) {

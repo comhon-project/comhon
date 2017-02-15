@@ -19,8 +19,8 @@ abstract class ModelContainer extends Model {
 		return $this->getModel()->getObjectInstance($pIsloaded);
 	}
 	
-	public function getModelName() {
-		return $this->getModel()->getModelName();
+	public function getName() {
+		return $this->getModel()->getName();
 	}
 	
 	public function getProperty($pPropertyName, $pThrowException = false) {

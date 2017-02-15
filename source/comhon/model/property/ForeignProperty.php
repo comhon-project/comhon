@@ -17,7 +17,7 @@ class ForeignProperty extends Property {
 		if ($pObject->getModel() !== $this->getUniqueModel() && !$pObject->getModel()->isInheritedFrom($this->getUniqueModel())) {
 			$lReflexion1 = new \ReflectionClass(get_class($pObject->getModel()));
 			$lReflexion2 = new \ReflectionClass(get_class($this->getUniqueModel()));
-			throw new \Exception("object not compatible with property : {$pObject->getModel()->getModelName()} ({$lReflexion1->getShortName()}) | {$this->getUniqueModel()->getModelName()} ({$lReflexion2->getShortName()})");
+			throw new \Exception("object not compatible with property : {$pObject->getModel()->getName()} ({$lReflexion1->getShortName()}) | {$this->getUniqueModel()->getName()} ({$lReflexion2->getShortName()})");
 		}
 		$lSerializationUnit = $this->getUniqueModel()->getSerialization();
 		if (is_null($lSerializationUnit)) {

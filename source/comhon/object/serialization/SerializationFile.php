@@ -120,14 +120,14 @@ abstract class SerializationFile extends SerializationUnit {
 		}
 		$lId = $pObject->getId();
 		if ($lId == null || $lId == '') {
-			throw new \Exception("Cannot delete object '{$pObject->getModel()->getModelName()}' with id '$lId', object id is empty");
+			throw new \Exception("Cannot delete object '{$pObject->getModel()->getName()}' with id '$lId', object id is empty");
 		}
 		$lPath = $this->_getPath($pObject);
 		if (!file_exists($lPath)) {
 			return 0;
 		}
 		if (!Utils::delTree(dirname($lPath))) {
-			throw new \Exception("Cannot delete object '{$pObject->getModel()->getModelName()}' with id '$lId'");
+			throw new \Exception("Cannot delete object '{$pObject->getModel()->getName()}' with id '$lId'");
 		}
 		return 1;
 	}

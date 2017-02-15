@@ -50,7 +50,7 @@ class ObjectCollection {
 		$lSuccess = false;
 		
 		if ($pObject->hasCompleteId() && $pObject->getModel()->hasIdProperties()) {
-			$lModelName = $pObject->getModel()->getModelName();
+			$lModelName = $pObject->getModel()->getName();
 			$lId = $pObject->getId();
 			if (!array_key_exists($lModelName, $this->mMap)) {
 				$this->mMap[$lModelName] = [];
@@ -74,8 +74,8 @@ class ObjectCollection {
 	 * @return boolean true if object is added
 	 */
 	public function removeObject(Object $pObject) {
-		if ($pObject->hasCompleteId() && $this->getObject($pObject->getId(), $pObject->getModel()->getModelName()) === $pObject) {
-			unset($this->mMap[$pObject->getModel()->getModelName()][$pObject->getId()]);
+		if ($pObject->hasCompleteId() && $this->getObject($pObject->getId(), $pObject->getModel()->getName()) === $pObject) {
+			unset($this->mMap[$pObject->getModel()->getName()][$pObject->getId()]);
 			return true;
 		}
 		return false;

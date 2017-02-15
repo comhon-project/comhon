@@ -120,7 +120,7 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	private function _initColumnsProperties(Model $pModel) {
-		if (array_key_exists($pModel->getModelName(), self::$sModelInfos)) {
+		if (array_key_exists($pModel->getName(), self::$sModelInfos)) {
 			return;
 		}
 		$lAutoIncrementProperties = [];
@@ -138,7 +138,7 @@ class SqlTable extends SerializationUnit {
 			}
 		}
 		
-		self::$sModelInfos[$pModel->getModelName()] = [
+		self::$sModelInfos[$pModel->getName()] = [
 			self::HAS_INCR_ID_INDEX          => $lHasIncrementalId,
 			self::AUTO_INCR_PROPERTIES_INDEX => $lAutoIncrementProperties,
 			self::COLUMS_TO_CAST_INDEX       => self::_initColumnsToCast($pModel),
@@ -146,8 +146,8 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	private static function _initColumnsToCast(Model $pModel) {
-		if (array_key_exists($pModel->getModelName(), self::$sModelInfos)) {
-			return self::$sModelInfos[$pModel->getModelName()][self::COLUMS_TO_CAST_INDEX];
+		if (array_key_exists($pModel->getName(), self::$sModelInfos)) {
+			return self::$sModelInfos[$pModel->getName()][self::COLUMS_TO_CAST_INDEX];
 		}
 		$lCastIntegerColumns = [];
 		$lCastFloatColumns = [];
@@ -191,7 +191,7 @@ class SqlTable extends SerializationUnit {
 	protected function _saveObject(Object $pObject, $pOperation = null) {
 		$this->_initDatabaseInterfacing($pObject->getModel());
 		
-		if (self::$sModelInfos[$pObject->getModel()->getModelName()][self::HAS_INCR_ID_INDEX]) {
+		if (self::$sModelInfos[$pObject->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
 			return $this->_saveObjectWithIncrementalId($pObject);
 		} else if ($pOperation == self::CREATE) {
 			return $this->_insertObject($pObject);
@@ -209,7 +209,7 @@ class SqlTable extends SerializationUnit {
 	 * @return integer
 	 */
 	private function _saveObjectWithIncrementalId(Object $pObject) {
-		if (!self::$sModelInfos[$pObject->getModel()->getModelName()][self::HAS_INCR_ID_INDEX]) {
+		if (!self::$sModelInfos[$pObject->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
 			throw new \Exception('operation not specified');
 		}
 		if ($pObject->hasCompleteId()) {
@@ -228,7 +228,7 @@ class SqlTable extends SerializationUnit {
 	private function _insertObject(Object $pObject) {
 		$lMapOfString = $pObject->toSqlDatabase(self::getDatabaseConnectionTimeZone());
 		if (!is_null($this->getInheritanceKey())) {
-			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getModelName();
+			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getName();
 		}
 		
 		if (is_null($this->mDbController->getInsertReturn())) {
@@ -244,7 +244,7 @@ class SqlTable extends SerializationUnit {
 		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, array_values($lMapOfString));
 		$lAffectedRows = $lStatement->rowCount();
 		
-		$lAutoIncrementProperties = self::$sModelInfos[$pObject->getModel()->getModelName()][self::AUTO_INCR_PROPERTIES_INDEX];
+		$lAutoIncrementProperties = self::$sModelInfos[$pObject->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
 		if (($lAffectedRows > 0) && !empty($lAutoIncrementProperties)) {
 			if ($this->mDbController->isSupportedLastInsertId()) {
 				$lIncrementalValue = $pObject->getProperty($lAutoIncrementProperties[0])->getModel()->castValue($this->mDbController->lastInsertId());
@@ -297,7 +297,7 @@ class SqlTable extends SerializationUnit {
 
 		$lMapOfString = $pObject->toSqlDatabase(self::getDatabaseConnectionTimeZone());
 		if (!is_null($this->getInheritanceKey())) {
-			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getModelName();
+			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getName();
 		}
 		
 		foreach ($pObject->getModel()->getIdProperties() as $lIdPropertyName => $lIdProperty) {
@@ -382,7 +382,7 @@ class SqlTable extends SerializationUnit {
 		}
 		if ($pOnlyIds) {
 			if (empty($lIdProperties)) {
-				trigger_error("Warning! model '{$lModel->getModelName()}' doesn't have a unique property id. All model is loaded");
+				trigger_error("Warning! model '{$lModel->getName()}' doesn't have a unique property id. All model is loaded");
 			}
 			foreach ($lIdProperties as $lIdProperty) {
 				$lSelectColumns[] = $lIdProperty->getSerializationName();
@@ -424,7 +424,7 @@ class SqlTable extends SerializationUnit {
 					$lExtendsModel = $pObject->getModel()->getUniqueModel();
 					foreach ($lRows as &$lRow) {
 						$lModel = $this->getInheritedModel($lRow, $lExtendsModel);
-						$lRow[Model::INHERITANCE_KEY] = $lModel->getModelName();
+						$lRow[Model::INHERITANCE_KEY] = $lModel->getName();
 					}
 				} else {
 					$lModel = $this->getInheritedModel($lRows[0], $pObject->getModel());

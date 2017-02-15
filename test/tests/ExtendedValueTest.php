@@ -88,9 +88,9 @@ if (count($lMan->getValue('children')->getValues()) != 3) {
 }
 foreach ($lMan->getValue('children')->getValues() as $lChild) {
 	switch ($lChild->getId()) {
-		case 5:  if ($lChild->getModel()->getModelName() !== 'man') throw new \Exception('bad model : '.$lChild->getModel()->getModelName()); break;
-		case 6:  if ($lChild->getModel()->getModelName() !== 'man') throw new \Exception('bad model : '.$lChild->getModel()->getModelName()); break;
-		case 11: if ($lChild->getModel()->getModelName() !== 'woman') throw new \Exception('bad model : '.$lChild->getModel()->getModelName()); break;
+		case 5:  if ($lChild->getModel()->getName() !== 'man') throw new \Exception('bad model : '.$lChild->getModel()->getName()); break;
+		case 6:  if ($lChild->getModel()->getName() !== 'man') throw new \Exception('bad model : '.$lChild->getModel()->getName()); break;
+		case 11: if ($lChild->getModel()->getName() !== 'woman') throw new \Exception('bad model : '.$lChild->getModel()->getName()); break;
 		default: throw new \Exception('bad id');
 	}
 }
@@ -342,26 +342,26 @@ $lManModelJson    = ModelManager::getInstance()->getInstanceModel('manBodyJson')
 $lManModelJsonEx  = ModelManager::getInstance()->getInstanceModel('manBodyJsonExtended');
 
 $lObj = $lManModelJson->loadObject(156);
-if ($lObj->getModel()->getModelName() !== $lManModelJson->getModelName()) {
+if ($lObj->getModel()->getName() !== $lManModelJson->getName()) {
 	throw new \Exception('bad model name');
 }
 $lObj->save();
 
 $lObj = $lManModelJson->loadObject(1567);
 $lObj1567 = $lObj;
-if ($lObj->getModel()->getModelName() !== $lManModelJsonEx->getModelName()) {
-	throw new \Exception("bad model name : {$lObj->getModel()->getModelName()} !== {$lManModelJsonEx->getModelName()}");
+if ($lObj->getModel()->getName() !== $lManModelJsonEx->getName()) {
+	throw new \Exception("bad model name : {$lObj->getModel()->getName()} !== {$lManModelJsonEx->getName()}");
 }
 $lObj->save();
 $lObj = $lWomanModelXml->loadObject('2');
-if ($lObj->getModel()->getModelName() !== $lWomanModelXml->getModelName()) {
+if ($lObj->getModel()->getName() !== $lWomanModelXml->getName()) {
 	throw new \Exception('bad model name');
 }
 $lObj->save();
 
 $lObj = $lWomanModelXml->loadObject('3');
 $lObj3 = $lObj;
-if ($lObj->getModel()->getModelName() !== $lWomanModelXmlEX->getModelName()) {
+if ($lObj->getModel()->getName() !== $lWomanModelXmlEX->getName()) {
 	throw new \Exception('bad model name');
 }
 $lObj->save();

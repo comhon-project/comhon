@@ -37,10 +37,10 @@ class MainObjectCollection extends ObjectCollection {
 				$lModelNames = [];
 				$lModel = $lCurrentModel->getExtendsModel();
 				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
-					$lModelNames[] = $lModel->getModelName();
-					if (isset($this->mMap[$lModel->getModelName()][$pId])) {
-						if (in_array($this->mMap[$lModel->getModelName()][$pId]->getModel()->getModelName(), $lModelNames)) {
-							$lObject = $this->mMap[$lModel->getModelName()][$pId];
+					$lModelNames[] = $lModel->getName();
+					if (isset($this->mMap[$lModel->getName()][$pId])) {
+						if (in_array($this->mMap[$lModel->getName()][$pId]->getModel()->getName(), $lModelNames)) {
+							$lObject = $this->mMap[$lModel->getName()][$pId];
 						}
 						break;
 					}
@@ -68,9 +68,9 @@ class MainObjectCollection extends ObjectCollection {
 				$lModelNames = [];
 				$lModel = $lCurrentModel->getExtendsModel();
 				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
-					$lModelNames[] = $lModel->getModelName();
-					if (isset($this->mMap[$lModel->getModelName()][$pId])) {
-						$lHasObject = in_array($this->mMap[$lModel->getModelName()][$pId]->getModel()->getModelName(), $lModelNames);
+					$lModelNames[] = $lModel->getName();
+					if (isset($this->mMap[$lModel->getName()][$pId])) {
+						$lHasObject = in_array($this->mMap[$lModel->getName()][$pId]->getModel()->getName(), $lModelNames);
 						break;
 					}
 					$lModel = $lModel->getExtendsModel();
@@ -100,13 +100,13 @@ class MainObjectCollection extends ObjectCollection {
 			if (!is_null($lSerialization)) {
 				$lModel = $pObject->getModel()->getExtendsModel();
 				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
-					if (isset($this->mMap[$lModel->getModelName()][$lId])) {
-						if ($this->mMap[$lModel->getModelName()][$lId] !== $pObject) {
+					if (isset($this->mMap[$lModel->getName()][$lId])) {
+						if ($this->mMap[$lModel->getName()][$lId] !== $pObject) {
 							throw new \Exception('extends model already has different object instance with same id');
 						}
 						break;
 					}
-					$this->mMap[$lModel->getModelName()][$lId] = $pObject;
+					$this->mMap[$lModel->getName()][$lId] = $pObject;
 					$lModel = $lModel->getExtendsModel();
 				}
 			}
@@ -135,10 +135,10 @@ class MainObjectCollection extends ObjectCollection {
 			if (!is_null($lSerialization)) {
 				$lModel = $pObject->getModel()->getExtendsModel();
 				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
-					if (!isset($this->mMap[$lModel->getModelName()][$lId]) || $this->mMap[$lModel->getModelName()][$lId] !== $pObject) {
+					if (!isset($this->mMap[$lModel->getName()][$lId]) || $this->mMap[$lModel->getName()][$lId] !== $pObject) {
 						throw new \Exception('extends model doesn\'t have object or has different object instance with same id');
 					}
-					unset($this->mMap[$lModel->getModelName()][$lId]);
+					unset($this->mMap[$lModel->getName()][$lId]);
 					$lModel = $lModel->getExtendsModel();
 				}
 			}

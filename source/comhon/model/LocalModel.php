@@ -26,7 +26,7 @@ class LocalModel extends Model {
 	}
 	
 	public function getMainModelName() {
-		return $this->mMainModel->getModelName();
+		return $this->mMainModel->getName();
 	}
 	
 	/**
@@ -44,13 +44,13 @@ class LocalModel extends Model {
 		} else {
 			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $this->getMainModelName());
 			if (!$lModel->isInheritedFrom($this)) {
-				throw new \Exception("model '{$lModel->getModelName()}' doesn't inherit from '{$this->getModelName()}'");
+				throw new \Exception("model '{$lModel->getName()}' doesn't inherit from '{$this->getName()}'");
 			}
 		}
 		
 		if (!$lModel->hasIdProperties()) {
 			$lObject = $lModel->getObjectInstance($pIsloaded);
-			//trigger_error("new local whithout id $pId, $lModel->mModelName, {$lModel->mMainModel->getModelName()}");
+			//trigger_error("new local whithout id $pId, $lModel->mModelName, {$lModel->mMainModel->getName()}");
 		}
 		else {
 			$lObject = $pLocalObjectCollection->getObject($pId, $lModel->mModelName);
@@ -58,13 +58,13 @@ class LocalModel extends Model {
 				$lObject = $lModel->_buildObjectFromId($pId, $pIsloaded);
 				if (!is_null($pId)) {
 					$pLocalObjectCollection->addObject($lObject);
-					//trigger_error("add local $pId, $lModel->mModelName, {$lModel->mMainModel->getModelName()}");
+					//trigger_error("add local $pId, $lModel->mModelName, {$lModel->mMainModel->getName()}");
 				}
 				else {
-					//trigger_error("new local without add $pId, $lModel->mModelName, {$lModel->mMainModel->getModelName()}");
+					//trigger_error("new local without add $pId, $lModel->mModelName, {$lModel->mMainModel->getName()}");
 				}
 			} else {
-				//trigger_error("local already added $pId, $lModel->mModelName, {$lModel->mMainModel->getModelName()}");
+				//trigger_error("local already added $pId, $lModel->mModelName, {$lModel->mMainModel->getName()}");
 				if ($pUpdateLoadStatus) {
 					//trigger_error("update local status ".var_export($lObject->isLoaded(), true));
 					$lObject->setLoadStatus();

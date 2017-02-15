@@ -41,7 +41,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	public function __construct($pModelName) {
 		parent::__construct($pModelName);
 		if (!$this->mModel->hasSqlTableUnit()) {
-			throw new Exception('error : resquested model '.$this->mModel->getModelName().' must have a database serialization');
+			throw new Exception('error : resquested model '.$this->mModel->getName().' must have a database serialization');
 		}
 		$this->mLogicalJunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 	}
@@ -153,7 +153,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (!isset($pModelTree->model)) {
 			throw new Exception('model tree doesn\'t have model');
 		}
-		if ($pModelTree->model != $this->mModel->getModelName()) {
+		if ($pModelTree->model != $this->mModel->getName()) {
 			throw new Exception('root model in model tree is not the same as model specified in constructor');
 		}
 		
@@ -295,7 +295,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (!array_key_exists($pLiteral->model, $pLitralsByModelName)) {
 			$pLitralsByModelName[$pLiteral->model] = [];
 		}
-		if ($pLiteral->model == $this->mModel->getModelName()) {
+		if ($pLiteral->model == $this->mModel->getName()) {
 			$pLiteral->node = $pMainTableName;
 		}
 		else {
@@ -309,7 +309,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @throws Exception
 	 */
 	private function _buildAndAddJoins($pLitralsByModelName) {
-		if ((empty($pLitralsByModelName)) || ((count($pLitralsByModelName) == 1) && array_key_exists($this->mModel->getModelName(), $pLitralsByModelName))) {
+		if ((empty($pLitralsByModelName)) || ((count($pLitralsByModelName) == 1) && array_key_exists($this->mModel->getName(), $pLitralsByModelName))) {
 			return;
 		}
 		$lTemporaryLeftJoins = [];
@@ -331,12 +331,12 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				$lStackIndex     = count($lStack) - 1;
 				$lRightProperty  = $lStack[$lStackIndex]['properties'][$lStack[$lStackIndex]['current']];
 				$lRightModel     = $lRightProperty->getUniqueModel();
-				$lRightModelName = $lRightModel->getModelName();
+				$lRightModelName = $lRightModel->getName();
 				
 				$lHigherRightModelName = $lRightModelName;
 				$lModel = $lRightModel->getExtendsModel();
 				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lRightModel->getSerializationSettings()) {
-					$lHigherRightModelName = $lModel->getModelName();
+					$lHigherRightModelName = $lModel->getName();
 					$lModel = $lModel->getExtendsModel();
 				}
 				
@@ -383,8 +383,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	private function _extendsStacks($pModel, $pLiteralsByModelName, &$pStack, &$pStackVisitedModels, &$pArrayVisitedModels) {
-		if (array_key_exists($pModel->getModelName(), $pArrayVisitedModels) && array_key_exists($pModel->getModelName(), $pLiteralsByModelName)) {
-			throw new Exception('Cannot resolve literal. Literal with model \''.$pModel->getModelName().'\' can be applied on several properties');
+		if (array_key_exists($pModel->getName(), $pArrayVisitedModels) && array_key_exists($pModel->getName(), $pLiteralsByModelName)) {
+			throw new Exception('Cannot resolve literal. Literal with model \''.$pModel->getName().'\' can be applied on several properties');
 		}
 		$pStack[] = [
 				'left_model' => $pModel,
@@ -392,10 +392,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				'current'    => -1
 		];
 		
-		$lHigherRightModelName = $pModel->getModelName();
+		$lHigherRightModelName = $pModel->getName();
 		$lModel = $pModel->getExtendsModel();
 		while (!is_null($lModel) && $lModel->getSerializationSettings() === $pModel->getSerializationSettings()) {
-			$lHigherRightModelName = $lModel->getModelName();
+			$lHigherRightModelName = $lModel->getName();
 			$lModel = $lModel->getExtendsModel();
 		}
 		
@@ -513,11 +513,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			foreach ($pRows as &$lRow) {
 				$lModel = $lSqlTableUnit->getInheritedModel($lRow, $this->mModel);
 				if ($lModel !== $this->mModel) {
-					$lRow[Model::INHERITANCE_KEY] = $lModel->getModelName();
+					$lRow[Model::INHERITANCE_KEY] = $lModel->getName();
 				}
 			}
 		}
-		$lModelArray = new ModelArray($this->mModel, $this->mModel->getModelName());
+		$lModelArray = new ModelArray($this->mModel, $this->mModel->getName());
 		$lObjectArray = $lModelArray->fromSqlDatabase($pRows, Model::MERGE, SqlTable::getDatabaseConnectionTimeZone());
 		
 		return $this->_updateObjects($lObjectArray);

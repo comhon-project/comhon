@@ -100,12 +100,12 @@ class Object {
 			throw new \Exception('object array cannot be casted');
 		}
 		if (!$pModel->isInheritedFrom($this->mModel)) {
-			throw new \Exception("Cannot cast object, '{$pModel->getModelName()}' is not inherited from '{$this->mModel->getModelName()}'");
+			throw new \Exception("Cannot cast object, '{$pModel->getName()}' is not inherited from '{$this->mModel->getName()}'");
 		}
 		$lhasCompleteId = $this->hasCompleteId();
 		if ($lhasCompleteId) {
-			if (MainObjectCollection::getInstance()->hasObject($this->getId(), $pModel->getModelName(), false)) {
-				throw new \Exception("Cannot cast object to '{$pModel->getModelName()}'. Object with id '{$this->getId()}' and model '{$pModel->getModelName()}' already exists in MainModelCollection");
+			if (MainObjectCollection::getInstance()->hasObject($this->getId(), $pModel->getName(), false)) {
+				throw new \Exception("Cannot cast object to '{$pModel->getName()}'. Object with id '{$this->getId()}' and model '{$pModel->getName()}' already exists in MainModelCollection");
 			}
 		}
 		$this->mModel = $pModel;
@@ -188,7 +188,7 @@ class Object {
 			}
 		}
 		if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel) 
-				&& MainObjectCollection::getInstance()->getObject($this->getId(), $this->mModel->getModelName()) === $this) {
+				&& MainObjectCollection::getInstance()->getObject($this->getId(), $this->mModel->getName()) === $this) {
 			MainObjectCollection::getInstance()->removeObject($this);
 			$this->mValues[$pName] = $pValue;
 			MainObjectCollection::getInstance()->addObject($this);
@@ -345,7 +345,7 @@ class Object {
 	}
 	
 	public final function toXml($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
-		$lXmlNode = new \SimpleXmlElement("<{$this->getModel()->getModelName()}/>");
+		$lXmlNode = new \SimpleXmlElement("<{$this->getModel()->getName()}/>");
 		$this->mModel->toXml($this, $lXmlNode, $pPrivate, $pUseSerializationName, $pTimeZone, $pMainForeignObjects);
 		return $lXmlNode;
 	}

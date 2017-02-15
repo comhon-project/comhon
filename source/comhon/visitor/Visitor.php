@@ -36,7 +36,7 @@ abstract class Visitor {
 			$this->_init($pObject);
 			
 			if ($this->_isVisitRootObject()) {
-				$lModelName   = $pObject->getModel()->getModelName();
+				$lModelName   = $pObject->getModel()->getName();
 				$lProperty    = new ForeignProperty($pObject->getModel(), $lModelName);
 				$lCustomModel = new ModelCustom('modelCustom', [$lProperty]);
 				$lRootObject  = $lCustomModel->getObjectInstance();

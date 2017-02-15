@@ -62,7 +62,7 @@ class JsonFile extends SerializationFile {
 	 */
 	protected function _addInheritanceKey(Object $pObject, $pStdClass) {
 		if (!is_null($this->getInheritanceKey())) {
-			$pStdClass->{$this->getInheritanceKey()} = $pObject->getModel()->getModelName();
+			$pStdClass->{$this->getInheritanceKey()} = $pObject->getModel()->getName();
 		}
 	}
 	

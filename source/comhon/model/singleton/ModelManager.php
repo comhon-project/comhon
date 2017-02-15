@@ -192,22 +192,22 @@ class ModelManager {
 			$lInstanceModels =& $this->mInstanceModels;
 		}
 		
-		if (is_object($lInstanceModels[$pModel->getModelName()])) {
+		if (is_object($lInstanceModels[$pModel->getName()])) {
 			throw new \Exception('model already added');
 		}
-		$lInstanceModels[$pModel->getModelName()] = $pModel;
+		$lInstanceModels[$pModel->getName()] = $pModel;
 	}
 	
 	public function getProperties(Model $pModel) {
 		$lReturn = null;
 		
 		if ($pModel instanceof LocalModel) {
-			$lInstanceModels =& $this->mLocalTypes[$pModel->getMainModel()->getModelName()];
+			$lInstanceModels =& $this->mLocalTypes[$pModel->getMainModel()->getName()];
 		} else {
 			$lInstanceModels =& $this->mInstanceModels;
 		}
 		
-		if (is_null($this->mManifestParser) && is_object($lInstanceModels[$pModel->getModelName()]) && $lInstanceModels[$pModel->getModelName()]->isLoaded()) {
+		if (is_null($this->mManifestParser) && is_object($lInstanceModels[$pModel->getName()]) && $lInstanceModels[$pModel->getName()]->isLoaded()) {
 			$lReturn = [
 				self::PROPERTIES     => $pModel->getProperties(), 
 				self::EXTENDS_MODEL  => $pModel->getExtendsModel(),
@@ -220,9 +220,9 @@ class ModelManager {
 			$lUnsetManifestParser = false;
 			if (is_null($this->mManifestParser)) {
 				$lUnsetManifestParser   = true;
-				$lManifestPath_afe      = $lInstanceModels[$pModel->getModelName()][0];
+				$lManifestPath_afe      = $lInstanceModels[$pModel->getName()][0];
 				$lManifestPath_ad       = dirname($lManifestPath_afe);
-				$lSerializationPath_afe = !is_null($lInstanceModels[$pModel->getModelName()][1]) ? $lInstanceModels[$pModel->getModelName()][1] : null;
+				$lSerializationPath_afe = !is_null($lInstanceModels[$pModel->getName()][1]) ? $lInstanceModels[$pModel->getName()][1] : null;
 				$this->mManifestParser  = ManifestParser::getInstance($pModel, $lManifestPath_afe, $lSerializationPath_afe);
 				
 				$this->_addInstanceModel($pModel);
@@ -253,10 +253,10 @@ class ModelManager {
 			// perhaps allow local models defined in there own manifest to have local types
 			return;
 		}
-		$this->mLocalTypes[$pModel->getModelName()] = [];
+		$this->mLocalTypes[$pModel->getName()] = [];
 		if ($this->mManifestParser->getLocalTypesCount() > 0) {
 			$lXmlLocalTypes = [];
-			$lMainModelName = $pModel->getModelName();
+			$lMainModelName = $pModel->getName();
 			
 			$this->mManifestParser->registerComplexLocalModels($this->mLocalTypes[$lMainModelName], $pManifestPath_ad);
 			$this->mManifestParser->activateFocusOnLocalTypes();
@@ -353,7 +353,7 @@ class ModelManager {
 			if (is_null($pSerializationSettings) || $pSerializationSettings === $lExtendedSerializationSettings) {
 				$lSame = true;
 			}
-			else if ($pSerializationSettings->getModel()->getModelName() == $lExtendedSerializationSettings->getModel()->getModelName()) {
+			else if ($pSerializationSettings->getModel()->getName() == $lExtendedSerializationSettings->getModel()->getName()) {
 				$lSame = true;
 				foreach ($pSerializationSettings->getModel()->getProperties() as $lProperty) {
 					if ($pSerializationSettings->getValue($lProperty->getName()) !== $lExtendedSerializationSettings->getValue($lProperty->getName())) {
