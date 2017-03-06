@@ -277,7 +277,7 @@ abstract class Model {
 				} else if ($lProperty->hasMultipleSerializationNames()) {
 					$this->mMultipleForeignProperties[$lProperty->getName()] = $lProperty;
 				}
-				if ($lProperty->isSerializable() || ($lProperty instanceof AggregationProperty)) {
+				if ($lProperty->isSerializable()) {
 					$this->mSerializableProperties[$lProperty->getName()] = $lProperty;
 					if (!$lProperty->isPrivate()) {
 						$this->mPublicSerializableProperties[$lProperty->getName()] = $lProperty;
