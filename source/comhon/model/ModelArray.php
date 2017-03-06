@@ -118,7 +118,7 @@ class ModelArray extends ModelContainer {
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
-		$pObjectArray->resetValues();
+		$pObjectArray->reset();
 		foreach ($pArray as $lKey => $lStdValue) {
 			$pObjectArray->setValue($lKey, $this->getModel()->_fromStdObject($lStdValue, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null), $pFlagAsUpdated);
 		}
@@ -267,7 +267,7 @@ class ModelArray extends ModelContainer {
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
-		$pObjectArray->resetValues();
+		$pObjectArray->reset();
 		foreach ($pArray as $lKey => $lFlattenedArray) {
 			$pObjectArray->setValue($lKey, $this->getModel()->_fromFlattenedArray($lFlattenedArray, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null), $pFlagAsUpdated);
 		}
@@ -373,7 +373,7 @@ class ModelArray extends ModelContainer {
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
-		$pObjectArray->resetValues();
+		$pObjectArray->reset();
 		foreach ($pXml->children() as $lChild) {
 			$pObjectArray->pushValue($this->getModel()->_fromXml($lChild, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null), $pFlagAsUpdated);
 		}

@@ -33,7 +33,6 @@ abstract class Model {
 	private $mAggregations = [];
 	private $mPublicProperties  = [];
 	private $mSerializableProperties = [];
-	private $mPublicSerializableProperties = [];
 	private $mPropertiesWithDefaultValues = [];
 	private $mMultipleForeignProperties = [];
 	private $mComplexProperties = [];
@@ -185,19 +184,7 @@ abstract class Model {
 	 * @return Property[]
 	 */
 	public function getSpecificProperties($pPrivate, $pSerialization) {
-		if ($pPrivate) {
-			if ($pSerialization) {
-				return $this->mSerializableProperties;
-			} else {
-				return $this->mProperties;
-			}
-		} else {
-			if ($pSerialization) {
-				return $this->mPublicSerializableProperties;
-			} else {
-				return $this->mPublicProperties;
-			}
-		}
+		return $pPrivate ? $this->mProperties : $this->mPublicProperties;
 	}
 	
 	public function getComplexProperties() {
@@ -290,7 +277,7 @@ abstract class Model {
 				} else if ($lProperty->hasMultipleSerializationNames()) {
 					$this->mMultipleForeignProperties[$lProperty->getName()] = $lProperty;
 				}
-				if ($lProperty->isSerializable()) {
+				if ($lProperty->isSerializable() || ($lProperty instanceof AggregationProperty)) {
 					$this->mSerializableProperties[$lProperty->getName()] = $lProperty;
 					if (!$lProperty->isPrivate()) {
 						$this->mPublicSerializableProperties[$lProperty->getName()] = $lProperty;

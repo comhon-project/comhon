@@ -80,39 +80,39 @@ if ($lThrow) {
 }
 
 $lNewObject = $lObject;
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObjectFromPrivateStdObject($lNewObject, $lCopiedObject->toPrivateStdObject());
 if (json_encode($lNewObject->toPrivateStdObject()) !== $lPrivateStdObjectEnd) {
 	var_dump(json_encode($lNewObject->toPrivateStdObject()));
 	throw new \Exception('bad private object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObjectFromPublicStdObject($lNewObject, $lCopiedObject->toPublicStdObject());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectEnd) {
 	throw new \Exception('bad public object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObjectFromSerializedStdObject($lNewObject, $lCopiedObject->toSerialStdObject());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectWithoutAggregation) {
 	var_dump(json_encode($lNewObject->toPublicStdObject()));
 	throw new \Exception('bad serial object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lNewObject->fromPrivateStdObject($lCopiedObject->toPrivateStdObject());
 if (json_encode($lNewObject->toPrivateStdObject()) !== $lPrivateStdObjectEnd) {
 	throw new \Exception('bad private object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lNewObject->fromPublicStdObject($lCopiedObject->toPrivateStdObject());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectEnd) {
 	throw new \Exception('bad public object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lNewObject->fromSerializedStdObject($lCopiedObject->toSerialStdObject());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectWithoutAggregation) {
@@ -140,37 +140,37 @@ if (json_encode($lDbTestModel->fromPrivateXml($lCopiedObject->toPublicXml(), Mod
 if (json_encode($lDbTestModel->fromPublicXml($lCopiedObject->toPrivateXml(), Model::NO_MERGE)->toPrivateStdObject()) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObjectFromPrivateXml($lNewObject, $lCopiedObject->toPrivateXml());
 if (json_encode($lNewObject->toPrivateStdObject()) !== $lPrivateStdObjectEnd) {
 	throw new \Exception('bad private object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObjectFromPublicXml($lNewObject, $lCopiedObject->toPublicXml());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectEnd) {
 	throw new \Exception('bad public object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObjectFromSerializedXml($lNewObject, $lCopiedObject->toSerialXml());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectWithoutAggregation) {
 	throw new \Exception('bad serial object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lNewObject->fromPrivateXml($lCopiedObject->toPrivateXml());
 if (json_encode($lNewObject->toPrivateStdObject()) !== $lPrivateStdObjectEnd) {
 	throw new \Exception('bad private object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lNewObject->fromPublicXml($lCopiedObject->toPrivateXml());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectEnd) {
 	throw new \Exception('bad public object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lNewObject->fromSerializedXml($lCopiedObject->toSerialXml());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectWithoutAggregation) {
@@ -198,37 +198,37 @@ if (json_encode($lDbTestModel->fromPrivateFlattenedArray($lCopiedObject->toPubli
 if (json_encode($lDbTestModel->fromPublicFlattenedArray($lCopiedObject->toPrivateFlattenedArray(), Model::NO_MERGE)->toPrivateStdObject()) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObjectFromPrivateFlattenedArray($lNewObject, $lCopiedObject->toPrivateFlattenedArray());
 if (json_encode($lNewObject->toPrivateStdObject()) !== $lPrivateStdObjectEnd) {
 	throw new \Exception('bad private object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObjectFromPublicFlattenedArray($lNewObject, $lCopiedObject->toPublicFlattenedArray());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectEnd) {
 	throw new \Exception('bad public object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObjectfromSqlDatabase($lNewObject, $lCopiedObject->toSqlDatabase());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectWithoutAggregation) {
 	throw new \Exception('bad serial object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lNewObject->fromPrivateStdObject($lCopiedObject->toPrivateStdObject());
 if (json_encode($lNewObject->toPrivateStdObject()) !== $lPrivateStdObjectEnd) {
 	throw new \Exception('bad private object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lNewObject->fromPublicStdObject($lCopiedObject->toPrivateStdObject());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectEnd) {
 	throw new \Exception('bad public object value');
 }
-$lNewObject->resetValues();
+$lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lNewObject->fromSerializedStdObject($lCopiedObject->toSerialStdObject());
 if (json_encode($lNewObject->toPublicStdObject()) !== $lPublicStdObjectWithoutAggregation) {
@@ -345,7 +345,7 @@ if (json_encode($lModelArrayDbTest->fromPublicStdObject($lCopiedObjectArray->toP
 
 function resetValues($pObjectArray) {
 	foreach ($pObjectArray->getValues() as $lObject) {
-		$lObject->resetValues();
+		$lObject->reset();
 		$lObject->setValue('defaultValue', 'plop');
 	}
 }

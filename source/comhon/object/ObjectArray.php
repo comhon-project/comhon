@@ -35,8 +35,7 @@ class ObjectArray extends Object {
 	}
 	
 	public function resetUpdatedStatus($pRecursive = true) {
-		$this->mIsUpdated = false;
-		$this->mUpdatedValues = [];
+		$this->_resetUpdatedStatus();
 		if ($this->getModel()->getModel() instanceof ModelDateTime) {
 			foreach ($this->getValues() as $lValue) {
 				if ($lValue instanceof ComhonDateTime) {
@@ -58,7 +57,7 @@ class ObjectArray extends Object {
 	 * @return boolean
 	 */
 	public function isUpdated() {
-		if (!$this->mIsUpdated) {
+		if (!$this->isFlagedAsUpdated()) {
 			if ($this->getModel()->getModel()->isComplex()) {
 				foreach ($this->getValues() as $lValue) {
 					if (($lValue instanceof Object) && $lValue->isUpdated()) {
@@ -74,7 +73,7 @@ class ObjectArray extends Object {
 				}
 			}
 		}
-		return $this->mIsUpdated;
+		return $this->isFlagedAsUpdated();
 	}
 	
 	/**
@@ -82,14 +81,14 @@ class ObjectArray extends Object {
 	 * @return boolean
 	 */
 	public function isIdUpdated() {
-		if (!$this->mIsUpdated && $this->getModel()->getModel()->isComplex()) {
+		if (!$this->isFlagedAsUpdated() && $this->getModel()->getModel()->isComplex()) {
 			foreach ($this->getValues() as $lValue) {
 				if (($lValue instanceof Object) && $lValue->isIdUpdated()) {
 					return true;
 				}
 			}
 		}
-		return $this->mIsUpdated;
+		return $this->isFlagedAsUpdated();
 	}
 	
 	/**
@@ -99,7 +98,7 @@ class ObjectArray extends Object {
 	 * @return boolean
 	 */
 	public function isUpdatedValue($pKey) {
-		if (!$this->mIsUpdated) {
+		if (!$this->isFlagedAsUpdated()) {
 			if ($this->getModel()->getModel()->isComplex()) {
 				$lValue = $this->getValue($pKey);
 				if (($lValue instanceof Object) && $lValue->isUpdated()) {
@@ -113,14 +112,14 @@ class ObjectArray extends Object {
 				}
 			}
 		}
-		return $this->mIsUpdated;
+		return $this->isFlagedAsUpdated();
 	}
 	
 	public function fromSqlDatabaseId($pRows, $pTimeZone = null, $pUpdateLoadStatus = true) {
 		if (!($this->getModel()->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
-		$this->resetValues();
+		$this->reset();
 		foreach ($pRows as $lRow) {
 			$this->pushValue($this->getModel()->getModel()->fromSqlDatabaseId($lRow), false);
 		}

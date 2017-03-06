@@ -93,7 +93,7 @@ class MainModel extends Model {
 				break;
 			case self::OVERWRITE:
 				$lObject = $this->_getOrCreateObjectInstanceFromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, null);
-				$lObject->resetValues();
+				$lObject->reset();
 				$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, new ObjectCollection());
 				break;
 			case self::NO_MERGE:
@@ -136,7 +136,7 @@ class MainModel extends Model {
 				break;
 			case self::OVERWRITE:
 				$lObject = $this->_getOrCreateObjectInstanceFromXml($pXml, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, null);
-				$lObject->resetValues();
+				$lObject->reset();
 				$this->_fillObjectFromXml($lObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, new ObjectCollection());
 				break;
 			case self::NO_MERGE:
@@ -179,7 +179,7 @@ class MainModel extends Model {
 				break;
 			case self::OVERWRITE:
 				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, null);
-				$lObject->resetValues();
+				$lObject->reset();
 				$this->_fillObjectFromFlattenedArray($lObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, new ObjectCollection());
 				break;
 			case self::NO_MERGE:
@@ -209,7 +209,7 @@ class MainModel extends Model {
 				break;
 			case self::OVERWRITE:
 				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, true, true, false, null, false, false);
-				$lObject->resetValues();
+				$lObject->reset();
 				$this->_fillObjectwithId($lObject, $this->getIdFromFlattenedArray($pRow, true, true), false);
 				$lObject->setUnLoadStatus();
 				break;

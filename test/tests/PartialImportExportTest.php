@@ -282,15 +282,35 @@ if (json_encode($lObject->toPrivateFlattenedArray(null, true)) !== $lPrivateFlat
 	throw new Exception('bad object Values');
 }
 
-// -- serial
-if (json_encode($lObject->toSerialStdObject(null, true)) !== $lSerialStdObject) {
+// -- serial with foreign main object export
+$lArray = [];
+$lObject->getValue('childrenTestDb')->getValue(0)->setValue('name', 'test_name');
+$lObject->flagValueAsUpdated('id1');
+$lObject->getValue('mainParentTestDb')->getValue('childrenTestDb')->getValue(0)->setValue('integer', 1);
+if (json_encode($lObject->toSerialStdObject(null, true, $lArray)) !== $lSerialStdObject) {
 	throw new Exception('bad object Values');
 }
-if (trim(str_replace('<?xml version="1.0"?>', '', $lObject->toSerialXml(null, true)->asXML())) !== $lSerialXml) {
+if (json_encode($lArray) !== '{"testDb":{"[1,\"23\"]":{"id_1":1,"id_2":"23","integer":1},"[1,\"50\"]":{"id_1":1,"id_2":"50"},"[1,\"101\"]":{"id_1":1,"id_2":"101"},"[2,\"50\"]":{"id_1":2,"id_2":"50"},"[2,\"102\"]":{"id_1":2,"id_2":"102"}},"mainTestDb":{"1":{"id":1}},"childTestDb":{"1":{"id":1,"name":"test_name","parent_id_1":1},"2":{"id":2,"parent_id_1":1}}}') {
+	var_dump(json_encode($lArray));
+	throw new Exception('bad foreign objects Values');
+}
+
+$lArray = [];
+if (trim(str_replace('<?xml version="1.0"?>', '', $lObject->toSerialXml(null, true, $lArray)->asXML())) !== $lSerialXml) {
 	throw new Exception('bad object Values');
 }
-if (json_encode($lObject->toSqlDatabase(null, true)) !== $lSerialFlattened) {
+if (json_encode($lArray) !== '{"testDb":{"[1,\"23\"]":{"@attributes":{"id_1":"1","id_2":"23","integer":"1"}},"[1,\"50\"]":{"@attributes":{"id_1":"1","id_2":"50"}},"[1,\"101\"]":{"@attributes":{"id_1":"1","id_2":"101"}},"[2,\"50\"]":{"@attributes":{"id_1":"2","id_2":"50"}},"[2,\"102\"]":{"@attributes":{"id_1":"2","id_2":"102"}}},"mainTestDb":{"1":{"@attributes":{"id":"1"}}},"childTestDb":{"1":{"@attributes":{"id":"1","name":"test_name","parent_id_1":"1"}},"2":{"@attributes":{"id":"2","parent_id_1":"1"}}}}') {
+	var_dump(json_encode($lArray));
+	throw new Exception('bad foreign objects Values');
+}
+
+$lArray = [];
+if (json_encode($lObject->toSqlDatabase(null, true, $lArray)) !== $lSerialFlattened) {
 	throw new Exception('bad object Values');
+}
+if (json_encode($lArray) !== '{"testDb":{"[1,\"23\"]":{"id_1":1,"id_2":"23","integer":1},"[1,\"50\"]":{"id_1":1,"id_2":"50"},"[1,\"101\"]":{"id_1":1,"id_2":"101"},"[2,\"50\"]":{"id_1":2,"id_2":"50"},"[2,\"102\"]":{"id_1":2,"id_2":"102"}},"mainTestDb":{"1":{"id":1}},"childTestDb":{"1":{"id":1,"name":"test_name","parent_id_1":1},"2":{"id":2,"parent_id_1":1}}}') {
+	var_dump(json_encode($lArray));
+	throw new Exception('bad foreign objects Values');
 }
 
 

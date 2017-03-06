@@ -16,11 +16,10 @@ class Object {
 
 	private $mModel;
 	private $mIsLoaded;
+	private $mIsUpdated = false;
 	private $mUpdatedValues = [];
 	private $mValues = [];
 	private $mIsCasted = false;
-
-	protected $mIsUpdated = false;
 	
 	
 	/**
@@ -123,7 +122,10 @@ class Object {
 		$this->mIsUpdated = true;
 	}
 	
-	public final function resetValues() {
+	/**
+	 * reset values and reset update status
+	 */
+	public final function reset() {
 		$this->mValues = [];
 		$this->mIsUpdated = false;
 		$this->mUpdatedValues = [];
@@ -333,6 +335,14 @@ class Object {
 				$this->getValue($lPropertyName)->resetUpdatedStatus();
 			}
 		}
+	}
+	
+	/**
+	 * reset updated Status (reset only self::mIsUpdated and self::mUpdatedValues)
+	 */
+	protected final function _resetUpdatedStatus() {
+		$this->mIsUpdated = false;
+		$this->mUpdatedValues = [];
 	}
 	
 	/**
