@@ -52,7 +52,7 @@ class JsonSerializationManifestParser extends ParentJsonSerializationManifestPar
 		$lType = $pSerializationNode->type;
 		if (isset($pSerializationNode->value)) {
 			$lSerialization = ModelManager::getInstance()->getInstanceModel($lType)->getObjectInstance();
-			$lSerialization->fromStdObject($pSerializationNode->value, true, true);
+			$lSerialization->fromSerializedStdObject($pSerializationNode->value);
 		} else if (isset($pSerializationNode->id)) {
 			$lId = $pSerializationNode->id;
 			if (empty($lId)) {

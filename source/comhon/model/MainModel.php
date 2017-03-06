@@ -60,6 +60,10 @@ class MainModel extends Model {
 		return !is_null($this->mSerialization) && ($this->mSerialization->getType() == $pSerializationType);
 	}
 	
+	public function hasPartialSerialization() {
+		return ($this->mSerialization instanceof SqlTable);
+	}
+	
 	/**
 	 * @return Object
 	 */
@@ -68,36 +72,36 @@ class MainModel extends Model {
 	}
 	
 	public function fromSerializedStdObject($pStdObject, $pMergeType = self::MERGE, $pTimeZone = null) {
-		return $this->fromStdObject($pStdObject, true, true, $pMergeType, $pTimeZone);
+		return $this->fromStdObject($pStdObject, true, true, $pMergeType, $pTimeZone, false);
 	}
 	
 	public function fromPublicStdObject($pStdObject, $pMergeType = self::MERGE, $pTimeZone = null) {
-		return $this->fromStdObject($pStdObject, false, false, $pMergeType, $pTimeZone);
+		return $this->fromStdObject($pStdObject, false, false, $pMergeType, $pTimeZone, true);
 	}
 	
 	public function fromPrivateStdObject($pStdObject, $pMergeType = self::MERGE, $pTimeZone = null) {
-		return $this->fromStdObject($pStdObject, true, false, $pMergeType, $pTimeZone);
+		return $this->fromStdObject($pStdObject, true, false, $pMergeType, $pTimeZone, true);
 	}
 	
-	public function fromStdObject(\stdClass $pStdObject, $pPrivate = false, $pUseSerializationName = false, $pMergeType = self::MERGE, $pTimeZone = null) {
+	public function fromStdObject(\stdClass $pStdObject, $pPrivate = false, $pUseSerializationName = false, $pMergeType = self::MERGE, $pTimeZone = null, $pFlagAsUpdated = true) {
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 		
 		switch ($pMergeType) {
 			case self::MERGE:
-				$lObject = $this->_fromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
+				$lObject = $this->_fromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null);
 				break;
 			case self::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromStdObject($pStdObject, $pPrivate, $pUseSerializationName, null);
+				$lObject = $this->_getOrCreateObjectInstanceFromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, null);
 				$lObject->resetValues();
-				$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, new ObjectCollection());
+				$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, new ObjectCollection());
 				break;
 			case self::NO_MERGE:
 				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromStdObject($pStdObject, $pPrivate, $pUseSerializationName), $this->mModelName);
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lExistingObject);
 				}
-				$lObject = $this->_fromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
+				$lObject = $this->_fromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null);
 				
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lObject);
@@ -111,36 +115,36 @@ class MainModel extends Model {
 	}
 	
 	public function fromSerializedXml($pXml, $pMergeType = self::MERGE, $pTimeZone = null) {
-		return $this->fromXml($pXml, true, true, $pMergeType, $pTimeZone);
+		return $this->fromXml($pXml, true, true, $pMergeType, $pTimeZone, false);
 	}
 	
 	public function fromPublicXml($pXml, $pMergeType = self::MERGE, $pTimeZone = null) {
-		return $this->fromXml($pXml, false, false, $pMergeType, $pTimeZone);
+		return $this->fromXml($pXml, false, false, $pMergeType, $pTimeZone, true);
 	}
 	
 	public function fromPrivateXml($pXml, $pMergeType = self::MERGE, $pTimeZone = null) {
-		return $this->fromXml($pXml, true, false, $pMergeType, $pTimeZone);
+		return $this->fromXml($pXml, true, false, $pMergeType, $pTimeZone, true);
 	}
 	
-	public function fromXml(\SimpleXMLElement $pXml, $pPrivate = false, $pUseSerializationName = false, $pMergeType = self::MERGE, $pTimeZone = null) {
+	public function fromXml(\SimpleXMLElement $pXml, $pPrivate = false, $pUseSerializationName = false, $pMergeType = self::MERGE, $pTimeZone = null, $pFlagAsUpdated = true) {
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 		
 		switch ($pMergeType) {
 			case self::MERGE:
-				$lObject = $this->_fromXml($pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
+				$lObject = $this->_fromXml($pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null);
 				break;
 			case self::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromXml($pXml, $pPrivate, $pUseSerializationName, null);
+				$lObject = $this->_getOrCreateObjectInstanceFromXml($pXml, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, null);
 				$lObject->resetValues();
-				$this->_fillObjectFromXml($lObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, new ObjectCollection());
+				$this->_fillObjectFromXml($lObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, new ObjectCollection());
 				break;
 			case self::NO_MERGE:
 				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromXml($pXml, $pPrivate, $pUseSerializationName), $this->mModelName);
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lExistingObject);
 				}
-				$lObject = $this->_fromXml($pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
+				$lObject = $this->_fromXml($pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null);
 				
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lObject);
@@ -154,36 +158,36 @@ class MainModel extends Model {
 	}
 	
 	public function fromSqlDatabase($pRow, $pMergeType = self::MERGE, $pTimeZone = null) {
-		return $this->fromFlattenedArray($pRow, true, true, $pMergeType, $pTimeZone);
+		return $this->fromFlattenedArray($pRow, true, true, $pMergeType, $pTimeZone, false);
 	}
 	
 	public function fromPublicFlattenedArray($pRow, $pMergeType = self::MERGE, $pTimeZone = null) {
-		return $this->fromFlattenedArray($pRow, false, false, $pMergeType, $pTimeZone);
+		return $this->fromFlattenedArray($pRow, false, false, $pMergeType, $pTimeZone, true);
 	}
 	
 	public function fromPrivateFlattenedArray($pRow, $pMergeType = self::MERGE, $pTimeZone = null) {
-		return $this->fromFlattenedArray($pRow, true, false, $pMergeType, $pTimeZone);
+		return $this->fromFlattenedArray($pRow, true, false, $pMergeType, $pTimeZone, true);
 	}
 	
-	public function fromFlattenedArray(array $pRow, $pPrivate = false, $pUseSerializationName = false, $pMergeType = self::MERGE, $pTimeZone = null) {
+	public function fromFlattenedArray(array $pRow, $pPrivate = false, $pUseSerializationName = false, $pMergeType = self::MERGE, $pTimeZone = null, $pFlagAsUpdated = true) {
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 		
 		switch ($pMergeType) {
 			case self::MERGE:
-				$lObject = $this->_fromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
+				$lObject = $this->_fromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null);
 				break;
 			case self::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, null);
+				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, null);
 				$lObject->resetValues();
-				$this->_fillObjectFromFlattenedArray($lObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, new ObjectCollection());
+				$this->_fillObjectFromFlattenedArray($lObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, new ObjectCollection());
 				break;
 			case self::NO_MERGE:
 				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName), $this->mModelName);
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lExistingObject);
 				}
-				$lObject = $this->_fromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, null);
+				$lObject = $this->_fromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null);
 				
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lObject);
@@ -201,16 +205,16 @@ class MainModel extends Model {
 		
 		switch ($pMergeType) {
 			case self::MERGE:
-				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, true, true, null, false, false);
+				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, true, true, false, null, false, false);
 				break;
 			case self::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, true, true, null, false, false);
+				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, true, true, false, null, false, false);
 				$lObject->resetValues();
-				$this->_fillObjectwithId($lObject, $this->getIdFromFlattenedArray($pRow, true, true));
+				$this->_fillObjectwithId($lObject, $this->getIdFromFlattenedArray($pRow, true, true), false);
 				$lObject->setUnLoadStatus();
 				break;
 			case self::NO_MERGE:
-				$lObject = $this->_buildObjectFromId($this->getIdFromFlattenedArray($pRow, true, true), false);
+				$lObject = $this->_buildObjectFromId($this->getIdFromFlattenedArray($pRow, true, true), false, false);
 				break;
 			default:
 				throw new \Exception('undefined merge type '.$pMergeType);
@@ -219,78 +223,78 @@ class MainModel extends Model {
 	}
 	
 	public function fillObjectFromSerializedStdObject(Object $pObject, $pStdObject, $pTimeZone = null) {
-		$this->fillObjectFromStdObject($pObject, $pStdObject, true, true, $pTimeZone);
+		$this->fillObjectFromStdObject($pObject, $pStdObject, true, true, $pTimeZone, true, false);
 	}
 	
 	public function fillObjectFromPublicStdObject(Object $pObject, $pStdObject, $pTimeZone = null) {
-		$this->fillObjectFromStdObject($pObject, $pStdObject, false, false, $pTimeZone);
+		$this->fillObjectFromStdObject($pObject, $pStdObject, false, false, $pTimeZone, true, true);
 	}
 	
 	public function fillObjectFromPrivateStdObject(Object $pObject, $pStdObject, $pTimeZone = null) {
-		$this->fillObjectFromStdObject($pObject, $pStdObject, true, false, $pTimeZone);
+		$this->fillObjectFromStdObject($pObject, $pStdObject, true, false, $pTimeZone, true, true);
 	}
 	
-	public function fillObjectFromStdObject(Object $pObject, $pStdObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true) {
+	public function fillObjectFromStdObject(Object $pObject, $pStdObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
 		$this->load();
-		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromStdObject($pStdObject, $pPrivate, $pUseSerializationName));
+		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromStdObject($pStdObject, $pPrivate, $pUseSerializationName), $pFlagAsUpdated);
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 		
 		MainObjectCollection::getInstance()->addObject($pObject, false);
-		$this->_fillObjectFromStdObject($pObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, $this->_loadLocalObjectCollection($pObject));
+		$this->_fillObjectFromStdObject($pObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, $this->_loadLocalObjectCollection($pObject));
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
 	}
 	
 	public function fillObjectFromSerializedXml(Object $pObject, $pXml, $pTimeZone = null) {
-		$this->fillObjectFromXml($pObject, $pXml, true, true, $pTimeZone);
+		$this->fillObjectFromXml($pObject, $pXml, true, true, $pTimeZone, true, false);
 	}
 	
 	public function fillObjectFromPublicXml(Object $pObject, $pXml, $pTimeZone = null) {
-		$this->fillObjectFromXml($pObject, $pXml, false, false, $pTimeZone);
+		$this->fillObjectFromXml($pObject, $pXml, false, false, $pTimeZone, true, true);
 	}
 	
 	public function fillObjectFromPrivateXml(Object $pObject, $pXml, $pTimeZone = null) {
-		$this->fillObjectFromXml($pObject, $pXml, true, false, $pTimeZone);
+		$this->fillObjectFromXml($pObject, $pXml, true, false, $pTimeZone, true, true);
 	}
 	
-	public function fillObjectFromXml(Object $pObject, $pXml, $pPrivate, $pUseSerializationName, $pTimeZone = null, $pUpdateLoadStatus = true) {
+	public function fillObjectFromXml(Object $pObject, $pXml, $pPrivate, $pUseSerializationName, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
-		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromXml($pXml, $pPrivate, $pUseSerializationName));
+		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromXml($pXml, $pPrivate, $pUseSerializationName), $pFlagAsUpdated);
 		
 		MainObjectCollection::getInstance()->addObject($pObject, false);
-		$this->_fillObjectFromXml($pObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, $this->_loadLocalObjectCollection($pObject));
+		$this->_fillObjectFromXml($pObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, $this->_loadLocalObjectCollection($pObject));
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
 	}
 	
 	public function fillObjectfromSqlDatabase(Object $pObject, $pRow, $pTimeZone = null) {
-		$this->fillObjectFromFlattenedArray($pObject, $pRow, true, true, $pTimeZone);
+		$this->fillObjectFromFlattenedArray($pObject, $pRow, true, true, $pTimeZone, true, false);
 	}
 	
 	public function fillObjectfromPublicFlattenedArray(Object $pObject, $pRow, $pTimeZone = null) {
-		$this->fillObjectFromFlattenedArray($pObject, $pRow, false, false, $pTimeZone);
+		$this->fillObjectFromFlattenedArray($pObject, $pRow, false, false, $pTimeZone, true, true);
 	}
 	
 	public function fillObjectfromPrivateFlattenedArray(Object $pObject, $pRow, $pTimeZone = null) {
-		$this->fillObjectFromFlattenedArray($pObject, $pRow, true, false, $pTimeZone);
+		$this->fillObjectFromFlattenedArray($pObject, $pRow, true, false, $pTimeZone, true, true);
 	}
 	
-	public function fillObjectFromFlattenedArray(Object $pObject, $pRow, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true) {
+	public function fillObjectFromFlattenedArray(Object $pObject, $pRow, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
-		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName));
+		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName), $pFlagAsUpdated);
 		
 		MainObjectCollection::getInstance()->addObject($pObject, false);
-		$this->_fillObjectFromFlattenedArray($pObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, $this->_loadLocalObjectCollection($pObject));
+		$this->_fillObjectFromFlattenedArray($pObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, $this->_loadLocalObjectCollection($pObject));
 		if ($pUpdateLoadStatus) {
 			$pObject->setLoadStatus();
 		}
 	}
 	
-	private function _verifIdBeforeFillObject(Object $pObject, $pId) {
+	private function _verifIdBeforeFillObject(Object $pObject, $pId, $pFlagAsUpdated) {
 		if ($pObject->getModel() !== $this) {
 			throw new \Exception('current model instance must be same instance of object model');
 		}
@@ -298,7 +302,7 @@ class MainModel extends Model {
 			return ;
 		}
 		if (!$pObject->hasCompleteId()) {
-			$this->_fillObjectwithId($pObject, $pId);
+			$this->_fillObjectwithId($pObject, $pId, $pFlagAsUpdated);
 		}
 		if (!$pObject->hasCompleteId()) {
 			return ;
@@ -326,15 +330,15 @@ class MainModel extends Model {
 		}
 	}
 	
-	protected function _toStdObjectId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
-		$lId = parent::_toStdObjectId($pObject, $pPrivate, $pUseSerializationName, $pMainForeignObjects);
+	protected function _toStdObjectId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+		$lId = parent::_toStdObjectId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 		
 		if (is_array($pMainForeignObjects)) {
 			$lValueId   = is_object($lId) ? $lId->id : $lId;
 			$lModelName = $pObject->getModel()->getName();
 			if (!(array_key_exists($lModelName, $pMainForeignObjects) && array_key_exists($lValueId, $pMainForeignObjects[$lModelName]))) {
 				$pMainForeignObjects[$lModelName][$lValueId] = null;
-				$pMainForeignObjects[$lModelName][$lValueId] = $this->_toStdObject($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+				$pMainForeignObjects[$lModelName][$lValueId] = $this->_toStdObject($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pOriginalUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 				if ($pObject->getModel() !== $this) {
 					unset($pMainForeignObjects[$lModelName][$lValueId]->{self::INHERITANCE_KEY});
 				}
@@ -343,15 +347,15 @@ class MainModel extends Model {
 		return $lId;
 	}
 	
-	protected function _toFlattenedValueId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
-		$lId = parent::_toFlattenedValueId($pObject, $pPrivate, $pUseSerializationName, $pMainForeignObjects);
+	protected function _toFlattenedValueId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+		$lId = parent::_toFlattenedValueId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 	
 		if (is_array($pMainForeignObjects)) {
 			$lValueId   = is_array($lId) ? $lId['id'] : $lId;
 			$lModelName = $pObject->getModel()->getName();
 			if (!(array_key_exists($lModelName, $pMainForeignObjects) && array_key_exists($lValueId, $pMainForeignObjects[$lModelName]))) {
 				$pMainForeignObjects[$lModelName][$lValueId] = null;
-				$pMainForeignObjects[$lModelName][$lValueId] = $this->_toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+				$pMainForeignObjects[$lModelName][$lValueId] = $this->_toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pOriginalUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 				if ($pObject->getModel() !== $this) {
 					unset($pMainForeignObjects[$lModelName][$lValueId][self::INHERITANCE_KEY]);
 				}
@@ -360,15 +364,15 @@ class MainModel extends Model {
 		return $lId;
 	}
 	
-	protected function _toXmlId(Object $pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
-		$lId = parent::_toXmlId($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pMainForeignObjects);
+	protected function _toXmlId(Object $pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+		$lId = parent::_toXmlId($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 		
 		if (is_array($pMainForeignObjects)) {
 			$lModelName = $pObject->getModel()->getName();
 			if (!(array_key_exists($lModelName, $pMainForeignObjects) && array_key_exists($lId, $pMainForeignObjects[$lModelName]))) {
 				$lXmlNode = new \SimpleXmlElement("<{$this->getName()}/>");
 				$pMainForeignObjects[$lModelName][$lId] = null;
-				$this->_toXml($pObject, $lXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+				$this->_toXml($pObject, $lXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pOriginalUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 				$pMainForeignObjects[$lModelName][$lId] = $lXmlNode;
 				if ($pObject->getModel() !== $this) {
 					unset($pMainForeignObjects[$lModelName][$lId][self::INHERITANCE_KEY]);
@@ -397,7 +401,7 @@ class MainModel extends Model {
 		$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
 		
 		if (is_null($lMainObject)) {
-			$lMainObject = $this->_buildObjectFromId($pId, false);
+			$lMainObject = $this->_buildObjectFromId($pId, false, false);
 		} else if ($lMainObject->isLoaded() && !$pForceLoad) {
 			return $lMainObject;
 		}
@@ -433,7 +437,7 @@ class MainModel extends Model {
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status
 	 * @return Object
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection = null, $pIsloaded = true, $pUpdateLoadStatus = true) {
+	protected function _getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection = null, $pIsloaded = true, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
 		if (is_null($pInheritanceModelName)) {
 			$lModel = $this;
 		} else {
@@ -458,7 +462,7 @@ class MainModel extends Model {
 		else {
 			$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $lModel->mModelName);
 			if (is_null($lMainObject)) {
-				$lMainObject = $lModel->_buildObjectFromId($pId, $pIsloaded);
+				$lMainObject = $lModel->_buildObjectFromId($pId, $pIsloaded, $pFlagAsUpdated);
 				MainObjectCollection::getInstance()->addObject($lMainObject);
 				//trigger_error("new main $pId, $lModel->mModelName");
 			}

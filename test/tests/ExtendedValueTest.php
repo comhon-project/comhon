@@ -393,19 +393,19 @@ $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[40,50]');
 $lObject->loadValue('mainParentTestDb');
 $lArray = [];
-$lObject->toPrivateStdObject(null, $lArray);
+$lObject->toPrivateStdObject(null, false, $lArray);
 if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}') {
 	var_dump(json_encode($lArray));
 	throw new \Exception('not same foreign objects');
 }
 $lArray = [];
-$lObject->toPrivateFlattenedArray(null, $lArray);
+$lObject->toPrivateFlattenedArray(null, false, $lArray);
 if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}') {
 	var_dump(json_encode($lArray));
 	throw new \Exception('not same foreign objects');
 }
 $lArray = [];
-$lObject->toPrivateXml(null, $lArray);
+$lObject->toPrivateXml(null, false, $lArray);
 $lArrayString = [];
 foreach ($lArray as $lModelName => $plop) {
 	$lArrayString[$lModelName] = [];

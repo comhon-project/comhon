@@ -81,12 +81,12 @@ class ObjectCollection {
 		return false;
 	}
 	
-	public function toStdObject($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null) {
+	public function toStdObject($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false) {
 		$lArray = [];
 		foreach ($this->mMap as $lModelName => $lObjectById) {
 			$lArray[$lModelName] = [];
 			foreach ($lObjectById as $lId => $lObject) {
-				$lArray[$lModelName][$lId] = $lObject->toStdObject($pPrivate, $pUseSerializationName, $pTimeZone);
+				$lArray[$lModelName][$lId] = $lObject->toStdObject($pPrivate, $pUseSerializationName, $pTimeZone, $pUpdatedValueOnly);
 			}
 		}
 		return $lArray;

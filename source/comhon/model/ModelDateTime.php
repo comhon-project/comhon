@@ -2,6 +2,7 @@
 namespace comhon\model;
 
 use comhon\object\config\Config;
+use comhon\object\ComhonDateTime;
 
 class ModelDateTime extends SimpleModel {
 	
@@ -11,27 +12,27 @@ class ModelDateTime extends SimpleModel {
 		$this->mModelName = self::ID;
 	}
 	
-	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		return $this->toString($pValue, $pDateTimeZone);
 	}
 	
-	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection = null) {
+	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
 		return $this->fromString($pValue, $pDateTimeZone);
 	}
 	
-	protected function _toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		return $this->toString($pValue, $pDateTimeZone);
 	}
 	
-	protected function _fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection = null) {
+	protected function _fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
 		return $this->fromString((string) $pValue,$pDateTimeZone);
 	}
 	
-	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		return $this->toString($pValue, $pDateTimeZone);
 	}
 	
-	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection = null) {
+	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
 		return $this->fromString($pValue, $pDateTimeZone);
 	}
 	
@@ -39,17 +40,17 @@ class ModelDateTime extends SimpleModel {
 	 * 
 	 * @param string $pValue
 	 * @param \DateTimeZone $pDateTimeZone
-	 * @return \DateTime
+	 * @return ComhonDateTime
 	 */
 	public function fromString($pValue, \DateTimeZone $pDateTimeZone) {
-		$lDateTime = new \DateTime($pValue, $pDateTimeZone);
+		$lDateTime = new ComhonDateTime($pValue, $pDateTimeZone);
 		if ($lDateTime->getTimezone()->getName() !== $pDateTimeZone->getName()) {
 			$lDateTime->setTimezone($pDateTimeZone);
 		}
 		return $lDateTime;
 	}
 	
-	public function toString(\DateTime $pDateTime, $pDateTimeZone) {
+	public function toString(ComhonDateTime $pDateTime, $pDateTimeZone) {
 		if ($pDateTimeZone->getName() == $pDateTime->getTimezone()->getName()) {
 			return $pDateTime->format('c');
 		}
@@ -65,7 +66,7 @@ class ModelDateTime extends SimpleModel {
 	}
 	
 	public function  isCheckedValueType($pValue) {
-		return $pValue instanceof \DateTime;
+		return $pValue instanceof ComhonDateTime;
 	}
 	
 	public function castValue($pValue) {
@@ -73,7 +74,7 @@ class ModelDateTime extends SimpleModel {
 	}
 	
 	public function verifValue($pValue) {
-		if (!($pValue instanceof \DateTime)) {
+		if (!($pValue instanceof ComhonDateTime)) {
 			$lNodes = debug_backtrace();
 			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
 			throw new \Exception("Argument 2 passed to {$lNodes[1]['class']}::{$lNodes[1]['function']}() must be an instance of dateTime, instance of $lClass given, called in {$lNodes[1]['file']} on line {$lNodes[1]['line']} and defined in {$lNodes[0]['file']}");

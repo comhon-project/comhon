@@ -13,6 +13,7 @@ use comhon\model\ModelForeign;
 use comhon\controller\AggregationLoader;
 use comhon\controller\ForeignObjectLoader;
 use comhon\visitor\ObjectCollectionCreator;
+use comhon\object\ComhonDateTime;
 
 $time_start = microtime(true);
 
@@ -220,6 +221,76 @@ $lObj->setValue('foreignObjectValues', $lObjArray);
 
 if (!ModelManager::getInstance()->hasInstanceModel('sqlTable')) {
 	throw new Exception('model already initialized');
+}
+
+/** **************** test Comhon DateTime ****************** **/
+
+$lDateTime = new ComhonDateTime('now');
+if ($lDateTime->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+
+$lDateTime->add(new DateInterval('P0Y0M0DT5H0M0S'));
+if (!$lDateTime->isUpdated()) {
+	throw new Exception('should be updated');
+}
+$lDateTime->resetUpdatedStatus();
+if ($lDateTime->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+
+$lDateTime->modify('+1 day');
+if (!$lDateTime->isUpdated()) {
+	throw new Exception('should be updated');
+}
+$lDateTime->resetUpdatedStatus();
+if ($lDateTime->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+
+$lDateTime->setDate(2001, 2, 3);
+if (!$lDateTime->isUpdated()) {
+	throw new Exception('should be updated');
+}
+$lDateTime->resetUpdatedStatus();
+if ($lDateTime->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+
+$lDateTime->setISODate(2008, 2);
+if (!$lDateTime->isUpdated()) {
+	throw new Exception('should be updated');
+}
+$lDateTime->resetUpdatedStatus();
+if ($lDateTime->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+
+$lDateTime->setTime(14, 55);
+if (!$lDateTime->isUpdated()) {
+	throw new Exception('should be updated');
+}
+$lDateTime->resetUpdatedStatus();
+if ($lDateTime->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+
+$lDateTime->setTimestamp(1171502725);
+if (!$lDateTime->isUpdated()) {
+	throw new Exception('should be updated');
+}
+$lDateTime->resetUpdatedStatus();
+if ($lDateTime->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+
+$lDateTime->sub(new DateInterval('P10D'));
+if (!$lDateTime->isUpdated()) {
+	throw new Exception('should be updated');
+}
+$lDateTime->resetUpdatedStatus();
+if ($lDateTime->isUpdated()) {
+	throw new Exception('should not be updated');
 }
 
 $time_end = microtime(true);

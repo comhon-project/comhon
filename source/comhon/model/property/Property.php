@@ -9,6 +9,7 @@ use comhon\model\ModelContainer;
 use comhon\model\ModelInteger;
 use comhon\model\ModelFloat;
 use comhon\model\ModelDateTime;
+use comhon\object\ComhonDateTime;
 
 class Property {
 
@@ -99,7 +100,7 @@ class Property {
 	
 	public function getDefaultValue() {
 		if ($this->mModel instanceof ModelDateTime) {
-			return new \DateTime($this->mDefault);
+			return new ComhonDateTime($this->mDefault);
 		}
 		return $this->mDefault;
 	}
@@ -114,6 +115,14 @@ class Property {
 	
 	public function isForeign() {
 		return false;
+	}
+	
+	public function isComplex() {
+		return $this->mModel->isComplex();
+	}
+	
+	public function hasModelDateTime() {
+		return ($this->mModel instanceof ModelDateTime);
 	}
 	
 	/**

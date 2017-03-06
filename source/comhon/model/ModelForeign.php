@@ -13,58 +13,58 @@ class ModelForeign extends ModelContainer {
 		}
 	}
 	
-	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (is_null($pValue)) {
 			return null;
 		}
 		if ($this->getUniqueModel()->hasIdProperties()) {
-			return $this->getModel()->_toStdObjectId($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+			return $this->getModel()->_toStdObjectId($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 		} else {
 			throw new \Exception('foreign property with local model must have id');
 		}
 	}
 	
-	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
+	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
 		if ($this->getUniqueModel()->hasIdProperties()) {
-			return $this->getModel()->_fromStdObjectId($pValue, $pLocalObjectCollection);
+			return $this->getModel()->_fromStdObjectId($pValue, $pFlagAsUpdated, $pLocalObjectCollection);
 		} else {
 			throw new \Exception("foreign property must have model with id ({$this->getName()})");
 		}
 	}
 	
-	protected function _toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (is_null($pValue)) {
 			return;
 		}
 		if ($this->getUniqueModel()->hasIdProperties()) {
-			$this->getModel()->_toXmlId($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+			$this->getModel()->_toXmlId($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 		} else {
 			throw new \Exception('foreign property with local model must have id');
 		}
 	}
 	
-	protected function _fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
+	protected function _fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
 		if ($this->getUniqueModel()->hasIdProperties()) {
-			return $this->getModel()->_fromXmlId($pValue, $pLocalObjectCollection);
+			return $this->getModel()->_fromXmlId($pValue, $pFlagAsUpdated, $pLocalObjectCollection);
 		} else {
 			throw new \Exception('foreign property must have id');
 		}
 	}
 	
-	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (is_null($pValue)) {
 			return null;
 		}
 		if ($this->getUniqueModel()->hasIdProperties()) {
-			return $this->getModel()->_toFlattenedValueId($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+			return $this->getModel()->_toFlattenedValueId($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 		} else {
 			throw new \Exception('foreign property with local model must have id');
 		}
 	}
 	
-	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
+	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
 		if ($this->getUniqueModel()->hasIdProperties()) {
-			return $this->getModel()->_fromFlattenedValueId($pValue, $pLocalObjectCollection);
+			return $this->getModel()->_fromFlattenedValueId($pValue, $pFlagAsUpdated, $pLocalObjectCollection);
 		} else {
 			throw new \Exception('foreign property must have id');
 		}

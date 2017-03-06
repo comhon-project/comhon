@@ -23,7 +23,43 @@ $lTestDb = $lDbTestModel->loadObject('[1,"50"]');
 $lMainParentTestDb = $lTestDb->getValue('mainParentTestDb');
 $lObject = $lTestDb->getValue('object');
 $lObjectId = $lTestDb->getValue('objectWithId');
+
+if ($lTestDb->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lTestDb->isIdUpdated()) {
+	throw new Exception('id should not be updated');
+}
+if (json_encode($lTestDb->getUpdatedValues()) !== '[]') {
+	throw new Exception('should not have updated value');
+}
+foreach ($lTestDb->getProperties() as $lProperty) {
+	if ($lTestDb->isUpdatedValue($lProperty->getName())) {
+		throw new Exception('should not have updated value');
+	}
+}
+
 $lTestDb->deleteValue('mainParentTestDb');
+
+if (!$lTestDb->isUpdated()) {
+	throw new Exception('should be updated');
+}
+if ($lTestDb->isIdUpdated()) {
+	throw new Exception('id should not be updated');
+}
+if (json_encode($lTestDb->getUpdatedValues()) !== '{"mainParentTestDb":true}') {
+	throw new Exception('should have updated value');
+}
+foreach ($lTestDb->getProperties() as $lProperty) {
+	if ($lProperty->getName() == 'mainParentTestDb') {
+		if (!$lTestDb->isUpdatedValue($lProperty->getName())) {
+			throw new Exception('should be updated value');
+		}
+	}
+	else if ($lTestDb->isUpdatedValue($lProperty->getName())) {
+		throw new Exception('should not be updated value');
+	}
+}
 
 $lTestDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
 if (is_null($lTestDbFromCollection) || $lTestDbFromCollection !== $lTestDb) {
@@ -47,6 +83,26 @@ if ($lTestDb !== $lTestDb2 || !is_null($lMainParentTestDb2) || $lObject !== $lOb
 	throw new \Exception(' not same object');
 }
 
+if (!$lTestDb->isUpdated()) {
+	throw new Exception('should be updated');
+}
+if ($lTestDb->isIdUpdated()) {
+	throw new Exception('id should not be updated');
+}
+if (json_encode($lTestDb->getUpdatedValues()) !== '{"mainParentTestDb":true}') {
+	throw new Exception('should have updated value');
+}
+foreach ($lTestDb->getProperties() as $lProperty) {
+	if ($lProperty->getName() == 'mainParentTestDb') {
+		if (!$lTestDb->isUpdatedValue($lProperty->getName())) {
+			throw new Exception('should be updated value');
+		}
+	}
+	else if ($lTestDb->isUpdatedValue($lProperty->getName())) {
+		throw new Exception('should not be updated value');
+	}
+}
+
 /** ****************************** test load existing value and force to reload ****************************** **/
 
 $lTestDb3 = $lDbTestModel->loadObject('["1","50"]', true);
@@ -59,9 +115,24 @@ if (is_null($lTestDbFromCollection) || $lTestDbFromCollection !== $lTestDb) {
 	throw new Exception('object loaded different than object in ObjectCollection');
 }
 
-// $lTestDb3 must be same instance than $lTestDb with resoted 'mainParentTestDb' and not same instance of 'object' due to database reload
+// $lTestDb3 must be same instance than $lTestDb with restored 'mainParentTestDb' and not same instance of 'object' due to database reload
 if ($lTestDb !== $lTestDb3 || $lMainParentTestDb !== $lMainParentTestDb3 || $lObject === $lObject3 || $lObjectId !== $lObjectId3) {
 	throw new \Exception(' not same object');
+}
+
+if ($lTestDb->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lTestDb->isIdUpdated()) {
+	throw new Exception('id should not be updated');
+}
+if (json_encode($lTestDb->getUpdatedValues()) !== '[]') {
+	throw new Exception('should not have updated value');
+}
+foreach ($lTestDb->getProperties() as $lProperty) {
+	if ($lTestDb->isUpdatedValue($lProperty->getName())) {
+		throw new Exception('should not be updated value');
+	}
 }
 
 /** ****************************** test foreign value ****************************** **/
@@ -77,8 +148,36 @@ if (!$lMainParentTestDb->isLoaded()) {
 	throw new Exception('foreign value must be loaded');
 }
 
+if ($lTestDb->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lMainParentTestDb->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lMainParentTestDb->isIdUpdated()) {
+	throw new Exception('id should not be updated');
+}
+if (json_encode($lMainParentTestDb->getUpdatedValues()) !== '[]') {
+	throw new Exception('should not have updated value');
+}
+foreach ($lMainParentTestDb->getProperties() as $lProperty) {
+	if ($lMainParentTestDb->isUpdatedValue($lProperty->getName())) {
+		throw new Exception('should not be updated value');
+	}
+}
+
 $lId = $lMainParentTestDb->getId();
 $lMainParentTestDb->deleteValue('id');
+
+if (json_encode($lMainParentTestDb->getUpdatedValues()) !== '{"id":true}') {
+	throw new Exception('should have id updated value');
+}
+if (!$lMainParentTestDb->isIdUpdated()) {
+	throw new Exception('id should be updated');
+}
+if (!$lTestDb->isUpdated()) {
+	throw new Exception('should be updated');
+}
 
 try {
 	$lTestDb->toStdObject();
@@ -90,8 +189,46 @@ if ($lThrow) {
 	throw new Exception('should not export foreign object without complete id');
 }
 
-$lId = $lMainParentTestDb->setId($lId);
+$lMainParentTestDb->setId($lId);
 $lTestDb->toStdObject();
+
+if (!$lTestDb->isUpdated()) {
+	throw new Exception('should be updated');
+}
+if (!$lTestDb->isUpdatedValue('mainParentTestDb')) {
+	throw new Exception('should be updated');
+}
+if ($lTestDb->isValueFlagedAsUpdated('mainParentTestDb')) {
+	throw new Exception('should not be flaged as updated');
+}
+if (!$lMainParentTestDb->isUpdated()) {
+	throw new Exception('should be updated');
+}
+if (!$lMainParentTestDb->isIdUpdated()) {
+	throw new Exception('id should be updated');
+}
+if (json_encode($lMainParentTestDb->getUpdatedValues()) !== '{"id":false}') {
+	throw new Exception('should have id updated value');
+}
+foreach ($lMainParentTestDb->getProperties() as $lProperty) {
+	if ($lProperty->getName() == 'id') {
+		if (!$lMainParentTestDb->isUpdatedValue($lProperty->getName())) {
+			throw new Exception('should be updated value');
+		}
+	}
+	else if ($lMainParentTestDb->isUpdatedValue($lProperty->getName())) {
+		throw new Exception('should not be updated value');
+	}
+}
+
+$lMainParentTestDb->resetUpdatedStatus();
+
+if ($lMainParentTestDb->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lTestDb->isUpdated()) {
+	throw new Exception('should not be updated');
+}
 
 /** ****************************** test load ids aggregation value ****************************** **/
 
@@ -115,6 +252,21 @@ if (!$lMainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
 }
 if (count($lMainParentTestDb->getValue('childrenTestDb')->getValues()) != 6) {
 	throw new Exception('bad children count : '.count($lMainParentTestDb->getValue('childrenTestDb')->getValues()));
+}
+if ($lMainParentTestDb->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lMainParentTestDb->isFlagedAsUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lMainParentTestDb->getValue('childrenTestDb')->isFlagedAsUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lMainParentTestDb->getValue('childrenTestDb')->isIdUpdated()) {
+	throw new Exception('id should not be updated');
+}
+if ($lMainParentTestDb->getValue('childrenTestDb')->isUpdated()) {
+	throw new Exception('should not be updated');
 }
 
 foreach ($lMainParentTestDb->getValue('childrenTestDb')->getValues() as $lValue) {
@@ -225,7 +377,7 @@ $lTest->getValue('enumIntArray')->setValue(0, 1);
 $lTest->getValue('enumIntArray')->setValue(1, 3);
 $lTest->getValue('enumFloatArray')->pushValue(1.5);
 $lTest->getValue('enumFloatArray')->pushValue(3.5);
-$lTest->getValue('enumFloatArray')->pushValue(4.5, false);
+$lTest->getValue('enumFloatArray')->pushValue(4.5, true, false);
 
 /** ****************************** test import with no merge and reference to root object ****************************** **/
 

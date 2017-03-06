@@ -87,7 +87,9 @@ abstract class SerializationUnit {
 		if (!is_null($pOperation) && ($pOperation !== self::CREATE) && ($pOperation !== self::UPDATE)) {
 			throw new \Exception("operation '$pOperation' not recognized");
 		}
-		return $this->_saveObject($pObject, $pOperation);
+		$lResult = $this->_saveObject($pObject, $pOperation);
+		$pObject->resetUpdatedStatus();
+		return $lResult;
 	}
 	
 	/**

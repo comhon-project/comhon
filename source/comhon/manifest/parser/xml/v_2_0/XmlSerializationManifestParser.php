@@ -55,7 +55,7 @@ class XmlSerializationManifestParser extends ParentXmlSerializationManifestParse
 		if (isset($pSerializationNode->$lType)) {
 			$lObjectXml = $pSerializationNode->$lType;
 			$lSerialization = ModelManager::getInstance()->getInstanceModel($lType)->getObjectInstance();
-			$lSerialization->fromXml($lObjectXml, true, true);
+			$lSerialization->fromSerializedXml($lObjectXml);
 		} else {
 			$lId = (string) $pSerializationNode;
 			if (empty($lId)) {

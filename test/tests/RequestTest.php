@@ -9,155 +9,6 @@ use comhon\object\collection\MainObjectCollection;
 
 $time_start = microtime(true);
 
-$Json = '{
-	"model" : "person",
-	"requestChildren" : true,
-	"loadForeignProperties" : true,
-	"logicalJunction" : {
-		"type" : "conjunction",
-		"literals" : [
-			{
-				"model"    : "person",
-				"property" : "firstName",
-				"operator" : "=",
-				"value"    : ["Paul", "Bernard", null]
-			},
-			{
-				"model"    : "house",
-				"property" : "surface",
-				"operator" : ">",
-				"value"    : 200
-			},
-			{
-				"model"     : "person",
-				"queue"     : {"property" : "children"},
-				"havingLogicalJunction" : {
-					"type" : "conjunction",
-					"literals" : [
-						{
-							"function" : "COUNT",
-							"operator" : ">",
-							"value"    : 1
-						},
-						{
-							"function" : "COUNT",
-							"operator" : "<",
-							"value"    : 3
-						},
-						{
-							"function" : "AVG",
-							"property" : "age",
-							"operator" : ">",
-							"value"    : 3
-						}
-					]
-				}
-			},
-			{
-				"model"     : "person",
-				"queue"     : {
-					"property" : "homes", 
-					"child" : {
-						"property" : "house"
-					}
-				},
-				"havingLiteral" : {
-					"function" : "AVG",
-					"property" : "surface",
-					"operator" : "=",
-					"value"    : 170
-				}
-			}
-		],
-		"logicalJunctions" : [
-			{
-				"type" : "conjunction",
-				"literals" : [
-					{
-						"model"    : "house",
-						"property" : "surface",
-						"operator" : ">",
-						"value"    : 250
-					},
-					{
-						"model"     : "person",
-						"queue"     : {"property" : "homes"},
-						"havingLogicalJunction" : {
-							"type" : "disjunction",
-							"literals" : [
-								{
-									"function" : "COUNT",
-									"operator" : ">=",
-									"value"    : 3
-								},
-								{
-									"function" : "COUNT",
-									"operator" : ">",
-									"value"    : 2
-								}
-							],
-							"logicalJunctions" : [
-								{
-									"type" : "conjunction",
-									"literals" : [
-										{
-											"function" : "COUNT",
-											"operator" : ">=",
-											"value"    : 3
-										},
-										{
-											"function" : "COUNT",
-											"operator" : ">",
-											"value"    : 2
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"model"    : "town",
-						"property" : "name",
-						"operator" : "=",
-						"value"    : "Montpellier"
-					}
-				],
-				"logicalJunctions" : []
-			}
-		]
-	}
-}';
-
-$Json = '{
-	"model" : "testDb",
-	"requestChildren" : false,
-	"loadForeignProperties" : false,
-	"order" : [{"property":"id1", "type":"DESC"}],
-	"logicalJunction" : {
-		"type" : "disjunction",
-		"literals" : [
-			{
-				"model"    : "testDb",
-				"property" : "string",
-				"operator" : "=",
-				"value"    : ["aaaa","cccc","bbbbsdfsdfsdf"]
-			}
-		]
-	}
-}';
-
-/*
-$Json = '{
-	"model" : "person",
-	"requestChildren" : false,
-	"loadForeignProperties" : false,
-	"order" : [{"property":"id", "type":"DESC"}],
-	"logicalJunction" : {
-		"type" : "disjunction",
-		"literals" : []
-	}
-}';*/
-
 
 /** ****************************** test request objects ****************************** **/
 $Json = '{
@@ -233,29 +84,118 @@ foreach ($lResult->result as $lIndex => $lStdObject) {
 	}
 }
 
-/** ****************************** test DateTime/DateTimeZone with database serialization ****************************** **/
+/** *************** test DateTime/DateTimeZone and unserializable value with database serialization ****************** **/
 
 $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 
 $lObject = $lDbTestModel->loadObject('[1,1501774389]');
+$lObject->reorderValues();
 $lObjectJson = $lObject->toPrivateStdObject();
 $lPublicObjectJson = $lObject->toPublicStdObject();
+
+if ($lObject->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lObject->isUpdatedValue('timestamp')) {
+	throw new Exception('should not be updated');
+}
+if ($lObject->getValue('timestamp')->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lObject->save(SqlTable::UPDATE) !== 0) {
+	throw new \Exception('serialization should return 0 because there is no update');
+}
+// update dateTime
 $lObject->getValue('timestamp')->sub(new DateInterval('P0Y0M0DT5H0M0S'));
-$lObject->save(SqlTable::UPDATE);
+if (!$lObject->isUpdated()) {
+	throw new Exception('should be updated');
+}
+if (!$lObject->isUpdatedValue('timestamp')) {
+	throw new Exception('should be updated');
+}
+if (!$lObject->getValue('timestamp')->isUpdated()) {
+	throw new Exception('should be updated');
+}
+
+if ($lObject->save(SqlTable::UPDATE) !== 1) {
+	throw new \Exception('serialization souhld be successfull');
+}
+if ($lObject->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+if ($lObject->isUpdatedValue('timestamp')) {
+	throw new Exception('should not be updated');
+}
+if ($lObject->getValue('timestamp')->isUpdated()) {
+	throw new Exception('should not be updated');
+}
+
+foreach ($lObject->getValues() as $lName => $lValue) {
+	$lObject->flagValueAsUpdated($lName);
+}
+if ($lObject->save(SqlTable::UPDATE) !== 0) {
+	throw new \Exception('serialization should return 0 because there is no update IN database');
+}
+if ($lObject->isUpdated()) {
+	throw new Exception('should not be flaged as updated after save');
+}
+if (count($lObject->getUpdatedValues()) !== 0) {
+	throw new Exception('should not have updated values after save');
+}
 
 $lObject = $lDbTestModel->loadObject('[1,1501774389]', true);
 $lObject->getValue('timestamp')->add(new DateInterval('P0Y0M0DT5H0M0S'));
 $lObject->setValue('notSerializedValue', 'azezaeaze');
 $lObject->setValue('notSerializedForeignObject', $lObject->getValue('lonelyForeignObject'));
-$lObject->save(SqlTable::UPDATE);
+foreach ($lObject->getValues() as $lName => $lValue) {
+	$lObject->flagValueAsUpdated($lName);
+}
+if ($lObject->save(SqlTable::UPDATE) !== 1) {
+	throw new \Exception('serialization souhld be successfull');
+}
+if ($lObject->isUpdated()) {
+	throw new Exception('should not be flaged as updated after save');
+}
+if (count($lObject->getUpdatedValues()) !== 0) {
+	throw new Exception('should not have updated values after save');
+}
 
 $lObject->deleteValue('notSerializedValue');
 $lObject->deleteValue('notSerializedForeignObject');
+$lObject->resetUpdatedStatus();
 
 $lObject = $lDbTestModel->loadObject('[1,1501774389]', true);
 
 if (json_encode($lObject->toPrivateStdObject()) !== json_encode($lObjectJson)) {
 	throw new Exception('bad object');
+}
+
+/** ************************* test deleted values with database serialization ************************ **/
+
+$lValue = $lObject->getValue('integer');
+$lObject->deleteValue('integer');
+
+$lObject->save(SqlTable::UPDATE);
+if ($lObject->isUpdated()) {
+	throw new Exception('should not be flaged as updated after save');
+}
+if (count($lObject->getUpdatedValues()) !== 0) {
+	throw new Exception('should not have updated values after save');
+}
+
+$lObject = $lDbTestModel->loadObject('[1,1501774389]', true);
+if ($lObject->hasValue('integer')) {
+	throw new Exception('should not have updated values after save');
+}
+$lObject->setValue('integer', $lValue);
+$lObject->reorderValues();
+
+$lObject->save(SqlTable::UPDATE);
+if ($lObject->isUpdated()) {
+	throw new Exception('should not be flaged as updated after save');
+}
+if (count($lObject->getUpdatedValues()) !== 0) {
+	throw new Exception('should not have updated values after save');
 }
 
 /** ****************************** test simple load request api ****************************** **/

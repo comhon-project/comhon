@@ -38,7 +38,7 @@ class LocalModel extends Model {
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status 
 	 * @return Object
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
+	protected function _getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
 		if (is_null($pInheritanceModelName)) {
 			$lModel = $this;
 		} else {
@@ -55,7 +55,7 @@ class LocalModel extends Model {
 		else {
 			$lObject = $pLocalObjectCollection->getObject($pId, $lModel->mModelName);
 			if (is_null($lObject)) {
-				$lObject = $lModel->_buildObjectFromId($pId, $pIsloaded);
+				$lObject = $lModel->_buildObjectFromId($pId, $pIsloaded, $pFlagAsUpdated);
 				if (!is_null($pId)) {
 					$pLocalObjectCollection->addObject($lObject);
 					//trigger_error("add local $pId, $lModel->mModelName, {$lModel->mMainModel->getName()}");

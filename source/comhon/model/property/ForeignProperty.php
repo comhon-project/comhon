@@ -46,6 +46,10 @@ class ForeignProperty extends Property {
 		return true;
 	}
 	
+	public function isComplex() {
+		return true;
+	}
+	
 	/**
 	 * verify if property is interfaceable for export/import in public/private/serialization mode
 	 * @param boolean $pPrivate if true private mode, otherwise public mode

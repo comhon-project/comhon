@@ -4,6 +4,7 @@ namespace comhon\object;
 use comhon\model\property\ForeignProperty;
 use comhon\model\MainModel;
 use comhon\model\Model;
+use comhon\model\ModelDateTime;
 
 class ObjectArray extends Object {
 
@@ -26,11 +27,93 @@ class ObjectArray extends Object {
 		$this->_setValues($pValues);
 	}
 	
-	public final function pushValue($pValue, $pStrict = true) {
+	public final function pushValue($pValue, $pFlagAsUpdated = true, $pStrict = true) {
 		if ($pStrict && !is_null($pValue)) {
 			$this->getModel()->getModel()->verifValue($pValue);
 		}
-		$this->_pushValue($pValue);
+		$this->_pushValue($pValue, $pFlagAsUpdated);
+	}
+	
+	public function resetUpdatedStatus($pRecursive = true) {
+		$this->mIsUpdated = false;
+		$this->mUpdatedValues = [];
+		if ($this->getModel()->getModel() instanceof ModelDateTime) {
+			foreach ($this->getValues() as $lValue) {
+				if ($lValue instanceof ComhonDateTime) {
+					$lValue->resetUpdatedStatus();
+				}
+			}
+		}
+		else if ($pRecursive && $this->getModel()->getModel()->isComplex()) {
+			foreach ($this->getValues() as $lValue) {
+				if ($lValue instanceof Object) {
+					$lValue->resetUpdatedStatus();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * verify if at least one value has been updated
+	 * @return boolean
+	 */
+	public function isUpdated() {
+		if (!$this->mIsUpdated) {
+			if ($this->getModel()->getModel()->isComplex()) {
+				foreach ($this->getValues() as $lValue) {
+					if (($lValue instanceof Object) && $lValue->isUpdated()) {
+						return true;
+					}
+				}
+			}
+			else if ($this->getModel()->getModel() instanceof ModelDateTime) {
+				foreach ($this->getValues() as $lValue) {
+					if (($lValue instanceof ComhonDateTime) && $lValue->isUpdated()) {
+						return true;
+					}
+				}
+			}
+		}
+		return $this->mIsUpdated;
+	}
+	
+	/**
+	 * verify if at least one value has been updated
+	 * @return boolean
+	 */
+	public function isIdUpdated() {
+		if (!$this->mIsUpdated && $this->getModel()->getModel()->isComplex()) {
+			foreach ($this->getValues() as $lValue) {
+				if (($lValue instanceof Object) && $lValue->isIdUpdated()) {
+					return true;
+				}
+			}
+		}
+		return $this->mIsUpdated;
+	}
+	
+	/**
+	 * verify if a value has been updated
+	 * only works for object that have a model insance of MainModel, otherwise false will be return
+	 * @param string $pPropertyName
+	 * @return boolean
+	 */
+	public function isUpdatedValue($pKey) {
+		if (!$this->mIsUpdated) {
+			if ($this->getModel()->getModel()->isComplex()) {
+				$lValue = $this->getValue($pKey);
+				if (($lValue instanceof Object) && $lValue->isUpdated()) {
+					return true;
+				}
+			}
+			else if ($this->getModel()->getModel() instanceof ModelDateTime) {
+				$lValue = $this->getValue($pKey);
+				if (($lValue instanceof ComhonDateTime) && $lValue->isUpdated()) {
+					return true;
+				}
+			}
+		}
+		return $this->mIsUpdated;
 	}
 	
 	public function fromSqlDatabaseId($pRows, $pTimeZone = null, $pUpdateLoadStatus = true) {
@@ -39,7 +122,7 @@ class ObjectArray extends Object {
 		}
 		$this->resetValues();
 		foreach ($pRows as $lRow) {
-			$this->pushValue($this->getModel()->getModel()->fromSqlDatabaseId($lRow));
+			$this->pushValue($this->getModel()->getModel()->fromSqlDatabaseId($lRow), false);
 		}
 		if ($pUpdateLoadStatus) {
 			$this->setLoadStatus();

@@ -83,7 +83,7 @@ if ($lObject->getValue('parentTestDb') !== $lParentObject) {
 
 /******************************************** load aggregation ******************************************/
 
-$lParentObject->initValue('childrenTestDb', false);
+$lParentObject->initValue('childrenTestDb', false, false);
 $lParentObject->loadValue('childrenTestDb');
 
 if (json_encode($lParentObject->getValue('childrenTestDb')->toPrivateStdObject()) !== '[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]') {
@@ -121,13 +121,33 @@ if ($lResult[0][0] !== '3') {
 if ($lObject->save() !== 0) {
 	throw new \Exception('serialization souhld return 0 because there is no update');
 }
+if ($lObject->isUpdated()) {
+	throw new Exception('should not be flaged as updated after save');
+}
+if (count($lObject->getUpdatedValues()) !== 0) {
+	throw new Exception('should not have updated values after save');
+}
+
 $lObject->setValue('name', 'hehe');
 if ($lObject->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
+if ($lObject->isUpdated()) {
+	throw new Exception('should not be flaged as updated after save');
+}
+if (count($lObject->getUpdatedValues()) !== 0) {
+	throw new Exception('should not have updated values after save');
+}
+
 $lObject->setValue('name', 'plop');
 if ($lObject->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
+}
+if ($lObject->isUpdated()) {
+	throw new Exception('should not be flaged as updated after save');
+}
+if (count($lObject->getUpdatedValues()) !== 0) {
+	throw new Exception('should not have updated values after save');
 }
 
 $lStatement = $lDbHandler->executeSimpleQuery('select count(*) from child_test');

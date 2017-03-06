@@ -248,7 +248,7 @@ class SqlTable extends SerializationUnit {
 		if (($lAffectedRows > 0) && !empty($lAutoIncrementProperties)) {
 			if ($this->mDbController->isSupportedLastInsertId()) {
 				$lIncrementalValue = $pObject->getProperty($lAutoIncrementProperties[0])->getModel()->castValue($this->mDbController->lastInsertId());
-				$pObject->setValue($lAutoIncrementProperties[0], $lIncrementalValue);
+				$pObject->setValue($lAutoIncrementProperties[0], $lIncrementalValue, false);
 			} else {
 				// TODO manage sequence with return value
 			}
@@ -295,9 +295,12 @@ class SqlTable extends SerializationUnit {
 		$lUpdateValues     = [];
 		$lConditionsValues = [];
 
-		$lMapOfString = $pObject->toSqlDatabase(self::getDatabaseConnectionTimeZone());
-		if (!is_null($this->getInheritanceKey())) {
-			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getName();
+		$lMapOfString = $pObject->toSqlDatabase(self::getDatabaseConnectionTimeZone(), true);
+		foreach ($pObject->getDeletedValues() as $lPropertyName) {
+			$lProperty = $lModel->getProperty($lPropertyName);
+			if (!$lProperty->isId() && !$lProperty->isAggregation()) {
+				$lMapOfString[$lProperty->getSerializationName()] = null;
+			}
 		}
 		
 		foreach ($pObject->getModel()->getIdProperties() as $lIdPropertyName => $lIdProperty) {
@@ -309,6 +312,12 @@ class SqlTable extends SerializationUnit {
 			unset($lMapOfString[$lColumn]);
 			$lConditions[]       = "$lColumn = ?";
 			$lConditionsValues[] = $lValue;
+		}
+		if (empty($lMapOfString) && !$pObject->isCasted()) {
+			return 0;
+		}
+		if (!is_null($this->getInheritanceKey())) {
+			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getName();
 		}
 		$lColumnsToEscape = self::$sColumnsToEscape[$this->mTableId];
 		foreach ($lMapOfString as $lColumn => $lValue) {

@@ -10,6 +10,7 @@ use comhon\object\config\Config;
 use comhon\model\property\Property;
 use comhon\model\property\ForeignProperty;
 use comhon\model\property\AggregationProperty;
+use comhon\object\ComhonDateTime;
 
 abstract class Model {
 
@@ -35,6 +36,8 @@ abstract class Model {
 	private $mPublicSerializableProperties = [];
 	private $mPropertiesWithDefaultValues = [];
 	private $mMultipleForeignProperties = [];
+	private $mComplexProperties = [];
+	private $mDateTimeProperties = [];
 	private $mUniqueIdProperty;
 	private $mHasPrivateIdProperty;
 	
@@ -113,9 +116,9 @@ abstract class Model {
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status
 	 * @throws \Exception
 	 */
-	protected function _getOrCreateObjectInstanceFromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
+	protected function _getOrCreateObjectInstanceFromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		$lInheritanceModelName = isset($pStdObject->{self::INHERITANCE_KEY}) ? $pStdObject->{self::INHERITANCE_KEY} : null;
-		return $this->_getOrCreateObjectInstance($this->getIdFromStdObject($pStdObject, $pPrivate, $pUseSerializationName), $lInheritanceModelName, $pLocalObjectCollection, $pIsloaded, $pUpdateLoadStatus);
+		return $this->_getOrCreateObjectInstance($this->getIdFromStdObject($pStdObject, $pPrivate, $pUseSerializationName), $lInheritanceModelName, $pLocalObjectCollection, $pIsloaded, $pUpdateLoadStatus, $pFlagAsUpdated);
 	}
 	
 	/**
@@ -128,9 +131,9 @@ abstract class Model {
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status
 	 * @throws \Exception
 	 */
-	protected function _getOrCreateObjectInstanceFromXml($pXml, $pPrivate, $pUseSerializationName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
+	protected function _getOrCreateObjectInstanceFromXml($pXml, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		$lInheritanceModelName = isset($pXml[self::INHERITANCE_KEY]) ? (string) $pXml[self::INHERITANCE_KEY] : null;
-		return $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml, $pPrivate, $pUseSerializationName), $lInheritanceModelName, $pLocalObjectCollection, $pIsloaded, $pUpdateLoadStatus);
+		return $this->_getOrCreateObjectInstance($this->getIdFromXml($pXml, $pPrivate, $pUseSerializationName), $lInheritanceModelName, $pLocalObjectCollection, $pIsloaded, $pUpdateLoadStatus, $pFlagAsUpdated);
 	}
 	
 	/**
@@ -143,9 +146,9 @@ abstract class Model {
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status
 	 * @throws \Exception
 	 */
-	protected function _getOrCreateObjectInstanceFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
+	protected function _getOrCreateObjectInstanceFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
 		$lInheritanceModelName = array_key_exists(self::INHERITANCE_KEY, $pRow) ? $pRow[self::INHERITANCE_KEY] : null;
-		return $this->_getOrCreateObjectInstance($this->getIdFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName), $lInheritanceModelName, $pLocalObjectCollection, $pIsloaded, $pUpdateLoadStatus);
+		return $this->_getOrCreateObjectInstance($this->getIdFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName), $lInheritanceModelName, $pLocalObjectCollection, $pIsloaded, $pUpdateLoadStatus, $pFlagAsUpdated);
 	}
 	
 	/**
@@ -157,7 +160,7 @@ abstract class Model {
 	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status 
 	 * @throws \Exception
 	 */
-	protected function _getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true) {
+	protected function _getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel or LocalModel');
 	}
 	
@@ -195,6 +198,14 @@ abstract class Model {
 				return $this->mPublicProperties;
 			}
 		}
+	}
+	
+	public function getComplexProperties() {
+		return $this->mComplexProperties;
+	}
+	
+	public function getDateTimeProperties() {
+		return $this->mDateTimeProperties;
 	}
 	
 	/**
@@ -287,6 +298,12 @@ abstract class Model {
 				}
 				if (!$lProperty->isPrivate()) {
 					$this->mPublicProperties[$lProperty->getName()] = $lProperty;
+				}
+				if ($lProperty->isComplex()) {
+					$this->mComplexProperties[$lProperty->getName()] = $lProperty;
+				}
+				if ($lProperty->hasModelDateTime()) {
+					$this->mDateTimeProperties[$lProperty->getName()] = $lProperty;
 				}
 				$this->mProperties[$lProperty->getName()] = $lProperty;
 			}
@@ -384,6 +401,10 @@ abstract class Model {
 		return $this->mIsLoaded;
 	}
 	
+	public function isComplex() {
+		return true;
+	}
+	
 	/**
 	 * @return null
 	 */
@@ -392,6 +413,10 @@ abstract class Model {
 	}
 	
 	public function hasSerializationUnit($pSerializationType) {
+		return false;
+	}
+	
+	public function hasPartialSerialization() {
 		return false;
 	}
 	
@@ -471,16 +496,16 @@ abstract class Model {
 	 * but you can export them by spsifying an array in third parameter
 	 * @return NULL|\stdClass
 	 */
-	public function toStdObject(Object $pObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+	public function toStdObject(Object $pObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
 		self::$sInstanceObjectHash = [];
 		$this->_addMainCurrentObject($pObject, $pMainForeignObjects);
-		$lStdObject = $this->_toStdObject($pObject, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
+		$lStdObject = $this->_toStdObject($pObject, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pUpdatedValueOnly, $pUpdatedValueOnly, $pMainForeignObjects);
 		$this->_removeMainCurrentObject($pObject, $pMainForeignObjects);
 		self::$sInstanceObjectHash = [];
 		return $lStdObject;
 	}
 		
-	protected function _toStdObject(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toStdObject(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		$lReturn = new \stdClass();
 		if (is_null($pObject)) {
 			return null;
@@ -488,7 +513,7 @@ abstract class Model {
 		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
 				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getName()}' can't be exported");
-				return $this->_toStdObjectId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone);
+				return $this->_toStdObjectId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly);
 			}
 		} else {
 			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
@@ -498,14 +523,14 @@ abstract class Model {
 		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
 			if (array_key_exists($lPropertyName, $lProperties)) {
 				$lProperty = $lProperties[$lPropertyName];
-				if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
+				if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName) && (!$pUpdatedValueOnly || $lProperty->isId() || $pObject->isUpdatedValue($lPropertyName))) {
 					if ($pUseSerializationName) {
-						$lReturn->{$lProperty->getSerializationName()} = $lProperty->getModel()->_toStdObject($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+						$lReturn->{$lProperty->getSerializationName()} = $lProperty->getModel()->_toStdObject($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 					} else {
-						$lReturn->$lPropertyName = $lProperty->getModel()->_toStdObject($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+						$lReturn->$lPropertyName = $lProperty->getModel()->_toStdObject($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 					}
 				} else if ($lProperty->isForeign() && is_array($pMainForeignObjects)) {
-					$lProperty->getModel()->_toStdObject($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+					$lProperty->getModel()->_toStdObject($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 				}
 			}
 		}
@@ -513,9 +538,11 @@ abstract class Model {
 			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
 				if ($pObject->hasValue($lPropertyName) && ($pObject->getValue($lPropertyName) instanceof Object)) {
 					foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-						$lReturn->$lSerializationName = $lIdProperty->getModel()->_toStdObject(
-							$pObject->getValue($lPropertyName)->getValue($lIdProperty->getName()), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects
-						);
+						if (!$pUpdatedValueOnly || $pObject->getValue($lPropertyName)->isUpdatedValue($lIdProperty->getName())) {
+							$lReturn->$lSerializationName = $lIdProperty->getModel()->_toStdObject(
+								$pObject->getValue($lPropertyName)->getValue($lIdProperty->getName()), $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects
+							);
+						}
 					}
 				}
 			}
@@ -530,7 +557,7 @@ abstract class Model {
 		return $lReturn;
 	}
 	
-	protected function _toStdObjectId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toStdObjectId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if ($pObject->getModel() !== $this) {
 			if (!$pObject->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
@@ -543,23 +570,23 @@ abstract class Model {
 		return $this->_toId($pObject, $pUseSerializationName);
 	}
 	
-	public function toXml(Object $pObject, $pXmlNode, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+	public function toXml(Object $pObject, $pXmlNode, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
 		self::$sInstanceObjectHash = [];
 		$this->_addMainCurrentObject($pObject, $pMainForeignObjects);
-		$lResult = $this->_toXml($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
+		$lResult = $this->_toXml($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pUpdatedValueOnly, $pUpdatedValueOnly, $pMainForeignObjects);
 		$this->_removeMainCurrentObject($pObject, $pMainForeignObjects);
 		self::$sInstanceObjectHash = [];
 		return $lResult;
 	}
 		
-	protected function _toXml(Object $pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toXml(Object $pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (is_null($pObject)) {
 			return null;
 		}
 		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
 				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getName()}' can't be exported");
-				$this->_toXmlId($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone);
+				$this->_toXmlId($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly);
 				return;
 			}
 		} else {
@@ -570,22 +597,22 @@ abstract class Model {
 		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
 			if (array_key_exists($lPropertyName, $lProperties)) {
 				$lProperty = $lProperties[$lPropertyName];
-				if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName) && !is_null($lValue)) {
+				if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName) && !is_null($lValue) && (!$pUpdatedValueOnly || $lProperty->isId() || $pObject->isUpdatedValue($lPropertyName))) {
 					$lName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
 					if ($lProperty->isInterfacedAsNodeXml()) {
 						if (($lProperty->getModel() instanceof SimpleModel) || ($lProperty->getModel() instanceof ModelEnum)) {
-							$lValue = $lProperty->getModel()->_toXml($lValue, null, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+							$lValue = $lProperty->getModel()->_toXml($lValue, null, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 							$pXmlChildNode = $pXmlNode->addChild($lName, $lValue);
 						} else {
 							$pXmlChildNode = $pXmlNode->addChild($lName);
-							$lProperty->getModel()->_toXml($lValue, $pXmlChildNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+							$lProperty->getModel()->_toXml($lValue, $pXmlChildNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 						}
 					} else {
-						$pXmlNode[$lName] = $lProperty->getModel()->_toXml($lValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+						$pXmlNode[$lName] = $lProperty->getModel()->_toXml($lValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 					}
 				} else if ($lProperty->isForeign() && is_array($pMainForeignObjects)) {
-					$pXmlChildNode = new SimpleXMLElement('<root/>');
-					$lProperty->getModel()->_toXml($lValue, $pXmlChildNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+					$pXmlChildNode = new \SimpleXMLElement('<root/>');
+					$lProperty->getModel()->_toXml($lValue, $pXmlChildNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 				}
 			}
 		}
@@ -593,9 +620,11 @@ abstract class Model {
 			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
 				if ($pObject->hasValue($lPropertyName) && ($pObject->getValue($lPropertyName) instanceof Object)) {
 					foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-						$pXmlNode[$lSerializationName] = $lIdProperty->getModel()->_toXml(
-							$pObject->getValue($lPropertyName)->getValue($lIdProperty->getName()), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects
-						);
+						if (!$pUpdatedValueOnly || $pObject->getValue($lPropertyName)->isUpdatedValue($lIdProperty->getName())) {
+							$pXmlNode[$lSerializationName] = $lIdProperty->getModel()->_toXml(
+								$pObject->getValue($lPropertyName)->getValue($lIdProperty->getName()), $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects
+							);
+						}
 					}
 				}
 			}
@@ -610,7 +639,7 @@ abstract class Model {
 		return null;
 	}
 	
-	protected function _toXmlId(Object $pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toXmlId(Object $pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		$lDomNode  = dom_import_simplexml($pXmlNode);
 		$lId       = $pObject->getModel()->_toId($pObject, $pUseSerializationName);
 		$lTextNode = new \DOMText($lId);
@@ -624,39 +653,24 @@ abstract class Model {
 		return $lId;
 	}
 	
-	public function toFlattenedArray(Object $pObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, &$pMainForeignObjects = null) {
+	public function toFlattenedArray(Object $pObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
 		self::$sInstanceObjectHash = [];
 		$this->_addMainCurrentObject($pObject, $pMainForeignObjects);
-		$lArray = $this->_toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pMainForeignObjects);
+		$lArray = $this->_toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pUpdatedValueOnly, $pUpdatedValueOnly, $pMainForeignObjects);
 		$this->_removeMainCurrentObject($pObject, $pMainForeignObjects);
 		self::$sInstanceObjectHash = [];
 		return $lArray;
 	}
 	
-	protected function _toFlattenedArray(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
-		$lFlattenedArray = $this->_toFlattenedValue($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
-		foreach ($pObject->getModel()->getProperties() as $lProperty) {
-			$lPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
-			if (isset($lFlattenedArray[$lPropertyName]) && is_array($lFlattenedArray[$lPropertyName])) {
-				if ($lProperty->isForeign() && $lProperty->hasSqlTableUnit()) {
-					$lFlattenedArray[$lPropertyName] = $lFlattenedArray[$lPropertyName]['id'];
-				} else {
-					$lFlattenedArray[$lPropertyName] = json_encode($lFlattenedArray[$lPropertyName]);
-				}
-			}
-		}
-		return $lFlattenedArray;
-	}
-	
-	protected function _toFlattenedValue(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
-		$lReturn = [];
+	protected function _toFlattenedArray(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+		$lFlattenedArray = [];
 		if (is_null($pObject)) {
 			return null;
 		}
 		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
 			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
 				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getName()}' can't be exported");
-				return $this->_toFlattenedValueId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone);
+				return $this->_toFlattenedValueId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly);
 			}
 		} else {
 			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
@@ -666,14 +680,20 @@ abstract class Model {
 		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
 			if (array_key_exists($lPropertyName, $lProperties)) {
 				$lProperty = $lProperties[$lPropertyName];
-				if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
-					if ($pUseSerializationName) {
-						$lReturn[$lProperty->getSerializationName()] = $lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+				if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName) && (!$pUpdatedValueOnly || $lProperty->isId() || $pObject->isUpdatedValue($lPropertyName))) {
+					$lFlattenedValue = $lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
+					$lPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lProperty->getName();
+					if (is_array($lFlattenedValue)) {
+						if ($lProperty->isForeign() && !$lProperty->isAggregation() && $lProperty->hasSqlTableUnit()) {
+							$lFlattenedArray[$lPropertyName] = $lFlattenedValue['id'];
+						} else {
+							$lFlattenedArray[$lPropertyName] = json_encode($lFlattenedValue);
+						}
 					} else {
-						$lReturn[$lPropertyName] = $lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+						$lFlattenedArray[$lPropertyName] = $lFlattenedValue;
 					}
 				} else if ($lProperty->isForeign() && is_array($pMainForeignObjects)) {
-					$lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects);
+					$lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
 				}
 			}
 		}
@@ -681,9 +701,63 @@ abstract class Model {
 			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
 				if ($pObject->hasValue($lPropertyName) && ($pObject->getValue($lPropertyName) instanceof Object)) {
 					foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-						$lReturn[$lSerializationName] = $lIdProperty->getModel()->_toFlattenedValue(
-							$pObject->getValue($lPropertyName)->getValue($lIdProperty->getName()), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pMainForeignObjects
-						);
+						if (!$pUpdatedValueOnly || $pObject->getValue($lPropertyName)->isUpdatedValue($lIdProperty->getName())) {
+							$lFlattenedArray[$lSerializationName] = $lIdProperty->getModel()->_toFlattenedValue(
+								$pObject->getValue($lPropertyName)->getValue($lIdProperty->getName()), $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects
+							);
+						}
+					}
+				}
+			}
+		}
+		if ($pObject->getModel() !== $this) {
+			if (!$pObject->getModel()->isInheritedFrom($this)) {
+				throw new \Exception('object doesn\'t have good model');
+			}
+			$lFlattenedArray[self::INHERITANCE_KEY] = $pObject->getModel()->getName();
+		}
+		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
+		return $lFlattenedArray;
+	}
+	
+	protected function _toFlattenedValue(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+		$lReturn = [];
+		if (is_null($pObject)) {
+			return null;
+		}
+		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
+			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
+				trigger_error("Warning loop detected. Object '{$pObject->getModel()->getName()}' can't be exported");
+				return $this->_toFlattenedValueId($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly);
+			}
+		} else {
+			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
+		}
+		self::$sInstanceObjectHash[spl_object_hash($pObject)]++;
+		$lProperties = $pObject->getModel()->getSpecificProperties($pPrivate, $pUseSerializationName);
+		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
+			if (array_key_exists($lPropertyName, $lProperties)) {
+				$lProperty = $lProperties[$lPropertyName];
+				if ($lProperty->isInterfaceable($pPrivate, $pUseSerializationName) && (!$pUpdatedValueOnly || $lProperty->isId() || $pObject->isUpdatedValue($lPropertyName))) {
+					if ($pUseSerializationName) {
+						$lReturn[$lProperty->getSerializationName()] = $lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
+					} else {
+						$lReturn[$lPropertyName] = $lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
+					}
+				} else if ($lProperty->isForeign() && is_array($pMainForeignObjects)) {
+					$lProperty->getModel()->_toFlattenedValue($lValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
+				}
+			}
+		}
+		if ($pUseSerializationName) {
+			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
+				if ($pObject->hasValue($lPropertyName) && ($pObject->getValue($lPropertyName) instanceof Object)) {
+					foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
+						if (!$pUpdatedValueOnly || $pObject->getValue($lPropertyName)->isUpdatedValue($lIdProperty->getName())) {
+							$lReturn[$lSerializationName] = $lIdProperty->getModel()->_toFlattenedValue(
+								$pObject->getValue($lPropertyName)->getValue($lIdProperty->getName()), $pPrivate, $pUseSerializationName, $pDateTimeZone, false, $pOriginalUpdatedValueOnly, $pMainForeignObjects
+							);
+						}
 					}
 				}
 			}
@@ -698,7 +772,7 @@ abstract class Model {
 		return $lReturn;
 	}
 	
-	protected function _toFlattenedValueId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, &$pMainForeignObjects = null) {
+	protected function _toFlattenedValueId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if ($pObject->getModel() !== $this) {
 			if (!$pObject->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
@@ -718,28 +792,28 @@ abstract class Model {
 		return $pObject->getId();
 	}
 	
-	public function fillObjectFromStdObject(Object $pObject, $pStdObject, $pPrivate = false, $pUseSerializationName = false,  $pTimeZone = null, $pUpdateLoadStatus = true) {
+	public function fillObjectFromStdObject(Object $pObject, $pStdObject, $pPrivate = false, $pUseSerializationName = false,  $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel');
 	}
 	
-	public function fillObjectFromXml(Object $pObject, $pXml, $pPrivate, $pUseSerializationName, $pTimeZone = null, $pUpdateLoadStatus = true) {
+	public function fillObjectFromXml(Object $pObject, $pXml, $pPrivate, $pUseSerializationName, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel');
 	}
 	
-	public function fillObjectFromFlattenedArray(Object $pObject, $pRow, $pPrivate, $pUseSerializationName, $pTimeZone = null, $pUpdateLoadStatus = true) {
+	public function fillObjectFromFlattenedArray(Object $pObject, $pRow, $pPrivate, $pUseSerializationName, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel');
 	}
 	
-	protected function _fromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
+	protected function _fromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
 		if (is_null($pStdObject)) {
 			return null;
 		}
-		$lObject = $this->_getOrCreateObjectInstanceFromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $pLocalObjectCollection);
-		$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection));
+		$lObject = $this->_getOrCreateObjectInstanceFromStdObject($pStdObject, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, $pLocalObjectCollection);
+		$this->_fillObjectFromStdObject($lObject, $pStdObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection));
 		return $lObject;
 	}
 	
-	protected function _fillObjectFromStdObject(Object $pObject, \stdClass $pStdObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
+	protected function _fillObjectFromStdObject(Object $pObject, \stdClass $pStdObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
 		$lModel = $pObject->getModel();
 		if ($lModel !== $this && !$lModel->isInheritedFrom($this)) {
 			throw new \Exception('object doesn\'t have good model');
@@ -750,9 +824,9 @@ abstract class Model {
 				$lStdObjectPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lPropertyName;
 				if (isset($pStdObject->$lStdObjectPropertyName)) {
 					if (is_null($pStdObject->$lStdObjectPropertyName)) {
-						$pObject->setValue($lPropertyName, null);
+						$pObject->setValue($lPropertyName, null, $pFlagAsUpdated);
 					} else {
-						$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromStdObject($pStdObject->$lStdObjectPropertyName, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+						$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromStdObject($pStdObject->$lStdObjectPropertyName, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
 					}
 				}
 			}
@@ -763,17 +837,17 @@ abstract class Model {
 				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
 					$lId[] = isset($pStdObject->$lSerializationName) ? $pStdObject->$lSerializationName : null;
 				}
-				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
 			}
 		}
 	}
 	
-	protected function _fromXml($pXml, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
-		$lObject = $this->_getOrCreateObjectInstanceFromXml($pXml, $pPrivate, $pUseSerializationName, $pLocalObjectCollection);
-		return $this->_fillObjectFromXml($lObject, $pXml, $pPrivate, $pUseSerializationName, $pDateTimeZone, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection)) ? $lObject : null;
+	protected function _fromXml($pXml, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
+		$lObject = $this->_getOrCreateObjectInstanceFromXml($pXml, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, $pLocalObjectCollection);
+		return $this->_fillObjectFromXml($lObject, $pXml, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection)) ? $lObject : null;
 	}
 	
-	protected function _fillObjectFromXml(Object $pObject, \SimpleXMLElement $pXml, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
+	protected function _fillObjectFromXml(Object $pObject, \SimpleXMLElement $pXml, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
 		$lHasValue = false;
 		$lModel = $pObject->getModel();
 		if ($lModel !== $this && !$lModel->isInheritedFrom($this)) {
@@ -785,11 +859,11 @@ abstract class Model {
 				$lXmlPropertyName = $pUseSerializationName ? $lProperty->getSerializationName() : $lPropertyName;
 				if (!$lProperty->isInterfacedAsNodeXml()) {
 					if (isset($pXml[$lXmlPropertyName])) {
-						$pObject->setValue($lPropertyName,  $lProperty->getModel()->_fromXml($pXml[$lXmlPropertyName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+						$pObject->setValue($lPropertyName,  $lProperty->getModel()->_fromXml($pXml[$lXmlPropertyName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
 						$lHasValue = true;
 					}
 				} else if (isset($pXml->$lXmlPropertyName)) {
-					$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromXml($pXml->$lXmlPropertyName, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+					$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromXml($pXml->$lXmlPropertyName, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
 					$lHasValue = true;
 				}
 			}
@@ -798,22 +872,22 @@ abstract class Model {
 			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
 				$lId = [];
 				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-					$lId[] = isset($pXml[$lSerializationName]) ? $lIdProperty->getModel()->_fromXml($pXml[$lSerializationName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) : null;
+					$lId[] = isset($pXml[$lSerializationName]) ? $lIdProperty->getModel()->_fromXml($pXml[$lSerializationName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) : null;
 				}
-				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
 			}
 		}
 		return $lHasValue;
 	}
 	
-	protected function _fromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
-		$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $pLocalObjectCollection);
-		$this->_fillObjectFromFlattenedArray($lObject, $pRow, $pPrivate, $pUseSerializationName, $pDateTimeZone, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection));
+	protected function _fromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
+		$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $pFlagAsUpdated, $pLocalObjectCollection);
+		$this->_fillObjectFromFlattenedArray($lObject, $pRow, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection));
 		return $lObject;
 	}
 	
 	
-	public function _fillObjectFromFlattenedArray(Object $pObject, array $pRow, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
+	public function _fillObjectFromFlattenedArray(Object $pObject, array $pRow, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
 		$lModel = $pObject->getModel();
 		if ($lModel !== $this && !$lModel->isInheritedFrom($this)) {
 			throw new \Exception('object doesn\'t have good model');
@@ -826,7 +900,7 @@ abstract class Model {
 					if (is_null($pRow[$lFlattenedPropertyName])) {
 						continue;
 					}
-					$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromFlattenedValue($pRow[$lFlattenedPropertyName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+					$pObject->setValue($lPropertyName, $lProperty->getModel()->_fromFlattenedValue($pRow[$lFlattenedPropertyName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
 				}
 			}
 		}
@@ -836,20 +910,20 @@ abstract class Model {
 				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
 					$lId[] = isset($pRow[$lSerializationName]) ? $pRow[$lSerializationName] : null;
 				}
-				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection));
+				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
 			}
 		}
 	}
 	
-	protected function _fromFlattenedValue($pJsonEncodedObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection) {
+	protected function _fromFlattenedValue($pJsonEncodedObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
 		if (is_null($pJsonEncodedObject)) {
 			return null;
 		}
 		$lStdObject = json_decode($pJsonEncodedObject);
-		return $this->_fromStdObject($lStdObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pLocalObjectCollection);
+		return $this->_fromStdObject($lStdObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection);
 	}
 	
-	protected function _fromStdObjectId($pValue, $pLocalObjectCollection) {
+	protected function _fromStdObjectId($pValue, $pFlagAsUpdated, $pLocalObjectCollection) {
 		if (is_object($pValue)) {
 			if (!isset($pValue->id) || !isset($pValue->{self::INHERITANCE_KEY})) {
 				throw new \Exception('object id must have property \'id\' and \''.self::INHERITANCE_KEY.'\', current object id is : '.json_encode($pValue));
@@ -861,19 +935,19 @@ abstract class Model {
 			$lId = $pValue;
 			$lInheritance = null;
 		}
-		return $this->_fromId($lId, $lInheritance, $pLocalObjectCollection);
+		return $this->_fromId($lId, $lInheritance, $pFlagAsUpdated, $pLocalObjectCollection);
 	}
 	
-	protected function _fromXmlId($pValue, $pLocalObjectCollection) {
+	protected function _fromXmlId($pValue, $pFlagAsUpdated, $pLocalObjectCollection) {
 		$lId = (string) $pValue;
 		if ($lId == '') {
 			return null;
 		}
 		$lInheritance = isset($pValue[self::INHERITANCE_KEY]) ? (string) $pValue[self::INHERITANCE_KEY] : null;
-		return $this->_fromId($lId, $lInheritance, $pLocalObjectCollection);
+		return $this->_fromId($lId, $lInheritance, $pFlagAsUpdated, $pLocalObjectCollection);
 	}
 	
-	protected function _fromFlattenedValueId($pValue, $pLocalObjectCollection) {
+	protected function _fromFlattenedValueId($pValue, $pFlagAsUpdated, $pLocalObjectCollection) {
 		if (is_null($pValue)) {
 			return null;
 		}
@@ -888,10 +962,10 @@ abstract class Model {
 			$lId = $pValue;
 			$lInheritance = null;
 		}
-		return $this->_fromId($lId, $lInheritance, $pLocalObjectCollection);
+		return $this->_fromId($lId, $lInheritance, $pFlagAsUpdated, $pLocalObjectCollection);
 	}
 	
-	protected function _fromId($pId, $pInheritanceModelName, $pLocalObjectCollection = null) {
+	protected function _fromId($pId, $pInheritanceModelName, $pFlagAsUpdated, $pLocalObjectCollection = null) {
 		if (is_object($pId) || $pId === '') {
 			$pId = is_object($pId) ? json_encode($pId) : $pId;
 			throw new \Exception("malformed id '$pId' for model '{$this->mModelName}'");
@@ -900,19 +974,19 @@ abstract class Model {
 			return null;
 		}
 
-		return $this->_getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection, false, false);
+		return $this->_getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection, false, false, $pFlagAsUpdated);
 	}
 	
-	protected function _buildObjectFromId($pId, $pIsloaded) {
-		return $this->_fillObjectwithId($this->getObjectInstance($pIsloaded), $pId);
+	protected function _buildObjectFromId($pId, $pIsloaded, $pFlagAsUpdated) {
+		return $this->_fillObjectwithId($this->getObjectInstance($pIsloaded), $pId, $pFlagAsUpdated);
 	}
 	
-	protected function _fillObjectwithId(Object $pObject, $pId) {
+	protected function _fillObjectwithId(Object $pObject, $pId, $pFlagAsUpdated) {
 		if ($pObject->getModel() !== $this) {
 			throw new \Exception('object doesn\'t have good model');
 		}
 		if (!is_null($pId)) {
-			$pObject->setId($pId);
+			$pObject->setId($pId, $pFlagAsUpdated);
 		}
 		return $pObject;
 	}
