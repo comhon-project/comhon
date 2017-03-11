@@ -155,7 +155,7 @@ class Property {
 		return null;
 	}
 	
-	public function loadValue(Object $pObject) {
+	public function loadValue(Object $pObject, $pPropertiesFilter = []) {
 		throw new \Exception('cannot load object, property is not foreign property');
 	}
 	

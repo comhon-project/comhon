@@ -95,14 +95,15 @@ abstract class SerializationUnit {
 	/**
 	 * 
 	 * @param Object $pObject
+	 * @param string[] $pPropertiesFilter
 	 * @return boolean true if loading is successfull
 	 * @throws \Exception
 	 */
-	public function loadObject(Object $pObject) {
+	public function loadObject(Object $pObject, $pPropertiesFilter = []) {
 		if ($this->mSettings !== $pObject->getModel()->getSerializationSettings()) {
 			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
 		}
-		return $this->_loadObject($pObject);
+		return $this->_loadObject($pObject, $pPropertiesFilter);
 	}
 	
 	/**
@@ -124,10 +125,11 @@ abstract class SerializationUnit {
 	protected abstract function _saveObject(Object $pObject, $pOperation = null);
 	
 	/**
-	 * 
 	 * @param Object $pObject
+	 * @param string[] $pPropertiesFilter
+	 * @return boolean
 	 */
-	protected abstract function _loadObject(Object $pObject);
+	protected abstract function _loadObject(Object $pObject, $pPropertiesFilter = []);
 	
 	/**
 	 *

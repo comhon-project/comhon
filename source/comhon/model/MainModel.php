@@ -385,11 +385,12 @@ class MainModel extends Model {
 	/**
 	 * load serialized object 
 	 * @param string|integer $pId
+	 * @param string[] $pPropertiesFilter
 	 * @param boolean $pForceLoad if object already exists and is already loaded, force to reload object
 	 * @throws \Exception
 	 * @return Object|null null if load is unsuccessfull
 	 */
-	public function loadObject($pId, $pForceLoad = false) {
+	public function loadObject($pId, $pPropertiesFilter = [], $pForceLoad = false) {
 		$this->load();
 		if (!$this->hasIdProperties()) {
 			throw new \Exception("model '$this->mModelName' must have at least one id property to load object");
@@ -406,24 +407,25 @@ class MainModel extends Model {
 			return $lMainObject;
 		}
 
-		return $this->loadAndFillObject($lMainObject, $pForceLoad) ? $lMainObject : null;
+		return $this->loadAndFillObject($lMainObject, $pPropertiesFilter, $pForceLoad) ? $lMainObject : null;
 	}
 	
 	/**
 	 * load instancied object with serialized object
 	 * @param Object $pObject
+	 * @param string[] $pPropertiesFilter
 	 * @param boolean $pForceLoad if object already exists and is already loaded, force to reload object
 	 * @throws \Exception
 	 * @return Object|null null if load is unsuccessfull
 	 */
-	public function loadAndFillObject(Object $pObject, $pForceLoad = false) {
+	public function loadAndFillObject(Object $pObject, $pPropertiesFilter = [], $pForceLoad = false) {
 		$lSuccess = false;
 		$this->load();
 		if (is_null($lSerializationUnit = $this->getSerialization())) {
 			throw new \Exception('model doesn\'t have serialization');
 		}
 		if (!$pObject->isLoaded() || $pForceLoad) {
-			$lSuccess = $lSerializationUnit->loadObject($pObject);
+			$lSuccess = $lSerializationUnit->loadObject($pObject, $pPropertiesFilter);
 		}
 		return $lSuccess;
 	}

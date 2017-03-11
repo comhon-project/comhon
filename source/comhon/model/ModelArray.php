@@ -3,6 +3,7 @@ namespace comhon\model;
 
 use comhon\object\ObjectArray;
 use comhon\model\MainModel;
+use comhon\object\Object;
 
 class ModelArray extends ModelContainer {
 	
@@ -54,6 +55,30 @@ class ModelArray extends ModelContainer {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * get object with filtered values, return new instance of object array
+	 * and possible new insance oject for each array element
+	 * @param Object $pObject
+	 * @param string[]|null $pPropertiesFilter
+	 * @return Object
+	 */
+	protected function _getFilteredObject(ObjectArray $pObjectArray, $pPropertiesFilter) {
+		if (empty($pPropertiesFilter)) {
+			return $pObjectArray;
+		}
+		$lNewObjectArray   = new ObjectArray($pObjectArray->getModel());
+		$lFlagAsUpdated    = $pObjectArray->isFlagedAsUpdated();
+		
+		foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+			if ($lValue instanceof Object) {
+				$lNewObjectArray->setValue($lKey, parent::_getFilteredObject($lValue, array_unique($pPropertiesFilter), false), $lFlagAsUpdated, false);
+			} else {
+				$lNewObjectArray->setValue($lKey, $lValue, $lFlagAsUpdated, false);
+			}
+		}
+		return $lNewObjectArray;
 	}
 	
 	protected function _toStdObject($pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {

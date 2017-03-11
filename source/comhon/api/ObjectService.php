@@ -14,8 +14,9 @@ class ObjectService {
 			if (!isset($pParams->id)) {
 				throw new \Exception('request doesn\'t have id');
 			}
-			$lObjects = SimpleLoadRequest::buildObjectLoadRequest($pParams)->execute($pParams->id);
-			return self::_setSuccessReturn($lObjects->toPublicStdObject());
+			$lFilterProperties = isset($pParams->properties) ? $pParams->properties : [];
+			$lObjectArray = SimpleLoadRequest::buildObjectLoadRequest($pParams)->execute($pParams->id, $lFilterProperties);
+			return self::_setSuccessReturn($lObjectArray->toPublicStdObject(null, false, self::_getFilterProperties($pParams, $lObjectArray)));
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}
@@ -23,11 +24,25 @@ class ObjectService {
 	
 	public static function getObjects($pParams) {
 		try {
-			$lObjects = ComplexLoadRequest::buildObjectLoadRequest($pParams)->execute();
-			return self::_setSuccessReturn($lObjects->toPublicStdObject());
+			$lObjectArray = ComplexLoadRequest::buildObjectLoadRequest($pParams)->execute();
+			$lFilterProperties = isset($pParams->properties) ? $pParams->properties : null;
+			return self::_setSuccessReturn($lObjectArray->toPublicStdObject(null, false, self::_getFilterProperties($pParams, $lObjectArray)));
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}
+	}
+	
+	private static function _getFilterProperties($pParams, $pOjectArray) {
+		if (!isset($pParams->properties) || empty($pParams->properties)) {
+			return null;
+		}
+		$lFilterProperties = $pParams->properties;
+		if ($pOjectArray->getModel()->hasIdProperties()) {
+			foreach ($pOjectArray->getModel()->getIdProperties() as $lProperty) {
+				$lFilterProperties[] = $lProperty->getName();
+			}
+		}
+		return array_unique($lFilterProperties);
 	}
 	
 	private static function _setSuccessReturn($pReturnValue) {

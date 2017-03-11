@@ -365,22 +365,40 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
-	 * (non-PHPdoc)
-	 * @see \comhon\object\serialization\SerializationUnit::_loadObject()
+	 * @param Object $pObject
+	 * @param string[] $pPropertiesFilter
+	 * @return boolean
 	 */
-	protected function _loadObject(Object $pObject) {
-		$lWhereColumns = [];
-		$lModel = $pObject->getModel();
-		$lConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
+	protected function _loadObject(Object $pObject, $pPropertiesFilter = []) {
+		$lModel         = $pObject->getModel();
+		$lConjunction   = new LogicalJunction(LogicalJunction::CONJUNCTION);
+		$lSelectColumns = [];
+		
 		foreach ($lModel->getIdProperties() as $lPropertyName => $lProperty) {
 			$lConjunction->addLiteral(new Literal($this->mSettings->getValue('name'), $lProperty->getSerializationName(), '=', $pObject->getValue($lPropertyName)));
 		}
-		$lReturn = $this->_loadObjectFromDatabase($pObject, [], $lConjunction);
+		foreach ($pPropertiesFilter as $lPropertyName) {
+			$lSelectColumns[] = $lModel->getProperty($lPropertyName, true)->getSerializationName();
+		}
+		$lReturn = $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lConjunction, false);
 		return $lReturn;
 	}
 	
-	public function loadAggregation(ObjectArray $pObject, $pParentId, $pAggregationProperties, $pOnlyIds) {
-		$lReturn        = false;
+	public function loadAggregation(ObjectArray $pObject, $pParentId, $pAggregationProperties, $pPropertiesFilter = []) {
+		$lModel         = $pObject->getModel()->getUniqueModel();
+		$lDisjunction   = $this->getAggregationConditions($lModel, $pParentId, $pAggregationProperties);
+		$lSelectColumns = [];
+		
+		if (count($lDisjunction->getLiterals()) == 0 && count($lDisjunction->getLogicalJunction()) == 0) {
+			throw new \Exception('error : property is not serialized in database aggregation');
+		}
+		foreach ($pPropertiesFilter as $lPropertyName) {
+			$lSelectColumns[] = $lModel->getProperty($lPropertyName, true)->getSerializationName();
+		}
+		return $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lDisjunction, false);
+	}
+	
+	public function loadAggregationIds(ObjectArray $pObject, $pParentId, $pAggregationProperties) {
 		$lModel         = $pObject->getModel()->getUniqueModel();
 		$lDisjunction   = $this->getAggregationConditions($lModel, $pParentId, $pAggregationProperties);
 		$lSelectColumns = [];
@@ -389,31 +407,37 @@ class SqlTable extends SerializationUnit {
 		if (count($lDisjunction->getLiterals()) == 0 && count($lDisjunction->getLogicalJunction()) == 0) {
 			throw new \Exception('error : property is not serialized in database aggregation');
 		}
-		if ($pOnlyIds) {
-			if (empty($lIdProperties)) {
-				trigger_error("Warning! model '{$lModel->getName()}' doesn't have a unique property id. All model is loaded");
-			}
-			foreach ($lIdProperties as $lIdProperty) {
-				$lSelectColumns[] = $lIdProperty->getSerializationName();
-			}
+		if (empty($lIdProperties)) {
+			trigger_error("Warning! model '{$lModel->getName()}' doesn't have property id. All model is loaded");
 		}
-		$lReturn = $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lDisjunction);
-		return $lReturn;
+		foreach ($lIdProperties as $lProperty) {
+			$lSelectColumns[] = $lProperty->getSerializationName();
+		}
+		return $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lDisjunction, true);
 	}
 	
 	/**
 	 * 
 	 * @param Object $pObject
 	 * @param string[] $pSelectColumns
-	 * @param logic$lLogicalJunctionType
+	 * @param LogicalJunction $pLogicalJunction
+	 * @param boolean $pOnlyIds used only for aggregation loading
 	 * @return boolean
 	 */
-	private function _loadObjectFromDatabase($pObject, $pSelectColumns, LogicalJunction $pLogicalJunction) {
+	private function _loadObjectFromDatabase($pObject, $pSelectColumns, LogicalJunction $pLogicalJunction, $pOnlyIds) {
 		$lSuccess = false;
 		$this->_initDatabaseInterfacing($pObject->getModel());
 		
 		$lSelectQuery = new SelectQuery($this->mSettings->getValue('name'));
 		$lSelectQuery->where($pLogicalJunction);
+		
+		if (!empty($pSelectColumns) && $pObject->getModel()->hasIdProperties()) {
+			foreach ($pObject->getModel()->getIdProperties() as $lProperty) {
+				if (!in_array($lProperty->getSerializationName(), $pSelectColumns)) {
+					$lSelectQuery->getMainTable()->addSelectedColumn($lProperty->getSerializationName());
+				}
+			}
+		}
 		foreach ($pSelectColumns as $lColumn) {
 			$lSelectQuery->getMainTable()->addSelectedColumn($lColumn);
 		}
@@ -442,10 +466,10 @@ class SqlTable extends SerializationUnit {
 					}
 				}
 			}
-			if (empty($pSelectColumns)) {
-				$pObject->fromSqlDatabase($lIsModelArray ? $lRows : $lRows[0], self::getDatabaseConnectionTimeZone());
-			} else {
+			if ($pOnlyIds) {
 				$pObject->fromSqlDatabaseId($lIsModelArray ? $lRows : $lRows[0], self::getDatabaseConnectionTimeZone());
+			} else {
+				$pObject->fromSqlDatabase($lIsModelArray ? $lRows : $lRows[0], self::getDatabaseConnectionTimeZone());
 			}
 			$lSuccess = true;
 		}

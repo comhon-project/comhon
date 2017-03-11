@@ -27,11 +27,12 @@ class AggregationProperty extends ForeignProperty {
 	
 	/**
 	 *
-	 * @param Object $pObjectArray
-	 * @param strong|integer $pParentObject
+	 * @param ObjectArray $pObjectArray
+	 * @param Object $pParentObject
+	 * @param string[] $pPropertiesFilter
 	 * @return boolean true if success
 	 */
-	public function loadValue(ObjectArray $pObjectArray, Object $pParentObject) {
+	public function loadValue(ObjectArray $pObjectArray, Object $pParentObject, $pPropertiesFilter = []) {
 		if ($pObjectArray->isLoaded()) {
 			return false;
 		}
@@ -39,20 +40,20 @@ class AggregationProperty extends ForeignProperty {
 		if (is_null($lSerializationUnit)) {
 			throw new \Exception('aggregation has not model with sql serialization');
 		}
-		return $lSerializationUnit->loadAggregation($pObjectArray, $pParentObject->getId(), $this->mAggregationProperties, false);
+		return $lSerializationUnit->loadAggregation($pObjectArray, $pParentObject->getId(), $this->mAggregationProperties, $pPropertiesFilter);
 	}
 	
 	/**
 	 * 
 	 * @param ObjectArray $pObjectArray
-	 * @param strong|integer $pParentId
+	 * @param Object $pParentObject
 	 * @return boolean true if success
 	 */
 	public function loadValueIds(ObjectArray $pObjectArray, Object $pParentObject) {
 		if (is_null($lSqlTableUnit = $this->getSqlTableUnit())) {
 			throw new \Exception('aggregation has not model with sql serialization');
 		}
-		return $lSqlTableUnit->loadAggregation($pObjectArray, $pParentObject->getId(), $this->mAggregationProperties, true);
+		return $lSqlTableUnit->loadAggregationIds($pObjectArray, $pParentObject->getId(), $this->mAggregationProperties);
 	}
 	
 	/**

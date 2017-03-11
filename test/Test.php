@@ -20,7 +20,14 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'In
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'PartialImportExportTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'DatabaseSerializationTest.php';
 
-// add properties filter complex/simple request
+// test loadvalue aggregation with filter
+// add getModelName for object extending object
+// add test to... with foreignObject array in extendvaluetest
+// verify if use private properties in complex load request
+// reset updated status avoid infinite loop
+// add simple model color, email
+// remove $p $l
+// psr
 // add Php doc
 
 // real unit test

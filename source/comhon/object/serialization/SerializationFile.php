@@ -87,9 +87,10 @@ abstract class SerializationFile extends SerializationUnit {
 	
 	/**
 	 * @param Object $pObject
+	 * @param string[] $pPropertiesFilter
 	 * @return boolean
 	 */
-	protected function _loadObject(Object $pObject) {
+	protected function _loadObject(Object $pObject, $pPropertiesFilter = []) {
 		$lPath = $this->_getPath($pObject);
 		if (!file_exists($lPath)) {
 			return false;

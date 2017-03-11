@@ -11,6 +11,7 @@ use comhon\model\ModelArray;
 use comhon\model\SimpleModel;
 use comhon\object\collection\MainObjectCollection;
 use comhon\utils\Utils;
+use comhon\model\property\AggregationProperty;
 
 class Object {
 
@@ -71,8 +72,7 @@ class Object {
 				$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
 			}
 		}
-		if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel)
-		&& MainObjectCollection::getInstance()->getObject($this->getId(), $this->mModel->getName()) === $this) {
+		if ($this->_hasToUpdateMainObjectCollection($pName)) {
 			MainObjectCollection::getInstance()->removeObject($this);
 			$this->mValues[$pName] = $pValue;
 			MainObjectCollection::getInstance()->addObject($this);
@@ -90,6 +90,15 @@ class Object {
 		}
 	}
 	
+	private final function _hasToUpdateMainObjectCollection($pName) {
+		return $this->mModel->hasIdProperty($pName)
+		&& ($this->mModel instanceof MainModel)
+		&& (
+			//! MainObjectCollection::getInstance()->hasObject($this->getId(), $this->mModel->getName())
+			/*||*/ MainObjectCollection::getInstance()->getObject($this->getId(), $this->mModel->getName()) === $this
+		);
+	}
+	
 	protected final function _pushValue($pValue, $pFlagAsUpdated) {
 		$this->mValues[] = $pValue;
 		if ($pFlagAsUpdated) {
@@ -99,6 +108,9 @@ class Object {
 	
 	public final function deleteValue($pName) {
 		if ($this->hasValue($pName)) {
+			/*if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel)) {
+				MainObjectCollection::getInstance()->removeObject($this);
+			}*/
 			unset($this->mValues[$pName]);
 			$this->mIsUpdated = true;
 			$this->mUpdatedValues[$pName] = true;
@@ -126,6 +138,9 @@ class Object {
 	 * reset values and reset update status
 	 */
 	public final function reset() {
+		/*if ($this->mModel->hasIdProperties() && ($this->mModel instanceof MainModel)) {
+			MainObjectCollection::getInstance()->removeObject($this);
+		}*/
 		$this->mValues = [];
 		$this->mIsUpdated = false;
 		$this->mUpdatedValues = [];
@@ -232,6 +247,10 @@ class Object {
 			}
 		}
 		return true;
+	}
+	
+	public final function getValuesCount() {
+		return count($this->mValues);
 	}
 	
 	/***********************************************************************************************\
@@ -466,10 +485,16 @@ class Object {
 	/**
 	 * load value
 	 * @param string $pName
+	 * @param string[] $pPropertiesFilter
 	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
 	 */
-	public function loadValue($pName) {
-		return $this->getProperty($pName, true)->loadValue($this->getValue($pName), $this);
+	public function loadValue($pName, $pPropertiesFilter = []) {
+		$lProperty = $this->getProperty($pName, true);
+		if ($lProperty instanceof AggregationProperty) {
+			return $lProperty->loadValue($this->getValue($pName), $this, $pPropertiesFilter);
+		} else {
+			return $lProperty->loadValue($this->getValue($pName), $pPropertiesFilter);
+		}
 	}
 	
 	/**
@@ -503,20 +528,20 @@ class Object {
 		$this->mModel->fillObjectFromStdObject($this, $pStdObject, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdateLoadStatus, $pFlagAsUpdated);
 	}
 	
-	public final function toSerialStdObject($pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
-		return $this->toStdObject(true, true, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toSerialStdObject($pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->toStdObject(true, true, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
-	public final function toPublicStdObject($pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
-		return $this->toStdObject(false, false, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toPublicStdObject($pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->toStdObject(false, false, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
-	public final function toPrivateStdObject($pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
-		return $this->toStdObject(true, false, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toPrivateStdObject($pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->toStdObject(true, false, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
-	public final function toStdObject($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
-		return $this->mModel->toStdObject($this, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toStdObject($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->mModel->toStdObject($this, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
 	/***********************************************************************************************\
@@ -541,21 +566,21 @@ class Object {
 		$this->mModel->fillObjectFromXml($this, $pXml, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdateLoadStatus, $pFlagAsUpdated);
 	}
 	
-	public final function toSerialXml($pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
-		return $this->toXml(true, true, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toSerialXml($pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->toXml(true, true, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
-	public final function toPublicXml($pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
-		return $this->toXml(false, false, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toPublicXml($pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->toXml(false, false, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
-	public final function toPrivateXml($pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
-		return $this->toXml(true, false, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toPrivateXml($pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->toXml(true, false, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
-	public final function toXml($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
+	public final function toXml($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
 		$lXmlNode = new \SimpleXmlElement("<{$this->getModel()->getName()}/>");
-		$this->mModel->toXml($this, $lXmlNode, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+		$this->mModel->toXml($this, $lXmlNode, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 		return $lXmlNode;
 	}
 
@@ -582,20 +607,20 @@ class Object {
 		$this->mModel->fillObjectFromFlattenedArray($this, $pRow, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdateLoadStatus, $pFlagAsUpdated);
 	}
 	
-	public final function toSqlDatabase($pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
-		return $this->toFlattenedArray(true, true, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toSqlDatabase($pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->toFlattenedArray(true, true, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
-	public final function toPublicFlattenedArray($pTimeZone = null, $pUpdatedValueOnly = null, &$pMainForeignObjects = null) {
-		return $this->toFlattenedArray(false, false, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toPublicFlattenedArray($pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->toFlattenedArray(false, false, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
-	public final function toPrivateFlattenedArray($pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
-		return $this->toFlattenedArray(true, false, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toPrivateFlattenedArray($pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->toFlattenedArray(true, false, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
-	public final function toFlattenedArray($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
-		return $this->mModel->toFlattenedArray($this, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdatedValueOnly, $pMainForeignObjects);
+	public final function toFlattenedArray($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
+		return $this->mModel->toFlattenedArray($this, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
 	}
 	
 }

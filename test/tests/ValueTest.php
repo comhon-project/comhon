@@ -105,7 +105,7 @@ foreach ($lTestDb->getProperties() as $lProperty) {
 
 /** ****************************** test load existing value and force to reload ****************************** **/
 
-$lTestDb3 = $lDbTestModel->loadObject('["1","50"]', true);
+$lTestDb3 = $lDbTestModel->loadObject('["1","50"]', [], true);
 $lMainParentTestDb3 = $lTestDb3->getValue('mainParentTestDb');
 $lObject3 = $lTestDb3->getValue('object');
 $lObjectId3 = $lTestDb3->getValue('objectWithId');

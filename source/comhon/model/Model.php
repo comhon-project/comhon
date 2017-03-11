@@ -11,6 +11,7 @@ use comhon\model\property\Property;
 use comhon\model\property\ForeignProperty;
 use comhon\model\property\AggregationProperty;
 use comhon\object\ComhonDateTime;
+use comhon\utils\Utils;
 
 abstract class Model {
 
@@ -474,19 +475,53 @@ abstract class Model {
 	}
 	
 	/**
+	 * get object with filtered values, return new instance if need to be filtered otherwise return specified object
+	 * @param Object $pObject
+	 * @param string[]|null $pPropertiesFilter
+	 * @return Object
+	 */
+	protected function _getFilteredObject(Object $pObject, $pPropertiesFilter, $pCheckProperties = true) {
+		if (empty($pPropertiesFilter)) {
+			return $pObject;
+		}
+		if ($pCheckProperties) {
+			$pPropertiesFilter = array_unique($pPropertiesFilter);
+		}
+		$lValuesCount = $pObject->getValuesCount();
+		foreach ($pPropertiesFilter as $lPropertyFilter) {
+			if ($pObject->hasValue($lPropertyFilter)) {
+				$lValuesCount--;
+			}
+		}
+		if ($lValuesCount == 0) {
+			return $pObject;
+		}
+		$lNewObject = new Object($pObject->getModel());
+		$lNewObject->reset();
+		foreach ($pPropertiesFilter as $lPropertyFilter) {
+			if ($pObject->hasValue($lPropertyFilter)) {
+				$lNewObject->setValue($lPropertyFilter, $pObject->getValue($lPropertyFilter), $pObject->isValueFlagedAsUpdated($lPropertyFilter), false);
+			}
+		}
+		return $lNewObject;
+	}
+	
+	/**
 	 * 
 	 * @param Object $pObject
 	 * @param boolean $pPrivate
 	 * @param boolean $pUseSerializationName
-	 * @param array|null $pMainForeignObjects 
-	 * by default foreign properties with MainModel are not exported 
-	 * but you can export them by spsifying an array in third parameter
+	 * @param string $pTimeZone 
+	 * @param boolean $pUpdatedValueOnly 
+	 * @param string[] $pPropertiesFilter
+	 * @param array|null $pMainForeignObjects export foreign objects with main model if array specified
 	 * @return NULL|\stdClass
 	 */
-	public function toStdObject(Object $pObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
+	public function toStdObject(Object $pObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
 		self::$sInstanceObjectHash = [];
 		$this->_addMainCurrentObject($pObject, $pMainForeignObjects);
-		$lStdObject = $this->_toStdObject($pObject, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pUpdatedValueOnly, $pUpdatedValueOnly, $pMainForeignObjects);
+		$lObject = $this->_getFilteredObject($pObject, $pPropertiesFilter);
+		$lStdObject = $this->_toStdObject($lObject, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pUpdatedValueOnly, $pUpdatedValueOnly, $pMainForeignObjects);
 		$this->_removeMainCurrentObject($pObject, $pMainForeignObjects);
 		self::$sInstanceObjectHash = [];
 		return $lStdObject;
@@ -557,13 +592,14 @@ abstract class Model {
 		return $this->_toId($pObject, $pUseSerializationName);
 	}
 	
-	public function toXml(Object $pObject, $pXmlNode, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
+	public function toXml(Object $pObject, $pXmlNode, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
 		self::$sInstanceObjectHash = [];
 		$this->_addMainCurrentObject($pObject, $pMainForeignObjects);
-		$lResult = $this->_toXml($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pUpdatedValueOnly, $pUpdatedValueOnly, $pMainForeignObjects);
+		$lObject = $this->_getFilteredObject($pObject, $pPropertiesFilter);
+		$lXml = $this->_toXml($lObject, $pXmlNode, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pUpdatedValueOnly, $pUpdatedValueOnly, $pMainForeignObjects);
 		$this->_removeMainCurrentObject($pObject, $pMainForeignObjects);
 		self::$sInstanceObjectHash = [];
-		return $lResult;
+		return $lXml;
 	}
 		
 	protected function _toXml(Object $pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
@@ -640,10 +676,11 @@ abstract class Model {
 		return $lId;
 	}
 	
-	public function toFlattenedArray(Object $pObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, &$pMainForeignObjects = null) {
+	public function toFlattenedArray(Object $pObject, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
 		self::$sInstanceObjectHash = [];
 		$this->_addMainCurrentObject($pObject, $pMainForeignObjects);
-		$lArray = $this->_toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pUpdatedValueOnly, $pUpdatedValueOnly, $pMainForeignObjects);
+		$lObject = $this->_getFilteredObject($pObject, $pPropertiesFilter);
+		$lArray = $this->_toFlattenedArray($lObject, $pPrivate, $pUseSerializationName, new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone), $pUpdatedValueOnly, $pUpdatedValueOnly, $pMainForeignObjects);
 		$this->_removeMainCurrentObject($pObject, $pMainForeignObjects);
 		self::$sInstanceObjectHash = [];
 		return $lArray;
@@ -822,9 +859,13 @@ abstract class Model {
 			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
 				$lId = [];
 				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-					$lId[] = isset($pStdObject->$lSerializationName) ? $pStdObject->$lSerializationName : null;
+					if (isset($pStdObject->$lSerializationName)) {
+						$lId[] = $pStdObject->$lSerializationName;
+					}
 				}
-				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
+				if (count($lId) == count($lMultipleForeignProperty->getMultipleIdProperties())) {
+					$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
+				}
 			}
 		}
 	}
@@ -859,9 +900,13 @@ abstract class Model {
 			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
 				$lId = [];
 				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-					$lId[] = isset($pXml[$lSerializationName]) ? $lIdProperty->getModel()->_fromXml($pXml[$lSerializationName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) : null;
+					if (isset($pXml[$lSerializationName])) {
+						$lId[] = $lIdProperty->getModel()->_fromXml($pXml[$lSerializationName], $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection);
+					}
 				}
-				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
+				if (count($lId) == count($lMultipleForeignProperty->getMultipleIdProperties())) {
+					$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
+				}
 			}
 		}
 		return $lHasValue;
@@ -895,9 +940,13 @@ abstract class Model {
 			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
 				$lId = [];
 				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-					$lId[] = isset($pRow[$lSerializationName]) ? $pRow[$lSerializationName] : null;
+					if (isset($pRow[$lSerializationName])) {
+						$lId[] = $pRow[$lSerializationName];
+					}
 				}
-				$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
+				if (count($lId) == count($lMultipleForeignProperty->getMultipleIdProperties())) {
+					$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_fromStdObject(json_encode($lId), $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection), $pFlagAsUpdated);
+				}
 			}
 		}
 	}

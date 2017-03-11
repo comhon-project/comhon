@@ -70,6 +70,10 @@ abstract class ModelContainer extends Model {
 		return $this->getModel()->getIdProperties();
 	}
 	
+	public function hasIdProperties() {
+		return $this->getModel()->hasIdProperties();
+	}
+	
 	public function hasUniqueIdProperty() {
 		return $this->getModel()->hasUniqueIdProperty();
 	}

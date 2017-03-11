@@ -11,6 +11,44 @@ $time_start = microtime(true);
 
 
 /** ****************************** test request objects ****************************** **/
+
+$Json = '{
+	"model" : "testDb",
+	"requestChildren" : false,
+	"loadForeignProperties" : false,
+	"order" : [{"property":"id1", "type":"DESC"}],
+	"properties" : ["date","timestamp","integer","string"],
+	"logicalJunction" : {
+		"type" : "conjunction",
+		"literals" : [
+			{
+				"model"    : "testDb",
+				"property" : "string",
+				"operator" : "=",
+				"value"    : ["aaaa","cccc","bbbbsdfsdfsdf"]
+			},
+			{
+				"model"    : "testDb",
+				"property" : "boolean2",
+				"operator" : "=",
+				"value"    : true
+			}
+		]
+	}
+}';
+
+$lResult = ObjectService::getObjects(json_decode($Json));
+
+if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !isset($lResult->result) || !is_array($lResult->result)) {
+	var_dump(json_encode($lResult));
+	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
+}
+
+if (json_encode($lResult->result) != '[{"date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"id1":1,"id2":"23"},{"date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"id1":1,"id2":"101"}]') {
+	var_dump(json_encode($lResult->result));
+	throw new Exception('bad objects : '.json_encode($lResult->result));
+}
+
 $Json = '{
 	"model" : "testDb",
 	"requestChildren" : false,
@@ -42,10 +80,13 @@ if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
-if (json_encode($lResult->result) != '[{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]') {
+if (json_encode($lResult->result) != '[{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]') {
 	var_dump(json_encode($lResult->result));
 	throw new Exception('bad objects : '.json_encode($lResult->result));
 }
+
+MainObjectCollection::getInstance()->getObject('[1,"23"]', 'testDb')->reorderValues();
+MainObjectCollection::getInstance()->getObject('[1,"101"]', 'testDb')->reorderValues();
 
 /** ****************************** test following export import objects ****************************** **/
 
@@ -143,7 +184,7 @@ if (count($lObject->getUpdatedValues()) !== 0) {
 	throw new Exception('should not have updated values after save');
 }
 
-$lObject = $lDbTestModel->loadObject('[1,1501774389]', true);
+$lObject = $lDbTestModel->loadObject('[1,1501774389]', [], true);
 $lObject->getValue('timestamp')->add(new DateInterval('P0Y0M0DT5H0M0S'));
 $lObject->setValue('notSerializedValue', 'azezaeaze');
 $lObject->setValue('notSerializedForeignObject', $lObject->getValue('lonelyForeignObject'));
@@ -164,7 +205,7 @@ $lObject->deleteValue('notSerializedValue');
 $lObject->deleteValue('notSerializedForeignObject');
 $lObject->resetUpdatedStatus();
 
-$lObject = $lDbTestModel->loadObject('[1,1501774389]', true);
+$lObject = $lDbTestModel->loadObject('[1,1501774389]', [], true);
 
 if (json_encode($lObject->toPrivateStdObject()) !== json_encode($lObjectJson)) {
 	throw new Exception('bad object');
@@ -183,7 +224,7 @@ if (count($lObject->getUpdatedValues()) !== 0) {
 	throw new Exception('should not have updated values after save');
 }
 
-$lObject = $lDbTestModel->loadObject('[1,1501774389]', true);
+$lObject = $lDbTestModel->loadObject('[1,1501774389]', [], true);
 if ($lObject->hasValue('integer')) {
 	throw new Exception('should not have updated values after save');
 }
@@ -200,6 +241,71 @@ if (count($lObject->getUpdatedValues()) !== 0) {
 
 /** ****************************** test simple load request api ****************************** **/
 
+/** ************* new object with filter ************** **/
+
+MainObjectCollection::getInstance()->removeObject(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb'));
+
+$lParams = new stdClass();
+$lParams->model = 'testDb';
+$lParams->id = '[1,1501774389]';
+$lParams->properties = ['date','timestamp','integer','string'];
+$lResult = ObjectService::getObject($lParams);
+
+if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
+	throw new Exception('simple load request failed : '.json_encode($lResult));
+}
+if (json_encode($lResult->result) !== '{"date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2,"id1":1,"id2":"1501774389"}') {
+	throw new Exception('bad object : '.json_encode($lResult->result));
+}
+
+/** ************* existing object partial object ************** **/
+
+$lParams = new stdClass();
+$lParams->model = 'testDb';
+$lParams->id = '[1,1501774389]';
+$lResult = ObjectService::getObject($lParams);
+
+if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
+	throw new Exception('simple load request failed');
+}
+if (json_encode($lResult->result) !== '{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2}') {
+	throw new Exception('bad object : '.json_encode($lResult->result));
+}
+
+/** ************* new object full object ************** **/
+
+MainObjectCollection::getInstance()->removeObject(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb'));
+$lParams = new stdClass();
+$lParams->model = 'testDb';
+$lParams->id = '[1,1501774389]';
+$lResult = ObjectService::getObject($lParams);
+
+if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
+	throw new Exception('simple load request failed');
+}
+if (json_encode($lResult->result) !== '{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true}') {
+	var_dump(json_encode($lPublicObjectJson));
+	throw new Exception('bad object : '.json_encode($lResult->result));
+}
+
+/** ************* existing full object with filter ************** **/
+
+$lParams = new stdClass();
+$lParams->model = 'testDb';
+$lParams->id = '[1,1501774389]';
+$lParams->properties = ['date','timestamp','integer','string'];
+$lResult = ObjectService::getObject($lParams);
+
+if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
+	throw new Exception('simple load request failed');
+}
+if (json_encode($lResult->result) !== '{"date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2,"id1":1,"id2":"1501774389"}') {
+	throw new Exception('bad object : '.json_encode($lResult->result));
+}
+
+/** ************* existing full object reodered ************** **/
+
+MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb')->reorderValues();
 $lParams = new stdClass();
 $lParams->model = 'testDb';
 $lParams->id = '[1,1501774389]';
@@ -209,7 +315,54 @@ if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 	throw new Exception('simple load request failed');
 }
 if (json_encode($lResult->result) !== json_encode($lPublicObjectJson)) {
-	throw new Exception('bad object');
+	var_dump(json_encode($lPublicObjectJson));
+	throw new Exception('bad object : '.json_encode($lResult->result));
+}
+
+$lTestDb = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
+$lTestDb->loadValue('childrenTestDb', ['id']);
+
+if (json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()) !== '[{"id":1},{"id":2}]') {
+	var_dump(json_encode($lPublicObjectJson));
+	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()));
+}
+/*
+$lChildren = $lTestDb->getValue('childrenTestDb');
+$lTestDb1 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
+$lTestDb->reset();
+$lTestDb2 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
+$lTestDb->setUnLoadStatus();
+$lTestDb->setId('[1,"1501774389"]', false);
+var_dump('+++++++++++++++++');
+$lTestDb3 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
+
+$lTestDb->setValue('childrenTestDb', $lChildren, false);
+$lTestDb->getValue('childrenTestDb')->getValue(0)->setValue('parentTestDb', $lTestDb);
+$lTestDb->getValue('childrenTestDb')->getValue(0)->loadValue('parentTestDb', ['integer']);
+
+if (!is_null($lTestDb2)) {
+	throw new Exception('should be null');
+}
+if (is_null($lTestDb3)) {
+	throw new Exception('should be not null');
+}
+if ($lTestDb1 !== $lTestDb3) {
+	throw new Exception('should be same instance');
+}
+
+if (json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()) !== '[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2}]') {
+	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()));
+}
+if (json_encode($lTestDb->toPublicStdObject()) !== '{"id1":1,"id2":"1501774389","childrenTestDb":[1,2],"integer":2}') {
+	var_dump(json_encode($lPublicObjectJson));
+	throw new Exception('bad object : '.json_encode($lTestDb->toPublicStdObject()));
+}
+*/
+
+// reset children
+$lTestDb->initValue('childrenTestDb', false, false);
+foreach (MainObjectCollection::getInstance()->getModelObjects('childTestDb') as $lChild) {
+	MainObjectCollection::getInstance()->removeObject($lChild);
 }
 
 $time_end = microtime(true);

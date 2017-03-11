@@ -10,7 +10,7 @@ class ForeignProperty extends Property {
 		parent::__construct($pModel, $pName, $pSerializationName, false, $pIsPrivate, $pIsSerializable);
 	}
 	
-	public function loadValue(Object $pObject) {
+	public function loadValue(Object $pObject, $pPropertiesFilter = []) {
 		if ($pObject->isLoaded()) {
 			return false;
 		}
@@ -23,7 +23,7 @@ class ForeignProperty extends Property {
 		if (is_null($lSerializationUnit)) {
 			return false;
 		}
-		return $lSerializationUnit->loadObject($pObject);
+		return $lSerializationUnit->loadObject($pObject, $pPropertiesFilter);
 	}
 	
 	public function getSerialization() {

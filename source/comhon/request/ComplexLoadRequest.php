@@ -79,14 +79,24 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	public function setPropertiesFilter($pPropertiesFilter) {
 		$this->mSelectedColumns = [];
-		foreach ($pPropertiesFilter as $pPropertyName) {
-			$lProperty = $this->mModel->getProperty($pPropertyName, true);
-			if (!$lProperty->isAggregation()) {
+		
+		if (!empty($pPropertiesFilter)) {
+			// ids have to be in selected columns so if they are not defined in filter, we add them
+			foreach ($this->mModel->getIdProperties() as $lProperty) {
 				$this->mSelectedColumns[] = $lProperty->getSerializationName();
 			}
-			else {
-				throw new \Exception("property $pPropertyName can't be a filter property");
+			// add defined columns
+			foreach ($pPropertiesFilter as $pPropertyName) {
+				$lProperty = $this->mModel->getProperty($pPropertyName, true);
+				if (!$lProperty->isAggregation()) {
+					$this->mSelectedColumns[] = $lProperty->getSerializationName();
+				}
+				else {
+					throw new \Exception("property $pPropertyName can't be a filter property");
+				}
 			}
+			// remove possible duplicated columns
+			$this->mSelectedColumns = array_unique($this->mSelectedColumns);
 		}
 		return $this;
 	}
@@ -122,6 +132,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		}
 		if (isset($pStdObject->maxLength)) {
 			$lObjectLoadRequest->setMaxLength($pStdObject->maxLength);
+		}
+		if (isset($pStdObject->properties)) {
+			$lObjectLoadRequest->setPropertiesFilter($pStdObject->properties);
 		}
 		if (isset($pStdObject->offset)) {
 			$lObjectLoadRequest->setOffset($pStdObject->offset);

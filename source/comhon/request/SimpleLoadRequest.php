@@ -18,8 +18,8 @@ use comhon\controller\AggregationLoader;
 
 class SimpleLoadRequest extends ObjectLoadRequest {
 
-	public function execute($pId) {
-		$lObject = $this->mModel->loadObject($pId);
+	public function execute($pId, $pPropertiesFilter = []) {
+		$lObject = $this->mModel->loadObject($pId, $pPropertiesFilter);
 		if (!is_null($lObject)) {
 			$this->_updateObjects($lObject);
 		}
