@@ -50,7 +50,6 @@ class LocalModel extends Model {
 		
 		if (!$lModel->hasIdProperties()) {
 			$lObject = $lModel->getObjectInstance($pIsloaded);
-			//trigger_error("new local whithout id $pId, $lModel->mModelName, {$lModel->mMainModel->getName()}");
 		}
 		else {
 			$lObject = $pLocalObjectCollection->getObject($pId, $lModel->mModelName);
@@ -58,15 +57,9 @@ class LocalModel extends Model {
 				$lObject = $lModel->_buildObjectFromId($pId, $pIsloaded, $pFlagAsUpdated);
 				if (!is_null($pId)) {
 					$pLocalObjectCollection->addObject($lObject);
-					//trigger_error("add local $pId, $lModel->mModelName, {$lModel->mMainModel->getName()}");
-				}
-				else {
-					//trigger_error("new local without add $pId, $lModel->mModelName, {$lModel->mMainModel->getName()}");
 				}
 			} else {
-				//trigger_error("local already added $pId, $lModel->mModelName, {$lModel->mMainModel->getName()}");
 				if ($pUpdateLoadStatus) {
-					//trigger_error("update local status ".var_export($lObject->isLoaded(), true));
 					$lObject->setLoadStatus();
 				}
 			}

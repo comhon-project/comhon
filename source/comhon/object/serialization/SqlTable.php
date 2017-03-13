@@ -369,7 +369,7 @@ class SqlTable extends SerializationUnit {
 	 * @param string[] $pPropertiesFilter
 	 * @return boolean
 	 */
-	protected function _loadObject(Object $pObject, $pPropertiesFilter = []) {
+	protected function _loadObject(Object $pObject, $pPropertiesFilter = null) {
 		$lModel         = $pObject->getModel();
 		$lConjunction   = new LogicalJunction(LogicalJunction::CONJUNCTION);
 		$lSelectColumns = [];
@@ -377,14 +377,16 @@ class SqlTable extends SerializationUnit {
 		foreach ($lModel->getIdProperties() as $lPropertyName => $lProperty) {
 			$lConjunction->addLiteral(new Literal($this->mSettings->getValue('name'), $lProperty->getSerializationName(), '=', $pObject->getValue($lPropertyName)));
 		}
-		foreach ($pPropertiesFilter as $lPropertyName) {
-			$lSelectColumns[] = $lModel->getProperty($lPropertyName, true)->getSerializationName();
+		if (is_array($pPropertiesFilter)) {
+			foreach ($pPropertiesFilter as $lPropertyName) {
+				$lSelectColumns[] = $lModel->getProperty($lPropertyName, true)->getSerializationName();
+			}
 		}
 		$lReturn = $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lConjunction, false);
 		return $lReturn;
 	}
 	
-	public function loadAggregation(ObjectArray $pObject, $pParentId, $pAggregationProperties, $pPropertiesFilter = []) {
+	public function loadAggregation(ObjectArray $pObject, $pParentId, $pAggregationProperties, $pPropertiesFilter = null) {
 		$lModel         = $pObject->getModel()->getUniqueModel();
 		$lDisjunction   = $this->getAggregationConditions($lModel, $pParentId, $pAggregationProperties);
 		$lSelectColumns = [];
@@ -392,8 +394,10 @@ class SqlTable extends SerializationUnit {
 		if (count($lDisjunction->getLiterals()) == 0 && count($lDisjunction->getLogicalJunction()) == 0) {
 			throw new \Exception('error : property is not serialized in database aggregation');
 		}
-		foreach ($pPropertiesFilter as $lPropertyName) {
-			$lSelectColumns[] = $lModel->getProperty($lPropertyName, true)->getSerializationName();
+		if (is_array($pPropertiesFilter)) {
+			foreach ($pPropertiesFilter as $lPropertyName) {
+				$lSelectColumns[] = $lModel->getProperty($lPropertyName, true)->getSerializationName();
+			}
 		}
 		return $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lDisjunction, false);
 	}

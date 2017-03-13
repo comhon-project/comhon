@@ -30,7 +30,7 @@ if ($lObject->isUpdated()) {
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated Value');
 }
-$lObject = $lDbTestModel->loadObject('[1,1501774389]', [], true);
+$lObject = $lDbTestModel->loadObject('[1,1501774389]', null, true);
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated Value');
 }

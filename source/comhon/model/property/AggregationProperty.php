@@ -32,7 +32,7 @@ class AggregationProperty extends ForeignProperty {
 	 * @param string[] $pPropertiesFilter
 	 * @return boolean true if success
 	 */
-	public function loadValue(ObjectArray $pObjectArray, Object $pParentObject, $pPropertiesFilter = []) {
+	public function loadValue(ObjectArray $pObjectArray, Object $pParentObject, $pPropertiesFilter = null) {
 		if ($pObjectArray->isLoaded()) {
 			return false;
 		}

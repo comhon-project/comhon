@@ -105,7 +105,7 @@ foreach ($lTestDb->getProperties() as $lProperty) {
 
 /** ****************************** test load existing value and force to reload ****************************** **/
 
-$lTestDb3 = $lDbTestModel->loadObject('["1","50"]', [], true);
+$lTestDb3 = $lDbTestModel->loadObject('["1","50"]', null, true);
 $lMainParentTestDb3 = $lTestDb3->getValue('mainParentTestDb');
 $lObject3 = $lTestDb3->getValue('object');
 $lObjectId3 = $lTestDb3->getValue('objectWithId');
@@ -234,7 +234,6 @@ if ($lTestDb->isUpdated()) {
 
 $lTestDbs = MainObjectCollection::getInstance()->getModelObjects('testDb');
 $lTestDbById = [];
-
 foreach ($lTestDbs as $lTestDb) {
 	$lTestDbById[$lTestDb->getId()] = $lTestDb;
 	if ($lTestDb->getValue('mainParentTestDb') !== $lMainParentTestDb) {
@@ -382,7 +381,16 @@ $lTest->getValue('enumFloatArray')->pushValue(4.5, true, false);
 /** ****************************** test import with no merge and reference to root object ****************************** **/
 
 $lTest->setId('plopplop');
-MainObjectCollection::getInstance()->addObject($lTest);
+try {
+	MainObjectCollection::getInstance()->addObject($lTest);
+	$lThrow = true;
+} catch (Exception $e) {
+	$lThrow = false;
+}
+if ($lThrow) {
+	throw new Exception('should be already added');
+}
+
 $lObjectRefParent = $lTest->initValue('objectRefParent');
 $lObjectRefParent->setValue('name', 'hahahahaha');
 $lObjectRefParent->setValue('parent', $lTest);

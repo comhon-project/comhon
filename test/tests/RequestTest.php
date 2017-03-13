@@ -184,7 +184,7 @@ if (count($lObject->getUpdatedValues()) !== 0) {
 	throw new Exception('should not have updated values after save');
 }
 
-$lObject = $lDbTestModel->loadObject('[1,1501774389]', [], true);
+$lObject = $lDbTestModel->loadObject('[1,1501774389]', null, true);
 $lObject->getValue('timestamp')->add(new DateInterval('P0Y0M0DT5H0M0S'));
 $lObject->setValue('notSerializedValue', 'azezaeaze');
 $lObject->setValue('notSerializedForeignObject', $lObject->getValue('lonelyForeignObject'));
@@ -224,7 +224,7 @@ if (count($lObject->getUpdatedValues()) !== 0) {
 	throw new Exception('should not have updated values after save');
 }
 
-$lObject = $lDbTestModel->loadObject('[1,1501774389]', [], true);
+$lObject = $lDbTestModel->loadObject('[1,1501774389]', null, true);
 if ($lObject->hasValue('integer')) {
 	throw new Exception('should not have updated values after save');
 }
@@ -326,19 +326,14 @@ if (json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()) !== 
 	var_dump(json_encode($lPublicObjectJson));
 	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()));
 }
-/*
+
 $lChildren = $lTestDb->getValue('childrenTestDb');
 $lTestDb1 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
 $lTestDb->reset();
 $lTestDb2 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
 $lTestDb->setUnLoadStatus();
 $lTestDb->setId('[1,"1501774389"]', false);
-var_dump('+++++++++++++++++');
 $lTestDb3 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
-
-$lTestDb->setValue('childrenTestDb', $lChildren, false);
-$lTestDb->getValue('childrenTestDb')->getValue(0)->setValue('parentTestDb', $lTestDb);
-$lTestDb->getValue('childrenTestDb')->getValue(0)->loadValue('parentTestDb', ['integer']);
 
 if (!is_null($lTestDb2)) {
 	throw new Exception('should be null');
@@ -346,9 +341,21 @@ if (!is_null($lTestDb2)) {
 if (is_null($lTestDb3)) {
 	throw new Exception('should be not null');
 }
-if ($lTestDb1 !== $lTestDb3) {
+if ($lTestDb !== $lTestDb1 || $lTestDb1 !== $lTestDb3) {
 	throw new Exception('should be same instance');
 }
+$lTestDb->deleteValue('id2');
+if (!is_null(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb'))) {
+	throw new Exception('should be null');
+}
+$lTestDb->setValue('id2', '1501774389');
+if ($lTestDb !== MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb')) {
+	throw new Exception('should be same instance');
+}
+
+$lTestDb->setValue('childrenTestDb', $lChildren, false);
+$lTestDb->getValue('childrenTestDb')->getValue(0)->setValue('parentTestDb', $lTestDb);
+$lTestDb->getValue('childrenTestDb')->getValue(0)->loadValue('parentTestDb', ['integer']);
 
 if (json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()) !== '[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2}]') {
 	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()));
@@ -357,13 +364,16 @@ if (json_encode($lTestDb->toPublicStdObject()) !== '{"id1":1,"id2":"1501774389",
 	var_dump(json_encode($lPublicObjectJson));
 	throw new Exception('bad object : '.json_encode($lTestDb->toPublicStdObject()));
 }
-*/
+
 
 // reset children
 $lTestDb->initValue('childrenTestDb', false, false);
 foreach (MainObjectCollection::getInstance()->getModelObjects('childTestDb') as $lChild) {
 	MainObjectCollection::getInstance()->removeObject($lChild);
 }
+
+$lTestDb->getModel()->loadObject($lTestDb->getId(), null, true);
+$lTestDb->reorderValues();
 
 $time_end = microtime(true);
 var_dump('request test exec time '.($time_end - $time_start));

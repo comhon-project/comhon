@@ -10,7 +10,7 @@ class ForeignProperty extends Property {
 		parent::__construct($pModel, $pName, $pSerializationName, false, $pIsPrivate, $pIsSerializable);
 	}
 	
-	public function loadValue(Object $pObject, $pPropertiesFilter = []) {
+	public function loadValue(Object $pObject, $pPropertiesFilter = null) {
 		if ($pObject->isLoaded()) {
 			return false;
 		}

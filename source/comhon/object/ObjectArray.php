@@ -16,7 +16,7 @@ class ObjectArray extends Object {
 	 * @param string[] $pPropertiesFilter
 	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
 	 */
-	public function loadValue($pkey, $pPropertiesFilter = []) {
+	public function loadValue($pkey, $pPropertiesFilter = null) {
 		return $this->getModel()->getUniqueModel()->loadAndFillObject($this->getValue($pkey), $pPropertiesFilter);
 	}
 	

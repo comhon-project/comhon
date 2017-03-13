@@ -10,6 +10,7 @@ use comhon\exception\PropertyException;
 use comhon\visitor\ObjectCollectionCreator;
 use \stdClass;
 use comhon\object\serialization\SerializationUnit;
+use comhon\exception\CastException;
 
 class MainModel extends Model {
 	
@@ -390,7 +391,7 @@ class MainModel extends Model {
 	 * @throws \Exception
 	 * @return Object|null null if load is unsuccessfull
 	 */
-	public function loadObject($pId, $pPropertiesFilter = [], $pForceLoad = false) {
+	public function loadObject($pId, $pPropertiesFilter = null, $pForceLoad = false) {
 		$this->load();
 		if (!$this->hasIdProperties()) {
 			throw new \Exception("model '$this->mModelName' must have at least one id property to load object");
@@ -403,11 +404,22 @@ class MainModel extends Model {
 		
 		if (is_null($lMainObject)) {
 			$lMainObject = $this->_buildObjectFromId($pId, false, false);
+			$lNewObject = true;
 		} else if ($lMainObject->isLoaded() && !$pForceLoad) {
 			return $lMainObject;
+		} else {
+			$lNewObject = false;
 		}
-
-		return $this->loadAndFillObject($lMainObject, $pPropertiesFilter, $pForceLoad) ? $lMainObject : null;
+		
+		try {
+			return $this->loadAndFillObject($lMainObject, $pPropertiesFilter, $pForceLoad) ? $lMainObject : null;
+		} catch (CastException $e) {
+			// replace by finally block for php 5.5+
+			if ($lNewObject) {
+				$lMainObject->reset();
+				throw $e;
+			}
+		}
 	}
 	
 	/**
@@ -418,7 +430,7 @@ class MainModel extends Model {
 	 * @throws \Exception
 	 * @return Object|null null if load is unsuccessfull
 	 */
-	public function loadAndFillObject(Object $pObject, $pPropertiesFilter = [], $pForceLoad = false) {
+	public function loadAndFillObject(Object $pObject, $pPropertiesFilter = null, $pForceLoad = false) {
 		$lSuccess = false;
 		$this->load();
 		if (is_null($lSerializationUnit = $this->getSerialization())) {
@@ -458,26 +470,18 @@ class MainModel extends Model {
 		
 		if (!$lModel->hasIdProperties()) {
 			$lMainObject = $lModel->getObjectInstance($pIsloaded);
-			MainObjectCollection::getInstance()->addObject($lMainObject);
-			//trigger_error("new main without id $pId, $lModel->mModelName");
 		}
 		else {
 			$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $lModel->mModelName);
 			if (is_null($lMainObject)) {
 				$lMainObject = $lModel->_buildObjectFromId($pId, $pIsloaded, $pFlagAsUpdated);
-				MainObjectCollection::getInstance()->addObject($lMainObject);
-				//trigger_error("new main $pId, $lModel->mModelName");
 			}
 			else {
 				if (!MainObjectCollection::getInstance()->hasObject($pId, $lModel->mModelName, false)) {
 					$lMainObject->cast($lModel);
 				}
 				if ($pUpdateLoadStatus) {
-					//trigger_error("main already added $pId, $lModel->mModelName");
-					//trigger_error("update main status ".var_export($lMainObject->isLoaded(), true));
 					$lMainObject->setLoadStatus();
-				} else {
-					//trigger_error("main already added $pId, $lModel->mModelName doesn't update");
 				}
 			}
 		}

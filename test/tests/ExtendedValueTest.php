@@ -33,7 +33,6 @@ if ($lPersonModel->getSerialization()->getInheritanceKey() != 'sex') {
 
 $lPerson = $lPersonModel->getObjectInstance(false);
 $lPerson->setId('2');
-MainObjectCollection::getInstance()->addObject($lPerson);
 $lWoman = $lPersonModel->loadObject(2);
 
 if ($lWoman->getModel() !== $lWomanModel) {

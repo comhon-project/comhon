@@ -12,6 +12,7 @@ use comhon\model\SimpleModel;
 use comhon\object\collection\MainObjectCollection;
 use comhon\utils\Utils;
 use comhon\model\property\AggregationProperty;
+use comhon\exception\CastException;
 
 class Object {
 
@@ -72,10 +73,12 @@ class Object {
 				$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
 			}
 		}
-		if ($this->_hasToUpdateMainObjectCollection($pName)) {
-			MainObjectCollection::getInstance()->removeObject($this);
+		if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel)) {
+			if ($this->hasCompleteId() && MainObjectCollection::getInstance()->getObject($this->getId(), $this->mModel->getName()) === $this) {
+				MainObjectCollection::getInstance()->removeObject($this);
+			}
 			$this->mValues[$pName] = $pValue;
-			MainObjectCollection::getInstance()->addObject($this);
+			MainObjectCollection::getInstance()->addObject($this, false);
 		} else {
 			$this->mValues[$pName] = $pValue;
 		}
@@ -90,15 +93,6 @@ class Object {
 		}
 	}
 	
-	private final function _hasToUpdateMainObjectCollection($pName) {
-		return $this->mModel->hasIdProperty($pName)
-		&& ($this->mModel instanceof MainModel)
-		&& (
-			//! MainObjectCollection::getInstance()->hasObject($this->getId(), $this->mModel->getName())
-			/*||*/ MainObjectCollection::getInstance()->getObject($this->getId(), $this->mModel->getName()) === $this
-		);
-	}
-	
 	protected final function _pushValue($pValue, $pFlagAsUpdated) {
 		$this->mValues[] = $pValue;
 		if ($pFlagAsUpdated) {
@@ -108,9 +102,9 @@ class Object {
 	
 	public final function deleteValue($pName) {
 		if ($this->hasValue($pName)) {
-			/*if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel)) {
+			if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel)) {
 				MainObjectCollection::getInstance()->removeObject($this);
-			}*/
+			}
 			unset($this->mValues[$pName]);
 			$this->mIsUpdated = true;
 			$this->mUpdatedValues[$pName] = true;
@@ -138,9 +132,9 @@ class Object {
 	 * reset values and reset update status
 	 */
 	public final function reset() {
-		/*if ($this->mModel->hasIdProperties() && ($this->mModel instanceof MainModel)) {
+		if ($this->mModel->hasIdProperties() && ($this->mModel instanceof MainModel)) {
 			MainObjectCollection::getInstance()->removeObject($this);
-		}*/
+		}
 		$this->mValues = [];
 		$this->mIsUpdated = false;
 		$this->mUpdatedValues = [];
@@ -413,7 +407,7 @@ class Object {
 			throw new \Exception('object array cannot be casted');
 		}
 		if (!$pModel->isInheritedFrom($this->mModel)) {
-			throw new \Exception("Cannot cast object, '{$pModel->getName()}' is not inherited from '{$this->mModel->getName()}'");
+			throw new CastException($pModel, $this->mModel);
 		}
 		$lhasCompleteId = $this->hasCompleteId();
 		if ($lhasCompleteId) {
@@ -488,7 +482,7 @@ class Object {
 	 * @param string[] $pPropertiesFilter
 	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
 	 */
-	public function loadValue($pName, $pPropertiesFilter = []) {
+	public function loadValue($pName, $pPropertiesFilter = null) {
 		$lProperty = $this->getProperty($pName, true);
 		if ($lProperty instanceof AggregationProperty) {
 			return $lProperty->loadValue($this->getValue($pName), $this, $pPropertiesFilter);

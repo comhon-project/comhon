@@ -345,8 +345,10 @@ if (json_encode($lModelArrayDbTest->fromPublicStdObject($lCopiedObjectArray->toP
 
 function resetValues($pObjectArray) {
 	foreach ($pObjectArray->getValues() as $lObject) {
+		$lId = $lObject->getId();
 		$lObject->reset();
 		$lObject->setValue('defaultValue', 'plop');
+		$lObject->setId($lId);
 	}
 }
 
@@ -354,6 +356,8 @@ $lNewObject = $lTestDbs;
 resetValues($lNewObject);
 $lModelArrayDbTest->fillObjectFromPrivateStdObject($lNewObject, $lCopiedObjectArray->toPrivateStdObject());
 if (json_encode($lNewObject->toPrivateStdObject()) !== $lPrivateStdObjectEnd) {
+	var_dump(json_encode($lNewObject->toPrivateStdObject()));
+	var_dump($lPrivateStdObjectEnd);
 	throw new \Exception('bad private object value');
 }
 resetValues($lNewObject);
