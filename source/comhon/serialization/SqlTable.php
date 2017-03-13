@@ -1,5 +1,5 @@
 <?php
-namespace comhon\object\serialization;
+namespace comhon\serialization;
 
 use comhon\database\DatabaseController;
 use comhon\database\LogicalJunction;

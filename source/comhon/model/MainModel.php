@@ -2,14 +2,14 @@
 namespace comhon\model;
 
 use comhon\model\singleton\ModelManager;
-use comhon\object\serialization\SqlTable;
+use comhon\serialization\SqlTable;
 use comhon\object\Object;
 use comhon\object\ObjectArray;
 use comhon\object\collection\MainObjectCollection;
 use comhon\exception\PropertyException;
 use comhon\visitor\ObjectCollectionCreator;
 use \stdClass;
-use comhon\object\serialization\SerializationUnit;
+use comhon\serialization\SerializationUnit;
 use comhon\exception\CastException;
 
 class MainModel extends Model {

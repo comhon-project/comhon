@@ -1,7 +1,7 @@
 <?php
 namespace comhon\model\property;
 
-use comhon\object\serialization\SqlTable;
+use comhon\serialization\SqlTable;
 use comhon\object\ObjectArray;
 use comhon\object\Object;
 

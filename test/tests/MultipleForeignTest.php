@@ -3,7 +3,7 @@
 use comhon\model\singleton\ModelManager;
 use comhon\object\Object;
 use comhon\api\ObjectService;
-use comhon\object\serialization\SqlTable;
+use comhon\serialization\SqlTable;
 use comhon\request\SimpleLoadRequest;
 use comhon\object\collection\MainObjectCollection;
 use comhon\model\property\MultipleForeignProperty;

@@ -1,7 +1,7 @@
 <?php
 
 use comhon\model\singleton\ModelManager;
-use comhon\object\serialization\file\XmlFile;
+use comhon\serialization\file\XmlFile;
 
 $time_start = microtime(true);
 

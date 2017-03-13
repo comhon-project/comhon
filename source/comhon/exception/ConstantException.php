@@ -7,7 +7,7 @@ abstract class ConstantException {
 	const PROPERTY_EXCEPTION             = 101;
 	const CAST_EXCEPTION                 = 102;
 
-	// visitor exception
+	// controller exception
 	const CONTROLLER_PARAMETER_EXCEPTION = 201;
 	
 }

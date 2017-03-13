@@ -20,7 +20,7 @@ use comhon\controller\ForeignObjectLoader;
 use comhon\controller\AggregationLoader;
 use comhon\exception\PropertyException;
 use \Exception;
-use comhon\object\serialization\SqlTable;
+use comhon\serialization\SqlTable;
 use comhon\database\TableNode;
 use comhon\database\OnLiteral;
 use comhon\database\OnLogicalJunction;

@@ -1,5 +1,5 @@
 <?php
-namespace comhon\object\serialization;
+namespace comhon\serialization;
 
 use comhon\object\collection\MainObjectCollection;
 use comhon\model\Model;

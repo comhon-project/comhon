@@ -1,7 +1,7 @@
 <?php
 
 use comhon\model\singleton\ModelManager;
-use comhon\object\serialization\SqlTable;
+use comhon\serialization\SqlTable;
 use comhon\database\DatabaseController;
 
 $time_start = microtime(true);

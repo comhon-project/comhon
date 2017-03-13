@@ -18,7 +18,7 @@ use comhon\model\ModelForeign;
 use comhon\model\SimpleModel;
 use comhon\model\property\ForeignProperty;
 use comhon\model\property\AggregationProperty;
-use comhon\object\serialization\SerializationUnit;
+use comhon\serialization\SerializationUnit;
 use comhon\object\config\Config;
 use comhon\manifest\parser\ManifestParser;
 use comhon\object\Object;

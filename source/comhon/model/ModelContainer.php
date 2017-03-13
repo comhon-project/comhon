@@ -1,7 +1,7 @@
 <?php
 namespace comhon\model;
 use \Exception;
-use comhon\object\serialization\SerializationUnit;
+use comhon\serialization\SerializationUnit;
 
 abstract class ModelContainer extends Model {
 
