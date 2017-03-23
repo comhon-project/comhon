@@ -226,17 +226,18 @@ class LogicalJunction {
 	 * @param Model[] $pModelByNodeId
 	 * @param Literal[] $pLiteralCollection
 	 * @param SelectQuery $pSelectQuery
+	 * @param boolean $pAllowPrivateProperties
 	 * @throws \Exception
 	 * @return \comhon\database\LogicalJunction
 	 */
-	public static function stdObjectToLogicalJunction($pStdObject, $pModelByNodeId, $pLiteralCollection = null, $pSelectQuery = null) {
+	public static function stdObjectToLogicalJunction($pStdObject, $pModelByNodeId, $pLiteralCollection = null, $pSelectQuery = null, $pAllowPrivateProperties = true) {
 		if (!isset($pStdObject->type) || (isset($pStdObject->logicalJunctions) && !is_array($pStdObject->logicalJunctions)) || (isset($pStdObject->literals) && !is_array($pStdObject->literals))) {
 			throw new \Exception('malformed stdObject LogicalJunction : '.json_encode($pStdObject));
 		}
 		$lLogicalJunction = new LogicalJunction($pStdObject->type);
 		if (isset($pStdObject->logicalJunctions)) {
 			foreach ($pStdObject->logicalJunctions as $lStdObjectLogicalJunction) {
-				$lLogicalJunction->addLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($lStdObjectLogicalJunction, $pModelByNodeId, $pLiteralCollection, $pSelectQuery));
+				$lLogicalJunction->addLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($lStdObjectLogicalJunction, $pModelByNodeId, $pLiteralCollection, $pSelectQuery, $pAllowPrivateProperties));
 			}
 		}
 		if (isset($pStdObject->literals)) {
@@ -248,7 +249,7 @@ class LogicalJunction {
 				} else {
 					throw new \Exception('node doesn\' exists or not recognized'.json_encode($lStdObjectLiteral));
 				}
-				$lLogicalJunction->addLiteral(Literal::stdObjectToLiteral($lStdObjectLiteral, $lModel, $pLiteralCollection, $pSelectQuery));
+				$lLogicalJunction->addLiteral(Literal::stdObjectToLiteral($lStdObjectLiteral, $lModel, $pLiteralCollection, $pSelectQuery, $pAllowPrivateProperties));
 			}
 		}
 		return $lLogicalJunction;

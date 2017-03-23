@@ -56,10 +56,11 @@ class HavingLiteral extends Literal {
 	 * @param stdClass $pStdObject
 	 * @param string|TableNode $pTable not necessary if proeprty 'node' is specified in $pStdObject
 	 * @param Model $pModel not necessary if function is COUNT
+	 * @param boolean $pAllowPrivateProperties
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function stdObjectToHavingLiteral($pStdObject, $pTable = null, $pModel = null) {
+	public static function stdObjectToHavingLiteral($pStdObject, $pTable = null, $pModel = null, $pAllowPrivateProperties = true) {
 		self::_verifStdObject($pStdObject);
 		
 		if ($pStdObject->function == HavingLiteral::COUNT) {
@@ -68,7 +69,11 @@ class HavingLiteral extends Literal {
 			if (is_null($pModel)) {
 				throw new \Exception('model can\'t be null if function is different than COUNT');
 			}
-			$lColumn = $pModel->getProperty($pStdObject->property, true)->getSerializationName();
+			$lProperty = $pModel->getProperty($pStdObject->property, true);
+			if (!$pAllowPrivateProperties && $lProperty->isPrivate()) {
+				throw new \Exception("having literal contain private property '{$lProperty->getName()}'");
+			}
+			$lColumn = $lProperty->getSerializationName();
 		} else {
 			throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
 		}

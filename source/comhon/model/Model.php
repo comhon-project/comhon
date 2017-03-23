@@ -4,6 +4,7 @@ namespace comhon\model;
 use comhon\model\singleton\ModelManager;
 use comhon\serialization\SqlTable;
 use comhon\object\Object;
+use comhon\object\_final\Object as FinalObject;
 use comhon\object\ObjectArray;
 use comhon\exception\PropertyException;
 use comhon\object\config\Config;
@@ -28,7 +29,8 @@ abstract class Model {
 	protected $mIsLoading    = false;
 	
 	private $mExtendsModel;
-	private $mObjectClass  = 'comhon\object\Object';
+	private $mObjectClass  = 'comhon\object\_final\Object';
+	private $mIsExtended   = false;
 	private $mProperties   = [];
 	private $mIdProperties = [];
 	private $mAggregations = [];
@@ -61,6 +63,9 @@ abstract class Model {
 			
 			if (!is_null($lResult[ModelManager::OBJECT_CLASS])) {
 				$this->mObjectClass = $lResult[ModelManager::OBJECT_CLASS];
+				if ($this->mObjectClass !== 'comhon\object\_final\Object') {
+					$this->mIsExtended = true;
+				}
 			}
 			$this->_setSerialization();
 			$this->_init();
@@ -85,7 +90,12 @@ abstract class Model {
 	 * @return Object
 	 */
 	public function getObjectInstance($pIsloaded = true) {
-		return new $this->mObjectClass($this, $pIsloaded);
+		if ($this->mIsExtended) {
+			return new $this->mObjectClass($pIsloaded);
+		} else {
+			return new $this->mObjectClass($this, $pIsloaded);
+		}
+		
 	}
 	
 	public function getExtendsModel() {
@@ -496,7 +506,7 @@ abstract class Model {
 		if ($lValuesCount == 0) {
 			return $pObject;
 		}
-		$lNewObject = new Object($pObject->getModel());
+		$lNewObject = new FinalObject($pObject->getModel());
 		$lNewObject->reset();
 		foreach ($pPropertiesFilter as $lPropertyFilter) {
 			if ($pObject->hasValue($lPropertyFilter)) {
@@ -1107,7 +1117,7 @@ abstract class Model {
 	 * @param Object $pValue
 	 */
 	public function verifValue($pValue) {
-		if (!is_a($pValue, $this->mObjectClass)) {
+		if (!is_a($pValue, $this->mObjectClass) || ($pValue->getModel() !== $this && !$pValue->getModel()->isInheritedFrom($this))) {
 			$lNodes = debug_backtrace();
 			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
 			throw new \Exception("Argument 2 passed to {$lNodes[1]['class']}::{$lNodes[1]['function']}() must be an instance of $this->mObjectClass, instance of $lClass given, called in {$lNodes[1]['file']} on line {$lNodes[1]['line']} and defined in {$lNodes[0]['file']}");

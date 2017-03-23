@@ -23,12 +23,46 @@ abstract class ObjectLoadRequest {
 	protected $mModel;
 	protected $mRequestChildren          = false;
 	protected $mLoadForeignProperties    = false;
+	protected $mPropertiesFilter;
+	protected $mPrivate;
 	
-	public function __construct($pModelName) {
+	public function __construct($pModelName, $pPrivate = false) {
 		$this->mModel = ModelManager::getInstance()->getInstanceModel($pModelName);
+		$this->mPrivate = $pPrivate;
 	}
 	
-	public abstract function execute($pValue);
+	public abstract function execute();
+	
+	private $mId;
+	
+	/**
+	 *
+	 * @param string[] $pPropertiesFilter
+	 */
+	public function setPropertiesFilter($pPropertiesFilter) {
+		if (empty($pPropertiesFilter)) {
+			return;	
+		}
+		$this->mPropertiesFilter = [];
+		// ids have to be in selected columns so if they are not defined in filter, we add them
+		foreach ($this->mModel->getIdProperties() as $lProperty) {
+			$this->mPropertiesFilter[] = $lProperty->getName();
+		}
+		// add defined columns
+		foreach ($pPropertiesFilter as $pPropertyName) {
+			$lProperty = $this->mModel->getProperty($pPropertyName, true);
+			if ($lProperty->isAggregation()) {
+				throw new \Exception("aggregation property '$pPropertyName' can't be a filter property");
+			} else if (!$this->mPrivate && $lProperty->isPrivate()) {
+				throw new \Exception("private property '$pPropertyName' can't be a filter property for public request");
+			}
+			else {
+				$this->mPropertiesFilter[] = $pPropertyName;
+			}
+		}
+		// remove possible duplicated columns
+		$this->mPropertiesFilter = array_unique($this->mPropertiesFilter);
+	}
 		
 	public function requestChildren($pBoolean) {
 		$this->mRequestChildren = $pBoolean;

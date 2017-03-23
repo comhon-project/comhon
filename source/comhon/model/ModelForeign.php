@@ -13,6 +13,14 @@ class ModelForeign extends ModelContainer {
 		}
 	}
 	
+	public function getObjectClass() {
+		return $this->getModel()->getObjectClass();
+	}
+	
+	public function getObjectInstance($pIsloaded = true) {
+		return $this->getModel()->getObjectInstance($pIsloaded);
+	}
+	
 	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (is_null($pValue)) {
 			return null;

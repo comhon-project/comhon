@@ -2,6 +2,7 @@
 
 use comhon\model\singleton\ModelManager;
 use comhon\object\Object;
+use comhon\object\_final\Object as FinalObject;
 use comhon\api\ObjectService;
 use comhon\serialization\SqlTable;
 use comhon\request\SimpleLoadRequest;
@@ -37,7 +38,7 @@ $Json = '{
 	}
 }';
 
-$lResult = ObjectService::getObjects(json_decode($Json));
+$lResult = ObjectService::getObjects(json_decode($Json), true);
 
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !isset($lResult->result) || !is_array($lResult->result)) {
 	var_dump(json_encode($lResult));
@@ -73,7 +74,7 @@ $Json = '{
 	}
 }';
 
-$lResult = ObjectService::getObjects(json_decode($Json));
+$lResult = ObjectService::getObjects(json_decode($Json), true);
 
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !isset($lResult->result) || !is_array($lResult->result)) {
 	var_dump(json_encode($lResult));
@@ -97,7 +98,7 @@ $lBasedObjects  = [
 
 $lObject = null;
 foreach ($lResult->result as $lIndex => $lStdObject) {
-	$lObject = new Object('testDb');
+	$lObject = new FinalObject('testDb');
 	try {
 		$lObject->fromPrivateStdObject($lStdObject);
 		$lThrow = true;
@@ -112,10 +113,10 @@ foreach ($lResult->result as $lIndex => $lStdObject) {
 	unset($lStdObject->id1);
 	unset($lStdObject->id2);
 	
-	$lObject = new Object('testDb');
+	$lObject = new FinalObject('testDb');
 	$lObject->fromPrivateStdObject($lStdObject);
 
-	$lObject2 = new Object('testDb');
+	$lObject2 = new FinalObject('testDb');
 	$lObject2->fromSerializedXml($lObject->toSerialXml());
 	$lObject2->setValue('id1', $lId1);
 	$lObject2->setValue('id2', $lId2);
@@ -226,7 +227,7 @@ if (count($lObject->getUpdatedValues()) !== 0) {
 
 $lObject = $lDbTestModel->loadObject('[1,1501774389]', null, true);
 if ($lObject->hasValue('integer')) {
-	throw new Exception('should not have updated values after save');
+	throw new Exception('should not have integer value');
 }
 $lObject->setValue('integer', $lValue);
 $lObject->reorderValues();
@@ -249,7 +250,7 @@ $lParams = new stdClass();
 $lParams->model = 'testDb';
 $lParams->id = '[1,1501774389]';
 $lParams->properties = ['date','timestamp','integer','string'];
-$lResult = ObjectService::getObject($lParams);
+$lResult = ObjectService::getObject($lParams, true);
 
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 	throw new Exception('simple load request failed : '.json_encode($lResult));
@@ -294,7 +295,7 @@ $lParams = new stdClass();
 $lParams->model = 'testDb';
 $lParams->id = '[1,1501774389]';
 $lParams->properties = ['date','timestamp','integer','string'];
-$lResult = ObjectService::getObject($lParams);
+$lResult = ObjectService::getObject($lParams, true);
 
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 	throw new Exception('simple load request failed');

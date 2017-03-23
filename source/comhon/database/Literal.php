@@ -188,10 +188,11 @@ class Literal {
 	 * @param Model $pMainModel
 	 * @param Literal[] $pLiteralCollection
 	 * @param SelectQuery $pSelectQuery
+	 * @param boolean $pAllowPrivateProperties
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function stdObjectToLiteral($pStdObject, $pMainModel, $pLiteralCollection = null, $pSelectQuery = null) {
+	public static function stdObjectToLiteral($pStdObject, $pMainModel, $pLiteralCollection = null, $pSelectQuery = null, $pAllowPrivateProperties = true) {
 		if (isset($pStdObject->id) && !is_null($pLiteralCollection)) {
 			if (!array_key_exists($pStdObject->id, $pLiteralCollection)) {
 				throw new \Exception("literal id '{$pStdObject->id}' is not defined in literal collection");
@@ -202,8 +203,8 @@ class Literal {
 		$lTable = $pStdObject->node;
 		
 		if (isset($pStdObject->queue)) {
-			list($lJoinedTables, $lOn) = self::_getJoinedTablesFromQueue($pMainModel, $pStdObject->queue);
-			$lSelectQuery = self::_setSubSelectQuery($lJoinedTables, $lOn, $pStdObject);
+			list($lJoinedTables, $lOn) = self::_getJoinedTablesFromQueue($pMainModel, $pStdObject->queue, $pAllowPrivateProperties);
+			$lSelectQuery = self::_setSubSelectQuery($lJoinedTables, $lOn, $pStdObject, $pAllowPrivateProperties);
 			$lRigthTable  = new TableNode($lSelectQuery, 't_'.self::$sIndex++, false);
 			
 			if (!is_null($pSelectQuery)) {
@@ -222,6 +223,9 @@ class Literal {
 			$lProperty =  $pMainModel->getProperty($pStdObject->property, true);
 			if ($lProperty->isAggregation()) {
 				throw new \Exception("literal cannot contain aggregation porperty '{$pStdObject->property}'");
+			}
+			if (!$pAllowPrivateProperties && $lProperty->isPrivate()) {
+				throw new \Exception("literal contain private property '{$lProperty->getName()}'");
 			}
 			$lLiteral  = new Literal($lTable, $lProperty->getSerializationName(), $pStdObject->operator, $pStdObject->value);
 		}
@@ -248,12 +252,13 @@ class Literal {
 	 * 
 	 * @param MainModel $pModel
 	 * @param \stdClass $pQueue
+	 * @param boolean $pAllowPrivateProperties
 	 * @throws \Exception
 	 * @return [[], []]
 	 * - first element is array of joined tables
 	 * - second element is array of columns that will be use for group, select and joins with principale query
 	 */
-	private static function _getJoinedTablesFromQueue(MainModel $pModel, $pQueue) {
+	private static function _getJoinedTablesFromQueue(MainModel $pModel, $pQueue, $pAllowPrivateProperties) {
 		$lFirstTable    = new TableNode($pModel->getSqlTableUnit()->getSettings()->getValue('name'), null, false);
 		$lLeftTable     = $lFirstTable;
 		$lFirstModel    = $pModel;
@@ -267,7 +272,10 @@ class Literal {
 			if (!is_object($lCurrentNode) || !isset($lCurrentNode->property)) {
 				throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
 			}
-			$lProperty       = $lLeftModel->getProperty($lCurrentNode->property, true);
+			$lProperty = $lLeftModel->getProperty($lCurrentNode->property, true);
+			if (!$pAllowPrivateProperties && $lProperty->isPrivate()) {
+				throw new \Exception("literal contain private property '{$lProperty->getName()}'");
+			}
 			$lLeftJoin       = ComplexLoadRequest::prepareJoinedTable($lLeftTable, $lProperty, self::_getAlias());
 			$lJoinedTables[] = $lLeftJoin;
 			
@@ -307,9 +315,10 @@ class Literal {
 	 * @param Model $pMainModel
 	 * @param [] $pJoinedTables
 	 * @param \stdClass $pStdObject
+	 * @param boolean $pAllowPrivateProperties
 	 * @return \comhon\database\SelectQuery
 	 */
-	private static function _setSubSelectQuery($pJoinedTables, $pGroupColumns, $pStdObject) {
+	private static function _setSubSelectQuery($pJoinedTables, $pGroupColumns, $pStdObject, $pAllowPrivateProperties) {
 		$lMainTable   = $pJoinedTables[0]['table'];
 		$lSelectQuery = new SelectQuery($lMainTable);
 		
@@ -328,10 +337,10 @@ class Literal {
 		}
 		
 		if (isset($pStdObject->havingLogicalJunction)) {
-			$lHaving = HavingLogicalJunction::stdObjectToHavingLogicalJunction($pStdObject->havingLogicalJunction, $lMainTable, $lLastTable, $lLastModel);
+			$lHaving = HavingLogicalJunction::stdObjectToHavingLogicalJunction($pStdObject->havingLogicalJunction, $lMainTable, $lLastTable, $lLastModel, $pAllowPrivateProperties);
 		} else {
 			$lTable  = isset($pStdObject->havingLiteral->function) && ($pStdObject->havingLiteral->function == HavingLiteral::COUNT) ? $lMainTable : $lLastTable;
-			$lHaving = HavingLiteral::stdObjectToHavingLiteral($pStdObject->havingLiteral, $lTable, $lLastModel);
+			$lHaving = HavingLiteral::stdObjectToHavingLiteral($pStdObject->havingLiteral, $lTable, $lLastModel, $pAllowPrivateProperties);
 		}
 		$lSelectQuery->having($lHaving);
 		return $lSelectQuery;

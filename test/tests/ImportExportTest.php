@@ -2,6 +2,7 @@
 
 use comhon\model\singleton\ModelManager;
 use comhon\object\Object;
+use comhon\object\_final\Object as FinalObject;
 use comhon\api\ObjectService;
 use comhon\serialization\SqlTable;
 use comhon\request\SimpleLoadRequest;
@@ -16,7 +17,7 @@ $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[1,1501774389]');
 $lObject->reorderValues();
 
-$lCopiedObject = new Object('testDb');
+$lCopiedObject = new FinalObject('testDb');
 foreach ($lObject->getValues() as $lKey => $lValue) {
 	$lCopiedObject->setValue($lKey, $lValue);
 }
@@ -68,7 +69,7 @@ if (json_encode($lDbTestModel->fromPublicStdObject($lCopiedObject->toPrivateStdO
 	throw new \Exception('bad public object value');
 }
 
-$lNewObject = new Object('testDb');
+$lNewObject = new FinalObject('testDb');
 try {
 	$lDbTestModel->fillObjectFromPrivateStdObject($lNewObject, $lCopiedObject->toPrivateStdObject());
 	$lThrow = true;
@@ -284,10 +285,11 @@ $lPrivateStdObjectWithoutAggregation = '[{"defaultValue":"default","id1":1,"id2"
 $lPublicStdObjectWithoutAggregation  = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":1,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":3,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"integer":4,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]';
 
 
-$lModelArrayDbTest = new ModelArray($lDbTestModel, 'childTestDb');
-$lCopiedObjectArray = new ObjectArray($lModelArrayDbTest);
+$lCopiedObjectArray = new ObjectArray($lDbTestModel, true, 'childTestDb');
+$lModelArrayDbTest = $lCopiedObjectArray->getModel();
+
 foreach ($lTestDbs->getValues() as $lObject) {
-	$lCopiedObject = new Object('testDb');
+	$lCopiedObject = new FinalObject('testDb');
 	foreach ($lObject->getValues() as $lKey => $lValue) {
 		$lCopiedObject->setValue($lKey, $lValue);
 	}

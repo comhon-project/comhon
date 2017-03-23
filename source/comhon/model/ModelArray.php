@@ -23,6 +23,10 @@ class ModelArray extends ModelContainer {
 		return $this->mElementName;
 	}
 	
+	public function getObjectClass() {
+		return 'comhon\object\ObjectArray';
+	}
+	
 	public function getObjectInstance($pIsloaded = true) {
 		return new ObjectArray($this, $pIsloaded);
 	}
@@ -462,10 +466,10 @@ class ModelArray extends ModelContainer {
 	}
 	
 	public function verifValue($pValue) {
-		if (!($pValue instanceof ObjectArray)) {
+		if (!($pValue instanceof ObjectArray) || ($pValue->getModel()->getModel() !== $this->getModel() && !$pValue->getModel()->getModel()->isInheritedFrom($this->getModel()))) {
 			$lNodes = debug_backtrace();
 			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
-			throw new \Exception("Argument 2 passed to {$lNodes[1]['class']}::{$lNodes[1]['function']}() must be an instance of $this->mObjectClass, instance of $lClass given, called in {$lNodes[1]['file']} on line {$lNodes[1]['line']} and defined in {$lNodes[0]['file']}");
+			throw new \Exception("Argument 2 passed to {$lNodes[1]['class']}::{$lNodes[1]['function']}() must be an instance of {$this->getObjectClass()}, instance of $lClass given, called in {$lNodes[1]['file']} on line {$lNodes[1]['line']} and defined in {$lNodes[0]['file']}");
 		}
 	}
 	

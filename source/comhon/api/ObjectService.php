@@ -9,22 +9,21 @@ use comhon\request\SimpleLoadRequest;
 
 class ObjectService {
 	
-	public static function getObject($pParams) {
+	public static function getObject($pParams, $pPrivate = false) {
 		try {
 			if (!isset($pParams->id)) {
 				throw new \Exception('request doesn\'t have id');
 			}
-			$lFilterProperties = isset($pParams->properties) ? $pParams->properties : [];
-			$lObjectArray = SimpleLoadRequest::buildObjectLoadRequest($pParams)->execute($pParams->id, $lFilterProperties);
+			$lObjectArray = SimpleLoadRequest::buildObjectLoadRequest($pParams, $pPrivate)->execute();
 			return self::_setSuccessReturn($lObjectArray->toPublicStdObject(null, false, self::_getFilterProperties($pParams, $lObjectArray)));
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}
 	}
 	
-	public static function getObjects($pParams) {
+	public static function getObjects($pParams, $pPrivate = false) {
 		try {
-			$lObjectArray = ComplexLoadRequest::buildObjectLoadRequest($pParams)->execute();
+			$lObjectArray = ComplexLoadRequest::buildObjectLoadRequest($pParams, $pPrivate)->execute();
 			$lFilterProperties = isset($pParams->properties) ? $pParams->properties : null;
 			return self::_setSuccessReturn($lObjectArray->toPublicStdObject(null, false, self::_getFilterProperties($pParams, $lObjectArray)));
 		} catch (\Exception $e) {
@@ -57,7 +56,6 @@ class ObjectService {
 		$lReturn->success        = false;
 		$lReturn->error          = new \stdClass();
 		$lReturn->error->message = $pException->getMessage();
-		$lReturn->error->trace   = $pException->getTrace();
 		return $lReturn;
 	}
 	

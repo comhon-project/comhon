@@ -15,8 +15,12 @@ abstract class ModelContainer extends Model {
 		$this->mModel = $pModel;
 	}
 	
+	public function getObjectClass() {
+		throw new \Exception('containers models don\'t have associated class (except array and foreign model)');
+	}
+	
 	public function getObjectInstance($pIsloaded = true) {
-		return $this->getModel()->getObjectInstance($pIsloaded);
+		throw new \Exception('containers models don\'t have associated class (except array and foreign model)');
 	}
 	
 	public function getName() {

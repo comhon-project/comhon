@@ -35,11 +35,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	private $mLoadLength;
 	private $mOrder = [];
 	private $mOffset;
-	private $mSelectedColumns;
 	private $mOptimizeLiterals = false;
 	
-	public function __construct($pModelName) {
-		parent::__construct($pModelName);
+	public function __construct($pModelName, $pPrivate = false) {
+		parent::__construct($pModelName, $pPrivate);
 		if (!$this->mModel->hasSqlTableUnit()) {
 			throw new Exception('error : resquested model '.$this->mModel->getName().' must have a database serialization');
 		}
@@ -77,43 +76,19 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		return $this;
 	}
 	
-	public function setPropertiesFilter($pPropertiesFilter) {
-		$this->mSelectedColumns = [];
-		
-		if (!empty($pPropertiesFilter)) {
-			// ids have to be in selected columns so if they are not defined in filter, we add them
-			foreach ($this->mModel->getIdProperties() as $lProperty) {
-				$this->mSelectedColumns[] = $lProperty->getSerializationName();
-			}
-			// add defined columns
-			foreach ($pPropertiesFilter as $pPropertyName) {
-				$lProperty = $this->mModel->getProperty($pPropertyName, true);
-				if (!$lProperty->isAggregation()) {
-					$this->mSelectedColumns[] = $lProperty->getSerializationName();
-				}
-				else {
-					throw new \Exception("property $pPropertyName can't be a filter property");
-				}
-			}
-			// remove possible duplicated columns
-			$this->mSelectedColumns = array_unique($this->mSelectedColumns);
-		}
-		return $this;
-	}
-	
 	/**
 	 * 
 	 * @param stdClass $pStdObject
 	 * @return ComplexLoadRequest
 	 */
-	public static function buildObjectLoadRequest($pStdObject) {
+	public static function buildObjectLoadRequest($pStdObject, $pPrivate = false) {
 		if (isset($pStdObject->model)) {
 			if (isset($pStdObject->tree)) {
 				throw new Exception('request cannot have model property and tree property in same time');
 			}
-			$lObjectLoadRequest = new ComplexLoadRequest($pStdObject->model);
+			$lObjectLoadRequest = new ComplexLoadRequest($pStdObject->model, $pPrivate);
 		} else if (isset($pStdObject->tree) && isset($pStdObject->tree->model)) {
-			$lObjectLoadRequest = new ComplexLoadRequest($pStdObject->tree->model);
+			$lObjectLoadRequest = new ComplexLoadRequest($pStdObject->tree->model, $pPrivate);
 			$lObjectLoadRequest->importModelTree($pStdObject->tree);
 		} else {
 			throw new Exception('request doesn\'t have model');
@@ -133,7 +108,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (isset($pStdObject->maxLength)) {
 			$lObjectLoadRequest->setMaxLength($pStdObject->maxLength);
 		}
-		if (isset($pStdObject->properties)) {
+		if (isset($pStdObject->properties) && is_array($pStdObject->properties)) {
 			$lObjectLoadRequest->setPropertiesFilter($pStdObject->properties);
 		}
 		if (isset($pStdObject->offset)) {
@@ -205,7 +180,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				if (!isset($pStdObjectLiteral->node) || !array_key_exists($pStdObjectLiteral->node, $this->mModelByNodeId)) {
 					throw new \Exception('node doesn\' exists or not recognized');
 				}
-				$this->addliteralToCollection(Literal::stdObjectToLiteral($pStdObjectLiteral, $this->mModelByNodeId[$pStdObjectLiteral->node], null, $this->mSelectQuery));
+				$this->addliteralToCollection(Literal::stdObjectToLiteral($pStdObjectLiteral, $this->mModelByNodeId[$pStdObjectLiteral->node], null, $this->mSelectQuery, $this->mPrivate));
 			}
 		}
 	}
@@ -231,7 +206,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$this->_getLiteralsByModelName($pStdObjectLogicalJunction, $lMainTableName, $lLitralsByModelName);
 			$this->_buildAndAddJoins($lLitralsByModelName);
 		}
-		$this->setLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($pStdObjectLogicalJunction, $this->mModelByNodeId, $this->mLiteralCollection, $this->mSelectQuery));
+		$this->setLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($pStdObjectLogicalJunction, $this->mModelByNodeId, $this->mLiteralCollection, $this->mSelectQuery, $this->mPrivate));
 	}
 	
 	public function importLiteral($pStdObjectLiteral) {
@@ -248,7 +223,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (!isset($pStdObjectLiteral->node) || !array_key_exists($pStdObjectLiteral->node, $this->mModelByNodeId)) {
 			throw new \Exception('node doesn\' exists or not recognized');
 		}
-		$this->setLiteral(Literal::stdObjectToLiteral($pStdObjectLiteral, $this->mModelByNodeId[$pStdObjectLiteral->node], $this->mLiteralCollection, $this->mSelectQuery));
+		$this->setLiteral(Literal::stdObjectToLiteral($pStdObjectLiteral, $this->mModelByNodeId[$pStdObjectLiteral->node], $this->mLiteralCollection, $this->mSelectQuery, $this->mPrivate));
 	}
 	
 	private function finalize() {
@@ -268,10 +243,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	
 	/**
 	 * execute request
-	 * @param unknown $pValue not used : parent function has parameter so we add one to have same number of parameter
 	 * @return array
 	 */
-	public function execute($pValue = null) {
+	public function execute() {
 		$this->finalize();
 		$lSqlTable = $this->mModel->getSqlTableUnit()->getSettings();
 		$lSqlTable->loadValue('database');
@@ -495,11 +469,17 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * add select columns to $mSelectQuery
 	 */
 	private function _addColumns() {
-		if (is_null($this->mSelectedColumns)) {
+		
+		if (empty($this->mPropertiesFilter)) {
 			$this->mSelectQuery->getMainTable()->selectAllColumns(true);
-		} else {
+		}
+		else {
+			$lSelectedColumns = [];
+			foreach ($this->mPropertiesFilter as $pPropertyName) {
+				$lSelectedColumns[] = $this->mModel->getProperty($pPropertyName, true)->getSerializationName();
+			}
 			$lMainTable = $this->mSelectQuery->getMainTable();
-			foreach ($this->mSelectedColumns as $lColumn) {
+			foreach ($lSelectedColumns as $lColumn) {
 				$lMainTable->addSelectedColumn($lColumn);
 			}
 		}

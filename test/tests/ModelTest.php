@@ -210,7 +210,7 @@ if (ModelManager::getInstance()->getInstanceModel('sqlTable') !== $lTestDbModel-
 }
 
 $lObj        = $lTestModel->getObjectInstance();
-$lModelArray = new ModelArray($lTestModel, 'sesreer');
+$lModelArray = $lObj->getProperty('objectValues')->getModel();
 $lObjArray   = $lModelArray->getObjectInstance();
 $lObjValue   = $lObj->getproperty('objectValue')->getModel()->getObjectInstance();
 

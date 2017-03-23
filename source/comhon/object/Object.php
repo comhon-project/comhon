@@ -13,44 +13,24 @@ use comhon\object\collection\MainObjectCollection;
 use comhon\utils\Utils;
 use comhon\model\property\AggregationProperty;
 use comhon\exception\CastException;
+use comhon\object\ObjectArray;
 
-class Object {
+abstract class Object {
 
 	private $mModel;
+	private $mValues        = [];
 	private $mIsLoaded;
-	private $mIsUpdated = false;
 	private $mUpdatedValues = [];
-	private $mValues = [];
-	private $mIsCasted = false;
+	private $mIsUpdated     = false;
+	private $mIsCasted      = false;
 	
-	
-	/**
-	 * 
-	 * @param string|Model $pModel can be a model name or an instance of model
-	 * @param boolean $lIsLoaded
-	 */
-	public final function __construct($pModel, $lIsLoaded = true) {
-		if ($pModel instanceof Model) {
-			$this->mModel = $pModel;
-		}else {
-			$this->mModel = ModelManager::getInstance()->getInstanceModel($pModel);
+	final protected function _affectModel(Model $pModel) {
+		if (!is_null($this->mModel)) {
+			throw new \Exception('object already initialized');
 		}
-		if ($this instanceof ObjectArray) {
-			if (!($this->mModel instanceof ModelArray)) {
-				throw new \Exception('ObjectArray must have ModelArray');
-			}
-		} else if (($this->mModel instanceof ModelContainer) || ($this->mModel instanceof SimpleModel)) {
-			throw new \Exception('Object cannot have ModelContainer or SimpleModel');
-		}
-		$this->mIsLoaded = $lIsLoaded;
-		
-		foreach ($this->mModel->getPropertiesWithDefaultValues() as $lProperty) {
-			$this->setValue($lProperty->getName(), $lProperty->getDefaultValue(), false);
-		}
-		foreach ($this->mModel->getAggregations() as $lProperty) {
-			$this->initValue($lProperty->getName(), false, false);
-		}
+		$this->mModel = $pModel;
 	}
+	
 	
 	/***********************************************************************************************\
 	|                                                                                               |
@@ -330,24 +310,47 @@ class Object {
 	}
 	
 	public function resetUpdatedStatus($pRecursive = true) {
-		$this->mIsUpdated = false;
-		$this->mUpdatedValues = [];
 		if ($pRecursive) {
-			foreach ($this->mModel->getComplexProperties() as $lPropertyName => $lProperty) {
-				if (!$lProperty->isForeign()) {
-					if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof Object)) {
-						$this->getValue($lPropertyName)->resetUpdatedStatus();
-					}
-				} else if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof ObjectArray)) {
+			$lObjectHashMap = [];
+			$this->_resetUpdatedStatusRecursive($lObjectHashMap);
+		}else {
+			$this->mIsUpdated = false;
+			$this->mUpdatedValues = [];
+			foreach ($this->mModel->getDateTimeProperties() as $lPropertyName => $lProperty) {
+				if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof ComhonDateTime)) {
 					$this->getValue($lPropertyName)->resetUpdatedStatus(false);
 				}
 			}
 		}
-		foreach ($this->mModel->getDateTimeProperties() as $lPropertyName => $lProperty) {
-			if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof ComhonDateTime)) {
-				$this->getValue($lPropertyName)->resetUpdatedStatus();
+	}
+	
+	protected function _resetUpdatedStatusRecursive(&$pObjectHashMap) {
+		if (array_key_exists(spl_object_hash($this), $pObjectHashMap)) {
+			if ($pObjectHashMap[spl_object_hash($this)] > 0) {
+				trigger_error('Warning loop detected');
+				return;
+			}
+		} else {
+			$pObjectHashMap[spl_object_hash($this)] = 0;
+		}
+		$pObjectHashMap[spl_object_hash($this)]++;
+		$this->mIsUpdated = false;
+		$this->mUpdatedValues = [];
+		foreach ($this->mModel->getComplexProperties() as $lPropertyName => $lProperty) {
+			if (!$lProperty->isForeign()) {
+				if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof Object)) {
+					$this->getValue($lPropertyName)->_resetUpdatedStatusRecursive($pObjectHashMap);
+				}
+			} else if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof ObjectArray)) {
+				$this->getValue($lPropertyName)->resetUpdatedStatus(false);
 			}
 		}
+		foreach ($this->mModel->getDateTimeProperties() as $lPropertyName => $lProperty) {
+			if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof ComhonDateTime)) {
+				$this->getValue($lPropertyName)->resetUpdatedStatus(false);
+			}
+		}
+		$pObjectHashMap[spl_object_hash($this)]--;
 	}
 	
 	/**

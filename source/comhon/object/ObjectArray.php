@@ -5,10 +5,37 @@ use comhon\model\property\ForeignProperty;
 use comhon\model\MainModel;
 use comhon\model\Model;
 use comhon\model\ModelDateTime;
+use comhon\model\singleton\ModelManager;
+use comhon\model\ModelArray;
 
 class ObjectArray extends Object {
 
 	const __UNLOAD__ = '__UNLOAD__';
+	
+	/**
+	 *
+	 * @param string|Model $pModel can be a model name or an instance of model
+	 * @param boolean $lIsLoaded
+	 */
+	final public function __construct($pModel, $pIsLoaded = true, $pElementName = null) {
+		if ($pModel instanceof ModelArray) {
+			$lModel = $pModel;
+		} else {
+			$lElementModel = ($pModel instanceof Model) ? $pModel : ModelManager::getInstance()->getInstanceModel($pModel);
+		
+			if ($lElementModel instanceof ModelContainer) {
+				throw new \Exception('Object cannot have ModelContainer');
+			}
+			$lModel = new ModelArray($lElementModel, is_null($pElementName) ? $pModel->getName() : $pElementName);
+		}
+		
+		if ($pIsLoaded) {
+			$this->setLoadStatus();
+		} else {
+			$this->setUnLoadStatus();
+		}
+		$this->_affectModel($lModel);
+	}
 	
 	/**
 	 *
@@ -36,18 +63,34 @@ class ObjectArray extends Object {
 	}
 	
 	public function resetUpdatedStatus($pRecursive = true) {
+		if ($pRecursive) {
+			$lObjectHashMap = [];
+			$this->_resetUpdatedStatusRecursive($lObjectHashMap);
+		}else {
+			$this->_resetUpdatedStatus();
+			if ($this->getModel()->getModel() instanceof ModelDateTime) {
+				foreach ($this->getValues() as $lValue) {
+					if ($lValue instanceof ComhonDateTime) {
+						$lValue->resetUpdatedStatus(false);
+					}
+				}
+			}
+		}
+	}
+	
+	protected function _resetUpdatedStatusRecursive(&$pObjectHashMap) {
 		$this->_resetUpdatedStatus();
 		if ($this->getModel()->getModel() instanceof ModelDateTime) {
 			foreach ($this->getValues() as $lValue) {
 				if ($lValue instanceof ComhonDateTime) {
-					$lValue->resetUpdatedStatus();
+					$lValue->resetUpdatedStatus(false);
 				}
 			}
 		}
-		else if ($pRecursive && $this->getModel()->getModel()->isComplex()) {
+		else if ($this->getModel()->getModel()->isComplex()) {
 			foreach ($this->getValues() as $lValue) {
 				if ($lValue instanceof Object) {
-					$lValue->resetUpdatedStatus();
+					$lValue->_resetUpdatedStatusRecursive($pObjectHashMap);
 				}
 			}
 		}
