@@ -62,8 +62,8 @@ abstract class Model {
 			$this->_setProperties($lResult[ModelManager::PROPERTIES]);
 			
 			if (!is_null($lResult[ModelManager::OBJECT_CLASS])) {
-				$this->mObjectClass = $lResult[ModelManager::OBJECT_CLASS];
-				if ($this->mObjectClass !== 'comhon\object\_final\Object') {
+				if ($this->mObjectClass !== $lResult[ModelManager::OBJECT_CLASS]) {
+					$this->mObjectClass = $lResult[ModelManager::OBJECT_CLASS];
 					$this->mIsExtended = true;
 				}
 			}
@@ -91,7 +91,12 @@ abstract class Model {
 	 */
 	public function getObjectInstance($pIsloaded = true) {
 		if ($this->mIsExtended) {
-			return new $this->mObjectClass($pIsloaded);
+			$lObject = new $this->mObjectClass($pIsloaded);
+
+			if ($lObject->getModel() !== $this) {
+				throw new \Exception("object doesn't have good model. {$this->getName()} expected, {$lObject->getModel()->getName()} given");
+			}
+			return $lObject;
 		} else {
 			return new $this->mObjectClass($this, $pIsloaded);
 		}
@@ -1029,7 +1034,7 @@ abstract class Model {
 	
 	protected function _fillObjectwithId(Object $pObject, $pId, $pFlagAsUpdated) {
 		if ($pObject->getModel() !== $this) {
-			throw new \Exception('object doesn\'t have good model');
+			throw new \Exception("object doesn't have good model. {$this->getName()} expected, {$pObject->getModel()->getName()} given");
 		}
 		if (!is_null($pId)) {
 			$pObject->setId($pId, $pFlagAsUpdated);
@@ -1117,7 +1122,10 @@ abstract class Model {
 	 * @param Object $pValue
 	 */
 	public function verifValue($pValue) {
-		if (!is_a($pValue, $this->mObjectClass) || ($pValue->getModel() !== $this && !$pValue->getModel()->isInheritedFrom($this))) {
+		if (!($pValue instanceof Object) || ($pValue->getModel() !== $this && !$pValue->getModel()->isInheritedFrom($this))) {
+			var_dump(get_class($pValue));
+			var_dump($this->getName());
+			var_dump($this->mObjectClass);
 			$lNodes = debug_backtrace();
 			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
 			throw new \Exception("Argument 2 passed to {$lNodes[1]['class']}::{$lNodes[1]['function']}() must be an instance of $this->mObjectClass, instance of $lClass given, called in {$lNodes[1]['file']} on line {$lNodes[1]['line']} and defined in {$lNodes[0]['file']}");

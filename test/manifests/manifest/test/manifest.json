@@ -1,7 +1,7 @@
 {
 	"version": "2.0",
 	"manifests": {
-		"personLocal": "../person/manifest.xml"
+		"personLocal": "../personLocal/manifest.xml"
 	},
 	"types": {
 		"objectContainer": {

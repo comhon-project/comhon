@@ -4,6 +4,10 @@ set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit
 
 require_once 'Comhon.php';
 
+spl_autoload_register(function ($pClass) {
+	include_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $pClass) . '.php';
+});
+
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ModelTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RequestTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueTest.php';

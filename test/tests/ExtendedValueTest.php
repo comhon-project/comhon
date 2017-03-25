@@ -8,6 +8,11 @@ use comhon\request\SimpleLoadRequest;
 use comhon\object\collection\MainObjectCollection;
 use comhon\controller\AggregationLoader;
 use comhon\model\Model;
+use object\Person;
+use object\Man;
+use comhon\object\ComhonDateTime;
+use comhon\utils\Utils;
+use object\Woman;
 
 $time_start = microtime(true);
 
@@ -18,7 +23,7 @@ $lPersonModel = ModelManager::getInstance()->getInstanceModel('person');
 $lWoman  = MainObjectCollection::getInstance()->getObject(2, 'woman');
 $lPerson = MainObjectCollection::getInstance()->getObject(2, 'person');
 
-if (!is_null($lPerson) && !is_null($lWoman)) {
+if (!is_null($lPerson) || !is_null($lWoman)) {
 	throw new Exception('object already initialized');
 }
 if ($lPersonModel->getSerializationSettings() !== $lWomanModel->getSerializationSettings()) {
@@ -91,6 +96,20 @@ foreach ($lMan->getValue('children')->getValues() as $lChild) {
 		case 6:  if ($lChild->getModel()->getName() !== 'man') throw new \Exception('bad model : '.$lChild->getModel()->getName()); break;
 		case 11: if ($lChild->getModel()->getName() !== 'woman') throw new \Exception('bad model : '.$lChild->getModel()->getName()); break;
 		default: throw new \Exception('bad id');
+	}
+}
+
+foreach (MainObjectCollection::getInstance()->getModelObjects('person') as $lTestPerson) {
+	if ($lTestPerson->getId() === '1' ) {
+		if (!($lTestPerson instanceof \comhon\object\_final\Object)) {
+			throw new Exception('wrong class');
+		}
+	} else if ($lTestPerson->getId() === '11') {
+		if (!($lTestPerson instanceof Woman)) {
+			throw new Exception('wrong class');
+		}
+	} else if (!($lTestPerson instanceof Person)) {
+		throw new Exception('wrong class');
 	}
 }
 
@@ -492,6 +511,31 @@ if (!$lObject->getValue('manBodyJson')->isLoaded()) {
 }
 if ($lObj1567 !== $lObject->getValue('manBodyJson')) {
 	throw new \Exception('not same instance object');
+}
+
+/** ****************** test extended object class ********************* **/
+
+$lPerson = new Person();
+if ($lPerson->getModel() !== ModelManager::getInstance()->getInstanceModel('person')) {
+	throw new \Exception('not same instance model');
+}
+$lPerson->cast(ModelManager::getInstance()->getInstanceModel('man'));
+if ($lPerson->getModel() !== ModelManager::getInstance()->getInstanceModel('man')) {
+	throw new \Exception('not same instance model');
+}
+
+$lMan = new Man();
+if ($lMan->getModel() !== ModelManager::getInstance()->getInstanceModel('man')) {
+	throw new \Exception('not same instance model');
+}
+
+$lMan->setFirstName('Jean');
+$lMan->setLastName('De La Fontaine');
+$lMan->setBirthDate(new ComhonDateTime('1674-03-02'));
+
+if (json_encode($lMan->toPrivateStdObject()) !== '{"children":"__UNLOAD__","homes":"__UNLOAD__","bodies":"__UNLOAD__","firstName":"Jean","lastName":"De La Fontaine","birthDate":"1674-03-02T00:00:00+01:00"}') {
+	var_dump(json_encode($lMan->toPrivateStdObject()));
+	throw new \Exception('bad value');
 }
 
 $time_end = microtime(true);
