@@ -60,7 +60,7 @@ abstract class Model {
 			$lResult = ModelManager::getInstance()->getProperties($this);
 			$this->mExtendsModel = $lResult[ModelManager::EXTENDS_MODEL];
 			$this->_setProperties($lResult[ModelManager::PROPERTIES]);
-			
+
 			if (!is_null($lResult[ModelManager::OBJECT_CLASS])) {
 				if ($this->mObjectClass !== $lResult[ModelManager::OBJECT_CLASS]) {
 					$this->mObjectClass = $lResult[ModelManager::OBJECT_CLASS];
@@ -98,7 +98,7 @@ abstract class Model {
 			}
 			return $lObject;
 		} else {
-			return new $this->mObjectClass($this, $pIsloaded);
+			return new FinalObject($this, $pIsloaded);
 		}
 		
 	}
