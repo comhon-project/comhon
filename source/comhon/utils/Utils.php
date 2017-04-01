@@ -1,7 +1,7 @@
 <?php
 namespace comhon\utils;
 
-class Utils{
+class Utils {
 	
 	/**
 	 * merge arrays
