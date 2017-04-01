@@ -19,6 +19,7 @@ if (!is_null($lTestDbFromCollection)) {
 
 /** ****************************** test load new value ****************************** **/
 
+$lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lTestDb = $lDbTestModel->loadObject('[1,"50"]');
 $lMainParentTestDb = $lTestDb->getValue('mainParentTestDb');
 $lObject = $lTestDb->getValue('object');

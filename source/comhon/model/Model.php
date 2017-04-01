@@ -493,6 +493,7 @@ abstract class Model {
 	 * get object with filtered values, return new instance if need to be filtered otherwise return specified object
 	 * @param Object $pObject
 	 * @param string[]|null $pPropertiesFilter
+	 * @param boolean $pCheckProperties
 	 * @return Object
 	 */
 	protected function _getFilteredObject(Object $pObject, $pPropertiesFilter, $pCheckProperties = true) {
@@ -542,7 +543,7 @@ abstract class Model {
 		return $lStdObject;
 	}
 		
-	protected function _toStdObject(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+	protected function _toStdObject($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		$lReturn = new \stdClass();
 		if (is_null($pObject)) {
 			return null;
@@ -617,7 +618,7 @@ abstract class Model {
 		return $lXml;
 	}
 		
-	protected function _toXml(Object $pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+	protected function _toXml($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (is_null($pObject)) {
 			return null;
 		}
@@ -701,7 +702,7 @@ abstract class Model {
 		return $lArray;
 	}
 	
-	protected function _toFlattenedArray(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+	protected function _toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		$lFlattenedArray = [];
 		if (is_null($pObject)) {
 			return null;
@@ -759,7 +760,7 @@ abstract class Model {
 		return $lFlattenedArray;
 	}
 	
-	protected function _toFlattenedValue(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+	protected function _toFlattenedValue($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		$lReturn = [];
 		if (is_null($pObject)) {
 			return null;
@@ -1048,14 +1049,14 @@ abstract class Model {
 				return null;
 			}
 			$lPropertyName = $pUseSerializationName ? $this->mUniqueIdProperty->getSerializationName() : $this->mUniqueIdProperty->getName();
-			return isset($pStdObject->$lPropertyName) ? $this->mUniqueIdProperty->getModel()->_fromStdObject($pStdObject->$lPropertyName) : null;
+			return isset($pStdObject->$lPropertyName) ? $this->mUniqueIdProperty->getModel()->_fromStdObject($pStdObject->$lPropertyName, false, false, null, false, null) : null;
 		}
 		$lIdValues = [];
 		foreach ($this->getIdProperties() as $lIdProperty) {
 			if ($lIdProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				$lPropertyName = $pUseSerializationName ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
 				if (isset($pStdObject->$lPropertyName)) {
-					$lIdValues[] = $lIdProperty->getModel()->_fromStdObject($pStdObject->$lPropertyName);
+					$lIdValues[] = $lIdProperty->getModel()->_fromStdObject($pStdObject->$lPropertyName, false, false, null, false, null);
 				} else {
 					$lIdValues[] = null;
 				}
@@ -1073,9 +1074,9 @@ abstract class Model {
 			}
 			$lPropertyName = $pUseSerializationName ? $this->mUniqueIdProperty->getSerializationName() : $this->mUniqueIdProperty->getName();
 			if ($this->mUniqueIdProperty->isInterfacedAsNodeXml()) {
-				return isset($pXml->$lPropertyName) ? $this->mUniqueIdProperty->getModel()->_fromXml($pXml->$lPropertyName) : null;
+				return isset($pXml->$lPropertyName) ? $this->mUniqueIdProperty->getModel()->_fromXml($pXml->$lPropertyName, false, false, null, false, null) : null;
 			} else {
-				return isset($pXml[$lPropertyName]) ? $this->mUniqueIdProperty->getModel()->_fromXml($pXml[$lPropertyName]) : null;
+				return isset($pXml[$lPropertyName]) ? $this->mUniqueIdProperty->getModel()->_fromXml($pXml[$lPropertyName], false, false, null, false, null) : null;
 			}
 		}
 		$lIdValues = [];
@@ -1083,9 +1084,9 @@ abstract class Model {
 			if ($lIdProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				$lPropertyName = $pUseSerializationName ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
 				if ($lIdProperty->isInterfacedAsNodeXml()) {
-					$lIdValues[] = isset($pXml->$lPropertyName) ? $lIdProperty->getModel()->_fromXml($pXml->$lPropertyName) : null;
+					$lIdValues[] = isset($pXml->$lPropertyName) ? $lIdProperty->getModel()->_fromXml($pXml->$lPropertyName, false, false, null, false, null) : null;
 				} else {
-					$lIdValues[] = isset($pXml[$lPropertyName]) ? $lIdProperty->getModel()->_fromXml($pXml[$lPropertyName]) : null;
+					$lIdValues[] = isset($pXml[$lPropertyName]) ? $lIdProperty->getModel()->_fromXml($pXml[$lPropertyName], false, false, null, false, null) : null;
 				}
 			} else {
 				$lIdValues[] = null;
@@ -1100,14 +1101,14 @@ abstract class Model {
 				return null;
 			}
 			$lPropertyName = $pUseSerializationName ? $this->mUniqueIdProperty->getSerializationName() : $this->mUniqueIdProperty->getName();
-			return isset($pRow[$lPropertyName]) ? $this->mUniqueIdProperty->getModel()->_fromFlattenedValue($pRow[$lPropertyName]) : null;
+			return isset($pRow[$lPropertyName]) ? $this->mUniqueIdProperty->getModel()->_fromFlattenedValue($pRow[$lPropertyName], false, false, null, false, null) : null;
 		}
 		$lIdValues = [];
 		foreach ($this->getIdProperties() as $lIdProperty) {
 			if ($lIdProperty->isInterfaceable($pPrivate, $pUseSerializationName)) {
 				$lPropertyName = $pUseSerializationName ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
 				if (isset($pRow[$lPropertyName])) {
-					$lIdValues[] = $lIdProperty->getModel()->_fromFlattenedValue($pRow[$lPropertyName]);
+					$lIdValues[] = $lIdProperty->getModel()->_fromFlattenedValue($pRow[$lPropertyName], false, false, null, false, null);
 				} else {
 					$lIdValues[] = null;
 				}

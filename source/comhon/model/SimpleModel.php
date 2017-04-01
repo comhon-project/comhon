@@ -30,7 +30,7 @@ abstract class SimpleModel extends Model {
 		return $pValue;
 	}
 	
-	protected function _fromStdObject($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pFlagAsUpdated = true, $pLocalObjectCollection = null) {
+	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
 		return $pValue;
 	}
 	
@@ -38,7 +38,7 @@ abstract class SimpleModel extends Model {
 		return $this->_fromXml($pValue);
 	}
 	
-	protected function _fromXml($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pFlagAsUpdated = true, $pLocalObjectCollection = null) {
+	protected function _fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
 		return (string) $pValue;
 	}
 	
@@ -50,7 +50,7 @@ abstract class SimpleModel extends Model {
 		return $pValue;
 	}
 	
-	protected function _fromFlattenedValue($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pFlagAsUpdated = true, $pLocalObjectCollection = null) {
+	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
 		return $pValue;
 	}
 

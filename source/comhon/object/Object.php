@@ -1,16 +1,9 @@
 <?php
 namespace comhon\object;
 
-use comhon\model\singleton\ModelManager;
-use comhon\model\property\ForeignProperty;
 use comhon\model\Model;
 use comhon\model\MainModel;
-use comhon\model\ModelContainer;
-use comhon\model\ModelEnum;
-use comhon\model\ModelArray;
-use comhon\model\SimpleModel;
 use comhon\object\collection\MainObjectCollection;
-use comhon\utils\Utils;
 use comhon\model\property\AggregationProperty;
 use comhon\exception\CastException;
 use comhon\object\ObjectArray;
@@ -488,7 +481,7 @@ abstract class Object {
 	public function loadValue($pName, $pPropertiesFilter = null) {
 		$lProperty = $this->getProperty($pName, true);
 		if ($lProperty instanceof AggregationProperty) {
-			return $lProperty->loadValue($this->getValue($pName), $this, $pPropertiesFilter);
+			return $lProperty->loadAggregationValue($this->getValue($pName), $this, $pPropertiesFilter);
 		} else {
 			return $lProperty->loadValue($this->getValue($pName), $pPropertiesFilter);
 		}

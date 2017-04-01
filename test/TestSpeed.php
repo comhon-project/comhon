@@ -2,7 +2,7 @@
 
 use comhon\api\ObjectService;
 
-set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/ObjectManagerLib/source/');
+set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/comhon/source/');
 
 require_once 'Comhon.php';
 

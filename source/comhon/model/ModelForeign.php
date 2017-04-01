@@ -78,7 +78,7 @@ class ModelForeign extends ModelContainer {
 		}
 	}
 	
-	public function verifValue(Object $pValue) {
+	public function verifValue($pValue) {
 		$this->mModel->verifValue($pValue);
 	}
 }

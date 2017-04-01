@@ -36,7 +36,10 @@ class ModelArray extends ModelContainer {
 	 * @param ObjectArray $pObject
 	 * @param array $pMainForeignObjects
 	 */
-	protected function _addMainCurrentObject(ObjectArray $pObject, &$pMainForeignObjects = null) {
+	protected function _addMainCurrentObject(Object $pObject, &$pMainForeignObjects = null) {
+		if (!($pObject instanceof ObjectArray)) {
+			throw new \Exception('first parameter should be ObjectArray');
+		}
 		if (is_array($pMainForeignObjects)) {
 			foreach ($pObject->getValues() as $lObject) {
 				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
@@ -51,7 +54,10 @@ class ModelArray extends ModelContainer {
 	 * @param ObjectArray $pObject
 	 * @param array $pMainForeignObjects
 	 */
-	protected function _removeMainCurrentObject(ObjectArray $pObject, &$pMainForeignObjects = null) {
+	protected function _removeMainCurrentObject(Object $pObject, &$pMainForeignObjects = null) {
+		if (!($pObject instanceof ObjectArray)) {
+			throw new \Exception('first parameter should be ObjectArray');
+		}
 		if (is_array($pMainForeignObjects)) {
 			foreach ($pObject->getValues() as $lObject) {
 				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
@@ -66,9 +72,13 @@ class ModelArray extends ModelContainer {
 	 * and possible new insance oject for each array element
 	 * @param Object $pObject
 	 * @param string[]|null $pPropertiesFilter
+	 * @param boolean $pCheckProperties
 	 * @return Object
 	 */
-	protected function _getFilteredObject(ObjectArray $pObjectArray, $pPropertiesFilter) {
+	protected function _getFilteredObject(Object $pObjectArray, $pPropertiesFilter, $pCheckProperties = true) {
+		if (!($pObjectArray instanceof ObjectArray)) {
+			throw new \Exception('first parameter should be ObjectArray');
+		}
 		if (empty($pPropertiesFilter)) {
 			return $pObjectArray;
 		}
@@ -109,7 +119,7 @@ class ModelArray extends ModelContainer {
 		return $lReturn;
 	}
 	
-	protected function _toStdObjectId($pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+	protected function _toStdObjectId(Object $pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (is_null($pObjectArray)) {
 			return null;
 		}
@@ -125,19 +135,23 @@ class ModelArray extends ModelContainer {
 		return $lReturn;
 	}
 	
-	public function fillObjectFromSerializedStdObject(ObjectArray $pObjectArray, $pArray, $pTimeZone = null) {
+	public function fillObjectFromSerializedStdObject(Object $pObjectArray, $pArray, $pTimeZone = null) {
 		$this->fillObjectFromStdObject($pObjectArray, $pArray, true, true, $pTimeZone, true, false);
 	}
 	
-	public function fillObjectFromPublicStdObject(ObjectArray $pObjectArray, $pArray, $pTimeZone = null) {
+	public function fillObjectFromPublicStdObject(Object $pObjectArray, $pArray, $pTimeZone = null) {
 		$this->fillObjectFromStdObject($pObjectArray, $pArray, false, false, $pTimeZone, true, true);
 	}
 	
-	public function fillObjectFromPrivateStdObject(ObjectArray $pObjectArray, $pArray, $pTimeZone = null) {
+	public function fillObjectFromPrivateStdObject(Object $pObjectArray, $pArray, $pTimeZone = null) {
 		$this->fillObjectFromStdObject($pObjectArray, $pArray, true, false, $pTimeZone, true, true);
 	}
 	
-	public function fillObjectFromStdObject(ObjectArray $pObjectArray, $pArray, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
+	public function fillObjectFromStdObject(Object $pObjectArray, $pArray, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
+		if (!($pObjectArray instanceof ObjectArray)) {
+			throw new \Exception('first parameter should be ObjectArray');
+		}
+		
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 	
@@ -258,7 +272,7 @@ class ModelArray extends ModelContainer {
 		return $lReturn;
 	}
 	
-	protected function _toFlattenedValueId($pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+	protected function _toFlattenedValueId(Object $pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (is_null($pObjectArray)) {
 			return null;
 		}
@@ -274,19 +288,23 @@ class ModelArray extends ModelContainer {
 		return $lReturn;
 	}
 	
-	public function fillObjectFromSqlDatabase(ObjectArray $pObjectArray, $pArray, $pTimeZone = null) {
+	public function fillObjectFromSqlDatabase(Object $pObjectArray, $pArray, $pTimeZone = null) {
 		$this->fillObjectFromFlattenedArray($pObjectArray, $pArray, true, true, $pTimeZone, true, false);
 	}
 	
-	public function fillObjectFromPublicFlattenedArray(ObjectArray $pObjectArray, $pArray, $pTimeZone = null) {
+	public function fillObjectFromPublicFlattenedArray(Object $pObjectArray, $pArray, $pTimeZone = null) {
 		$this->fillObjectFromFlattenedArray($pObjectArray, $pArray, false, false, $pTimeZone, true, true);
 	}
 	
-	public function fillObjectFromPrivateFlattenedArray(ObjectArray $pObjectArray, $pArray, $pTimeZone = null) {
+	public function fillObjectFromPrivateFlattenedArray(Object $pObjectArray, $pArray, $pTimeZone = null) {
 		$this->fillObjectFromFlattenedArray($pObjectArray, $pArray, true, false, $pTimeZone, true, true);
 	}
 	
-	public function fillObjectFromFlattenedArray(ObjectArray $pObjectArray, $pArray, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
+	public function fillObjectFromFlattenedArray(Object $pObjectArray, $pArray, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
+		if (!($pObjectArray instanceof ObjectArray)) {
+			throw new \Exception('first parameter should be ObjectArray');
+		}
+		
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 	
@@ -366,7 +384,7 @@ class ModelArray extends ModelContainer {
 		}
 	}
 	
-	protected function _toXmlId($pObjectArray, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+	protected function _toXmlId(Object $pObjectArray, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (!is_null($pObjectArray)) {
 			if (!$pObjectArray->isLoaded()) {
 				$pXmlNode[ObjectArray::__UNLOAD__] = '1';
@@ -380,19 +398,23 @@ class ModelArray extends ModelContainer {
 		}
 	}
 	
-	public function fillObjectFromSerializedXml(ObjectArray $pObjectArray, $pArray, $pTimeZone = null) {
+	public function fillObjectFromSerializedXml(Object $pObjectArray, $pArray, $pTimeZone = null) {
 		$this->fillObjectFromXml($pObjectArray, $pArray, true, true, $pTimeZone, true, false);
 	}
 	
-	public function fillObjectFromPublicXml(ObjectArray $pObjectArray, $pArray, $pTimeZone = null) {
+	public function fillObjectFromPublicXml(Object $pObjectArray, $pArray, $pTimeZone = null) {
 		$this->fillObjectFromXml($pObjectArray, $pArray, false, false, $pTimeZone, true, true);
 	}
 	
-	public function fillObjectFromPrivateXml(ObjectArray $pObjectArray, $pArray, $pTimeZone = null) {
+	public function fillObjectFromPrivateXml(Object $pObjectArray, $pArray, $pTimeZone = null) {
 		$this->fillObjectFromXml($pObjectArray, $pArray, true, false, $pTimeZone, true, true);
 	}
 	
-	public function fillObjectFromXml(ObjectArray $pObjectArray, $pXml, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
+	public function fillObjectFromXml(Object $pObjectArray, $pXml, $pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
+		if (!($pObjectArray instanceof ObjectArray)) {
+			throw new \Exception('first parameter should be ObjectArray');
+		}
+		
 		$this->load();
 		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 	

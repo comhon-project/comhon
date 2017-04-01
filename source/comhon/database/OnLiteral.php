@@ -51,7 +51,7 @@ class OnLiteral extends Literal {
 	 * @param [] $pLiteralCollection
 	 * @throws \Exception
 	 */
-	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null) {
+	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null, $pSelectQuery = null, $pAllowPrivateProperties = true) {
 		throw new \Exception('cannot build OnLiteral from stdClass object');
 	}
 	

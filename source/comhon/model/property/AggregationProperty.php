@@ -1,7 +1,6 @@
 <?php
 namespace comhon\model\property;
 
-use comhon\serialization\SqlTable;
 use comhon\object\ObjectArray;
 use comhon\object\Object;
 
@@ -27,12 +26,25 @@ class AggregationProperty extends ForeignProperty {
 	
 	/**
 	 *
+	 * @param Object $pObject
+	 * @param string[] $pPropertiesFilter
+	 * @return boolean true if success
+	 */
+	public function loadValue(Object $pObject, $pPropertiesFilter = null) {
+		throw new \Exception('use loadAggregationValue function');
+	}
+	
+	/**
+	 *
 	 * @param ObjectArray $pObjectArray
 	 * @param Object $pParentObject
 	 * @param string[] $pPropertiesFilter
 	 * @return boolean true if success
 	 */
-	public function loadValue(ObjectArray $pObjectArray, Object $pParentObject, $pPropertiesFilter = null) {
+	public function loadAggregationValue(Object $pObjectArray, Object $pParentObject, $pPropertiesFilter = null) {
+		if (!($pObjectArray instanceof ObjectArray)) {
+			throw new \Exception('first parameter should be ObjectArray');
+		}
 		if ($pObjectArray->isLoaded()) {
 			return false;
 		}

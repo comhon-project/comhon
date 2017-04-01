@@ -185,14 +185,14 @@ class Literal {
 	
 	/**
 	 * @param stdClass $pStdObject
-	 * @param Model $pMainModel
+	 * @param Model $pMainModel (reference is specified to stay compatible with inherited function, there's probably a better way...)
 	 * @param Literal[] $pLiteralCollection
 	 * @param SelectQuery $pSelectQuery
 	 * @param boolean $pAllowPrivateProperties
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function stdObjectToLiteral($pStdObject, $pMainModel, $pLiteralCollection = null, $pSelectQuery = null, $pAllowPrivateProperties = true) {
+	public static function stdObjectToLiteral($pStdObject, &$pMainModel, $pLiteralCollection = null, $pSelectQuery = null, $pAllowPrivateProperties = true) {
 		if (isset($pStdObject->id) && !is_null($pLiteralCollection)) {
 			if (!array_key_exists($pStdObject->id, $pLiteralCollection)) {
 				throw new \Exception("literal id '{$pStdObject->id}' is not defined in literal collection");

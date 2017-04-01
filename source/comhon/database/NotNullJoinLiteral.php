@@ -38,7 +38,7 @@ class NotNullJoinLiteral extends Literal {
 	 * @param [] $pLiteralCollection
 	 * @throws \Exception
 	 */
-	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null) {
+	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null, $pSelectQuery = null, $pAllowPrivateProperties = true) {
 		throw new \Exception('cannot build NotNullLiteral from stdClass object');
 	}
 	

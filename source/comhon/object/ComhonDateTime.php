@@ -9,7 +9,7 @@ class ComhonDateTime extends \DateTime {
 	 * (non-PHPdoc)
 	 * @see DateTime::add()
 	 */
-	public function add(\DateInterval $interval) {
+	public function add($interval) {
 		parent::add($interval);
 		$this->mIsUpdated = true;
 	}
@@ -63,7 +63,7 @@ class ComhonDateTime extends \DateTime {
 	 * (non-PHPdoc)
 	 * @see DateTime::sub()
 	 */
-	public function sub(\DateInterval $interval) {
+	public function sub($interval) {
 		parent::sub($interval);
 		$this->mIsUpdated = true;
 	}

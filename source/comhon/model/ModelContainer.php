@@ -109,7 +109,7 @@ abstract class ModelContainer extends Model {
 		throw new \Exception('must be overrided');
 	}
 	
-	protected function _toFlattenedArray(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
+	protected function _toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		throw new \Exception('must be overrided');
 	}
 	
