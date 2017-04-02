@@ -4,28 +4,48 @@ namespace comhon\interfacer;
 interface Interfacer {
 
 	/**
+	 * initialize object that may be serialized later
+	 * @param string $pRootName
+	 * @throws \Exception
+	 * @return mixed
+	 */
+	public function initialize($pRootName = null);
+	
+	/**
 	 * 
 	 * @param mixed $pNode
 	 * @param mixed $pValue
+	 * @param string $pName
+	 * @param boolean $pAsNode
+	 * @return mixed
 	 */
-	public function setValue($pNode, $pName, $pValue);
+	public function setValue($pNode, $pValue, $pName = null, $pAsNode = false);
 	
 	/**
-	 * 
-	 * @param mixed $pNodeArray
+	 *
+	 * @param mixed $pNode
 	 * @param mixed $pValue
-	 * @param string $pNodeNameElement
+	 * @param string $pName
+	 * @return mixed
 	 */
-	public function addValue(&$pNodeArray, $pValue, $pNodeNameElement = null);
-
-	/**
-	 * return mixed node
-	 */
-	public function createNode();
+	public function addValue(&$pNode, $pValue, $pName = null);
 	
 	/**
-	 * @return mixed node array
+	 * @param string $pName
+	 * return mixed
 	 */
-	public function createNodeArray();
+	public function createNode($pName = null);
+	
+	/**
+	 * @param string $pName
+	 * @return mixed
+	 */
+	public function createNodeArray($pName = null);
+	
+	/**
+	 * serialize object previously initialized
+	 * @return string
+	 */
+	public function serialize();
     
 }

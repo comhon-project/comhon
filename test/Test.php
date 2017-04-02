@@ -24,27 +24,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Re
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'IntermediateVsComplexRequestTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'PartialImportExportTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'DatabaseSerializationTest.php';
-
-$doc = new DOMDocument;
-
-$node = $doc->createElement("para");
-$newnode = $doc->appendChild($node);
-$node = $doc->createElement("parapara");
-$newnode = $newnode->appendChild($node);
-
-$node = $doc->createElement("parapara2");
-$newnode->appendChild($node);
-
-$node = $doc->createElement("plop");
-$newnode = $newnode->appendChild($node);
-$node = $doc->createTextNode("plop");
-$newnode = $newnode->appendChild($node);
-
-echo $doc->saveXML();
-
-function appendArray($parent) {
-	
-}
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
 
 // add error code
 // add simple model color, email
