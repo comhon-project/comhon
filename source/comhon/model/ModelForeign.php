@@ -3,6 +3,7 @@ namespace comhon\model;
 
 use comhon\object\ObjectArray;
 use comhon\object\Object;
+use comhon\interfacer\Interfacer;
 
 class ModelForeign extends ModelContainer {
 
@@ -19,6 +20,24 @@ class ModelForeign extends ModelContainer {
 	
 	public function getObjectInstance($pIsloaded = true) {
 		return $this->getModel()->getObjectInstance($pIsloaded);
+	}
+	
+	/**
+	 *
+	 * @param Object $pObject
+	 * @param string $pNodeName
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 * @return mixed|null
+	 */
+	protected function _export($pObject, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+		if (is_null($pObject)) {
+			return null;
+		}
+		if (!$this->getUniqueModel()->hasIdProperties()) {
+			throw new \Exception('foreign property with local model must have id');
+		}
+		return $this->getModel()->_exportId($pObject, $pNodeName, $pInterfacer);
 	}
 	
 	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {

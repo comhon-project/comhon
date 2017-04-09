@@ -7,6 +7,7 @@ use comhon\object\collection\MainObjectCollection;
 use comhon\model\property\AggregationProperty;
 use comhon\exception\CastException;
 use comhon\object\ObjectArray;
+use comhon\interfacer\Interfacer;
 
 abstract class Object {
 
@@ -611,6 +612,16 @@ abstract class Object {
 	
 	public final function toFlattenedArray($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false, $pPropertiesFilter = null, &$pMainForeignObjects = null) {
 		return $this->mModel->toFlattenedArray($this, $pPrivate, $pUseSerializationName, $pTimeZone, $pUpdatedValueOnly, $pPropertiesFilter, $pMainForeignObjects);
+	}
+
+	/***********************************************************************************************\
+	|                                                                                               |
+	|                                            generic                                            |
+	|                                                                                               |
+	\***********************************************************************************************/
+	
+	public final function export(Interfacer $pInterfacer) {
+		return $this->mModel->export($this, $pInterfacer);
 	}
 	
 }

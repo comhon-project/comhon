@@ -1,12 +1,30 @@
 <?php
 namespace comhon\model;
 
+use comhon\interfacer\Interfacer;
+use comhon\interfacer\XMLInterfacer;
+
 class ModelBoolean extends SimpleModel {
 	
 	const ID = 'boolean';
 	
 	protected function _init() {
 		$this->mModelName = self::ID;
+	}
+	
+	/**
+	 *
+	 * @param boolean $pValue
+	 * @param string $pNodeName
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 * @return mixed|null
+	 */
+	protected function _export($pValue, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+		if ($pInterfacer instanceof XMLInterfacer) {
+			return $pValue ? 1 : 0;
+		}
+		return $pValue;
 	}
 	
 	protected function _toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {

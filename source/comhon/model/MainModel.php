@@ -11,6 +11,7 @@ use comhon\visitor\ObjectCollectionCreator;
 use \stdClass;
 use comhon\serialization\SerializationUnit;
 use comhon\exception\CastException;
+use comhon\interfacer\Interfacer;
 
 class MainModel extends Model {
 	
@@ -329,6 +330,38 @@ class MainModel extends Model {
 		 	throw new \Exception("A different instance object with same id '$pId' already exists in MainObjectCollection.\n"
 		 						.'If you want to build a new instance with this id, you must go through Model and specify merge type as '.Model::NO_MERGE.' (no merge)');
 		}
+	}
+	
+	/**
+	 *
+	 * @param Object $pObject
+	 * @param string $pNodeName
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 * @return mixed|null
+	 */
+	protected function _exportId(Object $pObject, $pNodeName, Interfacer $pInterfacer) {
+		$lNodeId = parent::_exportId($pObject, $pNodeName, $pInterfacer);
+		
+		if ($pInterfacer->hasToExportMainForeignObjects()) {
+			if ($pObject->getModel() === $this) {
+				$lModel = $this;
+			} else {
+				if (!$pObject->getModel()->isInheritedFrom($this)) {
+					throw new \Exception('object doesn\'t have good model');
+				}
+				$lModel = $pObject->getModel();
+			}
+			
+			$lValueId   = $this->_toInterfacedId($pObject, $pInterfacer);
+			$lModelName = $lModel->getName();
+			$lMainForeignObjects = $pInterfacer->getMainForeignObjects();
+			if (!(array_key_exists($lModelName, $lMainForeignObjects) && array_key_exists($lValueId, $lMainForeignObjects[$lModelName]))) {
+				$pInterfacer->addMainForeignObject(null, $lValueId, $pObject->getModel());
+				$pInterfacer->addMainForeignObject($lModel->_export($pObject, $lModel->getName(), $pInterfacer, true), $lValueId, $pObject->getModel());
+			}
+		}
+		return $lNodeId;
 	}
 	
 	protected function _toStdObjectId(Object $pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {

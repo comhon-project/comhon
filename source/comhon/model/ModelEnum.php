@@ -1,6 +1,7 @@
 <?php
 namespace comhon\model;
 use \Exception;
+use comhon\interfacer\Interfacer;
 
 class ModelEnum extends ModelContainer {
 
@@ -23,6 +24,22 @@ class ModelEnum extends ModelContainer {
 	
 	public function getEnum() {
 		return $this->mEnum;
+	}
+	
+	/**
+	 *
+	 * @param mixed $pValue
+	 * @param string $pNodeName
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 * @return mixed|null
+	 */
+	protected function _export($pValue, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+		$lReturn = $this->mModel->_export($pValue, $pNodeName, $pInterfacer, $pIsFirstLevel);
+		if (!in_array($lReturn, $this->mEnum)) {
+			$lReturn = null;
+		}
+		return $lReturn;
 	}
 	
 	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {

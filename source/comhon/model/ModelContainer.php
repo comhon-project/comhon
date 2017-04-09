@@ -2,6 +2,7 @@
 namespace comhon\model;
 use \Exception;
 use comhon\serialization\SerializationUnit;
+use comhon\interfacer\Interfacer;
 
 abstract class ModelContainer extends Model {
 
@@ -99,6 +100,17 @@ abstract class ModelContainer extends Model {
 	 */
 	public function getSerializationSettings() {
 		return $this->getModel()->getSerializationSettings();
+	}
+	
+	/**
+	 *
+	 * @param Object $pObjectArray
+	 * @param string $pNodeName
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 */
+	protected function _export($pValue, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+		throw new \Exception('must be overrided');
 	}
 	
 	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {

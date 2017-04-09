@@ -1,21 +1,8 @@
 <?php
 namespace comhon\interfacer;
 
-class JSONInterfacer implements Interfacer {
+class StdObjectInterfacer extends Interfacer {
 
-	private $mStdObject;
-	
-	/**
-	 * initialize stdClass object that may be serialized later in json format
-	 * @param string $pRootName not used (but needed to stay compatible with interface)
-	 * @throws \Exception
-	 * @return \stdClass
-	 */
-	public function initialize($pRootName = null) {
-		$this->mStdObject = new \stdClass();
-		return $this->mStdObject;
-	}
-	
 	/**
 	 * 
 	 * @param \stdClass $pNode
@@ -24,7 +11,7 @@ class JSONInterfacer implements Interfacer {
 	 * @param boolean $pAsNode not used (but needed to stay compatible with interface)
 	 * @return mixed
 	 */
-	public function setValue($pNode, $pValue, $pName = null, $pAsNode = false) {
+	public function setValue(&$pNode, $pValue, $pName = null, $pAsNode = false) {
 		if (!($pNode instanceof \stdClass)) {
 			throw new \Exception('first parameter should be an instance of \stdClass');
 		}
@@ -66,11 +53,44 @@ class JSONInterfacer implements Interfacer {
 	}
     
 	/**
-	 * serialize stdClass object previously initialized
+	 * serialize given node
+	 * @param \stdClass $pNode
 	 * @return string
 	 */
-	public function serialize() {
-		return json_encode($this->mStdObject);
+	public function serialize($pNode) {
+		return json_encode($pNode);
+	}
+	
+	/**
+	 * flatten value (transform object/array to string)
+	 * @param \stdClass $pNode
+	 * @param string $pName
+	 */
+	public function flattenNode(&$pNode, $pName) {
+		if (isset($pNode->$pName) && !is_null($pNode->$pName)) {
+			$pNode->$pName = json_encode($pNode->$pName);
+		}
+	}
+	
+	/**
+	 * replace value
+	 * @param \stdClass $pNode
+	 * @param string $pName
+	 * @param mixed $pValue
+	 */
+	public function replaceValue(&$pNode, $pName, $pValue) {
+		if (isset($pNode->$pName)) {
+			$this->setValue($pNode, $pValue, $pName);
+		}
+	}
+	
+	/**
+	 * verify if node is instance of stdClass
+	 * @param mixed $pNode
+	 * @return boolean
+	 */
+	protected function _verifyNode($pNode) {
+		return ($pNode instanceof \stdClass);
 	}
 	
 }

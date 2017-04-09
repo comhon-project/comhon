@@ -2,6 +2,7 @@
 namespace comhon\model;
 
 use comhon\model\singleton\ModelManager;
+use comhon\interfacer\Interfacer;
 
 abstract class SimpleModel extends Model {
 	
@@ -24,6 +25,18 @@ abstract class SimpleModel extends Model {
 	
 	public function getObjectInstance($pIsloaded = true) {
 		throw new \Exception('simple models don\'t have associated class');
+	}
+	
+	/**
+	 *
+	 * @param mixed $pValue
+	 * @param string $pNodeName
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 * @return mixed|null
+	 */
+	protected function _export($pValue, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+		return $pValue;
 	}
 	
 	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {

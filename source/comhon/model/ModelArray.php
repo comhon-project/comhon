@@ -4,6 +4,7 @@ namespace comhon\model;
 use comhon\object\ObjectArray;
 use comhon\model\MainModel;
 use comhon\object\Object;
+use comhon\interfacer\Interfacer;
 
 class ModelArray extends ModelContainer {
 	
@@ -36,7 +37,7 @@ class ModelArray extends ModelContainer {
 	 * @param ObjectArray $pObject
 	 * @param array $pMainForeignObjects
 	 */
-	protected function _addMainCurrentObject(Object $pObject, &$pMainForeignObjects = null) {
+	protected function _addMainCurrentObject(Object $pObject, &$pMainForeignObjects = null, Interfacer $pInterfacer = null) {
 		if (!($pObject instanceof ObjectArray)) {
 			throw new \Exception('first parameter should be ObjectArray');
 		}
@@ -47,6 +48,13 @@ class ModelArray extends ModelContainer {
 				}
 			}
 		}
+		if (!is_null($pInterfacer) && $pInterfacer->hasToExportMainForeignObjects()) {
+			foreach ($pObject->getValues() as $lObject) {
+				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
+					$pInterfacer->addMainForeignObject(null, $lObject->getId(), $lObject->getModel());
+				}
+			}
+		}
 	}
 	
 	/**
@@ -54,7 +62,7 @@ class ModelArray extends ModelContainer {
 	 * @param ObjectArray $pObject
 	 * @param array $pMainForeignObjects
 	 */
-	protected function _removeMainCurrentObject(Object $pObject, &$pMainForeignObjects = null) {
+	protected function _removeMainCurrentObject(Object $pObject, &$pMainForeignObjects = null, Interfacer $pInterfacer = null) {
 		if (!($pObject instanceof ObjectArray)) {
 			throw new \Exception('first parameter should be ObjectArray');
 		}
@@ -62,6 +70,13 @@ class ModelArray extends ModelContainer {
 			foreach ($pObject->getValues() as $lObject) {
 				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
 					unset($pMainForeignObjects[$lObject->getModel()->getName()][$lObject->getId()]);
+				}
+			}
+		}
+		if (!is_null($pInterfacer) && $pInterfacer->hasToExportMainForeignObjects()) {
+			foreach ($pObject->getValues() as $lObject) {
+				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
+					$pInterfacer->removeMainForeignObject($lObject->getId(), $lObject->getModel());
 				}
 			}
 		}
@@ -93,6 +108,62 @@ class ModelArray extends ModelContainer {
 			}
 		}
 		return $lNewObjectArray;
+	}
+	
+	/**
+	 *
+	 * @param Object $pObjectArray
+	 * @param string $pNodeName
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 * @return mixed|null
+	 */
+	protected function _export($pObjectArray, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+		if (is_null($pObjectArray)) {
+			return null;
+		}
+		if (!$pObjectArray->isLoaded()) {
+			return  ObjectArray::__UNLOAD__;
+		}
+		$lNodeArray = $pInterfacer->createNodeArray($pNodeName);
+		
+		if ($this->getModel() instanceof ModelEnum) {
+			$lEnum = $this->getModel()->getEnum();
+			foreach ($pObjectArray->getValues() as $lValue) {
+				if (in_array($lValue, $lEnum)) {
+					$pInterfacer->addValue($lNodeArray, $this->getModel()->_export($lValue, $this->mElementName, $pInterfacer, $pIsFirstLevel), $this->mElementName);
+				}
+			}
+		} else {
+			foreach ($pObjectArray->getValues() as $lValue) {
+				$pInterfacer->addValue($lNodeArray, $this->getModel()->_export($lValue, $this->mElementName, $pInterfacer, $pIsFirstLevel), $this->mElementName);
+			}
+		}
+		return $lNodeArray;
+	}
+	
+	/**
+	 *
+	 * @param ObjectArray $pObject
+	 * @param string $pNodeName
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 * @return mixed|null
+	 */
+	protected function _exportId(Object $pObjectArray, $pNodeName, Interfacer $pInterfacer) {
+		if (is_null($pObjectArray)) {
+			return null;
+		}
+		if (!$pObjectArray->isLoaded()) {
+			return  ObjectArray::__UNLOAD__;
+		}
+		$lNodeArray = $pInterfacer->createNodeArray($pNodeName);
+		if (!is_null($pObjectArray)) {
+			foreach ($pObjectArray->getValues() as $lValue) {
+				$pInterfacer->addValue($lNodeArray, $this->getModel()->_exportId($lValue, $this->mElementName, $pInterfacer), $this->mElementName);
+			}
+		}
+		return $lNodeArray;
 	}
 	
 	protected function _toStdObject($pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {

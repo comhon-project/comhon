@@ -1,8 +1,8 @@
 <?php
 namespace comhon\model;
 
-use comhon\object\config\Config;
 use comhon\object\ComhonDateTime;
+use comhon\interfacer\Interfacer;
 
 class ModelDateTime extends SimpleModel {
 	
@@ -10,6 +10,18 @@ class ModelDateTime extends SimpleModel {
 	
 	protected function _init() {
 		$this->mModelName = self::ID;
+	}
+	
+	/**
+	 *
+	 * @param ComhonDateTime $pValue
+	 * @param string $pNodeName
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 * @return mixed|null
+	 */
+	protected function _export($pValue, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+		return $this->toString($pValue, $pInterfacer->getDateTimeZone(), $pInterfacer->getDateTimeFormat());
 	}
 	
 	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
@@ -50,19 +62,19 @@ class ModelDateTime extends SimpleModel {
 		return $lDateTime;
 	}
 	
-	public function toString(ComhonDateTime $pDateTime, $pDateTimeZone) {
+	public function toString(ComhonDateTime $pDateTime, $pDateTimeZone, $pDateFormat = 'c') {
 		if ($pDateTimeZone->getName() == $pDateTime->getTimezone()->getName()) {
 			return $pDateTime->format('c');
 		}
 		else {
 			$lDateTimeZone = $pDateTime->getTimezone();
 			$pDateTime->setTimezone($pDateTimeZone);
-			$lDateTimeString =  $pDateTime->format('c');
+			$lDateTimeString =  $pDateTime->format($pDateFormat);
 			$pDateTime->setTimezone($lDateTimeZone);
 			return $lDateTimeString;
 		}
 		
-		return $pDateTime->format('c');
+		return $pDateTime->format($pDateFormat);
 	}
 	
 	public function  isCheckedValueType($pValue) {
