@@ -5,7 +5,6 @@ use comhon\model\Model;
 use comhon\object\ObjectArray;
 use comhon\object\Object;
 use comhon\model\MainModel;
-use comhon\model\ModelContainer;
 use comhon\serialization\file\XmlFile;
 use comhon\serialization\file\JsonFile;
 

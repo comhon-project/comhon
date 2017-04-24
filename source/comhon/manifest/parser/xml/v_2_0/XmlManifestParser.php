@@ -5,22 +5,11 @@ namespace comhon\manifest\parser\xml\v_2_0;
 use \Exception;
 use comhon\model\ModelArray;
 use comhon\model\ModelEnum;
-use comhon\model\ModelInteger;
-use comhon\model\ModelFloat;
-use comhon\model\ModelBoolean;
-use comhon\model\ModelString;
 use comhon\model\ModelDateTime;
 use comhon\model\Model;
-use comhon\model\MainModel;
-use comhon\model\LocalModel;
 use comhon\model\property\Property;
-use comhon\model\ModelForeign;
 use comhon\model\SimpleModel;
 use comhon\model\property\ForeignProperty;
-use comhon\model\property\AggregationProperty;
-use comhon\object\config\Config;
-use comhon\manifest\parser\ManifestParser;
-use comhon\manifest\parser\SerializationManifestParser;
 use comhon\manifest\parser\xml\XmlManifestParser as ParentXmlManifestParser;
 
 class XmlManifestParser extends ParentXmlManifestParser {

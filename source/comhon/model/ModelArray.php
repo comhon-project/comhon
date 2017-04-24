@@ -5,6 +5,7 @@ use comhon\object\ObjectArray;
 use comhon\model\MainModel;
 use comhon\object\Object;
 use comhon\interfacer\Interfacer;
+use comhon\object\collection\ObjectCollection;
 
 class ModelArray extends ModelContainer {
 	
@@ -32,6 +33,8 @@ class ModelArray extends ModelContainer {
 		return new ObjectArray($this, $pIsloaded);
 	}
 	
+	/** ********************************************************************* **/
+	
 	/**
 	 *
 	 * @param ObjectArray $pObject
@@ -51,7 +54,7 @@ class ModelArray extends ModelContainer {
 		if (!is_null($pInterfacer) && $pInterfacer->hasToExportMainForeignObjects()) {
 			foreach ($pObject->getValues() as $lObject) {
 				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
-					$pInterfacer->addMainForeignObject(null, $lObject->getId(), $lObject->getModel());
+					$pInterfacer->addMainForeignObject($pInterfacer->createNode('empty'), $lObject->getId(), $lObject->getModel());
 				}
 			}
 		}
@@ -83,38 +86,11 @@ class ModelArray extends ModelContainer {
 	}
 	
 	/**
-	 * get object with filtered values, return new instance of object array
-	 * and possible new insance oject for each array element
-	 * @param Object $pObject
-	 * @param string[]|null $pPropertiesFilter
-	 * @param boolean $pCheckProperties
-	 * @return Object
-	 */
-	protected function _getFilteredObject(Object $pObjectArray, $pPropertiesFilter, $pCheckProperties = true) {
-		if (!($pObjectArray instanceof ObjectArray)) {
-			throw new \Exception('first parameter should be ObjectArray');
-		}
-		if (empty($pPropertiesFilter)) {
-			return $pObjectArray;
-		}
-		$lNewObjectArray   = new ObjectArray($pObjectArray->getModel());
-		$lFlagAsUpdated    = $pObjectArray->isFlagedAsUpdated();
-		
-		foreach ($pObjectArray->getValues() as $lKey => $lValue) {
-			if ($lValue instanceof Object) {
-				$lNewObjectArray->setValue($lKey, parent::_getFilteredObject($lValue, array_unique($pPropertiesFilter), false), $lFlagAsUpdated, false);
-			} else {
-				$lNewObjectArray->setValue($lKey, $lValue, $lFlagAsUpdated, false);
-			}
-		}
-		return $lNewObjectArray;
-	}
-	
-	/**
 	 *
 	 * @param Object $pObjectArray
 	 * @param string $pNodeName
 	 * @param Interfacer $pInterfacer
+	 * @param boolean $pIsFirstLevel
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
@@ -123,7 +99,7 @@ class ModelArray extends ModelContainer {
 			return null;
 		}
 		if (!$pObjectArray->isLoaded()) {
-			return  ObjectArray::__UNLOAD__;
+			return  Interfacer::__UNLOAD__;
 		}
 		$lNodeArray = $pInterfacer->createNodeArray($pNodeName);
 		
@@ -155,7 +131,7 @@ class ModelArray extends ModelContainer {
 			return null;
 		}
 		if (!$pObjectArray->isLoaded()) {
-			return  ObjectArray::__UNLOAD__;
+			return  Interfacer::__UNLOAD__;
 		}
 		$lNodeArray = $pInterfacer->createNodeArray($pNodeName);
 		if (!is_null($pObjectArray)) {
@@ -166,12 +142,77 @@ class ModelArray extends ModelContainer {
 		return $lNodeArray;
 	}
 	
+	
+	/**
+	 *
+	 * @param mixed $pValue
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @return Object
+	 */
+	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
+		if (is_null($pInterfacedObject)) {
+			return null;
+		}
+		$lObjectArray = $this->getObjectInstance();
+		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
+			$lObjectArray->pushValue($this->getModel()->_import($lElement, $pInterfacer, $pLocalObjectCollection), $pInterfacer->hasToFlagValuesAsUpdated());
+		}
+		return $lObjectArray;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \comhon\model\Model::_importId()
+	 */
+	protected function _importId($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection) {
+		if (is_null($pInterfacedObject)) {
+			return null;
+		}
+		$lObjectArray = $this->getObjectInstance();
+		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
+			$lObjectArray->pushValue($this->getModel()->_importId($lElement, $pInterfacer, $pLocalObjectCollection), $pInterfacer->hasToFlagValuesAsUpdated());
+		}
+		return $lObjectArray;
+	}
+	
+	/** ********************************************************************* **/
+	
+	/**
+	 * get object with filtered values, return new instance of object array
+	 * and possible new insance oject for each array element
+	 * @param Object $pObject
+	 * @param string[]|null $pPropertiesFilter
+	 * @param boolean $pCheckProperties
+	 * @return Object
+	 */
+	protected function _getFilteredObject(Object $pObjectArray, $pPropertiesFilter, $pCheckProperties = true) {
+		if (!($pObjectArray instanceof ObjectArray)) {
+			throw new \Exception('first parameter should be ObjectArray');
+		}
+		if (empty($pPropertiesFilter)) {
+			return $pObjectArray;
+		}
+		$lNewObjectArray   = new ObjectArray($pObjectArray->getModel());
+		$lFlagAsUpdated    = $pObjectArray->isFlagedAsUpdated();
+		
+		foreach ($pObjectArray->getValues() as $lKey => $lValue) {
+			if ($lValue instanceof Object) {
+				$lNewObjectArray->setValue($lKey, parent::_getFilteredObject($lValue, array_unique($pPropertiesFilter), false), $lFlagAsUpdated, false);
+			} else {
+				$lNewObjectArray->setValue($lKey, $lValue, $lFlagAsUpdated, false);
+			}
+		}
+		return $lNewObjectArray;
+	}
+	
 	protected function _toStdObject($pObjectArray, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (is_null($pObjectArray)) {
 			return null;
 		}
 		if (!$pObjectArray->isLoaded()) {
-			return  ObjectArray::__UNLOAD__;
+			return  Interfacer::__UNLOAD__;
 		}
 		$lReturn = [];
 		
@@ -195,7 +236,7 @@ class ModelArray extends ModelContainer {
 			return null;
 		}
 		if (!$pObjectArray->isLoaded()) {
-			return  ObjectArray::__UNLOAD__;
+			return  Interfacer::__UNLOAD__;
 		}
 		$lReturn = [];
 		if (!is_null($pObjectArray)) {
@@ -271,7 +312,7 @@ class ModelArray extends ModelContainer {
 		if (is_null($pArray)) {
 			return null;
 		}
-		if (is_string($pArray) && $pArray == ObjectArray::__UNLOAD__) {
+		if (is_string($pArray) && $pArray == Interfacer::__UNLOAD__) {
 			return $this->getObjectInstance(false);
 		}
 		$lObjectArray = $this->getObjectInstance();
@@ -285,7 +326,7 @@ class ModelArray extends ModelContainer {
 		if (is_null($pArray)) {
 			return null;
 		}
-		if (is_string($pArray) && $pArray == ObjectArray::__UNLOAD__) {
+		if (is_string($pArray) && $pArray == Interfacer::__UNLOAD__) {
 			return $this->getObjectInstance(false);
 		}
 		$lReturn = $this->getObjectInstance();
@@ -300,7 +341,7 @@ class ModelArray extends ModelContainer {
 			return null;
 		}
 		if (!$pObjectArray->isLoaded()) {
-			return  ObjectArray::__UNLOAD__;
+			return  Interfacer::__UNLOAD__;
 		}
 		$lReturn = [];
 		
@@ -324,7 +365,7 @@ class ModelArray extends ModelContainer {
 			return null;
 		}
 		if (!$pObjectArray->isLoaded()) {
-			return  ObjectArray::__UNLOAD__;
+			return  Interfacer::__UNLOAD__;
 		}
 		$lReturn = [];
 	
@@ -348,7 +389,7 @@ class ModelArray extends ModelContainer {
 			return null;
 		}
 		if (!$pObjectArray->isLoaded()) {
-			return  ObjectArray::__UNLOAD__;
+			return  Interfacer::__UNLOAD__;
 		}
 		$lReturn = [];
 		if (!is_null($pObjectArray)) {
@@ -398,7 +439,7 @@ class ModelArray extends ModelContainer {
 		if (is_null($pJsonEncodedObject)) {
 			return null;
 		}
-		if (is_string($pJsonEncodedObject) && $pJsonEncodedObject == ObjectArray::__UNLOAD__) {
+		if (is_string($pJsonEncodedObject) && $pJsonEncodedObject == Interfacer::__UNLOAD__) {
 			return $this->getObjectInstance(false);
 		}
 		$lStdObject = json_decode($pJsonEncodedObject);
@@ -431,7 +472,7 @@ class ModelArray extends ModelContainer {
 	protected function _toXml($pObjectArray, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (!is_null($pObjectArray)) {
 			if (!$pObjectArray->isLoaded()) {
-				$pXmlNode[ObjectArray::__UNLOAD__] = '1';
+				$pXmlNode[Interfacer::__UNLOAD__] = '1';
 			}
 			else if ($this->getModel() instanceof ModelEnum) {
 				$lEnum = $this->getModel()->getEnum();
@@ -458,7 +499,7 @@ class ModelArray extends ModelContainer {
 	protected function _toXmlId(Object $pObjectArray, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
 		if (!is_null($pObjectArray)) {
 			if (!$pObjectArray->isLoaded()) {
-				$pXmlNode[ObjectArray::__UNLOAD__] = '1';
+				$pXmlNode[Interfacer::__UNLOAD__] = '1';
 			}
 			else {
 				foreach ($pObjectArray->getValues() as $lKey => $lValue) {
@@ -528,7 +569,7 @@ class ModelArray extends ModelContainer {
 	}
 	
 	protected function _fromXml($pXml, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
-		if (isset($pXml[ObjectArray::__UNLOAD__]) && ((string) $pXml[ObjectArray::__UNLOAD__] == '1')) {
+		if (isset($pXml[Interfacer::__UNLOAD__]) && ((string) $pXml[Interfacer::__UNLOAD__] == '1')) {
 			$lObjectArray = $this->getObjectInstance(false);
 		} else {
 			$lObjectArray = $this->getObjectInstance();
@@ -540,7 +581,7 @@ class ModelArray extends ModelContainer {
 	}
 	
 	protected function _fromXmlId($pXml, $pFlagAsUpdated, $pLocalObjectCollection) {
-		if (isset($pXml[ObjectArray::__UNLOAD__]) && ((string) $pXml[ObjectArray::__UNLOAD__] == '1')) {
+		if (isset($pXml[Interfacer::__UNLOAD__]) && ((string) $pXml[Interfacer::__UNLOAD__] == '1')) {
 			$lValue = $this->getObjectInstance(false);
 		} else {
 			$lValue = $this->getObjectInstance();
@@ -552,7 +593,7 @@ class ModelArray extends ModelContainer {
 	}
 
 	protected function _fromFlattenedValueId($pValue, $pFlagAsUpdated, $pLocalObjectCollection) {
-		if ($pValue == ObjectArray::__UNLOAD__) {
+		if ($pValue == Interfacer::__UNLOAD__) {
 			return $this->getObjectInstance(false);
 		}
 		return $this->_fromStdObjectId(json_decode($pValue), $pFlagAsUpdated, $pLocalObjectCollection);
@@ -564,6 +605,7 @@ class ModelArray extends ModelContainer {
 			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
 			throw new \Exception("Argument 2 passed to {$lNodes[1]['class']}::{$lNodes[1]['function']}() must be an instance of {$this->getObjectClass()}, instance of $lClass given, called in {$lNodes[1]['file']} on line {$lNodes[1]['line']} and defined in {$lNodes[0]['file']}");
 		}
+		return true;
 	}
 	
 }

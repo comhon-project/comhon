@@ -2,11 +2,7 @@
 namespace comhon\controller;
 
 use comhon\visitor\Visitor;
-use comhon\object\Object;
 use comhon\object\ObjectArray;
-use comhon\model\property\ForeignProperty;
-use comhon\model\ModelArray;
-use comhon\object\collection\ObjectCollection;
 
 class AggregationLoader extends Visitor {
 

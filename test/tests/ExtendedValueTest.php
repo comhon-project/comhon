@@ -2,16 +2,11 @@
 
 use comhon\model\singleton\ModelManager;
 use comhon\object\Object;
-use comhon\api\ObjectService;
-use comhon\serialization\SqlTable;
-use comhon\request\SimpleLoadRequest;
 use comhon\object\collection\MainObjectCollection;
-use comhon\controller\AggregationLoader;
 use comhon\model\Model;
 use object\Person;
 use object\Man;
 use comhon\object\ComhonDateTime;
-use comhon\utils\Utils;
 use object\Woman;
 
 $time_start = microtime(true);

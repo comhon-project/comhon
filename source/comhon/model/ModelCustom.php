@@ -1,6 +1,5 @@
 <?php
 namespace comhon\model;
-use \Exception;
 
 class ModelCustom extends Model {
 

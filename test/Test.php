@@ -26,6 +26,13 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Pa
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'DatabaseSerializationTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
 
+// test call export on simple model
+// test expoprt/imlport with null values
+
+// verify if main and local in this main model can have same name (should not)
+// main model should verify instance in $pobjectlocalcollection too
+// $pobjectlocalcollection should contain only local ? and we should have another $pobjectMainCollection ?
+
 // add error code
 // add simple model color, email
 // same function for each kind of export

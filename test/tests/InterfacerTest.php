@@ -5,10 +5,8 @@ use comhon\interfacer\StdObjectInterfacer;
 use comhon\interfacer\XMLInterfacer;
 use comhon\model\singleton\ModelManager;
 use comhon\interfacer\Interfacer;
-use comhon\object\collection\MainObjectCollection;
 use object\Person;
-use object\Man;
-use comhon\interfacer\ArrayInterfacer;
+use comhon\interfacer\AssocArrayInterfacer;
 
 $time_start = microtime(true);
 
@@ -68,7 +66,7 @@ if (trim(str_replace('<?xml version="1.0"?>', '', $lInterfacer->serialize($lNode
 
 /** ************************* array **************************** **/
 
-$lInterfacer= new ArrayInterfacer();
+$lInterfacer= new AssocArrayInterfacer();
 $lNode = $lInterfacer->createNode('root');
 $lCreatedNode = $lInterfacer->createNode('object');
 $lInterfacer->setValue($lCreatedNode, 'value', 'prop');
@@ -96,14 +94,16 @@ if ($lInterfacer->serialize($lNode) !== '{"object":{"prop":"value","prop_node":"
 /** ************************* preferences **************************** **/
 
 $lPreferences = [
-	Interfacer::PRIVATE              => true,
-	Interfacer::SERIAL_CONTEXT       => true,
-	Interfacer::DATE_TIME_ZONE       => 'Pacific/Tahiti',
-	Interfacer::DATE_TIME_FORMAT     => 'Y-m-d H:i:s',
-	Interfacer::ONLY_UPDATED_VALUES  => true,
-	Interfacer::PROPERTIES_FILTERS   => ['person' => ['haha', 'hoho'], 'place' => ['plop1', 'plop2']],
-	Interfacer::FLATTEN_VALUES       => true,
-	Interfacer::MAIN_FOREIGN_OBJECTS => true
+	Interfacer::PRIVATE                => true,
+	Interfacer::SERIAL_CONTEXT         => true,
+	Interfacer::DATE_TIME_ZONE         => 'Pacific/Tahiti',
+	Interfacer::DATE_TIME_FORMAT       => 'Y-m-d H:i:s',
+	Interfacer::ONLY_UPDATED_VALUES    => true,
+	Interfacer::PROPERTIES_FILTERS     => ['person' => ['haha', 'hoho'], 'place' => ['plop1', 'plop2']],
+	Interfacer::FLATTEN_VALUES         => true,
+	Interfacer::MAIN_FOREIGN_OBJECTS   => true,
+	Interfacer::FLAG_VALUES_AS_UPDATED => true,
+	Interfacer::MERGE_TYPE             => Interfacer::NO_MERGE
 ];
 
 $lInterfacer->setPreferences($lPreferences);
@@ -139,19 +139,26 @@ $lInterfacer->addMainForeignObject(['plop' => 'plop'], 12, ModelManager::getInst
 if (json_encode($lInterfacer->getMainForeignObjects()) !== '{"person":{"12":{"plop":"plop"}}}') {
 	throw new Exception('bad value');
 }
+if ($lInterfacer->hasToFlagValuesAsUpdated() !== true) {
+	throw new Exception('bad value');
+}
+if ($lInterfacer->getMergeType() !== Interfacer::NO_MERGE) {
+	throw new Exception('bad value');
+}
 
 /** ************************* export stdClass **************************** **/
-$lPreferences[Interfacer::FLATTEN_VALUES] = true;
+$lPreferences[Interfacer::FLATTEN_VALUES] = false;
 $lPreferences[Interfacer::ONLY_UPDATED_VALUES] = false;
 $lPreferences[Interfacer::SERIAL_CONTEXT] = false;
-$lPreferences[Interfacer::MAIN_FOREIGN_OBJECTS] = false;
+$lPreferences[Interfacer::MAIN_FOREIGN_OBJECTS] = true;
+$lPreferences[Interfacer::MERGE_TYPE] = Interfacer::NO_MERGE;
 $lPreferences[Interfacer::PROPERTIES_FILTERS] = ['place' => ['firstName', 'birthPlace'], 'womanBody' => ['date', 'tatoos']];
-$lMan = MainObjectCollection::getInstance()->getObject(1, 'person');
 
+$lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
+$lObject = $lDbTestModel->loadObject('[1,1501774389]');
 $lInterfacer = new XMLInterfacer();
-$lNode = $lInterfacer->export($lMan->getValue('children'), $lPreferences);
-var_dump($lInterfacer->serialize($lNode));
-var_dump(json_encode($lInterfacer->getMainForeignObjects()));
+$lNode = $lInterfacer->export($lObject, $lPreferences);
+$lNode2 = $lInterfacer->export($lInterfacer->import($lNode, $lDbTestModel, $lPreferences), $lPreferences);
 
 $time_end = microtime(true);
 var_dump('interfacer test exec time '.($time_end - $time_start));

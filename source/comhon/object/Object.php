@@ -624,4 +624,8 @@ abstract class Object {
 		return $this->mModel->export($this, $pInterfacer);
 	}
 	
+	public final function import(Interfacer $pInterfacer) {
+		return $this->mModel->import($this, $pInterfacer);
+	}
+	
 }

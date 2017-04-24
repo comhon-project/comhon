@@ -2,6 +2,7 @@
 namespace comhon\model;
 use \Exception;
 use comhon\interfacer\Interfacer;
+use comhon\object\collection\ObjectCollection;
 
 class ModelEnum extends ModelContainer {
 
@@ -31,15 +32,31 @@ class ModelEnum extends ModelContainer {
 	 * @param mixed $pValue
 	 * @param string $pNodeName
 	 * @param Interfacer $pInterfacer
+	 * @param boolean $pIsFirstLevel
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
 	protected function _export($pValue, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
-		$lReturn = $this->mModel->_export($pValue, $pNodeName, $pInterfacer, $pIsFirstLevel);
-		if (!in_array($lReturn, $this->mEnum)) {
-			$lReturn = null;
+		$lValue = $this->mModel->_export($pValue, $pNodeName, $pInterfacer, $pIsFirstLevel);
+		if (!in_array($lValue, $this->mEnum)) {
+			throw new \Exception($lValue. 'is not allowed for enum ' . json_encode($this->mEnum));
 		}
-		return $lReturn;
+		return $lValue;
+	}
+	
+	/**
+	 *
+	 * @param ComhonDateTime $pValue
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @return NULL|unknown
+	 */
+	protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
+		$lValue = $this->mModel->_import($pValue, $pInterfacer, $pLocalObjectCollection);
+		if (!in_array($lValue, $this->mEnum)) {
+			throw new \Exception($lValue. 'is not allowed for enum ' . json_encode($this->mEnum));
+		}
+		return $lValue;
 	}
 	
 	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
@@ -97,6 +114,7 @@ class ModelEnum extends ModelContainer {
 			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
 			throw new \Exception("Argument 2 passed to {$lNodes[1]['class']}::{$lNodes[1]['function']}() must be in enumeration ".json_encode($this->mEnum).", instance of $lClass given, called in {$lNodes[1]['file']} on line {$lNodes[1]['line']} and defined in {$lNodes[0]['file']}");
 		}
+		return true;
 	}
 	
 }

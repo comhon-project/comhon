@@ -94,4 +94,16 @@ class AggregationProperty extends ForeignProperty {
 	public function isInterfaceable($pPrivate, $pSerialization) {
 		return !$pSerialization && parent::isInterfaceable($pPrivate, $pSerialization);
 	}
+	
+	/**
+	 * verify if property is exportable in public/private/serialization mode
+	 *
+	 * @param boolean $pPrivate if true private mode, otherwise public mode
+	 * @param boolean $pSerialization if true serialization mode, otherwise model mode
+	 * @param mixed $pValue value that we want to export
+	 * @return boolean true if property is interfaceable
+	 */
+	public function isExportable($pPrivate, $pSerialization, $pValue) {
+		return parent::isExportable($pPrivate, $pSerialization, $pValue) && $pValue->isLoaded();
+	}
 }

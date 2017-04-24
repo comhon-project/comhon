@@ -3,6 +3,7 @@ namespace comhon\model;
 use \Exception;
 use comhon\serialization\SerializationUnit;
 use comhon\interfacer\Interfacer;
+use comhon\object\collection\ObjectCollection;
 
 abstract class ModelContainer extends Model {
 
@@ -83,6 +84,14 @@ abstract class ModelContainer extends Model {
 		return $this->getModel()->hasUniqueIdProperty();
 	}
 	
+	/**
+	 * get id property if there is one and only one id property
+	 * @return Property|null
+	 */
+	public function getUniqueIdProperty() {
+		return $this->getModel()->getUniqueIdProperty();
+	}
+	
 	public function getFirstIdProperty() {
 		return $this->getModel()->getFirstIdProperty();
 	}
@@ -107,9 +116,21 @@ abstract class ModelContainer extends Model {
 	 * @param Object $pObjectArray
 	 * @param string $pNodeName
 	 * @param Interfacer $pInterfacer
+	 * @param boolean $pIsFirstLevel
 	 * @throws \Exception
 	 */
 	protected function _export($pValue, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+		throw new \Exception('must be overrided');
+	}
+	
+	/**
+	 *
+	 * @param mixed $pInterfacedObject
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @return NULL|unknown
+	 */
+	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
 		throw new \Exception('must be overrided');
 	}
 	

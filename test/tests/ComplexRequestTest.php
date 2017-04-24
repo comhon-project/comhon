@@ -1,11 +1,6 @@
 <?php
 
-use comhon\model\singleton\ModelManager;
-use comhon\object\Object;
 use comhon\api\ObjectService;
-use comhon\serialization\SqlTable;
-use comhon\request\SimpleLoadRequest;
-use comhon\object\collection\MainObjectCollection;
 
 $time_start = microtime(true);
 

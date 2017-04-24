@@ -4,6 +4,51 @@ namespace comhon\interfacer;
 class StdObjectInterfacer extends Interfacer {
 
 	/**
+	 *
+	 * @param \stdClass $pNode
+	 * @param string $pPropertyName
+	 * @param boolean $pAsNode
+	 * @return mixed|null
+	 */
+	public function &getValue(&$pNode, $pPropertyName, $pAsNode = false) {
+		if (isset($pNode->$pPropertyName)) {
+			return $pNode->$pPropertyName;
+		} else {
+			$lNull = null;
+			return $lNull;
+		}
+	}
+	
+	/**
+	 *
+	 * @param \stdClass $pNode
+	 * @param string $pPropertyName
+	 * @param boolean $pAsNode
+	 * @return boolean
+	 */
+	public function hasValue($pNode, $pPropertyName, $pAsNode = false) {
+		return isset($pNode->$pPropertyName);
+	}
+	
+	/**
+	 *
+	 * @param \stdClass $pNode
+	 * @return array
+	 */
+	public function getTraversableNode($pNode) {
+		return is_array($pNode) ? $pNode : [];
+	}
+	
+	/**
+	 * verify if value is a complex id (with inheritance key) or a simple value
+	 * @param mixed $pNode
+	 * @return mixed
+	 */
+	public function isComplexInterfacedId($pValue) {
+		return is_object($pValue);
+	}
+	
+	/**
 	 * 
 	 * @param \stdClass $pNode
 	 * @param mixed $pValue
@@ -20,6 +65,17 @@ class StdObjectInterfacer extends Interfacer {
 		}
 		$pNode->$pName = $pValue;
 		return $pValue;
+	}
+	
+	/**
+	 *
+	 * @param \stdClass $pNode
+	 * @param string $pName
+	 * @param boolean $pAsNode
+	 * @return mixed
+	 */
+	public function deleteValue(&$pNode, $pName, $pAsNode = false) {
+		unset($pNode->$pName);
 	}
 	
 	/**
@@ -89,7 +145,7 @@ class StdObjectInterfacer extends Interfacer {
 	 * @param mixed $pNode
 	 * @return boolean
 	 */
-	protected function _verifyNode($pNode) {
+	public function verifyNode($pNode) {
 		return ($pNode instanceof \stdClass);
 	}
 	

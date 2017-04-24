@@ -3,8 +3,6 @@
 namespace comhon\model\singleton;
 
 use \Exception;
-use comhon\model\ModelArray;
-use comhon\model\ModelEnum;
 use comhon\model\ModelInteger;
 use comhon\model\ModelFloat;
 use comhon\model\ModelBoolean;
@@ -14,10 +12,6 @@ use comhon\model\Model;
 use comhon\model\MainModel;
 use comhon\model\LocalModel;
 use comhon\model\property\Property;
-use comhon\model\ModelForeign;
-use comhon\model\SimpleModel;
-use comhon\model\property\ForeignProperty;
-use comhon\model\property\AggregationProperty;
 use comhon\serialization\SerializationUnit;
 use comhon\object\config\Config;
 use comhon\manifest\parser\ManifestParser;

@@ -4,7 +4,6 @@ namespace comhon\manifest\parser;
 
 use comhon\manifest\parser\xml\XmlManifestParser;
 use comhon\model\Model;
-use comhon\model\SimpleModel;
 use comhon\model\ModelForeign;
 use comhon\model\property\ForeignProperty;
 use comhon\model\property\AggregationProperty;

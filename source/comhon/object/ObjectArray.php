@@ -1,7 +1,6 @@
 <?php
 namespace comhon\object;
 
-use comhon\model\property\ForeignProperty;
 use comhon\model\MainModel;
 use comhon\model\Model;
 use comhon\model\ModelDateTime;
@@ -10,8 +9,6 @@ use comhon\model\ModelArray;
 
 class ObjectArray extends Object {
 
-	const __UNLOAD__ = '__UNLOAD__';
-	
 	/**
 	 *
 	 * @param string|Model $pModel can be a model name or an instance of model

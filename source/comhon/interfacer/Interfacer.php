@@ -4,26 +4,47 @@ namespace comhon\interfacer;
 use comhon\object\Object;
 use comhon\model\Model;
 use comhon\model\singleton\ModelManager;
+use comhon\model\MainModel;
 
 abstract class Interfacer {
 	
-	const PRIVATE              = 'private';
-	const SERIAL_CONTEXT       = 'serialContext';
-	const DATE_TIME_ZONE       = 'dateTimeZone';
-	const DATE_TIME_FORMAT     = 'dateTimeFormat';
-	const ONLY_UPDATED_VALUES  = 'updatedValueOnly';
-	const PROPERTIES_FILTERS   = 'propertiesFilters';
-	const FLATTEN_VALUES       = 'flattenValues';
-	const MAIN_FOREIGN_OBJECTS = 'mainForeignObjects';
+	const PRIVATE                = 'private';
+	const SERIAL_CONTEXT         = 'serialContext';
+	const DATE_TIME_ZONE         = 'dateTimeZone';
+	const DATE_TIME_FORMAT       = 'dateTimeFormat';
+	const ONLY_UPDATED_VALUES    = 'updatedValueOnly';
+	const PROPERTIES_FILTERS     = 'propertiesFilters';
+	const FLATTEN_VALUES         = 'flattenValues';
+	const MAIN_FOREIGN_OBJECTS   = 'mainForeignObjects';
+	const FLAG_VALUES_AS_UPDATED = 'flagValuesAsUpdated';
+	const MERGE_TYPE             = 'mergeType';
 	
-	private $mPrivate            = false;
-	private $mSerialContext      = false;
-	private $mDateTimeZone       = null;
-	private $mDateTimeFormat     = 'c';
-	private $mUpdatedValueOnly   = false;
-	private $mPropertiesFilters  = [];
-	private $mFlattenValues      = false;
-	private $mMainForeignObjects = null;
+	const MERGE     = 1;
+	const OVERWRITE = 2;
+	const NO_MERGE  = 3;
+	
+	const __UNLOAD__ = '__UNLOAD__';
+	const INHERITANCE_KEY = '__inheritance__';
+	const COMPLEX_ID_KEY = 'id';
+	
+	private static $sAllowedMergeTypes = [
+		self::MERGE,
+		self::OVERWRITE,
+		self::NO_MERGE
+	];
+	
+	private $mPrivate             = false;
+	private $mSerialContext       = false;
+	private $mDateTimeZone        = null;
+	private $mDateTimeFormat      = 'c';
+	private $mUpdatedValueOnly    = false;
+	private $mPropertiesFilters   = [];
+	private $mFlattenValues       = false;
+	private $mFlagValuesAsUpdated = false;
+	private $mMergeType           = self::MERGE;
+	
+	protected $mMainForeignObjects  = null;
+	protected $mMainForeignIds      = null;
 	
 	public function __construct() {
 		$this->mDateTimeZone = new \DateTimeZone(date_default_timezone_get());
@@ -170,7 +191,7 @@ abstract class Interfacer {
 	 * @return boolean
 	 */
 	public function hasToExportMainForeignObjects() {
-		return is_array($this->mMainForeignObjects);
+		return !is_null($this->mMainForeignObjects);
 	}
 	
 	/**
@@ -178,7 +199,8 @@ abstract class Interfacer {
 	 * @param boolean $pBoolean
 	 */
 	public function setExportMainForeignObjects($pBoolean) {
-		$this->mMainForeignObjects = $pBoolean ? [] : null;
+		$this->mMainForeignObjects = $pBoolean ? $this->createNode('objects') : null;
+		$this->mMainForeignIds = $pBoolean ? [] : null;
 	}
 	
 	/**
@@ -188,8 +210,12 @@ abstract class Interfacer {
 	 * @param Model $pModel
 	 */
 	public function addMainForeignObject($pNode, $pNodeId, Model $pModel) {
-		if (is_array($this->mMainForeignObjects)) {
-			$this->mMainForeignObjects[$pModel->getName()][$pNodeId] = $pNode;
+		if (!is_null($this->mMainForeignObjects)) {
+			$lModelName = $pModel->getName();
+			if (!$this->hasValue($this->mMainForeignObjects, $lModelName, true)) {
+				$this->setValue($this->mMainForeignObjects, $this->createNode($lModelName), $lModelName);
+			}
+			$this->setValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNode, $pNodeId);
 		}
 	}
 	
@@ -200,8 +226,11 @@ abstract class Interfacer {
 	 * @param Model $pModel
 	 */
 	public function removeMainForeignObject($pNodeId, Model $pModel) {
-		if (is_array($this->mMainForeignObjects)) {
-			unset($this->mMainForeignObjects[$pModel->getName()][$pNodeId]);
+		if (!is_null($this->mMainForeignObjects)) {
+			$lModelName = $pModel->getName();
+			if ($this->hasValue($this->mMainForeignObjects, $lModelName, true)) {
+				$this->deleteValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNodeId, true);
+			}
 		}
 	}
 	
@@ -214,6 +243,83 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 *
+	 * @return array
+	 */
+	public function hasMainForeignObject($pModelName, $pId) {
+		return !is_null($this->mMainForeignObjects)
+			&& $this->hasValue($this->mMainForeignObjects, $pModelName, true)
+			&& $this->hasValue($this->getValue($this->mMainForeignObjects, $pModelName, true), $pId, true);
+	}
+	
+	/**
+	 *
+	 * @param boolean $pBoolean
+	 */
+	public function setFlagValuesAsUpdated($pBoolean) {
+		$this->mFlagValuesAsUpdated = $pBoolean;
+	}
+	
+	/**
+	 *
+	 * @return boolean
+	 */
+	public function hasToFlagValuesAsUpdated() {
+		return $this->mFlagValuesAsUpdated;
+	}
+	
+	/**
+	 *
+	 * @param integer $pMergeType
+	 */
+	public function setMergeType($pMergeType) {
+		if (!in_array($pMergeType, self::$sAllowedMergeTypes)) {
+			throw new \Exception("merge type '$pMergeType' not allowed");
+		}
+		$this->mMergeType = $pMergeType;
+	}
+	
+	/**
+	 *
+	 * @return integer
+	 */
+	public function getMergeType() {
+		return $this->mMergeType;
+	}
+	
+	/**
+	 * 
+	 * @param mixed $pNode
+	 * @param string $pPropertyName
+	 * @param boolean $pAsNode
+	 * @return mixed
+	 */
+	abstract public function &getValue(&$pNode, $pPropertyName, $pAsNode = false);
+	
+	/**
+	 * 
+	 * @param mixed $pNode
+	 * @param string $pPropertyName
+	 * @param boolean $pAsNode
+	 * @return boolean
+	 */
+	abstract public function hasValue($pNode, $pPropertyName, $pAsNode = false);
+	
+	/**
+	 *
+	 * @param mixed $pNode
+	 * @return mixed
+	 */
+	abstract public function getTraversableNode($pNode);
+	
+	/**
+	 * verify if value is a complex id (with inheritance key) or a simple value
+	 * @param mixed $pNode
+	 * @return mixed
+	 */
+	abstract public function isComplexInterfacedId($pValue);
+	
+	/**
 	 * 
 	 * @param mixed $pNode
 	 * @param mixed $pValue
@@ -222,6 +328,15 @@ abstract class Interfacer {
 	 * @return mixed
 	 */
 	abstract public function setValue(&$pNode, $pValue, $pName = null, $pAsNode = false);
+	
+	/**
+	 *
+	 * @param mixed $pNode
+	 * @param string $pName
+	 * @param boolean $pAsNode
+	 * @return mixed
+	 */
+	abstract public function deleteValue(&$pNode, $pName, $pAsNode = false);
 	
 	/**
 	 *
@@ -271,8 +386,15 @@ abstract class Interfacer {
 	 * @param mixed $pNode
 	 * @return boolean
 	 */
-	abstract protected function _verifyNode($pNode);
+	abstract public function verifyNode($pNode);
 	
+	/**
+	 * verify if interfaced object has typed scalar values (int, float, string...).
+	 * @return boolean
+	 */
+	public function hasScalarTypedValues() {
+		return !($this instanceof NoScalarTypedInterfacer);
+	}
 	
 	/**
 	 * 
@@ -287,16 +409,12 @@ abstract class Interfacer {
 	/**
 	 * 
 	 * @param mixed $pNode
-	 * @param Model $pModel
+	 * @param MainModel $pModel
 	 * @param array $pPreferences
 	 */
-	public function import($pNode, $pModel, $pPreferences = []) {
-		if ($this->_needTransformation($pNode)) {
-			$pNode = $this->_transform($pNode);
-		}
-		$this->_verifyNode($pNode);
+	public function import($pNode, MainModel $pModel, array $pPreferences = []) {
 		$this->setPreferences($pPreferences);
-		$pModel->import($pNode, $this);
+		return $pModel->import($pNode, $this);
 	}
 	
 	/**
@@ -369,27 +487,23 @@ abstract class Interfacer {
 				throw new \Exception('preference "'.self::MAIN_FOREIGN_OBJECTS.'" should be a boolean');
 			}
 			$this->setExportMainForeignObjects($pPreferences[self::MAIN_FOREIGN_OBJECTS]);
-		} else if (!empty($this->mMainForeignObjects)) {
-			$this->mMainForeignObjects = [];
+		} else if (!is_null($this->mMainForeignObjects)) {
+			$this->mMainForeignObjects = $this->createNode('objects');
+			$this->mMainForeignIds = [];
+		}
+		
+		// flag values as updated
+		if (array_key_exists(self::FLAG_VALUES_AS_UPDATED, $pPreferences)) {
+			if (!is_bool($pPreferences[self::FLAG_VALUES_AS_UPDATED])) {
+				throw new \Exception('preference "'.self::FLAG_VALUES_AS_UPDATED.'" should be a boolean');
+			}
+			$this->setFlagValuesAsUpdated($pPreferences[self::FLAG_VALUES_AS_UPDATED]);
+		}
+		
+		// merge type
+		if (array_key_exists(self::MERGE_TYPE, $pPreferences)) {
+			$this->setMergeType($pPreferences[self::MERGE_TYPE]);
 		}
 	}
 	
-	/**
-	 * 
-	 * @param mixed $pNode
-	 * @return boolean
-	 */
-	protected function _needTransformation($pNode) {
-		return false;
-	}
-	
-	/**
-	 *
-	 * @param mixed $pNode
-	 * @return boolean
-	 */
-	protected function _transform($pNode) {
-		return $pNode;
-	}
-    
 }

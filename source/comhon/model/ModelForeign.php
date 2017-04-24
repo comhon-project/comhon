@@ -1,9 +1,9 @@
 <?php
 namespace comhon\model;
 
-use comhon\object\ObjectArray;
 use comhon\object\Object;
 use comhon\interfacer\Interfacer;
+use comhon\object\collection\ObjectCollection;
 
 class ModelForeign extends ModelContainer {
 
@@ -27,6 +27,7 @@ class ModelForeign extends ModelContainer {
 	 * @param Object $pObject
 	 * @param string $pNodeName
 	 * @param Interfacer $pInterfacer
+	 * @param boolean $pIsFirstLevel
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
@@ -38,6 +39,20 @@ class ModelForeign extends ModelContainer {
 			throw new \Exception('foreign property with local model must have id');
 		}
 		return $this->getModel()->_exportId($pObject, $pNodeName, $pInterfacer);
+	}
+	
+	/**
+	 *
+	 * @param ComhonDateTime $pValue
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @return NULL|unknown
+	 */
+	protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
+		if (!$this->getUniqueModel()->hasIdProperties()) {
+			throw new \Exception("foreign property must have model with id ({$this->getName()})");
+		}
+		return $this->getModel()->_importId($pValue, $pInterfacer, $pLocalObjectCollection);
 	}
 	
 	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
@@ -99,5 +114,6 @@ class ModelForeign extends ModelContainer {
 	
 	public function verifValue($pValue) {
 		$this->mModel->verifValue($pValue);
+		return true;
 	}
 }

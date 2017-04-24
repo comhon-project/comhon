@@ -2,9 +2,6 @@
 
 namespace comhon\manifest\parser\xml\v_2_0;
 
-use comhon\model\Model;
-use comhon\model\MainModel;
-use comhon\manifest\parser\SerializationManifestParser;
 use comhon\model\singleton\ModelManager;
 use comhon\manifest\parser\xml\XmlSerializationManifestParser as ParentXmlSerializationManifestParser;
 

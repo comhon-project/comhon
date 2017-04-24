@@ -3,9 +3,7 @@
 namespace comhon\manifest\parser\json;
 
 use comhon\model\Model;
-use comhon\model\MainModel;
 use comhon\manifest\parser\SerializationManifestParser;
-use comhon\model\singleton\ModelManager;
 
 abstract class JsonSerializationManifestParser extends SerializationManifestParser {
 

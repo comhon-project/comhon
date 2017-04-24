@@ -2,7 +2,6 @@
 namespace comhon\object\extendable;
 
 use comhon\object\Object as AbstractObject;
-use comhon\model\Model;
 use comhon\model\singleton\ModelManager;
 use comhon\model\SimpleModel;
 use comhon\model\ModelContainer;

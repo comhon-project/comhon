@@ -2,11 +2,8 @@
 namespace comhon\model;
 
 use comhon\model\singleton\ModelManager;
-use comhon\serialization\SqlTable;
 use comhon\object\Object;
-use comhon\object\ObjectArray;
 use comhon\object\collection\ObjectCollection;
-use \stdClass;
 
 class LocalModel extends Model {
 	
@@ -39,14 +36,7 @@ class LocalModel extends Model {
 	 * @return Object
 	 */
 	protected function _getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
-		if (is_null($pInheritanceModelName)) {
-			$lModel = $this;
-		} else {
-			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $this->getMainModelName());
-			if (!$lModel->isInheritedFrom($this)) {
-				throw new \Exception("model '{$lModel->getName()}' doesn't inherit from '{$this->getName()}'");
-			}
-		}
+		$lModel = is_null($pInheritanceModelName) ? $this : $this->_getIneritedModel($pInheritanceModelName);
 		
 		if (!$lModel->hasIdProperties()) {
 			$lObject = $lModel->getObjectInstance($pIsloaded);
@@ -65,6 +55,18 @@ class LocalModel extends Model {
 			}
 		}
 		return $lObject;
+	}
+	
+	/**
+	 * @param string $pInheritanceModelName
+	 * @return Model;
+	 */
+	protected function _getIneritedModel($pInheritanceModelName) {
+		$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $this->getMainModelName());
+		if (!$lModel->isInheritedFrom($this)) {
+			throw new \Exception("model '{$lModel->getName()}' doesn't inherit from '{$this->getName()}'");
+		}
+		return $lModel;
 	}
 	
 }

@@ -3,6 +3,8 @@ namespace comhon\model;
 
 use comhon\model\singleton\ModelManager;
 use comhon\interfacer\Interfacer;
+use comhon\interfacer\NoScalarTypedInterfacer;
+use comhon\object\collection\ObjectCollection;
 
 abstract class SimpleModel extends Model {
 	
@@ -32,10 +34,49 @@ abstract class SimpleModel extends Model {
 	 * @param mixed $pValue
 	 * @param string $pNodeName
 	 * @param Interfacer $pInterfacer
+	 * @param boolean $pIsFirstLevel
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	protected function _export($pValue, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+	final protected function _export($pValue, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+		return $this->exportSimple($pValue, $pInterfacer);
+	}
+	
+	/**
+	 *
+	 * @param mixed $pValue
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 * @return mixed|null
+	 */
+	public function exportSimple($pValue, Interfacer $pInterfacer) {
+		return $pValue;
+	}
+	
+	/**
+	 *
+	 * @param ComhonDateTime $pValue
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @return NULL|unknown
+	 */
+	final protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
+		return $this->importSimple($pValue, $pInterfacer);
+	}
+	
+	/**
+	 *
+	 * @param mixed $pValue
+	 * @param Interfacer $pInterfacer
+	 * @return string|null
+	 */
+	public function importSimple($pValue, Interfacer $pInterfacer) {
+		if (is_null($pValue)) {
+			return $pValue;
+		}
+		if ($pInterfacer instanceof NoScalarTypedInterfacer) {
+			$pValue = $pInterfacer->castValueToString($pValue);
+		}
 		return $pValue;
 	}
 	
@@ -67,7 +108,9 @@ abstract class SimpleModel extends Model {
 		return $pValue;
 	}
 
-	public function verifValue($pValue) {}
+	public function verifValue($pValue) {
+		throw new \Exception('should be overrided');
+	}
 	
 
 	public abstract function  isCheckedValueType($pValue);

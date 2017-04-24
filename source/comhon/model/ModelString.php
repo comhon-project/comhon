@@ -23,6 +23,7 @@ class ModelString extends SimpleModel {
 			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
 			throw new \Exception("Argument 2 passed to {$lNodes[1]['class']}::{$lNodes[1]['function']}() must be a string, instance of $lClass given, called in {$lNodes[1]['file']} on line {$lNodes[1]['line']} and defined in {$lNodes[0]['file']}");
 		}
+		return true;
 	}
 	
 }

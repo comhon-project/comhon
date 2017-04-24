@@ -1,10 +1,7 @@
 <?php
 namespace comhon\api;
 
-use comhon\database\LogicalJunction;
-use comhon\database\Literal;
 use comhon\request\ComplexLoadRequest;
-use comhon\model\singleton\ModelManager;
 use comhon\request\SimpleLoadRequest;
 
 class ObjectService {

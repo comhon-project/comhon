@@ -1,20 +1,8 @@
 <?php
 namespace comhon\request;
 
-use comhon\database\DatabaseController;
-use comhon\database\LogicalJunction;
-use comhon\database\LogicalJunctionOptimizer;
-use comhon\database\ComplexLiteral;
-use comhon\database\HavingLiteral;
-use comhon\database\SelectQuery;
-use comhon\model\singleton\ModelManager;
 use comhon\object\Object;
 use comhon\model\Model;
-use comhon\model\SimpleModel;
-use comhon\model\ModelContainer;
-use comhon\model\property\ForeignProperty;
-use comhon\controller\ForeignObjectLoader;
-use comhon\controller\AggregationLoader;
 
 class SimpleLoadRequest extends ObjectLoadRequest {
 

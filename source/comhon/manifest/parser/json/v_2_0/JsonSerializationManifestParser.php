@@ -2,9 +2,6 @@
 
 namespace comhon\manifest\parser\json\v_2_0;
 
-use comhon\model\Model;
-use comhon\model\MainModel;
-use comhon\manifest\parser\SerializationManifestParser;
 use comhon\model\singleton\ModelManager;
 use comhon\manifest\parser\json\JsonSerializationManifestParser as ParentJsonSerializationManifestParser;
 

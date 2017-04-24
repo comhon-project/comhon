@@ -1,8 +1,6 @@
 <?php
 
 use comhon\model\singleton\ModelManager;
-use comhon\serialization\file\XmlFile;
-use comhon\object\collection\MainObjectCollection;
 
 $time_start = microtime(true);
 

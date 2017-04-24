@@ -1,9 +1,6 @@
 <?php
 namespace comhon\database;
 
-use comhon\model\singleton\ModelManager;
-use comhon\database\DatabaseController;
-
 /**
  * a complex literal is like a literal but it value is a query
  * exemple : 

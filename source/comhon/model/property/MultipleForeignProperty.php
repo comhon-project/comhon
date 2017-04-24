@@ -1,9 +1,6 @@
 <?php
 namespace comhon\model\property;
 
-use comhon\serialization\SqlTable;
-use comhon\object\Object;
-
 class MultipleForeignProperty extends ForeignProperty {
 
 	private $mMultipleIdProperties = [];

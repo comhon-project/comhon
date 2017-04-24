@@ -10,6 +10,7 @@ use comhon\model\ModelInteger;
 use comhon\model\ModelFloat;
 use comhon\model\ModelDateTime;
 use comhon\object\ComhonDateTime;
+use comhon\model\Model;
 
 class Property {
 
@@ -135,12 +136,25 @@ class Property {
 	
 	/**
 	 * verify if property is interfaceable for export/import in public/private/serialization mode
+	 * 
 	 * @param boolean $pPrivate if true private mode, otherwise public mode
 	 * @param boolean $pSerialization if true serialization mode, otherwise model mode
 	 * @return boolean true if property is interfaceable
 	 */
 	public function isInterfaceable($pPrivate, $pSerialization) {
 		return ($pPrivate || !$this->mIsPrivate) && (!$pSerialization || $this->mIsSerializable);
+	}
+	
+	/**
+	 * verify if property is exportable in public/private/serialization mode
+	 * 
+	 * @param boolean $pPrivate if true private mode, otherwise public mode
+	 * @param boolean $pSerialization if true serialization mode, otherwise model mode
+	 * @param mixed $pValue value that we want to export
+	 * @return boolean true if property is interfaceable
+	 */
+	public function isExportable($pPrivate, $pSerialization, $pValue) {
+		return $this->isInterfaceable($pPrivate, $pSerialization) && !is_null($pValue) && $this->getModel()->verifValue($pValue);
 	}
 	
 	/**

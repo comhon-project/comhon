@@ -4,11 +4,8 @@ namespace comhon\model;
 use comhon\model\singleton\ModelManager;
 use comhon\serialization\SqlTable;
 use comhon\object\Object;
-use comhon\object\ObjectArray;
 use comhon\object\collection\MainObjectCollection;
-use comhon\exception\PropertyException;
 use comhon\visitor\ObjectCollectionCreator;
-use \stdClass;
 use comhon\serialization\SerializationUnit;
 use comhon\exception\CastException;
 use comhon\interfacer\Interfacer;
@@ -72,6 +69,76 @@ class MainModel extends Model {
 	public function getSerializationSettings() {
 		return is_null($this->mSerialization) ? null : $this->mSerialization->getSettings();
 	}
+	
+	
+	/** ***************************** generic ********************************* **/
+	
+	/**
+	 *
+	 * @param mixed $pInterfacedObject
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 */
+	public function import($pInterfacedObject, Interfacer $pInterfacer) {
+		$this->load();
+		if ($pInterfacedObject instanceof \SimpleXMLElement) {
+			$pInterfacedObject= dom_import_simplexml($pInterfacedObject);
+		}
+		$pInterfacer->verifyNode($pInterfacedObject);
+		
+		switch ($pInterfacer->getMergeType()) {
+			case Interfacer::MERGE:
+				$lObject = $this->_import($pInterfacedObject, $pInterfacer, null);
+				break;
+			case Interfacer::OVERWRITE:
+				$lObject = $this->getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, null);
+				$lObject->reset();
+				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, new ObjectCollection());
+				break;
+			case Interfacer::NO_MERGE:
+				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $this->mModelName);
+				if (!is_null($lExistingObject)) {
+					MainObjectCollection::getInstance()->removeObject($lExistingObject);
+				}
+				$lObject = $this->_import($pInterfacedObject, $pInterfacer, null);
+				
+				if (!is_null($lExistingObject)) {
+					MainObjectCollection::getInstance()->removeObject($lObject);
+					MainObjectCollection::getInstance()->addObject($lExistingObject);
+				}
+				break;
+			default:
+				throw new \Exception('undefined merge type '.$pMergeType);
+		}
+		return $lObject;
+	}
+	
+	/**
+	 *
+	 * @param Object $pObject
+	 * @param mixed $pInterfacedObject
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 */
+	public function fillObject(Object $pObject, $pInterfacedObject, Interfacer $pInterfacer) {
+		$this->load();
+		if ($pInterfacedObject instanceof \SimpleXMLElement) {
+			$pInterfacedObject= dom_import_simplexml($pInterfacedObject);
+		}
+		$pInterfacer->verifyNode($pInterfacedObject);
+		
+		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $pInterfacer->hasToFlagValuesAsUpdated());
+		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
+		
+		MainObjectCollection::getInstance()->addObject($pObject, false);
+		$this->_fillObject($pObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($pObject));
+		if ($pUpdateLoadStatus) {
+			$pObject->setLoadStatus();
+		}
+	}
+	
+	/** ************************************************************************ **/
+	
 	
 	public function fromSerializedStdObject($pStdObject, $pMergeType = self::MERGE, $pTimeZone = null) {
 		return $this->fromStdObject($pStdObject, true, true, $pMergeType, $pTimeZone, false);
@@ -352,12 +419,11 @@ class MainModel extends Model {
 				}
 				$lModel = $pObject->getModel();
 			}
-			
 			$lValueId   = $this->_toInterfacedId($pObject, $pInterfacer);
 			$lModelName = $lModel->getName();
-			$lMainForeignObjects = $pInterfacer->getMainForeignObjects();
-			if (!(array_key_exists($lModelName, $lMainForeignObjects) && array_key_exists($lValueId, $lMainForeignObjects[$lModelName]))) {
-				$pInterfacer->addMainForeignObject(null, $lValueId, $pObject->getModel());
+			
+			if (!$pInterfacer->hasMainForeignObject($lModelName, $lValueId)) {
+				$pInterfacer->addMainForeignObject($pInterfacer->createNode('empty'), $lValueId, $pObject->getModel());
 				$pInterfacer->addMainForeignObject($lModel->_export($pObject, $lModel->getName(), $pInterfacer, true), $lValueId, $pObject->getModel());
 			}
 		}
@@ -485,21 +551,7 @@ class MainModel extends Model {
 	 * @return Object
 	 */
 	protected function _getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection = null, $pIsloaded = true, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
-		if (is_null($pInheritanceModelName)) {
-			$lModel = $this;
-		} else {
-			if (ModelManager::getInstance()->hasModel($pInheritanceModelName)) {
-				if (ModelManager::getInstance()->hasModel($pInheritanceModelName, $this->mModelName)) {
-					throw new \Exception("cannot determine if model '$pInheritanceModelName' is local or main model");
-				}
-				$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName);
-			} else {
-				$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $this->mModelName);
-			}
-			if (!$lModel->isInheritedFrom($this)) {
-				throw new \Exception("model '{$lModel->getName()}' doesn't inherit from '{$this->getName()}'");
-			}
-		}
+		$lModel = is_null($pInheritanceModelName) ? $this : $this->_getIneritedModel($pInheritanceModelName);
 		
 		if (!$lModel->hasIdProperties()) {
 			$lMainObject = $lModel->getObjectInstance($pIsloaded);
@@ -519,6 +571,25 @@ class MainModel extends Model {
 			}
 		}
 		return $lMainObject;
+	}
+	
+	/**
+	 * @param string $pInheritanceModelName
+	 * @return Model;
+	 */
+	protected function _getIneritedModel($pInheritanceModelName) {
+		if (ModelManager::getInstance()->hasModel($pInheritanceModelName)) {
+			if (ModelManager::getInstance()->hasModel($pInheritanceModelName, $this->mModelName)) {
+				throw new \Exception("cannot determine if model '$pInheritanceModelName' is local or main model");
+			}
+			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName);
+		} else {
+			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $this->mModelName);
+		}
+		if (!$lModel->isInheritedFrom($this)) {
+			throw new \Exception("model '{$lModel->getName()}' doesn't inherit from '{$this->getName()}'");
+		}
+		return $lModel;
 	}
 	
 	/**
