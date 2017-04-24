@@ -839,7 +839,8 @@ abstract class Model {
 					}
 				}
 				if (count($lId) == count($lMultipleForeignProperty->getMultipleIdProperties())) {
-					$pObject->setValue($lPropertyName, $lMultipleForeignProperty->getModel()->_import(json_encode($lId), $pInterfacer, $pLocalObjectCollection), $lFlagAsUpdated);
+					$lValue = $lMultipleForeignProperty->getModel()->_import(json_encode($lId), $pInterfacer, $pLocalObjectCollection);
+					$pObject->setValue($lPropertyName, $lValue, $lFlagAsUpdated);
 				}
 			}
 		}

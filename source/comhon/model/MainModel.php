@@ -118,9 +118,10 @@ class MainModel extends Model {
 	 * @param Object $pObject
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
+	 * @param boolean $pUpdateLoadStatus
 	 * @throws \Exception
 	 */
-	public function fillObject(Object $pObject, $pInterfacedObject, Interfacer $pInterfacer) {
+	public function fillObject(Object $pObject, $pInterfacedObject, Interfacer $pInterfacer, $pUpdateLoadStatus = true) {
 		$this->load();
 		if ($pInterfacedObject instanceof \SimpleXMLElement) {
 			$pInterfacedObject= dom_import_simplexml($pInterfacedObject);
@@ -128,7 +129,6 @@ class MainModel extends Model {
 		$pInterfacer->verifyNode($pInterfacedObject);
 		
 		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $pInterfacer->hasToFlagValuesAsUpdated());
-		$lDateTimeZone = new \DateTimeZone(is_null($pTimeZone) ? date_default_timezone_get() : $pTimeZone);
 		
 		MainObjectCollection::getInstance()->addObject($pObject, false);
 		$this->_fillObject($pObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($pObject));

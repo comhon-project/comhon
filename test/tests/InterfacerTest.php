@@ -158,7 +158,11 @@ $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[1,1501774389]');
 $lInterfacer = new XMLInterfacer();
 $lNode = $lInterfacer->export($lObject, $lPreferences);
-$lNode2 = $lInterfacer->export($lInterfacer->import($lNode, $lDbTestModel, $lPreferences), $lPreferences);
+$lObject2 = $lInterfacer->import($lNode, $lDbTestModel, $lPreferences);
+$lNode2 = $lInterfacer->export($lObject2, $lPreferences);
+
+$lDbTestModel->fillObject($lObject, $lNode2, $lInterfacer);
+
 
 $time_end = microtime(true);
 var_dump('interfacer test exec time '.($time_end - $time_start));
