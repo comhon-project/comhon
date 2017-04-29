@@ -8,8 +8,43 @@ use object\Person;
 use object\Man;
 use comhon\object\ComhonDateTime;
 use object\Woman;
+use comhon\interfacer\StdObjectInterfacer;
+use comhon\interfacer\XMLInterfacer;
+use comhon\interfacer\AssocArrayInterfacer;
+use comhon\interfacer\Interfacer;
 
 $time_start = microtime(true);
+
+$lStdPrivateInterfacer = new StdObjectInterfacer();
+$lStdPrivateInterfacer->setInterfacePrivateProperties(true);
+
+$lStdPublicInterfacer = new StdObjectInterfacer();
+$lStdPublicInterfacer->setInterfacePrivateProperties(false);
+
+$lStdSerialInterfacer = new StdObjectInterfacer();
+$lStdSerialInterfacer->setInterfacePrivateProperties(true);
+$lStdSerialInterfacer->setSerialContext(true);
+
+$lXmlPrivateInterfacer = new XMLInterfacer();
+$lXmlPrivateInterfacer->setInterfacePrivateProperties(true);
+
+$lXmlPublicInterfacer= new XMLInterfacer();
+$lXmlPublicInterfacer->setInterfacePrivateProperties(false);
+
+$lXmlSerialInterfacer = new XMLInterfacer();
+$lXmlSerialInterfacer->setInterfacePrivateProperties(true);
+$lXmlSerialInterfacer->setSerialContext(true);
+
+$lArrayPrivateInterfacer = new AssocArrayInterfacer();
+$lArrayPrivateInterfacer->setInterfacePrivateProperties(true);
+
+$lArrayPublicInterfacer = new AssocArrayInterfacer();
+$lArrayPublicInterfacer->setInterfacePrivateProperties(false);
+
+$lSqlInterfacer = new AssocArrayInterfacer();
+$lSqlInterfacer->setInterfacePrivateProperties(true);
+$lSqlInterfacer->setFlattenValues(true);
+$lSqlInterfacer->setSerialContext(true);
 
 $lWomanModel  = ModelManager::getInstance()->getInstanceModel('woman');
 $lManModel    = ModelManager::getInstance()->getInstanceModel('man');
@@ -108,38 +143,41 @@ foreach (MainObjectCollection::getInstance()->getModelObjects('person') as $lTes
 	}
 }
 
+/** @var Object $lBody */
 $lBody = $lWoman->getValue('bodies')->getValue(0);
-if (json_encode($lBody->getValue('tatoos')->toPrivateStdObject()) !== '[{"type":"sentence","location":"shoulder","tatooArtist":{"id":"5","__inheritance__":"man"}},{"type":"sentence","location":"arm","tatooArtist":{"id":"6","__inheritance__":"man"}},{"type":"sentence","location":"leg","tatooArtist":{"id":"5","__inheritance__":"man"}}]') {
+if (json_encode($lBody->getValue('tatoos')->export($lStdPrivateInterfacer)) !== '[{"type":"sentence","location":"shoulder","tatooArtist":{"id":"5","__inheritance__":"man"}},{"type":"sentence","location":"arm","tatooArtist":{"id":"6","__inheritance__":"man"}},{"type":"sentence","location":"leg","tatooArtist":{"id":"5","__inheritance__":"man"}}]') {
 	throw new \Exception('not same object values');
 }
 $lBody->setValue('arts', $lBody->getProperty('arts')->getModel()->getObjectInstance());
 $lBody->getValue('arts')->pushValue($lBody->getValue('tatoos')->getValue(0));
 $lBody->getValue('arts')->pushValue($lBody->getValue('piercings')->getValue(0));
 
-if (json_encode($lBody->getValue('arts')->toPrivateStdObject()) !== '[{"type":"sentence","location":"shoulder","tatooArtist":{"id":"5","__inheritance__":"man"},"__inheritance__":"tatoo"},{"type":"earring","location":"ear","piercer":{"id":"5","__inheritance__":"man"},"__inheritance__":"piercing"}]') {
+if (json_encode($lBody->getValue('arts')->export($lStdPrivateInterfacer)) !== '[{"type":"sentence","location":"shoulder","tatooArtist":{"id":"5","__inheritance__":"man"},"__inheritance__":"tatoo"},{"type":"earring","location":"ear","piercer":{"id":"5","__inheritance__":"man"},"__inheritance__":"piercing"}]') {
 	throw new \Exception('not same object values');
 }
-$lBodyTwo = $lBody->getModel()->fromPrivateXml($lBody->toPrivateXml(), Model::NO_MERGE);
+$lXmlPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$lBodyTwo = $lBody->getModel()->import($lBody->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
+$lXmlPrivateInterfacer->setMergeType(Interfacer::MERGE);
 if ($lBodyTwo === $lBody) {
 	throw new \Exception('same object instance');
 }
-if (json_encode($lBodyTwo->getValue('arts')->toPrivateStdObject()) !== '[{"type":"sentence","location":"shoulder","tatooArtist":{"id":"5","__inheritance__":"man"},"__inheritance__":"tatoo"},{"type":"earring","location":"ear","piercer":{"id":"5","__inheritance__":"man"},"__inheritance__":"piercing"}]') {
+if (json_encode($lBodyTwo->getValue('arts')->export($lStdPrivateInterfacer)) !== '[{"type":"sentence","location":"shoulder","tatooArtist":{"id":"5","__inheritance__":"man"},"__inheritance__":"tatoo"},{"type":"earring","location":"ear","piercer":{"id":"5","__inheritance__":"man"},"__inheritance__":"piercing"}]') {
 	throw new \Exception('not same object values');
 }
-$lBodyTwo = $lBody->getModel()->fromPrivateXml($lBody->toPrivateXml());
+$lBodyTwo = $lBody->getModel()->import($lBody->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
 if ($lBodyTwo !== $lBody) {
 	throw new \Exception('not same object instance');
 }
 
 $lWoman->reorderValues();
-if (json_encode($lWoman->toPrivateStdObject()) !== '{"id":"2","firstName":"Marie","lastName":"Smith","birthDate":"2016-11-13T20:04:05+01:00","bestFriend":{"id":"5","__inheritance__":"man"},"children":"__UNLOAD__","homes":"__UNLOAD__","bodies":[1]}') {
-	throw new \Exception('not same object values : '.json_encode($lWoman->toPrivateStdObject()));
+if (!compareJson(json_encode($lWoman->export($lStdPrivateInterfacer)), '{"id":"2","firstName":"Marie","lastName":"Smith","birthDate":"2016-11-13T20:04:05+01:00","bestFriend":{"id":"5","__inheritance__":"man"},"bodies":[1]}')) {
+	throw new \Exception('not same object values : '.json_encode($lWoman->export($lStdPrivateInterfacer)));
 }
-if (trim(str_replace('<?xml version="1.0"?>', '', $lWoman->toPrivateXml()->asXML())) !== '<woman id="2" firstName="Marie" lastName="Smith" birthDate="2016-11-13T20:04:05+01:00"><bestFriend __inheritance__="man">5</bestFriend><children __UNLOAD__="1"/><homes __UNLOAD__="1"/><bodies><body>1</body></bodies></woman>') {
+if (trim(str_replace('<?xml version="1.0"?>', '', $lWoman->export($lXmlPrivateInterfacer)->asXML())) !== '<woman id="2" firstName="Marie" lastName="Smith" birthDate="2016-11-13T20:04:05+01:00"><bestFriend __inheritance__="man">5</bestFriend><children __UNLOAD__="1"/><homes __UNLOAD__="1"/><bodies><body>1</body></bodies></woman>') {
 	throw new \Exception('not same object values');
 }
-if (json_encode($lWoman->toSqlDatabase()) !== '{"id":"2","first_name":"Marie","lastName":"Smith","birth_date":"2016-11-13T20:04:05+01:00","best_friend":"5"}') {
-	throw new \Exception('not same object values : '.json_encode($lWoman->toSqlDatabase()));
+if (!compareJson(json_encode($lWoman->export($lSqlInterfacer)), '{"id":"2","first_name":"Marie","lastName":"Smith","birth_date":"2016-11-13T20:04:05+01:00","best_friend":"5"}')) {
+	throw new \Exception('not same object values : '.json_encode($lWoman->export($lSqlInterfacer)));
 }
 
 $lMan = MainObjectCollection::getInstance()->getObject(5, 'man');
@@ -178,11 +216,11 @@ $lBestFriend = $lMan->getValue('bestFriend');
 $lFather = $lMan->getValue('father');
 $lMother = $lMan->getValue('mother');
 
-$lManStdObject = $lMan->toPrivateStdObject();
-$lManXml = $lMan->toPrivateXml();
-$lManSql = $lMan->toPrivateFlattenedArray();
+$lManStdObject = $lMan->export($lStdPrivateInterfacer);
+$lManXml = $lMan->export($lXmlPrivateInterfacer);
+$lManSql = $lMan->export($lArrayPrivateInterfacer);
 
-$lManImported = $lManModel->fromPrivateStdObject($lMan->toPrivateStdObject());
+$lManImported = $lManModel->import($lMan->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 if ($lManImported !== $lMan) {
 	throw new \Exception('not same object instance');
 }
@@ -196,7 +234,7 @@ if ($lManImported->getValue('mother') !== $lMother) {
 	throw new \Exception('not same object instance');
 }
 
-$lManImported = $lManModel->fromPrivateXml($lManImported->toPrivateXml());
+$lManImported = $lManModel->import($lManImported->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
 if ($lManImported !== $lMan) {
 	throw new \Exception('not same object instance');
 }
@@ -210,7 +248,7 @@ if ($lManImported->getValue('mother') !== $lMother) {
 	throw new \Exception('not same object instance');
 }
 
-$lManImported = $lManModel->fromPrivateFlattenedArray($lManImported->toPrivateFlattenedArray());
+$lManImported = $lManModel->import($lManImported->export($lArrayPrivateInterfacer), $lArrayPrivateInterfacer);
 if ($lManImported !== $lMan) {
 	throw new \Exception('not same object instance');
 }
@@ -224,13 +262,13 @@ if ($lManImported->getValue('mother') !== $lMother) {
 	throw new \Exception('not same object instance');
 }
 
-if (json_encode($lManStdObject) !== json_encode($lManImported->toPrivateStdObject())) {
+if (!compareJson(json_encode($lManStdObject), json_encode($lManImported->export($lStdPrivateInterfacer)))) {
 	throw new \Exception('not same string object');
 }
-if ($lManXml->asXML() !== $lManImported->toPrivateXml()->asXML()) {
+if ($lManXml->asXML() !== $lManImported->export($lXmlPrivateInterfacer)->asXML()) {
 	throw new \Exception('not same string object');
 }
-if (json_encode($lManSql) !== json_encode($lManImported->toPrivateFlattenedArray())) {
+if (!compareJson(json_encode($lManSql), json_encode($lManImported->export($lArrayPrivateInterfacer)))) {
 	throw new \Exception('not same string object');
 }
 
@@ -238,21 +276,21 @@ $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[1,1501774389]');
 $lObject->reorderValues();
 
-if (json_encode($lObject->toPrivateStdObject()) !== '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","boolean":false,"boolean2":true,"childrenTestDb":"__UNLOAD__"}') {
-	var_dump(json_encode($lObject->toPrivateStdObject()));
-	throw new \Exception('bad private object value '.json_encode($lObject->toPrivateStdObject()));
+if (!compareJson(json_encode($lObject->export($lStdPrivateInterfacer)), '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","boolean":false,"boolean2":true,"childrenTestDb":"__UNLOAD__"}')) {
+	var_dump(json_encode($lObject->export($lStdPrivateInterfacer)));
+	throw new \Exception('bad private object value '.json_encode($lObject->export($lStdPrivateInterfacer)));
 }
 
-if (json_encode($lObject->toPublicStdObject()) !== '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","boolean":false,"boolean2":true,"childrenTestDb":"__UNLOAD__"}') {
-	var_dump(json_encode($lObject->toPublicStdObject()));
+if (!compareJson(json_encode($lObject->export($lStdPublicInterfacer)), '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","boolean":false,"boolean2":true,"childrenTestDb":"__UNLOAD__"}')) {
+	var_dump(json_encode($lObject->export($lStdPublicInterfacer)));
 	throw new \Exception('bad public object value');
 }
-$lStdObject = $lObject->toPrivateStdObject();
+$lStdObject = $lObject->export($lStdPrivateInterfacer);
 $lStdObject->string = 'azeazeazeazeaze';
 $lStdObject->objectsWithId[0]->plop3 = 'azeazeazeazeaze';
-$lObject->fromPublicStdObject($lStdObject);
-if (json_encode($lObject->toPrivateStdObject()) !== '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","boolean":false,"boolean2":true,"childrenTestDb":"__UNLOAD__"}') {
-	throw new \Exception('bad private object value '.json_encode($lObject->toPrivateStdObject()));
+$lObject->import($lStdObject, $lStdPublicInterfacer);
+if (!compareJson(json_encode($lObject->export($lStdPrivateInterfacer)), '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","boolean":false,"boolean2":true,"childrenTestDb":"__UNLOAD__"}')) {
+	throw new \Exception('bad private object value '.json_encode($lObject->export($lStdPrivateInterfacer)));
 }
 
 if (count($lObject->getValue('objectsWithId')->getValues()) !== 5) {
@@ -283,7 +321,9 @@ if ($lObject->getValue('lonelyForeignObjectTwo') !== $lObject->getValue('lonelyF
 }
 
 $lObjectOne = $lObject;
-$lObject = $lDbTestModel->fromPrivateStdObject($lObject->toPrivateStdObject(), Model::NO_MERGE);
+$lStdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$lObject = $lDbTestModel->import($lObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+$lStdPrivateInterfacer->setMergeType(Interfacer::MERGE);
 if ($lObjectOne === $lObject) {
 	throw new \Exception('same object instance');
 }
@@ -315,8 +355,9 @@ if ($lObject->getValue('lonelyForeignObjectTwo') !== $lObject->getValue('lonelyF
 	throw new \Exception('not same object instance');
 }
 
-
-$lObject = $lDbTestModel->fromPrivateXml($lObject->toPrivateXml(), Model::NO_MERGE);
+$lXmlPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$lObject = $lDbTestModel->import($lObject->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
+$lXmlPrivateInterfacer->setMergeType(Interfacer::MERGE);
 if ($lObjectOne === $lObject) {
 	throw new \Exception('same object instance');
 }
@@ -405,30 +446,30 @@ if ($lObj !== $lObject->getValue('manBodyJson')) {
 /** ****************** export private with foreign main object ********************* **/
 
 $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
+/** @var Object $lObject */
 $lObject = $lDbTestModel->loadObject('[40,50]');
 $lObject->loadValue('mainParentTestDb');
 $lArray = [];
-$lObject->toPrivateStdObject(null, false, null, $lArray);
-if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}') {
+$lStdPrivateInterfacer->setExportMainForeignObjects(true);
+$lObject->export($lStdPrivateInterfacer);
+$lArray = $lStdPrivateInterfacer->getMainForeignObjects();
+if (!compareJson(json_encode($lArray), '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}')) {
 	var_dump(json_encode($lArray));
 	throw new \Exception('not same foreign objects');
 }
 $lArray = [];
-$lObject->toPrivateFlattenedArray(null, false, null, $lArray);
-if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}') {
+$lArrayPrivateInterfacer->setExportMainForeignObjects(true);
+$lObject->export($lArrayPrivateInterfacer);
+$lArray = $lArrayPrivateInterfacer->getMainForeignObjects();
+if (!compareJson(json_encode($lArray), '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}')) {
 	var_dump(json_encode($lArray));
 	throw new \Exception('not same foreign objects');
 }
 $lArray = [];
-$lObject->toPrivateXml(null, false, null, $lArray);
-$lArrayString = [];
-foreach ($lArray as $lModelName => $plop) {
-	$lArrayString[$lModelName] = [];
-	foreach ($plop as $lId => $lXml) {
-		$lArrayString[$lModelName][$lId] = $lXml->asXML();
-	}
-}
-if (json_encode($lArrayString) !== '{"testDb":[],"mainTestDb":{"2":"<?xml version=\"1.0\"?>\n<mainTestDb id=\"2\" name=\"qsdqsd\"><childrenTestDb __UNLOAD__=\"1\"\/><obj plop=\"ploooop\" plop2=\"ploooop2\"\/><\/mainTestDb>\n"},"manBodyJsonExtended":{"1567":"<?xml version=\"1.0\"?>\n<manBodyJson id=\"1567\" date=\"2010-12-24T00:00:00+01:00\" height=\"1.8\" weight=\"80\" baldness=\"0\"\/>\n"},"womanXmlExtended":{"3":"<?xml version=\"1.0\"?>\n<womanXml id=\"3\" lastName=\"Smith\"\/>\n"}}') {
+$lXmlPrivateInterfacer->setExportMainForeignObjects(true);
+$lObject->export($lXmlPrivateInterfacer);
+$lArray = $lXmlPrivateInterfacer->getMainForeignObjects();
+if (!compareJson(json_encode($lArrayString), '{"testDb":[],"mainTestDb":{"2":"<?xml version=\"1.0\"?>\n<mainTestDb id=\"2\" name=\"qsdqsd\"><childrenTestDb __UNLOAD__=\"1\"\/><obj plop=\"ploooop\" plop2=\"ploooop2\"\/><\/mainTestDb>\n"},"manBodyJsonExtended":{"1567":"<?xml version=\"1.0\"?>\n<manBodyJson id=\"1567\" date=\"2010-12-24T00:00:00+01:00\" height=\"1.8\" weight=\"80\" baldness=\"0\"\/>\n"},"womanXmlExtended":{"3":"<?xml version=\"1.0\"?>\n<womanXml id=\"3\" lastName=\"Smith\"\/>\n"}}')) {
 	var_dump(json_encode($lArrayString));
 	throw new \Exception('not same foreign objects');
 }
@@ -439,27 +480,26 @@ $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[40,50]');
 $lObject->loadValue('mainParentTestDb');
 $lArray = [];
-$lObject->toPublicStdObject(null, false, null, $lArray);
-if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}') {
+$lStdPublicInterfacer->setExportMainForeignObjects(true);
+$lObject->export($lStdPublicInterfacer);
+$lArray = $lStdPublicInterfacer->getMainForeignObjects();
+if (!compareJson(json_encode($lArray), '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}')) {
 	var_dump(json_encode($lArray));
 	throw new \Exception('not same foreign objects');
 }
 $lArray = [];
-$lObject->toPublicFlattenedArray(null, false, null, $lArray);
-if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}') {
+$lArrayPublicInterfacer->setExportMainForeignObjects(true);
+$lObject->export($lArrayPublicInterfacer);
+$lArray = $lArrayPublicInterfacer->getMainForeignObjects();
+if (!compareJson(json_encode($lArray), '{"testDb":[],"mainTestDb":{"2":{"childrenTestDb":"__UNLOAD__","id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}')) {
 	var_dump(json_encode($lArray));
 	throw new \Exception('not same foreign objects');
 }
 $lArray = [];
-$lObject->toPublicXml(null, false, null, $lArray);
-$lArrayString = [];
-foreach ($lArray as $lModelName => $plop) {
-	$lArrayString[$lModelName] = [];
-	foreach ($plop as $lId => $lXml) {
-		$lArrayString[$lModelName][$lId] = $lXml->asXML();
-	}
-}
-if (json_encode($lArrayString) !== '{"testDb":[],"mainTestDb":{"2":"<?xml version=\"1.0\"?>\n<mainTestDb id=\"2\" name=\"qsdqsd\"><childrenTestDb __UNLOAD__=\"1\"\/><obj plop=\"ploooop\" plop2=\"ploooop2\"\/><\/mainTestDb>\n"},"manBodyJsonExtended":{"1567":"<?xml version=\"1.0\"?>\n<manBodyJson id=\"1567\" date=\"2010-12-24T00:00:00+01:00\" height=\"1.8\" weight=\"80\" baldness=\"0\"\/>\n"},"womanXmlExtended":{"3":"<?xml version=\"1.0\"?>\n<womanXml id=\"3\" lastName=\"Smith\"\/>\n"}}') {
+$lXmlPublicInterfacer->setExportMainForeignObjects(true);
+$lObject->export($lXmlPublicInterfacer);
+$lArray = $lXmlPublicInterfacer->getMainForeignObjects();
+if (!compareJson(json_encode($lArrayString), '{"testDb":[],"mainTestDb":{"2":"<?xml version=\"1.0\"?>\n<mainTestDb id=\"2\" name=\"qsdqsd\"><childrenTestDb __UNLOAD__=\"1\"\/><obj plop=\"ploooop\" plop2=\"ploooop2\"\/><\/mainTestDb>\n"},"manBodyJsonExtended":{"1567":"<?xml version=\"1.0\"?>\n<manBodyJson id=\"1567\" date=\"2010-12-24T00:00:00+01:00\" height=\"1.8\" weight=\"80\" baldness=\"0\"\/>\n"},"womanXmlExtended":{"3":"<?xml version=\"1.0\"?>\n<womanXml id=\"3\" lastName=\"Smith\"\/>\n"}}')) {
 	var_dump(json_encode($lArrayString));
 	throw new \Exception('not same foreign objects');
 }
@@ -470,27 +510,26 @@ $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[40,50]');
 $lObject->loadValue('mainParentTestDb');
 $lArray = [];
-$lObject->toSerialStdObject(null, false, null, $lArray);
-if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}') {
+$lStdSerialInterfacer->setExportMainForeignObjects(true);
+$lObject->export($lStdSerialInterfacer);
+$lArray = $lStdSerialInterfacer->getMainForeignObjects();
+if (!compareJson(json_encode($lArray), '{"testDb":[],"mainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}')) {
 	var_dump(json_encode($lArray));
 	throw new \Exception('not same foreign objects');
 }
 $lArray = [];
-$lObject->toSqlDatabase(null, false, null, $lArray);
-if (json_encode($lArray) !== '{"testDb":[],"mainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}') {
+$lSqlInterfacer->setExportMainForeignObjects(true);
+$lObject->export($lSqlInterfacer);
+$lArray = $lSqlInterfacer->getMainForeignObjects();
+if (!compareJson(json_encode($lArray), '{"testDb":[],"mainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":"3","lastName":"Smith"}}}')) {
 	var_dump(json_encode($lArray));
 	throw new \Exception('not same foreign objects');
 }
 $lArray = [];
-$lObject->toSerialXml(null, false, null, $lArray);
-$lArrayString = [];
-foreach ($lArray as $lModelName => $plop) {
-	$lArrayString[$lModelName] = [];
-	foreach ($plop as $lId => $lXml) {
-		$lArrayString[$lModelName][$lId] = $lXml->asXML();
-	}
-}
-if (json_encode($lArrayString) !== '{"testDb":[],"mainTestDb":{"2":"<?xml version=\"1.0\"?>\n<mainTestDb id=\"2\" name=\"qsdqsd\"><obj plop=\"ploooop\" plop2=\"ploooop2\"\/><\/mainTestDb>\n"},"manBodyJsonExtended":{"1567":"<?xml version=\"1.0\"?>\n<manBodyJson id=\"1567\" date=\"2010-12-24T00:00:00+01:00\" height=\"1.8\" weight=\"80\" baldness=\"0\"\/>\n"},"womanXmlExtended":{"3":"<?xml version=\"1.0\"?>\n<womanXml id=\"3\" lastName=\"Smith\"\/>\n"}}') {
+$lXmlSerialInterfacer->setExportMainForeignObjects(true);
+$lObject->export($lXmlSerialInterfacer);
+$lArray = $lXmlSerialInterfacer->getMainForeignObjects();
+if (!compareJson(json_encode($lArrayString), '{"testDb":[],"mainTestDb":{"2":"<?xml version=\"1.0\"?>\n<mainTestDb id=\"2\" name=\"qsdqsd\"><obj plop=\"ploooop\" plop2=\"ploooop2\"\/><\/mainTestDb>\n"},"manBodyJsonExtended":{"1567":"<?xml version=\"1.0\"?>\n<manBodyJson id=\"1567\" date=\"2010-12-24T00:00:00+01:00\" height=\"1.8\" weight=\"80\" baldness=\"0\"\/>\n"},"womanXmlExtended":{"3":"<?xml version=\"1.0\"?>\n<womanXml id=\"3\" lastName=\"Smith\"\/>\n"}}')) {
 	var_dump(json_encode($lArrayString));
 	throw new \Exception('not same foreign objects');
 }
@@ -528,8 +567,8 @@ $lMan->setFirstName('Jean');
 $lMan->setLastName('De La Fontaine');
 $lMan->setBirthDate(new ComhonDateTime('1674-03-02'));
 
-if (json_encode($lMan->toPrivateStdObject()) !== '{"children":"__UNLOAD__","homes":"__UNLOAD__","bodies":"__UNLOAD__","firstName":"Jean","lastName":"De La Fontaine","birthDate":"1674-03-02T00:00:00+01:00"}') {
-	var_dump(json_encode($lMan->toPrivateStdObject()));
+if (!compareJson(json_encode($lMan->export($lStdPrivateInterfacer)), '{"children":"__UNLOAD__","homes":"__UNLOAD__","bodies":"__UNLOAD__","firstName":"Jean","lastName":"De La Fontaine","birthDate":"1674-03-02T00:00:00+01:00"}')) {
+	var_dump(json_encode($lMan->export($lStdPrivateInterfacer)));
 	throw new \Exception('bad value');
 }
 

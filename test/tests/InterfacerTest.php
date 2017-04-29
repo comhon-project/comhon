@@ -147,7 +147,7 @@ if ($lInterfacer->getMergeType() !== Interfacer::NO_MERGE) {
 }
 
 /** ************************* export stdClass **************************** **/
-$lPreferences[Interfacer::FLATTEN_VALUES] = false;
+$lPreferences[Interfacer::FLATTEN_VALUES] = true;
 $lPreferences[Interfacer::ONLY_UPDATED_VALUES] = false;
 $lPreferences[Interfacer::SERIAL_CONTEXT] = false;
 $lPreferences[Interfacer::MAIN_FOREIGN_OBJECTS] = true;

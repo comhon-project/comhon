@@ -17,6 +17,7 @@ abstract class Interfacer {
 	const FLATTEN_VALUES         = 'flattenValues';
 	const MAIN_FOREIGN_OBJECTS   = 'mainForeignObjects';
 	const FLAG_VALUES_AS_UPDATED = 'flagValuesAsUpdated';
+	const FLAG_OBJECT_AS_LOADED  = 'flagObjectAsUpdated';
 	const MERGE_TYPE             = 'mergeType';
 	
 	const MERGE     = 1;
@@ -41,13 +42,24 @@ abstract class Interfacer {
 	private $mPropertiesFilters   = [];
 	private $mFlattenValues       = false;
 	private $mFlagValuesAsUpdated = false;
+	private $mFlagObjectAsLoaded  = false;
 	private $mMergeType           = self::MERGE;
 	
 	protected $mMainForeignObjects  = null;
 	protected $mMainForeignIds      = null;
 	
-	public function __construct() {
+	final public function __construct() {
 		$this->mDateTimeZone = new \DateTimeZone(date_default_timezone_get());
+		$this->_initInstance();
+	}
+	
+	/**
+	 * initialize DomDocument that permit to contruct nodes
+	 * @throws \Exception
+	 */
+	protected function _initInstance() {
+		// called in final constructor
+		// override this function if some stuff have to be done during instanciation
 	}
 	
 	/**
@@ -96,6 +108,14 @@ abstract class Interfacer {
 	 */
 	public function setDateTimeZone($pTimeZone) {
 		$this->mDateTimeZone = new \DateTimeZone($pTimeZone);
+	}
+	
+	/**
+	 * set default date time zone
+	 * @param string $pTimeZone
+	 */
+	public function setDefaultDateTimeZone() {
+		$this->mDateTimeZone = new \DateTimeZone(date_default_timezone_get());
 	}
 	
 	/**
@@ -163,10 +183,12 @@ abstract class Interfacer {
 	 * @param string $pModelName
 	 */
 	public function setPropertiesFilter($pPropertiesNames, $pModelName) {
-		$this->mPropertiesFilters[$pModelName] = array_flip($pPropertiesNames);
-		$lModel = ModelManager::getInstance()->getInstanceModel($pModelName);
-		foreach ($lModel->getIdProperties()as $lPropertyName => $lProperty) {
-			$this->mPropertiesFilters[$pModelName][$lPropertyName] = null;
+		if (is_array($pPropertiesNames)) {
+			$this->mPropertiesFilters[$pModelName] = array_flip($pPropertiesNames);
+			$lModel = ModelManager::getInstance()->getInstanceModel($pModelName);
+			foreach ($lModel->getIdProperties()as $lPropertyName => $lProperty) {
+				$this->mPropertiesFilters[$pModelName][$lPropertyName] = null;
+			}
 		}
 	}
 	
@@ -270,6 +292,22 @@ abstract class Interfacer {
 	
 	/**
 	 *
+	 * @param boolean $pBoolean
+	 */
+	public function setFlagObjectAsLoaded($pBoolean) {
+		$this->mFlagObjectAsLoaded = $pBoolean;
+	}
+	
+	/**
+	 *
+	 * @return boolean
+	 */
+	public function hasToFlagObjectAsLoaded() {
+		return $this->mFlagObjectAsLoaded;
+	}
+	
+	/**
+	 *
 	 * @param integer $pMergeType
 	 */
 	public function setMergeType($pMergeType) {
@@ -314,10 +352,17 @@ abstract class Interfacer {
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value
-	 * @param mixed $pNode
+	 * @param mixed $pValue
 	 * @return mixed
 	 */
 	abstract public function isComplexInterfacedId($pValue);
+	
+	/**
+	 * verify if value is a flatten complex id (with inheritance key)
+	 * @param mixed $pValue
+	 * @return mixed
+	 */
+	abstract public function isFlattenComplexInterfacedId($pValue);
 	
 	/**
 	 * 
@@ -372,6 +417,13 @@ abstract class Interfacer {
 	 * @param string $pName
 	 */
 	abstract public function flattenNode(&$pNode, $pName);
+	
+	/**
+	 * unflatten value (transform string to object/array)
+	 * @param array $pNode
+	 * @param string $pName
+	 */
+	abstract public function unFlattenNode(&$pNode, $pName);
 	
 	/**
 	 * replace value
@@ -468,6 +520,7 @@ abstract class Interfacer {
 			if (!is_array($pPreferences[self::PROPERTIES_FILTERS])) {
 				throw new \Exception('preference "'.self::PROPERTIES_FILTERS.'" should be an array');
 			}
+			$this->resetPropertiesFilters();
 			foreach ($pPreferences[self::PROPERTIES_FILTERS] as $lModelName => $lProperties) {
 				$this->setPropertiesFilter($lProperties, $lModelName);
 			}
@@ -498,6 +551,14 @@ abstract class Interfacer {
 				throw new \Exception('preference "'.self::FLAG_VALUES_AS_UPDATED.'" should be a boolean');
 			}
 			$this->setFlagValuesAsUpdated($pPreferences[self::FLAG_VALUES_AS_UPDATED]);
+		}
+		
+		// flag Object as updated
+		if (array_key_exists(self::FLAG_OBJECT_AS_LOADED, $pPreferences)) {
+			if (!is_bool($pPreferences[self::FLAG_OBJECT_AS_LOADED])) {
+				throw new \Exception('preference "'.self::FLAG_OBJECT_AS_LOADED.'" should be a boolean');
+			}
+			$this->setFlagValuesAsUpdated($pPreferences[self::FLAG_OBJECT_AS_LOADED]);
 		}
 		
 		// merge type

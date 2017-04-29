@@ -6,6 +6,8 @@ use comhon\object\_final\Object as FinalObject;
 use comhon\api\ObjectService;
 use comhon\serialization\SqlTable;
 use comhon\object\collection\MainObjectCollection;
+use comhon\interfacer\StdObjectInterfacer;
+use comhon\interfacer\XMLInterfacer;
 
 $time_start = microtime(true);
 
@@ -44,7 +46,7 @@ if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
-if (json_encode($lResult->result) != '[{"date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"id1":1,"id2":"23"},{"date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"id1":1,"id2":"101"}]') {
+if (!compareJson(json_encode($lResult->result), '[{"date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"id1":1,"id2":"23"},{"date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"id1":1,"id2":"101"}]')) {
 	var_dump(json_encode($lResult->result));
 	throw new Exception('bad objects : '.json_encode($lResult->result));
 }
@@ -80,7 +82,7 @@ if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
-if (json_encode($lResult->result) != '[{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]') {
+if (!compareJson(json_encode($lResult->result), '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]')) {
 	var_dump(json_encode($lResult->result));
 	throw new Exception('bad objects : '.json_encode($lResult->result));
 }
@@ -91,15 +93,24 @@ MainObjectCollection::getInstance()->getObject('[1,"101"]', 'testDb')->reorderVa
 /** ****************************** test following export import objects ****************************** **/
 
 $lBasedObjects  = [
-	json_decode('{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}'),
-	json_decode('{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}')
+	json_decode('{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}'),
+	json_decode('{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}')
 ];
+
+$lStdPrivateInterfacer = new StdObjectInterfacer();
+$lStdPrivateInterfacer->setInterfacePrivateProperties(true);
+$lStdPublicInterfacer = new StdObjectInterfacer();
+$lStdPublicInterfacer->setInterfacePrivateProperties(false);
+
+$lXmlSerialInterfacer = new XMLInterfacer();
+$lXmlSerialInterfacer->setInterfacePrivateProperties(false);
+$lXmlSerialInterfacer->setSerialContext(true);
 
 $lObject = null;
 foreach ($lResult->result as $lIndex => $lStdObject) {
 	$lObject = new FinalObject('testDb');
 	try {
-		$lObject->fromPrivateStdObject($lStdObject);
+		$lObject->fillObject($lStdObject, $lStdPrivateInterfacer);
 		$lThrow = true;
 	} catch (Exception $e) {
 		$lThrow = false;
@@ -113,15 +124,15 @@ foreach ($lResult->result as $lIndex => $lStdObject) {
 	unset($lStdObject->id2);
 	
 	$lObject = new FinalObject('testDb');
-	$lObject->fromPrivateStdObject($lStdObject);
+	$lObject->fillObject($lStdObject, $lStdPrivateInterfacer);
 
 	$lObject2 = new FinalObject('testDb');
-	$lObject2->fromSerializedXml($lObject->toSerialXml());
+	$lObject2->fillObject($lObject->export($lXmlSerialInterfacer), $lXmlSerialInterfacer);
 	$lObject2->setValue('id1', $lId1);
 	$lObject2->setValue('id2', $lId2);
 	
-	if (json_encode($lObject2->toPrivateStdObject('Europe/Berlin')) !== json_encode($lBasedObjects[$lIndex])) {
-		throw new Exception('bad object : '.json_encode($lObject2->toPrivateStdObject('Europe/Berlin')));
+	if (!compareJson(json_encode($lObject2->export($lStdPrivateInterfacer)), json_encode($lBasedObjects[$lIndex]))) {
+		throw new Exception('bad object');
 	}
 }
 
@@ -129,10 +140,11 @@ foreach ($lResult->result as $lIndex => $lStdObject) {
 
 $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 
+/** @var Object $lObject */
 $lObject = $lDbTestModel->loadObject('[1,1501774389]');
-$lObject->reorderValues();
-$lObjectJson = $lObject->toPrivateStdObject();
-$lPublicObjectJson = $lObject->toPublicStdObject();
+$lObjectJson = $lObject->export($lStdPrivateInterfacer);
+
+$lPublicObjectJson = $lObject->export($lStdPublicInterfacer);
 
 if ($lObject->isUpdated()) {
 	throw new Exception('should not be updated');
@@ -207,7 +219,7 @@ $lObject->resetUpdatedStatus();
 
 $lObject = $lDbTestModel->loadObject('[1,1501774389]', [], true);
 
-if (json_encode($lObject->toPrivateStdObject()) !== json_encode($lObjectJson)) {
+if (!compareJson(json_encode($lObject->export($lStdPrivateInterfacer)), json_encode($lObjectJson))) {
 	throw new Exception('bad object');
 }
 
@@ -225,7 +237,7 @@ if (count($lObject->getUpdatedValues()) !== 0) {
 }
 
 $lObject = $lDbTestModel->loadObject('[1,1501774389]', null, true);
-if ($lObject->hasValue('integer')) {
+if (!$lObject->hasValue('integer') || !is_null($lObject->getValue('integer'))) {
 	throw new Exception('should not have integer value');
 }
 $lObject->setValue('integer', $lValue);
@@ -254,7 +266,7 @@ $lResult = ObjectService::getObject($lParams, true);
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 	throw new Exception('simple load request failed : '.json_encode($lResult));
 }
-if (json_encode($lResult->result) !== '{"date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2,"id1":1,"id2":"1501774389"}') {
+if (!compareJson(json_encode($lResult->result), '{"date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2,"id1":1,"id2":"1501774389"}')) {
 	throw new Exception('bad object : '.json_encode($lResult->result));
 }
 
@@ -268,7 +280,7 @@ $lResult = ObjectService::getObject($lParams);
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 	throw new Exception('simple load request failed');
 }
-if (json_encode($lResult->result) !== '{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2}') {
+if (!compareJson(json_encode($lResult->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2}')) {
 	throw new Exception('bad object : '.json_encode($lResult->result));
 }
 
@@ -283,8 +295,7 @@ $lResult = ObjectService::getObject($lParams);
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 	throw new Exception('simple load request failed');
 }
-if (json_encode($lResult->result) !== '{"defaultValue":"default","childrenTestDb":"__UNLOAD__","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true}') {
-	var_dump(json_encode($lPublicObjectJson));
+if (!compareJson(json_encode($lResult->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true}')) {
 	throw new Exception('bad object : '.json_encode($lResult->result));
 }
 
@@ -299,7 +310,7 @@ $lResult = ObjectService::getObject($lParams, true);
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 	throw new Exception('simple load request failed');
 }
-if (json_encode($lResult->result) !== '{"date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2,"id1":1,"id2":"1501774389"}') {
+if (!compareJson(json_encode($lResult->result), '{"date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2,"id1":1,"id2":"1501774389"}')) {
 	throw new Exception('bad object : '.json_encode($lResult->result));
 }
 
@@ -314,7 +325,7 @@ $lResult = ObjectService::getObject($lParams);
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 	throw new Exception('simple load request failed');
 }
-if (json_encode($lResult->result) !== json_encode($lPublicObjectJson)) {
+if (!compareJson(json_encode($lResult->result), json_encode($lPublicObjectJson))) {
 	var_dump(json_encode($lPublicObjectJson));
 	throw new Exception('bad object : '.json_encode($lResult->result));
 }
@@ -322,16 +333,16 @@ if (json_encode($lResult->result) !== json_encode($lPublicObjectJson)) {
 $lTestDb = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
 $lTestDb->loadValue('childrenTestDb', ['id']);
 
-if (json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()) !== '[{"id":1},{"id":2}]') {
+if (!compareJson(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)), '[{"id":1},{"id":2}]')) {
 	var_dump(json_encode($lPublicObjectJson));
-	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()));
+	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)));
 }
 
 $lChildren = $lTestDb->getValue('childrenTestDb');
 $lTestDb1 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
 $lTestDb->reset();
 $lTestDb2 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
-$lTestDb->setUnLoadStatus();
+$lTestDb->setIsLoaded(false);
 $lTestDb->setId('[1,"1501774389"]', false);
 $lTestDb3 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
 
@@ -357,12 +368,12 @@ $lTestDb->setValue('childrenTestDb', $lChildren, false);
 $lTestDb->getValue('childrenTestDb')->getValue(0)->setValue('parentTestDb', $lTestDb);
 $lTestDb->getValue('childrenTestDb')->getValue(0)->loadValue('parentTestDb', ['integer']);
 
-if (json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()) !== '[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2}]') {
-	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->toPrivateStdObject()));
+if (!compareJson(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)),'[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2}]')) {
+	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)));
 }
-if (json_encode($lTestDb->toPublicStdObject()) !== '{"id1":1,"id2":"1501774389","childrenTestDb":[1,2],"integer":2}') {
+if (!compareJson(json_encode($lTestDb->export($lStdPrivateInterfacer)), '{"id1":1,"id2":"1501774389","childrenTestDb":[1,2],"integer":2}')) {
 	var_dump(json_encode($lPublicObjectJson));
-	throw new Exception('bad object : '.json_encode($lTestDb->toPublicStdObject()));
+	throw new Exception('bad object : '.json_encode($lTestDb->export($lStdPrivateInterfacer)));
 }
 
 

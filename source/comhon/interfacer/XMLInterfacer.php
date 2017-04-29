@@ -11,7 +11,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 * initialize DomDocument that permit to contruct nodes
 	 * @throws \Exception
 	 */
-	public function __construct() {
+	protected function _initInstance() {
 		$this->mDomDocument = new \DOMDocument();
 	}
 	
@@ -69,11 +69,20 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value
-	 * @param mixed $pNode
+	 * @param mixed $pValue
 	 * @return mixed
 	 */
 	public function isComplexInterfacedId($pValue) {
 		return ($pValue instanceof \DOMElement) && $pValue->hasAttribute(self::COMPLEX_ID_KEY);
+	}
+	
+	/**
+	 * verify if value is a flatten complex id (with inheritance key)
+	 * @param mixed $pValue
+	 * @return mixed
+	 */
+	public function isFlattenComplexInterfacedId($pValue) {
+		return $this->isComplexInterfacedId($pValue);
 	}
 	
 	/**
@@ -180,6 +189,30 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 * unflatten value (transform string to object)
+	 * @param array $pNode
+	 * @param string $pName
+	 */
+	public function unFlattenNode(&$pNode, $pName) {
+		$lDomElement = $this->getChildNode($pNode, $pName);
+		if (!is_null($lDomElement)) {
+			$lTempDoc = new DOMDocument();
+			$lTempDoc->loadXML($this->extractNodeText($lDomElement));
+			$lToRemove = [];
+			foreach ($lDomElement->childNodes as $lChild) {
+				$lToRemove[] = $lChild;
+			}
+			foreach ($lToRemove as $lChild) {
+				$lDomElement->removeChild($lChild);
+			}
+			foreach ($lTempDoc->childNodes as $lChild) {
+				$lNode = $this->mDomDocument->importNode($lChild, true);
+				$lDomElement->appendChild($lNode);
+			}
+		}
+	}
+	
+	/**
 	 * replace value
 	 * @param \DOMElement $pNode
 	 * @param string $pName
@@ -261,16 +294,13 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 * @return string
 	 */
 	public function extractNodeText(\DOMElement $pNode) {
-		if (count($pNode->childNodes) != 1) {
+		if ($pNode->childNodes->length != 1) {
 			throw new \Exception('malformed node, should only contain one text');
 		}
-		foreach($pNode->childNodes as $lChildNode) {
-			if ($lChildNode->nodeType != XML_TEXT_NODE) {
-				var_dump($this->serialize($lChildNode));
-				throw new \Exception('malformed node, should only contain one text');
-			}
-			return $lChildNode->nodeValue;
+		if ($pNode->childNodes->item(0)->nodeType != XML_TEXT_NODE) {
+			throw new \Exception('malformed node, should only contain one text');
 		}
+		return $pNode->childNodes->item(0)->nodeValue;
 	}
 	
 	/**

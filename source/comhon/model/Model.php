@@ -215,6 +215,20 @@ abstract class Model {
 		throw new \Exception('can\'t apply function. Only callable for MainModel or LocalModel');
 	}
 	
+	/**
+	 * get or create an instance of Object
+	 * @param integer|string $pId
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param boolean $pIsFirstLevel
+	 * @param boolean $pIsForeign
+	 * @return Object
+	 * @throws \Exception
+	 */
+	protected function _getOrCreateObjectInstanceGeneric($pId, Interfacer $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel, $pIsForeign = false) {
+		throw new \Exception('can\'t apply function. Only callable for MainModel or LocalModel');
+	}
+	
 	public function getName() {
 		return $this->mModelName;
 	}
@@ -586,6 +600,7 @@ abstract class Model {
 	 * 
 	 * @param Object $pObject
 	 * @param Interfacer $pInterfacer
+	 * @return mixed|null
 	 */
 	public final function export(Object $pObject, Interfacer $pInterfacer) {
 		self::$sInstanceObjectHash = [];
@@ -646,7 +661,7 @@ abstract class Model {
 			}
 		}
 		if ($lIsSerialContext) {
-			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
+			foreach ($pObject->getModel()->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
 				if ($pObject->hasValue($lPropertyName) && ($pObject->getValue($lPropertyName) instanceof Object)) {
 					foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
 						if (!$lOnlyUpdatedValues || $pObject->getValue($lPropertyName)->isUpdatedValue($lIdProperty->getName())) {
@@ -682,13 +697,15 @@ abstract class Model {
 		foreach ($pObject->getModel()->getComplexProperties() as $lPropertyName => $lComplexProperty) {
 			$lInterfacedPropertyName = $pInterfacer->isSerialContext() ? $lComplexProperty->getSerializationName() : $lPropertyName;
 			
-			if (!$lComplexProperty->isForeign() || $lComplexProperty->isAggregation()) {
+			if (!$lComplexProperty->isForeign() || ($pObject->getValue($lPropertyName) instanceof ObjectArray)) {
 				$pInterfacer->flattenNode($pNode, $lInterfacedPropertyName);
 			}
-			else {
+			else if ($pInterfacer->isComplexInterfacedId($pInterfacer->getValue($pNode, $lInterfacedPropertyName, true))) {
 				$lForeignObject = $pObject->getValue($lPropertyName);
-				if (($lForeignObject instanceof Object) && $lForeignObject->getModel() !== $lComplexProperty->getUniqueModel()) {
+				if ($lForeignObject->getModel() instanceof MainModel) {
 					$pInterfacer->replaceValue($pNode, $lInterfacedPropertyName, $lForeignObject->getId());
+				} else {
+					$pInterfacer->flattenNode($pNode, $lInterfacedPropertyName);
 				}
 			}
 		}
@@ -739,17 +756,19 @@ abstract class Model {
 	}
 	
 	/**
-	 * get or create an instance of Object
+	 * 
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param boolean $pIsloaded
-	 * @param boolean $pUpdateLoadStatus
-	 * @return unknown
+	 * @param boolean $pIsFirstLevel
+	 * @return Object
 	 */
-	protected function getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsloaded = true, $pUpdateLoadStatus = true) {
-		$lInheritanceModelName = $pInterfacer->getValue($pInterfacedObject, self::INHERITANCE_KEY);
-		return $this->_getOrCreateObjectInstance($this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $lInheritanceModelName, $pLocalObjectCollection, $pIsloaded, $pUpdateLoadStatus);
+	protected function getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
+		$lInheritance = $pInterfacer->getValue($pInterfacedObject, self::INHERITANCE_KEY);
+		$lModel = is_null($lInheritance) ? $this : $this->_getIneritedModel($lInheritance);
+		$lId = $lModel->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer);
+		
+		return $lModel->_getOrCreateObjectInstanceGeneric($lId, $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel);
 	}
 	
 	/**
@@ -787,29 +806,34 @@ abstract class Model {
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
-	 * @return NULL|unknown
+	 * @param boolean $pIsFirstLevel
+	 * @return Object|null
 	 */
-	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
+	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
 		if (is_null($pInterfacedObject)) {
 			return null;
 		}
-		$lObject = $this->getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection);
-		$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection));
+		$lObject = $this->getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel);
+		$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection), $pIsFirstLevel);
 		return $lObject;
 	}
 	
 	/**
 	 * 
 	 * @param Object $pObject
-	 * @param unknown $pInterfacedObject
+	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param boolean $pIsFirstLevel
 	 * @throws \Exception
 	 */
-	protected function _fillObject(Object $pObject, $pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection) {
+	protected function _fillObject(Object $pObject, $pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, $pIsFirstLevel = false) {
 		$lModel = $pObject->getModel();
 		if ($lModel !== $this && !$lModel->isInheritedFrom($this)) {
 			throw new \Exception('object doesn\'t have good model');
+		}
+		if ($pIsFirstLevel && $pInterfacer->hasToFlattenValues()) {
+			$this->_unFlattenValues($pInterfacedObject, $pObject, $pInterfacer);
 		}
 		
 		$lPrivate           = $pInterfacer->interfacePrivateProperties();
@@ -831,7 +855,7 @@ abstract class Model {
 			}
 		}
 		if ($lIsSerialContext) {
-			foreach ($this->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
+			foreach ($lModel->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
 				$lId = [];
 				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
 					if (isset($pStdObject->$lSerializationName)) {
@@ -842,6 +866,25 @@ abstract class Model {
 					$lValue = $lMultipleForeignProperty->getModel()->_import(json_encode($lId), $pInterfacer, $pLocalObjectCollection);
 					$pObject->setValue($lPropertyName, $lValue, $lFlagAsUpdated);
 				}
+			}
+		}
+	}
+	
+	/**
+	 *
+	 * @param mixed $pNode
+	 * @param Object $pObject
+	 * @param Interfacer $pInterfacer
+	 */
+	protected function _unFlattenValues(&$pNode, Object $pObject, Interfacer $pInterfacer) {
+		foreach ($pObject->getModel()->getComplexProperties() as $lPropertyName => $lComplexProperty) {
+			$lInterfacedPropertyName = $pInterfacer->isSerialContext() ? $lComplexProperty->getSerializationName() : $lPropertyName;
+			
+			if (!$lComplexProperty->isForeign() || $lComplexProperty->getModel()->getModel() instanceof ModelArray) {
+				$pInterfacer->unFlattenNode($pNode, $lInterfacedPropertyName);
+			}
+			else if ($pInterfacer->isFlattenComplexInterfacedId($pInterfacer->getValue($pNode, $lInterfacedPropertyName, true))) {
+				$pInterfacer->unFlattenNode($pNode, $lInterfacedPropertyName);
 			}
 		}
 	}
@@ -874,8 +917,15 @@ abstract class Model {
 				$lId = $pInterfacer->castValueToString($lId);
 			}
 		}
+		if (is_null($lId)) {
+			return null;
+		}
+		if (is_object($lId) || is_array($lId) || $lId === '') {
+			$lId = is_object($lId) || is_array($lId) ? json_encode($lId) : $lId;
+			throw new \Exception("malformed id '$lId' for model '{$this->mModelName}'");
+		}
 		
-		return $lModel->_fromId($lId, null, $pInterfacer->hasToFlagValuesAsUpdated(), $pLocalObjectCollection);
+		return $lModel->_getOrCreateObjectInstanceGeneric($lId, $pInterfacer, $pLocalObjectCollection, false, true);
 	}
 	
 	/** ************************************************************************ **/
@@ -1192,7 +1242,6 @@ abstract class Model {
 	 */
 	public function _toInterfacedId(Object $pObject, Interfacer $pInterfacer) {
 		if (!$pObject->hasCompleteId()) {
-			var_dump(json_encode($pObject->toPrivateStdObject()));
 			throw new \Exception("Warning cannot export id of foreign property with model '{$this->mModelName}' because object doesn't have complete id");
 		}
 		return $pObject->getId();

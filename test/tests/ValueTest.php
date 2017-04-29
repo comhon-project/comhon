@@ -3,9 +3,22 @@
 use comhon\model\singleton\ModelManager;
 use comhon\object\Object;
 use comhon\object\collection\MainObjectCollection;
-use comhon\model\Model;
+use comhon\interfacer\StdObjectInterfacer;
+use comhon\interfacer\XMLInterfacer;
+use comhon\interfacer\Interfacer;
+use comhon\interfacer\AssocArrayInterfacer;
 
 $time_start = microtime(true);
+
+$lStdPrivateInterfacer = new StdObjectInterfacer();
+$lStdPrivateInterfacer->setInterfacePrivateProperties(true);
+$lStdPublicInterfacer = new StdObjectInterfacer();
+$lStdPublicInterfacer->setInterfacePrivateProperties(false);
+$lXmlPrivateInterfacer = new XMLInterfacer();
+$lXmlPrivateInterfacer->setInterfacePrivateProperties(true);
+$lArrayPrivateInterfacer = new AssocArrayInterfacer();
+$lArrayPrivateInterfacer->setInterfacePrivateProperties(true);
+$lArrayPrivateInterfacer->setFlattenValues(true);
 
 $lTestDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
 if (!is_null($lTestDbFromCollection)) {
@@ -15,6 +28,7 @@ if (!is_null($lTestDbFromCollection)) {
 /** ****************************** test load new value ****************************** **/
 
 $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
+/** @var Object $lTestDb */
 $lTestDb = $lDbTestModel->loadObject('[1,"50"]');
 $lMainParentTestDb = $lTestDb->getValue('mainParentTestDb');
 $lObject = $lTestDb->getValue('object');
@@ -176,7 +190,7 @@ if (!$lTestDb->isUpdated()) {
 }
 
 try {
-	$lTestDb->toStdObject();
+	$lTestDb->export($lStdPublicInterfacer);
 	$lThrow = true;
 } catch (Exception $e) {
 	$lThrow = false;
@@ -186,7 +200,7 @@ if ($lThrow) {
 }
 
 $lMainParentTestDb->setId($lId);
-$lTestDb->toStdObject();
+$lTestDb->export($lStdPublicInterfacer);
 
 if (!$lTestDb->isUpdated()) {
 	throw new Exception('should be updated');
@@ -319,7 +333,7 @@ $lTestModel = ModelManager::getInstance()->getInstanceModel('test');
 $lTest = $lTestModel->getObjectInstance();
 $lTest->initValue('objectValue');
 
-if (json_encode($lTest->toStdObject()) !== '{"stringValue":"plop","floatValue":1.5,"booleanValue":true,"dateValue":"2016-11-13T20:04:05+01:00","objectValue":{"stringValue":"plop2","booleanValue":false}}') {
+if (!compareJson(json_encode($lTest->export($lStdPublicInterfacer)), '{"stringValue":"plop","floatValue":1.5,"booleanValue":true,"dateValue":"2016-11-13T20:04:05+01:00","objectValue":{"stringValue":"plop2","booleanValue":false}}')) {
 	throw new Exception('not good default values');
 }
 
@@ -391,11 +405,12 @@ $lObjectRefParent = $lTest->initValue('objectRefParent');
 $lObjectRefParent->setValue('name', 'hahahahaha');
 $lObjectRefParent->setValue('parent', $lTest);
 
-$lTest2 = $lTestModel->fromPrivateStdObject($lTest->toPrivateStdObject());
+$lTest2 = $lTestModel->import($lTest->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 if ($lTest2 !== $lTest || $lTest2 !== $lTest2->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
-$lTest3 = $lTestModel->fromPrivateStdObject($lTest->toPrivateStdObject(), Model::NO_MERGE);
+$lStdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$lTest3 = $lTestModel->import($lTest->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 if ($lTest3 === $lTest) {
 	throw new \Exception('same instance');
 }
@@ -410,11 +425,12 @@ if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $
 	throw new \Exception('not same instance');
 }
 
-$lTest2 = $lTestModel->fromPrivateXml($lTest->toPrivateXml());
+$lTest2 = $lTestModel->import($lTest->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
 if ($lTest2 !== $lTest || $lTest2 !== $lTest2->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
-$lTest3 = $lTestModel->fromPrivateXml($lTest->toPrivateXml(), Model::NO_MERGE);
+$lXmlPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$lTest3 = $lTestModel->import($lTest->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
 if ($lTest3 === $lTest) {
 	throw new \Exception('same instance');
 }
@@ -429,11 +445,12 @@ if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $
 	throw new \Exception('not same instance');
 }
 
-$lTest2 = $lTestModel->fromPrivateFlattenedArray($lTest->toPrivateFlattenedArray());
+$lTest2 = $lTestModel->import($lTest->export($lArrayPrivateInterfacer), $lArrayPrivateInterfacer);
 if ($lTest2 !== $lTest || $lTest2 !== $lTest2->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
-$lTest3 = $lTestModel->fromPrivateFlattenedArray($lTest->toPrivateFlattenedArray(), Model::NO_MERGE);
+$lArrayPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$lTest3 = $lTestModel->import($lTest->export($lArrayPrivateInterfacer), $lArrayPrivateInterfacer);
 if ($lTest3 === $lTest) {
 	throw new \Exception('same instance');
 }

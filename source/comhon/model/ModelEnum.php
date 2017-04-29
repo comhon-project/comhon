@@ -49,10 +49,11 @@ class ModelEnum extends ModelContainer {
 	 * @param ComhonDateTime $pValue
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param boolean $pIsFirstLevel
 	 * @return NULL|unknown
 	 */
-	protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
-		$lValue = $this->mModel->_import($pValue, $pInterfacer, $pLocalObjectCollection);
+	protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
+		$lValue = $this->mModel->_import($pValue, $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel);
 		if (!in_array($lValue, $this->mEnum)) {
 			throw new \Exception($lValue. 'is not allowed for enum ' . json_encode($this->mEnum));
 		}

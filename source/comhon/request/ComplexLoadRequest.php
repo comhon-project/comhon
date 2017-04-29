@@ -16,6 +16,7 @@ use comhon\database\TableNode;
 use comhon\database\OnLiteral;
 use comhon\database\OnLogicalJunction;
 use comhon\database\Disjunction;
+use comhon\object\ObjectArray;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	
@@ -233,8 +234,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	/**
-	 * execute request
-	 * @return array
+	 * execute resquest and return resulting object
+	 * @return ObjectArray
 	 */
 	public function execute() {
 		$this->finalize();

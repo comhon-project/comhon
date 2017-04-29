@@ -128,9 +128,10 @@ abstract class ModelContainer extends Model {
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param boolean $pIsFirstLevel
 	 * @return NULL|unknown
 	 */
-	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
+	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
 		throw new \Exception('must be overrided');
 	}
 	

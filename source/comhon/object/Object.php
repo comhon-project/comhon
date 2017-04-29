@@ -369,18 +369,26 @@ abstract class Object {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @return boolean
+	 */
 	public final function isLoaded() {
 		return $this->mIsLoaded;
 	}
 	
-	public final function setLoadStatus() {
-		$this->mIsLoaded = true;
+	/**
+	 * 
+	 * @param boolean $pIsLoaded
+	 */
+	public final function setIsLoaded($pIsLoaded) {
+		$this->mIsLoaded = $pIsLoaded;
 	}
 	
-	public final function setUnLoadStatus() {
-		$this->mIsLoaded = false;
-	}
-	
+	/**
+	 * 
+	 * @return boolean
+	 */
 	public final function isCasted() {
 		return $this->mIsCasted;
 	}
@@ -620,12 +628,22 @@ abstract class Object {
 	|                                                                                               |
 	\***********************************************************************************************/
 	
+	/**
+	 * 
+	 * @param Interfacer $pInterfacer
+	 * @return mixed|null
+	 */
 	public final function export(Interfacer $pInterfacer) {
 		return $this->mModel->export($this, $pInterfacer);
 	}
 	
-	public final function import(Interfacer $pInterfacer) {
-		return $this->mModel->import($this, $pInterfacer);
+	/**
+	 * 
+	 * @param mixed $pInterfacedObject
+	 * @param Interfacer $pInterfacer
+	 */
+	public final function fillObject($pInterfacedObject, Interfacer $pInterfacer) {
+		$this->mModel->fillObject($this, $pInterfacedObject, $pInterfacer);
 	}
 	
 }

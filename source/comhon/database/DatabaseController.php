@@ -163,7 +163,9 @@ class DatabaseController {
 		for ($i = 0; $i < count($pValues); $i++) {
 			if (is_null($pValues[$i])) {
 				$lResult = $lPreparedQuery->bindValue($i+1, $pValues[$i], PDO::PARAM_NULL);
-			}else {
+			} else if (is_bool($pValues[$i])) {
+				$lResult = $lPreparedQuery->bindValue($i+1, $pValues[$i], PDO::PARAM_BOOL);
+			} else {
 				$lResult = $lPreparedQuery->bindValue($i+1, $pValues[$i]);
 			}
 			if ($lResult === false) {

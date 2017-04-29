@@ -12,6 +12,8 @@ use comhon\model\Model;
 use comhon\utils\SqlUtils;
 use comhon\object\Object;
 use comhon\object\config\Config;
+use comhon\interfacer\AssocArrayInterfacer;
+use comhon\model\ModelBoolean;
 
 class SqlTable extends SerializationUnit {
 	
@@ -21,6 +23,7 @@ class SqlTable extends SerializationUnit {
 	
 	const INTEGER_INDEX = 0;
 	const FLOAT_INDEX   = 1;
+	const BOOLEAN_INDEX = 2;
 	
 	private $mDbController;
 	private $mTableId;
@@ -28,6 +31,8 @@ class SqlTable extends SerializationUnit {
 	private static $sAutoIncrementColumns = [];
 	private static $sColumnsToEscape = [];
 	private static $sModelInfos = [];
+	
+	private static $sInterfacer;
 	
 	private function _initDatabaseInterfacing(Model $pModel) {
 		if (is_null($this->mDbController)) {
@@ -146,7 +151,8 @@ class SqlTable extends SerializationUnit {
 			return self::$sModelInfos[$pModel->getName()][self::COLUMS_TO_CAST_INDEX];
 		}
 		$lCastIntegerColumns = [];
-		$lCastFloatColumns = [];
+		$lCastFloatColumns   = [];
+		$lCastBooleanColumns = [];
 		foreach ($pModel->getSerializableProperties() as $lProperty) {
 			if ($lProperty->isSerializable()) {
 				if (!$lProperty->isForeign()) {
@@ -154,6 +160,8 @@ class SqlTable extends SerializationUnit {
 						$lCastIntegerColumns[] = $lProperty->getSerializationName();
 					} else if ($lProperty->isFloat()) {
 						$lCastFloatColumns[] = $lProperty->getSerializationName();
+					} else if (($lProperty->getModel() instanceof ModelBoolean)) {
+						$lCastBooleanColumns[] = $lProperty->getSerializationName();
 					}
 				}
 				else if (!$lProperty->isAggregation()) {
@@ -163,6 +171,8 @@ class SqlTable extends SerializationUnit {
 								$lCastIntegerColumns[] = $lSerializationName;
 							} else if ($lProperty->isFloat()) {
 								$lCastFloatColumns[] = $lSerializationName;
+							} else if (($lProperty->getModel() instanceof ModelBoolean)) {
+								$lCastBooleanColumns[] = $lSerializationName;
 							}
 						}
 					}
@@ -171,12 +181,26 @@ class SqlTable extends SerializationUnit {
 							$lCastIntegerColumns[] = $lProperty->getSerializationName();
 						} else if ($lProperty->getModel()->getFirstIdProperty()->isFloat()) {
 							$lCastFloatColumns[] = $lProperty->getSerializationName();
+						} else if (($lProperty->getModel() instanceof ModelBoolean)) {
+							$lCastBooleanColumns[] = $lProperty->getSerializationName();
 						}
 					}
 				}
 			}
 		}
-		return [$lCastIntegerColumns, $lCastFloatColumns];
+		return [$lCastIntegerColumns, $lCastFloatColumns, $lCastBooleanColumns];
+	}
+	
+	private function _getInterfacer() {
+		if (is_null(self::$sInterfacer)) {
+			self::$sInterfacer = new AssocArrayInterfacer();
+			self::$sInterfacer->setInterfacePrivateProperties(true);
+			self::$sInterfacer->setSerialContext(true);
+			self::$sInterfacer->setDateTimeFormat('Y-m-d H:i:s');
+			self::$sInterfacer->setDateTimeZone(self::getDatabaseConnectionTimeZone());
+			self::$sInterfacer->setFlattenValues(true);
+		}
+		return self::$sInterfacer;
 	}
 	
 	/**
@@ -222,7 +246,9 @@ class SqlTable extends SerializationUnit {
 	 * @return integer
 	 */
 	private function _insertObject(Object $pObject) {
-		$lMapOfString = $pObject->toSqlDatabase(self::getDatabaseConnectionTimeZone());
+		$lInterfacer = $this->_getInterfacer();
+		$lInterfacer->setExportOnlyUpdatedValues(false);
+		$lMapOfString = $pObject->export($lInterfacer);
 		if (!is_null($this->getInheritanceKey())) {
 			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getName();
 		}
@@ -291,7 +317,9 @@ class SqlTable extends SerializationUnit {
 		$lUpdateValues     = [];
 		$lConditionsValues = [];
 
-		$lMapOfString = $pObject->toSqlDatabase(self::getDatabaseConnectionTimeZone(), true);
+		$lInterfacer = $this->_getInterfacer();
+		$lInterfacer->setExportOnlyUpdatedValues(true);
+		$lMapOfString = $pObject->export($lInterfacer);
 		foreach ($pObject->getDeletedValues() as $lPropertyName) {
 			$lProperty = $lModel->getProperty($lPropertyName);
 			if (!$lProperty->isId() && !$lProperty->isAggregation()) {
@@ -466,11 +494,9 @@ class SqlTable extends SerializationUnit {
 					}
 				}
 			}
-			if ($pOnlyIds) {
-				$pObject->fromSqlDatabaseId($lIsModelArray ? $lRows : $lRows[0], self::getDatabaseConnectionTimeZone());
-			} else {
-				$pObject->fromSqlDatabase($lIsModelArray ? $lRows : $lRows[0], self::getDatabaseConnectionTimeZone());
-			}
+			$lInterfacer = $this->_getInterfacer();
+			$lInterfacer->setFlagObjectAsLoaded(!$pOnlyIds);
+			$pObject->fillObject($lIsModelArray ? $lRows : $lRows[0], $lInterfacer);
 			$lSuccess = true;
 		}
 		return $lSuccess;
@@ -520,18 +546,48 @@ class SqlTable extends SerializationUnit {
 		}
 		$lColumnsToCast = self::_initColumnsToCast($pModel);
 		$lCastIntegerColumns = [];
-		$lCastFloatColumns = [];
+		$lCastFloatColumns   = [];
+		$lCastBooleanColumns = [];
 		foreach ($lColumnsToCast[self::INTEGER_INDEX] as $lColumn) {
-			if (isset($pRows[0][$lColumn]) && is_string($pRows[0][$lColumn])) {
-				$lCastIntegerColumns[] = $lColumn;
+			if (isset($pRows[0][$lColumn])) {
+				foreach ($pRows as $lRow) {
+					if (is_null($lRow[$lColumn])) {
+						continue;
+					}
+					if (is_string($lRow[$lColumn])) {
+						$lCastIntegerColumns[] = $lColumn;
+					}
+					break;
+				}
 			}
 		}
 		foreach ($lColumnsToCast[self::FLOAT_INDEX] as $lColumn) {
-			if (isset($pRows[0][$lColumn]) && is_string($pRows[0][$lColumn])) {
-				$lCastFloatColumns[] = $lColumn;
+			if (isset($pRows[0][$lColumn])) {
+				foreach ($pRows as $lRow) {
+					if (is_null($lRow[$lColumn])) {
+						continue;
+					}
+					if (is_string($lRow[$lColumn])) {
+						$lCastFloatColumns[] = $lColumn;
+					}
+					break;
+				}
 			}
 		}
-		if (!empty($lCastIntegerColumns) || !empty($lCastFloatColumns)) {
+		foreach ($lColumnsToCast[self::BOOLEAN_INDEX] as $lColumn) {
+			if (isset($pRows[0][$lColumn])) {
+				foreach ($pRows as $lRow) {
+					if (is_null($lRow[$lColumn])) {
+						continue;
+					}
+					if (is_string($lRow[$lColumn])) {
+						$lCastBooleanColumns[] = $lColumn;
+					}
+					break;
+				}
+			}
+		}
+		if (!empty($lCastIntegerColumns) || !empty($lCastFloatColumns) || !empty($lCastBooleanColumns)) {
 			for ($i = 0; $i < count($pRows); $i++) {
 				foreach ($lCastIntegerColumns as $lColumn) {
 					if (is_numeric($pRows[$i][$lColumn])) {
@@ -541,6 +597,14 @@ class SqlTable extends SerializationUnit {
 				foreach ($lCastFloatColumns as $lColumn) {
 					if (is_numeric($pRows[$i][$lColumn])) {
 						$pRows[$i][$lColumn] = (float) $pRows[$i][$lColumn];
+					}
+				}
+				foreach ($lCastBooleanColumns as $lColumn) {
+					$lValue = $pRows[$i][$lColumn];
+					if ($lValue === '1' || $lValue === 't') {
+						$pRows[$i][$lColumn]= true;
+					} else if ($lValue === '0' || $lValue === 'f') {
+						$pRows[$i][$lColumn]= false;
 					}
 				}
 			}

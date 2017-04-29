@@ -28,12 +28,7 @@ final class Object extends AbstractObject {
 		foreach ($lModel->getAggregations() as $lProperty) {
 			$this->initValue($lProperty->getName(), false, false);
 		}
-		
-		if ($pIsLoaded) {
-			$this->setLoadStatus();
-		} else {
-			$this->setUnLoadStatus();
-		}
+		$this->setIsLoaded($pIsLoaded);
 	}
 	
 }

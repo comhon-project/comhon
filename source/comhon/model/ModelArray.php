@@ -148,15 +148,16 @@ class ModelArray extends ModelContainer {
 	 * @param mixed $pValue
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param boolean $pIsFirstLevel
 	 * @return Object
 	 */
-	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
+	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
 		if (is_null($pInterfacedObject)) {
 			return null;
 		}
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
-			$lObjectArray->pushValue($this->getModel()->_import($lElement, $pInterfacer, $pLocalObjectCollection), $pInterfacer->hasToFlagValuesAsUpdated());
+			$lObjectArray->pushValue($this->getModel()->_import($lElement, $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel), $pInterfacer->hasToFlagValuesAsUpdated());
 		}
 		return $lObjectArray;
 	}
@@ -175,6 +176,52 @@ class ModelArray extends ModelContainer {
 			$lObjectArray->pushValue($this->getModel()->_importId($lElement, $pInterfacer, $pLocalObjectCollection), $pInterfacer->hasToFlagValuesAsUpdated());
 		}
 		return $lObjectArray;
+	}
+	
+	/**
+	 *
+	 * @param mixed $pInterfacedObject
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 */
+	public function import($pInterfacedObject, Interfacer $pInterfacer) {
+		$this->load();
+		if (is_null($pInterfacedObject)) {
+			return null;
+		}
+		if (!($this->getModel() instanceof MainModel)) {
+			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
+		}
+		$lObjectArray = $this->getObjectInstance();
+		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
+			$lObjectArray->pushValue($this->getModel()->import($lElement, $pInterfacer), $pInterfacer->hasToFlagValuesAsUpdated());
+		}
+		return $lObjectArray;
+	}
+	
+	/**
+	 *
+	 * @param Object $pObject
+	 * @param mixed $pInterfacedObject
+	 * @param Interfacer $pInterfacer
+	 * @throws \Exception
+	 */
+	public function fillObject(Object $pObjectArray, $pInterfacedObject, Interfacer $pInterfacer) {
+		$this->load();
+		if (!($pObjectArray instanceof ObjectArray)) {
+			throw new \Exception('first parameter should be ObjectArray');
+		}
+		if (!($pObjectArray->getModel() instanceof ModelArray) || $pObjectArray->getModel()->getModel() !== $this->getModel()) {
+			throw new \Exception('current model instance must be same instance of object model');
+		}
+		if (!($this->getModel() instanceof MainModel)) {
+			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
+		}
+		$pObjectArray->reset();
+		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
+			$pObjectArray->pushValue($this->getModel()->import($lElement, $pInterfacer), $pInterfacer->hasToFlagValuesAsUpdated());
+		}
+		$pObjectArray->setIsLoaded(true);
 	}
 	
 	/** ********************************************************************* **/
@@ -278,7 +325,7 @@ class ModelArray extends ModelContainer {
 			$pObjectArray->setValue($lKey, $this->getModel()->_fromStdObject($lStdValue, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null), $pFlagAsUpdated);
 		}
 		if ($pUpdateLoadStatus) {
-			$pObjectArray->setLoadStatus();
+			$pObjectArray->setIsLoaded(true);
 		}
 	}
 	
@@ -431,7 +478,7 @@ class ModelArray extends ModelContainer {
 			$pObjectArray->setValue($lKey, $this->getModel()->_fromFlattenedArray($lFlattenedArray, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null), $pFlagAsUpdated);
 		}
 		if ($pUpdateLoadStatus) {
-			$pObjectArray->setLoadStatus();
+			$pObjectArray->setIsLoaded(true);
 		}
 	}
 	
@@ -541,7 +588,7 @@ class ModelArray extends ModelContainer {
 			$pObjectArray->pushValue($this->getModel()->_fromXml($lChild, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, null), $pFlagAsUpdated);
 		}
 		if ($pUpdateLoadStatus) {
-			$pObjectArray->setLoadStatus();
+			$pObjectArray->setIsLoaded(true);
 		}
 	}
 	

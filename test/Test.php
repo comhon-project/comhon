@@ -8,8 +8,223 @@ spl_autoload_register(function ($pClass) {
 	include_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $pClass) . '.php';
 });
 
+/**
+ * 
+ * @param mixed $value
+ * @return string|mixed
+ */
+function transformValueToString($value) {
+	if (is_object($value)) {
+		return 'Object';
+	}
+	if (is_array($value)) {
+		return 'Array';
+	}
+	if (is_bool($value)) {
+		return $value ? 'true' : 'false';
+	}
+	return $value;
+}
+
+/**
+ * 
+ * @param string $jsonOne
+ * @param string $jsonTwo
+ * @return boolean
+ */
+function compareJson($jsonOne, $jsonTwo) {
+	return compareArray(json_decode($jsonOne, true), json_decode($jsonTwo, true));
+}
+
+/**
+ * 
+ * @param array $arrayOne
+ * @param array $arrayTwo
+ * @param array $stack
+ * @return boolean
+ */
+function compareArray(array $arrayOne, array $arrayTwo, array &$stack = []) {
+	if (count($arrayOne) != count($arrayTwo)) {
+		trigger_error('not same array keys : .' . implode('.', $stack) . ' -> ' . json_encode(array_keys($arrayOne)) . ' != ' . json_encode(array_keys($arrayTwo)));
+		return false;
+	}
+	foreach ($arrayOne as $key => $value) {
+		$stack[] = $key;
+		if (!array_key_exists($key, $arrayTwo)) {
+			trigger_error('key ' . implode('.', $stack) . ' exists in first array but doesn\'t exist in second array');
+			return false;
+		}
+		if (is_array($value) && is_array($arrayTwo[$key])) {
+			if (!compareArray($value, $arrayTwo[$key], $stack)) {
+				return false;
+			}
+		} elseif (($value instanceof \stdClass) && ($arrayTwo[$key] instanceof \stdClass)) {
+			if (!compareStdObject($value, $arrayTwo[$key], $stack)) {
+				return false;
+			}
+		} elseif ($value !== $arrayTwo[$key]) {
+			$valueOne = transformValueToString($value);
+			$valueTwo = transformValueToString($arrayTwo[$key]);
+			trigger_error(sprintf('.%s -> %s (%s) != %s (%s)', implode('.', $stack), $valueOne, gettype($value), $valueTwo, gettype($arrayTwo[$key])));
+			return false;
+		}
+		array_pop($stack);
+	}
+	return true;
+}
+
+/**
+ * 
+ * @param \stdClass $stdObjectOne
+ * @param \stdClass $stdObjectTwo
+ * @param array $stack
+ * @return boolean
+ */
+function compareStdObject(\stdClass $stdObjectOne, \stdClass $stdObjectTwo, array &$stack = []) {
+	$arrayOne = [];
+	$arrayTwo = [];
+	foreach ($stdObjectOne as $key => $value) {
+		$arrayOne[] = $key;
+	}
+	foreach ($stdObjectTwo as $key => $value) {
+		$arrayTwo[] = $key;
+	}
+	if (count($arrayOne) !== count($arrayTwo)) {
+		trigger_error('not same object properties : .' . implode('.', $stack) . ' -> ' . json_encode($arrayOne) . ' != ' . json_encode($arrayTwo));
+		return false;
+	}
+	foreach ($stdObjectOne as $key => $value) {
+		$stack[] = $key;
+		if (!isset($stdObjectTwo->$key)) {
+			trigger_error('property ' . implode('.', $stack) . ' exists in first object but doesn\'t exist in second object');
+			return false;
+		}
+		if (is_array($value) && is_array($stdObjectTwo->$key)) {
+			if (!compareArray($value, $stdObjectTwo->$key, $stack)) {
+				return false;
+			}
+		} elseif (($value instanceof \stdClass) && ($stdObjectTwo->$key instanceof \stdClass)) {
+			if (!compareStdObject($value, $stdObjectTwo->$key, $stack)) {
+				return false;
+			}
+		} else  if ($value !== $stdObjectTwo->$key) {
+			$valueOne = transformValueToString($value);
+			$valueTwo = transformValueToString($stdObjectTwo->$key);
+			trigger_error(sprintf('.%s -> %s (%s) != %s (%s)', implode('.', $stack), $valueOne, gettype($value), $valueTwo, gettype($stdObjectTwo->$key)));
+			return false;
+		}
+		array_pop($stack);
+	}
+	return true;
+}
+
+/**
+ *
+ * @param string $XMLOne
+ * @param string $XMLTwo
+ * @param array $stack
+ * @return boolean
+ */
+function compareXML(string $XMLOne, string $XMLTwo, array &$stack = []) {
+	$DOMDocOne = new \DOMDocument();
+	$DOMDocOne->loadXML($XMLOne);
+	$DOMDocTwo = new \DOMDocument();
+	$DOMDocTwo->loadXML($XMLTwo);
+	
+	return compareDomNode($DOMDocOne, $DOMDocTwo);
+}
+
+/**
+ * 
+ * @param \DOMNode $DOMNodeOne
+ * @param \DOMNode $DOMNodeTwo
+ * @param array $stack
+ * @return boolean
+ */
+function compareDomNode(\DOMNode $DOMNodeOne, \DOMNode $DOMNodeTwo, array &$stack = []) {
+	if ($DOMNodeOne->nodeName !== $DOMNodeTwo->nodeName) {
+		trigger_error("nodes don't have not same : {$DOMNodeOne->nodeName} !== {$DOMNodeTwo->nodeName}");
+		return false;
+	}
+	$stack[] = $DOMNodeOne->nodeName;
+	$arrayOne = [];
+	$arrayTwo = [];
+	foreach ($DOMNodeTwo->attributes as $key => $attribute) {
+		$arrayTwo[$key] = $attribute->value;
+	}
+	foreach ($DOMNodeOne->attributes as $key => $attribute) {
+		$stack[] = $key;
+		$arrayOne[$key] = $attribute->value;
+		if (!array_key_exists($key, $arrayTwo)) {
+			trigger_error('attribute ' . implode('.', $stack) . ' exists in first xml but doesn\'t exist in second xml');
+			return false;
+		} else  if ($attribute->value !== $arrayTwo[$key]) {
+			trigger_error(sprintf('.%s -> %s (%s) != %s (%s)', implode('.', $stack), $attribute->value, gettype($attribute->value), $arrayTwo[$key], gettype($arrayTwo[$key])));
+			return false;
+		}
+		array_pop($stack);
+	}
+	if (count($arrayOne) !== count($arrayTwo)) {
+		trigger_error('not same object properties : .' . implode('.', $stack) . ' -> ' . json_encode(array_keys($arrayOne)) . ' != ' . json_encode(array_keys($arrayTwo)));
+		return false;
+	}
+	$DOMElementsOne = [];
+	$DOMTextOne = '';
+	$DOMElementsTwo = [];
+	$DOMTextTwo = '';
+	foreach ($DOMNodeOne->childNodes as $childNode) {
+		if ($childNode->nodeType === XML_TEXT_NODE) {
+			$DOMTextOne .= $childNode->nodeValue;
+		} else {
+			$Nodename = $childNode->nodeName;
+			if (!array_key_exists($Nodename, $DOMElementsOne)) {
+				$DOMElementsOne[$Nodename] = [];
+			}
+			$DOMElementsOne[$Nodename][] = $childNode;
+		}
+	}
+	if (!empty($DOMTextOne) && !empty($DOMElementsOne)) {
+		throw new Exception('do not manage comparison with node containing at same level text and element');
+	}
+	foreach ($DOMNodeTwo->childNodes as $childNode) {
+		if ($childNode->nodeType === XML_TEXT_NODE) {
+			$DOMTextTwo .= $childNode->nodeValue;
+		} else {
+			$Nodename = $childNode->nodeName;
+			if (!array_key_exists($Nodename, $DOMElementsTwo)) {
+				$DOMElementsTwo[$Nodename] = [];
+			}
+			$DOMElementsTwo[$Nodename][] = $childNode;
+		}
+	}
+	if (!empty($DOMTextTwo) && !empty($DOMElementsTwo)) {
+		throw new Exception('do not manage comparison with node containing at same level text and element');
+	}
+	if ($DOMTextOne !== $DOMTextTwo) {
+		trigger_error(sprintf('.%s -> %s (%s) != %s (%s)', implode('.', $stack), $DOMTextOne, gettype($DOMTextOne), $DOMTextTwo, gettype($DOMTextTwo)));
+		return false;
+	}
+	foreach ($DOMElementsOne as $key => $nodes) {
+		if (!array_key_exists($key, $DOMElementsTwo)) {
+			trigger_error('node ' . implode('.', $stack) . ' exists in first xml but doesn\'t exist in second xml');
+			return false;
+		}
+		if (count($nodes) !== count($DOMElementsTwo[$key])) {
+			trigger_error('different count of nodes ' . implode('.', $stack) . '.' . $key);
+			return false;
+		}
+		foreach ($nodes as $index => $node) {
+			if (!compareDomNode($node, $DOMElementsTwo[$index], $stack)) {
+				return false;
+			}
+		}
+	}
+	array_pop($stack);
+	return true;
+}
+
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ModelTest.php';
-//require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RequestTest.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RequestTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ExtendedModelTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ExtendedValueTest.php';
@@ -25,6 +240,11 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'In
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'PartialImportExportTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'DatabaseSerializationTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
+
+// add cast boolean sqlTable
+// test import flatten values std/assoc/xml
+// todo fillobjectid (pas sur)
+// verify import/fillobject from modelarray/objectarray
 
 // test call export on simple model
 // test expoprt/imlport with null values

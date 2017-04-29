@@ -21,16 +21,11 @@ class ObjectArray extends Object {
 			$lElementModel = ($pModel instanceof Model) ? $pModel : ModelManager::getInstance()->getInstanceModel($pModel);
 		
 			if ($lElementModel instanceof ModelContainer) {
-				throw new \Exception('Object cannot have ModelContainer');
+				throw new \Exception('Object cannot have ModelContainer except ModelArray');
 			}
 			$lModel = new ModelArray($lElementModel, is_null($pElementName) ? $pModel->getName() : $pElementName);
 		}
-		
-		if ($pIsLoaded) {
-			$this->setLoadStatus();
-		} else {
-			$this->setUnLoadStatus();
-		}
+		$this->setIsLoaded($pIsLoaded);
 		$this->_affectModel($lModel);
 	}
 	
@@ -165,7 +160,7 @@ class ObjectArray extends Object {
 			$this->pushValue($this->getModel()->getModel()->fromSqlDatabaseId($lRow), false);
 		}
 		if ($pUpdateLoadStatus) {
-			$this->setLoadStatus();
+			$this->setIsLoaded(true);
 		}
 	}
 	

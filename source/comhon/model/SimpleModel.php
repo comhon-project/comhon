@@ -58,9 +58,10 @@ abstract class SimpleModel extends Model {
 	 * @param ComhonDateTime $pValue
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param boolean $pIsFirstLevel
 	 * @return NULL|unknown
 	 */
-	final protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
+	final protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
 		return $this->importSimple($pValue, $pInterfacer);
 	}
 	

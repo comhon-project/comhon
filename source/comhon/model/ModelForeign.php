@@ -46,13 +46,14 @@ class ModelForeign extends ModelContainer {
 	 * @param ComhonDateTime $pValue
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param boolean $pIsFirstLevel
 	 * @return NULL|unknown
 	 */
-	protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null) {
+	protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
 		if (!$this->getUniqueModel()->hasIdProperties()) {
 			throw new \Exception("foreign property must have model with id ({$this->getName()})");
 		}
-		return $this->getModel()->_importId($pValue, $pInterfacer, $pLocalObjectCollection);
+		return $this->getModel()->_importId($pValue, $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel);
 	}
 	
 	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {

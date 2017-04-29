@@ -4,6 +4,7 @@ namespace comhon\model;
 use comhon\model\singleton\ModelManager;
 use comhon\object\Object;
 use comhon\object\collection\ObjectCollection;
+use comhon\interfacer\Interfacer;
 
 class LocalModel extends Model {
 	
@@ -50,8 +51,37 @@ class LocalModel extends Model {
 				}
 			} else {
 				if ($pUpdateLoadStatus) {
-					$lObject->setLoadStatus();
+					$lObject->setIsLoaded(true);
 				}
+			}
+		}
+		return $lObject;
+	}
+	
+	/**
+	 * get or create an instance of Object
+	 * @param integer|string $pId
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param boolean $pIsFirstLevel
+	 * @param boolean $pIsForeign
+	 * @return Object
+	 * @throws \Exception
+	 */
+	protected function _getOrCreateObjectInstanceGeneric($pId, Interfacer $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel, $pIsForeign = false) {
+		$lIsloaded = !$pIsForeign && (!$pIsFirstLevel || $pInterfacer->hasToFlagObjectAsLoaded());
+		
+		if (is_null($pId) || !$this->hasIdProperties()) {
+			$lObject = $this->getObjectInstance($lIsloaded);
+		}
+		else {
+			$lObject = $pLocalObjectCollection->getObject($pId, $this->mModelName);
+			if (is_null($lObject)) {
+				$lObject = $this->_buildObjectFromId($pId, $lIsloaded, $pInterfacer->hasToFlagValuesAsUpdated());
+				$pLocalObjectCollection->addObject($lObject);
+			}
+			elseif ($lIsloaded || ($pIsFirstLevel && $pInterfacer->getMergeType() !== Interfacer::MERGE)) {
+				$lObject->setIsLoaded($lIsloaded);
 			}
 		}
 		return $lObject;

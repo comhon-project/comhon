@@ -88,19 +88,19 @@ class MainModel extends Model {
 		
 		switch ($pInterfacer->getMergeType()) {
 			case Interfacer::MERGE:
-				$lObject = $this->_import($pInterfacedObject, $pInterfacer, null);
+				$lObject = $this->_import($pInterfacedObject, $pInterfacer, null, true);
 				break;
 			case Interfacer::OVERWRITE:
-				$lObject = $this->getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, null);
+				$lObject = $this->getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, null, true);
 				$lObject->reset();
-				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, new ObjectCollection());
+				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, new ObjectCollection(), true);
 				break;
 			case Interfacer::NO_MERGE:
 				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $this->mModelName);
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lExistingObject);
 				}
-				$lObject = $this->_import($pInterfacedObject, $pInterfacer, null);
+				$lObject = $this->_import($pInterfacedObject, $pInterfacer, null, true);
 				
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lObject);
@@ -118,10 +118,9 @@ class MainModel extends Model {
 	 * @param Object $pObject
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
-	 * @param boolean $pUpdateLoadStatus
 	 * @throws \Exception
 	 */
-	public function fillObject(Object $pObject, $pInterfacedObject, Interfacer $pInterfacer, $pUpdateLoadStatus = true) {
+	public function fillObject(Object $pObject, $pInterfacedObject, Interfacer $pInterfacer) {
 		$this->load();
 		if ($pInterfacedObject instanceof \SimpleXMLElement) {
 			$pInterfacedObject= dom_import_simplexml($pInterfacedObject);
@@ -131,9 +130,9 @@ class MainModel extends Model {
 		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $pInterfacer->hasToFlagValuesAsUpdated());
 		
 		MainObjectCollection::getInstance()->addObject($pObject, false);
-		$this->_fillObject($pObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($pObject));
-		if ($pUpdateLoadStatus) {
-			$pObject->setLoadStatus();
+		$this->_fillObject($pObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($pObject), true);
+		if ($pInterfacer->hasToFlagObjectAsLoaded()) {
+			$pObject->setIsLoaded(true);
 		}
 	}
 	
@@ -280,7 +279,7 @@ class MainModel extends Model {
 				$lObject = $this->_getOrCreateObjectInstanceFromFlattenedArray($pRow, true, true, false, null, false, false);
 				$lObject->reset();
 				$this->_fillObjectwithId($lObject, $this->getIdFromFlattenedArray($pRow, true, true), false);
-				$lObject->setUnLoadStatus();
+				$lObject->setIsLoaded(false);
 				break;
 			case self::NO_MERGE:
 				$lObject = $this->_buildObjectFromId($this->getIdFromFlattenedArray($pRow, true, true), false, false);
@@ -311,7 +310,7 @@ class MainModel extends Model {
 		MainObjectCollection::getInstance()->addObject($pObject, false);
 		$this->_fillObjectFromStdObject($pObject, $pStdObject, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, $this->_loadLocalObjectCollection($pObject));
 		if ($pUpdateLoadStatus) {
-			$pObject->setLoadStatus();
+			$pObject->setIsLoaded(true);
 		}
 	}
 	
@@ -335,7 +334,7 @@ class MainModel extends Model {
 		MainObjectCollection::getInstance()->addObject($pObject, false);
 		$this->_fillObjectFromXml($pObject, $pXml, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, $this->_loadLocalObjectCollection($pObject));
 		if ($pUpdateLoadStatus) {
-			$pObject->setLoadStatus();
+			$pObject->setIsLoaded(true);
 		}
 	}
 	
@@ -359,7 +358,7 @@ class MainModel extends Model {
 		MainObjectCollection::getInstance()->addObject($pObject, false);
 		$this->_fillObjectFromFlattenedArray($pObject, $pRow, $pPrivate, $pUseSerializationName, $lDateTimeZone, $pFlagAsUpdated, $this->_loadLocalObjectCollection($pObject));
 		if ($pUpdateLoadStatus) {
-			$pObject->setLoadStatus();
+			$pObject->setIsLoaded(true);
 		}
 	}
 	
@@ -566,7 +565,40 @@ class MainModel extends Model {
 					$lMainObject->cast($lModel);
 				}
 				if ($pUpdateLoadStatus) {
-					$lMainObject->setLoadStatus();
+					$lMainObject->setIsLoaded(true);
+				}
+			}
+		}
+		return $lMainObject;
+	}
+	
+	/**
+	 * get or create an instance of Object
+	 * @param integer|string $pId
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param boolean $pIsFirstLevel
+	 * @param boolean $pIsForeign
+	 * @return Object
+	 * @throws \Exception
+	 */
+	protected function _getOrCreateObjectInstanceGeneric($pId, Interfacer $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel, $pIsForeign = false) {
+		$lIsloaded = !$pIsForeign && (!$pIsFirstLevel || $pInterfacer->hasToFlagObjectAsLoaded());
+		
+		if (!$this->hasIdProperties()) {
+			$lMainObject = $this->getObjectInstance($lIsloaded);
+		}
+		else {
+			$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
+			if (is_null($lMainObject)) {
+				$lMainObject = $this->_buildObjectFromId($pId, $lIsloaded, $pInterfacer->hasToFlagValuesAsUpdated());
+			}
+			else {
+				if (!MainObjectCollection::getInstance()->hasObject($pId, $this->mModelName, false)) {
+					$lMainObject->cast($this);
+				}
+				if ($lIsloaded || ($pIsFirstLevel && $pInterfacer->getMergeType() !== Interfacer::MERGE)) {
+					$lMainObject->setIsLoaded($lIsloaded);
 				}
 			}
 		}

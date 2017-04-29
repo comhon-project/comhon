@@ -25,6 +25,10 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 		$this->mId = $pId;
 	}
 	
+	/**
+	 * execute resquest and return resulting object
+	 * @return Object
+	 */
 	public function execute() {
 		$lObject = $this->mModel->loadObject($this->mId, $this->mPropertiesFilter);
 		if (!is_null($lObject)) {

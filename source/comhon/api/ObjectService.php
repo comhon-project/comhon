@@ -3,6 +3,8 @@ namespace comhon\api;
 
 use comhon\request\ComplexLoadRequest;
 use comhon\request\SimpleLoadRequest;
+use comhon\interfacer\StdObjectInterfacer;
+use comhon\interfacer\Interfacer;
 
 class ObjectService {
 	
@@ -11,8 +13,10 @@ class ObjectService {
 			if (!isset($pParams->id)) {
 				throw new \Exception('request doesn\'t have id');
 			}
-			$lObjectArray = SimpleLoadRequest::buildObjectLoadRequest($pParams, $pPrivate)->execute();
-			return self::_setSuccessReturn($lObjectArray->toPublicStdObject(null, false, self::_getFilterProperties($pParams, $lObjectArray)));
+			$lObject = SimpleLoadRequest::buildObjectLoadRequest($pParams, $pPrivate)->execute();
+			$lInterfacer = new StdObjectInterfacer();
+			$lModelFilter = [$lObject->getModel()->getName() => self::_getFilterProperties($pParams, $lObject)];
+			return self::_setSuccessReturn($lInterfacer->export($lObject, [Interfacer::PROPERTIES_FILTERS => $lModelFilter]));
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}
@@ -21,20 +25,21 @@ class ObjectService {
 	public static function getObjects($pParams, $pPrivate = false) {
 		try {
 			$lObjectArray = ComplexLoadRequest::buildObjectLoadRequest($pParams, $pPrivate)->execute();
-			$lFilterProperties = isset($pParams->properties) ? $pParams->properties : null;
-			return self::_setSuccessReturn($lObjectArray->toPublicStdObject(null, false, self::_getFilterProperties($pParams, $lObjectArray)));
+			$lInterfacer = new StdObjectInterfacer();
+			$lModelFilter = [$lObjectArray->getModel()->getName() => self::_getFilterProperties($pParams, $lObjectArray)];
+			return self::_setSuccessReturn($lInterfacer->export($lObjectArray, [Interfacer::PROPERTIES_FILTERS => $lModelFilter]));
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}
 	}
 	
-	private static function _getFilterProperties($pParams, $pOjectArray) {
+	private static function _getFilterProperties($pParams, $pOject) {
 		if (!isset($pParams->properties) || empty($pParams->properties)) {
 			return null;
 		}
 		$lFilterProperties = $pParams->properties;
-		if ($pOjectArray->getModel()->hasIdProperties()) {
-			foreach ($pOjectArray->getModel()->getIdProperties() as $lProperty) {
+		if ($pOject->getModel()->hasIdProperties()) {
+			foreach ($pOject->getModel()->getIdProperties() as $lProperty) {
 				$lFilterProperties[] = $lProperty->getName();
 			}
 		}

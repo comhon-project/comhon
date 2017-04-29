@@ -4,6 +4,7 @@ namespace comhon\request;
 use comhon\model\singleton\ModelManager;
 use comhon\controller\ForeignObjectLoader;
 use comhon\controller\AggregationLoader;
+use comhon\object\Object;
 
 abstract class ObjectLoadRequest {
 
@@ -18,7 +19,11 @@ abstract class ObjectLoadRequest {
 		$this->mPrivate = $pPrivate;
 	}
 	
-	public abstract function execute();
+	/**
+	 * execute resquest and return resulting object
+	 * @return Object
+	 */
+	abstract public function execute();
 	
 	private $mId;
 	

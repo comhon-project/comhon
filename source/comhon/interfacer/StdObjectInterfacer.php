@@ -41,11 +41,20 @@ class StdObjectInterfacer extends Interfacer {
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value
-	 * @param mixed $pNode
+	 * @param mixed $pValue
 	 * @return mixed
 	 */
 	public function isComplexInterfacedId($pValue) {
 		return is_object($pValue);
+	}
+	
+	/**
+	 * verify if value is a flatten complex id (with inheritance key)
+	 * @param mixed $pValue
+	 * @return mixed
+	 */
+	public function isFlattenComplexInterfacedId($pValue) {
+		return is_string($pValue) && substr($pValue, 0, 6) == '{"id":';
 	}
 	
 	/**
@@ -125,6 +134,17 @@ class StdObjectInterfacer extends Interfacer {
 	public function flattenNode(&$pNode, $pName) {
 		if (isset($pNode->$pName) && !is_null($pNode->$pName)) {
 			$pNode->$pName = json_encode($pNode->$pName);
+		}
+	}
+	
+	/**
+	 * unflatten value (transform string to object/array)
+	 * @param array $pNode
+	 * @param string $pName
+	 */
+	public function unFlattenNode(&$pNode, $pName) {
+		if (isset($pName, $pNode) && is_string($pNode->$pName)) {
+			$pNode->$pName = json_decode($pNode->$pName);
 		}
 	}
 	
