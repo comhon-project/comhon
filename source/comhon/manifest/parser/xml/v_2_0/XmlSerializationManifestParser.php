@@ -4,6 +4,7 @@ namespace comhon\manifest\parser\xml\v_2_0;
 
 use comhon\model\singleton\ModelManager;
 use comhon\manifest\parser\xml\XmlSerializationManifestParser as ParentXmlSerializationManifestParser;
+use comhon\interfacer\XMLInterfacer;
 
 class XmlSerializationManifestParser extends ParentXmlSerializationManifestParser {
 	
@@ -51,8 +52,11 @@ class XmlSerializationManifestParser extends ParentXmlSerializationManifestParse
 		$lType = (string) $pSerializationNode['type'];
 		if (isset($pSerializationNode->$lType)) {
 			$lObjectXml = $pSerializationNode->$lType;
+			$lXMLInterfacer = new XMLInterfacer();
+			$lXMLInterfacer->setSerialContext(true);
+			$lXMLInterfacer->setPrivateContext(true);
 			$lSerialization = ModelManager::getInstance()->getInstanceModel($lType)->getObjectInstance();
-			$lSerialization->fromSerializedXml($lObjectXml);
+			$lSerialization->fillObject($lObjectXml, $lXMLInterfacer);
 		} else {
 			$lId = (string) $pSerializationNode;
 			if (empty($lId)) {

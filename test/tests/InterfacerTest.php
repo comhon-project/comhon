@@ -32,8 +32,8 @@ $lInterfacer->addValue($lNodeArray, $lCreatedNode);
 $lInterfacer->setValue($lNode, $lNodeArray, 'array');
 $lInterfacer->flattenNode($lNode, 'array');
 
-if ($lInterfacer->serialize($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
-	var_dump($lInterfacer->serialize($lNode));
+if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
+	var_dump($lInterfacer->toString($lNode));
 	throw new Exception('bad value');
 }
 
@@ -59,8 +59,8 @@ $lInterfacer->addValue($lNodeArray, $lCreatedNode);
 $lInterfacer->setValue($lNode, $lNodeArray, 'array');
 $lInterfacer->flattenNode($lNode, 'array');
 
-if (trim(str_replace('<?xml version="1.0"?>', '', $lInterfacer->serialize($lNode)))!== '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>') {
-	var_dump(trim(str_replace('<?xml version="1.0"?>', '', $lInterfacer->serialize($lNode))));
+if (trim(str_replace('<?xml version="1.0"?>', '', $lInterfacer->toString($lNode)))!== '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>') {
+	var_dump(trim(str_replace('<?xml version="1.0"?>', '', $lInterfacer->toString($lNode))));
 	throw new Exception('bad value');
 }
 
@@ -86,15 +86,15 @@ $lInterfacer->addValue($lNodeArray, $lCreatedNode);
 $lInterfacer->setValue($lNode, $lNodeArray, 'array');
 $lInterfacer->flattenNode($lNode, 'array');
 
-if ($lInterfacer->serialize($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
-	var_dump($lInterfacer->serialize($lNode));
+if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
+	var_dump($lInterfacer->toString($lNode));
 	throw new Exception('bad value');
 }
 
 /** ************************* preferences **************************** **/
 
 $lPreferences = [
-	Interfacer::PRIVATE                => true,
+	Interfacer::PRIVATE_CONTEXT                => true,
 	Interfacer::SERIAL_CONTEXT         => true,
 	Interfacer::DATE_TIME_ZONE         => 'Pacific/Tahiti',
 	Interfacer::DATE_TIME_FORMAT       => 'Y-m-d H:i:s',
@@ -108,7 +108,7 @@ $lPreferences = [
 
 $lInterfacer->setPreferences($lPreferences);
 
-if ($lInterfacer->interfacePrivateProperties() !== true) {
+if ($lInterfacer->isPrivateContext() !== true) {
 	throw new Exception('bad value');
 }
 if ($lInterfacer->isSerialContext() !== true) {
@@ -155,7 +155,7 @@ $lPreferences[Interfacer::MERGE_TYPE] = Interfacer::NO_MERGE;
 $lPreferences[Interfacer::PROPERTIES_FILTERS] = ['place' => ['firstName', 'birthPlace'], 'womanBody' => ['date', 'tatoos']];
 
 $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
-$lObject = $lDbTestModel->loadObject('[1,1501774389]');
+$lObject = $lDbTestModel->loadObject('[1,"1501774389"]');
 $lInterfacer = new XMLInterfacer();
 $lNode = $lInterfacer->export($lObject, $lPreferences);
 $lObject2 = $lInterfacer->import($lNode, $lDbTestModel, $lPreferences);

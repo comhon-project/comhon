@@ -169,11 +169,25 @@ class Property {
 		return null;
 	}
 	
-	public function loadValue(Object $pObject, $pPropertiesFilter = []) {
+	/**
+	 * 
+	 * @param Object $pObject
+	 * @param string[] $pPropertiesFilter
+	 * @param boolean $pForceLoad if object is already loaded, force to reload object
+	 * @throws \Exception
+	 */
+	public function loadValue(Object $pObject, $pPropertiesFilter = [], $pForceLoad = false) {
 		throw new \Exception('cannot load object, property is not foreign property');
 	}
 	
-	public function loadValueIds(ObjectArray $pObject, Object $pParentObject) {
+	/**
+	 * 
+	 * @param ObjectArray $pObject
+	 * @param Object $pParentObject
+	 * @param boolean $pForceLoad if object is already loaded, force to reload object
+	 * @throws \Exception
+	 */
+	public function loadValueIds(ObjectArray $pObject, Object $pParentObject, $pForceLoad = false) {
 		throw new \Exception('cannot load aggregation ids, property is not aggregation property');
 	}
 	

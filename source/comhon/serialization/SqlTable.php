@@ -191,15 +191,17 @@ class SqlTable extends SerializationUnit {
 		return [$lCastIntegerColumns, $lCastFloatColumns, $lCastBooleanColumns];
 	}
 	
-	private function _getInterfacer() {
+	public static function getInterfacer($pFlagObjectAsLoaded = true) {
 		if (is_null(self::$sInterfacer)) {
 			self::$sInterfacer = new AssocArrayInterfacer();
-			self::$sInterfacer->setInterfacePrivateProperties(true);
+			self::$sInterfacer->setPrivateContext(true);
 			self::$sInterfacer->setSerialContext(true);
+			self::$sInterfacer->setFlagValuesAsUpdated(false);
 			self::$sInterfacer->setDateTimeFormat('Y-m-d H:i:s');
 			self::$sInterfacer->setDateTimeZone(self::getDatabaseConnectionTimeZone());
 			self::$sInterfacer->setFlattenValues(true);
 		}
+		self::$sInterfacer->setFlagObjectAsLoaded($pFlagObjectAsLoaded);
 		return self::$sInterfacer;
 	}
 	
@@ -246,7 +248,7 @@ class SqlTable extends SerializationUnit {
 	 * @return integer
 	 */
 	private function _insertObject(Object $pObject) {
-		$lInterfacer = $this->_getInterfacer();
+		$lInterfacer = self::getInterfacer();
 		$lInterfacer->setExportOnlyUpdatedValues(false);
 		$lMapOfString = $pObject->export($lInterfacer);
 		if (!is_null($this->getInheritanceKey())) {
@@ -317,7 +319,7 @@ class SqlTable extends SerializationUnit {
 		$lUpdateValues     = [];
 		$lConditionsValues = [];
 
-		$lInterfacer = $this->_getInterfacer();
+		$lInterfacer = self::getInterfacer();
 		$lInterfacer->setExportOnlyUpdatedValues(true);
 		$lMapOfString = $pObject->export($lInterfacer);
 		foreach ($pObject->getDeletedValues() as $lPropertyName) {
@@ -494,8 +496,7 @@ class SqlTable extends SerializationUnit {
 					}
 				}
 			}
-			$lInterfacer = $this->_getInterfacer();
-			$lInterfacer->setFlagObjectAsLoaded(!$pOnlyIds);
+			$lInterfacer = self::getInterfacer(!$pOnlyIds);
 			$pObject->fillObject($lIsModelArray ? $lRows : $lRows[0], $lInterfacer);
 			$lSuccess = true;
 		}

@@ -4,6 +4,7 @@ namespace comhon\manifest\parser\json\v_2_0;
 
 use comhon\model\singleton\ModelManager;
 use comhon\manifest\parser\json\JsonSerializationManifestParser as ParentJsonSerializationManifestParser;
+use comhon\interfacer\StdObjectInterfacer;
 
 class JsonSerializationManifestParser extends ParentJsonSerializationManifestParser {
 
@@ -48,8 +49,11 @@ class JsonSerializationManifestParser extends ParentJsonSerializationManifestPar
 	private function _buildSerializationSettings($pSerializationNode) {
 		$lType = $pSerializationNode->type;
 		if (isset($pSerializationNode->value)) {
+			$lStdInterfacer = new StdObjectInterfacer();
+			$lStdInterfacer->setSerialContext(true);
+			$lStdInterfacer->setPrivateContext(true);
 			$lSerialization = ModelManager::getInstance()->getInstanceModel($lType)->getObjectInstance();
-			$lSerialization->fromSerializedStdObject($pSerializationNode->value);
+			$lSerialization->fillObject($pSerializationNode->value, $lStdInterfacer);
 		} else if (isset($pSerializationNode->id)) {
 			$lId = $pSerializationNode->id;
 			if (empty($lId)) {

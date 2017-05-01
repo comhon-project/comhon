@@ -11,6 +11,7 @@ use comhon\model\property\Property;
 use comhon\model\SimpleModel;
 use comhon\model\property\ForeignProperty;
 use comhon\manifest\parser\xml\XmlManifestParser as ParentXmlManifestParser;
+use comhon\interfacer\XMLInterfacer;
 
 class XmlManifestParser extends ParentXmlManifestParser {
 	
@@ -106,9 +107,11 @@ class XmlManifestParser extends ParentXmlManifestParser {
 					throw new \Exception('invalid default value time format : '.$lDefault);
 				}
 			} else if ($lModel instanceof SimpleModel) {
-				$lDefault = $lModel->fromXmlAttribute($lCurrentPropertyXml['default']);
+				$lXMLInterfacer = new XMLInterfacer();
+				$lDefault = $lModel->importSimple($lCurrentPropertyXml['default'], $lXMLInterfacer);
 			} else if ($lModel instanceof ModelEnum) {
-				$lDefault = $lModel->getModel()->fromXmlAttribute($lCurrentPropertyXml['default']);
+				$lXMLInterfacer = new XMLInterfacer();
+				$lDefault = $lModel->getModel()->importSimple($lCurrentPropertyXml['default'], $lXMLInterfacer);
 			} else {
 				throw new \Exception('default value can\'t be applied on complex model');
 			}

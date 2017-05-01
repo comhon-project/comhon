@@ -28,9 +28,10 @@ class AggregationProperty extends ForeignProperty {
 	 *
 	 * @param Object $pObject
 	 * @param string[] $pPropertiesFilter
+	 * @param boolean $pForceLoad if object is already loaded, force to reload object
 	 * @return boolean true if success
 	 */
-	public function loadValue(Object $pObject, $pPropertiesFilter = null) {
+	public function loadValue(Object $pObject, $pPropertiesFilter = null, $pForceLoad = false) {
 		throw new \Exception('use loadAggregationValue function');
 	}
 	
@@ -39,13 +40,14 @@ class AggregationProperty extends ForeignProperty {
 	 * @param ObjectArray $pObjectArray
 	 * @param Object $pParentObject
 	 * @param string[] $pPropertiesFilter
+	 * @param boolean $pForceLoad if object is already loaded, force to reload object
 	 * @return boolean true if success
 	 */
-	public function loadAggregationValue(Object $pObjectArray, Object $pParentObject, $pPropertiesFilter = null) {
+	public function loadAggregationValue(Object $pObjectArray, Object $pParentObject, $pPropertiesFilter = null, $pForceLoad = false) {
 		if (!($pObjectArray instanceof ObjectArray)) {
 			throw new \Exception('first parameter should be ObjectArray');
 		}
-		if ($pObjectArray->isLoaded()) {
+		if ($pObjectArray->isLoaded() && !$pForceLoad) {
 			return false;
 		}
 		$lSerializationUnit = $this->getUniqueModel()->getSerialization();
@@ -59,11 +61,15 @@ class AggregationProperty extends ForeignProperty {
 	 * 
 	 * @param ObjectArray $pObjectArray
 	 * @param Object $pParentObject
+	 * @param boolean $pForceLoad if object is already loaded, force to reload object
 	 * @return boolean true if success
 	 */
-	public function loadValueIds(ObjectArray $pObjectArray, Object $pParentObject) {
+	public function loadValueIds(ObjectArray $pObjectArray, Object $pParentObject, $pForceLoad = false) {
 		if (is_null($lSqlTableUnit = $this->getSqlTableUnit())) {
 			throw new \Exception('aggregation has not model with sql serialization');
+		}
+		if ($pObjectArray->isLoaded() && !$pForceLoad) {
+			return false;
 		}
 		return $lSqlTableUnit->loadAggregationIds($pObjectArray, $pParentObject->getId(), $this->mAggregationProperties);
 	}

@@ -74,14 +74,16 @@ abstract class Object {
 		}
 	}
 	
-	public final function deleteValue($pName) {
+	public final function deleteValue($pName, $pFlagAsUpdated = true) {
 		if ($this->hasValue($pName)) {
 			if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel)) {
 				MainObjectCollection::getInstance()->removeObject($this);
 			}
 			unset($this->mValues[$pName]);
-			$this->mIsUpdated = true;
-			$this->mUpdatedValues[$pName] = true;
+			if ($pFlagAsUpdated) {
+				$this->mIsUpdated = true;
+				$this->mUpdatedValues[$pName] = true;
+			}
 		}
 	}
 	
@@ -112,6 +114,11 @@ abstract class Object {
 		$this->mValues = [];
 		$this->mIsUpdated = false;
 		$this->mUpdatedValues = [];
+		if (!($this instanceof ObjectArray)) {
+			foreach ($this->mModel->getPropertiesWithDefaultValues() as $lProperty) {
+				$this->setValue($lProperty->getName(), $lProperty->getDefaultValue(), false);
+			}
+		}
 	}
 	
 	public function setId($pId, $pFlagAsUpdated = true) {
@@ -485,24 +492,26 @@ abstract class Object {
 	 * load value
 	 * @param string $pName
 	 * @param string[] $pPropertiesFilter
+	 * @param boolean $pForceLoad if object is already loaded, force to reload object
 	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
 	 */
-	public function loadValue($pName, $pPropertiesFilter = null) {
+	public function loadValue($pName, $pPropertiesFilter = null, $pForceLoad = false) {
 		$lProperty = $this->getProperty($pName, true);
 		if ($lProperty instanceof AggregationProperty) {
-			return $lProperty->loadAggregationValue($this->getValue($pName), $this, $pPropertiesFilter);
+			return $lProperty->loadAggregationValue($this->getValue($pName), $this, $pPropertiesFilter, $pForceLoad);
 		} else {
-			return $lProperty->loadValue($this->getValue($pName), $pPropertiesFilter);
+			return $lProperty->loadValue($this->getValue($pName), $pPropertiesFilter, $pForceLoad);
 		}
 	}
 	
 	/**
 	 * load aggregation by retrieving only ids
 	 * @param string $pName
+	 * @param boolean $pForceLoad if object is already loaded, force to reload object
 	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
 	 */
-	public final function loadValueIds($pName) {
-		return $this->getProperty($pName, true)->loadValueIds($this->getValue($pName), $this);
+	public final function loadValueIds($pName, $pForceLoad = false) {
+		return $this->getProperty($pName, true)->loadValueIds($this->getValue($pName), $this, $pForceLoad);
 	}
 	
 	/***********************************************************************************************\

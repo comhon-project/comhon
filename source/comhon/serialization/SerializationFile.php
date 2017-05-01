@@ -4,48 +4,38 @@ namespace comhon\serialization;
 use comhon\model\Model;
 use comhon\utils\Utils;
 use comhon\object\Object;
+use comhon\interfacer\Interfacer;
+use comhon\model\singleton\ModelManager;
 
 abstract class SerializationFile extends SerializationUnit {
 
-	/**
-	 * 
-	 * @param string $pPath
-	 */
-	abstract protected function _read($pPath);
+	private $mInterfacer;
 	
 	/**
-	 * 
-	 * @param unknown $pContent
-	 * @param string $pPath
+	 *
+	 * @return Interfacer
 	 */
-	abstract protected function _write($pContent, $pPath);
+	abstract protected function _getInterfacer();
+	
+	/**
+	 *
+	 * @param Object $pSettings
+	 * @param string $pInheritanceKey
+	 */
+	protected function __construct(Object $pSettings, $pInheritanceKey = null) {
+		parent::__construct($pSettings, $pInheritanceKey);
+		$this->mInterfacer = $this->_getInterfacer();
+	}
 	
 	/**
 	 * 
 	 * @param Object $pObject
+	 * @return string
 	 */
-	abstract protected function _getPath(Object $pObject);
+	protected function _getPath(Object $pObject) {
+		return $this->mSettings->getValue('saticPath') . DIRECTORY_SEPARATOR . $pObject->getId() . DIRECTORY_SEPARATOR . $this->mSettings->getValue('staticName');
+	}
 
-	/**
-	 * 
-	 * @param Object $pObject
-	 */
-	abstract protected function _transfromObject(Object $pObject);
-	
-	/**
-	 * 
-	 * @param Object $pObject
-	 * @param unknown $pFormatedContent
-	 */
-	abstract protected function _addInheritanceKey(Object $pObject, $pFormatedContent);
-	
-	/**
-	 * 
-	 * @param Object $pObject
-	 * @param unknown $pFormatedContent
-	 */
-	abstract protected function _fillObject(Object $pObject, $pFormatedContent);
-	
 	/**
 	 * @param Object $pObject
 	 * @param string $pOperation
@@ -75,12 +65,23 @@ abstract class SerializationFile extends SerializationUnit {
 				throw new \Exception("Cannot save object with id '{$pObject->getId()}'. Impossible to create directory '".dirname($lPath).'\'');
 			}
 		}
-		$lContent = $this->_transfromObject($pObject);
+		$lContent = $pObject->export($this->mInterfacer);
 		$this->_addInheritanceKey($pObject, $lContent);
-		if ($this->_write($lContent, $lPath) === false) {
+		if ($this->mInterfacer->write($lContent, $lPath) === false) {
 			throw new \Exception("Cannot save object with id '{$pObject->getId()}'. Creation or filling file failed");
 		}
 		return 1;
+	}
+	
+	/**
+	 *
+	 * @param Object $pObject
+	 * @param mixed $InterfacedObject
+	 */
+	protected function _addInheritanceKey(Object $pObject, $InterfacedObject) {
+		if (!is_null($this->getInheritanceKey())) {
+			$this->mInterfacer->setValue($InterfacedObject, $pObject->getModel()->getName(), $this->getInheritanceKey());
+		}
 	}
 	
 	/**
@@ -93,7 +94,7 @@ abstract class SerializationFile extends SerializationUnit {
 		if (!file_exists($lPath)) {
 			return false;
 		}
-		$lFormatedContent = $this->_read($lPath);
+		$lFormatedContent = $this->mInterfacer->read($lPath);
 		if ($lFormatedContent === false || is_null($lFormatedContent)) {
 			throw new \Exception("cannot load file '$lPath'");
 		}
@@ -104,8 +105,19 @@ abstract class SerializationFile extends SerializationUnit {
 				$pObject->cast($lModel);
 			}
 		}
-		$this->_fillObject($pObject, $lFormatedContent);
+		$pObject->fillObject($lFormatedContent, $this->mInterfacer);
 		return true;
+	}
+	
+	/**
+	 * @param mixed $pValue
+	 * @param Model $pExtendsModel
+	 * @return Model
+	 */
+	public function getInheritedModel($pValue, Model $pExtendsModel) {
+		return $this->mInterfacer->hasValue($pValue, $this->mInheritanceKey)
+			? ModelManager::getInstance()->getInstanceModel($this->mInterfacer->getValue($pValue, $this->mInheritanceKey))
+			: $pExtendsModel;
 	}
 	
 	/**

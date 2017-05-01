@@ -503,7 +503,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			}
 		}
 		$lModelArray = new ModelArray($this->mModel, $this->mModel->getName());
-		$lObjectArray = $lModelArray->fromSqlDatabase($pRows, Model::MERGE, SqlTable::getDatabaseConnectionTimeZone());
+		$lObjectArray = $lModelArray->import($pRows, SqlTable::getInterfacer());
 		
 		return $this->_updateObjects($lObjectArray);
 	}

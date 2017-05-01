@@ -9,8 +9,15 @@ class ForeignProperty extends Property {
 		parent::__construct($pModel, $pName, $pSerializationName, false, $pIsPrivate, $pIsSerializable);
 	}
 	
-	public function loadValue(Object $pObject, $pPropertiesFilter = null) {
-		if ($pObject->isLoaded()) {
+	/**
+	 * 
+	 * @param Object $pObject
+	 * @param string[] $pPropertiesFilter
+	 * @param boolean $pForceLoad if object is already loaded, force to reload object
+	 * @throws \Exception
+	 */
+	public function loadValue(Object $pObject, $pPropertiesFilter = null, $pForceLoad = false) {
+		if ($pObject->isLoaded() && !$pForceLoad) {
 			return false;
 		}
 		if ($pObject->getModel() !== $this->getUniqueModel() && !$pObject->getModel()->isInheritedFrom($this->getUniqueModel())) {

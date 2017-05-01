@@ -98,12 +98,12 @@ $lBasedObjects  = [
 ];
 
 $lStdPrivateInterfacer = new StdObjectInterfacer();
-$lStdPrivateInterfacer->setInterfacePrivateProperties(true);
+$lStdPrivateInterfacer->setPrivateContext(true);
 $lStdPublicInterfacer = new StdObjectInterfacer();
-$lStdPublicInterfacer->setInterfacePrivateProperties(false);
+$lStdPublicInterfacer->setPrivateContext(false);
 
 $lXmlSerialInterfacer = new XMLInterfacer();
-$lXmlSerialInterfacer->setInterfacePrivateProperties(false);
+$lXmlSerialInterfacer->setPrivateContext(false);
 $lXmlSerialInterfacer->setSerialContext(true);
 
 $lObject = null;
@@ -141,7 +141,7 @@ foreach ($lResult->result as $lIndex => $lStdObject) {
 $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 
 /** @var Object $lObject */
-$lObject = $lDbTestModel->loadObject('[1,1501774389]');
+$lObject = $lDbTestModel->loadObject('[1,"1501774389"]');
 $lObjectJson = $lObject->export($lStdPrivateInterfacer);
 
 $lPublicObjectJson = $lObject->export($lStdPublicInterfacer);
@@ -196,7 +196,7 @@ if (count($lObject->getUpdatedValues()) !== 0) {
 	throw new Exception('should not have updated values after save');
 }
 
-$lObject = $lDbTestModel->loadObject('[1,1501774389]', null, true);
+$lObject = $lDbTestModel->loadObject('[1,"1501774389"]', null, true);
 $lObject->getValue('timestamp')->add(new DateInterval('P0Y0M0DT5H0M0S'));
 $lObject->setValue('notSerializedValue', 'azezaeaze');
 $lObject->setValue('notSerializedForeignObject', $lObject->getValue('lonelyForeignObject'));
@@ -217,7 +217,7 @@ $lObject->deleteValue('notSerializedValue');
 $lObject->deleteValue('notSerializedForeignObject');
 $lObject->resetUpdatedStatus();
 
-$lObject = $lDbTestModel->loadObject('[1,1501774389]', [], true);
+$lObject = $lDbTestModel->loadObject('[1,"1501774389"]', [], true);
 
 if (!compareJson(json_encode($lObject->export($lStdPrivateInterfacer)), json_encode($lObjectJson))) {
 	throw new Exception('bad object');
@@ -236,7 +236,7 @@ if (count($lObject->getUpdatedValues()) !== 0) {
 	throw new Exception('should not have updated values after save');
 }
 
-$lObject = $lDbTestModel->loadObject('[1,1501774389]', null, true);
+$lObject = $lDbTestModel->loadObject('[1,"1501774389"]', null, true);
 if (!$lObject->hasValue('integer') || !is_null($lObject->getValue('integer'))) {
 	throw new Exception('should not have integer value');
 }
@@ -259,7 +259,7 @@ MainObjectCollection::getInstance()->removeObject(MainObjectCollection::getInsta
 
 $lParams = new stdClass();
 $lParams->model = 'testDb';
-$lParams->id = '[1,1501774389]';
+$lParams->id = '[1,"1501774389"]';
 $lParams->properties = ['date','timestamp','integer','string'];
 $lResult = ObjectService::getObject($lParams, true);
 
@@ -274,7 +274,7 @@ if (!compareJson(json_encode($lResult->result), '{"date":"2016-04-12T05:14:33+02
 
 $lParams = new stdClass();
 $lParams->model = 'testDb';
-$lParams->id = '[1,1501774389]';
+$lParams->id = '[1,"1501774389"]';
 $lResult = ObjectService::getObject($lParams);
 
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
@@ -289,7 +289,7 @@ if (!compareJson(json_encode($lResult->result), '{"defaultValue":"default","id1"
 MainObjectCollection::getInstance()->removeObject(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb'));
 $lParams = new stdClass();
 $lParams->model = 'testDb';
-$lParams->id = '[1,1501774389]';
+$lParams->id = '[1,"1501774389"]';
 $lResult = ObjectService::getObject($lParams);
 
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
@@ -303,7 +303,7 @@ if (!compareJson(json_encode($lResult->result), '{"defaultValue":"default","id1"
 
 $lParams = new stdClass();
 $lParams->model = 'testDb';
-$lParams->id = '[1,1501774389]';
+$lParams->id = '[1,"1501774389"]';
 $lParams->properties = ['date','timestamp','integer','string'];
 $lResult = ObjectService::getObject($lParams, true);
 
@@ -319,7 +319,7 @@ if (!compareJson(json_encode($lResult->result), '{"date":"2016-04-12T05:14:33+02
 MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb')->reorderValues();
 $lParams = new stdClass();
 $lParams->model = 'testDb';
-$lParams->id = '[1,1501774389]';
+$lParams->id = '[1,"1501774389"]';
 $lResult = ObjectService::getObject($lParams);
 
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
@@ -371,7 +371,7 @@ $lTestDb->getValue('childrenTestDb')->getValue(0)->loadValue('parentTestDb', ['i
 if (!compareJson(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)),'[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2}]')) {
 	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)));
 }
-if (!compareJson(json_encode($lTestDb->export($lStdPrivateInterfacer)), '{"id1":1,"id2":"1501774389","childrenTestDb":[1,2],"integer":2}')) {
+if (!compareJson(json_encode($lTestDb->export($lStdPrivateInterfacer)), '{"defaultValue":"default","id1":1,"id2":"1501774389","childrenTestDb":[1,2],"integer":2}')) {
 	var_dump(json_encode($lPublicObjectJson));
 	throw new Exception('bad object : '.json_encode($lTestDb->export($lStdPrivateInterfacer)));
 }

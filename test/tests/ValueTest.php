@@ -11,13 +11,13 @@ use comhon\interfacer\AssocArrayInterfacer;
 $time_start = microtime(true);
 
 $lStdPrivateInterfacer = new StdObjectInterfacer();
-$lStdPrivateInterfacer->setInterfacePrivateProperties(true);
+$lStdPrivateInterfacer->setPrivateContext(true);
 $lStdPublicInterfacer = new StdObjectInterfacer();
-$lStdPublicInterfacer->setInterfacePrivateProperties(false);
+$lStdPublicInterfacer->setPrivateContext(false);
 $lXmlPrivateInterfacer = new XMLInterfacer();
-$lXmlPrivateInterfacer->setInterfacePrivateProperties(true);
+$lXmlPrivateInterfacer->setPrivateContext(true);
 $lArrayPrivateInterfacer = new AssocArrayInterfacer();
-$lArrayPrivateInterfacer->setInterfacePrivateProperties(true);
+$lArrayPrivateInterfacer->setPrivateContext(true);
 $lArrayPrivateInterfacer->setFlattenValues(true);
 
 $lTestDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
@@ -78,7 +78,7 @@ if (is_null($lTestDbFromCollection) || $lTestDbFromCollection !== $lTestDb) {
 
 /** ****************************** test load existing value ****************************** **/
 
-$lTestDb2 = $lDbTestModel->loadObject('["1",50]');
+$lTestDb2 = $lDbTestModel->loadObject('[1,"50"]');
 $lMainParentTestDb2 = $lTestDb2->getValue('mainParentTestDb');
 $lObject2 = $lTestDb2->getValue('object');
 $lObjectId2 = $lTestDb2->getValue('objectWithId');
@@ -115,7 +115,7 @@ foreach ($lTestDb->getProperties() as $lProperty) {
 
 /** ****************************** test load existing value and force to reload ****************************** **/
 
-$lTestDb3 = $lDbTestModel->loadObject('["1","50"]', null, true);
+$lTestDb3 = $lDbTestModel->loadObject('[1,"50"]', null, true);
 $lMainParentTestDb3 = $lTestDb3->getValue('mainParentTestDb');
 $lObject3 = $lTestDb3->getValue('object');
 $lObjectId3 = $lTestDb3->getValue('objectWithId');

@@ -3,6 +3,7 @@ namespace comhon\model;
 
 use comhon\interfacer\Interfacer;
 use comhon\interfacer\NoScalarTypedInterfacer;
+use comhon\utils\Utils;
 
 class ModelInteger extends SimpleModel {
 	

@@ -28,7 +28,7 @@ abstract class SerializationUnit {
 	 * @param Object $pSettings
 	 * @param string $pInheritanceKey
 	 */
-	private function __construct(Object $pSettings, $pInheritanceKey = null) {
+	protected function __construct(Object $pSettings, $pInheritanceKey = null) {
 		$this->mSettings = $pSettings;
 		$this->mInheritanceKey = $pInheritanceKey;
 	}

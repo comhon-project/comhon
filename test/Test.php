@@ -1,6 +1,7 @@
 <?php
 
 set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/comhon/source/');
+set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/ObjectManagerLib/source/');
 
 require_once 'Comhon.php';
 
@@ -33,7 +34,15 @@ function transformValueToString($value) {
  * @return boolean
  */
 function compareJson($jsonOne, $jsonTwo) {
-	return compareArray(json_decode($jsonOne, true), json_decode($jsonTwo, true));
+	$arrayOne = json_decode($jsonOne, true);
+	if (!is_array($arrayOne)) {
+		throw new Exception('not valid json : '.$jsonOne);
+	}
+	$arrayTwo = json_decode($jsonTwo, true);
+	if (!is_array($arrayTwo)) {
+		throw new Exception('not valid json : '.$jsonTwo);
+	}
+	return compareArray($arrayOne, $arrayTwo);
 }
 
 /**
@@ -125,54 +134,62 @@ function compareStdObject(\stdClass $stdObjectOne, \stdClass $stdObjectTwo, arra
  * @param array $stack
  * @return boolean
  */
-function compareXML(string $XMLOne, string $XMLTwo, array &$stack = []) {
+function compareXML($XMLOne, $XMLTwo, array &$stack = []) {
 	$DOMDocOne = new \DOMDocument();
 	$DOMDocOne->loadXML($XMLOne);
 	$DOMDocTwo = new \DOMDocument();
 	$DOMDocTwo->loadXML($XMLTwo);
 	
-	return compareDomNode($DOMDocOne, $DOMDocTwo);
+	if (
+		$DOMDocOne->childNodes->length !== 1
+		|| !($DOMDocOne->childNodes->item(0) instanceof \DOMElement)
+		|| $DOMDocTwo->childNodes->length !== 1
+		|| !($DOMDocTwo->childNodes->item(0) instanceof \DOMElement)
+	) {
+		throw new Exception('manage only xml with one and only one root node');
+	}
+	return compareDomElement($DOMDocOne->childNodes->item(0), $DOMDocTwo->childNodes->item(0));
 }
 
 /**
  * 
- * @param \DOMNode $DOMNodeOne
- * @param \DOMNode $DOMNodeTwo
+ * @param \DOMElement $DOMElementOne
+ * @param \DOMElement $DOMElementTwo
  * @param array $stack
  * @return boolean
  */
-function compareDomNode(\DOMNode $DOMNodeOne, \DOMNode $DOMNodeTwo, array &$stack = []) {
-	if ($DOMNodeOne->nodeName !== $DOMNodeTwo->nodeName) {
-		trigger_error("nodes don't have not same : {$DOMNodeOne->nodeName} !== {$DOMNodeTwo->nodeName}");
+function compareDomElement(\DOMElement $DOMElementOne, \DOMElement $DOMElementTwo, array &$stack = []) {
+	if ($DOMElementOne->nodeName !== $DOMElementTwo->nodeName) {
+		trigger_error('nodes have different names : ' . implode('.', $stack) . ".{$DOMElementOne->nodeName} !== " . implode('.', $stack) . '.' . $DOMElementOne->nodeName);
 		return false;
 	}
-	$stack[] = $DOMNodeOne->nodeName;
+	$stack[] = $DOMElementOne->nodeName;
 	$arrayOne = [];
 	$arrayTwo = [];
-	foreach ($DOMNodeTwo->attributes as $key => $attribute) {
+	foreach ($DOMElementTwo->attributes as $key => $attribute) {
 		$arrayTwo[$key] = $attribute->value;
 	}
-	foreach ($DOMNodeOne->attributes as $key => $attribute) {
+	foreach ($DOMElementOne->attributes as $key => $attribute) {
 		$stack[] = $key;
 		$arrayOne[$key] = $attribute->value;
 		if (!array_key_exists($key, $arrayTwo)) {
 			trigger_error('attribute ' . implode('.', $stack) . ' exists in first xml but doesn\'t exist in second xml');
 			return false;
 		} else  if ($attribute->value !== $arrayTwo[$key]) {
-			trigger_error(sprintf('.%s -> %s (%s) != %s (%s)', implode('.', $stack), $attribute->value, gettype($attribute->value), $arrayTwo[$key], gettype($arrayTwo[$key])));
+			trigger_error(sprintf('not same attribute value : .%s -> %s (%s) != %s (%s)', implode('.', $stack), $attribute->value, gettype($attribute->value), $arrayTwo[$key], gettype($arrayTwo[$key])));
 			return false;
 		}
 		array_pop($stack);
 	}
 	if (count($arrayOne) !== count($arrayTwo)) {
-		trigger_error('not same object properties : .' . implode('.', $stack) . ' -> ' . json_encode(array_keys($arrayOne)) . ' != ' . json_encode(array_keys($arrayTwo)));
+		trigger_error('not same xml attributes : .' . implode('.', $stack) . ' -> ' . json_encode(array_keys($arrayOne)) . ' != ' . json_encode(array_keys($arrayTwo)));
 		return false;
 	}
 	$DOMElementsOne = [];
 	$DOMTextOne = '';
 	$DOMElementsTwo = [];
 	$DOMTextTwo = '';
-	foreach ($DOMNodeOne->childNodes as $childNode) {
+	foreach ($DOMElementOne->childNodes as $childNode) {
 		if ($childNode->nodeType === XML_TEXT_NODE) {
 			$DOMTextOne .= $childNode->nodeValue;
 		} else {
@@ -186,7 +203,7 @@ function compareDomNode(\DOMNode $DOMNodeOne, \DOMNode $DOMNodeTwo, array &$stac
 	if (!empty($DOMTextOne) && !empty($DOMElementsOne)) {
 		throw new Exception('do not manage comparison with node containing at same level text and element');
 	}
-	foreach ($DOMNodeTwo->childNodes as $childNode) {
+	foreach ($DOMElementTwo->childNodes as $childNode) {
 		if ($childNode->nodeType === XML_TEXT_NODE) {
 			$DOMTextTwo .= $childNode->nodeValue;
 		} else {
@@ -201,12 +218,16 @@ function compareDomNode(\DOMNode $DOMNodeOne, \DOMNode $DOMNodeTwo, array &$stac
 		throw new Exception('do not manage comparison with node containing at same level text and element');
 	}
 	if ($DOMTextOne !== $DOMTextTwo) {
-		trigger_error(sprintf('.%s -> %s (%s) != %s (%s)', implode('.', $stack), $DOMTextOne, gettype($DOMTextOne), $DOMTextTwo, gettype($DOMTextTwo)));
+		trigger_error(sprintf('not same node value : .%s -> %s (%s) != %s (%s)', implode('.', $stack), $DOMTextOne, gettype($DOMTextOne), $DOMTextTwo, gettype($DOMTextTwo)));
+		return false;
+	}
+	if (count($DOMElementsOne) !== count($DOMElementsTwo)) {
+		trigger_error('not same nodes : .' . implode('.', $stack) . ' -> ' . json_encode(array_keys($DOMElementsOne)) . ' != ' . json_encode(array_keys($DOMElementsTwo)));
 		return false;
 	}
 	foreach ($DOMElementsOne as $key => $nodes) {
 		if (!array_key_exists($key, $DOMElementsTwo)) {
-			trigger_error('node ' . implode('.', $stack) . ' exists in first xml but doesn\'t exist in second xml');
+			trigger_error('node ' . implode('.', $stack) . ".$key exists in first xml but doesn\'t exist in second xml");
 			return false;
 		}
 		if (count($nodes) !== count($DOMElementsTwo[$key])) {
@@ -214,7 +235,7 @@ function compareDomNode(\DOMNode $DOMNodeOne, \DOMNode $DOMNodeTwo, array &$stac
 			return false;
 		}
 		foreach ($nodes as $index => $node) {
-			if (!compareDomNode($node, $DOMElementsTwo[$index], $stack)) {
+			if (!compareDomElement($node, $DOMElementsTwo[$key][$index], $stack)) {
 				return false;
 			}
 		}
@@ -260,6 +281,8 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'In
 // psr
 // add Php doc
 
+// partial load for aggregation (perhaps add setting to set max length load aggreagtion)
+// define in manifest if property is requestable
 // real unit test
 // rapide load Unique model in modelManager
 // from object specifying object path (object.property.property)

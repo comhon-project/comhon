@@ -8,7 +8,7 @@ use comhon\model\MainModel;
 
 abstract class Interfacer {
 	
-	const PRIVATE                = 'private';
+	const PRIVATE_CONTEXT        = 'privateContext';
 	const SERIAL_CONTEXT         = 'serialContext';
 	const DATE_TIME_ZONE         = 'dateTimeZone';
 	const DATE_TIME_FORMAT       = 'dateTimeFormat';
@@ -41,8 +41,8 @@ abstract class Interfacer {
 	private $mUpdatedValueOnly    = false;
 	private $mPropertiesFilters   = [];
 	private $mFlattenValues       = false;
-	private $mFlagValuesAsUpdated = false;
-	private $mFlagObjectAsLoaded  = false;
+	private $mFlagValuesAsUpdated = true;
+	private $mFlagObjectAsLoaded  = true;
 	private $mMergeType           = self::MERGE;
 	
 	protected $mMainForeignObjects  = null;
@@ -66,7 +66,7 @@ abstract class Interfacer {
 	 * verify if private properties have to be interfaced
 	 * @return boolean
 	 */
-	public function interfacePrivateProperties() {
+	public function isPrivateContext() {
 		return $this->mPrivate;
 	}
 	
@@ -74,7 +74,7 @@ abstract class Interfacer {
 	 * define if private properties have to be interfaced
 	 * @param boolean $pBoolean
 	 */
-	public function setInterfacePrivateProperties($pBoolean) {
+	public function setPrivateContext($pBoolean) {
 		$this->mPrivate = $pBoolean;
 	}
 	
@@ -405,11 +405,26 @@ abstract class Interfacer {
 	abstract public function createNodeArray($pName = null);
 	
 	/**
-	 * serialize given node
+	 * transform given node to string
 	 * @param mixed $pNode
 	 * @return string
 	 */
-	abstract public function serialize($pNode);
+	abstract public function toString($pNode);
+	
+	/**
+	 * write file with given content
+	 * @param mixed $pNode
+	 * @param string $pPath
+	 * @return boolean
+	 */
+	abstract public function write($pNode, $pPath);
+	
+	/**
+	 * read file and load node with file content
+	 * @param string $pPath
+	 * @return mixed|boolean return false on failure
+	 */
+	abstract public function read($pPath);
 	
 	/**
 	 * flatten value (transform object/array to string)
@@ -449,7 +464,7 @@ abstract class Interfacer {
 	}
 	
 	/**
-	 * 
+	 * export given comhon object to interfaced object 
 	 * @param Object $pObject
 	 * @param array $pPreferences
 	 */
@@ -459,10 +474,11 @@ abstract class Interfacer {
 	}
 	
 	/**
-	 * 
+	 * import given node and construct comhon object
 	 * @param mixed $pNode
 	 * @param MainModel $pModel
 	 * @param array $pPreferences
+	 * @return Object
 	 */
 	public function import($pNode, MainModel $pModel, array $pPreferences = []) {
 		$this->setPreferences($pPreferences);
@@ -476,11 +492,11 @@ abstract class Interfacer {
 	 */
 	public function setPreferences(array $pPreferences) {
 		// private
-		if (array_key_exists(self::PRIVATE, $pPreferences)) {
-			if (!is_bool($pPreferences[self::PRIVATE])) {
-				throw new \Exception('preference "'.self::PRIVATE.'" should be a boolean');
+		if (array_key_exists(self::PRIVATE_CONTEXT, $pPreferences)) {
+			if (!is_bool($pPreferences[self::PRIVATE_CONTEXT])) {
+				throw new \Exception('preference "'.self::PRIVATE_CONTEXT.'" should be a boolean');
 			}
-			$this->setInterfacePrivateProperties($pPreferences[self::PRIVATE]);
+			$this->setPrivateContext($pPreferences[self::PRIVATE_CONTEXT]);
 		}
 		
 		// serial context

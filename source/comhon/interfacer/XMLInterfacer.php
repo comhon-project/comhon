@@ -159,12 +159,38 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * serialize given node
-	 * @param \DOMNode $pNode
+	 * transform given node to string
+	 * @param \DOMElement $pNode
 	 * @return string
 	 */
-	public function serialize($pNode) {
+	public function toString($pNode) {
 		return $this->mDomDocument->saveXML($pNode);
+	}
+	
+	/**
+	 * write file with given content
+	 * @param \DOMElement $pNode
+	 * @param string $pPath
+	 * @return boolean
+	 */
+	public function write($pNode, $pPath) {
+		return file_put_contents($pPath, $this->mDomDocument->saveXML($pNode)) !== false;
+	}
+	
+	/**
+	 * read file and load node with file content
+	 * @param string $pPath
+	 * @return \DOMElement|boolean return false on failure
+	 */
+	public function read($pPath) {
+		if (!$this->mDomDocument->load($pPath)) {
+			return false;
+		}
+		if ($this->mDomDocument->childNodes->length !== 1 || !($this->mDomDocument->childNodes->item(0) instanceof \DOMElement)) {
+			trigger_error('wrong xml, XMLInterfacer manage only xml with one and only one root node');
+			return false;
+		}
+		return $this->mDomDocument->childNodes->item(0);
 	}
 	
 	/**
@@ -196,8 +222,15 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	public function unFlattenNode(&$pNode, $pName) {
 		$lDomElement = $this->getChildNode($pNode, $pName);
 		if (!is_null($lDomElement)) {
-			$lTempDoc = new DOMDocument();
-			$lTempDoc->loadXML($this->extractNodeText($lDomElement));
+			if ($this->extractNodeText($lDomElement) === '') {
+				return;
+			}
+			$lTempDoc = new \DOMDocument();
+			$lTempDoc->loadXML('<temp>'.$this->extractNodeText($lDomElement).'</temp>');
+			
+			if ($lTempDoc->childNodes->length !== 1 || !($lTempDoc->childNodes->item(0) instanceof \DOMElement)) {
+				throw new \Exception('wrong xml, XMLInterfacer manage only xml with one and only one root node');
+			}
 			$lToRemove = [];
 			foreach ($lDomElement->childNodes as $lChild) {
 				$lToRemove[] = $lChild;
@@ -205,7 +238,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 			foreach ($lToRemove as $lChild) {
 				$lDomElement->removeChild($lChild);
 			}
-			foreach ($lTempDoc->childNodes as $lChild) {
+			foreach ($lTempDoc->childNodes->item(0)->childNodes as $lChild) {
 				$lNode = $this->mDomDocument->importNode($lChild, true);
 				$lDomElement->appendChild($lNode);
 			}

@@ -626,7 +626,7 @@ abstract class Model {
 			return null;
 		}
 		$lNode              = $pInterfacer->createNode($pNodeName);
-		$lPrivate           = $pInterfacer->interfacePrivateProperties();
+		$lPrivate           = $pInterfacer->isPrivateContext();
 		$lIsSerialContext   = $pInterfacer->isSerialContext();
 		$lOnlyUpdatedValues = $pIsFirstLevel && $pInterfacer->hasToExportOnlyUpdatedValues();
 		$lPropertiesFilter  = $pInterfacer->getPropertiesFilter($pObject->getModel()->getName());
@@ -779,7 +779,7 @@ abstract class Model {
 	 */
 	public function getIdFromInterfacedObject($pInterfacedObject, Interfacer $pInterfacer) {
 		$lIsSerialContext = $pInterfacer->isSerialContext();
-		$lPrivate = $pInterfacer->interfacePrivateProperties();
+		$lPrivate = $pInterfacer->isPrivateContext();
 		if (!is_null($this->mUniqueIdProperty)) {
 			if (!$this->mUniqueIdProperty->isInterfaceable($lPrivate, $lIsSerialContext)) {
 				return null;
@@ -836,10 +836,10 @@ abstract class Model {
 			$this->_unFlattenValues($pInterfacedObject, $pObject, $pInterfacer);
 		}
 		
-		$lPrivate           = $pInterfacer->interfacePrivateProperties();
+		$lPrivate           = $pInterfacer->isPrivateContext();
 		$lIsSerialContext   = $pInterfacer->isSerialContext();
 		$lFlagAsUpdated     = $pInterfacer->hasToFlagValuesAsUpdated();
-		$lProperties = $lModel->getSpecificProperties($lPrivate, $lIsSerialContext);
+		$lProperties        = $lModel->getSpecificProperties($lPrivate, $lIsSerialContext);
 		
 		foreach ($lProperties as $lPropertyName => $lProperty) {
 			if ($lProperty->isInterfaceable($lPrivate, $lIsSerialContext)) {

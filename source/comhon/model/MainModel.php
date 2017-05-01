@@ -494,10 +494,6 @@ class MainModel extends Model {
 		if (!$this->hasIdProperties()) {
 			throw new \Exception("model '$this->mModelName' must have at least one id property to load object");
 		}
-		if (!$this->hasUniqueIdProperty()) {
-			// we decode and encode id to be sure to have good type on each id-values,
-			$pId = $this->encodeId($this->decodeId($pId));
-		}
 		$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
 		
 		if (is_null($lMainObject)) {

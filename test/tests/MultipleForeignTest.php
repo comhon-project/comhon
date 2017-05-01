@@ -22,7 +22,7 @@ foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lIdPro
 	}
 }
 $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
-$lParentObject = $lDbTestModel->loadObject('[1,1501774389]');
+$lParentObject = $lDbTestModel->loadObject('[1,"1501774389"]');
 $lObject->setValue('parentTestDb', $lParentObject);
 
 /************************************************** export **********************************************/

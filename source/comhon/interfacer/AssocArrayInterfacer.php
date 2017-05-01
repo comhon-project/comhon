@@ -118,12 +118,35 @@ class AssocArrayInterfacer extends Interfacer {
 	}
     
 	/**
-	 * serialize given node
+	 * transform given node to string
 	 * @param array $pNode
 	 * @return string
 	 */
-	public function serialize($pNode) {
+	public function toString($pNode) {
 		return json_encode($pNode);
+	}
+	
+	/**
+	 * write file with given content
+	 * @param mixed $pNode
+	 * @param string $pPath
+	 * @return boolean
+	 */
+	public function write($pNode, $pPath) {
+		return file_put_contents($pPath, json_encode($pNode)) !== false;
+	}
+	
+	/**
+	 * read file and load node with file content
+	 * @param string $pPath
+	 * @return array|boolean return false on failure
+	 */
+	public function read($pPath) {
+		$lJson = file_get_contents($pPath);
+		if (!$lJson) {
+			return false;
+		}
+		return json_decode($lJson, true);
 	}
 	
 	/**
