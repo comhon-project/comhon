@@ -81,34 +81,6 @@ abstract class SimpleModel extends Model {
 		return $pValue;
 	}
 	
-	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		return $pValue;
-	}
-	
-	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
-		return $pValue;
-	}
-	
-	public function fromXmlAttribute($pValue) {
-		return $this->_fromXml($pValue);
-	}
-	
-	protected function _fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
-		return (string) $pValue;
-	}
-	
-	protected function _toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		return $pValue;
-	}
-	
-	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		return $pValue;
-	}
-	
-	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
-		return $pValue;
-	}
-
 	public function verifValue($pValue) {
 		throw new \Exception('should be overrided');
 	}

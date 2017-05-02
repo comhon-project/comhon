@@ -43,30 +43,6 @@ class ModelDateTime extends SimpleModel {
 		return $this->fromString($pValue, $pInterfacer->getDateTimeZone());
 	}
 	
-	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		return $this->toString($pValue, $pDateTimeZone);
-	}
-	
-	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
-		return $this->fromString($pValue, $pDateTimeZone);
-	}
-	
-	protected function _toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		return $this->toString($pValue, $pDateTimeZone);
-	}
-	
-	protected function _fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
-		return $this->fromString((string) $pValue,$pDateTimeZone);
-	}
-	
-	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		return $this->toString($pValue, $pDateTimeZone);
-	}
-	
-	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection = null) {
-		return $this->fromString($pValue, $pDateTimeZone);
-	}
-	
 	/**
 	 * 
 	 * @param string $pValue

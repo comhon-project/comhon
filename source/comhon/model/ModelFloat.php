@@ -28,14 +28,6 @@ class ModelFloat extends SimpleModel {
 		return $pValue;
 	}
 	
-	protected function _fromXml($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pFlagAsUpdated = true, $pLocalObjectCollection = null) {
-		return (float) $pValue;
-	}
-	
-	protected function _fromFlattenedValue($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pFlagAsUpdated = true, $pLocalObjectCollection = null) {
-		return (float) $pValue;
-	}
-	
 	public function  isCheckedValueType($pValue) {
 		return is_float($pValue) || is_integer($pValue);
 	}

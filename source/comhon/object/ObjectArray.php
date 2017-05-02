@@ -152,17 +152,4 @@ class ObjectArray extends Object {
 		return $this->isFlagedAsUpdated();
 	}
 	
-	public function fromSqlDatabaseId($pRows, $pTimeZone = null, $pUpdateLoadStatus = true) {
-		if (!($this->getModel()->getModel() instanceof MainModel)) {
-			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
-		}
-		$this->reset();
-		foreach ($pRows as $lRow) {
-			$this->pushValue($this->getModel()->getModel()->fromSqlDatabaseId($lRow), false);
-		}
-		if ($pUpdateLoadStatus) {
-			$this->setIsLoaded(true);
-		}
-	}
-	
 }

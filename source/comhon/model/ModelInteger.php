@@ -29,14 +29,6 @@ class ModelInteger extends SimpleModel {
 		return $pValue;
 	}
 	
-	protected function _fromXml($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pFlagAsUpdated = true, $pLocalObjectCollection = null) {
-		return (integer) $pValue;
-	}
-	
-	protected function _fromFlattenedValue($pValue, $pPrivate = false, $pUseSerializationName = false, $pDateTimeZone = null, $pFlagAsUpdated = true, $pLocalObjectCollection = null) {
-		return (integer) $pValue;
-	}
-	
 	public function  isCheckedValueType($pValue) {
 		return is_int($pValue);
 	}

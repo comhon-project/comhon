@@ -29,37 +29,6 @@ class LocalModel extends Model {
 	
 	/**
 	 * get or create an instance of Object
-	 * @param string|integer $pId
-	 * @param string $pInheritanceModelName
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param boolean $pIsloaded
-	 * @param boolean $pUpdateLoadStatus if true and object already exists update load status 
-	 * @return Object
-	 */
-	protected function _getOrCreateObjectInstance($pId, $pInheritanceModelName, $pLocalObjectCollection, $pIsloaded = true, $pUpdateLoadStatus = true, $pFlagAsUpdated = true) {
-		$lModel = is_null($pInheritanceModelName) ? $this : $this->_getIneritedModel($pInheritanceModelName);
-		
-		if (!$lModel->hasIdProperties()) {
-			$lObject = $lModel->getObjectInstance($pIsloaded);
-		}
-		else {
-			$lObject = $pLocalObjectCollection->getObject($pId, $lModel->mModelName);
-			if (is_null($lObject)) {
-				$lObject = $lModel->_buildObjectFromId($pId, $pIsloaded, $pFlagAsUpdated);
-				if (!is_null($pId)) {
-					$pLocalObjectCollection->addObject($lObject);
-				}
-			} else {
-				if ($pUpdateLoadStatus) {
-					$lObject->setIsLoaded(true);
-				}
-			}
-		}
-		return $lObject;
-	}
-	
-	/**
-	 * get or create an instance of Object
 	 * @param integer|string $pId
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
@@ -68,7 +37,7 @@ class LocalModel extends Model {
 	 * @return Object
 	 * @throws \Exception
 	 */
-	protected function _getOrCreateObjectInstanceGeneric($pId, Interfacer $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel, $pIsForeign = false) {
+	protected function _getOrCreateObjectInstance($pId, Interfacer $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel, $pIsForeign = false) {
 		$lIsloaded = !$pIsForeign && (!$pIsFirstLevel || $pInterfacer->hasToFlagObjectAsLoaded());
 		
 		if (is_null($pId) || !$this->hasIdProperties()) {

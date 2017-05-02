@@ -60,54 +60,6 @@ class ModelEnum extends ModelContainer {
 		return $lValue;
 	}
 	
-	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		$lReturn = $this->mModel->_toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
-		if (!in_array($lReturn, $this->mEnum)) {
-			$lReturn = null;
-		}
-		return $lReturn;
-	}
-	
-	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
-		$lReturn = $this->mModel->_fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection);
-		if (!in_array($lReturn, $this->mEnum)) {
-			$lReturn = null;
-		}
-		return $lReturn;
-	}
-	
-	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		$lReturn = $this->mModel->_toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
-		if (!in_array($lReturn, $this->mEnum)) {
-			$lReturn = null;
-		}
-		return $lReturn;
-	}
-	
-	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
-		$lReturn = $this->mModel->_fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection);
-		if (!in_array($lReturn, $this->mEnum)) {
-			$lReturn = null;
-		}
-		return $lReturn;
-	}
-	
-	protected function _toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		$lReturn = $this->mModel->_toXml($pValue, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, $pMainForeignObjects);
-		if (!in_array($lReturn, $this->mEnum)) {
-			$lReturn = null;
-		}
-		return $lReturn;
-	}
-	
-	protected function _fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
-		$lReturn = $this->mModel->_fromXml($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection);
-		if (!in_array($lReturn, $this->mEnum)) {
-			$lReturn = null;
-		}
-		return $lReturn;
-	}
-	
 	public function verifValue($pValue) {
 		$this->mModel->verifValue($pValue);
 		if (!in_array($pValue, $this->mEnum)) {

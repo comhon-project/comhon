@@ -135,36 +135,4 @@ abstract class ModelContainer extends Model {
 		throw new \Exception('must be overrided');
 	}
 	
-	protected function _toStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		throw new \Exception('must be overrided');
-	}
-	
-	protected function _toXml($pObject, $pXmlNode, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		throw new \Exception('must be overrided');
-	}
-	
-	protected function _toFlattenedArray($pObject, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		throw new \Exception('must be overrided');
-	}
-	
-	protected function _toFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pUpdatedValueOnly, $pOriginalUpdatedValueOnly, &$pMainForeignObjects = null) {
-		throw new \Exception('must be overrided');
-	}
-	
-	protected function _fromStdObject($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection)  {
-		throw new \Exception('must be overrided');
-	}
-	
-	protected function _fromXml($pXml, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
-		throw new \Exception('must be overrided');
-	}
-	
-	protected function _fromFlattenedArray($pRow, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
-		throw new \Exception('must be overrided');
-	}
-	
-	protected function _fromFlattenedValue($pValue, $pPrivate, $pUseSerializationName, $pDateTimeZone, $pFlagAsUpdated, $pLocalObjectCollection) {
-		throw new \Exception('must be overrided');
-	}
-	
 }
