@@ -6,6 +6,7 @@ use comhon\model\Model;
 use comhon\model\MainModel;
 use comhon\model\ModelForeign;
 use comhon\object\ComhonDateTime;
+use comhon\interfacer\StdObjectInterfacer;
 
 $time_start = microtime(true);
 
@@ -149,12 +150,16 @@ if ($lTestDbModel->getProperty('notSerializedForeignObject')->isSerializable()) 
 }
 
 /** ****************************** test serialization before load ****************************** **/
-if (json_encode($lTestDbModel->getSerialization()->getSettings()->toPrivateStdObject()) !== '{"name":"test","database":"1"}') {
+
+$lStdPrivateInterfacer = new StdObjectInterfacer();
+$lStdPrivateInterfacer->setPrivateContext(true);
+
+if (json_encode($lTestDbModel->getSerialization()->getSettings()->export($lStdPrivateInterfacer)) !== '{"name":"test","database":"1"}') {
 	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");
 }
 
-if (json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->toPrivateStdObject()) !== '{"id":"1"}') {
-	throw new Exception("model {$lTestDbModel->getName()} hasn't good values : ".json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->toPrivateStdObject()));
+if (json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->export($lStdPrivateInterfacer)) !== '{"id":"1"}') {
+	throw new Exception("model {$lTestDbModel->getName()} hasn't good values : ".json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->export($lStdPrivateInterfacer)));
 }
 if ($lTestDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
 	throw new Exception('object must be not loaded');
@@ -164,10 +169,10 @@ if ($lTestDbModel->getSerialization()->getSettings()->getValue('database')->isLo
 $lTestDbModel->getSerialization()->getSettings()->loadValue('database');
 
 /** ****************************** test serialization after load ****************************** **/
-if (json_encode($lTestDbModel->getSerialization()->getSettings()->toPrivateStdObject()) !== '{"name":"test","database":"1"}') {
+if (json_encode($lTestDbModel->getSerialization()->getSettings()->export($lStdPrivateInterfacer)) !== '{"name":"test","database":"1"}') {
 	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");
 }
-$lObjDb = $lTestDbModel->getSerialization()->getSettings()->getValue('database')->toPrivateStdObject();
+$lObjDb = $lTestDbModel->getSerialization()->getSettings()->getValue('database')->export($lStdPrivateInterfacer);
 unset($lObjDb->password);
 if (json_encode($lObjDb) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}') {
 	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");

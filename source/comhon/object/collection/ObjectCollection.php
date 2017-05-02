@@ -3,6 +3,7 @@ namespace comhon\object\collection;
 
 use comhon\object\Object;
 use comhon\model\Model;
+use comhon\interfacer\StdObjectInterfacer;
 
 class ObjectCollection {
 	
@@ -81,18 +82,20 @@ class ObjectCollection {
 		return false;
 	}
 	
-	public function toStdObject($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null, $pUpdatedValueOnly = false) {
+	public function toStdObject() {
 		$lArray = [];
+		$lInterfacer = new StdObjectInterfacer();
+		$lInterfacer->setPrivateContext(true);
 		foreach ($this->mMap as $lModelName => $lObjectById) {
 			$lArray[$lModelName] = [];
 			foreach ($lObjectById as $lId => $lObject) {
-				$lArray[$lModelName][$lId] = $lObject->toStdObject($pPrivate, $pUseSerializationName, $pTimeZone, $pUpdatedValueOnly);
+				$lArray[$lModelName][$lId] = $lObject->export($lInterfacer);
 			}
 		}
 		return $lArray;
 	}
 	
-	public function toString($pPrivate = false, $pUseSerializationName = false, $pTimeZone = null) {
-		return json_encode($this->toStdObject($pPrivate, $pUseSerializationName, $pTimeZone));
+	public function toString() {
+		return json_encode($this->toStdObject());
 	}
 }

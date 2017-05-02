@@ -183,6 +183,7 @@ class ModelArray extends ModelContainer {
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
 	 * @throws \Exception
+	 * @return ObjectArray
 	 */
 	public function import($pInterfacedObject, Interfacer $pInterfacer) {
 		$this->load();

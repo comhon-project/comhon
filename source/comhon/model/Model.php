@@ -668,7 +668,7 @@ abstract class Model {
 							$lIdValue = $pObject->getValue($lPropertyName)->getValue($lIdProperty->getName());
 							$lIdValue = $lIdProperty->getModel()->_export($lIdValue, $lSerializationName, $pInterfacer, false);
 							
-							$pInterfacer->setValue($lNode, $lIdValue, $lSerializationName, $lProperty->isInterfacedAsNodeXml());
+							$pInterfacer->setValue($lNode, $lIdValue, $lSerializationName);
 						}
 					}
 				}
@@ -750,6 +750,7 @@ abstract class Model {
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
 	 * @throws \Exception
+	 * @return Object
 	 */
 	public function import($pInterfacedObject, Interfacer $pInterfacer) {
 		throw new \Exception('can\'t apply function import(). Only callable for MainModel');
@@ -858,8 +859,12 @@ abstract class Model {
 			foreach ($lModel->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
 				$lId = [];
 				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-					if (isset($pStdObject->$lSerializationName)) {
-						$lId[] = $pStdObject->$lSerializationName;
+					if ($pInterfacer->hasValue($pInterfacedObject, $lSerializationName)) {
+						$lIdPart = $pInterfacer->getValue($pInterfacedObject, $lSerializationName);
+						if ($pInterfacer instanceof NoScalarTypedInterfacer) {
+							$lIdPart = $lIdProperty->getModel()->importSimple($lIdPart, $pInterfacer);
+						}
+						$lId[] = $lIdPart;
 					}
 				}
 				if (count($lId) == count($lMultipleForeignProperty->getMultipleIdProperties())) {

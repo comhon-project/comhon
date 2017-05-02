@@ -78,6 +78,7 @@ class MainModel extends Model {
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
 	 * @throws \Exception
+	 * @return Object
 	 */
 	public function import($pInterfacedObject, Interfacer $pInterfacer) {
 		$this->load();

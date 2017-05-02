@@ -390,7 +390,7 @@ $lXmlSerialUpdatedInterfacer->setExportMainForeignObjects(true);
 if (!compareXML($lXmlSerialUpdatedInterfacer->toString($lObject->export($lXmlSerialUpdatedInterfacer)), $lSerialXml)) {
 	throw new Exception('bad object Values');
 }
-if (!compareXML($lXmlSerialUpdatedInterfacer->toString($lXmlSerialUpdatedInterfacer->getMainForeignObjects()), '<objects><testDb><testDb id_1="1" id_2="23" integer="1"/><testDb id_1="1" id_2="50"/><testDb id_1="1" id_2="101"/><testDb id_1="2" id_2="50"/><testDb id_1="2" id_2="102"/></testDb><childTestDb><childTestDb id="1" name="test_name"><parent_id_1>1</parent_id_1></childTestDb><childTestDb id="2"><parent_id_1>1</parent_id_1></childTestDb></childTestDb><mainTestDb><mainTestDb id="1"/></mainTestDb></objects>')) {
+if (!compareXML($lXmlSerialUpdatedInterfacer->toString($lXmlSerialUpdatedInterfacer->getMainForeignObjects()), '<objects><testDb><testDb id_1="1" id_2="23" integer="1"/><testDb id_1="1" id_2="50"/><testDb id_1="1" id_2="101"/><testDb id_1="2" id_2="50"/><testDb id_1="2" id_2="102"/></testDb><childTestDb><childTestDb id="1" name="test_name" parent_id_1="1"/><childTestDb id="2" parent_id_1="1"/></childTestDb><mainTestDb><mainTestDb id="1"/></mainTestDb></objects>')) {
 	throw new Exception('bad foreign objects Values');
 }
 

@@ -4,8 +4,34 @@ use comhon\model\singleton\ModelManager;
 use comhon\object\Object;
 use comhon\model\property\MultipleForeignProperty;
 use comhon\database\DatabaseController;
+use comhon\interfacer\StdObjectInterfacer;
+use comhon\interfacer\XMLInterfacer;
+use comhon\interfacer\AssocArrayInterfacer;
 
 $time_start = microtime(true);
+
+$lStdPrivateInterfacer = new StdObjectInterfacer();
+$lStdPrivateInterfacer->setPrivateContext(true);
+
+$lStdSerialInterfacer = new StdObjectInterfacer();
+$lStdSerialInterfacer->setPrivateContext(true);
+$lStdSerialInterfacer->setSerialContext(true);
+
+$lXmlPrivateInterfacer = new XMLInterfacer();
+$lXmlPrivateInterfacer->setPrivateContext(true);
+
+$lXmlSerialInterfacer = new XMLInterfacer();
+$lXmlSerialInterfacer->setPrivateContext(true);
+$lXmlSerialInterfacer->setSerialContext(true);
+
+$lFlattenArrayPrivateInterfacer = new AssocArrayInterfacer();
+$lFlattenArrayPrivateInterfacer->setPrivateContext(true);
+$lFlattenArrayPrivateInterfacer->setFlattenValues(true);
+
+$lFlattenArraySerialInterfacer = new AssocArrayInterfacer();
+$lFlattenArraySerialInterfacer->setPrivateContext(true);
+$lFlattenArraySerialInterfacer->setFlattenValues(true);
+$lFlattenArraySerialInterfacer->setSerialContext(true);
 
 $lChildDbTestModel = ModelManager::getInstance()->getInstanceModel('childTestDb');
 $lObject = $lChildDbTestModel->getObjectInstance();
@@ -27,50 +53,44 @@ $lObject->setValue('parentTestDb', $lParentObject);
 
 /************************************************** export **********************************************/
 
-if (json_encode($lObject->toPrivateStdObject()) !== '{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"}') {
+if (json_encode($lObject->export($lStdPrivateInterfacer)) !== '{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"}') {
 	throw new Exception('bad object value');
 }
-if (trim(str_replace("<?xml version=\"1.0\"?>", '', $lObject->toPrivateXml()->asXML())) !== '<childTestDb id="1" name="plop"><parentTestDb>[1,"1501774389"]</parentTestDb></childTestDb>') {
-	trigger_error($lObject->toPrivateXml()->asXML());
+if (!compareXML($lXmlPrivateInterfacer->toString($lObject->export($lXmlPrivateInterfacer)), '<childTestDb id="1" name="plop"><parentTestDb>[1,"1501774389"]</parentTestDb></childTestDb>')) {
 	throw new Exception('bad object value');
 }
-if (json_encode($lObject->toPrivateFlattenedArray()) !== '{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"}') {
+if (json_encode($lObject->export($lFlattenArrayPrivateInterfacer)) !== '{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"}') {
 	throw new Exception('bad object value');
 }
 
-if (json_encode($lObject->toSerialStdObject()) !== '{"id":1,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
-	var_dump(json_encode($lObject->toSerialStdObject()));
+if (json_encode($lObject->export($lStdSerialInterfacer)) !== '{"id":1,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
 	throw new Exception('bad object value');
 }
-if (trim(str_replace("<?xml version=\"1.0\"?>", '', $lObject->toSerialXml()->asXML())) !== '<childTestDb id="1" name="plop" parent_id_1="1" parent_id_2="1501774389"/>') {
-	trigger_error($lObject->toSerialXml()->asXML());
+if (!compareXML($lXmlSerialInterfacer->toString($lObject->export($lXmlSerialInterfacer)), '<childTestDb id="1" name="plop" parent_id_1="1" parent_id_2="1501774389"/>')) {
 	throw new Exception('bad object value');
 }
-if (json_encode($lObject->toSqlDatabase()) !== '{"id":1,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
+if (json_encode($lObject->export($lFlattenArraySerialInterfacer)) !== '{"id":1,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
 	throw new Exception('bad object value');
 }
 
 /************************************************** import **********************************************/
 
-$lObject = $lChildDbTestModel->fromSerializedStdObject(json_decode('{"id":2,"name":"plop","parent_id_2":"1501774389","parent_id_1":1}'));
-if (json_encode($lObject->toSerialStdObject()) !== '{"id":2,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
-	var_dump(json_encode($lObject->toSerialStdObject()));
+$lObject = $lChildDbTestModel->import(json_decode('{"id":2,"name":"plop","parent_id_2":"1501774389","parent_id_1":1}'), $lStdSerialInterfacer);
+if (!compareJson(json_encode($lObject->export($lStdSerialInterfacer)), '{"id":2,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}')) {
 	throw new Exception('bad object value');
 }
 if ($lObject->getValue('parentTestDb') !== $lParentObject) {
 	throw new Exception('bad foreign object instance');
 }
-$lObject = $lChildDbTestModel->fromSerializedXml(simplexml_load_string('<childTestDb id="3" name="plop" parent_id_2="1501774389" parent_id_1="1"/>'));
-if (trim(str_replace("<?xml version=\"1.0\"?>", '', $lObject->toSerialXml()->asXML())) !== '<childTestDb id="3" name="plop" parent_id_1="1" parent_id_2="1501774389"/>') {
-	trigger_error($lObject->toSerialXml()->asXML());
+$lObject = $lChildDbTestModel->import(simplexml_load_string('<childTestDb id="3" name="plop" parent_id_2="1501774389" parent_id_1="1"/>'), $lXmlSerialInterfacer);
+if (!compareXML($lXmlSerialInterfacer->toString($lObject->export($lXmlSerialInterfacer)), '<childTestDb id="3" name="plop" parent_id_1="1" parent_id_2="1501774389"/>')) {
 	throw new Exception('bad object value');
 }
 if ($lObject->getValue('parentTestDb') !== $lParentObject) {
 	throw new Exception('bad foreign object instance');
 }
-$lObject = $lChildDbTestModel->fromSqlDatabase(json_decode('{"id":4,"name":"plop","parent_id_2":"1501774389","parent_id_1":1}', true));
-if (json_encode($lObject->toSerialStdObject()) !== '{"id":4,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
-	var_dump(json_encode($lObject->toSqlDatabase()));
+$lObject = $lChildDbTestModel->import(json_decode('{"id":4,"name":"plop","parent_id_2":"1501774389","parent_id_1":1}', true), $lFlattenArraySerialInterfacer);
+if (json_encode($lObject->export($lFlattenArraySerialInterfacer)) !== '{"id":4,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
 	throw new Exception('bad object value');
 }
 if ($lObject->getValue('parentTestDb') !== $lParentObject) {
@@ -82,8 +102,7 @@ if ($lObject->getValue('parentTestDb') !== $lParentObject) {
 $lParentObject->initValue('childrenTestDb', false, false);
 $lParentObject->loadValue('childrenTestDb');
 
-if (json_encode($lParentObject->getValue('childrenTestDb')->toPrivateStdObject()) !== '[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]') {
-	var_dump(json_encode($lParentObject->getValue('childrenTestDb')->toPrivateStdObject()));
+if (json_encode($lParentObject->getValue('childrenTestDb')->export($lStdPrivateInterfacer)) !== '[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]') {
 	throw new Exception('bad foreign object instance');
 }
 
