@@ -526,16 +526,23 @@ MainObjectCollection::getInstance()->removeObject($lMainTestDb);
 $lStdPrivateInterfacer->setMergeType(Interfacer::MERGE);
 $lArray->fillObject($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 
-if ($lMainTestDb !== $lArray->getValue(0)) {
+if ($lMainTestDb !== $lArray->getValue(0) || $lMainTestDb2 !== $lArray->getValue(1)) {
 	throw new \Exception('bad object instance');
 }
 
+// add new instance but with existing id (8541) in MainObjectCollection
 MainObjectCollection::getInstance()->removeObject($lMainTestDb2);
+$lMainTestDb3 = $lMainTestModel->getObjectInstance();
+$lMainTestDb3->setId(8541);
+if (MainObjectCollection::getInstance()->getObject(8541, 'mainTestDb') !== $lMainTestDb3) {
+	throw new \Exception('bad object instance');
+}
+
 MainObjectCollection::getInstance()->removeObject($lMainTestDb);
 $lStdPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
 $lArray->fillObject($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 
-if ($lMainTestDb !== $lArray->getValue(0)) {
+if ($lMainTestDb !== $lArray->getValue(0) || $lMainTestDb2 !== $lArray->getValue(1)) {
 	throw new \Exception('bad object instance');
 }
 
@@ -544,7 +551,7 @@ MainObjectCollection::getInstance()->removeObject($lMainTestDb);
 $lStdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
 $lArray->fillObject($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 
-if ($lMainTestDb === $lArray->getValue(0)) {
+if ($lMainTestDb === $lArray->getValue(0) || $lMainTestDb2 === $lArray->getValue(1)) {
 	throw new \Exception('bad object instance');
 }
 

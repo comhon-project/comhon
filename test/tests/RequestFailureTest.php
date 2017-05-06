@@ -100,4 +100,4 @@ if (!is_object($lResult) || !isset($lResult->success) || $lResult->success
 }
 
 $time_end = microtime(true);
-var_dump('request test exec time '.($time_end - $time_start));
+var_dump('request failure test exec time '.($time_end - $time_start));
