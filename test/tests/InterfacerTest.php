@@ -37,6 +37,18 @@ if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"v
 	throw new Exception('bad value');
 }
 
+$lInterfacer->unflattenNode($lNode, 'array');
+if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":["value1","value2",{"object_element_prop":123,"object_element_node":123}]}') {
+	var_dump($lInterfacer->toString($lNode));
+	throw new Exception('bad value');
+}
+
+$lInterfacer->flattenNode($lNode, 'array');
+if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
+	var_dump($lInterfacer->toString($lNode));
+	throw new Exception('bad value');
+}
+
 /** ************************* XML **************************** **/
 
 $lInterfacer = new XMLInterfacer();
@@ -59,8 +71,17 @@ $lInterfacer->addValue($lNodeArray, $lCreatedNode);
 $lInterfacer->setValue($lNode, $lNodeArray, 'array');
 $lInterfacer->flattenNode($lNode, 'array');
 
-if (trim(str_replace('<?xml version="1.0"?>', '', $lInterfacer->toString($lNode)))!== '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>') {
-	var_dump(trim(str_replace('<?xml version="1.0"?>', '', $lInterfacer->toString($lNode))));
+if (!compareXML($lInterfacer->toString($lNode), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>')) {
+	throw new Exception('bad value');
+}
+
+$lInterfacer->unflattenNode($lNode, 'array');
+if (!compareXML($lInterfacer->toString($lNode), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array><element>value1</element><element>value2</element><element object_element_prop="123"><object_element_node>123</object_element_node></element></array></root>')) {
+	throw new Exception('bad value');
+}
+
+$lInterfacer->flattenNode($lNode, 'array');
+if (!compareXML($lInterfacer->toString($lNode), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>')) {
 	throw new Exception('bad value');
 }
 
@@ -91,10 +112,22 @@ if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"v
 	throw new Exception('bad value');
 }
 
+$lInterfacer->unflattenNode($lNode, 'array');
+if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":["value1","value2",{"object_element_prop":123,"object_element_node":123}]}') {
+	var_dump($lInterfacer->toString($lNode));
+	throw new Exception('bad value');
+}
+
+$lInterfacer->flattenNode($lNode, 'array');
+if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
+	var_dump($lInterfacer->toString($lNode));
+	throw new Exception('bad value');
+}
+
 /** ************************* preferences **************************** **/
 
 $lPreferences = [
-	Interfacer::PRIVATE_CONTEXT                => true,
+	Interfacer::PRIVATE_CONTEXT        => true,
 	Interfacer::SERIAL_CONTEXT         => true,
 	Interfacer::DATE_TIME_ZONE         => 'Pacific/Tahiti',
 	Interfacer::DATE_TIME_FORMAT       => 'Y-m-d H:i:s',
@@ -102,7 +135,8 @@ $lPreferences = [
 	Interfacer::PROPERTIES_FILTERS     => ['person' => ['haha', 'hoho'], 'place' => ['plop1', 'plop2']],
 	Interfacer::FLATTEN_VALUES         => true,
 	Interfacer::MAIN_FOREIGN_OBJECTS   => true,
-	Interfacer::FLAG_VALUES_AS_UPDATED => true,
+	Interfacer::FLAG_VALUES_AS_UPDATED => false,
+	Interfacer::FLAG_OBJECT_AS_LOADED  => false,
 	Interfacer::MERGE_TYPE             => Interfacer::NO_MERGE
 ];
 
@@ -139,30 +173,15 @@ $lInterfacer->addMainForeignObject(['plop' => 'plop'], 12, ModelManager::getInst
 if (json_encode($lInterfacer->getMainForeignObjects()) !== '{"person":{"12":{"plop":"plop"}}}') {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->hasToFlagValuesAsUpdated() !== true) {
+if ($lInterfacer->hasToFlagValuesAsUpdated() !== false) {
+	throw new Exception('bad value');
+}
+if ($lInterfacer->hasToFlagObjectAsLoaded() !== false) {
 	throw new Exception('bad value');
 }
 if ($lInterfacer->getMergeType() !== Interfacer::NO_MERGE) {
 	throw new Exception('bad value');
 }
-
-/** ************************* export stdClass **************************** **/
-$lPreferences[Interfacer::FLATTEN_VALUES] = true;
-$lPreferences[Interfacer::ONLY_UPDATED_VALUES] = false;
-$lPreferences[Interfacer::SERIAL_CONTEXT] = false;
-$lPreferences[Interfacer::MAIN_FOREIGN_OBJECTS] = true;
-$lPreferences[Interfacer::MERGE_TYPE] = Interfacer::NO_MERGE;
-$lPreferences[Interfacer::PROPERTIES_FILTERS] = ['place' => ['firstName', 'birthPlace'], 'womanBody' => ['date', 'tatoos']];
-
-$lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
-$lObject = $lDbTestModel->loadObject('[1,"1501774389"]');
-$lInterfacer = new XMLInterfacer();
-$lNode = $lInterfacer->export($lObject, $lPreferences);
-$lObject2 = $lInterfacer->import($lNode, $lDbTestModel, $lPreferences);
-$lNode2 = $lInterfacer->export($lObject2, $lPreferences);
-
-$lDbTestModel->fillObject($lObject, $lNode2, $lInterfacer);
-
 
 $time_end = microtime(true);
 var_dump('interfacer test exec time '.($time_end - $time_start));

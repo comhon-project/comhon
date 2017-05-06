@@ -402,7 +402,7 @@ abstract class Object {
 	
 	/***********************************************************************************************\
 	|                                                                                               |
-	|                                      Model - Proeprties                                       |
+	|                                      Model - Properties                                       |
 	|                                                                                               |
 	\***********************************************************************************************/
 	
@@ -418,24 +418,31 @@ abstract class Object {
 		if ($this instanceof ObjectArray) {
 			throw new \Exception('object array cannot be casted');
 		}
+		if ($this->mModel === $pModel) {
+			return;
+		}
 		if (!$pModel->isInheritedFrom($this->mModel)) {
 			throw new CastException($pModel, $this->mModel);
 		}
-		$lhasCompleteId = $this->hasCompleteId();
-		if ($lhasCompleteId) {
-			if (MainObjectCollection::getInstance()->hasObject($this->getId(), $pModel->getName(), false)) {
-				throw new \Exception("Cannot cast object to '{$pModel->getName()}'. Object with id '{$this->getId()}' and model '{$pModel->getName()}' already exists in MainModelCollection");
+		$lAddObject = false;
+		if ($this->hasCompleteId() && $this->getModel()->hasIdProperties()) {
+			$lObject = MainObjectCollection::getInstance()->getObject($this->getId(), $pModel->getName());
+			if ($lObject === $this) {
+				$lAddObject = true;
+				if (MainObjectCollection::getInstance()->hasObject($this->getId(), $pModel->getName(), false)) {
+					throw new \Exception("Cannot cast object to '{$pModel->getName()}'. Object with id '{$this->getId()}' and model '{$pModel->getName()}' already exists in MainModelCollection");
+				}
 			}
 		}
 		$this->mModel = $pModel;
 		$this->mIsCasted = true;
-		if($this->mModel instanceof MainModel) {
+		if ($this->mModel instanceof MainModel) {
 			foreach ($this->mModel->getAggregations() as $lProperty) {
 				if (!array_key_exists($lProperty->getName(), $this->mValues)) {
 					$this->initValue($lProperty->getName(), false, false);
 				}
 			}
-			if ($lhasCompleteId) {
+			if ($lAddObject) {
 				MainObjectCollection::getInstance()->addObject($this);
 			}
 		}

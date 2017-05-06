@@ -172,9 +172,9 @@ $lTestDbModel->getSerialization()->getSettings()->loadValue('database');
 if (json_encode($lTestDbModel->getSerialization()->getSettings()->export($lStdPrivateInterfacer)) !== '{"name":"test","database":"1"}') {
 	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");
 }
-$lObjDb = $lTestDbModel->getSerialization()->getSettings()->getValue('database')->export($lStdPrivateInterfacer);
-unset($lObjDb->password);
-if (json_encode($lObjDb) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}') {
+$lStdPublicInterfacer = new StdObjectInterfacer();
+$lObjDb = $lTestDbModel->getSerialization()->getSettings()->getValue('database')->export($lStdPublicInterfacer);
+if (!compareJson(json_encode($lObjDb), '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}')) {
 	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");
 }
 if (!$lTestDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {

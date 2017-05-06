@@ -14,6 +14,7 @@ use comhon\object\Object;
 use comhon\object\config\Config;
 use comhon\interfacer\AssocArrayInterfacer;
 use comhon\model\ModelBoolean;
+use comhon\interfacer\Interfacer;
 
 class SqlTable extends SerializationUnit {
 	
@@ -424,6 +425,19 @@ class SqlTable extends SerializationUnit {
 			foreach ($pPropertiesFilter as $lPropertyName) {
 				$lSelectColumns[] = $lModel->getProperty($lPropertyName, true)->getSerializationName();
 			}
+			if (!empty($lSelectColumns)) {
+				foreach ($pAggregationProperties as $lAggregationProperty) {
+					$lProperty = $lModel->getProperty($lAggregationProperty, true);
+					if ($lProperty->hasMultipleSerializationNames()) {
+						foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lMultipleForeignProperty) {
+							$lSelectColumns[] = $lSerializationName;
+						}
+					} else {
+						$lSelectColumns[] = $lProperty->getSerializationName();
+					}
+				}
+				array_unique($lSelectColumns);
+			}
 		}
 		return $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lDisjunction, false);
 	}
@@ -438,10 +452,20 @@ class SqlTable extends SerializationUnit {
 			throw new \Exception('error : property is not serialized in database aggregation');
 		}
 		if (empty($lIdProperties)) {
-			trigger_error("Warning! model '{$lModel->getName()}' doesn't have property id. All model is loaded");
+			throw new \Exception("cannot load aggregation ids, model '{$lModel->getName()}' doesn't have property id");
 		}
 		foreach ($lIdProperties as $lProperty) {
 			$lSelectColumns[] = $lProperty->getSerializationName();
+		}
+		foreach ($pAggregationProperties as $lAggregationProperty) {
+			$lProperty = $lModel->getProperty($lAggregationProperty, true);
+			if ($lProperty->hasMultipleSerializationNames()) {
+				foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lMultipleForeignProperty) {
+					$lSelectColumns[] = $lSerializationName;
+				}
+			} else {
+				$lSelectColumns[] = $lProperty->getSerializationName();
+			}
 		}
 		return $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lDisjunction, true);
 	}
@@ -487,7 +511,7 @@ class SqlTable extends SerializationUnit {
 					$lExtendsModel = $pObject->getModel()->getUniqueModel();
 					foreach ($lRows as &$lRow) {
 						$lModel = $this->getInheritedModel($lRow, $lExtendsModel);
-						$lRow[Model::INHERITANCE_KEY] = $lModel->getName();
+						$lRow[Interfacer::INHERITANCE_KEY] = $lModel->getName();
 					}
 				} else {
 					$lModel = $this->getInheritedModel($lRows[0], $pObject->getModel());
@@ -517,7 +541,7 @@ class SqlTable extends SerializationUnit {
 				}
 				$lDisjunction->addLogicalJunction($lConjunction);
 			} else {
-				$lDisjunction->addLiteral(new Literal($this->mSettings->getValue('name'), $pModel->getProperty($lAggregationProperty, true)->getSerializationName(), '=', $pParentId));
+				$lDisjunction->addLiteral(new Literal($this->mSettings->getValue('name'), $lProperty->getSerializationName(), '=', $pParentId));
 			}
 		}
 		return $lDisjunction;

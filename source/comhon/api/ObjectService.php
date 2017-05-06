@@ -5,6 +5,7 @@ use comhon\request\ComplexLoadRequest;
 use comhon\request\SimpleLoadRequest;
 use comhon\interfacer\StdObjectInterfacer;
 use comhon\interfacer\Interfacer;
+use comhon\model\singleton\ModelManager;
 
 class ObjectService {
 	
@@ -14,9 +15,10 @@ class ObjectService {
 				throw new \Exception('request doesn\'t have id');
 			}
 			$lObject = SimpleLoadRequest::buildObjectLoadRequest($pParams, $pPrivate)->execute();
+			$lModel  = ModelManager::getInstance()->getInstanceModel($pParams->model);
 			$lInterfacer = new StdObjectInterfacer();
-			$lModelFilter = [$lObject->getModel()->getName() => self::_getFilterProperties($pParams, $lObject)];
-			return self::_setSuccessReturn($lInterfacer->export($lObject, [Interfacer::PROPERTIES_FILTERS => $lModelFilter]));
+			$lInterfacer->setPropertiesFilter(self::_getFilterProperties($pParams, $lObject), $lObject->getModel()->getName());
+			return self::_setSuccessReturn($lModel->export($lObject, $lInterfacer));
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}

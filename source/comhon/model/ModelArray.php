@@ -6,6 +6,7 @@ use comhon\model\MainModel;
 use comhon\object\Object;
 use comhon\interfacer\Interfacer;
 use comhon\object\collection\ObjectCollection;
+use comhon\visitor\ObjectCollectionCreator;
 
 class ModelArray extends ModelContainer {
 	
@@ -202,9 +203,15 @@ class ModelArray extends ModelContainer {
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
+		$lLocalObjectCollection = new ObjectCollection();
+		if ($pInterfacer->getMergeType() !== Interfacer::NO_MERGE) {
+			foreach ($pObjectArray->getValues() as $lValue) {
+				$lLocalObjectCollection->addObject($lValue);
+			}
+		}
 		$pObjectArray->reset();
 		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
-			$pObjectArray->pushValue($this->getModel()->import($lElement, $pInterfacer), $pInterfacer->hasToFlagValuesAsUpdated());
+			$pObjectArray->pushValue($this->getModel()->_importMain($lElement, $pInterfacer, $lLocalObjectCollection), $pInterfacer->hasToFlagValuesAsUpdated());
 		}
 		$pObjectArray->setIsLoaded(true);
 	}

@@ -16,12 +16,6 @@ use comhon\interfacer\NoScalarTypedInterfacer;
 
 abstract class Model {
 
-	const MERGE     = 1;
-	const OVERWRITE = 2;
-	const NO_MERGE  = 3;
-	
-	const INHERITANCE_KEY = '__inheritance__';
-	
 	/**
 	 * array used to avoid infinite loop when objects are visited
 	 * @var integer[]
@@ -80,8 +74,8 @@ abstract class Model {
 	private $mHasPrivateIdProperty;
 	
 	/**
-	 * don't instanciate a model by yourself because it take time
-	 * to get a model instance use singleton ModelManager
+	 * don't instanciate a model by yourself because it take time.
+	 * to get a model instance use singleton ModelManager.
 	 */
 	public function __construct($pModelName, $pLoadModel) {
 		$this->mModelName = $pModelName;
@@ -467,16 +461,6 @@ abstract class Model {
 	}
 	
 	/**
-	 *
-	 * @param Object $pObject
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @return ObjectCollection
-	 */
-	protected function _getLocalObjectCollection($pObject, $pLocalObjectCollection) {
-		return $pLocalObjectCollection;
-	}
-	
-	/**
 	 * 
 	 * @param Object $pObject
 	 * @param Interfacer $pInterfacer
@@ -582,7 +566,7 @@ abstract class Model {
 			if (!$pObject->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
 			}
-			$pInterfacer->setValue($lNode, $pObject->getModel()->getName(), self::INHERITANCE_KEY);
+			$pInterfacer->setValue($lNode, $pObject->getModel()->getName(), Interfacer::INHERITANCE_KEY);
 		}
 		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
 		return $lNode;
@@ -656,6 +640,18 @@ abstract class Model {
 	}
 	
 	/**
+	 *
+	 * @param mixed $pInterfacedObject
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @throws \Exception
+	 * @return Object
+	 */
+	protected function _importMain($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection) {
+		throw new \Exception('can\'t apply function _importFromObjectArray(). Only callable for MainModel');
+	}
+	
+	/**
 	 * 
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
@@ -664,7 +660,7 @@ abstract class Model {
 	 * @return Object
 	 */
 	protected function _getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
-		$lInheritance = $pInterfacer->getValue($pInterfacedObject, self::INHERITANCE_KEY);
+		$lInheritance = $pInterfacer->getValue($pInterfacedObject, Interfacer::INHERITANCE_KEY);
 		$lModel = is_null($lInheritance) ? $this : $this->_getIneritedModel($lInheritance);
 		$lId = $lModel->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer);
 		
@@ -686,14 +682,14 @@ abstract class Model {
 			}
 			$lPropertyName = $lIsSerialContext ? $this->mUniqueIdProperty->getSerializationName() : $this->mUniqueIdProperty->getName();
 			$lId = $pInterfacer->getValue($pInterfacedObject, $lPropertyName, $this->mUniqueIdProperty->isInterfacedAsNodeXml());
-			return $this->mUniqueIdProperty->getModel()->_import($lId, $pInterfacer, null);
+			return $this->mUniqueIdProperty->getModel()->importSimple($lId, $pInterfacer);
 		}
 		$lIdValues = [];
 		foreach ($this->getIdProperties() as $lIdProperty) {
 			if ($lIdProperty->isInterfaceable($lPrivate, $lIsSerialContext)) {
 				$lPropertyName = $lIsSerialContext ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
 				$lIdValue = $pInterfacer->getValue($pInterfacedObject, $lPropertyName, $lIdProperty->isInterfacedAsNodeXml());
-				$lIdValues[] = $lIdProperty->getModel()->_import($lIdValue, $pInterfacer, null);
+				$lIdValues[] = $lIdProperty->getModel()->importSimple($lIdValue, $pInterfacer);
 			} else {
 				$lIdValues[] = null;
 			}
@@ -709,12 +705,12 @@ abstract class Model {
 	 * @param boolean $pIsFirstLevel
 	 * @return Object|null
 	 */
-	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
+	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, $pIsFirstLevel = false) {
 		if (is_null($pInterfacedObject)) {
 			return null;
 		}
 		$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel);
-		$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, $this->_getLocalObjectCollection($lObject, $pLocalObjectCollection), $pIsFirstLevel);
+		$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel);
 		return $lObject;
 	}
 	
@@ -802,7 +798,7 @@ abstract class Model {
 	 */
 	protected function _importId($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection) {
 		if ($pInterfacer->isComplexInterfacedId($pValue)) {
-			if (!$pInterfacer->hasValue($pValue, Interfacer::COMPLEX_ID_KEY) || !$pInterfacer->hasValue($pValue, self::INHERITANCE_KEY)) {
+			if (!$pInterfacer->hasValue($pValue, Interfacer::COMPLEX_ID_KEY) || !$pInterfacer->hasValue($pValue, Interfacer::INHERITANCE_KEY)) {
 				throw new \Exception('object id must have property \''.Interfacer::COMPLEX_ID_KEY.'\' and \''.Interfacer::INHERITANCE_KEY.'\'');
 			}
 			$lId = $pInterfacer->getValue($pValue, Interfacer::COMPLEX_ID_KEY);

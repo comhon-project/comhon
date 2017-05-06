@@ -333,9 +333,14 @@ if (!compareJson(json_encode($lResult->result), json_encode($lPublicObjectJson))
 $lTestDb = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
 $lTestDb->loadValue('childrenTestDb', ['id']);
 
-if (!compareJson(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)), '[{"id":1},{"id":2}]')) {
-	var_dump(json_encode($lPublicObjectJson));
+if (!compareJson(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)), '[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2,"parentTestDb":"[1,\"1501774389\"]"}]')) {
+	var_dump(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)));
 	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)));
+}
+foreach ($lTestDb->getValue('childrenTestDb')->getValues() as $lChild) {
+	if ($lTestDb !== $lChild->getValue('parentTestDb')) {
+		throw new Exception('should be same instance');
+	}
 }
 
 $lChildren = $lTestDb->getValue('childrenTestDb');
@@ -367,6 +372,7 @@ if ($lTestDb !== MainObjectCollection::getInstance()->getObject('[1,"1501774389"
 $lTestDb->setValue('childrenTestDb', $lChildren, false);
 $lTestDb->getValue('childrenTestDb')->getValue(0)->setValue('parentTestDb', $lTestDb);
 $lTestDb->getValue('childrenTestDb')->getValue(0)->loadValue('parentTestDb', ['integer']);
+$lTestDb->getValue('childrenTestDb')->getValue(1)->deleteValue('parentTestDb');
 
 if (!compareJson(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)),'[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2}]')) {
 	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)));

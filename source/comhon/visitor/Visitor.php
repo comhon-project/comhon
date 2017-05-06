@@ -26,7 +26,7 @@ abstract class Visitor {
 	 */
 	public final function execute(Object $pObject, $pParams = []) {
 		$this->_verifParameters($pParams);
-		if (($pObject->getModel() instanceof Model) || ($pObject->getModel() instanceof ModelArray)) {
+		if ($pObject->getModel() instanceof Model) {
 			$this->mPropertyNameStack = [];
 			$this->mMainObject        = $pObject;
 			$this->mParams            = $pParams;	

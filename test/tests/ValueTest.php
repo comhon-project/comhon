@@ -7,6 +7,7 @@ use comhon\interfacer\StdObjectInterfacer;
 use comhon\interfacer\XMLInterfacer;
 use comhon\interfacer\Interfacer;
 use comhon\interfacer\AssocArrayInterfacer;
+use comhon\object\ObjectArray;
 
 $time_start = microtime(true);
 
@@ -285,6 +286,8 @@ foreach ($lMainParentTestDb->getValue('childrenTestDb')->getValues() as $lValue)
 		}
 	} else if ($lValue->isLoaded()) {
 		throw new Exception('foreign value must be unloaded');
+	} else if ($lMainParentTestDb !== $lValue->getValue('mainParentTestDb')) {
+		throw new Exception('should be same instance');
 	}
 }
 
@@ -489,6 +492,60 @@ if (is_null(MainObjectCollection::getInstance()->getObject($lId, $lTest->getMode
 }
 if (!is_null(MainObjectCollection::getInstance()->getObject($lNewId, $lTest->getModel()->getName()))) {
 	throw new \Exception('object not moved');
+}
+
+/** ********* test import main foreign value not in singleton MainObjectCollection ********** **/
+
+$lMainTestModel = ModelManager::getInstance()->getInstanceModel('mainTestDb');
+$lMainTestDb = $lMainTestModel->getObjectInstance();
+$lMainTestDb->setId(4287);
+MainObjectCollection::getInstance()->removeObject($lMainTestDb);
+
+$lTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
+$lTestDb = $lTestModel->getObjectInstance();
+$lTestDb->setId('[4567,"74107"]');
+$lTestDb->setValue('mainParentTestDb', $lMainTestDb);
+
+$lTestDb->fillObject($lTestDb->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+
+if ($lMainTestDb !== $lTestDb->getValue('mainParentTestDb')) {
+	throw new \Exception('bad object instance');
+}
+
+/** ********* idem with object array ******* **/
+
+$lMainTestDb2 = $lMainTestModel->getObjectInstance();
+$lMainTestDb2->setId(8541);
+
+$lArray = new ObjectArray($lMainTestModel);
+$lArray->pushValue($lMainTestDb);
+$lArray->pushValue($lMainTestDb2);
+
+MainObjectCollection::getInstance()->removeObject($lMainTestDb2);
+MainObjectCollection::getInstance()->removeObject($lMainTestDb);
+$lStdPrivateInterfacer->setMergeType(Interfacer::MERGE);
+$lArray->fillObject($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+
+if ($lMainTestDb !== $lArray->getValue(0)) {
+	throw new \Exception('bad object instance');
+}
+
+MainObjectCollection::getInstance()->removeObject($lMainTestDb2);
+MainObjectCollection::getInstance()->removeObject($lMainTestDb);
+$lStdPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$lArray->fillObject($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+
+if ($lMainTestDb !== $lArray->getValue(0)) {
+	throw new \Exception('bad object instance');
+}
+
+MainObjectCollection::getInstance()->removeObject($lMainTestDb2);
+MainObjectCollection::getInstance()->removeObject($lMainTestDb);
+$lStdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$lArray->fillObject($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+
+if ($lMainTestDb === $lArray->getValue(0)) {
+	throw new \Exception('bad object instance');
 }
 
 $time_end = microtime(true);

@@ -17,6 +17,7 @@ use comhon\database\OnLiteral;
 use comhon\database\OnLogicalJunction;
 use comhon\database\Disjunction;
 use comhon\object\ObjectArray;
+use comhon\interfacer\Interfacer;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	
@@ -498,7 +499,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			foreach ($pRows as &$lRow) {
 				$lModel = $lSqlTableUnit->getInheritedModel($lRow, $this->mModel);
 				if ($lModel !== $this->mModel) {
-					$lRow[Model::INHERITANCE_KEY] = $lModel->getName();
+					$lRow[Interfacer::INHERITANCE_KEY] = $lModel->getName();
 				}
 			}
 		}

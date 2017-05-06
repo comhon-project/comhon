@@ -140,7 +140,8 @@ class ModelManager {
 			$lInstanceModels =& $this->mLocalTypes[$pMainModelName];
 		}
 		if (!array_key_exists($pModelName, $lInstanceModels)) { // model doesn't exists
-			throw new Exception("'$pModelName' doesn't exists, you must define it");
+			$lMessageModel = is_null($pMainModelName) ? "main model '$pModelName'" : "local model '$pModelName' in main model '$pMainModelName'";
+			throw new Exception("$lMessageModel doesn't exists, you must define it");
 		}
 		if (is_object($lInstanceModels[$pModelName])) { // model already initialized
 			$lReturn = $lInstanceModels[$pModelName];
@@ -258,6 +259,9 @@ class ModelManager {
 			do {
 				$lTypeId = $this->mManifestParser->getCurrentLocalTypeId();
 				
+				if (array_key_exists($lTypeId, $this->mInstanceModels)) {
+					throw new Exception("local model in main model '$lMainModelName' has same name than another main model '$lTypeId' ");
+				}
 				if (array_key_exists($lTypeId, $this->mLocalTypes[$lMainModelName])) {
 					throw new Exception("several local model with same type '$lTypeId' in main model '$lMainModelName'");
 				}

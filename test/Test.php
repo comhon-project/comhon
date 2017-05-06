@@ -262,17 +262,8 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Pa
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'DatabaseSerializationTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
 
-// add cast boolean sqlTable
-// test import flatten values std/assoc/xml
-// todo fillobjectid (pas sur)
-// verify import/fillobject from modelarray/objectarray
-
-// test call export on simple model
-// test expoprt/imlport with null values
-
-// verify if main and local in this main model can have same name (should not)
-// main model should verify instance in $pobjectlocalcollection too
-// $pobjectlocalcollection should contain only local ? and we should have another $pobjectMainCollection ?
+// sql request with good type integer float boolean ?
+// verif local extends from main / main from local + test
 
 // add error code
 // add simple model color, email

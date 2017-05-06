@@ -574,7 +574,7 @@ abstract class Interfacer {
 			if (!is_bool($pPreferences[self::FLAG_OBJECT_AS_LOADED])) {
 				throw new \Exception('preference "'.self::FLAG_OBJECT_AS_LOADED.'" should be a boolean');
 			}
-			$this->setFlagValuesAsUpdated($pPreferences[self::FLAG_OBJECT_AS_LOADED]);
+			$this->setFlagObjectAsLoaded($pPreferences[self::FLAG_OBJECT_AS_LOADED]);
 		}
 		
 		// merge type

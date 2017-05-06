@@ -9,6 +9,8 @@ use comhon\visitor\ObjectCollectionCreator;
 use comhon\serialization\SerializationUnit;
 use comhon\exception\CastException;
 use comhon\interfacer\Interfacer;
+use comhon\interfacer\StdObjectInterfacer;
+use comhon\object\collection\ObjectCollection;
 
 class MainModel extends Model {
 	
@@ -78,6 +80,18 @@ class MainModel extends Model {
 	 * @return Object
 	 */
 	public function import($pInterfacedObject, Interfacer $pInterfacer) {
+		return $this->_importMain($pInterfacedObject, $pInterfacer, new ObjectCollection());
+	}
+	
+	/**
+	 *
+	 * @param mixed $pInterfacedObject
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @throws \Exception
+	 * @return Object
+	 */
+	protected function _importMain($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection) {
 		$this->load();
 		if ($pInterfacedObject instanceof \SimpleXMLElement) {
 			$pInterfacedObject= dom_import_simplexml($pInterfacedObject);
@@ -86,10 +100,11 @@ class MainModel extends Model {
 		
 		switch ($pInterfacer->getMergeType()) {
 			case Interfacer::MERGE:
-				$lObject = $this->_import($pInterfacedObject, $pInterfacer, null, true);
+				$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, true);
+				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($lObject), true);
 				break;
 			case Interfacer::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, null, true);
+				$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, true);
 				$lObject->reset();
 				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, new ObjectCollection(), true);
 				break;
@@ -98,7 +113,7 @@ class MainModel extends Model {
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lExistingObject);
 				}
-				$lObject = $this->_import($pInterfacedObject, $pInterfacer, null, true);
+				$lObject = $this->_import($pInterfacedObject, $pInterfacer, new ObjectCollection(), true);
 				
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lObject);
@@ -166,7 +181,7 @@ class MainModel extends Model {
 		$lObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
 		if (!is_null($lObject) && $lObject !== $pObject) {
 		 	throw new \Exception("A different instance object with same id '$pId' already exists in MainObjectCollection.\n"
-		 						.'If you want to build a new instance with this id, you must go through Model and specify merge type as '.Model::NO_MERGE.' (no merge)');
+		 						.'If you want to build a new instance with this id, you must go through Model and specify merge type as '.Interfacer::NO_MERGE.' (no merge)');
 		}
 	}
 	
@@ -273,13 +288,19 @@ class MainModel extends Model {
 			$lMainObject = $this->getObjectInstance($lIsloaded);
 		}
 		else {
-			$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
+			$lMainObject = $pLocalObjectCollection->getObject($pId, $this->mModelName);
+			if (is_null($lMainObject)) {
+				$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
+			}
 			if (is_null($lMainObject)) {
 				$lMainObject = $this->_buildObjectFromId($pId, $lIsloaded, $pInterfacer->hasToFlagValuesAsUpdated());
+				$pLocalObjectCollection->addObject($lMainObject);
 			}
 			else {
-				if (!MainObjectCollection::getInstance()->hasObject($pId, $this->mModelName, false)) {
+				$pLocalObjectCollection->addObject($lMainObject, false);
+				if (!$pLocalObjectCollection->hasObject($pId, $this->mModelName, false)) {
 					$lMainObject->cast($this);
+					$pLocalObjectCollection->addObject($lMainObject, false);
 				}
 				if ($lIsloaded || ($pIsFirstLevel && $pInterfacer->getMergeType() !== Interfacer::MERGE)) {
 					$lMainObject->setIsLoaded($lIsloaded);
@@ -294,28 +315,11 @@ class MainModel extends Model {
 	 * @return Model;
 	 */
 	protected function _getIneritedModel($pInheritanceModelName) {
-		if (ModelManager::getInstance()->hasModel($pInheritanceModelName)) {
-			if (ModelManager::getInstance()->hasModel($pInheritanceModelName, $this->mModelName)) {
-				throw new \Exception("cannot determine if model '$pInheritanceModelName' is local or main model");
-			}
-			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName);
-		} else {
-			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $this->mModelName);
-		}
+		$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName);
 		if (!$lModel->isInheritedFrom($this)) {
 			throw new \Exception("model '{$lModel->getName()}' doesn't inherit from '{$this->getName()}'");
 		}
 		return $lModel;
-	}
-	
-	/**
-	 *
-	 * @param Object $pObject
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @return ObjectCollection
-	 */
-	protected function _getLocalObjectCollection($pObject, $pLocalObjectCollection) {
-		return $this->_loadLocalObjectCollection($pObject);
 	}
 	
 	/**
