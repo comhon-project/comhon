@@ -104,5 +104,21 @@ if ($lTatooModel->getProperty('location') !== $lArtModel->getProperty('location'
 	throw new Exception('not same instance of property');
 }
 
+/** ************** test types defined in extended model ****************** **/
+
+ModelManager::getInstance()->getInstanceModel('tatoo', 'body');
+ModelManager::getInstance()->getInstanceModel('tatoo', 'womanBody');
+
+$throw = false;
+try {
+	ModelManager::getInstance()->getInstanceModel('tatouage', 'womanBody');
+	$throw = true;
+} catch (Exception $e) {
+}
+if ($throw) {
+	throw new Exception('get instance model with local model \'tatouage\' should fail');
+}
+
+
 $time_end = microtime(true);
 var_dump('extended model test exec time '.($time_end - $time_start));

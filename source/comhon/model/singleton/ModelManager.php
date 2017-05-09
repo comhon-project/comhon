@@ -136,7 +136,18 @@ class ModelManager {
 		if (is_null($pMainModelName)) {
 			$lInstanceModels =& $this->mInstanceModels;
 		} else {
+			// call getInstanceModel() to be sure to have a loaded main model
 			$lMainModel = $this->getInstanceModel($pMainModelName);
+			if (!array_key_exists($pModelName, $this->mLocalTypes[$pMainModelName])) {
+				$lExists = false;
+				while (!is_null($lMainModel->getExtendsModel()) && !$lExists) {
+					$lExists = array_key_exists($pModelName, $this->mLocalTypes[$lMainModel->getExtendsModel()->getName()]);
+					$lMainModel = $lMainModel->getExtendsModel();
+				}
+				if ($lExists) {
+					$pMainModelName = $lMainModel->getName();
+				}
+			}
 			$lInstanceModels =& $this->mLocalTypes[$pMainModelName];
 		}
 		if (!array_key_exists($pModelName, $lInstanceModels)) { // model doesn't exists

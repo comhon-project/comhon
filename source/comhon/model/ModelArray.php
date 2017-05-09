@@ -133,32 +133,36 @@ class ModelArray extends ModelContainer {
 	 * @param mixed $pValue
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param MainModel $pParentMainModel
 	 * @param boolean $pIsFirstLevel
 	 * @return Object
 	 */
-	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
+	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
 		if (is_null($pInterfacedObject)) {
 			return null;
 		}
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
-			$lObjectArray->pushValue($this->getModel()->_import($lElement, $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel), $pInterfacer->hasToFlagValuesAsUpdated());
+			$lObjectArray->pushValue($this->getModel()->_import($lElement, $pInterfacer, $pLocalObjectCollection, $pParentMainModel, $pIsFirstLevel), $pInterfacer->hasToFlagValuesAsUpdated());
 		}
 		return $lObjectArray;
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \comhon\model\Model::_importId()
+	 *
+	 * @param mixed $pInterfacedObject
+	 * @param Interfacer $pInterfacer
+	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param MainModel $pParentMainModel
+	 * @return Object
 	 */
-	protected function _importId($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection) {
+	protected function _importId($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel) {
 		if (is_null($pInterfacedObject)) {
 			return null;
 		}
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
-			$lObjectArray->pushValue($this->getModel()->_importId($lElement, $pInterfacer, $pLocalObjectCollection), $pInterfacer->hasToFlagValuesAsUpdated());
+			$lObjectArray->pushValue($this->getModel()->_importId($lElement, $pInterfacer, $pLocalObjectCollection, $pParentMainModel), $pInterfacer->hasToFlagValuesAsUpdated());
 		}
 		return $lObjectArray;
 	}

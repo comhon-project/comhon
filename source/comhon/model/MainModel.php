@@ -100,20 +100,20 @@ class MainModel extends Model {
 		
 		switch ($pInterfacer->getMergeType()) {
 			case Interfacer::MERGE:
-				$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, true);
-				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($lObject), true);
+				$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $this, true);
+				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($lObject), $this, true);
 				break;
 			case Interfacer::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, true);
+				$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $this, true);
 				$lObject->reset();
-				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, new ObjectCollection(), true);
+				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, new ObjectCollection(), $this, true);
 				break;
 			case Interfacer::NO_MERGE:
 				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $this->mModelName);
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lExistingObject);
 				}
-				$lObject = $this->_import($pInterfacedObject, $pInterfacer, new ObjectCollection(), true);
+				$lObject = $this->_import($pInterfacedObject, $pInterfacer, new ObjectCollection(), $this, true);
 				
 				if (!is_null($lExistingObject)) {
 					MainObjectCollection::getInstance()->removeObject($lObject);
@@ -143,7 +143,7 @@ class MainModel extends Model {
 		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $pInterfacer->hasToFlagValuesAsUpdated());
 		
 		MainObjectCollection::getInstance()->addObject($pObject, false);
-		$this->_fillObject($pObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($pObject), true);
+		$this->_fillObject($pObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($pObject), $this, true);
 		if ($pInterfacer->hasToFlagObjectAsLoaded()) {
 			$pObject->setIsLoaded(true);
 		}
@@ -312,10 +312,19 @@ class MainModel extends Model {
 	
 	/**
 	 * @param string $pInheritanceModelName
+	 * @param MainModel $pParentMainModel
 	 * @return Model;
 	 */
-	protected function _getIneritedModel($pInheritanceModelName) {
-		$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName);
+	protected function _getIneritedModel($pInheritanceModelName, MainModel $pParentMainModel) {
+		if (ModelManager::getInstance()->hasModel($pInheritanceModelName)) {
+			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName);
+			if (ModelManager::getInstance()->hasModel($pInheritanceModelName, $pParentMainModel->getName())) {
+				throw new \Exception("cannot determine if model '$pInheritanceModelName' is local or main model");
+			}
+			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName);
+		} else {
+			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $pParentMainModel->getName());
+		}
 		if (!$lModel->isInheritedFrom($this)) {
 			throw new \Exception("model '{$lModel->getName()}' doesn't inherit from '{$this->getName()}'");
 		}

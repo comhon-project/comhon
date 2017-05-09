@@ -116,6 +116,7 @@ abstract class ModelContainer extends Model {
 	 * @param Object $pObjectArray
 	 * @param string $pNodeName
 	 * @param Interfacer $pInterfacer
+	 * @param MainModel $pParentMainModel
 	 * @param boolean $pIsFirstLevel
 	 * @throws \Exception
 	 */
@@ -131,7 +132,7 @@ abstract class ModelContainer extends Model {
 	 * @param boolean $pIsFirstLevel
 	 * @return NULL|unknown
 	 */
-	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection = null, $pIsFirstLevel = false) {
+	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
 		throw new \Exception('must be overrided');
 	}
 	

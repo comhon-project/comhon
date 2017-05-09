@@ -21,4 +21,5 @@
 	<testMultiIncremental>testMultiIncremental/manifest.xml</testMultiIncremental>
 	<testPrivateId>testPrivateId/manifest.xml</testPrivateId>
 	<childTestDb>childTestDb/manifest.xml</childTestDb>
+	<childTestDb>localExtendsMain/manifest.xml</childTestDb>
 </manifests>

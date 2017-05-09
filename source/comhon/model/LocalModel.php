@@ -58,10 +58,11 @@ class LocalModel extends Model {
 	
 	/**
 	 * @param string $pInheritanceModelName
+	 * @param MainModel $pParentMainModel
 	 * @return Model;
 	 */
-	protected function _getIneritedModel($pInheritanceModelName) {
-		$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $this->getMainModelName());
+	protected function _getIneritedModel($pInheritanceModelName, MainModel $pParentMainModel) {
+		$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $pParentMainModel->getName());
 		if (!$lModel->isInheritedFrom($this)) {
 			throw new \Exception("model '{$lModel->getName()}' doesn't inherit from '{$this->getName()}'");
 		}

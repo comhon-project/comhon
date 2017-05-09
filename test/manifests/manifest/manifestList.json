@@ -21,6 +21,7 @@
 		"manBodyJsonExtended" : "body/manJsonExtended/manifest.json",
 		"testMultiIncremental": "testMultiIncremental/manifest.json",
 		"testPrivateId": "testPrivateId/manifest.json",
-		"childTestDb"  : "childTestDb/manifest.json"
+		"childTestDb"  : "childTestDb/manifest.json",
+		"localExtendsMain"  : "localExtendsMain/manifest.json"
 	}
 }
