@@ -106,8 +106,12 @@ if ($lTatooModel->getProperty('location') !== $lArtModel->getProperty('location'
 
 /** ************** test types defined in extended model ****************** **/
 
-ModelManager::getInstance()->getInstanceModel('tatoo', 'body');
-ModelManager::getInstance()->getInstanceModel('tatoo', 'womanBody');
+$lBodyTatooModel = ModelManager::getInstance()->getInstanceModel('tatoo', 'body');
+$lWomanBodyTatooModel = ModelManager::getInstance()->getInstanceModel('tatoo', 'womanBody');
+
+if ($lBodyTatooModel !== $lWomanBodyTatooModel) {
+	throw new Exception('not same instance model');
+}
 
 $throw = false;
 try {
