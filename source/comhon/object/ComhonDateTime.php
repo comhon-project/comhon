@@ -83,13 +83,4 @@ class ComhonDateTime extends \DateTime {
 		$this->mIsUpdated = false;
 	}
 	
-	/**
-	 *
-	 * @param Interfacer $pInterfacer
-	 * @return mixed|null
-	 */
-	public function __debugInfo() {
-		return get_object_vars($this);
-	}
-	
 }
