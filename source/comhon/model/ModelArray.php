@@ -6,7 +6,6 @@ use comhon\model\MainModel;
 use comhon\object\Object;
 use comhon\interfacer\Interfacer;
 use comhon\object\collection\ObjectCollection;
-use comhon\visitor\ObjectCollectionCreator;
 
 class ModelArray extends ModelContainer {
 	

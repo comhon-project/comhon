@@ -109,6 +109,10 @@ if ($lTatooModel->getProperty('location') !== $lArtModel->getProperty('location'
 $lBodyTatooModel = ModelManager::getInstance()->getInstanceModel('tatoo', 'body');
 $lWomanBodyTatooModel = ModelManager::getInstance()->getInstanceModel('tatoo', 'womanBody');
 
+if ($lBodyTatooModel->getName() !== 'tatoo') {
+	throw new Exception('bad model');
+}
+
 if ($lBodyTatooModel !== $lWomanBodyTatooModel) {
 	throw new Exception('not same instance model');
 }

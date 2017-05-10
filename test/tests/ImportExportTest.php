@@ -4,7 +4,6 @@ use comhon\model\singleton\ModelManager;
 use comhon\object\Object;
 use comhon\object\_final\Object as FinalObject;
 use comhon\object\collection\MainObjectCollection;
-use comhon\model\Model;
 use comhon\object\ObjectArray;
 use comhon\interfacer\StdObjectInterfacer;
 use comhon\interfacer\XMLInterfacer;

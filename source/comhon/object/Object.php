@@ -8,6 +8,7 @@ use comhon\model\property\AggregationProperty;
 use comhon\exception\CastException;
 use comhon\object\ObjectArray;
 use comhon\interfacer\Interfacer;
+use comhon\interfacer\StdObjectInterfacer;
 
 abstract class Object {
 
@@ -543,6 +544,42 @@ abstract class Object {
 	 */
 	public final function fillObject($pInterfacedObject, Interfacer $pInterfacer) {
 		$this->mModel->fillObject($this, $pInterfacedObject, $pInterfacer);
+	}
+	
+	 /***********************************************************************************************\
+	 |                                                                                               |
+	 |                                       toString / debug                                        |
+	 |                                                                                               |
+	 \***********************************************************************************************/
+	
+	/**
+	 *
+	 * @param Interfacer $pInterfacer
+	 * @return mixed|null
+	 */
+	public function __toString() {
+		try {
+			$lInterfacer = new StdObjectInterfacer();
+			$lInterfacer->setPrivateContext(true);
+			return json_encode($lInterfacer->export($this), JSON_PRETTY_PRINT)."\n";
+		} catch (Exception $e) {
+			trigger_error($e->getMessage());
+		}
+		return null;
+	}
+	
+	/**
+	 *
+	 * @param Interfacer $pInterfacer
+	 * @return mixed|null
+	 */
+	public function __debugInfo() {
+		$lDebugObject = get_object_vars($this);
+		if (!array_key_exists('mModel', $lDebugObject)) {
+			throw new \Exception('model attribut doesn\'t exist anymore');
+		}
+		$lDebugObject['mModel'] = $this->mModel->getName();
+		return $lDebugObject;
 	}
 	
 }

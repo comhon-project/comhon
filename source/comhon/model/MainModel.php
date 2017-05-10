@@ -9,7 +9,6 @@ use comhon\visitor\ObjectCollectionCreator;
 use comhon\serialization\SerializationUnit;
 use comhon\exception\CastException;
 use comhon\interfacer\Interfacer;
-use comhon\interfacer\StdObjectInterfacer;
 use comhon\object\collection\ObjectCollection;
 
 class MainModel extends Model {
