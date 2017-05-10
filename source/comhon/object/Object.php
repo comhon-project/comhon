@@ -554,8 +554,7 @@ abstract class Object {
 	
 	/**
 	 *
-	 * @param Interfacer $pInterfacer
-	 * @return mixed|null
+	 * @return string|null
 	 */
 	public function __toString() {
 		try {
@@ -565,13 +564,12 @@ abstract class Object {
 		} catch (Exception $e) {
 			trigger_error($e->getMessage());
 		}
-		return null;
+		return '';
 	}
 	
 	/**
 	 *
-	 * @param Interfacer $pInterfacer
-	 * @return mixed|null
+	 * @return array
 	 */
 	public function __debugInfo() {
 		$lDebugObject = get_object_vars($this);
