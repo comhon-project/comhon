@@ -60,11 +60,32 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	/**
 	 *
 	 * @param \DOMElement $pNode
-	 * @param string $pPropertyName
-	 * @return \DOMNodeList|null
+	 * @param boolean $pGetElementName if true return nodes names as key other wise return indexes
+	 * @return array|null
 	 */
-	public function getTraversableNode($pNode) {
-		return is_null($pNode) ? null : $pNode->childNodes;
+	public function getTraversableNode($pNode, $pGetElementName = false) {
+		if (is_null($pNode)) {
+			return [];
+		}
+		$lArray = [];
+		if ($pGetElementName) {
+			foreach ($pNode->childNodes as $lDomNode) {
+				if ($lDomNode->nodeType === XML_ELEMENT_NODE) {
+					if (array_key_exists($lDomNode->nodeName, $lArray)) {
+						throw new \Exception("duplicated name '$lDomNode->nodeName'");
+					}
+					$lArray[$lDomNode->nodeName] = $lDomNode;
+				}
+			}
+		}
+		else {
+			foreach ($pNode->childNodes as $lDomNode) {
+				if ($lDomNode->nodeType === XML_ELEMENT_NODE) {
+					$lArray[] = $lDomNode;
+				}
+			}
+		}
+		return $lArray;
 	}
 	
 	/**

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="sqlTable">home</serialization>
+	<serialization type="sqlTable" id="home"/>
 	<properties>
 		<beginDate serializationName="begin_date"/>
 		<endDate serializationName="end_date"/>

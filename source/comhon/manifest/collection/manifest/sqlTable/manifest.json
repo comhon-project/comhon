@@ -1,13 +1,15 @@
 {
-	"version": "2.0",
-	"properties": {
-		"name": {
-			"type": "string",
-			"is_id": true
-		},
-		"database": {
-			"type": "sqlDatabase",
-			"is_foreign": true
-		}
-	}
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "name",
+            "type": "string",
+            "is_id": true
+        },
+        {
+            "name": "database",
+            "type": "sqlDatabase",
+            "is_foreign": true
+        }
+    ]
 }

@@ -1,14 +1,14 @@
 {
-	"version": "2.0",
-	"serialization": {
-		"type": "sqlTable",
-		"id": "person"
-	},
-	"properties": {
-		"bodies": {
-			"aggregations": [
-				"owner"
-			]
-		}
-	}
+    "version": "2.0",
+    "serialization": {
+        "type": "sqlTable",
+        "id": "person"
+    },
+    "properties": {
+        "bodies": {
+            "aggregations": [
+                "owner"
+            ]
+        }
+    }
 }

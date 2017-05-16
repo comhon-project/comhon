@@ -346,9 +346,10 @@ abstract class Interfacer {
 	/**
 	 *
 	 * @param mixed $pNode
+	 * @param boolean $pGetElementName only used for XMLInterfacer
 	 * @return mixed
 	 */
-	abstract public function getTraversableNode($pNode);
+	abstract public function getTraversableNode($pNode, $pGetElementName = false);
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value

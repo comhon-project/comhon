@@ -87,7 +87,6 @@ abstract class SimpleModel extends Model {
 	}
 	
 
-	public abstract function  isCheckedValueType($pValue);
 	public abstract function castValue($pValue);
 	
 }

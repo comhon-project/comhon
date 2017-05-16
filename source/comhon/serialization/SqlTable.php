@@ -199,7 +199,7 @@ class SqlTable extends SerializationUnit {
 			self::$sInterfacer->setSerialContext(true);
 			self::$sInterfacer->setFlagValuesAsUpdated(false);
 			self::$sInterfacer->setDateTimeFormat('Y-m-d H:i:s');
-			self::$sInterfacer->setDateTimeZone(self::getDatabaseConnectionTimeZone());
+			self::$sInterfacer->setDateTimeZone(Config::getInstance()->getDataBaseTimezone());
 			self::$sInterfacer->setFlattenValues(true);
 		}
 		self::$sInterfacer->setFlagObjectAsLoaded($pFlagObjectAsLoaded);
@@ -555,14 +555,6 @@ class SqlTable extends SerializationUnit {
 	public function getInheritedModel($pValue, Model $pExtendsModel) {
 		return array_key_exists($this->mInheritanceKey, $pValue) && !is_null($pValue[$this->mInheritanceKey]) 
 				? ModelManager::getInstance()->getInstanceModel($pValue[$this->mInheritanceKey]) : $pExtendsModel;
-	}
-	
-	public static function getDatabaseConnectionTimeZone() {
-		return is_object(Config::getInstance()->getValue('database'))
-				? (Config::getInstance()->getValue('database')->hasValue('timezone')
-					? Config::getInstance()->getValue('database')->getValue('timezone')
-					: 'UTC')
-				: 'UTC';
 	}
 	
 	public static function castStringifiedColumns(&$pRows, Model $pModel) {

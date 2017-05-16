@@ -1,17 +1,17 @@
 {
-	"version": "2.0",
-	"serialization": {
-		"type": "sqlTable",
-		"id": "house"
-	},
-	"properties": {
-		"residents": {
-			"aggregations": [
-				"house"
-			]
-		},
-		"id": {
-			"serializationName": "id_serial"
-		}
-	}
+    "version": "2.0",
+    "serialization": {
+        "type": "sqlTable",
+        "id": "house"
+    },
+    "properties": {
+        "id": {
+            "serializationName": "id_serial"
+        },
+        "residents": {
+            "aggregations": [
+                "house"
+            ]
+        }
+    }
 }

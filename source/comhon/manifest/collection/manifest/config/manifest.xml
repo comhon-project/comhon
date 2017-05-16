@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<types>
-		<dbOpt>
+		<type name="dbOpt">
 			<properties>
-				<property type="string">charset</property>
-				<property type="string">timezone</property>
+				<property type="string" name="charset"/>
+				<property type="string" name="timezone"/>
 			</properties>
-		</dbOpt>
+		</type>
 	</types>
 	
 	<properties>
-		<property type="dbOpt">database</property>
-		<property type="string">dateTimeFormat</property>
-		<property type="string">manifestList</property>
-		<property type="string">serializationList</property>
+		<property type="dbOpt" name="database"/>
+		<property type="string" name="dateTimeFormat"/>
+		<property type="string" name="manifestList"/>
+		<property type="string" name="serializationList"/>
+		<property type="string" name="regexList"/>
 	</properties>
 </manifest>

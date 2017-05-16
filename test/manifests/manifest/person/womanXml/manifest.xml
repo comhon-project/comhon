@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<properties>
-		<property type="string" id="1">id</property>
-		<property type="string">firstName</property>
-		<property type="string">lastName</property>
-		<property type="dateTime">birthDate</property>
+		<property type="string" is_id="1" name="id"/>
+		<property type="string" name="firstName"/>
+		<property type="string" name="lastName"/>
+		<property type="dateTime" name="birthDate"/>
 	</properties>
 </manifest>

@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<types>
-		<object>
+		<type name="object">
 			<properties>
-				<property type="string">plop</property>
-				<property type="string">plop2</property>
+				<property type="string" name="plop"/>
+				<property type="string" name="plop2"/>
 			</properties>
-		</object>
+		</type>
 	</types>
 	<properties>
-		<property type="integer" id="1">id</property>
-		<property type="string">name</property>
-		<property type="object">obj</property>
-		<foreignProperty type="array">
-			<name>childrenTestDb</name>
+		<property type="integer" is_id="1" name="id"/>
+		<property type="string" name="name"/>
+		<property type="object" name="obj"/>
+		<property is_foreign="1" type="array" name="childrenTestDb">
 			<values type="testDb" name="childTestDb"/>
-		</foreignProperty>
+		</property>
 	</properties>
 </manifest>

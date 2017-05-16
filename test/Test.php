@@ -262,14 +262,29 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Pa
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'DatabaseSerializationTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RestrictionTest.php';
+
+
+/*
+interfacer (limit inf appear more often) : 
+	json
+		model  0.0088510513 < 0.01793503
+		extend model 0.000944 < 0.003141164
+	xml
+		model 0.0097460 < 0.019051
+		extends model 0.0014588 < 0.0047380924
+*/
+
+//restriction on property (intervalle, min, max)
+// add export null value
 
 // add error code
-// add simple model color, email
 // remove $p $l
 // psr
 // add Php doc
 
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)
+// allow to active only one value among several values (a or b might be set but not a and b)
 // define in manifest if property is requestable
 // real unit test
 // rapide load Unique model in modelManager

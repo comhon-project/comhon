@@ -1,15 +1,16 @@
 {
-	"version": "2.0",
-	"extends": "person",
-	"object": "object\\Woman",
-	"properties": {
-		"bodies": {
-			"values": {
-				"type": "womanBody",
-				"name": "body"
-			},
-			"type": "array",
-			"is_foreign": true
-		}
-	}
+    "version": "2.0",
+    "object": "object\\Woman",
+    "extends": "person",
+    "properties": [
+        {
+            "values": {
+                "type": "womanBody",
+                "name": "body"
+            },
+            "name": "bodies",
+            "type": "array",
+            "is_foreign": true
+        }
+    ]
 }

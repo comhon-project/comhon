@@ -1,28 +1,35 @@
 {
-	"version": "2.0",
-	"properties": {
-		"id": {
-			"type": "string",
-			"is_id": true
-		},
-		"DBMS": {
-			"type": "string"
-		},
-		"host": {
-			"type": "string"
-		},
-		"name": {
-			"type": "string"
-		},
-		"user": {
-			"type": "string"
-		},
-		"password": {
-			"type": "string",
-			"is_private": true
-		},
-		"port": {
-			"type": "integer"
-		}
-	}
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "id",
+            "type": "string",
+            "is_id": true
+        },
+        {
+            "name": "DBMS",
+            "type": "string"
+        },
+        {
+            "name": "host",
+            "type": "string"
+        },
+        {
+            "name": "name",
+            "type": "string"
+        },
+        {
+            "name": "user",
+            "type": "string"
+        },
+        {
+            "name": "password",
+            "type": "string",
+            "is_private": true
+        },
+        {
+            "name": "port",
+            "type": "integer"
+        }
+    ]
 }

@@ -1,132 +1,163 @@
 {
-	"version": "2.0",
-	"types": {
-		"object": {
-			"properties": {
-				"plop": {
-					"type": "string"
-				},
-				"plop2": {
-					"type": "string"
-				}
-			}
-		},
-		"objectWithId": {
-			"properties": {
-				"plop": {
-					"type": "string",
-					"is_id": true
-				},
-				"plop2": {
-					"type": "string"
-				}
-			}
-		},
-		"objectWithIdAndMore": {
-			"extends": "objectWithId",
-			"properties": {
-				"plop3": {
-					"type": "string",
-					"is_private": true
-				}
-			}
-		},
-		"objectWithIdAndMoreMore": {
-			"extends": "objectWithIdAndMore",
-			"properties": {
-				"plop4": {
-					"type": "string"
-				}
-			}
-		}
-	},
-	"properties": {
-		"id1": {
-			"type": "integer",
-			"is_id": true
-		},
-		"id2": {
-			"type": "string",
-			"is_id": true
-		},
-		"date": {
-			"type": "dateTime"
-		},
-		"timestamp": {
-			"type": "dateTime"
-		},
-		"object": {
-			"type": "object"
-		},
-		"objectWithId": {
-			"type": "objectWithId"
-		},
-		"string": {
-			"type": "string",
-			"is_private": true
-		},
-		"integer": {
-			"type": "integer"
-		},
-		"mainParentTestDb": {
-			"type": "mainTestDb",
-			"is_foreign": true
-		},
-		"objectsWithId": {
-			"values": {
-				"type": "objectWithId",
-				"name": "objectWithId"
-			},
-			"type": "array"
-		},
-		"foreignObjects": {
-			"values": {
-				"type": "objectWithId",
-				"name": "foreignObject"
-			},
-			"type": "array",
-			"is_foreign": true
-		},
-		"lonelyForeignObject": {
-			"type": "objectWithId",
-			"is_foreign": true
-		},
-		"lonelyForeignObjectTwo": {
-			"type": "objectWithIdAndMore",
-			"is_foreign": true
-		},
-		"defaultValue": {
-			"type": "string",
-			"default": "default"
-		},
-		"manBodyJson": {
-			"type": "manBodyJson",
-			"is_foreign": true
-		},
-		"womanXml": {
-			"type": "womanXml",
-			"is_foreign": true
-		},
-		"notSerializedValue": {
-			"type": "string"
-		},
-		"notSerializedForeignObject": {
-			"type": "objectWithId",
-			"is_foreign": true
-		},
-		"boolean": {
-			"type": "boolean"
-		},
-		"boolean2": {
-			"type": "boolean"
-		},
-		"childrenTestDb": {
-			"values": {
-				"type": "childTestDb",
-				"name": "childTestDb"
-			},
-			"type": "array",
-			"is_foreign": true
-		}
-	}
+    "version": "2.0",
+    "types": [
+        {
+            "name": "object",
+            "properties": [
+                {
+                    "name": "plop",
+                    "type": "string"
+                },
+                {
+                    "name": "plop2",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "objectWithId",
+            "properties": [
+                {
+                    "name": "plop",
+                    "type": "string",
+                    "is_id": true
+                },
+                {
+                    "name": "plop2",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "objectWithIdAndMore",
+            "extends": "objectWithId",
+            "properties": [
+                {
+                    "name": "plop3",
+                    "type": "string",
+                    "is_private": true
+                }
+            ]
+        },
+        {
+            "name": "objectWithIdAndMoreMore",
+            "extends": "objectWithIdAndMore",
+            "properties": [
+                {
+                    "name": "plop4",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id1",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "id2",
+            "type": "string",
+            "is_id": true
+        },
+        {
+            "name": "date",
+            "type": "dateTime"
+        },
+        {
+            "name": "timestamp",
+            "type": "dateTime"
+        },
+        {
+            "name": "object",
+            "type": "object"
+        },
+        {
+            "name": "objectWithId",
+            "type": "objectWithId"
+        },
+        {
+            "name": "string",
+            "type": "string",
+            "is_private": true
+        },
+        {
+            "name": "integer",
+            "type": "integer"
+        },
+        {
+            "name": "mainParentTestDb",
+            "type": "mainTestDb",
+            "is_foreign": true
+        },
+        {
+            "values": {
+                "type": "objectWithId",
+                "name": "objectWithId"
+            },
+            "name": "objectsWithId",
+            "type": "array"
+        },
+        {
+            "values": {
+                "type": "objectWithId",
+                "name": "foreignObject"
+            },
+            "name": "foreignObjects",
+            "type": "array",
+            "is_foreign": true
+        },
+        {
+            "name": "lonelyForeignObject",
+            "type": "objectWithId",
+            "is_foreign": true
+        },
+        {
+            "name": "lonelyForeignObjectTwo",
+            "type": "objectWithIdAndMore",
+            "is_foreign": true
+        },
+        {
+            "name": "defaultValue",
+            "type": "string",
+            "default": "default"
+        },
+        {
+            "name": "manBodyJson",
+            "type": "manBodyJson",
+            "is_foreign": true
+        },
+        {
+            "name": "womanXml",
+            "type": "womanXml",
+            "is_foreign": true
+        },
+        {
+            "name": "notSerializedValue",
+            "type": "string"
+        },
+        {
+            "name": "notSerializedForeignObject",
+            "type": "objectWithId",
+            "is_foreign": true
+        },
+        {
+            "name": "boolean",
+            "type": "boolean"
+        },
+        {
+            "name": "boolean2",
+            "type": "boolean"
+        },
+        {
+            "values": {
+                "type": "childTestDb",
+                "name": "childTestDb"
+            },
+            "name": "childrenTestDb",
+            "type": "array",
+            "is_foreign": true
+        }
+    ]
 }

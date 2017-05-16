@@ -17,4 +17,4 @@ var_dump($lTestDb);
 echo $lTestDb;
 
 $time_end = microtime(true);
-var_dump('value test exec time '.($time_end - $time_start));
+var_dump('toString test exec time '.($time_end - $time_start));

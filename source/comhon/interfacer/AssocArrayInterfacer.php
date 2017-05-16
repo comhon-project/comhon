@@ -14,6 +14,7 @@ class AssocArrayInterfacer extends Interfacer {
 		if (array_key_exists($pPropertyName, $pNode)) {
 			return $pNode[$pPropertyName];
 		} else {
+			// ugly but we return reference so we have to return a variable
 			$lNull = null;
 			return $lNull;
 		}
@@ -33,9 +34,10 @@ class AssocArrayInterfacer extends Interfacer {
 	/**
 	 *
 	 * @param \stdClass $pNode
+	 * @param boolean $pGetElementName not used
 	 * @return array
 	 */
-	public function getTraversableNode($pNode) {
+	public function getTraversableNode($pNode, $pGetElementName = false) {
 		return is_array($pNode) ? $pNode : [];
 	}
 	

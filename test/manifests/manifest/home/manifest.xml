@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<properties>
-		<property type="integer" id="1">id</property>
-		<property type="string">beginDate</property>
-		<property type="string">endDate</property>
-		<foreignProperty type="person">person</foreignProperty>
-		<foreignProperty type="house">house</foreignProperty>
+		<property type="integer" is_id="1" name="id"/>
+		<property type="string" name="beginDate"/>
+		<property type="string" name="endDate"/>
+		<property is_foreign="1" type="person" name="person"/>
+		<property is_foreign="1" type="house" name="house"/>
 	</properties>
 </manifest>

@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifests version="2.0">
-	<config>config/manifest.xml</config>
-	<sqlDatabase>sqlDatabase/manifest.xml</sqlDatabase>
-	<sqlTable>sqlTable/manifest.xml</sqlTable>
-	<jsonFile>jsonFile/manifest.xml</jsonFile>
-	<xmlFile>xmlFile/manifest.xml</xmlFile>
+	<list>
+		<config>config/manifest.xml</config>
+		<sqlDatabase>sqlDatabase/manifest.xml</sqlDatabase>
+		<sqlTable>sqlTable/manifest.xml</sqlTable>
+		<jsonFile>jsonFile/manifest.xml</jsonFile>
+		<xmlFile>xmlFile/manifest.xml</xmlFile>
+	</list>
 </manifests>

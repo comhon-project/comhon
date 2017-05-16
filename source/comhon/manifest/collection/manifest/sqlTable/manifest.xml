@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<properties>
-		<property type="string" id="1">name</property>
-		<foreignProperty type="sqlDatabase">database</foreignProperty>
+		<property type="string" is_id="1" name="name"/>
+		<property is_foreign="1" type="sqlDatabase" name="database"/>
 	</properties>
 </manifest>

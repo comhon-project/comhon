@@ -1,35 +1,42 @@
 {
-	"version": "2.0",
-	"types": {
-		"object": {
-			"properties": {
-				"plop": {
-					"type": "string"
-				},
-				"plop2": {
-					"type": "string"
-				}
-			}
-		}
-	},
-	"properties": {
-		"id": {
-			"type": "integer",
-			"is_id": true
-		},
-		"name": {
-			"type": "string"
-		},
-		"obj": {
-			"type": "object"
-		},
-		"childrenTestDb": {
-			"values": {
-				"type": "testDb",
-				"name": "childTestDb"
-			},
-			"type": "array",
-			"is_foreign": true
-		}
-	}
+    "version": "2.0",
+    "types": [
+        {
+            "name": "object",
+            "properties": [
+                {
+                    "name": "plop",
+                    "type": "string"
+                },
+                {
+                    "name": "plop2",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "name",
+            "type": "string"
+        },
+        {
+            "name": "obj",
+            "type": "object"
+        },
+        {
+            "values": {
+                "type": "testDb",
+                "name": "childTestDb"
+            },
+            "name": "childrenTestDb",
+            "type": "array",
+            "is_foreign": true
+        }
+    ]
 }

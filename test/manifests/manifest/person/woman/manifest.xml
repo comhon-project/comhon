@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest extends="person" version="2.0" object="object\Woman">
 	<properties>
-		<foreignProperty type="array">
-			<name>bodies</name>
+		<property is_foreign="1" type="array" name="bodies">
 			<values type="womanBody" name="body"/>
-		</foreignProperty>
+		</property>
 	</properties>
 </manifest>

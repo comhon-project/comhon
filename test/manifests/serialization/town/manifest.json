@@ -1,12 +1,12 @@
 {
-	"version": "2.0",
-	"serialization": {
-		"type": "sqlTable",
-		"id": "town"
-	},
-	"properties": {
-		"cityHall": {
-			"serializationName": "city_hall"
-		}
-	}
+    "version": "2.0",
+    "serialization": {
+        "type": "sqlTable",
+        "id": "town"
+    },
+    "properties": {
+        "cityHall": {
+            "serializationName": "city_hall"
+        }
+    }
 }

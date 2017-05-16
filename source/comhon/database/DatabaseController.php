@@ -76,34 +76,14 @@ class DatabaseController {
 	}
 	
 	private function  _setDatabaseOptions() {
-		
-		if (is_object(Config::getInstance()->getValue('database'))) {
-			if (Config::getInstance()->getValue('database')->hasValue('charset')) {
-				$lCharset  = Config::getInstance()->getValue('database')->getValue('charset');
-			} else {
-				trigger_error('Warning undefined charset database. By default charset is set to \'utf8\' ');
-				$lCharset  = 'utf8';
-			}
-			if (Config::getInstance()->getValue('database')->hasValue('timezone')) {
-				$lTimezone = Config::getInstance()->getValue('database')->getValue('timezone');
-			} else {
-				trigger_error('Warning undefined timezone database. By default charset is set to \'utf8\' ');
-				$lTimezone = 'UTC';
-			}
-		} else {
-			trigger_error('Warning undefined database options connections');
-			$lCharset  = 'utf8';
-			$lTimezone = 'UTC';
-		}
-		
-		$lDate               = new \DateTime('now', new \DateTimeZone($lTimezone));
+		$lDate               = new \DateTime('now', new \DateTimeZone(Config::getInstance()->getDataBaseTimezone()));
 		$lTotalOffsetSeconds = $lDate->getOffset();
 		$lOffsetOperator     = ($lTotalOffsetSeconds >= 0) ? '+' : '-';
 		$lOffsetHours        = floor(abs($lTotalOffsetSeconds) / 3600);
 		$lOffsetMinutes      = floor((abs($lTotalOffsetSeconds) % 3600) / 60);
 		$lOffset             = $lOffsetOperator . $lOffsetHours . ':' . $lOffsetMinutes;
 		
-		$this->mDbHandle->exec("SET NAMES $lCharset;");
+		$this->mDbHandle->exec('SET NAMES '.Config::getInstance()->getDataBaseCharset().';');
 		$this->mDbHandle->exec("SET time_zone = '$lOffset';");
 
 		// do not transform int to string (doesn't work)

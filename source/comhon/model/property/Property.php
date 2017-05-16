@@ -23,7 +23,20 @@ class Property {
 	protected $mDefault;
 	protected $mInterfaceAsNodeXml;
 	
-	public function __construct($pModel, $pName, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pIsSerializable = true, $pDefault = null, $pIsInterfacedAsNodeXml = null) {
+	/**
+	 * 
+	 * @param Model $pModel
+	 * @param string $pName
+	 * @param string $pSerializationName
+	 * @param boolean $pIsId
+	 * @param boolean $pIsPrivate
+	 * @param boolean $pIsSerializable
+	 * @param mixed $pDefault
+	 * @param unknown $pRestriction
+	 * @param boolean $pIsInterfacedAsNodeXml
+	 * @throws \Exception
+	 */
+	public function __construct(Model $pModel, $pName, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pIsSerializable = true, $pDefault = null, $pIsInterfacedAsNodeXml = null, $pRestriction = null) {
 		$this->mModel = $pModel;
 		$this->mName = $pName;
 		$this->mSerializationName = is_null($pSerializationName) ? $this->mName : $pSerializationName;

@@ -1,29 +1,40 @@
 {
-	"version": "2.0",
-	"types": {
-		"dbOpt": {
-			"properties": {
-				"charset": {
-					"type": "string"
-				},
-				"timezone": {
-					"type": "string"
-				}
-			}
-		}
-	},
-	"properties": {
-		"database": {
-			"type": "dbOpt"
-		},
-		"dateTimeFormat": {
-			"type": "string"
-		},
-		"manifestList": {
-			"type": "string"
-		},
-		"serializationList": {
-			"type": "string"
-		}
-	}
+    "version": "2.0",
+    "types": [
+        {
+            "name": "dbOpt",
+            "properties": [
+                {
+                    "name": "charset",
+                    "type": "string"
+                },
+                {
+                    "name": "timezone",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "database",
+            "type": "dbOpt"
+        },
+        {
+            "name": "dateTimeFormat",
+            "type": "string"
+        },
+        {
+            "name": "manifestList",
+            "type": "string"
+        },
+        {
+            "name": "serializationList",
+            "type": "string"
+        },
+        {
+            "name": "regexList",
+            "type": "string"
+        }
+    ]
 }

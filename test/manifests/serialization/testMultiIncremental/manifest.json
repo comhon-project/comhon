@@ -1,7 +1,7 @@
 {
-	"version": "2.0",
-	"serialization": {
-		"type": "sqlTable",
-		"id": "test_multi_increment"
-	}
+    "version": "2.0",
+    "serialization": {
+        "type": "sqlTable",
+        "id": "test_multi_increment"
+    }
 }

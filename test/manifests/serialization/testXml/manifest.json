@@ -1,10 +1,10 @@
 {
-	"version": "2.0",
-	"serialization": {
-		"type": "xmlFile",
-		"value": {
-			"saticPath": "/var/data/test_xml",
-			"staticName": "test.xml"
-		}
-	}
+    "version": "2.0",
+    "serialization": {
+        "type": "xmlFile",
+        "value": {
+            "saticPath": "\/var\/data\/test_xml",
+            "staticName": "test.xml"
+        }
+    }
 }

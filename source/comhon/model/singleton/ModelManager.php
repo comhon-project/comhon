@@ -50,8 +50,8 @@ class ModelManager {
 		);
 		
 		ManifestParser::registerComplexModels(
-			Config::getInstance()->getValue('manifestList'),
-			Config::getInstance()->getValue('serializationList'),
+			Config::getInstance()->getManifestListPath(),
+			Config::getInstance()->getSerializationListPath(),
 			$this->mInstanceModels
 		);
 	}	

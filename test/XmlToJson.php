@@ -13,7 +13,7 @@ foreach ($lFolders as $lFolder) {
 		$dir = dirname($lFile);
 		if (basename($lFile) == 'manifest.xml' && !file_exists($dir.'/manifest.json')) {
 			$xml = simplexml_load_file($lFile);
-			if (isset($xml->serialization)) {
+			if (isset($xml->serialization) || !isset($xml->properties->property)) {
 				transformSerialization($xml, $dir);
 			} else {
 				transformManifest($xml, $dir);
@@ -26,16 +26,21 @@ function transformSerialization($xml, $dir) {
 	$lJson = new stdClass();
 
 	$lJson->version = (string) $xml['version'];
-	$lJson->serialization = new stdClass();
-	$lType = (string) $xml->serialization['type'];
-	$lJson->serialization->type = $lType;
-	if (isset($xml->serialization->$lType)) {
-		$lJson->serialization->value = [];
-		foreach ($xml->serialization->$lType->attributes() as $lName => $lValue) {
-			$lJson->serialization->value[$lName] = (string) $lValue;
+	if (isset($xml->serialization)) {
+		$lJson->serialization = new stdClass();
+		$lType = (string) $xml->serialization['type'];
+		$lJson->serialization->type = $lType;
+		if (isset($xml->serialization['inheritanceKey'])) {
+			$lJson->serialization->inheritanceKey = (string) $xml->serialization['inheritanceKey'];
 		}
-	} else {
-		$lJson->serialization->id = (string) $xml->serialization;
+		if (isset($xml->serialization->value)) {
+			$lJson->serialization->value = [];
+			foreach ($xml->serialization->value->attributes() as $lName => $lValue) {
+				$lJson->serialization->value[$lName] = (string) $lValue;
+			}
+		} else {
+			$lJson->serialization->id = (string) $xml->serialization['id'];
+		}
 	}
 	
 	if (isset($xml->properties)) {
@@ -47,10 +52,10 @@ function transformSerialization($xml, $dir) {
 			if (isset($lChild['serializationName'])) {
 				$lproperty->serializationName = (string) $lChild['serializationName'];
 			}
-			if (isset($lChild->serializationNames->serializationName)) {
+			if (isset($lChild->serializationNames)) {
 				$serializationNames = [];
-				foreach ($lChild->serializationNames->serializationName as $serializationName) {
-					$serializationNames[] = (string) $serializationName;
+				foreach ($lChild->serializationNames->children() as $serializationName) {
+					$serializationNames[$serializationName->getName()] = (string) $serializationName;
 				}
 				$lproperty->serializationNames = $serializationNames;
 			}
@@ -61,8 +66,8 @@ function transformSerialization($xml, $dir) {
 				}
 				$lproperty->aggregations = $aggregations;
 			}
-			if (isset($lChild['serializable'])) {
-				$lproperty->is_serializable = (string) $lChild['serializable'] !== '0';
+			if (isset($lChild['is_serializable'])) {
+				$lproperty->is_serializable = (string) $lChild['is_serializable'] !== '0';
 			}	
 			$lJson->properties->{$lChild->getName()} = $lproperty;
 		}
@@ -71,7 +76,7 @@ function transformSerialization($xml, $dir) {
 		}
 	}
 	
-	file_put_contents($dir.'/manifest.json', json_encode($lJson));
+	file_put_contents($dir.'/manifest.json', json_encode($lJson, JSON_PRETTY_PRINT));
 }
 
 function transformManifest($xml, $dir) {
@@ -95,23 +100,24 @@ function transformManifest($xml, $dir) {
 		}
 	}
 	if (isset($xml->types)) {
-		$lJson->types = new stdClass();
+		$lJson->types = [];
 		foreach ($xml->types->children() as $type) {
-			$lType = $type->getName();
-			$lJson->types->$lType = new stdClass();
+			$lType = new stdClass();
+			$lType->name = (string) $type['name'];
 			if (isset($type['object'])) {
-				$lJson->types->$lType->object = (string) $type['object'];
+				$lType->object = (string) $type['object'];
 			}
 			if (isset($type['extends'])) {
-				$lJson->types->$lType->extends = (string) $type['extends'];
+				$lType->extends = (string) $type['extends'];
 			}
-			$lJson->types->$lType->properties = getProperties($type->properties);
+			$lType->properties = getProperties($type->properties);
+			$lJson->types[] = $lType;
 		}
 	}
 	$lJson->properties = new stdClass();
 	$lJson->properties = getProperties($xml->properties);
 	
-	file_put_contents($dir.'/manifest.json', json_encode($lJson));
+	file_put_contents($dir.'/manifest.json', json_encode($lJson, JSON_PRETTY_PRINT));
 }
 
 function getDirContents($dir, &$results = array()){
@@ -131,13 +137,12 @@ function getDirContents($dir, &$results = array()){
 }
 
 function getProperties($xml) {
-	$lPropertiesJson = new stdClass();
+	$lPropertiesJson = [];
 	
 	foreach ($xml->children() as $lChild) {
 		$lJson = new stdClass();
 		$lTypeId = (string) $lChild['type'];
 		if ($lTypeId == 'array') {
-			$lPropertyName = (string) $lChild->name;
 			$lJson->values = new stdClass();
 			$lJson->values->type = (string) $lChild->values['type'];
 			$lJson->values->name = (string) $lChild->values['name'];
@@ -156,7 +161,6 @@ function getProperties($xml) {
 			}
 		}
 		else if (isset($lChild->enum)) {
-			$lPropertyName = (string) $lChild->name;
 			$lJson->enum = [];
 			foreach ($lChild->enum->value as $value) {
 			if ($lTypeId == 'integer') {
@@ -168,17 +172,16 @@ function getProperties($xml) {
 				}
 			}
 		}
-		else {
-			$lPropertyName = (string) $lChild;
-		}
+		$lJson->name = (string) $lChild['name'];
+		
 		$lJson->type = $lTypeId;
-		if ($lChild->getName() == 'foreignProperty') {
+		if (isset($lChild['is_foreign']) && ((string) $lChild['is_foreign'] == '1')) {
 			$lJson->is_foreign = true;
 		}
-		if (isset($lChild['id']) && ((string) $lChild['id'] == '1')) {
+		if (isset($lChild['is_id']) && ((string) $lChild['is_id'] == '1')) {
 			$lJson->is_id = true;
 		}
-		if (isset($lChild['private']) && ((string) $lChild['private'] == '1')) {
+		if (isset($lChild['is_private']) && ((string) $lChild['is_private'] == '1')) {
 			$lJson->is_private = true;
 		}
 		if (isset($lChild['xml'])) {
@@ -195,7 +198,7 @@ function getProperties($xml) {
 				$lJson->default = (string) $lChild['default'];
 			}
 		}
-		$lPropertiesJson->$lPropertyName = $lJson;
+		$lPropertiesJson[] = $lJson;
 	}
 	return $lPropertiesJson;
 }

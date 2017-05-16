@@ -1,19 +1,23 @@
 {
-	"version": "2.0",
-	"properties": {
-		"id": {
-			"type": "integer",
-			"is_id": true
-		},
-		"name": {
-			"type": "string"
-		},
-		"surface": {
-			"type": "integer"
-		},
-		"cityHall": {
-			"type": "place",
-			"is_foreign": true
-		}
-	}
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "name",
+            "type": "string"
+        },
+        {
+            "name": "surface",
+            "type": "integer"
+        },
+        {
+            "name": "cityHall",
+            "type": "place",
+            "is_foreign": true
+        }
+    ]
 }

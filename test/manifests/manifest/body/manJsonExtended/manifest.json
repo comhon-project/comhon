@@ -1,9 +1,10 @@
 {
-	"version": "2.0",
-	"extends": "manBodyJson",
-	"properties": {
-		"value": {
-			"type": "string"
-		}
-	}
+    "version": "2.0",
+    "extends": "manBodyJson",
+    "properties": [
+        {
+            "name": "value",
+            "type": "string"
+        }
+    ]
 }

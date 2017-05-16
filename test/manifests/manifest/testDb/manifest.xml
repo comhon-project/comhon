@@ -1,60 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<types>
-		<object>
+		<type name="object">
 			<properties>
-				<property type="string">plop</property>
-				<property type="string">plop2</property>
+				<property type="string" name="plop"/>
+				<property type="string" name="plop2"/>
 			</properties>
-		</object>
-		<objectWithId>
+		</type>
+		<type name="objectWithId">
 			<properties>
-				<property type="string" id="1">plop</property>
-				<property type="string">plop2</property>
+				<property type="string" is_id="1" name="plop"/>
+				<property type="string" name="plop2"/>
 			</properties>
-		</objectWithId>
-		<objectWithIdAndMore extends='objectWithId'>
+		</type>
+		<type name="objectWithIdAndMore" extends="objectWithId">
 			<properties>
-				<property type="string" private="1">plop3</property>
+				<property type="string" is_private="1" name="plop3"/>
 			</properties>
-		</objectWithIdAndMore>
-		<objectWithIdAndMoreMore extends='objectWithIdAndMore'>
+		</type>
+		<type name="objectWithIdAndMoreMore" extends="objectWithIdAndMore">
 			<properties>
-				<property type="string">plop4</property>
+				<property type="string" name="plop4"/>
 			</properties>
-		</objectWithIdAndMoreMore>
+		</type>
 	</types>
 	
 	<properties>
-		<property type="integer" id="1">id1</property>
-		<property type="string" id="1">id2</property>
-		<property type="dateTime">date</property>
-		<property type="dateTime">timestamp</property>
-		<property type="object">object</property>
-		<property type="objectWithId">objectWithId</property>
-		<property type="string" private="1">string</property>
-		<property type="integer">integer</property>
-		<foreignProperty type="mainTestDb">mainParentTestDb</foreignProperty>
-		<property type="array">
-			<name>objectsWithId</name>
+		<property type="integer" is_id="1" name="id1"/>
+		<property type="string" is_id="1" name="id2"/>
+		<property type="dateTime" name="date"/>
+		<property type="dateTime" name="timestamp"/>
+		<property type="object" name="object"/>
+		<property type="objectWithId" name="objectWithId"/>
+		<property type="string" is_private="1" name="string"/>
+		<property type="integer" name="integer"/>
+		<property is_foreign="1" type="mainTestDb" name="mainParentTestDb"/>
+		<property type="array" name="objectsWithId">
 			<values type="objectWithId" name="objectWithId"/>
 		</property>
-		<foreignProperty type="array">
-			<name>foreignObjects</name>
+		<property is_foreign="1" type="array" name="foreignObjects">
 			<values type="objectWithId" name="foreignObject"/>
-		</foreignProperty>
-		<foreignProperty type="objectWithId">lonelyForeignObject</foreignProperty>
-		<foreignProperty type="objectWithIdAndMore">lonelyForeignObjectTwo</foreignProperty>
-		<property type="string" default="default">defaultValue</property>
-		<foreignProperty type="manBodyJson">manBodyJson</foreignProperty>
-		<foreignProperty type="womanXml">womanXml</foreignProperty>
-		<property type="string">notSerializedValue</property>
-		<foreignProperty type="objectWithId">notSerializedForeignObject</foreignProperty>
-		<property type="boolean">boolean</property>
-		<property type="boolean">boolean2</property>
-		<foreignProperty type="array">
-			<name>childrenTestDb</name>
+		</property>
+		<property is_foreign="1" type="objectWithId" name="lonelyForeignObject"/>
+		<property is_foreign="1" type="objectWithIdAndMore" name="lonelyForeignObjectTwo"/>
+		<property type="string" default="default" name="defaultValue"/>
+		<property is_foreign="1" type="manBodyJson" name="manBodyJson"/>
+		<property is_foreign="1" type="womanXml" name="womanXml"/>
+		<property type="string" name="notSerializedValue"/>
+		<property is_foreign="1" type="objectWithId" name="notSerializedForeignObject"/>
+		<property type="boolean" name="boolean"/>
+		<property type="boolean" name="boolean2"/>
+		<property is_foreign="1" type="array" name="childrenTestDb">
 			<values type="childTestDb" name="childTestDb"/>
-		</foreignProperty>
+		</property>
 	</properties>
 </manifest>

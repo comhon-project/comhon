@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<properties>
-		<property type="integer" id="1">id</property>
-		<property type="float">surface</property>
-		<property type="string">type</property>
-		<property type="boolean">garden</property>
-		<property type="boolean">garage</property>
-		<foreignProperty type="array">
-			<name>residents</name>
+		<property type="integer" is_id="1" name="id"/>
+		<property type="float" name="surface"/>
+		<property type="string" name="type"/>
+		<property type="boolean" name="garden"/>
+		<property type="boolean" name="garage"/>
+		<property is_foreign="1" type="array" name="residents">
 			<values type="home" name="resident"/>
-		</foreignProperty>
+		</property>
 	</properties>
 </manifest>

@@ -2,6 +2,7 @@
 namespace comhon\object\config;
 
 use comhon\object\extendable\Object;
+use comhon\object\Object as AbstractObject;
 use comhon\interfacer\StdObjectInterfacer;
 
 class Config extends Object {
@@ -27,6 +28,58 @@ class Config extends Object {
 	
 	protected function _getModelName() {
 		return 'config';
+	}
+	
+	/**
+	 * 
+	 * @return AbstractObject|null
+	 */
+	public function getDataBaseOptions() {
+		return $this->getValue('database');
+	}
+	
+	/**
+	 *
+	 * @return string
+	 */
+	public function getDataBaseCharset() {
+		return ($this->getValue('database') instanceof AbstractObject) && $this->getValue('database')->hasValue('charset')
+			? $this->getValue('database')->getValue('charset')
+			: 'utf8';
+	}
+	
+	/**
+	 *
+	 * @return string
+	 */
+	public function getDataBaseTimezone() {
+		return ($this->getValue('database') instanceof AbstractObject) && $this->getValue('database')->hasValue('timezone')
+		? $this->getValue('database')->getValue('timezone')
+		: 'UTC';
+	}
+	
+	/**
+	 *
+	 * @return string
+	 */
+	public function getManifestListPath() {
+		return $this->getValue('manifestList');
+	}
+	
+	/**
+	 *
+	 * @return string
+	 */
+	public function getSerializationListPath() {
+		return $this->getValue('serializationList');
+	}
+	
+	/**
+	 *
+	 * @return string
+	 */
+	public function getRegexListPath() {
+		return $this->getValue('regexList');
 	}
 	
 }

@@ -1,23 +1,28 @@
 {
-	"version": "2.0",
-	"properties": {
-		"id": {
-			"type": "integer",
-			"is_id": true
-		},
-		"beginDate": {
-			"type": "string"
-		},
-		"endDate": {
-			"type": "string"
-		},
-		"person": {
-			"type": "person",
-			"is_foreign": true
-		},
-		"house": {
-			"type": "house",
-			"is_foreign": true
-		}
-	}
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "beginDate",
+            "type": "string"
+        },
+        {
+            "name": "endDate",
+            "type": "string"
+        },
+        {
+            "name": "person",
+            "type": "person",
+            "is_foreign": true
+        },
+        {
+            "name": "house",
+            "type": "house",
+            "is_foreign": true
+        }
+    ]
 }

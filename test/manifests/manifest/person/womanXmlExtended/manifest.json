@@ -1,9 +1,10 @@
 {
-	"version": "2.0",
-	"extends": "womanXml",
-	"properties": {
-		"value": {
-			"type": "string"
-		}
-	}
+    "version": "2.0",
+    "extends": "womanXml",
+    "properties": [
+        {
+            "name": "value",
+            "type": "string"
+        }
+    ]
 }

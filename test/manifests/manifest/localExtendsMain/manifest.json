@@ -1,27 +1,32 @@
 {
-	"version": "2.0",
-	"extends": "test",
-	"types": {
-		"localPlace": {
-			"extends": "place",
-			"properties": {
-				"stringValue": {
-					"type": "string"
-				},
-				"booleanValue": {
-					"type": "boolean",
-					"default": false
-				}
-			}
-		}
-	},
-	"properties": {
-		"localExtendsMainObj": {
-			"type": "place"
-		},
-		"localExtendsMainObjForeign": {
-			"type": "place",
-			"is_foreign": true
-		}
-	}
+    "version": "2.0",
+    "extends": "test",
+    "types": [
+        {
+            "name": "localPlace",
+            "extends": "place",
+            "properties": [
+                {
+                    "name": "stringValue",
+                    "type": "string"
+                },
+                {
+                    "name": "booleanValue",
+                    "type": "boolean",
+                    "default": false
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "localExtendsMainObj",
+            "type": "place"
+        },
+        {
+            "name": "localExtendsMainObjForeign",
+            "type": "place",
+            "is_foreign": true
+        }
+    ]
 }

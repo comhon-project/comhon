@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<properties>
-		<property type="string" id="1">id</property>
-		<property type="string">DBMS</property>
-		<property type="string">host</property>
-		<property type="string">name</property>
-		<property type="string">user</property>
-		<property type="string" private="1">password</property>
-		<property type="integer">port</property>
+		<property type="string" is_id="1" name="id"/>
+		<property type="string" name="DBMS"/>
+		<property type="string" name="host"/>
+		<property type="string" name="name"/>
+		<property type="string" name="user"/>
+		<property type="string" is_private="1" name="password"/>
+		<property type="integer" name="port"/>
 	</properties>
 </manifest>

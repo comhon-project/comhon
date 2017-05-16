@@ -1,34 +1,41 @@
 {
-	"version": "2.0",
-	"properties": {
-		"id": {
-			"type": "integer",
-			"is_id": true
-		},
-		"number": {
-			"type": "integer"
-		},
-		"type": {
-			"enum": [
-				"street",
-				"avenue",
-				"boulevard",
-				"square"
-			],
-			"type": "string"
-		},
-		"name": {
-			"type": "string"
-		},
-		"geographicLatitude": {
-			"type": "float"
-		},
-		"geographicLongitude": {
-			"type": "float"
-		},
-		"town": {
-			"type": "town",
-			"is_foreign": true
-		}
-	}
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "number",
+            "type": "integer"
+        },
+        {
+            "enum": [
+                "street",
+                "avenue",
+                "boulevard",
+                "square"
+            ],
+            "name": "type",
+            "type": "string"
+        },
+        {
+            "name": "name",
+            "type": "string"
+        },
+        {
+            "name": "geographicLatitude",
+            "type": "float"
+        },
+        {
+            "name": "geographicLongitude",
+            "type": "float"
+        },
+        {
+            "name": "town",
+            "type": "town",
+            "is_foreign": true
+        }
+    ]
 }

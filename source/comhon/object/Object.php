@@ -554,7 +554,7 @@ abstract class Object {
 	
 	/**
 	 *
-	 * @return string|null
+	 * @return string
 	 */
 	public function __toString() {
 		try {

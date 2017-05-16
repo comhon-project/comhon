@@ -1,29 +1,35 @@
 {
-	"version": "2.0",
-	"properties": {
-		"id": {
-			"type": "integer",
-			"is_id": true
-		},
-		"surface": {
-			"type": "float"
-		},
-		"type": {
-			"type": "string"
-		},
-		"garden": {
-			"type": "boolean"
-		},
-		"garage": {
-			"type": "boolean"
-		},
-		"residents": {
-			"values": {
-				"type": "home",
-				"name": "resident"
-			},
-			"type": "array",
-			"is_foreign": true
-		}
-	}
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "surface",
+            "type": "float"
+        },
+        {
+            "name": "type",
+            "type": "string"
+        },
+        {
+            "name": "garden",
+            "type": "boolean"
+        },
+        {
+            "name": "garage",
+            "type": "boolean"
+        },
+        {
+            "values": {
+                "type": "home",
+                "name": "resident"
+            },
+            "name": "residents",
+            "type": "array",
+            "is_foreign": true
+        }
+    ]
 }

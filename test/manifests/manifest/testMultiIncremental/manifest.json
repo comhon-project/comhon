@@ -1,16 +1,19 @@
 {
-	"version": "2.0",
-	"properties": {
-		"id1": {
-			"type": "integer",
-			"is_id": true
-		},
-		"id2": {
-			"type": "integer",
-			"is_id": true
-		},
-		"plop": {
-			"type": "string"
-		}
-	}
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "id1",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "id2",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "plop",
+            "type": "string"
+        }
+    ]
 }

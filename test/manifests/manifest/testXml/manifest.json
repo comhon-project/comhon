@@ -1,86 +1,105 @@
 {
-	"version": "2.0",
-	"manifests": {
-		"personLocal": "../personLocal/manifest.xml"
-	},
-	"types": {
-		"objectContainer": {
-			"properties": {
-				"foreignObjectValue": {
-					"type": "object",
-					"is_foreign": true
-				},
-				"objectValueTwo": {
-					"type": "objectTwo"
-				},
-				"person": {
-					"type": "personLocal"
-				}
-			}
-		},
-		"object": {
-			"properties": {
-				"id": {
-					"type": "string",
-					"is_id": true
-				},
-				"propertyOne": {
-					"type": "string"
-				},
-				"propertyTwo": {
-					"type": "string"
-				}
-			}
-		},
-		"objectTwo": {
-			"properties": {
-				"id": {
-					"type": "string",
-					"is_id": true
-				},
-				"propertyTwoOne": {
-					"type": "string"
-				},
-				"propertyTwoTwo": {
-					"type": "string"
-				}
-			}
-		}
-	},
-	"properties": {
-		"name": {
-			"type": "string",
-			"is_id": true,
-			"xml": "node"
-		},
-		"textNode": {
-			"type": "string",
-			"xml": "node"
-		},
-		"textAttribute": {
-			"type": "string",
-			"xml": "attribute"
-		},
-		"objectValue": {
-			"type": "object"
-		},
-		"objectValues": {
-			"values": {
-				"type": "object",
-				"name": "objectValue"
-			},
-			"type": "array"
-		},
-		"objectContainer": {
-			"type": "objectContainer"
-		},
-		"foreignObjectValues": {
-			"values": {
-				"type": "object",
-				"name": "foreignObjectValue"
-			},
-			"type": "array",
-			"is_foreign": true
-		}
-	}
+    "version": "2.0",
+    "manifests": {
+        "personLocal": "..\/personLocal\/manifest.xml"
+    },
+    "types": [
+        {
+            "name": "objectContainer",
+            "properties": [
+                {
+                    "name": "foreignObjectValue",
+                    "type": "object",
+                    "is_foreign": true
+                },
+                {
+                    "name": "objectValueTwo",
+                    "type": "objectTwo"
+                },
+                {
+                    "name": "person",
+                    "type": "personLocal"
+                }
+            ]
+        },
+        {
+            "name": "object",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "is_id": true
+                },
+                {
+                    "name": "propertyOne",
+                    "type": "string"
+                },
+                {
+                    "name": "propertyTwo",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "objectTwo",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "is_id": true
+                },
+                {
+                    "name": "propertyTwoOne",
+                    "type": "string"
+                },
+                {
+                    "name": "propertyTwoTwo",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "name",
+            "type": "string",
+            "is_id": true,
+            "xml": "node"
+        },
+        {
+            "name": "textNode",
+            "type": "string",
+            "xml": "node"
+        },
+        {
+            "name": "textAttribute",
+            "type": "string",
+            "xml": "attribute"
+        },
+        {
+            "name": "objectValue",
+            "type": "object"
+        },
+        {
+            "values": {
+                "type": "object",
+                "name": "objectValue"
+            },
+            "name": "objectValues",
+            "type": "array"
+        },
+        {
+            "name": "objectContainer",
+            "type": "objectContainer"
+        },
+        {
+            "values": {
+                "type": "object",
+                "name": "foreignObjectValue"
+            },
+            "name": "foreignObjectValues",
+            "type": "array",
+            "is_foreign": true
+        }
+    ]
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="sqlTable">test</serialization>
+	<serialization type="sqlTable" id="test"/>
 	<properties>
 		<id1 serializationName="id_1"/>
 		<id2 serializationName="id_2"/>
@@ -13,8 +13,8 @@
 		<defaultValue serializationName="default_value"/>
 		<manBodyJson serializationName="man_body_json_id"/>
 		<womanXml serializationName="woman_xml_id"/>
-		<notSerializedValue serializable="0"/>
-		<notSerializedForeignObject serializable="0"/>
+		<notSerializedValue is_serializable="0"/>
+		<notSerializedForeignObject is_serializable="0"/>
 		<childrenTestDb>
 			<aggregations>
 				<aggregation>parentTestDb</aggregation>

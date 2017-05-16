@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<types>
-		<art>
+		<type name="art">
 			<properties>
-				<property type="string">type</property>
-				<property type="string">location</property>
+				<property type="string" name="type"/>
+				<property type="string" name="location"/>
 			</properties>
-		</art>
-		<tatoo extends="art">
+		</type>
+		<type name="tatoo" extends="art">
 			<properties>
-				<foreignProperty type="person">tatooArtist</foreignProperty>
+				<property is_foreign="1" type="person" name="tatooArtist"/>
 			</properties>
-		</tatoo>
-		<piercing extends="art">
+		</type>
+		<type name="piercing" extends="art">
 			<properties>
-				<foreignProperty type="person">piercer</foreignProperty>
+				<property is_foreign="1" type="person" name="piercer"/>
 			</properties>
-		</piercing>
+		</type>
 	</types>
 	<properties>
-		<property type="integer" id="1">id</property>
-		<property type="dateTime">date</property>
-		<property type="float">height</property>
-		<property type="float">weight</property>
-		<property type="string">hairColor</property>
-		<property type="string">hairCut</property>
-		<property type="string">eyesColor</property>
-		<property type="string">
-			<name>physicalAppearance</name>
+		<property type="integer" is_id="1" name="id"/>
+		<property type="dateTime" name="date"/>
+		<property type="float" name="height"/>
+		<property type="float" name="weight"/>
+		<property type="string" name="hairColor"/>
+		<property type="string" name="hairCut"/>
+		<property type="string" name="eyesColor"/>
+		<property type="string" name="physicalAppearance">
 			<enum>
 				<value>slim</value>
 				<value>average</value>
@@ -36,18 +35,15 @@
 				<value>fat</value>
 			</enum>
 		</property>
-		<property type="array">
-			<name>tatoos</name>
+		<property type="array" name="tatoos">
 			<values type="tatoo" name="tatoo"/>
 		</property>
-		<property type="array">
-			<name>piercings</name>
+		<property type="array" name="piercings">
 			<values type="piercing" name="piercing"/>
 		</property>
-		<property type="array">
-			<name>arts</name>
+		<property type="array" name="arts">
 			<values type="art" name="art"/>
 		</property>
-		<foreignProperty type="person">owner</foreignProperty>
+		<property is_foreign="1" type="person" name="owner"/>
 	</properties>
 </manifest>

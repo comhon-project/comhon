@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<properties>
-		<property type="integer" id="1">id</property>
-		<property type="dateTime">date</property>
-		<property type="float">height</property>
-		<property type="float">weight</property>
-		<property type="string">hairColor</property>
-		<property type="string">hairCut</property>
-		<property type="string">eyesColor</property>
-		<property type="boolean">baldness</property>
+		<property type="integer" is_id="1" name="id"/>
+		<property type="dateTime" name="date"/>
+		<property type="float" name="height"/>
+		<property type="float" name="weight"/>
+		<property type="string" name="hairColor"/>
+		<property type="string" name="hairCut"/>
+		<property type="string" name="eyesColor"/>
+		<property type="boolean" name="baldness"/>
 	</properties>
 </manifest>

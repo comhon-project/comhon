@@ -1,31 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<types>
-		<object>
+		<type name="object">
 			<properties>
-				<property type="integer" id="1" private="1">id1</property>
-				<property type="integer" id="1">id2</property>
-				<property type="string">propertyOne</property>
+				<property type="integer" is_id="1" is_private="1" name="id1"/>
+				<property type="integer" is_id="1" name="id2"/>
+				<property type="string" name="propertyOne"/>
 			</properties>
-		</object>
+		</type>
 	</types>
 	
 	<properties>
-		<property type="string" id="1" private="1">id</property>
-		<property type="string">name</property>
-		<property type="array">
-			<name>objectValues</name>
+		<property type="string" is_id="1" is_private="1" name="id"/>
+		<property type="string" name="name"/>
+		<property type="array" name="objectValues">
 			<values type="object" name="objectValue"/>
 		</property>
-		<foreignProperty type="object">foreignObjectValue</foreignProperty>
-		<foreignProperty type="array">
-			<name>foreignObjectValues</name>
+		<property is_foreign="1" type="object" name="foreignObjectValue"/>
+		<property is_foreign="1" type="array" name="foreignObjectValues">
 			<values type="object" name="foreignObjectValue"/>
-		</foreignProperty>
-		<foreignProperty type="testPrivateId">foreignTestPrivateId</foreignProperty>
-		<foreignProperty type="array">
-			<name>foreignTestPrivateIds</name>
+		</property>
+		<property is_foreign="1" type="testPrivateId" name="foreignTestPrivateId"/>
+		<property is_foreign="1" type="array" name="foreignTestPrivateIds">
 			<values type="testPrivateId" name="foreignTestPrivateId"/>
-		</foreignProperty>
+		</property>
 	</properties>
 </manifest>

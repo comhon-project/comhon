@@ -1,30 +1,38 @@
 {
-	"version": "2.0",
-	"properties": {
-		"id": {
-			"type": "integer",
-			"is_id": true
-		},
-		"date": {
-			"type": "dateTime"
-		},
-		"height": {
-			"type": "float"
-		},
-		"weight": {
-			"type": "float"
-		},
-		"hairColor": {
-			"type": "string"
-		},
-		"hairCut": {
-			"type": "string"
-		},
-		"eyesColor": {
-			"type": "string"
-		},
-		"baldness": {
-			"type": "boolean"
-		}
-	}
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "date",
+            "type": "dateTime"
+        },
+        {
+            "name": "height",
+            "type": "float"
+        },
+        {
+            "name": "weight",
+            "type": "float"
+        },
+        {
+            "name": "hairColor",
+            "type": "string"
+        },
+        {
+            "name": "hairCut",
+            "type": "string"
+        },
+        {
+            "name": "eyesColor",
+            "type": "string"
+        },
+        {
+            "name": "baldness",
+            "type": "boolean"
+        }
+    ]
 }

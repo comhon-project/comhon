@@ -1,15 +1,15 @@
 {
-	"version": "2.0",
-	"serialization": {
-		"type": "sqlTable",
-		"id": "place"
-	},
-	"properties": {
-		"geographicLatitude": {
-			"serializationName": "geographic_latitude"
-		},
-		"geographicLongitude": {
-			"serializationName": "geographic_longitude"
-		}
-	}
+    "version": "2.0",
+    "serialization": {
+        "type": "sqlTable",
+        "id": "place"
+    },
+    "properties": {
+        "geographicLatitude": {
+            "serializationName": "geographic_latitude"
+        },
+        "geographicLongitude": {
+            "serializationName": "geographic_longitude"
+        }
+    }
 }
