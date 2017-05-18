@@ -142,6 +142,9 @@ function getProperties($xml) {
 	foreach ($xml->children() as $lChild) {
 		$lJson = new stdClass();
 		$lTypeId = (string) $lChild['type'];
+		$lJson->name = (string) $lChild['name'];
+		$lJson->type = $lTypeId;
+		
 		if ($lTypeId == 'array') {
 			$lJson->values = new stdClass();
 			$lJson->values->type = (string) $lChild->values['type'];
@@ -159,22 +162,33 @@ function getProperties($xml) {
 					}
 				}
 			}
-		}
-		else if (isset($lChild->enum)) {
-			$lJson->enum = [];
-			foreach ($lChild->enum->value as $value) {
-			if ($lTypeId == 'integer') {
-					$lJson->enum[] = (integer) $value;
-				}else if ($lTypeId == 'float') {
-					$lJson->enum[] = (integer) $value;
-				} else {
-					$lJson->enum[] = (string) $value;
-				}
+			if (isset($lChild->values['interval'])) {
+				$lJson->values->interval = (string) $lChild->values['interval'];
+			}
+			if (isset($lChild->values['regex'])) {
+				$lJson->values->regex= (string) $lChild->values['regex'];
 			}
 		}
-		$lJson->name = (string) $lChild['name'];
-		
-		$lJson->type = $lTypeId;
+		else {
+			if (isset($lChild->enum)) {
+				$lJson->enum = [];
+				foreach ($lChild->enum->value as $value) {
+				if ($lTypeId == 'integer') {
+						$lJson->enum[] = (integer) $value;
+					}else if ($lTypeId == 'float') {
+						$lJson->enum[] = (integer) $value;
+					} else {
+						$lJson->enum[] = (string) $value;
+					}
+				}
+			}
+			if (isset($lChild['interval'])) {
+				$lJson->interval = (string) $lChild['interval'];
+			}
+			if (isset($lChild['regex'])) {
+				$lJson->regex= (string) $lChild['regex'];
+			}
+		}
 		if (isset($lChild['is_foreign']) && ((string) $lChild['is_foreign'] == '1')) {
 			$lJson->is_foreign = true;
 		}

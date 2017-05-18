@@ -4,13 +4,20 @@ namespace comhon\manifest\parser\v_2_0;
 
 use \Exception;
 use comhon\model\ModelArray;
-use comhon\model\ModelEnum;
 use comhon\model\ModelDateTime;
 use comhon\model\Model;
 use comhon\model\property\Property;
 use comhon\model\SimpleModel;
 use comhon\manifest\parser\ManifestParser as ParentManifestParser;
 use comhon\interfacer\XMLInterfacer;
+use comhon\model\ModelString;
+use comhon\model\ModelFloat;
+use comhon\model\ModelInteger;
+use comhon\model\restriction\Enum;
+use comhon\model\restriction\Interval;
+use comhon\model\restriction\Regex;
+use comhon\model\ModelContainer;
+use comhon\model\ModelRestrictedArray;
 
 class ManifestParser extends ParentManifestParser {
 
@@ -117,17 +124,49 @@ class ManifestParser extends ParentManifestParser {
 	
 	/**
 	 *
-	 * @param Model $pPropertyModel
+	 * @param mixed $pCurrentNode
+	 * @param Model $pUniqueModel
 	 */
-	protected function _getRestriction(Model $pPropertyModel) {
-		$lCurrentProperty = current($this->mCurrentProperties);
+	protected function _getRestriction($pCurrentNode, Model $pUniqueModel) {
+		if ($pUniqueModel instanceof ModelContainer) {
+			return null;
+		}
+		$lRestriction  = null;
 		
-		return ;
+		if ($this->mInterfacer->hasValue($pCurrentNode, 'enum', true)) {
+			$lEnumValues = $this->mInterfacer->getTraversableNode($this->mInterfacer->getValue($pCurrentNode, 'enum', true));
+			if ($this->mInterfacer instanceof XMLInterfacer) {
+				if ($pUniqueModel instanceof ModelInteger) {
+					foreach ($lEnumValues as $lDomNode) {
+						$lEnumValues[] = $this->mInterfacer->extractNodeText($lDomNode);
+					}
+				} elseif (($pUniqueModel instanceof ModelString) || ($pUniqueModel instanceof ModelFloat)) {
+					foreach ($lEnumValues as $lDomNode) {
+						$lEnumValues[] = (integer) $this->mInterfacer->extractNodeText($lDomNode);
+					}
+				} else {
+					throw new \Exception('enum cannot be defined on '.$pUniqueModel->getName());
+				}
+			}
+			$lRestriction = new Enum($lEnumValues);
+		}
+		elseif ($this->mInterfacer->hasValue($pCurrentNode, 'interval')) {
+			$lRestriction = new Interval($this->mInterfacer->getValue($pCurrentNode, 'interval'), $pUniqueModel);
+			
+		}
+		elseif ($this->mInterfacer->hasValue($pCurrentNode, 'regex')) {
+			if (!($pUniqueModel instanceof ModelString)) {
+				throw new \Exception('regex cannot be defined on '.$pUniqueModel->getName());
+			}
+			$lRestriction = new Regex($this->mInterfacer->getValue($pCurrentNode, 'regex'));
+		}
+		
+		return $lRestriction;
 	}
 	
 	/**
 	 *
-	 * @param Model $pPropertyModel
+	 * @param Model $pUniqueModel
 	 * @return mixed|null
 	 */
 	protected function _getDefaultValue(Model $pPropertyModel) {
@@ -141,8 +180,6 @@ class ManifestParser extends ParentManifestParser {
 				}
 			} else if ($pPropertyModel instanceof SimpleModel) {
 				$lDefault = $pPropertyModel->importSimple($lDefault, $this->mInterfacer);
-			} else if ($pPropertyModel instanceof ModelEnum) {
-				$lDefault = $pPropertyModel->getModel()->importSimple($lDefault, $this->mInterfacer);
 			} else {
 				throw new \Exception('default value can\'t be applied on complex model');
 			}
@@ -159,8 +196,8 @@ class ManifestParser extends ParentManifestParser {
 	 * @throws \Exception
 	 * @return Model
 	 */
-	private function _completePropertyModel($pPropertyNode, $pModel) {
-		$lPropertyModel = null;
+	private function _completePropertyModel($pPropertyNode, $pUniqueModel) {
+		$lPropertyModel = $pUniqueModel;
 		$lTypeId        = $this->mInterfacer->getValue($pPropertyNode,'type');
 	
 		if ($lTypeId == 'array') {
@@ -172,24 +209,12 @@ class ManifestParser extends ParentManifestParser {
 			if (is_null($lValuesName)) {
 				throw new \Exception('type array must have a values name property');
 			}
-			$lPropertyModel = new ModelArray($this->_completePropertyModel($lValuesNode, $pModel), $lValuesName);
-		}
-		else {
-			if ($pModel->getName() !== $lTypeId) {
-				throw new \Exception('model doesn\'t match with type');
-			}
-			$lEnumNode = $this->mInterfacer->getValue($pPropertyNode, 'enum', true);
-			if (is_null($lEnumNode)) {
-				$lPropertyModel = $pModel;
-			}
-			else {
-				$lList = $this->mInterfacer->getTraversableNode($lEnumNode);
-				if ($this->mInterfacer instanceof XMLInterfacer) {
-					foreach ($lList as $lName => $lDomNode) {
-						$lList[$lName] = $this->mInterfacer->extractNodeText($lDomNode);
-					}
-				}
-				$lPropertyModel = new ModelEnum($pModel, $lList);
+			$lSubModel = $this->_completePropertyModel($lValuesNode, $pUniqueModel);
+			$lRestriction = $this->_getRestriction($lValuesNode, $pUniqueModel);
+			if (is_null($lRestriction)) {
+				$lPropertyModel = new ModelArray($lSubModel, $lValuesName);
+			} else {
+				$lPropertyModel = new ModelRestrictedArray($lSubModel, $lRestriction, $lValuesName);
 			}
 		}
 		return $lPropertyModel;

@@ -14,6 +14,8 @@ use comhon\interfacer\Interfacer;
 use comhon\interfacer\AssocArrayInterfacer;
 use comhon\interfacer\StdObjectInterfacer;
 use comhon\interfacer\NoScalarTypedInterfacer;
+use comhon\model\property\RestrictedProperty;
+use comhon\exception\NotSatisfiedRestrictionException;
 
 abstract class ManifestParser {
 
@@ -45,7 +47,7 @@ abstract class ManifestParser {
 	abstract protected function _getCurrentProperties();
 	abstract protected function _getBaseInfosProperty(Model $pPropertyModel);
 	abstract protected function _getDefaultValue(Model $pPropertyModel);
-	abstract protected function _getRestriction(Model $pPropertyModel);
+	abstract protected function _getRestriction($pCurrentNode, Model $pPropertyModel);
 	abstract protected function _isCurrentPropertyForeign();
 	
 	/**
@@ -157,12 +159,21 @@ abstract class ManifestParser {
 			list($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames) = $this->_getBaseSerializationInfosProperty($lName);
 			
 			$lDefault = $this->_getDefaultValue($lModel);
-			$lRestriction = $this->_getRestriction($lModel);
+			$lRestriction = $this->_getRestriction(current($this->mCurrentProperties), $lModel);
 			
 			if (!empty($lSerializationNames)) {
 				throw new \Exception('several serialization names only allowed for foreign properties');
 			}
-			$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId, $lIsPrivate, $lIsSerializable, $lDefault, $lInterfaceAsNodeXml, $lRestriction);
+			if (is_null($lRestriction)) {
+				$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId, $lIsPrivate, $lIsSerializable, $lDefault, $lInterfaceAsNodeXml);
+			} else {
+				$lProperty = new RestrictedProperty($lModel, $lName, $lRestriction, $lSerializationName, $lIsId, $lIsPrivate, $lIsSerializable, $lDefault, $lInterfaceAsNodeXml);
+				// verify default value
+				// get it from property due to dateTime that need to instanciate DateTime object
+				if (!is_null($lDefault) && !$lRestriction->satisfy($lProperty->getDefaultValue())) {
+					throw new NotSatisfiedRestrictionException($lProperty->getDefaultValue(), $lRestriction);
+				}
+			}
 		}
 		return $lProperty;
 	}

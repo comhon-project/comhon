@@ -9,6 +9,7 @@ use comhon\exception\CastException;
 use comhon\object\ObjectArray;
 use comhon\interfacer\Interfacer;
 use comhon\interfacer\StdObjectInterfacer;
+use comhon\model\property\RestrictedProperty;
 
 abstract class Object {
 
@@ -41,11 +42,15 @@ abstract class Object {
 	 * @param boolean $pStrict if true, verify value type
 	 */
 	public final function setValue($pName, $pValue, $pFlagAsUpdated = true, $pStrict = true) {
-		if ($pStrict && !is_null($pValue)) {
+		if ($pStrict) {
 			if ($this instanceof ObjectArray) {
-				$this->mModel->getModel()->verifValue($pValue);
+				$this->mModel->verifElementValue($pValue);
 			} else {
-				$this->mModel->getProperty($pName, true)->getModel()->verifValue($pValue);
+				$lProperty = $this->mModel->getProperty($pName, true);
+				$lProperty->isSatisfiable($pValue, true);
+				if (!is_null($pValue)) {
+					$lProperty->getModel()->verifValue($pValue);
+				}
 			}
 		}
 		if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel)) {
@@ -70,6 +75,27 @@ abstract class Object {
 	
 	protected final function _pushValue($pValue, $pFlagAsUpdated) {
 		$this->mValues[] = $pValue;
+		if ($pFlagAsUpdated) {
+			$this->mIsUpdated = true;
+		}
+	}
+	
+	public final function _popValue($pFlagAsUpdated) {
+		array_pop($this->mValues);
+		if ($pFlagAsUpdated) {
+			$this->mIsUpdated = true;
+		}
+	}
+	
+	public final function _unshiftValue($pValue, $pFlagAsUpdated) {
+		array_unshift($this->mValues, $pValue);
+		if ($pFlagAsUpdated) {
+			$this->mIsUpdated = true;
+		}
+	}
+	
+	public final function _shiftValue($pFlagAsUpdated) {
+		array_shift($this->mValues);
 		if ($pFlagAsUpdated) {
 			$this->mIsUpdated = true;
 		}

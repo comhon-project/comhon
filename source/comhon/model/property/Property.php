@@ -4,7 +4,6 @@ namespace comhon\model\property;
 use comhon\object\ObjectArray;
 use comhon\object\Object;
 use comhon\model\SimpleModel;
-use comhon\model\ModelEnum;
 use comhon\model\ModelContainer;
 use comhon\model\ModelInteger;
 use comhon\model\ModelFloat;
@@ -36,7 +35,7 @@ class Property {
 	 * @param boolean $pIsInterfacedAsNodeXml
 	 * @throws \Exception
 	 */
-	public function __construct(Model $pModel, $pName, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pIsSerializable = true, $pDefault = null, $pIsInterfacedAsNodeXml = null, $pRestriction = null) {
+	public function __construct(Model $pModel, $pName, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pIsSerializable = true, $pDefault = null, $pIsInterfacedAsNodeXml = null) {
 		$this->mModel = $pModel;
 		$this->mName = $pName;
 		$this->mSerializationName = is_null($pSerializationName) ? $this->mName : $pSerializationName;
@@ -45,7 +44,7 @@ class Property {
 		$this->mIsSerializable = $pIsSerializable;
 		$this->mDefault = $pDefault;
 		
-		if (($this->mModel instanceof SimpleModel) || ($this->mModel instanceof ModelEnum)) {
+		if ($this->mModel instanceof SimpleModel) {
 			$this->mInterfaceAsNodeXml = is_null($pIsInterfacedAsNodeXml) ? false : $pIsInterfacedAsNodeXml;
 		} else {
 			if (!is_null($pIsInterfacedAsNodeXml) && !$pIsInterfacedAsNodeXml) {
@@ -96,16 +95,6 @@ class Property {
 	
 	public function isSerializable() {
 		return $this->mIsSerializable;
-	}
-	
-	public function isInteger() {
-		return ($this->mModel instanceof ModelInteger) 
-		|| (($this->mModel instanceof ModelEnum) && ($this->mModel->getModel() instanceof ModelInteger));
-	}
-	
-	public function isFloat() {
-		return ($this->mModel instanceof ModelFloat)
-		|| (($this->mModel instanceof ModelEnum) && ($this->mModel->getModel() instanceof ModelFloat));
 	}
 	
 	public function hasDefaultValue() {
@@ -168,6 +157,17 @@ class Property {
 	 */
 	public function isExportable($pPrivate, $pSerialization, $pValue) {
 		return $this->isInterfaceable($pPrivate, $pSerialization) && !is_null($pValue) && $this->getModel()->verifValue($pValue);
+	}
+	
+	/**
+	 * verify if value is satisfiable regarding restriction property
+	 *
+	 * @param mixed $pValue
+	 * @param boolean $pThrowException
+	 * @return boolean true if property is satisfiable
+	 */
+	public function isSatisfiable($pValue, $pThrowException = false) {
+		return true;
 	}
 	
 	/**

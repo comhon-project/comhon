@@ -1,12 +1,14 @@
 <?php
 namespace comhon\model\property;
 
+use comhon\model\Model;
+
 class MultipleForeignProperty extends ForeignProperty {
 
 	private $mMultipleIdProperties = [];
 	private $mPropertiesInitialized = false;
 	
-	public function __construct($pModel, $pName, $pSerializationNames, $pIsPrivate = false, $pIsSerializable = true) {
+	public function __construct(Model $pModel, $pName, $pSerializationNames, $pIsPrivate = false, $pIsSerializable = true) {
 		parent::__construct($pModel, $pName, null, $pIsPrivate, $pIsSerializable);
 		$this->mMultipleIdProperties = $pSerializationNames;
 	}

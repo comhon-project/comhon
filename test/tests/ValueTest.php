@@ -342,54 +342,14 @@ if (!compareJson(json_encode($lTest->export($lStdPublicInterfacer)), '{"stringVa
 
 /** ****************************** test enum values ****************************** **/
 
-try {
-	$lTest->setValue('enumValue', 'haha');
-	$lThrow = true;
-} catch (Exception $e) {
-	$lThrow = false;
-}
-if ($lThrow) {
-	throw new \Exception('set value with bad enum value should\'t work');
-}
-
-try {
-	$lTest->setValue('enumValue', true);
-	$lThrow = true;
-} catch (Exception $e) {
-	$lThrow = false;
-}
-if ($lThrow) {
-	throw new \Exception('set value with bad enum value should\'t work');
-}
-
-$lObjectArray = $lTest->initValue('enumIntArray');
-try {
-	$lObjectArray->pushValue(10);
-	$lThrow = true;
-} catch (Exception $e) {
-	$lThrow = false;
-}
-if ($lThrow) {
-	throw new \Exception('set value with bad enum value should\'t work');
-}
-
-$lObjectArray = $lTest->initValue('enumFloatArray');
-try {
-	$lObjectArray->setValue(0, 1.6);
-	$lThrow = true;
-} catch (Exception $e) {
-	$lThrow = false;
-}
-if ($lThrow) {
-	throw new \Exception('set value with bad enum value should\'t work');
-}
+$lTest->initValue('enumIntArray');
+$lTest->initValue('enumFloatArray');
 
 $lTest->setValue('enumValue', 'plop1');
 $lTest->getValue('enumIntArray')->setValue(0, 1);
 $lTest->getValue('enumIntArray')->setValue(1, 3);
 $lTest->getValue('enumFloatArray')->pushValue(1.5);
 $lTest->getValue('enumFloatArray')->pushValue(3.5);
-$lTest->getValue('enumFloatArray')->pushValue(4.5, true, false);
 
 /** ****************************** test import with no merge and reference to root object ****************************** **/
 

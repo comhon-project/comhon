@@ -49,10 +49,25 @@ class ObjectArray extends Object {
 	}
 	
 	public final function pushValue($pValue, $pFlagAsUpdated = true, $pStrict = true) {
-		if ($pStrict && !is_null($pValue)) {
-			$this->getModel()->getModel()->verifValue($pValue);
+		if ($pStrict) {
+			$this->getModel()->verifElementValue($pValue);
 		}
 		$this->_pushValue($pValue, $pFlagAsUpdated);
+	}
+	
+	public final function popValue($pFlagAsUpdated = true) {
+		$this->_popValue($pFlagAsUpdated);
+	}
+	
+	public final function unshiftValue($pValue, $pFlagAsUpdated = true, $pStrict = true) {
+		if ($pStrict) {
+			$this->getModel()->verifElementValue($pValue);
+		}
+		$this->_unshiftValue($pValue, $pFlagAsUpdated);
+	}
+	
+	public final function shiftValue($pFlagAsUpdated = true) {
+		$this->_shiftValue($pFlagAsUpdated);
 	}
 	
 	public function resetUpdatedStatus($pRecursive = true) {

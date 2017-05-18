@@ -87,17 +87,8 @@ class ModelArray extends ModelContainer {
 		}
 		$lNodeArray = $pInterfacer->createNodeArray($pNodeName);
 		
-		if ($this->getModel() instanceof ModelEnum) {
-			$lEnum = $this->getModel()->getEnum();
-			foreach ($pObjectArray->getValues() as $lValue) {
-				if (in_array($lValue, $lEnum)) {
-					$pInterfacer->addValue($lNodeArray, $this->getModel()->_export($lValue, $this->mElementName, $pInterfacer, $pIsFirstLevel), $this->mElementName);
-				}
-			}
-		} else {
-			foreach ($pObjectArray->getValues() as $lValue) {
-				$pInterfacer->addValue($lNodeArray, $this->getModel()->_export($lValue, $this->mElementName, $pInterfacer, $pIsFirstLevel), $this->mElementName);
-			}
+		foreach ($pObjectArray->getValues() as $lValue) {
+			$pInterfacer->addValue($lNodeArray, $this->getModel()->_export($lValue, $this->mElementName, $pInterfacer, $pIsFirstLevel), $this->mElementName);
 		}
 		return $lNodeArray;
 	}
@@ -226,6 +217,15 @@ class ModelArray extends ModelContainer {
 			throw new \Exception("Argument passed to {$lNodes[0]['class']}::{$lNodes[0]['function']}() must be an instance of {$this->getObjectClass()}, instance of $lClass given, called in {$lNodes[0]['file']} on line {$lNodes[0]['line']} and defined in {$lNodes[0]['file']}");
 		}
 		return true;
+	}
+	
+	/**
+	 * 
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	public function verifElementValue($pValue) {
+		return is_null($pValue) ? true : $this->getModel()->verifValue($pValue);
 	}
 	
 }

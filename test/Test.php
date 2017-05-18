@@ -263,7 +263,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Da
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RestrictionTest.php';
-
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueRestrictionTest.php';
 
 /*
 interfacer (limit inf appear more often) : 
@@ -275,8 +275,9 @@ interfacer (limit inf appear more often) :
 		extends model 0.0014588 < 0.0047380924
 */
 
-//restriction on property (intervalle, min, max)
 // add export null value
+// objectarray implement traversable
+// fill instead of fillobject (only for object not for modfel)
 
 // add error code
 // remove $p $l

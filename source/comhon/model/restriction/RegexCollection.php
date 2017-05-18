@@ -2,6 +2,7 @@
 namespace comhon\model\restriction;
 
 use comhon\object\config\Config;
+use comhon\exception\NotExistingRegexException;
 
 class RegexCollection {
 	
@@ -34,7 +35,7 @@ class RegexCollection {
 	 */
 	public function getRegex($pName) {
 		if (!array_key_exists($pName, $this->mRegexs)) {
-			throw new \Exception("regex name '$pName' doesn't exist");
+			throw new NotExistingRegexException($pName);
 		}
 		return $this->mRegexs[$pName];
 	}

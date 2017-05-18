@@ -8,6 +8,13 @@ use comhon\model\ModelInteger;
 use comhon\model\ModelFloat;
 use comhon\object\ComhonDateTime;
 use comhon\model\restriction\Enum;
+use comhon\model\ModelArray;
+use comhon\model\ModelRestrictedArray;
+use comhon\object\ObjectArray;
+use comhon\exception\MalformedIntervalException;
+use comhon\model\ModelString;
+use comhon\exception\NotSupportedModelIntervalException;
+use comhon\exception\NotExistingRegexException;
 
 $time_start = microtime(true);
 
@@ -309,7 +316,7 @@ $lModelInteger = ModelManager::getInstance()->getInstanceModel(ModelInteger::ID)
 $lThrow = true;
 try {
 	$lInterval = new Interval('] 1 ,-1 [', $lModelInteger);
-} catch (Exception $e) {
+} catch (MalformedIntervalException $e) {
 	$lThrow = false;
 }
 if ($lThrow) {
@@ -333,7 +340,7 @@ $lModelFloat = ModelManager::getInstance()->getInstanceModel(ModelFloat::ID);
 $lThrow = true;
 try {
 	$lInterval = new Interval('] 1.12 ,-1.45 [', $lModelFloat);
-} catch (Exception $e) {
+} catch (MalformedIntervalException $e) {
 	$lThrow = false;
 }
 if ($lThrow) {
@@ -357,7 +364,7 @@ $lModelDateTime = ModelManager::getInstance()->getInstanceModel(ModelDateTime::I
 $lThrow = true;
 try {
 	$lInterval = new Interval('] 2017-05-01 12:53:54 ,2016-05-01 12:53:54 [', $lModelDateTime);
-} catch (Exception $e) {
+} catch (MalformedIntervalException $e) {
 	$lThrow = false;
 }
 if ($lThrow) {
@@ -390,6 +397,29 @@ if (
 	|| $lEnum->satisfy(0.78)
 ) {
 	throw new Exception('unexpected statisfaction');
+}
+
+/** *********************** other malformed restriction ***************************** **/
+
+$lModelString = ModelManager::getInstance()->getInstanceModel(ModelString::ID);
+$lThrow = true;
+try {
+	$lInterval = new Interval('] 2017-05-01 12:53:54 ,2016-05-01 12:53:54 [', $lModelString);
+} catch (NotSupportedModelIntervalException $e) {
+	$lThrow = false;
+}
+if ($lThrow) {
+	throw new Exception('should throw exception (left > right)');
+}
+
+$lThrow = true;
+try {
+	$lRegex = new Regex('bad_name');
+} catch (NotExistingRegexException $e) {
+	$lThrow = false;
+}
+if ($lThrow) {
+	throw new Exception('should throw exception (left > right)');
 }
 
 $time_end = microtime(true);

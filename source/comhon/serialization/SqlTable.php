@@ -15,6 +15,8 @@ use comhon\object\config\Config;
 use comhon\interfacer\AssocArrayInterfacer;
 use comhon\model\ModelBoolean;
 use comhon\interfacer\Interfacer;
+use comhon\model\ModelFloat;
+use comhon\model\ModelInteger;
 
 class SqlTable extends SerializationUnit {
 	
@@ -157,9 +159,9 @@ class SqlTable extends SerializationUnit {
 		foreach ($pModel->getSerializableProperties() as $lProperty) {
 			if ($lProperty->isSerializable()) {
 				if (!$lProperty->isForeign()) {
-					if ($lProperty->isInteger()) {
+					if ($lProperty->getModel() instanceof ModelInteger) {
 						$lCastIntegerColumns[] = $lProperty->getSerializationName();
-					} else if ($lProperty->isFloat()) {
+					} else if ($lProperty->getModel() instanceof ModelFloat) {
 						$lCastFloatColumns[] = $lProperty->getSerializationName();
 					} else if (($lProperty->getModel() instanceof ModelBoolean)) {
 						$lCastBooleanColumns[] = $lProperty->getSerializationName();
@@ -168,9 +170,9 @@ class SqlTable extends SerializationUnit {
 				else if (!$lProperty->isAggregation()) {
 					if ($lProperty->hasMultipleSerializationNames()) {
 						foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lProperty) {
-							if ($lProperty->isInteger()) {
+							if ($lProperty->getModel() instanceof ModelInteger) {
 								$lCastIntegerColumns[] = $lSerializationName;
-							} else if ($lProperty->isFloat()) {
+							} else if ($lProperty->getModel() instanceof ModelFloat) {
 								$lCastFloatColumns[] = $lSerializationName;
 							} else if (($lProperty->getModel() instanceof ModelBoolean)) {
 								$lCastBooleanColumns[] = $lSerializationName;
@@ -178,9 +180,9 @@ class SqlTable extends SerializationUnit {
 						}
 					}
 					else if ($lProperty->getModel()->hasUniqueIdProperty()) {
-						if ($lProperty->getModel()->getFirstIdProperty()->isInteger()) {
+						if ($lProperty->getModel()->getFirstIdProperty()->getModel() instanceof ModelInteger) {
 							$lCastIntegerColumns[] = $lProperty->getSerializationName();
-						} else if ($lProperty->getModel()->getFirstIdProperty()->isFloat()) {
+						} else if ($lProperty->getModel()->getFirstIdProperty()->getModel() instanceof ModelFloat) {
 							$lCastFloatColumns[] = $lProperty->getSerializationName();
 						} else if (($lProperty->getModel() instanceof ModelBoolean)) {
 							$lCastBooleanColumns[] = $lProperty->getSerializationName();

@@ -20,8 +20,9 @@
 		<womanXmlExtended>person/womanXmlExtended/manifest.xml</womanXmlExtended>
 		<manBodyJsonExtended>body/manJsonExtended/manifest.xml</manBodyJsonExtended>
 		<testMultiIncremental>testMultiIncremental/manifest.xml</testMultiIncremental>
+		<localExtendsMain>localExtendsMain/manifest.xml</localExtendsMain>
+		<testRestricted>testRestricted/manifest.xml</testRestricted>
 		<testPrivateId>testPrivateId/manifest.xml</testPrivateId>
 		<childTestDb>childTestDb/manifest.xml</childTestDb>
-		<localExtendsMain>localExtendsMain/manifest.xml</localExtendsMain>
 	</list>
 </manifests>

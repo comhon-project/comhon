@@ -63,7 +63,6 @@ require_once 'comhon/object/ObjectArray.php';
 require_once 'comhon/database/LogicalJunction.php';
 require_once 'comhon/database/Literal.php';
 require_once 'comhon/database/DatabaseController.php';
-require_once 'comhon/model/ModelEnum.php';
 require_once 'comhon/database/SelectQuery.php';
 require_once 'comhon/database/TableNode.php';
 require_once 'comhon/interfacer/AssocArrayInterfacer.php';

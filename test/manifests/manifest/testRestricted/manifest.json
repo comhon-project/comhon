@@ -1,0 +1,70 @@
+{
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "color",
+            "type": "string",
+            "regex": "color"
+        },
+        {
+            "name": "emails",
+            "type": "array",
+            "values": {
+                "type": "string",
+                "name": "email",
+                "regex": "email"
+            }
+        },
+        {
+            "name": "naturalNumber",
+            "type": "integer",
+            "interval": "[0,]"
+        },
+        {
+            "name": "birthDate",
+            "type": "dateTime",
+            "interval": "[1900-01-01,now["
+        },
+        {
+            "name": "intervalInArray",
+            "type": "array",
+            "values": {
+                "type": "float",
+                "name": "intervalArrayValue",
+                "interval": "]-1.5, 2["
+            }
+        },
+        {
+            "name": "enumValue",
+            "type": "string",
+            "enum": [
+                "plop1",
+                "plop2"
+            ]
+        },
+        {
+            "name": "enumIntArray",
+            "type": "array",
+            "values": {
+                "type": "integer",
+                "name": "enumArrayValue",
+                "enum": [
+                    1,
+                    3
+                ]
+            }
+        },
+        {
+            "name": "enumFloatArray",
+            "type": "array",
+            "values": {
+                "type": "float",
+                "name": "enumArrayValue",
+                "enum": [
+                    1.5,
+                    3.5
+                ]
+            }
+        }
+    ]
+}

@@ -2,10 +2,11 @@
 namespace comhon\model\property;
 
 use comhon\object\Object;
+use comhon\model\Model;
 
 class ForeignProperty extends Property {
 	
-	public function __construct($pModel, $pName, $pSerializationName = null, $pIsPrivate = false, $pIsSerializable = true) {
+	public function __construct(Model $pModel, $pName, $pSerializationName = null, $pIsPrivate = false, $pIsSerializable = true) {
 		parent::__construct($pModel, $pName, $pSerializationName, false, $pIsPrivate, $pIsSerializable);
 	}
 	

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0">
+	<properties>
+		<!-- regex -->
+		<property type="string" name="color" regex="color"/>
+		<property type="array" name="emails">
+			<values  type="string" name="email" regex="email"/>
+		</property>
+		<!-- interval -->
+		<property type="integer" name="naturalNumber" interval="[0,]"/>
+		<property type="dateTime" name="birthDate" interval="[1900-01-01,now]"/>
+		<property type="array" name="intervalInArray">
+			<values  type="float" name="intervalArrayValue" interval="]-1.5, 2["/>
+		</property>
+		<!-- enum -->
+		<property type="string" name="enumValue">
+			<enum>
+				<value>plop1</value>
+				<value>plop2</value>
+			</enum>
+		</property>
+		<property type="array" name="enumIntArray">
+			<values type="integer" name="enumArrayValue">
+				<enum>
+					<value>1</value>
+					<value>3</value>
+				</enum>
+			</values>
+		</property>
+		<property type="array" name="enumFloatArray">
+			<values type="float" name="enumArrayValue">
+				<enum>
+					<value>1.5</value>
+					<value>3.5</value>
+				</enum>
+			</values>
+		</property>
+	</properties>
+</manifest>

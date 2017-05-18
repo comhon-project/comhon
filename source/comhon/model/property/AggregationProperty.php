@@ -3,12 +3,13 @@ namespace comhon\model\property;
 
 use comhon\object\ObjectArray;
 use comhon\object\Object;
+use comhon\model\Model;
 
 class AggregationProperty extends ForeignProperty {
 	
 	private $mAggregationProperties = null;
 	
-	public function __construct($pModel, $pName, $pAggregationProperties, $pSerializationName = null, $pIsPrivate = false) {
+	public function __construct(Model $pModel, $pName, $pAggregationProperties, $pSerializationName = null, $pIsPrivate = false) {
 		parent::__construct($pModel, $pName, $pSerializationName, $pIsPrivate, false);
 		if (empty($pAggregationProperties)) {
 			throw new \Exception('aggregation must have at least one aggregation property');
