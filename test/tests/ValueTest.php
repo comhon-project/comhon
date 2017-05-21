@@ -50,7 +50,7 @@ foreach ($lTestDb->getProperties() as $lProperty) {
 	}
 }
 
-$lTestDb->deleteValue('mainParentTestDb');
+$lTestDb->unsetValue('mainParentTestDb');
 
 if (!$lTestDb->isUpdated()) {
 	throw new Exception('should be updated');
@@ -178,7 +178,7 @@ foreach ($lMainParentTestDb->getProperties() as $lProperty) {
 }
 
 $lId = $lMainParentTestDb->getId();
-$lMainParentTestDb->deleteValue('id');
+$lMainParentTestDb->unsetValue('id');
 
 if (json_encode($lMainParentTestDb->getUpdatedValues()) !== '{"id":true}') {
 	throw new Exception('should have id updated value');
@@ -251,16 +251,15 @@ foreach ($lTestDbs as $lTestDb) {
 		throw new Exception('foreign value different than existing value');
 	}
 }
-
-if ($lMainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
-	throw new Exception('foreign value must be unloaded');
+if ($lMainParentTestDb->hasValue('childrenTestDb')) {
+	throw new Exception('should not be set');
 }
 $lMainParentTestDb->loadValueIds('childrenTestDb');
 
 if (!$lMainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
 	throw new Exception('foreign value must be loaded');
 }
-if (count($lMainParentTestDb->getValue('childrenTestDb')->getValues()) != 6) {
+if ($lMainParentTestDb->getValue('childrenTestDb')->count() != 6) {
 	throw new Exception('bad children count : '.count($lMainParentTestDb->getValue('childrenTestDb')->getValues()));
 }
 if ($lMainParentTestDb->isUpdated()) {
@@ -279,7 +278,7 @@ if ($lMainParentTestDb->getValue('childrenTestDb')->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 
-foreach ($lMainParentTestDb->getValue('childrenTestDb')->getValues() as $lValue) {
+foreach ($lMainParentTestDb->getValue('childrenTestDb') as $lValue) {
 	if (array_key_exists($lValue->getId(), $lTestDbById)) {
 		if ($lValue !== $lTestDbById[$lValue->getId()]) {
 			throw new Exception('foreign value different than existing value');
@@ -303,7 +302,7 @@ foreach ($lTestDbs as $lTestDb) {
 	}
 }
 
-$lMainParentTestDb->deleteValue('childrenTestDb');
+$lMainParentTestDb->unsetValue('childrenTestDb');
 $lMainParentTestDb->setValue('childrenTestDb', $lMainParentTestDb->getModel()->getproperty('childrenTestDb')->getModel()->getObjectInstance(false));
 
 if ($lMainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
@@ -318,7 +317,7 @@ if (count($lMainParentTestDb->getValue('childrenTestDb')->getValues()) != count(
 	throw new Exception('different children count');
 }
 
-foreach ($lMainParentTestDb->getValue('childrenTestDb')->getValues() as $lValue) {
+foreach ($lMainParentTestDb->getValue('childrenTestDb') as $lValue) {
 	if (!array_key_exists($lValue->getId(), $lTestDbById)) {
 		throw new Exception('child must be already existing');
 	}
@@ -466,7 +465,7 @@ $lTestDb = $lTestModel->getObjectInstance();
 $lTestDb->setId('[4567,"74107"]');
 $lTestDb->setValue('mainParentTestDb', $lMainTestDb);
 
-$lTestDb->fillObject($lTestDb->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+$lTestDb->fill($lTestDb->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 
 if ($lMainTestDb !== $lTestDb->getValue('mainParentTestDb')) {
 	throw new \Exception('bad object instance');
@@ -484,7 +483,7 @@ $lArray->pushValue($lMainTestDb2);
 MainObjectCollection::getInstance()->removeObject($lMainTestDb2);
 MainObjectCollection::getInstance()->removeObject($lMainTestDb);
 $lStdPrivateInterfacer->setMergeType(Interfacer::MERGE);
-$lArray->fillObject($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+$lArray->fill($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 
 if ($lMainTestDb !== $lArray->getValue(0) || $lMainTestDb2 !== $lArray->getValue(1)) {
 	throw new \Exception('bad object instance');
@@ -500,7 +499,7 @@ if (MainObjectCollection::getInstance()->getObject(8541, 'mainTestDb') !== $lMai
 
 MainObjectCollection::getInstance()->removeObject($lMainTestDb);
 $lStdPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
-$lArray->fillObject($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+$lArray->fill($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 
 if ($lMainTestDb !== $lArray->getValue(0) || $lMainTestDb2 !== $lArray->getValue(1)) {
 	throw new \Exception('bad object instance');
@@ -509,7 +508,7 @@ if ($lMainTestDb !== $lArray->getValue(0) || $lMainTestDb2 !== $lArray->getValue
 MainObjectCollection::getInstance()->removeObject($lMainTestDb2);
 MainObjectCollection::getInstance()->removeObject($lMainTestDb);
 $lStdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$lArray->fillObject($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+$lArray->fill($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 
 if ($lMainTestDb === $lArray->getValue(0) || $lMainTestDb2 === $lArray->getValue(1)) {
 	throw new \Exception('bad object instance');

@@ -165,8 +165,8 @@ function getProperties($xml) {
 			if (isset($lChild->values['interval'])) {
 				$lJson->values->interval = (string) $lChild->values['interval'];
 			}
-			if (isset($lChild->values['regex'])) {
-				$lJson->values->regex= (string) $lChild->values['regex'];
+			if (isset($lChild->values['pattern'])) {
+				$lJson->values->pattern = (string) $lChild->values['pattern'];
 			}
 		}
 		else {
@@ -185,8 +185,8 @@ function getProperties($xml) {
 			if (isset($lChild['interval'])) {
 				$lJson->interval = (string) $lChild['interval'];
 			}
-			if (isset($lChild['regex'])) {
-				$lJson->regex= (string) $lChild['regex'];
+			if (isset($lChild['pattern'])) {
+				$lJson->pattern = (string) $lChild['pattern'];
 			}
 		}
 		if (isset($lChild['is_foreign']) && ((string) $lChild['is_foreign'] == '1')) {

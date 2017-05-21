@@ -162,8 +162,7 @@ $Json = '{
 // GROUP  BY person.id 
 
 $lResult = ObjectService::getObjects(json_decode($Json));
-if (json_encode($lResult) !== '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"__inheritance__":"man"}]}') {
-	var_dump(json_encode($lResult));
+if (!compareJson(json_encode($lResult), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -183,8 +182,7 @@ $Json = '{
 // SELECT * FROM  person  WHERE ((person.first_name  IN  (Paul,Bernardo) or person.first_name is null)) GROUP BY person.id
 
 $lResult = ObjectService::getObjects(json_decode($Json));
-if (json_encode($lResult) !== '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"__inheritance__":"man"}]}') {
-	var_dump(json_encode($lResult));
+if (!compareJson(json_encode($lResult), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -203,8 +201,7 @@ $Json = '{
 // SELECT person.* FROM  person left join home on person.id = home.person_id left join house on home.house_id = house.id_serial  WHERE (house.surface = 120) GROUP BY person.id
 
 $lResult = ObjectService::getObjects(json_decode($Json));
-if (json_encode($lResult) !== '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"__inheritance__":"man"}]}') {
-	var_dump(json_encode($lResult));
+if (!compareJson(json_encode($lResult), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 

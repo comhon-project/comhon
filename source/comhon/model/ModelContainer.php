@@ -10,10 +10,7 @@ abstract class ModelContainer extends Model {
 	protected $mModel;
 	protected $mIsLoaded = true;
 	
-	public function __construct($pModel) {
-		if (!($pModel instanceof Model)) {
-			throw new Exception('model parameter must be an instanceof Model');
-		}
+	public function __construct(Model $pModel) {
 		$this->mModel = $pModel;
 	}
 	

@@ -20,7 +20,7 @@ class Config extends Object {
 				throw new \Exception('failure when try to read comhon config file');
 			}
 			self::$_instance = new self();
-			self::$_instance->fillObject($lJsonConfig, $lStdInterfacer);
+			self::$_instance->fill($lJsonConfig, $lStdInterfacer);
 		}
 		
 		return self::$_instance;

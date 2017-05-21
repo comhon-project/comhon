@@ -51,8 +51,7 @@ $Json = '{
 // GROUP  BY main_test.id 
 
 $lResult = ObjectService::getObjects(json_decode($Json));
-if (json_encode($lResult) !== '{"success":true,"result":[{"name":"azeaze","id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[1,\"1501774389\"]","[2,\"50\"]","[2,\"102\"]"]}]}') {
-	var_dump(json_encode($lResult));
+if (!compareJson(json_encode($lResult), '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[1,\"1501774389\"]","[2,\"50\"]","[2,\"102\"]"]}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -104,8 +103,7 @@ $Json = '{
 
 
 $lResult = ObjectService::getObjects(json_decode($Json));
-if (json_encode($lResult) !== '{"success":true,"result":[{"name":"azeaze","id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[1,\"1501774389\"]","[2,\"50\"]","[2,\"102\"]"]}]}') {
-	var_dump(json_encode($lResult));
+if (!compareJson(json_encode($lResult), '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[1,\"1501774389\"]","[2,\"50\"]","[2,\"102\"]"]}]}')) {
 	throw new \Exception('bad result');
 }
 

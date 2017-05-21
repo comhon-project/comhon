@@ -35,15 +35,15 @@ class ModelArray extends ModelContainer {
 	
 	/**
 	 *
-	 * @param ObjectArray $pObject
+	 * @param ObjectArray $pObjectArray
 	 * @param Interfacer $pInterfacer
 	 */
-	protected function _addMainCurrentObject(Object $pObject, Interfacer $pInterfacer) {
-		if (!($pObject instanceof ObjectArray)) {
+	protected function _addMainCurrentObject(Object $pObjectArray, Interfacer $pInterfacer) {
+		if (!($pObjectArray instanceof ObjectArray)) {
 			throw new \Exception('first parameter should be ObjectArray');
 		}
 		if ($pInterfacer->hasToExportMainForeignObjects()) {
-			foreach ($pObject->getValues() as $lObject) {
+			foreach ($pObjectArray->getValues() as $lObject) {
 				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
 					$pInterfacer->addMainForeignObject($pInterfacer->createNode('empty'), $lObject->getId(), $lObject->getModel());
 				}
@@ -53,15 +53,15 @@ class ModelArray extends ModelContainer {
 	
 	/**
 	 *
-	 * @param ObjectArray $pObject
+	 * @param ObjectArray $pObjectArray
 	 * @param Interfacer $pInterfacer
 	 */
-	protected function _removeMainCurrentObject(Object $pObject, Interfacer $pInterfacer) {
-		if (!($pObject instanceof ObjectArray)) {
+	protected function _removeMainCurrentObject(Object $pObjectArray, Interfacer $pInterfacer) {
+		if (!($pObjectArray instanceof ObjectArray)) {
 			throw new \Exception('first parameter should be ObjectArray');
 		}
 		if ($pInterfacer->hasToExportMainForeignObjects()) {
-			foreach ($pObject->getValues() as $lObject) {
+			foreach ($pObjectArray->getValues() as $lObject) {
 				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
 					$pInterfacer->removeMainForeignObject($lObject->getId(), $lObject->getModel());
 				}
@@ -82,12 +82,14 @@ class ModelArray extends ModelContainer {
 		if (is_null($pObjectArray)) {
 			return null;
 		}
+		$this->verifValue($pObjectArray);
 		if (!$pObjectArray->isLoaded()) {
 			return  Interfacer::__UNLOAD__;
 		}
 		$lNodeArray = $pInterfacer->createNodeArray($pNodeName);
 		
 		foreach ($pObjectArray->getValues() as $lValue) {
+			$this->verifElementValue($lValue);
 			$pInterfacer->addValue($lNodeArray, $this->getModel()->_export($lValue, $this->mElementName, $pInterfacer, $pIsFirstLevel), $this->mElementName);
 		}
 		return $lNodeArray;
@@ -95,22 +97,23 @@ class ModelArray extends ModelContainer {
 	
 	/**
 	 *
-	 * @param ObjectArray $pObject
+	 * @param ObjectArray $pObjectArray
 	 * @param string $pNodeName
 	 * @param Interfacer $pInterfacer
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
 	protected function _exportId(Object $pObjectArray, $pNodeName, Interfacer $pInterfacer) {
-		if (is_null($pObjectArray)) {
-			return null;
-		}
+		$this->verifValue($pObjectArray);
 		if (!$pObjectArray->isLoaded()) {
 			return  Interfacer::__UNLOAD__;
 		}
 		$lNodeArray = $pInterfacer->createNodeArray($pNodeName);
-		if (!is_null($pObjectArray)) {
-			foreach ($pObjectArray->getValues() as $lValue) {
+		foreach ($pObjectArray->getValues() as $lValue) {
+			if (is_null($lValue)) {
+				$pInterfacer->addValue($lNodeArray, null, $this->mElementName);
+			} else {
+				$this->verifElementValue($lValue);
 				$pInterfacer->addValue($lNodeArray, $this->getModel()->_exportId($lValue, $this->mElementName, $pInterfacer), $this->mElementName);
 			}
 		}
@@ -128,8 +131,11 @@ class ModelArray extends ModelContainer {
 	 * @return Object
 	 */
 	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
-		if (is_null($pInterfacedObject)) {
+		if ($pInterfacer->isNullValue($pInterfacedObject)) {
 			return null;
+		}
+		if (!$pInterfacer->isArrayNodeValue($pInterfacedObject)) {
+			throw new \Exception('unexpeted value type');
 		}
 		$lObjectArray = $this->getObjectInstance();
 		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
@@ -181,19 +187,14 @@ class ModelArray extends ModelContainer {
 	
 	/**
 	 *
-	 * @param Object $pObject
+	 * @param Object $pObjectArray
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
 	 * @throws \Exception
 	 */
 	public function fillObject(Object $pObjectArray, $pInterfacedObject, Interfacer $pInterfacer) {
 		$this->load();
-		if (!($pObjectArray instanceof ObjectArray)) {
-			throw new \Exception('first parameter should be ObjectArray');
-		}
-		if (!($pObjectArray->getModel() instanceof ModelArray) || $pObjectArray->getModel()->getModel() !== $this->getModel()) {
-			throw new \Exception('current model instance must be same instance of object model');
-		}
+		$this->verifValue($pObjectArray);
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}

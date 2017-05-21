@@ -10,6 +10,7 @@ use comhon\serialization\SerializationUnit;
 use comhon\exception\CastException;
 use comhon\interfacer\Interfacer;
 use comhon\object\collection\ObjectCollection;
+use comhon\interfacer\StdObjectInterfacer;
 
 class MainModel extends Model {
 	
@@ -95,7 +96,13 @@ class MainModel extends Model {
 		if ($pInterfacedObject instanceof \SimpleXMLElement) {
 			$pInterfacedObject= dom_import_simplexml($pInterfacedObject);
 		}
-		$pInterfacer->verifyNode($pInterfacedObject);
+		if (!$pInterfacer->isNodeValue($pInterfacedObject)) {
+			if (($pInterfacer instanceof StdObjectInterfacer) && is_array($pInterfacedObject) && empty($pInterfacedObject)) {
+				$pInterfacedObject = new \stdClass();
+			} else {
+				throw new \Exception('interfaced object doesn\'t match with interfacer');
+			}
+		}
 		
 		switch ($pInterfacer->getMergeType()) {
 			case Interfacer::MERGE:
@@ -137,7 +144,13 @@ class MainModel extends Model {
 		if ($pInterfacedObject instanceof \SimpleXMLElement) {
 			$pInterfacedObject= dom_import_simplexml($pInterfacedObject);
 		}
-		$pInterfacer->verifyNode($pInterfacedObject);
+		if (!$pInterfacer->isNodeValue($pInterfacedObject)) {
+			if (($pInterfacer instanceof StdObjectInterfacer) && is_array($pInterfacedObject) && empty($pInterfacedObject)) {
+				$pInterfacedObject = new \stdClass();
+			} else {
+				throw new \Exception('interfaced object doesn\'t match with interfacer');
+			}
+		}
 		
 		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $pInterfacer->hasToFlagValuesAsUpdated());
 		

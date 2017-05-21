@@ -93,8 +93,8 @@ $lFlattenArraySerialUpdatedInterfacer->setSerialContext(true);
 $lFlattenArraySerialUpdatedInterfacer->setFlagValuesAsUpdated(false);
 $lFlattenArraySerialUpdatedInterfacer->setExportOnlyUpdatedValues(true);
 
-$lPrivateUpdatedValues = '{"id1":false,"id2":false,"date":false,"timestamp":false,"object":false,"objectWithId":false,"string":false,"integer":false,"mainParentTestDb":false,"objectsWithId":false,"foreignObjects":false,"lonelyForeignObject":false,"lonelyForeignObjectTwo":false,"defaultValue":false,"boolean":false,"boolean2":false,"childrenTestDb":false}';
-$lPublicUpdatedValues  = '{"id1":false,"id2":false,"date":false,"timestamp":false,"object":false,"objectWithId":false,"integer":false,"mainParentTestDb":false,"objectsWithId":false,"foreignObjects":false,"lonelyForeignObject":false,"lonelyForeignObjectTwo":false,"defaultValue":false,"boolean":false,"boolean2":false,"childrenTestDb":false}';
+$lPrivateUpdatedValues = '{"id1":false,"id2":false,"date":false,"timestamp":false,"object":false,"objectWithId":false,"string":false,"integer":false,"mainParentTestDb":false,"objectsWithId":false,"foreignObjects":false,"lonelyForeignObject":false,"lonelyForeignObjectTwo":false,"defaultValue":false,"boolean":false,"boolean2":false}';
+$lPublicUpdatedValues  = '{"id1":false,"id2":false,"date":false,"timestamp":false,"object":false,"objectWithId":false,"integer":false,"mainParentTestDb":false,"objectsWithId":false,"foreignObjects":false,"lonelyForeignObject":false,"lonelyForeignObjectTwo":false,"defaultValue":false,"boolean":false,"boolean2":false}';
 
 $lPrivateStdObject = '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true,"childrenTestDb":[1,2]}';
 $lPrivateXml       = '<testDb defaultValue="default" id1="1" id2="1501774389" date="2016-04-12T05:14:33+02:00" timestamp="2016-10-13T11:50:19+02:00" string="nnnn" integer="2" boolean="0" boolean2="1"><object plop="plop" plop2="plop2"/><objectWithId plop="plop" plop2="plop2"/><mainParentTestDb>1</mainParentTestDb><objectsWithId><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" plop4="heyplop4" __inheritance__="objectWithIdAndMoreMore"/><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" __inheritance__="objectWithIdAndMore"/><objectWithId plop="1" plop2="heyplop2"/><objectWithId plop="11" plop2="heyplop22"/><objectWithId plop="11" plop2="heyplop22" plop3="heyplop33" __inheritance__="objectWithIdAndMore"/></objectsWithId><foreignObjects><foreignObject id="1" __inheritance__="objectWithIdAndMoreMore"/><foreignObject id="1" __inheritance__="objectWithIdAndMore"/><foreignObject>1</foreignObject><foreignObject>11</foreignObject><foreignObject id="11" __inheritance__="objectWithIdAndMore"/></foreignObjects><lonelyForeignObject id="11" __inheritance__="objectWithIdAndMore"/><lonelyForeignObjectTwo>11</lonelyForeignObjectTwo><childrenTestDb><childTestDb>1</childTestDb><childTestDb>2</childTestDb></childrenTestDb></testDb>';
@@ -124,8 +124,8 @@ if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 if ($lObject->isUpdated()) {
 	throw new Exception('should not be updated');
 }
-$lObject->deleteValue('manBodyJson', false);
-$lObject->deleteValue('womanXml', false);
+$lObject->unsetValue('manBodyJson', false);
+$lObject->unsetValue('womanXml', false);
 if (!compareJson(json_encode($lObject->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new Exception('bad object Values');
 }
@@ -138,8 +138,8 @@ if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 if ($lObject->isUpdated()) {
 	throw new Exception('should not be updated');
 }
-$lObject->fillObject($lObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
-if (json_encode($lObject->getUpdatedValues()) !== $lPrivateUpdatedValues) {
+$lObject->fill($lObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+if (!compareJson(json_encode($lObject->getUpdatedValues()), $lPrivateUpdatedValues)) {
 	throw new Exception('bad updated Values');
 }
 if (!$lObject->isUpdated()) {
@@ -148,7 +148,7 @@ if (!$lObject->isUpdated()) {
 if (!compareJson(json_encode($lObject->export($lStdPrivateUpdatedInterfacer)), $lPrivateStdObject)) {
 	throw new Exception('bad object Values');
 }
-$lObject->fillObject($lObject->export($lStdPrivateInterfacer), $lStdPrivateUpdatedInterfacer);
+$lObject->fill($lObject->export($lStdPrivateInterfacer), $lStdPrivateUpdatedInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated Value');
 }
@@ -160,7 +160,7 @@ if (!compareJson(json_encode($lObject->export($lStdPrivateUpdatedInterfacer)), '
 }
 
 // -- public
-$lObject->fillObject($lObject->export($lStdPublicInterfacer), $lStdPublicInterfacer);
+$lObject->fill($lObject->export($lStdPublicInterfacer), $lStdPublicInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== $lPublicUpdatedValues) {
 	throw new Exception('bad updated Values');
 }
@@ -170,7 +170,7 @@ if (!$lObject->isUpdated()) {
 if (!compareJson(json_encode($lObject->export($lStdPublicUpdatedInterfacer)), $lPublicStdObject)) {
 	throw new Exception('bad object Values');
 }
-$lObject->fillObject($lObject->export($lStdPublicInterfacer), $lStdPublicUpdatedInterfacer);
+$lObject->fill($lObject->export($lStdPublicInterfacer), $lStdPublicUpdatedInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated Value');
 }
@@ -182,7 +182,7 @@ if (json_encode($lObject->export($lStdPublicUpdatedInterfacer)) !== '{"id1":1,"i
 }
 
 // -- serial
-$lObject->fillObject($lObject->export($lStdSerialInterfacer), $lStdSerialUpdatedInterfacer);
+$lObject->fill($lObject->export($lStdSerialInterfacer), $lStdSerialUpdatedInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('bad updated Values');
 }
@@ -204,7 +204,7 @@ if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 if ($lObject->isUpdated()) {
 	throw new Exception('should not be updated');
 }
-$lObject->fillObject($lObject->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
+$lObject->fill($lObject->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== $lPrivateUpdatedValues) {
 	throw new Exception('bad updated Values');
 }
@@ -214,7 +214,7 @@ if (!$lObject->isUpdated()) {
 if (!compareXML($lXmlPrivateUpdatedInterfacer->toString($lObject->export($lXmlPrivateUpdatedInterfacer)), $lPrivateXml)) {
 	throw new Exception('bad object Values');
 }
-$lObject->fillObject($lObject->export($lXmlPrivateInterfacer), $lXmlPrivateUpdatedInterfacer);
+$lObject->fill($lObject->export($lXmlPrivateInterfacer), $lXmlPrivateUpdatedInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated Value');
 }
@@ -226,7 +226,7 @@ if (!compareXML($lXmlPrivateUpdatedInterfacer->toString($lObject->export($lXmlPr
 }
 
 // -- public
-$lObject->fillObject($lObject->export($lXmlPublicInterfacer), $lXmlPublicInterfacer);
+$lObject->fill($lObject->export($lXmlPublicInterfacer), $lXmlPublicInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== $lPublicUpdatedValues) {
 	throw new Exception('bad updated Values');
 }
@@ -236,7 +236,7 @@ if (!$lObject->isUpdated()) {
 if (!compareXML($lXmlPublicUpdatedInterfacer->toString($lObject->export($lXmlPublicUpdatedInterfacer)), $lPublicXml)) {
 	throw new Exception('bad object Values');
 }
-$lObject->fillObject($lObject->export($lXmlPublicInterfacer), $lXmlPublicUpdatedInterfacer);
+$lObject->fill($lObject->export($lXmlPublicInterfacer), $lXmlPublicUpdatedInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated Value');
 }
@@ -248,7 +248,7 @@ if (!compareXML($lXmlPublicUpdatedInterfacer->toString($lObject->export($lXmlPub
 }
 
 // -- serial
-$lObject->fillObject($lObject->export($lXmlSerialInterfacer), $lXmlSerialUpdatedInterfacer);
+$lObject->fill($lObject->export($lXmlSerialInterfacer), $lXmlSerialUpdatedInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('bad updated Values');
 }
@@ -270,7 +270,7 @@ if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 if ($lObject->isUpdated()) {
 	throw new Exception('should not be updated');
 }
-$lObject->fillObject($lObject->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateInterfacer);
+$lObject->fill($lObject->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== $lPrivateUpdatedValues) {
 	throw new Exception('bad updated Values');
 }
@@ -281,7 +281,7 @@ if (!compareJson(json_encode($lObject->export($lFlattenArrayPrivateUpdatedInterf
 	var_dump(json_encode($lObject->export($lFlattenArrayPrivateUpdatedInterfacer)));
 	throw new Exception('bad object Values');
 }
-$lObject->fillObject($lObject->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateUpdatedInterfacer);
+$lObject->fill($lObject->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateUpdatedInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated Value');
 }
@@ -293,7 +293,7 @@ if (json_encode($lObject->export($lFlattenArrayPrivateUpdatedInterfacer)) !== '{
 }
 
 // -- public
-$lObject->fillObject($lObject->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPublicInterfacer);
+$lObject->fill($lObject->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPublicInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== $lPublicUpdatedValues) {
 	throw new Exception('bad updated Values');
 }
@@ -303,7 +303,7 @@ if (!$lObject->isUpdated()) {
 if (!compareJson(json_encode($lObject->export($lFlattenArrayPublicUpdatedInterfacer)), $lPublicFlattened)) {
 	throw new Exception('bad object Values');
 }
-$lObject->fillObject($lObject->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPublicUpdatedInterfacer);
+$lObject->fill($lObject->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPublicUpdatedInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated Value');
 }
@@ -315,7 +315,7 @@ if (json_encode($lObject->export($lFlattenArrayPublicUpdatedInterfacer)) !== '{"
 }
 
 // -- serial
-$lObject->fillObject($lObject->export($lFlattenArraySerialInterfacer), $lFlattenArraySerialUpdatedInterfacer);
+$lObject->fill($lObject->export($lFlattenArraySerialInterfacer), $lFlattenArraySerialUpdatedInterfacer);
 if (json_encode($lObject->getUpdatedValues()) !== '[]') {
 	throw new Exception('bad updated Values');
 }

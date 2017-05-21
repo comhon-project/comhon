@@ -18,6 +18,7 @@ class ForeignProperty extends Property {
 	 * @throws \Exception
 	 */
 	public function loadValue(Object $pObject, $pPropertiesFilter = null, $pForceLoad = false) {
+		$this->getModel()->verifValue($pObject);
 		if ($pObject->isLoaded() && !$pForceLoad) {
 			return false;
 		}

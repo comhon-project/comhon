@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<properties>
-		<!-- regex -->
-		<property type="string" name="color" regex="color"/>
+		<!-- pattern -->
+		<property type="string" name="color" pattern="color"/>
 		<property type="array" name="emails">
-			<values  type="string" name="email" regex="email"/>
+			<values  type="string" name="email" pattern="email"/>
 		</property>
 		<!-- interval -->
 		<property type="integer" name="naturalNumber" interval="[0,]"/>

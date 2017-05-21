@@ -13,6 +13,7 @@ use comhon\model\property\AggregationProperty;
 use comhon\interfacer\Interfacer;
 use comhon\object\collection\ObjectCollection;
 use comhon\interfacer\NoScalarTypedInterfacer;
+use comhon\interfacer\StdObjectInterfacer;
 
 abstract class Model {
 
@@ -479,11 +480,13 @@ abstract class Model {
 	 * @return mixed|null
 	 */
 	public final function export(Object $pObject, Interfacer $pInterfacer) {
+		$pInterfacer->initializeExport();
 		self::$sInstanceObjectHash = [];
 		$this->_addMainCurrentObject($pObject, $pInterfacer);
 		$lNode = $this->_export($pObject, $this->getName(), $pInterfacer, true);
 		$this->_removeMainCurrentObject($pObject, $pInterfacer);
 		self::$sInstanceObjectHash = [];
+		$pInterfacer->finalizeExport($lNode);
 		return $lNode;
 	}
 	
@@ -526,23 +529,27 @@ abstract class Model {
 						$lExportedValue = $lProperty->getModel()->_export($lValue, $lPropertyName, $pInterfacer, false);
 						$pInterfacer->setValue($lNode, $lExportedValue, $lPropertyName, $lProperty->isInterfacedAsNodeXml());
 					}
-					else if ($lProperty->isForeign() && $pInterfacer->hasToExportMainForeignObjects()) {
+					else if ($lProperty->isForeign() && $pInterfacer->hasToExportMainForeignObjects() && !is_null($lValue)) {
 						$lProperty->getModel()->_export($lValue, $lValue->getModel()->getName(), $pInterfacer, false);
 					}
 				}
-				else if ($lIsSerialContext && $lProperty->isAggregation() && $pInterfacer->hasToExportMainForeignObjects() && ($lValue instanceof ObjectArray)) {
+				else if ($lIsSerialContext && $lProperty->isAggregation() && $pInterfacer->hasToExportMainForeignObjects() && !is_null($lValue)) {
 					$lProperty->getModel()->_export($lValue, $lValue->getModel()->getName(), $pInterfacer, false);
 				}
 			}
 		}
 		if ($lIsSerialContext) {
 			foreach ($pObject->getModel()->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
-				if ($pObject->hasValue($lPropertyName) && ($pObject->getValue($lPropertyName) instanceof Object)) {
+				$lForeignObject = $pObject->getValue($lPropertyName);
+				if (!is_null($lForeignObject) && $lMultipleForeignProperty->getModel()->verifValue($lForeignObject)) {
+					if (!$lForeignObject->hasCompleteId()) {
+						throw new \Exception("Warning cannot export id of foreign property with model '{$this->mModelName}' because object doesn't have complete id");
+					}
 					foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-						if (!$lOnlyUpdatedValues || $pObject->getValue($lPropertyName)->isUpdatedValue($lIdProperty->getName())) {
-							$lIdValue = $pObject->getValue($lPropertyName)->getValue($lIdProperty->getName());
+						if (!$lOnlyUpdatedValues || $lForeignObject->isUpdatedValue($lIdProperty->getName())) {
+							$lIdValue = $lForeignObject->getValue($lIdProperty->getName());
+							$lIdProperty->getModel()->verifValue($lIdValue);
 							$lIdValue = $lIdProperty->getModel()->_export($lIdValue, $lSerializationName, $pInterfacer, false);
-							
 							$pInterfacer->setValue($lNode, $lIdValue, $lSerializationName);
 						}
 					}
@@ -698,8 +705,15 @@ abstract class Model {
 	 * @return Object|null
 	 */
 	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
-		if (is_null($pInterfacedObject)) {
+		if ($pInterfacer->isNullValue($pInterfacedObject)) {
 			return null;
+		}
+		if (!$pInterfacer->isNodeValue($pInterfacedObject)) {
+			if (($pInterfacer instanceof StdObjectInterfacer) && is_array($pInterfacedObject) && empty($pInterfacedObject)) {
+				$pInterfacedObject = new \stdClass();
+			} else {
+				throw new \Exception('unexpeted value type');
+			}
 		}
 		$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $pParentMainModel, $pIsFirstLevel);
 		$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $pParentMainModel, $pIsFirstLevel);
@@ -736,12 +750,10 @@ abstract class Model {
 		foreach ($lProperties as $lPropertyName => $lProperty) {
 			if ($lProperty->isInterfaceable($lPrivate, $lIsSerialContext)) {
 				$lInterfacedPropertyName = $lIsSerialContext ? $lProperty->getSerializationName() : $lPropertyName;
-				
 				if ($pInterfacer->hasValue($pInterfacedObject, $lInterfacedPropertyName, $lProperty->isInterfacedAsNodeXml())) {
 					$lValue = $pInterfacer->getValue($pInterfacedObject, $lInterfacedPropertyName, $lProperty->isInterfacedAsNodeXml());
-					if (!is_null($lValue)) {
-						$lValue = $lProperty->getModel()->_import($lValue, $pInterfacer, $pLocalObjectCollection, $pParentMainModel);
-					}
+					$lValue = $pInterfacer->isNullValue($lValue) ? null
+						: $lProperty->getModel()->_import($lValue, $pInterfacer, $pLocalObjectCollection, $pParentMainModel);
 					$pObject->setValue($lPropertyName, $lValue, $lFlagAsUpdated);
 				}
 			}
@@ -753,15 +765,17 @@ abstract class Model {
 					if ($pInterfacer->hasValue($pInterfacedObject, $lSerializationName)) {
 						$lIdPart = $pInterfacer->getValue($pInterfacedObject, $lSerializationName);
 						if ($pInterfacer instanceof NoScalarTypedInterfacer) {
-							$lIdPart = $lIdProperty->getModel()->importSimple($lIdPart, $pInterfacer);
+							$lIdPart = $pInterfacer->isNullValue($lValue) ? null
+								: $lIdProperty->getModel()->importSimple($lIdPart, $pInterfacer);
 						}
 						$lId[] = $lIdPart;
 					}
 				}
-				if (count($lId) == count($lMultipleForeignProperty->getMultipleIdProperties())) {
-					$lValue = $lMultipleForeignProperty->getModel()->_import(json_encode($lId), $pInterfacer, $pLocalObjectCollection, $pParentMainModel);
-					$pObject->setValue($lPropertyName, $lValue, $lFlagAsUpdated);
+				if (count($lId) !== count($lMultipleForeignProperty->getMultipleIdProperties())) {
+					throw new \Exception('not complete multiple id foreign value');
 				}
+				$lValue = $lMultipleForeignProperty->getModel()->_import(json_encode($lId), $pInterfacer, $pLocalObjectCollection, $pParentMainModel);
+				$pObject->setValue($lPropertyName, $lValue, $lFlagAsUpdated);
 			}
 		}
 	}
@@ -794,6 +808,9 @@ abstract class Model {
 	 * @return Object
 	 */
 	protected function _importId($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel) {
+		if ($pInterfacer->isNullValue($pValue)) {
+			return null;
+		}
 		if ($pInterfacer->isComplexInterfacedId($pValue)) {
 			if (!$pInterfacer->hasValue($pValue, Interfacer::COMPLEX_ID_KEY) || !$pInterfacer->hasValue($pValue, Interfacer::INHERITANCE_KEY)) {
 				throw new \Exception('object id must have property \''.Interfacer::COMPLEX_ID_KEY.'\' and \''.Interfacer::INHERITANCE_KEY.'\'');

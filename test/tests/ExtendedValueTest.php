@@ -119,10 +119,10 @@ $lWoman->loadValue('bodies');
 
 $lMan = $lManModel->loadObject('1');
 $lMan->loadValue('children');
-if (count($lMan->getValue('children')->getValues()) != 3) {
+if ($lMan->getValue('children')->count() != 3) {
 	throw new \Exception('bad children count');
 }
-foreach ($lMan->getValue('children')->getValues() as $lChild) {
+foreach ($lMan->getValue('children') as $lChild) {
 	switch ($lChild->getId()) {
 		case 5:  if ($lChild->getModel()->getName() !== 'man') throw new \Exception('bad model : '.$lChild->getModel()->getName()); break;
 		case 6:  if ($lChild->getModel()->getName() !== 'man') throw new \Exception('bad model : '.$lChild->getModel()->getName()); break;
@@ -172,13 +172,15 @@ if ($lBodyTwo !== $lBody) {
 }
 
 $lWoman->reorderValues();
-if (!compareJson(json_encode($lWoman->export($lStdPrivateInterfacer)), '{"id":"2","firstName":"Marie","lastName":"Smith","birthDate":"2016-11-13T20:04:05+01:00","bestFriend":{"id":"5","__inheritance__":"man"},"bodies":[1]}')) {
+if (!compareJson(json_encode($lWoman->export($lStdPrivateInterfacer)), '{"id":"2","firstName":"Marie","lastName":"Smith","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":null,"bestFriend":{"id":"5","__inheritance__":"man"},"father":null,"mother":null,"bodies":[1]}')) {
+	var_dump(json_encode($lWoman->export($lStdPrivateInterfacer)));
 	throw new \Exception('not same object values : '.json_encode($lWoman->export($lStdPrivateInterfacer)));
 }
-if (!compareXML($lXmlPrivateInterfacer->toString($lWoman->export($lXmlPrivateInterfacer)), '<woman id="2" firstName="Marie" lastName="Smith" birthDate="2016-11-13T20:04:05+01:00"><bestFriend id="5" __inheritance__="man"/><bodies><body>1</body></bodies></woman>')) {
+if (!compareXML($lXmlPrivateInterfacer->toString($lWoman->export($lXmlPrivateInterfacer)), '<woman xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="2" firstName="Marie" lastName="Smith" birthDate="2016-11-13T20:04:05+01:00"><birthPlace xsi:nil="true"/><bestFriend id="5" __inheritance__="man"/><father xsi:nil="true"/><mother xsi:nil="true"/><bodies><body>1</body></bodies></woman>')) {
+	var_dump($lXmlPrivateInterfacer->toString($lWoman->export($lXmlPrivateInterfacer)));
 	throw new \Exception('not same object values');
 }
-if (!compareJson(json_encode($lWoman->export($lFlattenArraySerialInterfacer)), '{"id":"2","first_name":"Marie","lastName":"Smith","birth_date":"2016-11-13T20:04:05+01:00","best_friend":"5"}')) {
+if (!compareJson(json_encode($lWoman->export($lFlattenArraySerialInterfacer)), '{"id":"2","first_name":"Marie","lastName":"Smith","birth_date":"2016-11-13T20:04:05+01:00","birth_place":null,"best_friend":"5","father_id":null,"mother_id":null}')) {
 	throw new \Exception('not same object values : '.json_encode($lWoman->export($lFlattenArraySerialInterfacer)));
 }
 
@@ -278,24 +280,22 @@ $lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
 $lObject = $lDbTestModel->loadObject('[1,"1501774389"]');
 $lObject->reorderValues();
 
-if (!compareJson(json_encode($lObject->export($lStdPrivateInterfacer)), '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","boolean":false,"boolean2":true}')) {
-	var_dump(json_encode($lObject->export($lStdPrivateInterfacer)));
+if (!compareJson(json_encode($lObject->export($lStdPrivateInterfacer)), '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
 	throw new \Exception('bad private object value '.json_encode($lObject->export($lStdPrivateInterfacer)));
 }
 
-if (!compareJson(json_encode($lObject->export($lStdPublicInterfacer)), '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","boolean":false,"boolean2":true}')) {
-	var_dump(json_encode($lObject->export($lStdPublicInterfacer)));
+if (!compareJson(json_encode($lObject->export($lStdPublicInterfacer)), '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
 	throw new \Exception('bad public object value');
 }
 $lStdObject = $lObject->export($lStdPrivateInterfacer);
 $lStdObject->string = 'azeazeazeazeaze';
 $lStdObject->objectsWithId[0]->plop3 = 'azeazeazeazeaze';
-$lObject->fillObject($lStdObject, $lStdPublicInterfacer);
-if (!compareJson(json_encode($lObject->export($lStdPrivateInterfacer)), '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","boolean":false,"boolean2":true}')) {
+$lObject->fill($lStdObject, $lStdPublicInterfacer);
+if (!compareJson(json_encode($lObject->export($lStdPrivateInterfacer)), '{"id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","defaultValue":"default","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
 	throw new \Exception('bad private object value '.json_encode($lObject->export($lStdPrivateInterfacer)));
 }
 
-if (count($lObject->getValue('objectsWithId')->getValues()) !== 5) {
+if ($lObject->getValue('objectsWithId')->count() !== 5) {
 	throw new \Exception('bad count objectsWithId');
 }
 for ($i = 0; $i < 5; $i++) {
@@ -330,7 +330,7 @@ if ($lObjectOne === $lObject) {
 	throw new \Exception('same object instance');
 }
 
-if (count($lObject->getValue('objectsWithId')->getValues()) !== 5) {
+if ($lObject->getValue('objectsWithId')->count() !== 5) {
 	throw new \Exception('bad count objectsWithId');
 }
 for ($i = 0; $i < 5; $i++) {
@@ -364,7 +364,7 @@ if ($lObjectOne === $lObject) {
 	throw new \Exception('same object instance');
 }
 
-if (count($lObject->getValue('objectsWithId')->getValues()) !== 5) {
+if ($lObject->getValue('objectsWithId')->count() !== 5) {
 	throw new \Exception('bad count objectsWithId');
 }
 for ($i = 0; $i < 5; $i++) {
@@ -577,7 +577,7 @@ $lObject->getValue('localExtendsMainObj')->cast($lLocalPlaceModel);
 $lObject->getValue('localExtendsMainObj')->setValue('stringValue', 'aze');
 $lObject->setValue('localExtendsMainObjForeign', $lObject->getValue('localExtendsMainObj'));
 
-$lObject->fillObject($lObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+$lObject->fill($lObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 
 if ($lObject->getValue('localExtendsMainObj') !== $lObject->getValue('localExtendsMainObjForeign')) {
 	throw new \Exception('not same instance model');

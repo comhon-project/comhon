@@ -7,6 +7,8 @@ use comhon\model\singleton\ModelManager;
 use comhon\object\ComhonDateTime;
 use comhon\exception\NotSatisfiedRestrictionException;
 use comhon\object\Object;
+use comhon\model\restriction\Regex;
+use comhon\model\restriction\Enum;
 
 $time_start = microtime(true);
 
@@ -20,6 +22,18 @@ function testSetBadValue(Object $pObject, $pPropertyName, $pValue) {
 		$pObject->setValue($pPropertyName, $pValue);
 		$lThrow = true;
 	} catch (NotSatisfiedRestrictionException $e) {
+		$lThrow = false;
+	}
+	if ($lThrow) {
+		throw new \Exception("set value with bad value should't work ($pPropertyName)");
+	}
+}
+
+function testSetBadArrayValue(Object $pObject, $pPropertyName, $pValue) {
+	try {
+		$pObject->setValue($pPropertyName, $pValue);
+		$lThrow = true;
+	} catch (Exception $e) {
 		$lThrow = false;
 	}
 	if ($lThrow) {
@@ -100,9 +114,7 @@ $lTestRestricted->setValue('emails', $lRegexInArray);
 $lTestRestricted->setValue('naturalNumber', 45);
 $lTestRestricted->setValue('birthDate', new ComhonDateTime('2000-01-01'));
 
-$lRestriction = new Interval(']-1.5, 2[', ModelManager::getInstance()->getInstanceModel('float'));
-$lModelRestrictedArray = new ModelRestrictedArray(ModelManager::getInstance()->getInstanceModel('float'), $lRestriction, 'intervalValue');
-$lIntervalInArray = new ObjectArray($lModelRestrictedArray);
+$lIntervalInArray = $lTestRestricted->initValue('intervalInArray');
 $lIntervalInArray->pushValue(1);
 $lIntervalInArray->unshiftValue(-1.4);
 $lTestRestricted->setValue('intervalInArray', $lIntervalInArray);
@@ -150,10 +162,10 @@ $lTestRestricted->export($lStdPrivateInterfacer);
 if (!compareJson(json_encode($lTestRestricted->export($lStdPrivateInterfacer)), '{"enumIntArray":[],"enumFloatArray":[],"emails":["plop@plop.fr","plop.plop@plop.plop"],"intervalInArray":[-1.4,1],"color":"#12abA8","naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00"}')) {
 	throw new Exception('bad value');
 }
-$lTestRestricted->fillObject(json_decode('{"color":"#12abA8","emails":[],"naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00","intervalInArray":[],"enumIntArray":[],"enumFloatArray":[]}'), $lStdPrivateInterfacer);
+$lTestRestricted->fill(json_decode('{"color":"#12abA8","emails":[],"naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00","intervalInArray":[],"enumIntArray":[],"enumFloatArray":[]}'), $lStdPrivateInterfacer);
 
 try {
-	$lTestRestricted->fillObject(json_decode('{"color":"#12abA8","emails":[],"naturalNumber":-5,"birthDate":"2000-01-01T00:00:00+01:00","intervalInArray":[],"enumIntArray":[],"enumFloatArray":[]}'), $lStdPrivateInterfacer);
+	$lTestRestricted->fill(json_decode('{"color":"#12abA8","emails":[],"naturalNumber":-5,"birthDate":"2000-01-01T00:00:00+01:00","intervalInArray":[],"enumIntArray":[],"enumFloatArray":[]}'), $lStdPrivateInterfacer);
 	$lThrow = true;
 } catch (NotSatisfiedRestrictionException $e) {
 	$lThrow = false;
@@ -161,6 +173,62 @@ try {
 if ($lThrow) {
 	throw new Exception('export with values not in enum');
 }
+
+/** ************** test set value array with good restriction but not same instance *************** **/
+
+$lRestriction = new Interval(']-1.50, 2[', $lModelFloat);
+$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'intervalValue');
+$lObjectArray = new ObjectArray($lModelRestrictedArray);
+$lTestRestricted->setValue('intervalInArray', $lObjectArray);
+
+$lRestriction = new Regex('email');
+$lModelRestrictedArray = new ModelRestrictedArray($lModelString, $lRestriction, 'email');
+$lObjectArray = new ObjectArray($lModelRestrictedArray);
+$lTestRestricted->setValue('emails', $lObjectArray);
+
+$lRestriction = new Enum([3.5, 1.5]);
+$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'enumArrayValue');
+$lObjectArray = new ObjectArray($lModelRestrictedArray);
+$lTestRestricted->setValue('enumFloatArray', $lObjectArray);
+
+/** ************** test set value array with bad restriction *************** **/
+
+$lModelFloat  = ModelManager::getInstance()->getInstanceModel('float');
+$lModelString = ModelManager::getInstance()->getInstanceModel('string');
+
+// Interval should be ']-1.50, 2['
+$lRestriction = new Interval(']-1.50, 2]', $lModelFloat);
+$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'intervalValue');
+$lObjectArray = new ObjectArray($lModelRestrictedArray);
+testSetBadArrayValue($lTestRestricted, 'intervalInArray', $lObjectArray);
+
+$lRestriction = new Regex('color');
+$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'intervalValue');
+$lObjectArray = new ObjectArray($lModelRestrictedArray);
+testSetBadArrayValue($lTestRestricted, 'intervalInArray', $lObjectArray);
+
+// Regex should be 'email'
+$lRestriction = new Regex('color');
+$lModelRestrictedArray = new ModelRestrictedArray($lModelString, $lRestriction, 'email');
+$lObjectArray = new ObjectArray($lModelRestrictedArray);
+testSetBadArrayValue($lTestRestricted, 'emails', $lObjectArray);
+
+$lRestriction = new Interval(']-1.50, 2]', $lModelFloat);
+$lModelRestrictedArray = new ModelRestrictedArray($lModelString, $lRestriction, 'email');
+$lObjectArray = new ObjectArray($lModelRestrictedArray);
+testSetBadArrayValue($lTestRestricted, 'emails', $lObjectArray);
+
+// Enumshould be [3.5, 1.5]
+$lRestriction = new Enum([30.5, 1.5]);
+$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'enumArrayValue');
+$lObjectArray = new ObjectArray($lModelRestrictedArray);
+testSetBadArrayValue($lTestRestricted, 'enumFloatArray', $lObjectArray);
+
+$lRestriction = new Interval(']-1.50, 2]', $lModelFloat);
+$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'enumArrayValue');
+$lObjectArray = new ObjectArray($lModelRestrictedArray);
+testSetBadArrayValue($lTestRestricted, 'enumFloatArray', $lObjectArray);
+
 
 $time_end = microtime(true);
 var_dump('value restriction test exec time '.($time_end - $time_start));

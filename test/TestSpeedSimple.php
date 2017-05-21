@@ -67,8 +67,6 @@ require_once 'comhon/database/SelectQuery.php';
 require_once 'comhon/database/TableNode.php';
 require_once 'comhon/interfacer/AssocArrayInterfacer.php';
 require_once 'comhon/object/ComhonDateTime.php';
-require_once 'comhon/controller/ForeignObjectLoader.php';
-require_once 'comhon/controller/AggregationLoader.php';
 
 $time_complex = microtime(true) - $time_start;
 var_dump('load exec time '.$time_complex);

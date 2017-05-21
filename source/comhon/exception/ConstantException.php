@@ -18,4 +18,6 @@ abstract class ConstantException {
 	const NOT_SUPPORTED_MODEL_INTERVAL_EXCEPTION = 402;
 	const NOT_EXISTING_REGEX_EXCEPTION = 403;
 	
+	// manifest exception
+	const RESERVED_WORD_EXCEPTION = 501;
 }

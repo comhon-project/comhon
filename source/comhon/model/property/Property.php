@@ -5,8 +5,6 @@ use comhon\object\ObjectArray;
 use comhon\object\Object;
 use comhon\model\SimpleModel;
 use comhon\model\ModelContainer;
-use comhon\model\ModelInteger;
-use comhon\model\ModelFloat;
 use comhon\model\ModelDateTime;
 use comhon\object\ComhonDateTime;
 use comhon\model\Model;
@@ -156,7 +154,7 @@ class Property {
 	 * @return boolean true if property is interfaceable
 	 */
 	public function isExportable($pPrivate, $pSerialization, $pValue) {
-		return $this->isInterfaceable($pPrivate, $pSerialization) && !is_null($pValue) && $this->getModel()->verifValue($pValue);
+		return (is_null($pValue) || $this->getModel()->verifValue($pValue)) && $this->isInterfaceable($pPrivate, $pSerialization);
 	}
 	
 	/**

@@ -4,7 +4,6 @@ namespace comhon\visitor;
 use comhon\object\Object;
 use comhon\object\ObjectArray;
 use comhon\model\Model;
-use comhon\model\ModelArray;
 use comhon\model\SimpleModel;
 use comhon\model\ModelCustom;
 use comhon\model\property\ForeignProperty;
@@ -65,7 +64,7 @@ abstract class Visitor {
 		if (is_null($pObject)) {
 			return;
 		}
-		if ($pObject->getModel() instanceof ModelArray && $pObject instanceof ObjectArray) {
+		if ($pObject instanceof ObjectArray) {
 			$lPropertyName = $pObject->getModel()->getElementName();
 			foreach ($pObject->getValues() as $lKey => $lObject) {
 				$this->_accept($pObject, $lKey, $lPropertyName);

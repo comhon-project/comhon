@@ -2,9 +2,8 @@
 namespace comhon\request;
 
 use comhon\model\singleton\ModelManager;
-use comhon\controller\ForeignObjectLoader;
-use comhon\controller\AggregationLoader;
 use comhon\object\Object;
+use comhon\object\ObjectArray;
 
 abstract class ObjectLoadRequest {
 
@@ -70,15 +69,24 @@ abstract class ObjectLoadRequest {
 		return $this->mModel;
 	}
 	
-	protected function _updateObjects($pObject) {
-		$lForeignObjectLoader       = new ForeignObjectLoader();
-		$lAggregationLoader         = new AggregationLoader();
+	protected function _updateObjects(Object $pObject) {
+		$lObjects = ($pObject instanceof ObjectArray) ? $pObject->getValues() : [$pObject];
 
 		if ($this->mRequestChildren && !$this->mLoadForeignProperties) {
-			$lAggregationLoader->execute($pObject, [AggregationLoader::LOAD_CHILDREN => $this->mLoadForeignProperties]);
+			foreach ($lObjects as $lObject) {
+				foreach ($lObject->getModel()->getAggregations() as $lPropertyName => $lAggregation) {
+					$lObject->loadValueIds($lPropertyName);
+				}
+			}
 		}
 		else if ($this->mLoadForeignProperties) {
-			$lForeignObjectLoader->execute($pObject, [$this->mRequestChildren]);
+			foreach ($lObjects as $lObject) {
+				foreach ($lObject->getModel()->getComplexProperties() as $lPropertyName => $lProperty) {
+					if ($lProperty->isAggregation() || ($lProperty->isForeign() && !is_null($lObject->getValue($lPropertyName)))) {
+						$lObject->loadValue($lPropertyName);
+					}
+				}
+			}
 		}
 		
 		return $pObject;

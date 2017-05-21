@@ -7,7 +7,7 @@ use comhon\model\ModelDateTime;
 use comhon\model\singleton\ModelManager;
 use comhon\model\ModelArray;
 
-class ObjectArray extends Object {
+class ObjectArray extends Object implements \Iterator {
 
 	/**
 	 *
@@ -165,6 +165,38 @@ class ObjectArray extends Object {
 			}
 		}
 		return $this->isFlagedAsUpdated();
+	}
+	
+	
+	public function count() {
+		return count($this->getValues());
+	}
+	
+	 /***********************************************************************************************\
+	 |                                                                                               |
+	 |                                     Iterator functions                                        |
+	 |                                                                                               |
+	 \***********************************************************************************************/
+	
+	
+	public function rewind() {
+		$this->_rewind();
+	}
+	
+	public function current() {
+		return $this->_current();
+	}
+	
+	public function key() {
+		return $this->_key();
+	}
+	
+	public function next() {
+		$this->_next();
+	}
+	
+	public function valid() {
+		return $this->_valid();
 	}
 	
 }

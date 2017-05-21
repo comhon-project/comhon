@@ -3,9 +3,7 @@
 namespace comhon\manifest\parser;
 
 use comhon\model\Model;
-use comhon\manifest\parser\xml\XmlSerializationManifestParser;
 use comhon\model\MainModel;
-use comhon\manifest\parser\json\JsonSerializationManifestParser;
 use comhon\interfacer\XMLInterfacer;
 use comhon\interfacer\Interfacer;
 use comhon\interfacer\AssocArrayInterfacer;

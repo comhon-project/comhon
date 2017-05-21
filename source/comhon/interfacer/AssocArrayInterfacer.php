@@ -33,12 +33,42 @@ class AssocArrayInterfacer extends Interfacer {
 	
 	/**
 	 *
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	public function isNullValue($pValue) {
+		return is_null($pValue);
+	}
+	
+	/**
+	 *
 	 * @param \stdClass $pNode
 	 * @param boolean $pGetElementName not used
 	 * @return array
 	 */
 	public function getTraversableNode($pNode, $pGetElementName = false) {
-		return is_array($pNode) ? $pNode : [];
+		if (!is_array($pNode)) {
+			throw new \Exception('bad node type');
+		}
+		return $pNode;
+	}
+	
+	/**
+	 * verify if value is an array
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	public function isNodeValue($pValue) {
+		return is_array($pValue);
+	}
+	
+	/**
+	 * verify if value is an array
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	public function isArrayNodeValue($pValue) {
+		return is_array($pValue);
 	}
 	
 	/**
@@ -85,7 +115,7 @@ class AssocArrayInterfacer extends Interfacer {
 	 * @param boolean $pAsNode
 	 * @return mixed
 	 */
-	public function deleteValue(&$pNode, $pName, $pAsNode = false) {
+	public function unsetValue(&$pNode, $pName, $pAsNode = false) {
 		unset($pNode[$pName]);
 	}
 	
@@ -183,15 +213,6 @@ class AssocArrayInterfacer extends Interfacer {
 		if (array_key_exists($pName, $pNode)) {
 			$this->setValue($pNode, $pValue, $pName);
 		}
-	}
-	
-	/**
-	 * verify if node is instance of stdClass
-	 * @param mixed $pNode
-	 * @return boolean
-	 */
-	public function verifyNode($pNode) {
-		return is_array($pNode);
 	}
 	
 }

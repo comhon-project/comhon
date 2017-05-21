@@ -40,6 +40,9 @@ class Enum implements Restriction {
 		if ($this === $pRestriction) {
 			return true;
 		}
+		if (!($pRestriction instanceof Enum)) {
+			return false;
+		}
 		if (count($this->mEnum) !== count($pRestriction->mEnum)) {
 			return false;
 		}

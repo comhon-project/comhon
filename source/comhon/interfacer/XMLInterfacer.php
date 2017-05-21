@@ -4,8 +4,13 @@ namespace comhon\interfacer;
 use comhon\model\Model;
 
 class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
-
+	
+	const NS_NULL_VALUE = 'xsi:nil';
+	const NULL_VALUE = 'nil';
+	const NIL_URI = 'http://www.w3.org/2001/XMLSchema-instance';
+	
 	private $mDomDocument;
+	private $mNullElements = [];
 	
 	/**
 	 * initialize DomDocument that permit to contruct nodes
@@ -13,6 +18,32 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 */
 	protected function _initInstance() {
 		$this->mDomDocument = new \DOMDocument();
+		$this->mNullElements = [];
+	}
+	
+	/**
+	 * initialize export
+	 */
+	public function initializeExport() {
+		$this->mDomDocument = new \DOMDocument();
+		$this->mNullElements = [];
+		parent::initializeExport();
+	}
+	
+	/**
+	 * finalize export
+	 * @param mixed $pRootNode
+	 */
+	public function finalizeExport($pRootNode) {
+		parent::finalizeExport($pRootNode);
+		$this->mDomDocument->appendChild($pRootNode);
+		if (!empty($this->mNullElements)) {
+			$this->mDomDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
+			foreach ($this->mNullElements as $lDomElement) {
+				$lDomElement->setAttributeNS(self::NIL_URI, self::NULL_VALUE, 'true');
+			}
+			$this->mNullElements = [];
+		}
 	}
 	
 	/**
@@ -38,10 +69,31 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 * @return \DOMElement|string|null
 	 */
 	public function &getValue(&$pNode, $pPropertyName, $pAsNode = false) {
-		$lValue = ($pAsNode) 
-			? $this->getChildNode($pNode, $pPropertyName)
-			: ($pNode->hasAttribute($pPropertyName) ? $pNode->getAttribute($pPropertyName) : null);
-		return $lValue;
+		if ($pAsNode) {
+			$lChildNode = $this->getChildNode($pNode, $pPropertyName);
+			if (!is_null($lChildNode) && $this->isNodeNull($lChildNode)) {
+				$lChildNode = null;
+			}
+			return $lChildNode;
+		} else if ($pNode->hasAttribute($pPropertyName)) {
+			$lAttribute = $pNode->getAttribute($pPropertyName);
+			if ($lAttribute == self::NS_NULL_VALUE) {
+				$lAttribute = null;
+			}
+			return $lAttribute;
+		}
+		// ugly but we return reference so we have to return a variable
+		$lNull = null;
+		return $lNull;
+	}
+	
+	/**
+	 *
+	 * @param \DOMElement $pNode
+	 * @return boolean
+	 */
+	public function isNodeNull(\DOMElement $pNode) {
+		return $pNode->hasAttributeNS(self::NIL_URI, self::NULL_VALUE);
 	}
 	
 	/**
@@ -59,13 +111,22 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 *
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	public function isNullValue($pValue) {
+		return ($pValue instanceof \DOMElement) ? $this->isNodeNull($pValue) : (is_null($pValue) || $pValue === self::NS_NULL_VALUE);
+	}
+	
+	/**
+	 *
 	 * @param \DOMElement $pNode
 	 * @param boolean $pGetElementName if true return nodes names as key other wise return indexes
 	 * @return array|null
 	 */
 	public function getTraversableNode($pNode, $pGetElementName = false) {
-		if (is_null($pNode)) {
-			return [];
+		if (!($pNode instanceof \DOMElement)) {
+			throw new \Exception('bad node type');
 		}
 		$lArray = [];
 		if ($pGetElementName) {
@@ -86,6 +147,24 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 			}
 		}
 		return $lArray;
+	}
+	
+	/**
+	 * verify if value is a DOMElement
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	public function isNodeValue($pValue) {
+		return ($pValue instanceof \DOMElement);
+	}
+	
+	/**
+	 * verify if value is a DOMElement
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	public function isArrayNodeValue($pValue) {
+		return ($pValue instanceof \DOMElement);
 	}
 	
 	/**
@@ -115,18 +194,30 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 * @return \DOMNode|null return added node or null if nothing added
 	 */
 	public function setValue(&$pNode, $pValue, $pName = null, $pAsNode = false) {
-		if (is_null($pValue)) {
-			return null;
+		if (!($pNode instanceof \DOMElement)) {
+			throw new \Exception('first parameter should be an instance of \DOMElement');
 		}
 		if ($pValue instanceof \DOMNode) {
 			return $pNode->appendChild($pValue);
 		} else {
 			if ($pAsNode) {
 				$lChildNode = $pNode->appendChild($this->mDomDocument->createElement($pName));
-				$lChildNode->appendChild($this->mDomDocument->createTextNode($pValue));
+				if (is_null($pValue)) {
+					// xsi:nil attributes cannot be added in parallel due to namespace
+					// actually in export context $pNode is not currently added to it's parent
+					// and DomNode can't find xsi namespace and throw exception
+					// so xsi:nil attribute will be added for each node at the end of export
+					$this->mNullElements[] = $lChildNode;
+				} else {
+					$lChildNode->appendChild($this->mDomDocument->createTextNode($pValue));
+				}
 				return $lChildNode;
 			} else {
-				return $pNode->setAttribute($pName, $pValue);
+				if (is_null($pValue)) {
+					return $pNode->setAttribute($pName, self::NS_NULL_VALUE);
+				} else {
+					return $pNode->setAttribute($pName, $pValue);
+				}
 			}
 		}
 	}
@@ -138,7 +229,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 * @param boolean $pAsNode
 	 * @return mixed
 	 */
-	public function deleteValue(&$pNode, $pName, $pAsNode = false) {
+	public function unsetValue(&$pNode, $pName, $pAsNode = false) {
 		if ($pAsNode) {
 			$lDomElement= $this->getChildNode($pNode, $pName);
 			if (!is_null($lDomElement)) {
@@ -281,15 +372,6 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * verify if node is instance of DomElement
-	 * @param mixed $pNode
-	 * @return boolean
-	 */
-	public function verifyNode($pNode) {
-		return ($pNode instanceof \DOMElement);
-	}
-	
-	/**
 	 * @param string $pValue
 	 * @return integer
 	 */
@@ -373,7 +455,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 			if (isset($this->mMainForeignIds[$lModelName][$pNodeId])) {
 				$this->getValue($this->mMainForeignObjects, $lModelName, true)->removeChild($this->mMainForeignIds[$lModelName][$pNodeId]);
 			}
-			$this->deleteValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNodeId, true);
+			$this->unsetValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNodeId, true);
 			$this->setValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNode);
 			$this->mMainForeignIds[$lModelName][$pNodeId] = $pNode;
 		}

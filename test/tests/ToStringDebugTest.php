@@ -10,8 +10,8 @@ $lTestDb = $lDbTestModel->getObjectInstance();
 
 $lTestDb->setValue('id1', 789201, false);
 $lTestDb->setValue('timestamp', new ComhonDateTime('now'), false);
-$lTestDb->deleteValue('childrenTestDb', false);
-$lTestDb->deleteValue('defaultValue', false);
+$lTestDb->unsetValue('childrenTestDb', false);
+$lTestDb->unsetValue('defaultValue', false);
 
 var_dump($lTestDb);
 echo $lTestDb;

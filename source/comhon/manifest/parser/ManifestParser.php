@@ -16,6 +16,7 @@ use comhon\interfacer\StdObjectInterfacer;
 use comhon\interfacer\NoScalarTypedInterfacer;
 use comhon\model\property\RestrictedProperty;
 use comhon\exception\NotSatisfiedRestrictionException;
+use comhon\exception\ReservedWordException;
 
 abstract class ManifestParser {
 
@@ -137,6 +138,9 @@ abstract class ManifestParser {
 			list($lName, $lModel, $lIsId, $lIsPrivate, $lInterfaceAsNodeXml) = $this->_getBaseInfosProperty($pPropertyModel);
 			list($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames) = $this->_getBaseSerializationInfosProperty($lName);
 			
+			if ($lName === Interfacer::INHERITANCE_KEY || $lSerializationName === Interfacer::INHERITANCE_KEY) {
+				throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
+			}
 			$lModelForeign = new ModelForeign($lModel);
 			if (!empty($lSerializationNames)) {
 				if (count($lSerializationNames) < 2) {
@@ -158,6 +162,9 @@ abstract class ManifestParser {
 			list($lName, $lModel, $lIsId, $lIsPrivate, $lInterfaceAsNodeXml) = $this->_getBaseInfosProperty($pPropertyModel);
 			list($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames) = $this->_getBaseSerializationInfosProperty($lName);
 			
+			if ($lName === Interfacer::INHERITANCE_KEY || $lSerializationName === Interfacer::INHERITANCE_KEY) {
+				throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
+			}
 			$lDefault = $this->_getDefaultValue($lModel);
 			$lRestriction = $this->_getRestriction(current($this->mCurrentProperties), $lModel);
 			

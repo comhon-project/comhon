@@ -105,7 +105,7 @@ abstract class SerializationFile extends SerializationUnit {
 				$pObject->cast($lModel);
 			}
 		}
-		$pObject->fillObject($lFormatedContent, $this->mInterfacer);
+		$pObject->fill($lFormatedContent, $this->mInterfacer);
 		return true;
 	}
 	

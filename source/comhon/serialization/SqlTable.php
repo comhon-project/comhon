@@ -523,7 +523,7 @@ class SqlTable extends SerializationUnit {
 				}
 			}
 			$lInterfacer = self::getInterfacer(!$pOnlyIds);
-			$pObject->fillObject($lIsModelArray ? $lRows : $lRows[0], $lInterfacer);
+			$pObject->fill($lIsModelArray ? $lRows : $lRows[0], $lInterfacer);
 			$lSuccess = true;
 		}
 		return $lSuccess;

@@ -46,13 +46,29 @@ function compareJson($jsonOne, $jsonTwo) {
 }
 
 /**
+ *
+ * @param array $arrayOne
+ * @param array $arrayTwo
+ * @return boolean
+ */
+function compareArray(array $arrayOne, array $arrayTwo) {
+	$stack = [];
+	$success = _compareArray($arrayOne, $arrayTwo, $stack);
+	if (!$success) {
+		var_dump(json_encode($arrayOne));
+		var_dump(json_encode($arrayTwo));
+	}
+	return $success;
+}
+
+/**
  * 
  * @param array $arrayOne
  * @param array $arrayTwo
  * @param array $stack
  * @return boolean
  */
-function compareArray(array $arrayOne, array $arrayTwo, array &$stack = []) {
+function _compareArray(array $arrayOne, array $arrayTwo, array &$stack) {
 	if (count($arrayOne) != count($arrayTwo)) {
 		trigger_error('not same array keys : .' . implode('.', $stack) . ' -> ' . json_encode(array_keys($arrayOne)) . ' != ' . json_encode(array_keys($arrayTwo)));
 		return false;
@@ -64,11 +80,11 @@ function compareArray(array $arrayOne, array $arrayTwo, array &$stack = []) {
 			return false;
 		}
 		if (is_array($value) && is_array($arrayTwo[$key])) {
-			if (!compareArray($value, $arrayTwo[$key], $stack)) {
+			if (!_compareArray($value, $arrayTwo[$key], $stack)) {
 				return false;
 			}
 		} elseif (($value instanceof \stdClass) && ($arrayTwo[$key] instanceof \stdClass)) {
-			if (!compareStdObject($value, $arrayTwo[$key], $stack)) {
+			if (!_compareStdObject($value, $arrayTwo[$key], $stack)) {
 				return false;
 			}
 		} elseif ($value !== $arrayTwo[$key]) {
@@ -86,10 +102,26 @@ function compareArray(array $arrayOne, array $arrayTwo, array &$stack = []) {
  * 
  * @param \stdClass $stdObjectOne
  * @param \stdClass $stdObjectTwo
+ * @return boolean
+ */
+function compareStdObject(\stdClass $stdObjectOne, \stdClass $stdObjectTwo) {
+	$stack = [];
+	$success = _compareStdObject($stdObjectOne, $stdObjectTwo, $stack);
+	if (!$success) {
+		var_dump(json_encode($stdObjectOne));
+		var_dump(json_encode($stdObjectTwo));
+	}
+	return $success;
+}
+
+/**
+ * 
+ * @param \stdClass $stdObjectOne
+ * @param \stdClass $stdObjectTwo
  * @param array $stack
  * @return boolean
  */
-function compareStdObject(\stdClass $stdObjectOne, \stdClass $stdObjectTwo, array &$stack = []) {
+function _compareStdObject(\stdClass $stdObjectOne, \stdClass $stdObjectTwo, array &$stack) {
 	$arrayOne = [];
 	$arrayTwo = [];
 	foreach ($stdObjectOne as $key => $value) {
@@ -109,11 +141,11 @@ function compareStdObject(\stdClass $stdObjectOne, \stdClass $stdObjectTwo, arra
 			return false;
 		}
 		if (is_array($value) && is_array($stdObjectTwo->$key)) {
-			if (!compareArray($value, $stdObjectTwo->$key, $stack)) {
+			if (!_compareArray($value, $stdObjectTwo->$key, $stack)) {
 				return false;
 			}
 		} elseif (($value instanceof \stdClass) && ($stdObjectTwo->$key instanceof \stdClass)) {
-			if (!compareStdObject($value, $stdObjectTwo->$key, $stack)) {
+			if (!_compareStdObject($value, $stdObjectTwo->$key, $stack)) {
 				return false;
 			}
 		} else  if ($value !== $stdObjectTwo->$key) {
@@ -131,10 +163,9 @@ function compareStdObject(\stdClass $stdObjectOne, \stdClass $stdObjectTwo, arra
  *
  * @param string $XMLOne
  * @param string $XMLTwo
- * @param array $stack
  * @return boolean
  */
-function compareXML($XMLOne, $XMLTwo, array &$stack = []) {
+function compareXML($XMLOne, $XMLTwo) {
 	$DOMDocOne = new \DOMDocument();
 	$DOMDocOne->loadXML($XMLOne);
 	$DOMDocTwo = new \DOMDocument();
@@ -152,13 +183,29 @@ function compareXML($XMLOne, $XMLTwo, array &$stack = []) {
 }
 
 /**
+ *
+ * @param \DOMElement $DOMElementOne
+ * @param \DOMElement $DOMElementTwo
+ * @return boolean
+ */
+function compareDomElement(\DOMElement $DOMElementOne, \DOMElement $DOMElementTwo) {
+	$stack = [];
+	$success = _compareDomElement($DOMElementOne, $DOMElementTwo, $stack);
+	if (!$success) {
+		var_dump($DOMElementOne->ownerDocument->saveXML($DOMElementOne));
+		var_dump($DOMElementTwo->ownerDocument->saveXML($DOMElementTwo));
+	}
+	return $success;
+}
+
+/**
  * 
  * @param \DOMElement $DOMElementOne
  * @param \DOMElement $DOMElementTwo
  * @param array $stack
  * @return boolean
  */
-function compareDomElement(\DOMElement $DOMElementOne, \DOMElement $DOMElementTwo, array &$stack = []) {
+function _compareDomElement(\DOMElement $DOMElementOne, \DOMElement $DOMElementTwo, array &$stack) {
 	if ($DOMElementOne->nodeName !== $DOMElementTwo->nodeName) {
 		trigger_error('nodes have different names : ' . implode('.', $stack) . ".{$DOMElementOne->nodeName} !== " . implode('.', $stack) . '.' . $DOMElementOne->nodeName);
 		return false;
@@ -235,7 +282,7 @@ function compareDomElement(\DOMElement $DOMElementOne, \DOMElement $DOMElementTw
 			return false;
 		}
 		foreach ($nodes as $index => $node) {
-			if (!compareDomElement($node, $DOMElementsTwo[$key][$index], $stack)) {
+			if (!_compareDomElement($node, $DOMElementsTwo[$key][$index], $stack)) {
 				return false;
 			}
 		}
@@ -265,29 +312,19 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'To
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RestrictionTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueRestrictionTest.php';
 
-/*
-interfacer (limit inf appear more often) : 
-	json
-		model  0.0088510513 < 0.01793503
-		extend model 0.000944 < 0.003141164
-	xml
-		model 0.0097460 < 0.019051
-		extends model 0.0014588 < 0.0047380924
-*/
+// composer
 
-// add export null value
-// objectarray implement traversable
-// fill instead of fillobject (only for object not for modfel)
-
-// add error code
+// add error code (verifvalue precise model if differents (instead of class that are the same))
 // remove $p $l
 // psr
 // add Php doc
+// remove warnings use
 
+// for version > 2.0
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)
 // allow to active only one value among several values (a or b might be set but not a and b)
 // define in manifest if property is requestable
-// real unit test
+// phpunit test
 // rapide load Unique model in modelManager
 // from object specifying object path (object.property.property)
 // mandatory value when serialize
@@ -296,3 +333,4 @@ interfacer (limit inf appear more often) :
 // versionning get instance model 3rd parameter version
 // inheritage with join table
 // manifest validator
+// request order not only on requested model

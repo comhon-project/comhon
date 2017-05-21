@@ -25,34 +25,6 @@ class ModelRestrictedArray extends ModelArray {
 	
 	/**
 	 *
-	 * @param Object $pObjectArray
-	 * @param string $pNodeName
-	 * @param Interfacer $pInterfacer
-	 * @param boolean $pIsFirstLevel
-	 * @throws \Exception
-	 * @return mixed|null
-	 */
-	protected function _export($pObjectArray, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
-		if (is_null($pObjectArray)) {
-			return null;
-		}
-		if (!$pObjectArray->isLoaded()) {
-			return  Interfacer::__UNLOAD__;
-		}
-		$lNodeArray = $pInterfacer->createNodeArray($pNodeName);
-		
-		foreach ($pObjectArray->getValues() as $lValue) {
-			if ($this->mRestriction->satisfy($lValue)) {
-				$pInterfacer->addValue($lNodeArray, $this->getModel()->_export($lValue, $this->getElementName(), $pInterfacer, $pIsFirstLevel), $this->getElementName());
-			} else {
-				throw new NotSatisfiedRestrictionException($lValue, $this->mRestriction);
-			}
-		}
-		return $lNodeArray;
-	}
-	
-	/**
-	 *
 	 * @param mixed $pValue
 	 * @param Interfacer $pInterfacer
 	 * @param ObjectCollection $pLocalObjectCollection
@@ -61,18 +33,11 @@ class ModelRestrictedArray extends ModelArray {
 	 * @return Object
 	 */
 	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
-		if (is_null($pInterfacedObject)) {
-			return null;
-		}
-		$lObjectArray = $this->getObjectInstance();
-		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
-			$lValue = $this->getModel()->_import($lElement, $pInterfacer, $pLocalObjectCollection, $pParentMainModel, $pIsFirstLevel);
-			if ($this->mRestriction->satisfy($lValue)) {
-				$lObjectArray->pushValue($lValue, $pInterfacer->hasToFlagValuesAsUpdated());
-			} else {
+		$lObjectArray = parent::_import($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $pParentMainModel, $pIsFirstLevel);
+		foreach ($lObjectArray->getValues() as $lValue) {
+			if (!$this->mRestriction->satisfy($lValue)) {
 				throw new NotSatisfiedRestrictionException($lValue, $this->mRestriction);
 			}
-			
 		}
 		return $lObjectArray;
 	}

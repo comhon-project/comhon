@@ -102,10 +102,13 @@ class Interval implements Restriction {
 	 */
 	public function isEqual(Restriction $pRestriction) {
 		return $this === $pRestriction
-			|| $this->mIsLeftClosed  == $pRestriction->mIsLeftClosed
-			|| $this->mIsRightClosed == $pRestriction->mIsRightClosed
-			|| $this->mLeftEndPoint  == $pRestriction->mLeftEndPoint
-			|| $this->mRightEndPoint == $pRestriction->mRightEndPoint;
+			|| (
+				($pRestriction instanceof Interval)
+				&& $this->mIsLeftClosed  === $pRestriction->mIsLeftClosed
+				&& $this->mIsRightClosed === $pRestriction->mIsRightClosed
+				&& $this->mLeftEndPoint  === $pRestriction->mLeftEndPoint
+				&& $this->mRightEndPoint === $pRestriction->mRightEndPoint
+			);
 	}
 	
 	/**

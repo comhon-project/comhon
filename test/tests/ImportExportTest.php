@@ -63,20 +63,11 @@ foreach ($lObject->getValues() as $lKey => $lValue) {
 	$lCopiedObject->setValue($lKey, $lValue);
 }
 
-$lPrivateStdObject = '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true}';
-$lPublicStdObject  = '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true}';
-$lSerializedObject = '{"default_value":"default","id_1":1,"id_2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"object_with_id":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"main_test_id":1,"objects_with_id":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreign_objects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonely_foreign_object":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonely_foreign_object_two":"11","boolean":false,"boolean2":true}';
-$lSerializedXML    = '<testDb default_value="default" id_1="1" id_2="1501774389" date="2016-04-12T05:14:33+02:00" timestamp="2016-10-13T11:50:19+02:00" string="nnnn" integer="2" boolean="0" boolean2="1"><object plop="plop" plop2="plop2"/><object_with_id plop="plop" plop2="plop2"/><main_test_id>1</main_test_id><objects_with_id><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" plop4="heyplop4" __inheritance__="objectWithIdAndMoreMore"/><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" __inheritance__="objectWithIdAndMore"/><objectWithId plop="1" plop2="heyplop2"/><objectWithId plop="11" plop2="heyplop22"/><objectWithId plop="11" plop2="heyplop22" plop3="heyplop33" __inheritance__="objectWithIdAndMore"/></objects_with_id><foreign_objects><foreignObject id="1" __inheritance__="objectWithIdAndMoreMore"/><foreignObject id="1" __inheritance__="objectWithIdAndMore"/><foreignObject>1</foreignObject><foreignObject>11</foreignObject><foreignObject id="11" __inheritance__="objectWithIdAndMore"/></foreign_objects><lonely_foreign_object id="11" __inheritance__="objectWithIdAndMore"/><lonely_foreign_object_two>11</lonely_foreign_object_two></testDb>';
-$lSqlArray         = '{"default_value":"default","id_1":1,"id_2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","string":"nnnn","integer":2,"main_test_id":1,"objects_with_id":"[{\"plop\":\"1\",\"plop2\":\"heyplop2\",\"plop3\":\"heyplop3\",\"plop4\":\"heyplop4\",\"__inheritance__\":\"objectWithIdAndMoreMore\"},{\"plop\":\"1\",\"plop2\":\"heyplop2\",\"plop3\":\"heyplop3\",\"__inheritance__\":\"objectWithIdAndMore\"},{\"plop\":\"1\",\"plop2\":\"heyplop2\"},{\"plop\":\"11\",\"plop2\":\"heyplop22\"},{\"plop\":\"11\",\"plop2\":\"heyplop22\",\"plop3\":\"heyplop33\",\"__inheritance__\":\"objectWithIdAndMore\"}]","foreign_objects":"[{\"id\":\"1\",\"__inheritance__\":\"objectWithIdAndMoreMore\"},{\"id\":\"1\",\"__inheritance__\":\"objectWithIdAndMore\"},\"1\",\"11\",{\"id\":\"11\",\"__inheritance__\":\"objectWithIdAndMore\"}]","lonely_foreign_object":"{\"id\":\"11\",\"__inheritance__\":\"objectWithIdAndMore\"}","lonely_foreign_object_two":"11","boolean":false,"boolean2":true}';
-
-// same objects than previous objects except "childrenTestDb" at the end
-$lPrivateStdObjectEnd = '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true}';
-$lPublicStdObjectEnd  = '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true}';
-
-// same objects than previous objects except "childrenTestDb" removed
-$lPrivateStdObjectWithoutAggregation = '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true}';
-$lPublicStdObjectWithoutAggregation  = '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true}';
-
+$lPrivateStdObject = '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}';
+$lPublicStdObject  = '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}';
+$lSerializedObject = '{"default_value":"default","id_1":1,"id_2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"object_with_id":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"main_test_id":1,"objects_with_id":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreign_objects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonely_foreign_object":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonely_foreign_object_two":"11","man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true}';
+$lSerializedXML    = '<testDb xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" default_value="default" id_1="1" id_2="1501774389" date="2016-04-12T05:14:33+02:00" timestamp="2016-10-13T11:50:19+02:00" string="nnnn" integer="2" boolean="0" boolean2="1"><object plop="plop" plop2="plop2"/><object_with_id plop="plop" plop2="plop2"/><main_test_id>1</main_test_id><objects_with_id><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" plop4="heyplop4" __inheritance__="objectWithIdAndMoreMore"/><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" __inheritance__="objectWithIdAndMore"/><objectWithId plop="1" plop2="heyplop2"/><objectWithId plop="11" plop2="heyplop22"/><objectWithId plop="11" plop2="heyplop22" plop3="heyplop33" __inheritance__="objectWithIdAndMore"/></objects_with_id><foreign_objects><foreignObject id="1" __inheritance__="objectWithIdAndMoreMore"/><foreignObject id="1" __inheritance__="objectWithIdAndMore"/><foreignObject>1</foreignObject><foreignObject>11</foreignObject><foreignObject id="11" __inheritance__="objectWithIdAndMore"/></foreign_objects><lonely_foreign_object id="11" __inheritance__="objectWithIdAndMore"/><lonely_foreign_object_two>11</lonely_foreign_object_two><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/></testDb>';
+$lSqlArray         = '{"default_value":"default","id_1":1,"id_2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","string":"nnnn","integer":2,"main_test_id":1,"objects_with_id":"[{\"plop\":\"1\",\"plop2\":\"heyplop2\",\"plop3\":\"heyplop3\",\"plop4\":\"heyplop4\",\"__inheritance__\":\"objectWithIdAndMoreMore\"},{\"plop\":\"1\",\"plop2\":\"heyplop2\",\"plop3\":\"heyplop3\",\"__inheritance__\":\"objectWithIdAndMore\"},{\"plop\":\"1\",\"plop2\":\"heyplop2\"},{\"plop\":\"11\",\"plop2\":\"heyplop22\"},{\"plop\":\"11\",\"plop2\":\"heyplop22\",\"plop3\":\"heyplop33\",\"__inheritance__\":\"objectWithIdAndMore\"}]","foreign_objects":"[{\"id\":\"1\",\"__inheritance__\":\"objectWithIdAndMoreMore\"},{\"id\":\"1\",\"__inheritance__\":\"objectWithIdAndMore\"},\"1\",\"11\",{\"id\":\"11\",\"__inheritance__\":\"objectWithIdAndMore\"}]","lonely_foreign_object":"{\"id\":\"11\",\"__inheritance__\":\"objectWithIdAndMore\"}","lonely_foreign_object_two":"11","man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true}';
 
 /** ****************************** test stdObject ****************************** **/
 
@@ -94,8 +85,8 @@ if (json_encode($lDbTestModel->import($lCopiedObject->export($lStdPrivateInterfa
 if (json_encode($lDbTestModel->import($lCopiedObject->export($lStdPublicInterfacer), $lStdPublicInterfacer)->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
-if (json_encode($lCopiedObject->export($lStdSerialInterfacer)) !== $lSerializedObject) {
-	throw new \Exception('bad serial object value : '.json_encode($lCopiedObject->export($lStdSerialInterfacer)));
+if (!compareJson(json_encode($lCopiedObject->export($lStdSerialInterfacer)), $lSerializedObject)) {
+	throw new \Exception('bad serial object value');
 }
 if (json_encode($lDbTestModel->import($lCopiedObject->export($lStdSerialInterfacer), $lStdSerialInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
 	throw new \Exception('bad public object value');
@@ -122,39 +113,39 @@ $lNewObject = $lObject;
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
 	var_dump(json_encode($lNewObject->export($lStdPrivateInterfacer)));
 	throw new \Exception('bad private object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lStdPublicInterfacer), $lStdPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lStdSerialInterfacer), $lStdSerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	var_dump(json_encode($lNewObject->export($lStdPublicInterfacer)));
 	throw new \Exception('bad serial object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
-$lNewObject->fillObject($lCopiedObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+$lNewObject->fill($lCopiedObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
-$lNewObject->fillObject($lCopiedObject->export($lStdPrivateInterfacer), $lStdPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+$lNewObject->fill($lCopiedObject->export($lStdPrivateInterfacer), $lStdPublicInterfacer);
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
-$lNewObject->fillObject($lCopiedObject->export($lStdSerialInterfacer), $lStdSerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+$lNewObject->fill($lCopiedObject->export($lStdSerialInterfacer), $lStdSerialInterfacer);
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad serial object value');
 }
 
@@ -182,37 +173,37 @@ if (json_encode($lDbTestModel->import($lCopiedObject->export($lXmlPrivateInterfa
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lXmlPublicInterfacer), $lXmlPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lXmlSerialInterfacer), $lXmlSerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad serial object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
-$lNewObject->fillObject($lCopiedObject->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+$lNewObject->fill($lCopiedObject->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
+if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
-$lNewObject->fillObject($lCopiedObject->export($lXmlPrivateInterfacer), $lXmlPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+$lNewObject->fill($lCopiedObject->export($lXmlPrivateInterfacer), $lXmlPublicInterfacer);
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
-$lNewObject->fillObject($lCopiedObject->export($lXmlSerialInterfacer), $lXmlSerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+$lNewObject->fill($lCopiedObject->export($lXmlSerialInterfacer), $lXmlSerialInterfacer);
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad serial object value');
 }
 
@@ -224,9 +215,8 @@ if (json_encode($lDbTestModel->import($lCopiedObject->export($lFlattenArrayPriva
 if (json_encode($lDbTestModel->import($lCopiedObject->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPublicInterfacer)->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
-if (json_encode($lCopiedObject->export($lFlattenArraySerialInterfacer)) !== $lSqlArray) {
-	var_dump(json_encode($lCopiedObject->export($lFlattenArraySerialInterfacer)));
-	throw new \Exception('bad serial object value : '.json_encode($lCopiedObject->export($lFlattenArraySerialInterfacer)));
+if (!compareJson(json_encode($lCopiedObject->export($lFlattenArraySerialInterfacer)), $lSqlArray)) {
+	throw new \Exception('bad serial object value');
 }
 if (json_encode($lDbTestModel->import($lCopiedObject->export($lFlattenArraySerialInterfacer), $lFlattenArraySerialInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
 	throw new \Exception('bad public object value');
@@ -240,37 +230,37 @@ if (json_encode($lDbTestModel->import($lCopiedObject->export($lFlattenArrayPriva
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lFlattenArraySerialInterfacer), $lFlattenArraySerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad serial object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
-$lNewObject->fillObject($lCopiedObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+$lNewObject->fill($lCopiedObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
-$lNewObject->fillObject($lCopiedObject->export($lStdPrivateInterfacer), $lStdPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+$lNewObject->fill($lCopiedObject->export($lStdPrivateInterfacer), $lStdPublicInterfacer);
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
-$lNewObject->fillObject($lCopiedObject->export($lStdSerialInterfacer), $lStdSerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+$lNewObject->fill($lCopiedObject->export($lStdSerialInterfacer), $lStdSerialInterfacer);
+if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad serial object value');
 }
 
@@ -310,40 +300,31 @@ $lMainParentTestDb = $lTestDb->getValue('mainParentTestDb');
 /** @var ObjectArray $lTestDbs */
 $lTestDbs = $lMainParentTestDb->getValue('childrenTestDb');
 
-$lPrivateStdObject = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","string":"aaaa","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"string":"bbbb","integer":1,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"string":"dddd","integer":3,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"string":"eeee","integer":4,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]';
-$lPublicStdObject  = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":1,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":3,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"integer":4,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]';
-$lSerializedObject = '[{"default_value":"default","id_1":1,"id_2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","string":"aaaa","integer":0,"main_test_id":1,"objects_with_id":[],"foreign_objects":[],"boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"object_with_id":{"plop":"plop","plop2":"plop2222"},"string":"bbbb","integer":1,"main_test_id":1,"objects_with_id":[],"foreign_objects":[],"boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"object_with_id":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":2,"main_test_id":1,"objects_with_id":[],"foreign_objects":[],"boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"object_with_id":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"main_test_id":1,"objects_with_id":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreign_objects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonely_foreign_object":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonely_foreign_object_two":"11","boolean":false,"boolean2":true},{"default_value":"default","id_1":2,"id_2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"object_with_id":{"plop":"plop","plop2":"plop2222"},"string":"dddd","integer":3,"main_test_id":1,"objects_with_id":[],"foreign_objects":[],"boolean":false,"boolean2":true},{"default_value":"default","id_1":2,"id_2":"102","date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"string":"eeee","integer":4,"main_test_id":1,"objects_with_id":[],"foreign_objects":[],"boolean":false,"boolean2":true}]';
-$lSerializedXML    = '<testDb><childTestDb default_value="default" id_1="1" id_2="23" date="2016-05-01T14:53:54+02:00" timestamp="2016-10-16T21:50:19+02:00" string="aaaa" integer="0" boolean="0" boolean2="1"><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/></childTestDb><childTestDb default_value="default" id_1="1" id_2="50" date="2016-10-16T20:21:18+02:00" timestamp="2016-10-16T21:50:19+02:00" string="bbbb" integer="1" boolean="0" boolean2="1"><object plop="plop" plop2="plop2222"/><object_with_id plop="plop" plop2="plop2222"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/></childTestDb><childTestDb default_value="default" id_1="1" id_2="101" date="2016-04-13T09:14:33+02:00" timestamp="2016-10-16T21:50:19+02:00" string="cccc" integer="2" boolean="0" boolean2="1"><object plop="plop" plop2="plop2"/><object_with_id plop="plop" plop2="plop2"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/></childTestDb><childTestDb default_value="default" id_1="1" id_2="1501774389" date="2016-04-12T05:14:33+02:00" timestamp="2016-10-13T11:50:19+02:00" string="nnnn" integer="2" boolean="0" boolean2="1"><object plop="plop" plop2="plop2"/><object_with_id plop="plop" plop2="plop2"/><main_test_id>1</main_test_id><objects_with_id><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" plop4="heyplop4" __inheritance__="objectWithIdAndMoreMore"/><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" __inheritance__="objectWithIdAndMore"/><objectWithId plop="1" plop2="heyplop2"/><objectWithId plop="11" plop2="heyplop22"/><objectWithId plop="11" plop2="heyplop22" plop3="heyplop33" __inheritance__="objectWithIdAndMore"/></objects_with_id><foreign_objects><foreignObject id="1" __inheritance__="objectWithIdAndMoreMore"/><foreignObject id="1" __inheritance__="objectWithIdAndMore"/><foreignObject>1</foreignObject><foreignObject>11</foreignObject><foreignObject id="11" __inheritance__="objectWithIdAndMore"/></foreign_objects><lonely_foreign_object id="11" __inheritance__="objectWithIdAndMore"/><lonely_foreign_object_two>11</lonely_foreign_object_two></childTestDb><childTestDb default_value="default" id_1="2" id_2="50" date="2016-05-01T23:37:18+02:00" timestamp="2016-10-16T21:50:19+02:00" string="dddd" integer="3" boolean="0" boolean2="1"><object plop="plop" plop2="plop2222"/><object_with_id plop="plop" plop2="plop2222"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/></childTestDb><childTestDb default_value="default" id_1="2" id_2="102" date="2016-04-01T08:00:00+02:00" timestamp="2016-10-16T18:21:18+02:00" string="eeee" integer="4" boolean="0" boolean2="1"><object plop="plop10" plop2="plop20"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/></childTestDb></testDb>';
-$lSqlArray         = '[{"default_value":"default","id_1":1,"id_2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","string":"aaaa","integer":0,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","string":"bbbb","integer":1,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","string":"cccc","integer":2,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","string":"nnnn","integer":2,"main_test_id":1,"objects_with_id":"[{\"plop\":\"1\",\"plop2\":\"heyplop2\",\"plop3\":\"heyplop3\",\"plop4\":\"heyplop4\",\"__inheritance__\":\"objectWithIdAndMoreMore\"},{\"plop\":\"1\",\"plop2\":\"heyplop2\",\"plop3\":\"heyplop3\",\"__inheritance__\":\"objectWithIdAndMore\"},{\"plop\":\"1\",\"plop2\":\"heyplop2\"},{\"plop\":\"11\",\"plop2\":\"heyplop22\"},{\"plop\":\"11\",\"plop2\":\"heyplop22\",\"plop3\":\"heyplop33\",\"__inheritance__\":\"objectWithIdAndMore\"}]","foreign_objects":"[{\"id\":\"1\",\"__inheritance__\":\"objectWithIdAndMoreMore\"},{\"id\":\"1\",\"__inheritance__\":\"objectWithIdAndMore\"},\"1\",\"11\",{\"id\":\"11\",\"__inheritance__\":\"objectWithIdAndMore\"}]","lonely_foreign_object":"{\"id\":\"11\",\"__inheritance__\":\"objectWithIdAndMore\"}","lonely_foreign_object_two":"11","boolean":false,"boolean2":true},{"default_value":"default","id_1":2,"id_2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","string":"dddd","integer":3,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","boolean":false,"boolean2":true},{"default_value":"default","id_1":2,"id_2":"102","date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":"{\"plop\":\"plop10\",\"plop2\":\"plop20\"}","string":"eeee","integer":4,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","boolean":false,"boolean2":true}]';
-
-// same objects than previous objects except "childrenTestDb" at the end
-$lPrivateStdObjectEnd = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","string":"aaaa","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"string":"bbbb","integer":1,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"string":"dddd","integer":3,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"string":"eeee","integer":4,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]';
-$lPublicStdObjectEnd  = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":1,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":3,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"integer":4,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]';
-
-// same objects than previous objects except "childrenTestDb" removed
-$lPrivateStdObjectWithoutAggregation = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","string":"aaaa","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"string":"bbbb","integer":1,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"string":"dddd","integer":3,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"string":"eeee","integer":4,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]';
-$lPublicStdObjectWithoutAggregation  = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":1,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":3,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"integer":4,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]';
-
+$lPrivateStdObject = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":null,"objectWithId":null,"string":"aaaa","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"string":"bbbb","integer":1,"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"string":"dddd","integer":3,"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","mainParentTestDb":1,"date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"objectWithId":null,"string":"eeee","integer":4,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}]';
+$lPublicStdObject  = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":null,"objectWithId":null,"integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":1,"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":3,"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","mainParentTestDb":1,"date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"objectWithId":null,"integer":4,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}]';
+$lSerializedObject = '[{"default_value":"default","id_1":1,"id_2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":null,"object_with_id":null,"string":"aaaa","integer":0,"main_test_id":1,"objects_with_id":[],"foreign_objects":[],"lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"object_with_id":{"plop":"plop","plop2":"plop2222"},"string":"bbbb","integer":1,"lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"main_test_id":1,"objects_with_id":[],"foreign_objects":[],"boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"object_with_id":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":2,"main_test_id":1,"objects_with_id":[],"foreign_objects":[],"lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"object_with_id":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"main_test_id":1,"objects_with_id":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"objectWithIdAndMore"}],"foreign_objects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonely_foreign_object":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonely_foreign_object_two":"11","man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true},{"default_value":"default","id_1":2,"id_2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"object_with_id":{"plop":"plop","plop2":"plop2222"},"string":"dddd","integer":3,"lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"main_test_id":1,"objects_with_id":[],"foreign_objects":[],"boolean":false,"boolean2":true},{"default_value":"default","id_1":2,"id_2":"102","main_test_id":1,"date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"object_with_id":null,"string":"eeee","integer":4,"objects_with_id":[],"foreign_objects":[],"lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true}]';
+$lSerializedXML    = '<testDb xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><childTestDb default_value="default" id_1="1" id_2="23" date="2016-05-01T14:53:54+02:00" timestamp="2016-10-16T21:50:19+02:00" string="aaaa" integer="0" boolean="0" boolean2="1"><object xsi:nil="true"/><object_with_id xsi:nil="true"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/><lonely_foreign_object xsi:nil="true"/><lonely_foreign_object_two xsi:nil="true"/><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/></childTestDb><childTestDb default_value="default" id_1="1" id_2="50" date="2016-10-16T20:21:18+02:00" timestamp="2016-10-16T21:50:19+02:00" string="bbbb" integer="1" boolean="0" boolean2="1"><object plop="plop" plop2="plop2222"/><object_with_id plop="plop" plop2="plop2222"/><lonely_foreign_object xsi:nil="true"/><lonely_foreign_object_two xsi:nil="true"/><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/></childTestDb><childTestDb default_value="default" id_1="1" id_2="101" date="2016-04-13T09:14:33+02:00" timestamp="2016-10-16T21:50:19+02:00" string="cccc" integer="2" boolean="0" boolean2="1"><object plop="plop" plop2="plop2"/><object_with_id plop="plop" plop2="plop2"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/><lonely_foreign_object xsi:nil="true"/><lonely_foreign_object_two xsi:nil="true"/><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/></childTestDb><childTestDb default_value="default" id_1="1" id_2="1501774389" date="2016-04-12T05:14:33+02:00" timestamp="2016-10-13T11:50:19+02:00" string="nnnn" integer="2" boolean="0" boolean2="1"><object plop="plop" plop2="plop2"/><object_with_id plop="plop" plop2="plop2"/><main_test_id>1</main_test_id><objects_with_id><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" plop4="heyplop4" __inheritance__="objectWithIdAndMoreMore"/><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" __inheritance__="objectWithIdAndMore"/><objectWithId plop="1" plop2="heyplop2"/><objectWithId plop="11" plop2="heyplop22"/><objectWithId plop="11" plop2="heyplop22" plop3="heyplop33" __inheritance__="objectWithIdAndMore"/></objects_with_id><foreign_objects><foreignObject id="1" __inheritance__="objectWithIdAndMoreMore"/><foreignObject id="1" __inheritance__="objectWithIdAndMore"/><foreignObject>1</foreignObject><foreignObject>11</foreignObject><foreignObject id="11" __inheritance__="objectWithIdAndMore"/></foreign_objects><lonely_foreign_object id="11" __inheritance__="objectWithIdAndMore"/><lonely_foreign_object_two>11</lonely_foreign_object_two><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/></childTestDb><childTestDb default_value="default" id_1="2" id_2="50" date="2016-05-01T23:37:18+02:00" timestamp="2016-10-16T21:50:19+02:00" string="dddd" integer="3" boolean="0" boolean2="1"><object plop="plop" plop2="plop2222"/><object_with_id plop="plop" plop2="plop2222"/><lonely_foreign_object xsi:nil="true"/><lonely_foreign_object_two xsi:nil="true"/><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/></childTestDb><childTestDb default_value="default" id_1="2" id_2="102" date="2016-04-01T08:00:00+02:00" timestamp="2016-10-16T18:21:18+02:00" string="eeee" integer="4" boolean="0" boolean2="1"><main_test_id>1</main_test_id><object plop="plop10" plop2="plop20"/><object_with_id xsi:nil="true"/><objects_with_id/><foreign_objects/><lonely_foreign_object xsi:nil="true"/><lonely_foreign_object_two xsi:nil="true"/><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/></childTestDb></testDb>';
+$lSqlArray         = '[{"default_value":"default","id_1":1,"id_2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":null,"object_with_id":null,"string":"aaaa","integer":0,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","string":"bbbb","integer":1,"lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","string":"cccc","integer":2,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","string":"nnnn","integer":2,"main_test_id":1,"objects_with_id":"[{\"plop\":\"1\",\"plop2\":\"heyplop2\",\"plop3\":\"heyplop3\",\"plop4\":\"heyplop4\",\"__inheritance__\":\"objectWithIdAndMoreMore\"},{\"plop\":\"1\",\"plop2\":\"heyplop2\",\"plop3\":\"heyplop3\",\"__inheritance__\":\"objectWithIdAndMore\"},{\"plop\":\"1\",\"plop2\":\"heyplop2\"},{\"plop\":\"11\",\"plop2\":\"heyplop22\"},{\"plop\":\"11\",\"plop2\":\"heyplop22\",\"plop3\":\"heyplop33\",\"__inheritance__\":\"objectWithIdAndMore\"}]","foreign_objects":"[{\"id\":\"1\",\"__inheritance__\":\"objectWithIdAndMoreMore\"},{\"id\":\"1\",\"__inheritance__\":\"objectWithIdAndMore\"},\"1\",\"11\",{\"id\":\"11\",\"__inheritance__\":\"objectWithIdAndMore\"}]","lonely_foreign_object":"{\"id\":\"11\",\"__inheritance__\":\"objectWithIdAndMore\"}","lonely_foreign_object_two":"11","man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true},{"default_value":"default","id_1":2,"id_2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","string":"dddd","integer":3,"lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","boolean":false,"boolean2":true},{"default_value":"default","id_1":2,"id_2":"102","main_test_id":1,"date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":"{\"plop\":\"plop10\",\"plop2\":\"plop20\"}","object_with_id":null,"string":"eeee","integer":4,"objects_with_id":"[]","foreign_objects":"[]","lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true}]';
 
 $lCopiedObjectArray = new ObjectArray($lDbTestModel, true, 'childTestDb');
 $lModelArrayDbTest = $lCopiedObjectArray->getModel();
 
-foreach ($lTestDbs->getValues() as $lObject) {
+foreach ($lTestDbs as $lObject) {
 	$lCopiedObject = new FinalObject('testDb');
 	foreach ($lObject->getValues() as $lKey => $lValue) {
 		$lCopiedObject->setValue($lKey, $lValue);
 	}
 	if ($lCopiedObject->getValue('id2') == 50) {
 		$lObject1 = $lCopiedObject->getValue('objectsWithId');
-		$lCopiedObject->deleteValue('objectsWithId');
+		$lCopiedObject->unsetValue('objectsWithId');
 		$lObject2 = $lCopiedObject->getValue('foreignObjects');
-		$lCopiedObject->deleteValue('foreignObjects');
+		$lCopiedObject->unsetValue('foreignObjects');
 		$lObject3 = $lCopiedObject->getValue('mainParentTestDb');
-		$lCopiedObject->deleteValue('mainParentTestDb');
+		$lCopiedObject->unsetValue('mainParentTestDb');
 		$lBoolean1 = $lCopiedObject->getValue('boolean');
-		$lCopiedObject->deleteValue('boolean');
+		$lCopiedObject->unsetValue('boolean');
 		$lBoolean2 = $lCopiedObject->getValue('boolean2');
-		$lCopiedObject->deleteValue('boolean2');
+		$lCopiedObject->unsetValue('boolean2');
 		
 		$lCopiedObject->setValue('mainParentTestDb', $lObject3);
 		$lCopiedObject->setValue('objectsWithId', $lObject1);
@@ -357,36 +338,32 @@ foreach ($lTestDbs->getValues() as $lObject) {
 /** ****************************** test stdObject ****************************** **/
 
 if (!compareJson(json_encode($lCopiedObjectArray->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
-	var_dump(json_encode($lCopiedObjectArray->export($lStdPrivateInterfacer)));
 	throw new \Exception('bad private object value');
 }
 if (!compareJson(json_encode($lCopiedObjectArray->export($lStdPublicInterfacer)), $lPublicStdObject)) {
-	var_dump(json_encode($lCopiedObjectArray->export($lStdPublicInterfacer)));
 	throw new \Exception('bad public object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
-	var_dump(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer)->export($lStdPrivateInterfacer)));
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer)->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad private object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdPublicInterfacer), $lStdPublicInterfacer)->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdPublicInterfacer), $lStdPublicInterfacer)->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 if (!compareJson(json_encode($lCopiedObjectArray->export($lStdSerialInterfacer)), $lSerializedObject)) {
-	var_dump(json_encode($lCopiedObjectArray->export($lStdSerialInterfacer)));
-	throw new \Exception('bad serial object value : '.json_encode($lCopiedObjectArray->export($lStdSerialInterfacer)));
+	throw new \Exception('bad serial object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdSerialInterfacer), $lStdSerialInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdSerialInterfacer), $lStdSerialInterfacer)->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdPublicInterfacer), $lStdPrivateInterfacer)->export($lStdPrivateInterfacer)) !== $lPublicStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdPublicInterfacer), $lStdPrivateInterfacer)->export($lStdPrivateInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPublicInterfacer)->export($lStdPrivateInterfacer)) !== $lPublicStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPublicInterfacer)->export($lStdPrivateInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 
-function resetValues($pObjectArray) {
-	foreach ($pObjectArray->getValues() as $lObject) {
+function resetValues(ObjectArray $pObjectArray) {
+	foreach ($pObjectArray as $lObject) {
 		$lId = $lObject->getId();
 		$lObject->reset();
 		$lObject->setId($lId, false);
@@ -397,147 +374,142 @@ function resetValues($pObjectArray) {
 $lNewObject = $lTestDbs;
 resetValues($lNewObject);
 $lModelArrayDbTest->fillObject($lNewObject, $lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
-	var_dump(json_encode($lNewObject->export($lStdPrivateInterfacer)));
-	var_dump($lPrivateStdObjectEnd);
+if (!compareJson(json_encode($lNewObject->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($lNewObject);
 $lModelArrayDbTest->fillObject($lNewObject, $lCopiedObjectArray->export($lStdPublicInterfacer), $lStdPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($lNewObject);
 $lModelArrayDbTest->fillObject($lNewObject, $lCopiedObjectArray->export($lStdSerialInterfacer), $lStdSerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
-	var_dump(json_encode($lNewObject->export($lStdPublicInterfacer)));
-	var_dump($lPublicStdObjectWithoutAggregation);
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 resetValues($lNewObject);
-$lNewObject->fillObject($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+$lNewObject->fill($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+if (!compareJson(json_encode($lNewObject->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($lNewObject);
-$lNewObject->fillObject($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+$lNewObject->fill($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPublicInterfacer);
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($lNewObject);
-$lNewObject->fillObject($lCopiedObjectArray->export($lStdSerialInterfacer), $lStdSerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+$lNewObject->fill($lCopiedObjectArray->export($lStdSerialInterfacer), $lStdSerialInterfacer);
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 
 /** ****************************** test xml ****************************** **/
-
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer)->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad private object value : '.json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer)->export($lStdPrivateInterfacer)));
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlPublicInterfacer), $lXmlPublicInterfacer)->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlPublicInterfacer), $lXmlPublicInterfacer)->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 if (!compareXML($lXmlSerialInterfacer->toString($lCopiedObjectArray->export($lXmlSerialInterfacer)), $lSerializedXML)) {
 	throw new \Exception('bad serial object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlSerialInterfacer), $lXmlSerialInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlSerialInterfacer), $lXmlSerialInterfacer)->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlPublicInterfacer), $lXmlPrivateInterfacer)->export($lStdPrivateInterfacer)) !== $lPublicStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlPublicInterfacer), $lXmlPrivateInterfacer)->export($lStdPrivateInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlPrivateInterfacer), $lXmlPublicInterfacer)->export($lStdPrivateInterfacer)) !== $lPublicStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lXmlPrivateInterfacer), $lXmlPublicInterfacer)->export($lStdPrivateInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 
 resetValues($lNewObject);
 $lModelArrayDbTest->fillObject($lNewObject, $lCopiedObjectArray->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+if (!compareJson(json_encode($lNewObject->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($lNewObject);
 $lModelArrayDbTest->fillObject($lNewObject, $lCopiedObjectArray->export($lXmlPublicInterfacer), $lXmlPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($lNewObject);
 $lModelArrayDbTest->fillObject($lNewObject, $lCopiedObjectArray->export($lXmlSerialInterfacer), $lXmlSerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 resetValues($lNewObject);
-$lNewObject->fillObject($lCopiedObjectArray->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+$lNewObject->fill($lCopiedObjectArray->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
+if (!compareJson(json_encode($lNewObject->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($lNewObject);
-$lNewObject->fillObject($lCopiedObjectArray->export($lXmlPrivateInterfacer), $lXmlPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+$lNewObject->fill($lCopiedObjectArray->export($lXmlPrivateInterfacer), $lXmlPublicInterfacer);
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($lNewObject);
-$lNewObject->fillObject($lCopiedObjectArray->export($lXmlSerialInterfacer), $lXmlSerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+$lNewObject->fill($lCopiedObjectArray->export($lXmlSerialInterfacer), $lXmlSerialInterfacer);
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 
 /** ****************************** test flattened array ****************************** **/
 
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateInterfacer)->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad private object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPublicInterfacer)->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPublicInterfacer)->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 if (!compareJson(json_encode($lCopiedObjectArray->export($lFlattenArraySerialInterfacer)), $lSqlArray)) {
-	var_dump(json_encode($lCopiedObjectArray->export($lFlattenArraySerialInterfacer)));
-	throw new \Exception('bad serial object value : '.json_encode($lCopiedObjectArray->export($lFlattenArraySerialInterfacer)));
+	throw new \Exception('bad serial object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lFlattenArraySerialInterfacer), $lFlattenArraySerialInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lFlattenArraySerialInterfacer), $lFlattenArraySerialInterfacer)->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPrivateInterfacer)->export($lStdPrivateInterfacer)) !== $lPublicStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPrivateInterfacer)->export($lStdPrivateInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPublicInterfacer)->export($lStdPrivateInterfacer)) !== $lPublicStdObject) {
+if (!compareJson(json_encode($lModelArrayDbTest->import($lCopiedObjectArray->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPublicInterfacer)->export($lStdPrivateInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 
 resetValues($lNewObject);
 $lModelArrayDbTest->fillObject($lNewObject, $lCopiedObjectArray->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+if (!compareJson(json_encode($lNewObject->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($lNewObject);
 $lModelArrayDbTest->fillObject($lNewObject, $lCopiedObjectArray->export($lFlattenArrayPublicInterfacer), $lFlattenArrayPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($lNewObject);
 $lModelArrayDbTest->fillObject($lNewObject, $lCopiedObjectArray->export($lFlattenArraySerialInterfacer), $lFlattenArraySerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 resetValues($lNewObject);
-$lNewObject->fillObject($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
-if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObjectEnd) {
+$lNewObject->fill($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+if (!compareJson(json_encode($lNewObject->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($lNewObject);
-$lNewObject->fillObject($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPublicInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectEnd) {
+$lNewObject->fill($lCopiedObjectArray->export($lStdPrivateInterfacer), $lStdPublicInterfacer);
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($lNewObject);
-$lNewObject->fillObject($lCopiedObjectArray->export($lStdSerialInterfacer), $lStdSerialInterfacer);
-if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjectWithoutAggregation) {
+$lNewObject->fill($lCopiedObjectArray->export($lStdSerialInterfacer), $lStdSerialInterfacer);
+if (!compareJson(json_encode($lNewObject->export($lStdPublicInterfacer)), $lPublicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 
 /********************************** test aggregation export *************************************/
 
 $lMainTestDb = MainObjectCollection::getInstance()->getObject(2, 'mainTestDb');
+$lMainTestDb->initValue('childrenTestDb', false);
 $lMainTestDb->loadValueIds('childrenTestDb');
 if (!isset($lMainTestDb->export($lStdPrivateInterfacer)->childrenTestDb)) {
 	throw new \Exception('compostion must be exported');
@@ -616,7 +588,7 @@ if (json_encode($lTestPrivateId->export($lStdPublicInterfacer)) !== '{"name":"te
 if (json_encode($lTestPrivateIdModel->import($lTestPrivateId->export($lStdPrivateInterfacer), $lStdPrivateInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
 	throw new \Exception('bad private object value : '.json_encode($lTestPrivateIdModel->import($lTestPrivateId->export($lStdPrivateInterfacer), $lStdPrivateInterfacer)->export($lStdPrivateInterfacer)));
 }
-if (!compareJson(json_encode($lTestPrivateIdModel->import($lTestPrivateId->export($lStdPrivateInterfacer), $lStdPublicInterfacer)->export($lStdPrivateInterfacer)), '{"name":"test 1","objectValues":[{"id2":2,"propertyOne":"azeaze1"},{"id2":20,"propertyOne":"azeaze10"},{"id2":200,"propertyOne":"azeaze100"}]}')) {
+if (!compareJson(json_encode($lTestPrivateIdModel->import($lTestPrivateId->export($lStdPrivateInterfacer), $lStdPublicInterfacer)->export($lStdPrivateInterfacer)), '{"name":"test 1","objectValues":[{"id1":null,"id2":2,"propertyOne":"azeaze1"},{"id1":null,"id2":20,"propertyOne":"azeaze10"},{"id1":null,"id2":200,"propertyOne":"azeaze100"}]}')) {
 	throw new \Exception('bad public object value : '.json_encode($lTestPrivateIdModel->import($lTestPrivateId->export($lStdPrivateInterfacer), $lStdPublicInterfacer)->export($lStdPrivateInterfacer)));
 }
 
@@ -631,7 +603,7 @@ if (json_encode($lTestPrivateId->export($lFlattenArrayPublicInterfacer)) !== '{"
 if (!compareJson(json_encode($lTestPrivateIdModel->import($lTestPrivateId->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateInterfacer)->export($lFlattenArrayPrivateInterfacer)), $lPrivateFlattenedArray)) {
 	throw new \Exception('bad private object value : '.json_encode($lTestPrivateIdModel->import($lTestPrivateId->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateInterfacer)->export($lFlattenArrayPrivateInterfacer)));
 }
-if (!compareJson(json_encode($lTestPrivateIdModel->import($lTestPrivateId->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPublicInterfacer)->export($lFlattenArrayPrivateInterfacer)), '{"name":"test 1","objectValues":"[{\"id2\":2,\"propertyOne\":\"azeaze1\"},{\"id2\":20,\"propertyOne\":\"azeaze10\"},{\"id2\":200,\"propertyOne\":\"azeaze100\"}]"}')) {
+if (!compareJson(json_encode($lTestPrivateIdModel->import($lTestPrivateId->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPublicInterfacer)->export($lFlattenArrayPrivateInterfacer)), '{"name":"test 1","objectValues":"[{\"id1\":null,\"id2\":2,\"propertyOne\":\"azeaze1\"},{\"id1\":null,\"id2\":20,\"propertyOne\":\"azeaze10\"},{\"id1\":null,\"id2\":200,\"propertyOne\":\"azeaze100\"}]"}')) {
 	throw new \Exception('bad public object value : '.json_encode($lTestPrivateIdModel->import($lTestPrivateId->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPublicInterfacer)->export($lFlattenArrayPrivateInterfacer)));
 }
 
@@ -646,7 +618,7 @@ if (!compareXML($lXmlPublicInterfacer->toString($lTestPrivateId->export($lXmlPub
 if (!compareXML($lXmlPrivateInterfacer->toString($lTestPrivateIdModel->import($lTestPrivateId->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer)->export($lXmlPrivateInterfacer)), $lPrivateXml)) {
 	throw new \Exception('bad private object value');
 }
-if (!compareXML($lXmlPrivateInterfacer->toString($lTestPrivateIdModel->import($lTestPrivateId->export($lXmlPrivateInterfacer), $lXmlPublicInterfacer)->export($lXmlPrivateInterfacer)), '<testPrivateId name="test 1"><objectValues><objectValue id2="2" propertyOne="azeaze1"/><objectValue id2="20" propertyOne="azeaze10"/><objectValue id2="200" propertyOne="azeaze100"/></objectValues></testPrivateId>')) {
+if (!compareXML($lXmlPrivateInterfacer->toString($lTestPrivateIdModel->import($lTestPrivateId->export($lXmlPrivateInterfacer), $lXmlPublicInterfacer)->export($lXmlPrivateInterfacer)), '<testPrivateId name="test 1"><objectValues><objectValue id1="xsi:nil" id2="2" propertyOne="azeaze1"/><objectValue id1="xsi:nil" id2="20" propertyOne="azeaze10"/><objectValue id1="xsi:nil" id2="200" propertyOne="azeaze100"/></objectValues></testPrivateId>')) {
 	throw new \Exception('bad public object value');
 }
 
@@ -656,7 +628,29 @@ $lTestXmlModel = ModelManager::getInstance()->getInstanceModel('testXml');
 $lTestXml = $lTestXmlModel->loadObject('plop2');
 
 if (!compareXML($lXmlPrivateInterfacer->toString($lTestXml->export($lXmlPrivateInterfacer)), '<testXml textAttribute="attribute"><name>plop2</name><textNode>node</textNode><objectValue id="1" propertyOne="plop1" propertyTwo="plop11"/><objectValues><objectValue id="2" propertyOne="plop2" propertyTwo="plop22"/><objectValue id="3" propertyOne="plop3" propertyTwo="plop33"/></objectValues><objectContainer><foreignObjectValue>3</foreignObjectValue><objectValueTwo id="1" propertyTwoOne="2plop1"/><person id="1" firstName="Bernard" lastName="Dupond"><birthPlace>2</birthPlace><children><child id="5" __inheritance__="man"/><child id="6" __inheritance__="man"/></children></person></objectContainer><foreignObjectValues><foreignObjectValue>1</foreignObjectValue><foreignObjectValue>2</foreignObjectValue></foreignObjectValues></testXml>')) {
-	var_dump($lXmlPrivateInterfacer->toString($lTestXml->export($lXmlPrivateInterfacer)));
+	throw new Exception('bad value');
+}
+
+$lTestXml1 = $lTestXmlModel->getObjectInstance();
+$lTestXml1->setValue('name', null);
+$lTestXml1->setValue('textNode', '');
+$lDomNode1 = $lTestXml1->export($lXmlPrivateInterfacer);
+$lXml1     = $lXmlPrivateInterfacer->toString($lDomNode1);
+
+if (!compareXML($lXml1, '<testXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><name xsi:nil="true"/><textNode></textNode></testXml>')) {
+	throw new Exception('bad value');
+}
+
+$lTestXml2 = $lTestXmlModel->getObjectInstance();
+$lTestXml2->fill($lDomNode1, $lXmlPrivateInterfacer);
+
+if (!$lTestXml2->hasValue('name') || $lTestXml2->getValue('name') !== null) {
+	throw new Exception('bad value');
+}
+if ($lTestXml2->getValue('textNode') !== '') {
+	throw new Exception('bad value');
+}
+if ($lXmlPrivateInterfacer->toString($lTestXml2->export($lXmlPrivateInterfacer))!== $lXml1) {
 	throw new Exception('bad value');
 }
 
@@ -672,7 +666,6 @@ $lObject->setValue('objectWithId', null);
 $lObject->setValue('string', null);
 $lObject->setValue('integer', null);
 $lObject->setValue('mainParentTestDb', null);
-$lObject->setValue('objectsWithId', null);
 $lObject->setValue('foreignObjects', null);
 $lObject->setValue('lonelyForeignObject', null);
 $lObject->setValue('lonelyForeignObjectTwo', null);
@@ -684,14 +677,44 @@ $lObject->setValue('notSerializedForeignObject', null);
 $lObject->setValue('boolean', null);
 $lObject->setValue('boolean2', null);
 $lObject->setValue('childrenTestDb', null);
+$lObject->setValue('objectsWithId', null);
 
-if ($lStdPrivateInterfacer->toString($lStdPrivateInterfacer->export($lObject)) !== '{}') {
+if (!compareJson($lStdPrivateInterfacer->toString($lStdPrivateInterfacer->export($lObject)), '{"defaultValue":null,"childrenTestDb":null,"id1":null,"id2":null,"date":null,"timestamp":null,"object":null,"objectWithId":null,"string":null,"integer":null,"mainParentTestDb":null,"foreignObjects":null,"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"notSerializedValue":null,"notSerializedForeignObject":null,"boolean":null,"boolean2":null,"objectsWithId":null}')) {
 	throw new \Exception('bad public object value');
 }
-if ($lXmlPrivateInterfacer->toString($lXmlPrivateInterfacer->export($lObject)) !== '<testDb/>') {
+if (!compareXML($lXmlPrivateInterfacer->toString($lXmlPrivateInterfacer->export($lObject)), '<testDb xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" defaultValue="xsi:nil" id1="xsi:nil" id2="xsi:nil" date="xsi:nil" timestamp="xsi:nil" string="xsi:nil" integer="xsi:nil" notSerializedValue="xsi:nil" boolean="xsi:nil" boolean2="xsi:nil"><childrenTestDb xsi:nil="true"/><object xsi:nil="true"/><objectWithId xsi:nil="true"/><mainParentTestDb xsi:nil="true"/><foreignObjects xsi:nil="true"/><lonelyForeignObject xsi:nil="true"/><lonelyForeignObjectTwo xsi:nil="true"/><manBodyJson xsi:nil="true"/><womanXml xsi:nil="true"/><notSerializedForeignObject xsi:nil="true"/><objectsWithId xsi:nil="true"/></testDb>')) {
 	throw new \Exception('bad public object value');
 }
-if ($lFlattenArrayPrivateInterfacer->toString($lFlattenArrayPrivateInterfacer->export($lObject)) !== '[]') {
+if (!compareJson($lFlattenArrayPrivateInterfacer->toString($lFlattenArrayPrivateInterfacer->export($lObject)), '{"defaultValue":null,"childrenTestDb":null,"id1":null,"id2":null,"date":null,"timestamp":null,"object":null,"objectWithId":null,"string":null,"integer":null,"mainParentTestDb":null,"foreignObjects":null,"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"notSerializedValue":null,"notSerializedForeignObject":null,"boolean":null,"boolean2":null,"objectsWithId":null}')) {
+	throw new \Exception('bad public object value');
+}
+
+
+$lObjectsWithId = $lObject->initValue('objectsWithId');
+$lObjectWithId = $lObject->getProperty('objectWithId')->getModel()->getObjectInstance();
+$lObjectsWithId->pushValue($lObjectWithId);
+$lObjectsWithId->pushValue(null);
+$lObjectsWithId->pushValue($lObjectWithId);
+
+$lForeignObjects = $lObject->initValue('foreignObjects');
+$lObjectWithId = $lObject->getProperty('objectWithId')->getModel()->getObjectInstance();
+$lObjectWithId->setId('12');
+$lForeignObjects->pushValue(null);
+$lForeignObjects->pushValue($lObjectWithId);
+
+if (!compareJson($lStdPrivateInterfacer->toString($lStdPrivateInterfacer->export($lObject)), '{"defaultValue":null,"childrenTestDb":null,"id1":null,"id2":null,"date":null,"timestamp":null,"object":null,"objectWithId":null,"string":null,"integer":null,"mainParentTestDb":null,"foreignObjects":[null,"12"],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"notSerializedValue":null,"notSerializedForeignObject":null,"boolean":null,"boolean2":null,"objectsWithId":[[],null,[]]}')) {
+	throw new \Exception('bad public object value');
+}
+if (!compareXML($lXmlPrivateInterfacer->toString($lXmlPrivateInterfacer->export($lObject)), '<testDb xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" defaultValue="xsi:nil" id1="xsi:nil" id2="xsi:nil" date="xsi:nil" timestamp="xsi:nil" string="xsi:nil" integer="xsi:nil" notSerializedValue="xsi:nil" boolean="xsi:nil" boolean2="xsi:nil"><childrenTestDb xsi:nil="true"/><object xsi:nil="true"/><objectWithId xsi:nil="true"/><mainParentTestDb xsi:nil="true"/><foreignObjects><foreignObject xsi:nil="true"/><foreignObject>12</foreignObject></foreignObjects><lonelyForeignObject xsi:nil="true"/><lonelyForeignObjectTwo xsi:nil="true"/><manBodyJson xsi:nil="true"/><womanXml xsi:nil="true"/><notSerializedForeignObject xsi:nil="true"/><objectsWithId><objectWithId/><objectWithId xsi:nil="true"/><objectWithId/></objectsWithId></testDb>')) {
+	throw new \Exception('bad public object value');
+}
+if (!compareJson($lFlattenArrayPrivateInterfacer->toString($lFlattenArrayPrivateInterfacer->export($lObject)), '{"defaultValue":null,"childrenTestDb":null,"id1":null,"id2":null,"date":null,"timestamp":null,"object":null,"objectWithId":null,"string":null,"integer":null,"mainParentTestDb":null,"foreignObjects":"[null,\"12\"]","lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"notSerializedValue":null,"notSerializedForeignObject":null,"boolean":null,"boolean2":null,"objectsWithId":"[[],null,[]]"}')) {
+	throw new \Exception('bad public object value');
+}
+if (!compareJson($lStdPrivateInterfacer->toString($lDbTestModel->import($lObject->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer)->export($lStdPrivateInterfacer)), '{"defaultValue":null,"childrenTestDb":null,"id1":null,"id2":null,"date":null,"timestamp":null,"object":null,"objectWithId":null,"string":null,"integer":null,"mainParentTestDb":null,"foreignObjects":[null,"12"],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"notSerializedValue":null,"notSerializedForeignObject":null,"boolean":null,"boolean2":null,"objectsWithId":[[],null,[]]}')) {
+	throw new \Exception('bad public object value');
+}
+if (!compareXML($lXmlPrivateInterfacer->toString($lDbTestModel->import($lObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer)->export($lXmlPrivateInterfacer)), '<testDb xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" defaultValue="xsi:nil" id1="xsi:nil" id2="xsi:nil" date="xsi:nil" timestamp="xsi:nil" string="xsi:nil" integer="xsi:nil" notSerializedValue="xsi:nil" boolean="xsi:nil" boolean2="xsi:nil"><childrenTestDb xsi:nil="true"/><object xsi:nil="true"/><objectWithId xsi:nil="true"/><mainParentTestDb xsi:nil="true"/><foreignObjects><foreignObject xsi:nil="true"/><foreignObject>12</foreignObject></foreignObjects><lonelyForeignObject xsi:nil="true"/><lonelyForeignObjectTwo xsi:nil="true"/><manBodyJson xsi:nil="true"/><womanXml xsi:nil="true"/><notSerializedForeignObject xsi:nil="true"/><objectsWithId><objectWithId/><objectWithId xsi:nil="true"/><objectWithId/></objectsWithId></testDb>')) {
 	throw new \Exception('bad public object value');
 }
 

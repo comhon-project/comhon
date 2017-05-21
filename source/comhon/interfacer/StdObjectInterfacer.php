@@ -11,7 +11,7 @@ class StdObjectInterfacer extends Interfacer {
 	 * @return mixed|null
 	 */
 	public function &getValue(&$pNode, $pPropertyName, $pAsNode = false) {
-		if (isset($pNode->$pPropertyName)) {
+		if (property_exists($pNode, $pPropertyName)) {
 			return $pNode->$pPropertyName;
 		} else {
 			// ugly but we return reference so we have to return a variable
@@ -28,7 +28,16 @@ class StdObjectInterfacer extends Interfacer {
 	 * @return boolean
 	 */
 	public function hasValue($pNode, $pPropertyName, $pAsNode = false) {
-		return isset($pNode->$pPropertyName);
+		return property_exists($pNode, $pPropertyName);
+	}
+	
+	/**
+	 *
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	public function isNullValue($pValue) {
+		return is_null($pValue);
 	}
 	
 	/**
@@ -38,7 +47,28 @@ class StdObjectInterfacer extends Interfacer {
 	 * @return array
 	 */
 	public function getTraversableNode($pNode, $pGetElementName = false) {
-		return is_array($pNode) ? $pNode : [];
+		if (!is_array($pNode)) {
+			throw new \Exception('bad node type');
+		}
+		return $pNode;
+	}
+	
+	/**
+	 * verify if value is an stdClass object
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	public function isNodeValue($pValue) {
+		return ($pValue instanceof \stdClass);
+	}
+	
+	/**
+	 * verify if value is an array
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	public function isArrayNodeValue($pValue) {
+		return is_array($pValue);
 	}
 	
 	/**
@@ -85,7 +115,7 @@ class StdObjectInterfacer extends Interfacer {
 	 * @param boolean $pAsNode
 	 * @return mixed
 	 */
-	public function deleteValue(&$pNode, $pName, $pAsNode = false) {
+	public function unsetValue(&$pNode, $pName, $pAsNode = false) {
 		unset($pNode->$pName);
 	}
 	
@@ -157,7 +187,7 @@ class StdObjectInterfacer extends Interfacer {
 	 * @param string $pName
 	 */
 	public function flattenNode(&$pNode, $pName) {
-		if (isset($pNode->$pName) && !is_null($pNode->$pName)) {
+		if (isset($pNode->$pName)) {
 			$pNode->$pName = json_encode($pNode->$pName);
 		}
 	}
@@ -180,18 +210,9 @@ class StdObjectInterfacer extends Interfacer {
 	 * @param mixed $pValue
 	 */
 	public function replaceValue(&$pNode, $pName, $pValue) {
-		if (isset($pNode->$pName)) {
+		if (property_exists($pNode, $pName)) {
 			$this->setValue($pNode, $pValue, $pName);
 		}
-	}
-	
-	/**
-	 * verify if node is instance of stdClass
-	 * @param mixed $pNode
-	 * @return boolean
-	 */
-	public function verifyNode($pNode) {
-		return ($pNode instanceof \stdClass);
 	}
 	
 }

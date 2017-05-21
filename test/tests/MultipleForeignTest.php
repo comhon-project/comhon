@@ -109,7 +109,7 @@ if (json_encode($lParentObject->getValue('childrenTestDb')->export($lStdPrivateI
 /********************************************** test save *******************************************/
 
 $lDbHandler = DatabaseController::getInstanceWithDataBaseId(1);
-$lObject->deleteValue('id');
+$lObject->unsetValue('id');
 
 if (!is_null($lObject->getValue('id'))) {
 	throw new Exception('id must be unset');

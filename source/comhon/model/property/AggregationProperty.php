@@ -44,10 +44,8 @@ class AggregationProperty extends ForeignProperty {
 	 * @param boolean $pForceLoad if object is already loaded, force to reload object
 	 * @return boolean true if success
 	 */
-	public function loadAggregationValue(Object $pObjectArray, Object $pParentObject, $pPropertiesFilter = null, $pForceLoad = false) {
-		if (!($pObjectArray instanceof ObjectArray)) {
-			throw new \Exception('first parameter should be ObjectArray');
-		}
+	public function loadAggregationValue(ObjectArray $pObjectArray, Object $pParentObject, $pPropertiesFilter = null, $pForceLoad = false) {
+		$this->getModel()->verifValue($pObjectArray);
 		if ($pObjectArray->isLoaded() && !$pForceLoad) {
 			return false;
 		}
@@ -66,6 +64,7 @@ class AggregationProperty extends ForeignProperty {
 	 * @return boolean true if success
 	 */
 	public function loadValueIds(ObjectArray $pObjectArray, Object $pParentObject, $pForceLoad = false) {
+		$this->getModel()->verifValue($pObjectArray);
 		if (is_null($lSqlTableUnit = $this->getSqlTableUnit())) {
 			throw new \Exception('aggregation has not model with sql serialization');
 		}
@@ -111,6 +110,6 @@ class AggregationProperty extends ForeignProperty {
 	 * @return boolean true if property is interfaceable
 	 */
 	public function isExportable($pPrivate, $pSerialization, $pValue) {
-		return parent::isExportable($pPrivate, $pSerialization, $pValue) && $pValue->isLoaded();
+		return parent::isExportable($pPrivate, $pSerialization, $pValue) && (is_null($pValue) || $pValue->isLoaded());
 	}
 }

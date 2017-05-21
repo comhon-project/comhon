@@ -4,7 +4,7 @@
         {
             "name": "color",
             "type": "string",
-            "regex": "color"
+            "pattern": "color"
         },
         {
             "name": "emails",
@@ -12,7 +12,7 @@
             "values": {
                 "type": "string",
                 "name": "email",
-                "regex": "email"
+                "pattern": "email"
             }
         },
         {

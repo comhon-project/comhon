@@ -3,7 +3,6 @@
 
 use comhon\interfacer\StdObjectInterfacer;
 use comhon\interfacer\XMLInterfacer;
-use comhon\model\singleton\ModelManager;
 use comhon\interfacer\Interfacer;
 use object\Person;
 use comhon\interfacer\AssocArrayInterfacer;
@@ -167,10 +166,6 @@ if ($lInterfacer->hasToFlattenValues() !== true) {
 	throw new Exception('bad value');
 }
 if ($lInterfacer->hasToExportMainForeignObjects() !== true) {
-	throw new Exception('bad value');
-}
-$lInterfacer->addMainForeignObject(['plop' => 'plop'], 12, ModelManager::getInstance()->getInstanceModel('person'));
-if (json_encode($lInterfacer->getMainForeignObjects()) !== '{"person":{"12":{"plop":"plop"}}}') {
 	throw new Exception('bad value');
 }
 if ($lInterfacer->hasToFlagValuesAsUpdated() !== false) {

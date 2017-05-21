@@ -9,7 +9,6 @@ use comhon\exception\CastException;
 use comhon\object\ObjectArray;
 use comhon\interfacer\Interfacer;
 use comhon\interfacer\StdObjectInterfacer;
-use comhon\model\property\RestrictedProperty;
 
 abstract class Object {
 
@@ -50,6 +49,9 @@ abstract class Object {
 				$lProperty->isSatisfiable($pValue, true);
 				if (!is_null($pValue)) {
 					$lProperty->getModel()->verifValue($pValue);
+				}
+				if ($lProperty->isAggregation()) {
+					$pFlagAsUpdated = false;
 				}
 			}
 		}
@@ -101,7 +103,7 @@ abstract class Object {
 		}
 	}
 	
-	public final function deleteValue($pName, $pFlagAsUpdated = true) {
+	public final function unsetValue($pName, $pFlagAsUpdated = true) {
 		if ($this->hasValue($pName)) {
 			if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel)) {
 				MainObjectCollection::getInstance()->removeObject($this);
@@ -223,7 +225,7 @@ abstract class Object {
 	
 	public final function hasCompleteId() {
 		foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
-			if(is_null($this->getValue($lPropertyName)) || $this->getValue($lPropertyName) == '') {
+			if(is_null($this->getValue($lPropertyName))) {
 				return false;
 			}
 		}
@@ -253,6 +255,33 @@ abstract class Object {
 	
 	public final function getValuesCount() {
 		return count($this->mValues);
+	}
+	
+	
+	 /***********************************************************************************************\
+	 |                                                                                               |
+	 |                                       Iterator functions                                      |
+	 |                                                                                               |
+	 \***********************************************************************************************/
+	
+	protected function _rewind() {
+		reset($this->mValues);
+	}
+	
+	protected function _current() {
+		return current($this->mValues);
+	}
+	
+	protected function _key() {
+		return key($this->mValues);
+	}
+	
+	protected function _next() {
+		next($this->mValues);
+	}
+	
+	protected function _valid() {
+		return key($this->mValues) !== null;
 	}
 	
 	/***********************************************************************************************\
@@ -532,6 +561,9 @@ abstract class Object {
 	public function loadValue($pName, $pPropertiesFilter = null, $pForceLoad = false) {
 		$lProperty = $this->getProperty($pName, true);
 		if ($lProperty instanceof AggregationProperty) {
+			if (!$this->hasValue($pName)) {
+				$this->initValue($pName, false);
+			}
 			return $lProperty->loadAggregationValue($this->getValue($pName), $this, $pPropertiesFilter, $pForceLoad);
 		} else {
 			return $lProperty->loadValue($this->getValue($pName), $pPropertiesFilter, $pForceLoad);
@@ -545,6 +577,9 @@ abstract class Object {
 	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
 	 */
 	public final function loadValueIds($pName, $pForceLoad = false) {
+		if (!$this->hasValue($pName)) {
+			$this->initValue($pName, false);
+		}
 		return $this->getProperty($pName, true)->loadValueIds($this->getValue($pName), $this, $pForceLoad);
 	}
 	
@@ -568,7 +603,7 @@ abstract class Object {
 	 * @param mixed $pInterfacedObject
 	 * @param Interfacer $pInterfacer
 	 */
-	public final function fillObject($pInterfacedObject, Interfacer $pInterfacer) {
+	public final function fill($pInterfacedObject, Interfacer $pInterfacer) {
 		$this->mModel->fillObject($this, $pInterfacedObject, $pInterfacer);
 	}
 	

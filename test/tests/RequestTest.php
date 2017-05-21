@@ -82,7 +82,7 @@ if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
-if (!compareJson(json_encode($lResult->result), '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}]')) {
+if (!compareJson(json_encode($lResult->result), '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"object":null,"objectWithId":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean":false,"boolean2":true}]')) {
 	var_dump(json_encode($lResult->result));
 	throw new Exception('bad objects : '.json_encode($lResult->result));
 }
@@ -93,8 +93,8 @@ MainObjectCollection::getInstance()->getObject('[1,"101"]', 'testDb')->reorderVa
 /** ****************************** test following export import objects ****************************** **/
 
 $lBasedObjects  = [
-	json_decode('{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}'),
-	json_decode('{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true}')
+	json_decode('{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"object":null,"objectWithId":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}'),
+	json_decode('{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')
 ];
 
 $lStdPrivateInterfacer = new StdObjectInterfacer();
@@ -110,7 +110,7 @@ $lObject = null;
 foreach ($lResult->result as $lIndex => $lStdObject) {
 	$lObject = new FinalObject('testDb');
 	try {
-		$lObject->fillObject($lStdObject, $lStdPrivateInterfacer);
+		$lObject->fill($lStdObject, $lStdPrivateInterfacer);
 		$lThrow = true;
 	} catch (Exception $e) {
 		$lThrow = false;
@@ -124,10 +124,10 @@ foreach ($lResult->result as $lIndex => $lStdObject) {
 	unset($lStdObject->id2);
 	
 	$lObject = new FinalObject('testDb');
-	$lObject->fillObject($lStdObject, $lStdPrivateInterfacer);
+	$lObject->fill($lStdObject, $lStdPrivateInterfacer);
 
 	$lObject2 = new FinalObject('testDb');
-	$lObject2->fillObject($lObject->export($lXmlSerialInterfacer), $lXmlSerialInterfacer);
+	$lObject2->fill($lObject->export($lXmlSerialInterfacer), $lXmlSerialInterfacer);
 	$lObject2->setValue('id1', $lId1);
 	$lObject2->setValue('id2', $lId2);
 	
@@ -213,8 +213,8 @@ if (count($lObject->getUpdatedValues()) !== 0) {
 	throw new Exception('should not have updated values after save');
 }
 
-$lObject->deleteValue('notSerializedValue');
-$lObject->deleteValue('notSerializedForeignObject');
+$lObject->unsetValue('notSerializedValue');
+$lObject->unsetValue('notSerializedForeignObject');
 $lObject->resetUpdatedStatus();
 
 $lObject = $lDbTestModel->loadObject('[1,"1501774389"]', [], true);
@@ -226,7 +226,7 @@ if (!compareJson(json_encode($lObject->export($lStdPrivateInterfacer)), json_enc
 /** ************************* test deleted values with database serialization ************************ **/
 
 $lValue = $lObject->getValue('integer');
-$lObject->deleteValue('integer');
+$lObject->unsetValue('integer');
 
 $lObject->save(SqlTable::UPDATE);
 if ($lObject->isUpdated()) {
@@ -295,7 +295,7 @@ $lResult = ObjectService::getObject($lParams);
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 	throw new Exception('simple load request failed');
 }
-if (!compareJson(json_encode($lResult->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","boolean":false,"boolean2":true}')) {
+if (!compareJson(json_encode($lResult->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
 	throw new Exception('bad object : '.json_encode($lResult->result));
 }
 
@@ -334,10 +334,9 @@ $lTestDb = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 't
 $lTestDb->loadValue('childrenTestDb', ['id']);
 
 if (!compareJson(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)), '[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2,"parentTestDb":"[1,\"1501774389\"]"}]')) {
-	var_dump(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)));
 	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)));
 }
-foreach ($lTestDb->getValue('childrenTestDb')->getValues() as $lChild) {
+foreach ($lTestDb->getValue('childrenTestDb') as $lChild) {
 	if ($lTestDb !== $lChild->getValue('parentTestDb')) {
 		throw new Exception('should be same instance');
 	}
@@ -360,7 +359,7 @@ if (is_null($lTestDb3)) {
 if ($lTestDb !== $lTestDb1 || $lTestDb1 !== $lTestDb3) {
 	throw new Exception('should be same instance');
 }
-$lTestDb->deleteValue('id2');
+$lTestDb->unsetValue('id2');
 if (!is_null(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb'))) {
 	throw new Exception('should be null');
 }
@@ -372,7 +371,7 @@ if ($lTestDb !== MainObjectCollection::getInstance()->getObject('[1,"1501774389"
 $lTestDb->setValue('childrenTestDb', $lChildren, false);
 $lTestDb->getValue('childrenTestDb')->getValue(0)->setValue('parentTestDb', $lTestDb);
 $lTestDb->getValue('childrenTestDb')->getValue(0)->loadValue('parentTestDb', ['integer']);
-$lTestDb->getValue('childrenTestDb')->getValue(1)->deleteValue('parentTestDb');
+$lTestDb->getValue('childrenTestDb')->getValue(1)->unsetValue('parentTestDb');
 
 if (!compareJson(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)),'[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2}]')) {
 	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)));

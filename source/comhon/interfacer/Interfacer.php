@@ -41,9 +41,10 @@ abstract class Interfacer {
 	private $mUpdatedValueOnly    = false;
 	private $mPropertiesFilters   = [];
 	private $mFlattenValues       = false;
-	private $mFlagValuesAsUpdated = true;
-	private $mFlagObjectAsLoaded  = true;
 	private $mMergeType           = self::MERGE;
+	private $mFlagValuesAsUpdated      = true;
+	private $mFlagObjectAsLoaded       = true;
+	private $mExportMainForeignObjects = false;
 	
 	protected $mMainForeignObjects  = null;
 	protected $mMainForeignIds      = null;
@@ -213,7 +214,7 @@ abstract class Interfacer {
 	 * @return boolean
 	 */
 	public function hasToExportMainForeignObjects() {
-		return !is_null($this->mMainForeignObjects);
+		return $this->mExportMainForeignObjects;
 	}
 	
 	/**
@@ -221,8 +222,23 @@ abstract class Interfacer {
 	 * @param boolean $pBoolean
 	 */
 	public function setExportMainForeignObjects($pBoolean) {
-		$this->mMainForeignObjects = $pBoolean ? $this->createNode('objects') : null;
-		$this->mMainForeignIds = $pBoolean ? [] : null;
+		$this->mExportMainForeignObjects = $pBoolean;
+	}
+	
+	/**
+	 * initialize export
+	 */
+	public function initializeExport() {
+		$this->mMainForeignObjects = $this->mExportMainForeignObjects ? $this->createNode('objects') : null;
+		$this->mMainForeignIds = $this->mExportMainForeignObjects ? [] : null;
+	}
+	
+	/**
+	 * finalize export
+	 * @param mixed $pRootNode
+	 */
+	public function finalizeExport($pRootNode) {
+		// do nothing (overrided in XMLInterfacer)
 	}
 	
 	/**
@@ -251,7 +267,7 @@ abstract class Interfacer {
 		if (!is_null($this->mMainForeignObjects)) {
 			$lModelName = $pModel->getName();
 			if ($this->hasValue($this->mMainForeignObjects, $lModelName, true)) {
-				$this->deleteValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNodeId, true);
+				$this->unsetValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNodeId, true);
 			}
 		}
 	}
@@ -345,11 +361,32 @@ abstract class Interfacer {
 	
 	/**
 	 *
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	abstract public function isNullValue($pValue);
+	
+	/**
+	 *
 	 * @param mixed $pNode
 	 * @param boolean $pGetElementName only used for XMLInterfacer
 	 * @return mixed
 	 */
 	abstract public function getTraversableNode($pNode, $pGetElementName = false);
+	
+	/**
+	 * verify if value is a node
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	abstract public function isNodeValue($pValue);
+	
+	/**
+	 * verify if value is a array node
+	 * @param mixed $pValue
+	 * @return boolean
+	 */
+	abstract public function isArrayNodeValue($pValue);
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value
@@ -382,7 +419,7 @@ abstract class Interfacer {
 	 * @param boolean $pAsNode
 	 * @return mixed
 	 */
-	abstract public function deleteValue(&$pNode, $pName, $pAsNode = false);
+	abstract public function unsetValue(&$pNode, $pName, $pAsNode = false);
 	
 	/**
 	 *
@@ -448,13 +485,6 @@ abstract class Interfacer {
 	 * @param mixed $pValue
 	 */
 	abstract public function replaceValue(&$pNode, $pName, $pValue);
-	
-	/**
-	 * verify node type according interfacer type
-	 * @param mixed $pNode
-	 * @return boolean
-	 */
-	abstract public function verifyNode($pNode);
 	
 	/**
 	 * verify if interfaced object has typed scalar values (int, float, string...).
@@ -557,9 +587,6 @@ abstract class Interfacer {
 				throw new \Exception('preference "'.self::MAIN_FOREIGN_OBJECTS.'" should be a boolean');
 			}
 			$this->setExportMainForeignObjects($pPreferences[self::MAIN_FOREIGN_OBJECTS]);
-		} else if (!is_null($this->mMainForeignObjects)) {
-			$this->mMainForeignObjects = $this->createNode('objects');
-			$this->mMainForeignIds = [];
 		}
 		
 		// flag values as updated

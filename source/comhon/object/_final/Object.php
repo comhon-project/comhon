@@ -25,9 +25,6 @@ final class Object extends AbstractObject {
 		foreach ($lModel->getPropertiesWithDefaultValues() as $lProperty) {
 			$this->setValue($lProperty->getName(), $lProperty->getDefaultValue(), false);
 		}
-		foreach ($lModel->getAggregations() as $lProperty) {
-			$this->initValue($lProperty->getName(), false, false);
-		}
 		$this->setIsLoaded($pIsLoaded);
 	}
 	

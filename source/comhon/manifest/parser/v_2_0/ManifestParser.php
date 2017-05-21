@@ -138,11 +138,11 @@ class ManifestParser extends ParentManifestParser {
 			if ($this->mInterfacer instanceof XMLInterfacer) {
 				if ($pUniqueModel instanceof ModelInteger) {
 					foreach ($lEnumValues as $lDomNode) {
-						$lEnumValues[] = $this->mInterfacer->extractNodeText($lDomNode);
+						$lEnumValues[] = (integer) $this->mInterfacer->extractNodeText($lDomNode);
 					}
 				} elseif (($pUniqueModel instanceof ModelString) || ($pUniqueModel instanceof ModelFloat)) {
 					foreach ($lEnumValues as $lDomNode) {
-						$lEnumValues[] = (integer) $this->mInterfacer->extractNodeText($lDomNode);
+						$lEnumValues[] = $this->mInterfacer->extractNodeText($lDomNode);
 					}
 				} else {
 					throw new \Exception('enum cannot be defined on '.$pUniqueModel->getName());
@@ -154,11 +154,11 @@ class ManifestParser extends ParentManifestParser {
 			$lRestriction = new Interval($this->mInterfacer->getValue($pCurrentNode, 'interval'), $pUniqueModel);
 			
 		}
-		elseif ($this->mInterfacer->hasValue($pCurrentNode, 'regex')) {
+		elseif ($this->mInterfacer->hasValue($pCurrentNode, 'pattern')) {
 			if (!($pUniqueModel instanceof ModelString)) {
-				throw new \Exception('regex cannot be defined on '.$pUniqueModel->getName());
+				throw new \Exception('pattern cannot be defined on '.$pUniqueModel->getName());
 			}
-			$lRestriction = new Regex($this->mInterfacer->getValue($pCurrentNode, 'regex'));
+			$lRestriction = new Regex($this->mInterfacer->getValue($pCurrentNode, 'pattern'));
 		}
 		
 		return $lRestriction;

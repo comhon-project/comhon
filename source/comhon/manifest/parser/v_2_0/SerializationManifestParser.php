@@ -4,7 +4,6 @@ namespace comhon\manifest\parser\v_2_0;
 
 use comhon\model\singleton\ModelManager;
 use comhon\manifest\parser\SerializationManifestParser as ParentSerializationManifestParser;
-use comhon\interfacer\StdObjectInterfacer;
 use comhon\interfacer\XMLInterfacer;
 
 class SerializationManifestParser extends ParentSerializationManifestParser {
@@ -66,7 +65,7 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 		$lType = $this->mInterfacer->getValue($pSerializationNode, 'type');
 		if ($this->mInterfacer->hasValue($pSerializationNode, 'value', true)) {
 			$lSerialization = ModelManager::getInstance()->getInstanceModel($lType)->getObjectInstance();
-			$lSerialization->fillObject($this->mInterfacer->getValue($pSerializationNode, 'value', true), $this->mInterfacer);
+			$lSerialization->fill($this->mInterfacer->getValue($pSerializationNode, 'value', true), $this->mInterfacer);
 		} else if ($this->mInterfacer->hasValue($pSerializationNode, 'id')) {
 			$lId = $this->mInterfacer->getValue($pSerializationNode, 'id');
 			if (empty($lId)) {

@@ -30,7 +30,7 @@ class Regex implements Restriction {
 	 * @param Regex $pRestriction
 	 */
 	public function isEqual(Restriction $pRestriction) {
-		return $this === $pRestriction || $this->mRegex == $pRestriction->mRegex;
+		return $this === $pRestriction || (($pRestriction instanceof Regex) && $this->mRegex === $pRestriction->mRegex);
 	}
 	
 	/**
