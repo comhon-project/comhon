@@ -1,0 +1,10 @@
+{
+	"version" : "2.0",
+	"list" : {
+		"config"     :"Config/manifest.json",
+		"sqlDatabase":"SqlDatabase/manifest.json",
+		"sqlTable"   :"SqlTable/manifest.json",
+		"jsonFile"   :"JsonFile/manifest.json",
+		"xmlFile"    :"XmlFile/manifest.json"
+	}
+}

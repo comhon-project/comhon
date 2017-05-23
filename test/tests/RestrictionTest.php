@@ -1,17 +1,17 @@
 <?php
 
-use comhon\model\restriction\Regex;
-use comhon\model\restriction\Interval;
-use comhon\model\singleton\ModelManager;
-use comhon\model\ModelDateTime;
-use comhon\model\ModelInteger;
-use comhon\model\ModelFloat;
-use comhon\object\ComhonDateTime;
-use comhon\model\restriction\Enum;
-use comhon\exception\MalformedIntervalException;
-use comhon\model\ModelString;
-use comhon\exception\NotSupportedModelIntervalException;
-use comhon\exception\NotExistingRegexException;
+use Comhon\Model\Restriction\Regex;
+use Comhon\Model\Restriction\Interval;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Model\ModelDateTime;
+use Comhon\Model\ModelInteger;
+use Comhon\Model\ModelFloat;
+use Comhon\Object\ComhonDateTime;
+use Comhon\Model\Restriction\Enum;
+use Comhon\Exception\MalformedIntervalException;
+use Comhon\Model\ModelString;
+use Comhon\Exception\NotSupportedModelIntervalException;
+use Comhon\Exception\NotExistingRegexException;
 
 $time_start = microtime(true);
 

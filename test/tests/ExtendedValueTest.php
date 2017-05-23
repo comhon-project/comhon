@@ -1,17 +1,17 @@
 <?php
 
-use comhon\model\singleton\ModelManager;
-use comhon\object\Object;
-use comhon\object\collection\MainObjectCollection;
-use comhon\model\Model;
-use object\Person;
-use object\Man;
-use comhon\object\ComhonDateTime;
-use object\Woman;
-use comhon\interfacer\StdObjectInterfacer;
-use comhon\interfacer\XMLInterfacer;
-use comhon\interfacer\AssocArrayInterfacer;
-use comhon\interfacer\Interfacer;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Object\ComhonObject as Object;
+use Comhon\Object\Collection\MainObjectCollection;
+use Comhon\Model\Model;
+use Object\Person;
+use Object\Man;
+use Comhon\Object\ComhonDateTime;
+use Object\Woman;
+use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Interfacer\AssocArrayInterfacer;
+use Comhon\Interfacer\Interfacer;
 
 $time_start = microtime(true);
 
@@ -133,7 +133,7 @@ foreach ($lMan->getValue('children') as $lChild) {
 
 foreach (MainObjectCollection::getInstance()->getModelObjects('person') as $lTestPerson) {
 	if ($lTestPerson->getId() === '1' ) {
-		if (!($lTestPerson instanceof \comhon\object\_final\Object)) {
+		if (!($lTestPerson instanceof \Comhon\Object\Object)) {
 			throw new Exception('wrong class');
 		}
 	} else if ($lTestPerson->getId() === '11') {
@@ -173,11 +173,9 @@ if ($lBodyTwo !== $lBody) {
 
 $lWoman->reorderValues();
 if (!compareJson(json_encode($lWoman->export($lStdPrivateInterfacer)), '{"id":"2","firstName":"Marie","lastName":"Smith","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":null,"bestFriend":{"id":"5","__inheritance__":"man"},"father":null,"mother":null,"bodies":[1]}')) {
-	var_dump(json_encode($lWoman->export($lStdPrivateInterfacer)));
 	throw new \Exception('not same object values : '.json_encode($lWoman->export($lStdPrivateInterfacer)));
 }
 if (!compareXML($lXmlPrivateInterfacer->toString($lWoman->export($lXmlPrivateInterfacer)), '<woman xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="2" firstName="Marie" lastName="Smith" birthDate="2016-11-13T20:04:05+01:00"><birthPlace xsi:nil="true"/><bestFriend id="5" __inheritance__="man"/><father xsi:nil="true"/><mother xsi:nil="true"/><bodies><body>1</body></bodies></woman>')) {
-	var_dump($lXmlPrivateInterfacer->toString($lWoman->export($lXmlPrivateInterfacer)));
 	throw new \Exception('not same object values');
 }
 if (!compareJson(json_encode($lWoman->export($lFlattenArraySerialInterfacer)), '{"id":"2","first_name":"Marie","lastName":"Smith","birth_date":"2016-11-13T20:04:05+01:00","birth_place":null,"best_friend":"5","father_id":null,"mother_id":null}')) {
@@ -561,7 +559,6 @@ $lMan->setLastName('De La Fontaine');
 $lMan->setBirthDate(new ComhonDateTime('1674-03-02'));
 
 if (!compareJson(json_encode($lMan->export($lStdPrivateInterfacer)), '{"firstName":"Jean","lastName":"De La Fontaine","birthDate":"1674-03-02T00:00:00+01:00"}')) {
-	var_dump(json_encode($lMan->export($lStdPrivateInterfacer)));
 	throw new \Exception('bad value');
 }
 

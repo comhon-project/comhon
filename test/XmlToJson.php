@@ -2,7 +2,7 @@
 
 $lFolders = [
 	'/home/jean-philippe/ReposGit/comhon/test/manifests/',
-	'/home/jean-philippe/ReposGit/comhon/source/comhon/manifest/collection/'
+	'/home/jean-philippe/ReposGit/comhon/src/Comhon/Manifest/Collection/'
 ];
 
 foreach ($lFolders as $lFolder) {

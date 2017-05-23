@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serializations version="2.0">
+	<list>
+		<sqlDatabase>SqlDatabase/manifest.xml</sqlDatabase>
+		<sqlTable>SqlTable/manifest.xml</sqlTable>
+	</list>
+</serializations>

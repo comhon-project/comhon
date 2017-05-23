@@ -1,12 +1,12 @@
 <?php
 
-use comhon\model\singleton\ModelManager;
-use comhon\object\Object;
-use comhon\model\property\MultipleForeignProperty;
-use comhon\database\DatabaseController;
-use comhon\interfacer\StdObjectInterfacer;
-use comhon\interfacer\XMLInterfacer;
-use comhon\interfacer\AssocArrayInterfacer;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Object\ComhonObject as Object;
+use Comhon\Model\Property\MultipleForeignProperty;
+use Comhon\Database\DatabaseController;
+use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Interfacer\AssocArrayInterfacer;
 
 $time_start = microtime(true);
 

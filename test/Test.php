@@ -1,7 +1,7 @@
 <?php
 
-set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/comhon/source/');
-set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/ObjectManagerLib/source/');
+set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/comhon/src/');
+set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/ObjectManagerLib/src/');
 
 require_once 'Comhon.php';
 
@@ -308,23 +308,22 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'In
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'PartialImportExportTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'DatabaseSerializationTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RestrictionTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueRestrictionTest.php';
-
-// composer
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
 
 // add error code (verifvalue precise model if differents (instead of class that are the same))
-// remove $p $l
-// psr
+// remove prefix $p $l $m
 // add Php doc
+
+// composer
 // remove warnings use
 
 // for version > 2.0
+// replace self tests by phpunit tests
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)
 // allow to active only one value among several values (a or b might be set but not a and b)
 // define in manifest if property is requestable
-// phpunit test
 // rapide load Unique model in modelManager
 // from object specifying object path (object.property.property)
 // mandatory value when serialize

@@ -1,6 +1,6 @@
 <?php
 
-use comhon\api\ObjectService;
+use Comhon\Api\ObjectService;
 
 $time_start = microtime(true);
 
@@ -273,7 +273,6 @@ $Json = '{
 
 $lResult = ObjectService::getObjects(json_decode($Json));
 if (!compareJson(json_encode($lResult), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
-	var_dump(json_encode($lResult));
 	throw new \Exception('bad result');
 }
 

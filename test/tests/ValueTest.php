@@ -1,13 +1,13 @@
 <?php
 
-use comhon\model\singleton\ModelManager;
-use comhon\object\Object;
-use comhon\object\collection\MainObjectCollection;
-use comhon\interfacer\StdObjectInterfacer;
-use comhon\interfacer\XMLInterfacer;
-use comhon\interfacer\Interfacer;
-use comhon\interfacer\AssocArrayInterfacer;
-use comhon\object\ObjectArray;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Object\ComhonObject as Object;
+use Comhon\Object\Collection\MainObjectCollection;
+use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Interfacer\Interfacer;
+use Comhon\Interfacer\AssocArrayInterfacer;
+use Comhon\Object\ObjectArray;
 
 $time_start = microtime(true);
 

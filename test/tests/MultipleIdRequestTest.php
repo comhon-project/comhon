@@ -1,6 +1,6 @@
 <?php
 
-use comhon\api\ObjectService;
+use Comhon\Api\ObjectService;
 
 $time_start = microtime(true);
 
@@ -135,7 +135,6 @@ $Json = '{
 
 $lResult = ObjectService::getObjects(json_decode($Json), true);
 if (json_encode($lResult) !== '{"success":true,"result":[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]}') {
-	var_dump(json_encode($lResult));
 	throw new \Exception('bad result');
 }
 

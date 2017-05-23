@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifests version="2.0">
+	<list>
+		<config>Config/manifest.xml</config>
+		<sqlDatabase>SqlDatabase/manifest.xml</sqlDatabase>
+		<sqlTable>SqlTable/manifest.xml</sqlTable>
+		<jsonFile>JsonFile/manifest.xml</jsonFile>
+		<xmlFile>XmlFile/manifest.xml</xmlFile>
+	</list>
+</manifests>

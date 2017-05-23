@@ -1,9 +1,9 @@
 <?php
 
-use comhon\model\singleton\ModelManager;
-use comhon\interfacer\StdObjectInterfacer;
-use comhon\interfacer\XMLInterfacer;
-use comhon\interfacer\AssocArrayInterfacer;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Interfacer\AssocArrayInterfacer;
 
 $time_start = microtime(true);
 
@@ -278,7 +278,6 @@ if (!$lObject->isUpdated()) {
 	throw new Exception('should be updated');
 }
 if (!compareJson(json_encode($lObject->export($lFlattenArrayPrivateUpdatedInterfacer)), $lPrivateFlattened)) {
-	var_dump(json_encode($lObject->export($lFlattenArrayPrivateUpdatedInterfacer)));
 	throw new Exception('bad object Values');
 }
 $lObject->fill($lObject->export($lFlattenArrayPrivateInterfacer), $lFlattenArrayPrivateUpdatedInterfacer);

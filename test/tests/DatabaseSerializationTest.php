@@ -1,8 +1,8 @@
 <?php
 
-use comhon\model\singleton\ModelManager;
-use comhon\serialization\SqlTable;
-use comhon\database\DatabaseController;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Serialization\SqlTable;
+use Comhon\Database\DatabaseController;
 
 $time_start = microtime(true);
 

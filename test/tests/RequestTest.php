@@ -1,13 +1,13 @@
 <?php
 
-use comhon\model\singleton\ModelManager;
-use comhon\object\Object;
-use comhon\object\_final\Object as FinalObject;
-use comhon\api\ObjectService;
-use comhon\serialization\SqlTable;
-use comhon\object\collection\MainObjectCollection;
-use comhon\interfacer\StdObjectInterfacer;
-use comhon\interfacer\XMLInterfacer;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Object\ComhonObject as Object;
+use Comhon\Object\Object as FinalObject;
+use Comhon\Api\ObjectService;
+use Comhon\Serialization\SqlTable;
+use Comhon\Object\Collection\MainObjectCollection;
+use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
 
 $time_start = microtime(true);
 
@@ -42,12 +42,10 @@ $Json = '{
 $lResult = ObjectService::getObjects(json_decode($Json), true);
 
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !isset($lResult->result) || !is_array($lResult->result)) {
-	var_dump(json_encode($lResult));
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
 if (!compareJson(json_encode($lResult->result), '[{"date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"id1":1,"id2":"23"},{"date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"id1":1,"id2":"101"}]')) {
-	var_dump(json_encode($lResult->result));
 	throw new Exception('bad objects : '.json_encode($lResult->result));
 }
 
@@ -78,12 +76,10 @@ $Json = '{
 $lResult = ObjectService::getObjects(json_decode($Json), true);
 
 if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success || !isset($lResult->result) || !is_array($lResult->result)) {
-	var_dump(json_encode($lResult));
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
 if (!compareJson(json_encode($lResult->result), '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"object":null,"objectWithId":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean":false,"boolean2":true}]')) {
-	var_dump(json_encode($lResult->result));
 	throw new Exception('bad objects : '.json_encode($lResult->result));
 }
 
@@ -326,7 +322,6 @@ if (!is_object($lResult) || !isset($lResult->success) || !$lResult->success) {
 	throw new Exception('simple load request failed');
 }
 if (!compareJson(json_encode($lResult->result), json_encode($lPublicObjectJson))) {
-	var_dump(json_encode($lPublicObjectJson));
 	throw new Exception('bad object : '.json_encode($lResult->result));
 }
 
@@ -377,7 +372,6 @@ if (!compareJson(json_encode($lTestDb->getValue('childrenTestDb')->export($lStdP
 	throw new Exception('bad object : '.json_encode($lTestDb->getValue('childrenTestDb')->export($lStdPrivateInterfacer)));
 }
 if (!compareJson(json_encode($lTestDb->export($lStdPrivateInterfacer)), '{"defaultValue":"default","id1":1,"id2":"1501774389","childrenTestDb":[1,2],"integer":2}')) {
-	var_dump(json_encode($lPublicObjectJson));
 	throw new Exception('bad object : '.json_encode($lTestDb->export($lStdPrivateInterfacer)));
 }
 

@@ -1,14 +1,14 @@
 <?php
 
-use comhon\model\singleton\ModelManager;
-use comhon\object\Object;
-use comhon\object\_final\Object as FinalObject;
-use comhon\object\collection\MainObjectCollection;
-use comhon\object\ObjectArray;
-use comhon\interfacer\StdObjectInterfacer;
-use comhon\interfacer\XMLInterfacer;
-use comhon\interfacer\AssocArrayInterfacer;
-use comhon\interfacer\Interfacer;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Object\ComhonObject as Object;
+use Comhon\Object\Object as FinalObject;
+use Comhon\Object\Collection\MainObjectCollection;
+use Comhon\Object\ObjectArray;
+use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Interfacer\AssocArrayInterfacer;
+use Comhon\Interfacer\Interfacer;
 
 $time_start = microtime(true);
 
@@ -72,14 +72,12 @@ $lSqlArray         = '{"default_value":"default","id_1":1,"id_2":"1501774389","d
 /** ****************************** test stdObject ****************************** **/
 
 if (!compareJson(json_encode($lCopiedObject->export($lStdPrivateInterfacer)), $lPrivateStdObject)) {
-	var_dump(json_encode($lCopiedObject->export($lStdPrivateInterfacer)));
 	throw new \Exception('bad private object value');
 }
 if (json_encode($lCopiedObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
 	throw new \Exception('bad public object value');
 }
 if (json_encode($lDbTestModel->import($lCopiedObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
-	var_dump(json_encode($lDbTestModel->import($lCopiedObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer)->export($lStdPrivateInterfacer)));
 	throw new \Exception('bad private object value');
 }
 if (json_encode($lDbTestModel->import($lCopiedObject->export($lStdPublicInterfacer), $lStdPublicInterfacer)->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
@@ -114,7 +112,6 @@ $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
 if (json_encode($lNewObject->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
-	var_dump(json_encode($lNewObject->export($lStdPrivateInterfacer)));
 	throw new \Exception('bad private object value');
 }
 $lNewObject->reset();
@@ -127,7 +124,6 @@ $lNewObject->reset();
 $lNewObject->setValue('defaultValue', 'plop');
 $lDbTestModel->fillObject($lNewObject, $lCopiedObject->export($lStdSerialInterfacer), $lStdSerialInterfacer);
 if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObject) {
-	var_dump(json_encode($lNewObject->export($lStdPublicInterfacer)));
 	throw new \Exception('bad serial object value');
 }
 $lNewObject->reset();
@@ -152,7 +148,6 @@ if (json_encode($lNewObject->export($lStdPublicInterfacer)) !== $lPublicStdObjec
 /** ****************************** test xml ****************************** **/
 
 if (json_encode($lDbTestModel->import($lCopiedObject->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer)->export($lStdPrivateInterfacer)) !== $lPrivateStdObject) {
-	var_dump(json_encode($lDbTestModel->import($lCopiedObject->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer)->export($lStdPrivateInterfacer)));
 	throw new \Exception('bad private object value : '.json_encode($lDbTestModel->import($lCopiedObject->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer)->export($lStdPrivateInterfacer)));
 }
 if (json_encode($lDbTestModel->import($lCopiedObject->export($lXmlPublicInterfacer), $lXmlPublicInterfacer)->export($lStdPublicInterfacer)) !== $lPublicStdObject) {

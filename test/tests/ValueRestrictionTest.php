@@ -1,14 +1,14 @@
 <?php
 
-use comhon\model\restriction\Interval;
-use comhon\model\ModelRestrictedArray;
-use comhon\object\ObjectArray;
-use comhon\model\singleton\ModelManager;
-use comhon\object\ComhonDateTime;
-use comhon\exception\NotSatisfiedRestrictionException;
-use comhon\object\Object;
-use comhon\model\restriction\Regex;
-use comhon\model\restriction\Enum;
+use Comhon\Model\Restriction\Interval;
+use Comhon\Model\ModelRestrictedArray;
+use Comhon\Object\ObjectArray;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Object\ComhonDateTime;
+use Comhon\Exception\NotSatisfiedRestrictionException;
+use Comhon\Object\ComhonObject as Object;
+use Comhon\Model\Restriction\Regex;
+use Comhon\Model\Restriction\Enum;
 
 $time_start = microtime(true);
 

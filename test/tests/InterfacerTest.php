@@ -1,11 +1,11 @@
 <?php
 
 
-use comhon\interfacer\StdObjectInterfacer;
-use comhon\interfacer\XMLInterfacer;
-use comhon\interfacer\Interfacer;
-use object\Person;
-use comhon\interfacer\AssocArrayInterfacer;
+use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Interfacer\Interfacer;
+use Object\Person;
+use Comhon\Interfacer\AssocArrayInterfacer;
 
 $time_start = microtime(true);
 
@@ -32,19 +32,16 @@ $lInterfacer->setValue($lNode, $lNodeArray, 'array');
 $lInterfacer->flattenNode($lNode, 'array');
 
 if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
-	var_dump($lInterfacer->toString($lNode));
 	throw new Exception('bad value');
 }
 
 $lInterfacer->unflattenNode($lNode, 'array');
 if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":["value1","value2",{"object_element_prop":123,"object_element_node":123}]}') {
-	var_dump($lInterfacer->toString($lNode));
 	throw new Exception('bad value');
 }
 
 $lInterfacer->flattenNode($lNode, 'array');
 if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
-	var_dump($lInterfacer->toString($lNode));
 	throw new Exception('bad value');
 }
 
@@ -107,19 +104,16 @@ $lInterfacer->setValue($lNode, $lNodeArray, 'array');
 $lInterfacer->flattenNode($lNode, 'array');
 
 if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
-	var_dump($lInterfacer->toString($lNode));
 	throw new Exception('bad value');
 }
 
 $lInterfacer->unflattenNode($lNode, 'array');
 if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":["value1","value2",{"object_element_prop":123,"object_element_node":123}]}') {
-	var_dump($lInterfacer->toString($lNode));
 	throw new Exception('bad value');
 }
 
 $lInterfacer->flattenNode($lNode, 'array');
 if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
-	var_dump($lInterfacer->toString($lNode));
 	throw new Exception('bad value');
 }
 

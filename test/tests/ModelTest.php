@@ -1,12 +1,12 @@
 <?php
 
-use comhon\model\singleton\ModelManager;
-use comhon\object\Object;
-use comhon\model\Model;
-use comhon\model\MainModel;
-use comhon\model\ModelForeign;
-use comhon\object\ComhonDateTime;
-use comhon\interfacer\StdObjectInterfacer;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Object\ComhonObject as Object;
+use Comhon\Model\Model;
+use Comhon\Model\MainModel;
+use Comhon\Model\ModelForeign;
+use Comhon\Object\ComhonDateTime;
+use Comhon\Interfacer\StdObjectInterfacer;
 
 $time_start = microtime(true);
 

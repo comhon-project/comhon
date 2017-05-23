@@ -8,7 +8,7 @@
 		</property>
 		<!-- interval -->
 		<property type="integer" name="naturalNumber" interval="[0,]"/>
-		<property type="dateTime" name="birthDate" interval="[1900-01-01,now]"/>
+		<property type="dateTime" name="birthDate" interval="[1900-01-01,now["/>
 		<property type="array" name="intervalInArray">
 			<values  type="float" name="intervalArrayValue" interval="]-1.5, 2["/>
 		</property>

@@ -1,6 +1,6 @@
 <?php
 
-use comhon\api\ObjectService;
+use Comhon\Api\ObjectService;
 
 $time_start = microtime(true);
 
@@ -30,7 +30,6 @@ $lResult = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($lResult) || !isset($lResult->success) || $lResult->success 
 		|| !isset($lResult->error) || !isset($lResult->error->message) || $lResult->error->message !== "private property 'string' can't be a filter property for public request") {
-	var_dump(json_encode($lResult));
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
@@ -58,7 +57,6 @@ $lResult = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($lResult) || !isset($lResult->success) || $lResult->success
 || !isset($lResult->error) || !isset($lResult->error->message) || $lResult->error->message !== "literal contain private property 'string'") {
-	var_dump(json_encode($lResult));
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 
@@ -95,7 +93,6 @@ $lResult = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($lResult) || !isset($lResult->success) || $lResult->success
 || !isset($lResult->error) || !isset($lResult->error->message) || $lResult->error->message !== "having literal contain private property 'string'") {
-	var_dump(json_encode($lResult));
 	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
 }
 

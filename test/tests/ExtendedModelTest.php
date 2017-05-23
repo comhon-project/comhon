@@ -1,7 +1,7 @@
 <?php
 
-use comhon\model\singleton\ModelManager;
-use comhon\model\Model;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Model\Model;
 
 $time_start = microtime(true);
 
