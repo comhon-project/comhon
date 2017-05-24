@@ -21,16 +21,16 @@ class Config extends ExtendableObject {
 	
 	public static function getInstance() {
 		if (!isset(self::$_instance)) {
-			$lConfig_afe = DIRECTORY_SEPARATOR .'etc'.DIRECTORY_SEPARATOR.'comhon'.DIRECTORY_SEPARATOR.'config.json';
-			$lStdInterfacer = new StdObjectInterfacer();
-			$lStdInterfacer->setSerialContext(true);
-			$lStdInterfacer->setPrivateContext(true);
-			$lJsonConfig = $lStdInterfacer->read($lConfig_afe);
-			if (is_null($lJsonConfig) || $lJsonConfig === false) {
+			$config_afe = DIRECTORY_SEPARATOR .'etc'.DIRECTORY_SEPARATOR.'comhon'.DIRECTORY_SEPARATOR.'config.json';
+			$stdInterfacer = new StdObjectInterfacer();
+			$stdInterfacer->setSerialContext(true);
+			$stdInterfacer->setPrivateContext(true);
+			$jsonConfig = $stdInterfacer->read($config_afe);
+			if (is_null($jsonConfig) || $jsonConfig === false) {
 				throw new \Exception('failure when try to read comhon config file');
 			}
 			self::$_instance = new self();
-			self::$_instance->fill($lJsonConfig, $lStdInterfacer);
+			self::$_instance->fill($jsonConfig, $stdInterfacer);
 		}
 		
 		return self::$_instance;

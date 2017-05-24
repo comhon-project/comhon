@@ -10,174 +10,174 @@ use Comhon\Interfacer\AssocArrayInterfacer;
 
 $time_start = microtime(true);
 
-$lStdPrivateInterfacer = new StdObjectInterfacer();
-$lStdPrivateInterfacer->setPrivateContext(true);
+$stdPrivateInterfacer = new StdObjectInterfacer();
+$stdPrivateInterfacer->setPrivateContext(true);
 
-$lStdSerialInterfacer = new StdObjectInterfacer();
-$lStdSerialInterfacer->setPrivateContext(true);
-$lStdSerialInterfacer->setSerialContext(true);
+$stdSerialInterfacer = new StdObjectInterfacer();
+$stdSerialInterfacer->setPrivateContext(true);
+$stdSerialInterfacer->setSerialContext(true);
 
-$lXmlPrivateInterfacer = new XMLInterfacer();
-$lXmlPrivateInterfacer->setPrivateContext(true);
+$xmlPrivateInterfacer = new XMLInterfacer();
+$xmlPrivateInterfacer->setPrivateContext(true);
 
-$lXmlSerialInterfacer = new XMLInterfacer();
-$lXmlSerialInterfacer->setPrivateContext(true);
-$lXmlSerialInterfacer->setSerialContext(true);
+$xmlSerialInterfacer = new XMLInterfacer();
+$xmlSerialInterfacer->setPrivateContext(true);
+$xmlSerialInterfacer->setSerialContext(true);
 
-$lFlattenArrayPrivateInterfacer = new AssocArrayInterfacer();
-$lFlattenArrayPrivateInterfacer->setPrivateContext(true);
-$lFlattenArrayPrivateInterfacer->setFlattenValues(true);
+$flattenArrayPrivateInterfacer = new AssocArrayInterfacer();
+$flattenArrayPrivateInterfacer->setPrivateContext(true);
+$flattenArrayPrivateInterfacer->setFlattenValues(true);
 
-$lFlattenArraySerialInterfacer = new AssocArrayInterfacer();
-$lFlattenArraySerialInterfacer->setPrivateContext(true);
-$lFlattenArraySerialInterfacer->setFlattenValues(true);
-$lFlattenArraySerialInterfacer->setSerialContext(true);
+$flattenArraySerialInterfacer = new AssocArrayInterfacer();
+$flattenArraySerialInterfacer->setPrivateContext(true);
+$flattenArraySerialInterfacer->setFlattenValues(true);
+$flattenArraySerialInterfacer->setSerialContext(true);
 
-$lChildDbTestModel = ModelManager::getInstance()->getInstanceModel('childTestDb');
-$lObject = $lChildDbTestModel->getObjectInstance();
-$lObject->setValue('id', 1);
-$lObject->setValue('name', 'plop');
-$lProperty = $lObject->getProperty('parentTestDb', true);
-if (!($lProperty instanceof MultipleForeignProperty)) {
-	throw new Exception('bad property class : '.get_class($lProperty));
+$childDbTestModel = ModelManager::getInstance()->getInstanceModel('childTestDb');
+$object = $childDbTestModel->getObjectInstance();
+$object->setValue('id', 1);
+$object->setValue('name', 'plop');
+$property = $object->getProperty('parentTestDb', true);
+if (!($property instanceof MultipleForeignProperty)) {
+	throw new Exception('bad property class : '.get_class($property));
 }
-$lPattern = ["parent_id_1" => "id1", "parent_id_2" => "id2"];
-foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-	if (!array_key_exists($lSerializationName, $lPattern) || $lPattern[$lSerializationName] !== $lIdProperty->getName()) {
+$pattern = ["parent_id_1" => "id1", "parent_id_2" => "id2"];
+foreach ($property->getMultipleIdProperties() as $serializationName => $idProperty) {
+	if (!array_key_exists($serializationName, $pattern) || $pattern[$serializationName] !== $idProperty->getName()) {
 		throw new Exception('bad multiple id properties');
 	}
 }
-$lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
-$lParentObject = $lDbTestModel->loadObject('[1,"1501774389"]');
-$lObject->setValue('parentTestDb', $lParentObject);
+$dbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
+$parentObject = $dbTestModel->loadObject('[1,"1501774389"]');
+$object->setValue('parentTestDb', $parentObject);
 
 /************************************************** export **********************************************/
 
-if (json_encode($lObject->export($lStdPrivateInterfacer)) !== '{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"}') {
+if (json_encode($object->export($stdPrivateInterfacer)) !== '{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"}') {
 	throw new Exception('bad object value');
 }
-if (!compareXML($lXmlPrivateInterfacer->toString($lObject->export($lXmlPrivateInterfacer)), '<childTestDb id="1" name="plop"><parentTestDb>[1,"1501774389"]</parentTestDb></childTestDb>')) {
+if (!compareXML($xmlPrivateInterfacer->toString($object->export($xmlPrivateInterfacer)), '<childTestDb id="1" name="plop"><parentTestDb>[1,"1501774389"]</parentTestDb></childTestDb>')) {
 	throw new Exception('bad object value');
 }
-if (json_encode($lObject->export($lFlattenArrayPrivateInterfacer)) !== '{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"}') {
+if (json_encode($object->export($flattenArrayPrivateInterfacer)) !== '{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"}') {
 	throw new Exception('bad object value');
 }
 
-if (json_encode($lObject->export($lStdSerialInterfacer)) !== '{"id":1,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
+if (json_encode($object->export($stdSerialInterfacer)) !== '{"id":1,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
 	throw new Exception('bad object value');
 }
-if (!compareXML($lXmlSerialInterfacer->toString($lObject->export($lXmlSerialInterfacer)), '<childTestDb id="1" name="plop" parent_id_1="1" parent_id_2="1501774389"/>')) {
+if (!compareXML($xmlSerialInterfacer->toString($object->export($xmlSerialInterfacer)), '<childTestDb id="1" name="plop" parent_id_1="1" parent_id_2="1501774389"/>')) {
 	throw new Exception('bad object value');
 }
-if (json_encode($lObject->export($lFlattenArraySerialInterfacer)) !== '{"id":1,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
+if (json_encode($object->export($flattenArraySerialInterfacer)) !== '{"id":1,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
 	throw new Exception('bad object value');
 }
 
 /************************************************** import **********************************************/
 
-$lObject = $lChildDbTestModel->import(json_decode('{"id":2,"name":"plop","parent_id_2":"1501774389","parent_id_1":1}'), $lStdSerialInterfacer);
-if (!compareJson(json_encode($lObject->export($lStdSerialInterfacer)), '{"id":2,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}')) {
+$object = $childDbTestModel->import(json_decode('{"id":2,"name":"plop","parent_id_2":"1501774389","parent_id_1":1}'), $stdSerialInterfacer);
+if (!compareJson(json_encode($object->export($stdSerialInterfacer)), '{"id":2,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}')) {
 	throw new Exception('bad object value');
 }
-if ($lObject->getValue('parentTestDb') !== $lParentObject) {
+if ($object->getValue('parentTestDb') !== $parentObject) {
 	throw new Exception('bad foreign object instance');
 }
-$lObject = $lChildDbTestModel->import(simplexml_load_string('<childTestDb id="3" name="plop" parent_id_2="1501774389" parent_id_1="1"/>'), $lXmlSerialInterfacer);
-if (!compareXML($lXmlSerialInterfacer->toString($lObject->export($lXmlSerialInterfacer)), '<childTestDb id="3" name="plop" parent_id_1="1" parent_id_2="1501774389"/>')) {
+$object = $childDbTestModel->import(simplexml_load_string('<childTestDb id="3" name="plop" parent_id_2="1501774389" parent_id_1="1"/>'), $xmlSerialInterfacer);
+if (!compareXML($xmlSerialInterfacer->toString($object->export($xmlSerialInterfacer)), '<childTestDb id="3" name="plop" parent_id_1="1" parent_id_2="1501774389"/>')) {
 	throw new Exception('bad object value');
 }
-if ($lObject->getValue('parentTestDb') !== $lParentObject) {
+if ($object->getValue('parentTestDb') !== $parentObject) {
 	throw new Exception('bad foreign object instance');
 }
-$lObject = $lChildDbTestModel->import(json_decode('{"id":4,"name":"plop","parent_id_2":"1501774389","parent_id_1":1}', true), $lFlattenArraySerialInterfacer);
-if (json_encode($lObject->export($lFlattenArraySerialInterfacer)) !== '{"id":4,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
+$object = $childDbTestModel->import(json_decode('{"id":4,"name":"plop","parent_id_2":"1501774389","parent_id_1":1}', true), $flattenArraySerialInterfacer);
+if (json_encode($object->export($flattenArraySerialInterfacer)) !== '{"id":4,"name":"plop","parent_id_1":1,"parent_id_2":"1501774389"}') {
 	throw new Exception('bad object value');
 }
-if ($lObject->getValue('parentTestDb') !== $lParentObject) {
+if ($object->getValue('parentTestDb') !== $parentObject) {
 	throw new Exception('bad foreign object instance');
 }
 
 /******************************************** load aggregation ******************************************/
 
-$lParentObject->initValue('childrenTestDb', false, false);
-$lParentObject->loadValue('childrenTestDb');
+$parentObject->initValue('childrenTestDb', false, false);
+$parentObject->loadValue('childrenTestDb');
 
-if (json_encode($lParentObject->getValue('childrenTestDb')->export($lStdPrivateInterfacer)) !== '[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]') {
+if (json_encode($parentObject->getValue('childrenTestDb')->export($stdPrivateInterfacer)) !== '[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]') {
 	throw new Exception('bad foreign object instance');
 }
 
 /********************************************** test save *******************************************/
 
-$lDbHandler = DatabaseController::getInstanceWithDataBaseId(1);
-$lObject->unsetValue('id');
+$dbHandler = DatabaseController::getInstanceWithDataBaseId(1);
+$object->unsetValue('id');
 
-if (!is_null($lObject->getValue('id'))) {
+if (!is_null($object->getValue('id'))) {
 	throw new Exception('id must be unset');
 }
-$lStatement = $lDbHandler->executeSimpleQuery('select count(*) from child_test');
-$lResult = $lStatement->fetchAll();
-if ($lResult[0][0] !== '2') {
+$statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
+$result = $statement->fetchAll();
+if ($result[0][0] !== '2') {
 	throw new Exception('bad count');
 }
 
-if ($lObject->save() !== 1) {
+if ($object->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 
-if (is_null($lObject->getValue('id'))) {
+if (is_null($object->getValue('id'))) {
 	throw new Exception('id must be set');
 }
-$lStatement = $lDbHandler->executeSimpleQuery('select count(*) from child_test');
-$lResult = $lStatement->fetchAll();
-if ($lResult[0][0] !== '3') {
+$statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
+$result = $statement->fetchAll();
+if ($result[0][0] !== '3') {
 	throw new Exception('bad count');
 }
 
-if ($lObject->save() !== 0) {
+if ($object->save() !== 0) {
 	throw new \Exception('serialization souhld return 0 because there is no update');
 }
-if ($lObject->isUpdated()) {
+if ($object->isUpdated()) {
 	throw new Exception('should not be flaged as updated after save');
 }
-if (count($lObject->getUpdatedValues()) !== 0) {
+if (count($object->getUpdatedValues()) !== 0) {
 	throw new Exception('should not have updated values after save');
 }
 
-$lObject->setValue('name', 'hehe');
-if ($lObject->save() !== 1) {
+$object->setValue('name', 'hehe');
+if ($object->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-if ($lObject->isUpdated()) {
+if ($object->isUpdated()) {
 	throw new Exception('should not be flaged as updated after save');
 }
-if (count($lObject->getUpdatedValues()) !== 0) {
+if (count($object->getUpdatedValues()) !== 0) {
 	throw new Exception('should not have updated values after save');
 }
 
-$lObject->setValue('name', 'plop');
-if ($lObject->save() !== 1) {
+$object->setValue('name', 'plop');
+if ($object->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-if ($lObject->isUpdated()) {
+if ($object->isUpdated()) {
 	throw new Exception('should not be flaged as updated after save');
 }
-if (count($lObject->getUpdatedValues()) !== 0) {
+if (count($object->getUpdatedValues()) !== 0) {
 	throw new Exception('should not have updated values after save');
 }
 
-$lStatement = $lDbHandler->executeSimpleQuery('select count(*) from child_test');
-$lResult = $lStatement->fetchAll();
-if ($lResult[0][0] !== '3') {
+$statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
+$result = $statement->fetchAll();
+if ($result[0][0] !== '3') {
 	throw new Exception('bad count');
 }
 
-if ($lObject->delete() !== 1) {
+if ($object->delete() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 
-$lStatement = $lDbHandler->executeSimpleQuery('select count(*) from child_test');
-$lResult = $lStatement->fetchAll();
-if ($lResult[0][0] !== '2') {
+$statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
+$result = $statement->fetchAll();
+if ($result[0][0] !== '2') {
 	throw new Exception('bad count');
 }
 

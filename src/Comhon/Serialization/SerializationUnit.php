@@ -28,34 +28,34 @@ abstract class SerializationUnit {
 	const XML_FILE  = 'xmlFile';
 	
 	/** @var ComhonObject */
-	protected $mSettings;
+	protected $settings;
 	
 	/** @var string */
-	protected $mInheritanceKey;
+	protected $inheritanceKey;
 	
 	/**
 	 * 
-	 * @param ComhonObject $pSettings
-	 * @param string $pInheritanceKey
+	 * @param ComhonObject $settings
+	 * @param string $inheritanceKey
 	 */
-	protected function __construct(ComhonObject $pSettings, $pInheritanceKey = null) {
-		$this->mSettings = $pSettings;
-		$this->mInheritanceKey = $pInheritanceKey;
+	protected function __construct(ComhonObject $settings, $inheritanceKey = null) {
+		$this->settings = $settings;
+		$this->inheritanceKey = $inheritanceKey;
 	}
 	
 	/**
 	 *
-	 * @param ComhonObject $pSettings
-	 * @param string $pInheritanceKey
+	 * @param ComhonObject $settings
+	 * @param string $inheritanceKey
 	 */
-	public static function getInstance(ComhonObject $pSettings, $pInheritanceKey = null, $pClass = null) {
-		if (!is_null($pClass)) {
-			return new $pClass($pSettings, $pInheritanceKey);
+	public static function getInstance(ComhonObject $settings, $inheritanceKey = null, $class = null) {
+		if (!is_null($class)) {
+			return new $class($settings, $inheritanceKey);
 		}
-		switch ($pSettings->getModel()->getName()) {
-			case self::SQL_TABLE: return new SqlTable($pSettings, $pInheritanceKey);
-			case self::XML_FILE : return new XmlFile($pSettings, $pInheritanceKey);
-			case self::JSON_FILE: return new JsonFile($pSettings, $pInheritanceKey);
+		switch ($settings->getModel()->getName()) {
+			case self::SQL_TABLE: return new SqlTable($settings, $inheritanceKey);
+			case self::XML_FILE : return new XmlFile($settings, $inheritanceKey);
+			case self::JSON_FILE: return new JsonFile($settings, $inheritanceKey);
 		}
 	}
 	
@@ -65,7 +65,7 @@ abstract class SerializationUnit {
 	 * @return MainModel
 	 */
 	public function getType() {
-		return $this->mSettings->getModel()->getName();
+		return $this->settings->getModel()->getName();
 	}
 	
 	/**
@@ -73,7 +73,7 @@ abstract class SerializationUnit {
 	 * @return ComhonObject
 	 */
 	public function getSettings() {
-		return $this->mSettings;
+		return $this->settings;
 	}
 	
 	/**
@@ -81,88 +81,88 @@ abstract class SerializationUnit {
 	 * @return string
 	 */
 	public function getInheritanceKey() {
-		return $this->mInheritanceKey;
+		return $this->inheritanceKey;
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
+	 * @param ComhonObject $object
 	 * @throws \Exception
 	 */
-	public function saveObject(ComhonObject $pObject, $pOperation = null) {
-		if ($this->mSettings !== $pObject->getModel()->getSerializationSettings()) {
+	public function saveObject(ComhonObject $object, $operation = null) {
+		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
 			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
 		}
-		if (!is_null($pOperation) && ($pOperation !== self::CREATE) && ($pOperation !== self::UPDATE)) {
-			throw new \Exception("operation '$pOperation' not recognized");
+		if (!is_null($operation) && ($operation !== self::CREATE) && ($operation !== self::UPDATE)) {
+			throw new \Exception("operation '$operation' not recognized");
 		}
-		$lResult = $this->_saveObject($pObject, $pOperation);
-		$pObject->resetUpdatedStatus();
-		return $lResult;
+		$result = $this->_saveObject($object, $operation);
+		$object->resetUpdatedStatus();
+		return $result;
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
-	 * @param string[] $pPropertiesFilter
+	 * @param ComhonObject $object
+	 * @param string[] $propertiesFilter
 	 * @return boolean true if loading is successfull
 	 * @throws \Exception
 	 */
-	public function loadObject(ComhonObject $pObject, $pPropertiesFilter = null) {
-		if ($this->mSettings !== $pObject->getModel()->getSerializationSettings()) {
+	public function loadObject(ComhonObject $object, $propertiesFilter = null) {
+		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
 			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
 		}
-		return $this->_loadObject($pObject, $pPropertiesFilter);
+		return $this->_loadObject($object, $propertiesFilter);
 	}
 	
 	/**
 	 *
-	 * @param ComhonObject $pObject
+	 * @param ComhonObject $object
 	 * @throws \Exception
 	 */
-	public function deleteObject(ComhonObject $pObject) {
-		if ($this->mSettings !== $pObject->getModel()->getSerializationSettings()) {
+	public function deleteObject(ComhonObject $object) {
+		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
 			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
 		}
-		return $this->_deleteObject($pObject);
+		return $this->_deleteObject($object);
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
+	 * @param ComhonObject $object
 	 */
-	protected abstract function _saveObject(ComhonObject $pObject, $pOperation = null);
+	protected abstract function _saveObject(ComhonObject $object, $operation = null);
 	
 	/**
-	 * @param ComhonObject $pObject
-	 * @param string[] $pPropertiesFilter
+	 * @param ComhonObject $object
+	 * @param string[] $propertiesFilter
 	 * @return boolean
 	 */
-	protected abstract function _loadObject(ComhonObject $pObject, $pPropertiesFilter = null);
+	protected abstract function _loadObject(ComhonObject $object, $propertiesFilter = null);
 	
 	/**
 	 *
-	 * @param unknow $pValue
-	 * @param Model $pExtendsModel
+	 * @param unknow $value
+	 * @param Model $extendsModel
 	 * @return Model
 	 */
-	public abstract function getInheritedModel($pValue, Model $pExtendsModel);
+	public abstract function getInheritedModel($value, Model $extendsModel);
 	
 	/**
-	 * @param ComhonObject $pObject
+	 * @param ComhonObject $object
 	 * @throws \Exception
 	 */
-	protected abstract function _deleteObject(ComhonObject $pObject);
+	protected abstract function _deleteObject(ComhonObject $object);
 	
 	/**
 	 * 
-	 * @param ObjectArray $pObject
-	 * @param string|integer $pParentId
-	 * @param string[] $pAggregationProperties
-	 * @param boolean $pOnlyIds
+	 * @param ObjectArray $object
+	 * @param string|integer $parentId
+	 * @param string[] $aggregationProperties
+	 * @param boolean $onlyIds
 	 * @throws \Exception
 	 */
-	public function loadAggregation(ObjectArray $pObject, $pParentId, $pAggregationProperties, $pOnlyIds) {
+	public function loadAggregation(ObjectArray $object, $parentId, $aggregationProperties, $onlyIds) {
 		throw new \Exception('error : property is not serialized in a sql table');
 	}
 }

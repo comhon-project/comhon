@@ -17,15 +17,15 @@ use Comhon\Object\ObjectArray;
 
 abstract class ObjectLoadRequest {
 
-	protected $mModel;
-	protected $mRequestChildren          = false;
-	protected $mLoadForeignProperties    = false;
-	protected $mPropertiesFilter;
-	protected $mPrivate;
+	protected $model;
+	protected $requestChildren          = false;
+	protected $loadForeignProperties    = false;
+	protected $propertiesFilter;
+	protected $private;
 	
-	public function __construct($pModelName, $pPrivate = false) {
-		$this->mModel = ModelManager::getInstance()->getInstanceModel($pModelName);
-		$this->mPrivate = $pPrivate;
+	public function __construct($modelName, $private = false) {
+		$this->model = ModelManager::getInstance()->getInstanceModel($modelName);
+		$this->private = $private;
 	}
 	
 	/**
@@ -34,72 +34,70 @@ abstract class ObjectLoadRequest {
 	 */
 	abstract public function execute();
 	
-	private $mId;
-	
 	/**
 	 *
-	 * @param string[] $pPropertiesFilter
+	 * @param string[] $propertiesFilter
 	 */
-	public function setPropertiesFilter($pPropertiesFilter) {
-		if (empty($pPropertiesFilter)) {
+	public function setPropertiesFilter($propertiesFilter) {
+		if (empty($propertiesFilter)) {
 			return;	
 		}
-		$this->mPropertiesFilter = [];
+		$this->propertiesFilter = [];
 		// ids have to be in selected columns so if they are not defined in filter, we add them
-		foreach ($this->mModel->getIdProperties() as $lProperty) {
-			$this->mPropertiesFilter[] = $lProperty->getName();
+		foreach ($this->model->getIdProperties() as $property) {
+			$this->propertiesFilter[] = $property->getName();
 		}
 		// add defined columns
-		foreach ($pPropertiesFilter as $pPropertyName) {
-			$lProperty = $this->mModel->getProperty($pPropertyName, true);
-			if ($lProperty->isAggregation()) {
-				throw new \Exception("aggregation property '$pPropertyName' can't be a filter property");
-			} else if (!$this->mPrivate && $lProperty->isPrivate()) {
-				throw new \Exception("private property '$pPropertyName' can't be a filter property for public request");
+		foreach ($propertiesFilter as $propertyName) {
+			$property = $this->model->getProperty($propertyName, true);
+			if ($property->isAggregation()) {
+				throw new \Exception("aggregation property '$propertyName' can't be a filter property");
+			} else if (!$this->private && $property->isPrivate()) {
+				throw new \Exception("private property '$propertyName' can't be a filter property for public request");
 			}
 			else {
-				$this->mPropertiesFilter[] = $pPropertyName;
+				$this->propertiesFilter[] = $propertyName;
 			}
 		}
 		// remove possible duplicated columns
-		$this->mPropertiesFilter = array_unique($this->mPropertiesFilter);
+		$this->propertiesFilter = array_unique($this->propertiesFilter);
 	}
 		
-	public function requestChildren($pBoolean) {
-		$this->mRequestChildren = $pBoolean;
+	public function requestChildren($boolean) {
+		$this->requestChildren = $boolean;
 		return $this;
 	}
 	
-	public function loadForeignProperties($pBoolean) {
-		$this->mLoadForeignProperties = $pBoolean;
+	public function loadForeignProperties($boolean) {
+		$this->loadForeignProperties = $boolean;
 		return $this;
 	}
 	
 	public function getModel() {
-		return $this->mModel;
+		return $this->model;
 	}
 	
-	protected function _updateObjects(ComhonObject $pObject) {
-		$lObjects = ($pObject instanceof ObjectArray) ? $pObject->getValues() : [$pObject];
+	protected function _updateObjects(ComhonObject $object) {
+		$objects = ($object instanceof ObjectArray) ? $object->getValues() : [$object];
 
-		if ($this->mRequestChildren && !$this->mLoadForeignProperties) {
-			foreach ($lObjects as $lObject) {
-				foreach ($lObject->getModel()->getAggregations() as $lPropertyName => $lAggregation) {
-					$lObject->loadValueIds($lPropertyName);
+		if ($this->requestChildren && !$this->loadForeignProperties) {
+			foreach ($objects as $obj) {
+				foreach ($obj->getModel()->getAggregations() as $propertyName => $aggregation) {
+					$obj->loadValueIds($propertyName);
 				}
 			}
 		}
-		else if ($this->mLoadForeignProperties) {
-			foreach ($lObjects as $lObject) {
-				foreach ($lObject->getModel()->getComplexProperties() as $lPropertyName => $lProperty) {
-					if ($lProperty->isAggregation() || ($lProperty->isForeign() && !is_null($lObject->getValue($lPropertyName)))) {
-						$lObject->loadValue($lPropertyName);
+		else if ($this->loadForeignProperties) {
+			foreach ($objects as $obj) {
+				foreach ($obj->getModel()->getComplexProperties() as $propertyName => $property) {
+					if ($property->isAggregation() || ($property->isForeign() && !is_null($obj->getValue($propertyName)))) {
+						$obj->loadValue($propertyName);
 					}
 				}
 			}
 		}
 		
-		return $pObject;
+		return $object;
 	}
 	
 }

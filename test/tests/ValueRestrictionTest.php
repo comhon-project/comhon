@@ -12,222 +12,222 @@ use Comhon\Model\Restriction\Enum;
 
 $time_start = microtime(true);
 
-$lTestRestrictedModel = ModelManager::getInstance()->getInstanceModel('testRestricted');
-$lTestRestricted = $lTestRestrictedModel->getObjectInstance();
+$testRestrictedModel = ModelManager::getInstance()->getInstanceModel('testRestricted');
+$testRestricted = $testRestrictedModel->getObjectInstance();
 
 /** ******************* test setValue fail ********************** **/
 
-function testSetBadValue(Object $pObject, $pPropertyName, $pValue) {
+function testSetBadValue(Object $object, $propertyName, $value) {
 	try {
-		$pObject->setValue($pPropertyName, $pValue);
-		$lThrow = true;
+		$object->setValue($propertyName, $value);
+		$throw = true;
 	} catch (NotSatisfiedRestrictionException $e) {
-		$lThrow = false;
+		$throw = false;
 	}
-	if ($lThrow) {
-		throw new \Exception("set value with bad value should't work ($pPropertyName)");
+	if ($throw) {
+		throw new \Exception("set value with bad value should't work ($propertyName)");
 	}
 }
 
-function testSetBadArrayValue(Object $pObject, $pPropertyName, $pValue) {
+function testSetBadArrayValue(Object $object, $propertyName, $value) {
 	try {
-		$pObject->setValue($pPropertyName, $pValue);
-		$lThrow = true;
+		$object->setValue($propertyName, $value);
+		$throw = true;
 	} catch (Exception $e) {
-		$lThrow = false;
+		$throw = false;
 	}
-	if ($lThrow) {
-		throw new \Exception("set value with bad value should't work ($pPropertyName)");
+	if ($throw) {
+		throw new \Exception("set value with bad value should't work ($propertyName)");
 	}
 }
 
-function testPushBadValue(Object $pObject, $pValue) {
+function testPushBadValue(Object $object, $value) {
 	try {
-		$pObject->pushValue($pValue);
-		$lThrow = true;
+		$object->pushValue($value);
+		$throw = true;
 	} catch (NotSatisfiedRestrictionException $e) {
-		$lThrow = false;
+		$throw = false;
 	}
-	if ($lThrow) {
+	if ($throw) {
 		throw new \Exception('set value with bad value should\'t work');
 	}
 }
 
-function testUnshiftBadValue(Object $pObject, $pValue) {
+function testUnshiftBadValue(Object $object, $value) {
 	try {
-		$pObject->unshiftValue($pValue);
-		$lThrow = true;
+		$object->unshiftValue($value);
+		$throw = true;
 	} catch (NotSatisfiedRestrictionException $e) {
-		$lThrow = false;
+		$throw = false;
 	}
-	if ($lThrow) {
+	if ($throw) {
 		throw new \Exception('set value with bad value should\'t work');
 	}
 }
 
-testSetBadValue($lTestRestricted, 'enumValue', 'a_string');
-testSetBadValue($lTestRestricted, 'enumValue', true);
-testSetBadValue($lTestRestricted, 'enumValue', null);
+testSetBadValue($testRestricted, 'enumValue', 'a_string');
+testSetBadValue($testRestricted, 'enumValue', true);
+testSetBadValue($testRestricted, 'enumValue', null);
 
-$lObjectArray = $lTestRestricted->initValue('enumIntArray');
-testPushBadValue($lObjectArray, 10);
-testUnshiftBadValue($lObjectArray, 12);
-testSetBadValue($lObjectArray, 0, 8);
-testSetBadValue($lObjectArray, 0, null);
+$objectArray = $testRestricted->initValue('enumIntArray');
+testPushBadValue($objectArray, 10);
+testUnshiftBadValue($objectArray, 12);
+testSetBadValue($objectArray, 0, 8);
+testSetBadValue($objectArray, 0, null);
 
-$lObjectArray = $lTestRestricted->initValue('enumFloatArray');
-testSetBadValue($lObjectArray, 0, 1.6);
-testUnshiftBadValue($lObjectArray, 3.55);
-testPushBadValue($lObjectArray, 3.55);
-testPushBadValue($lObjectArray, null);
+$objectArray = $testRestricted->initValue('enumFloatArray');
+testSetBadValue($objectArray, 0, 1.6);
+testUnshiftBadValue($objectArray, 3.55);
+testPushBadValue($objectArray, 3.55);
+testPushBadValue($objectArray, null);
 
-testSetBadValue($lTestRestricted, 'color', 'rgb(aze,)');
-testSetBadValue($lTestRestricted, 'color', null);
+testSetBadValue($testRestricted, 'color', 'rgb(aze,)');
+testSetBadValue($testRestricted, 'color', null);
 
-$lObjectArray = $lTestRestricted->initValue('emails');
-testPushBadValue($lObjectArray, 'azeaze1');
-testUnshiftBadValue($lObjectArray, 'azeaze2');
-testSetBadValue($lObjectArray, 0, 'azeaze3');
-testSetBadValue($lObjectArray, 0, null);
+$objectArray = $testRestricted->initValue('emails');
+testPushBadValue($objectArray, 'azeaze1');
+testUnshiftBadValue($objectArray, 'azeaze2');
+testSetBadValue($objectArray, 0, 'azeaze3');
+testSetBadValue($objectArray, 0, null);
 
-testSetBadValue($lTestRestricted, 'naturalNumber', -4);
-testSetBadValue($lTestRestricted, 'naturalNumber', null);
+testSetBadValue($testRestricted, 'naturalNumber', -4);
+testSetBadValue($testRestricted, 'naturalNumber', null);
 
-testSetBadValue($lTestRestricted, 'birthDate', new ComhonDateTime('now'));
-testSetBadValue($lTestRestricted, 'birthDate', null);
+testSetBadValue($testRestricted, 'birthDate', new ComhonDateTime('now'));
+testSetBadValue($testRestricted, 'birthDate', null);
 
-$lObjectArray = $lTestRestricted->initValue('intervalInArray');
-testSetBadValue($lObjectArray, 0, 11.6);
-testUnshiftBadValue($lObjectArray, -3.55);
-testPushBadValue($lObjectArray, -3.55);
-testPushBadValue($lObjectArray, null);
+$objectArray = $testRestricted->initValue('intervalInArray');
+testSetBadValue($objectArray, 0, 11.6);
+testUnshiftBadValue($objectArray, -3.55);
+testPushBadValue($objectArray, -3.55);
+testPushBadValue($objectArray, null);
 
 /** ********************** test set success *********************** **/
 
-$lTestRestricted->setValue('color', '#12abA8');
+$testRestricted->setValue('color', '#12abA8');
 
-$lRegexInArray = $lTestRestricted->getProperty('emails')->getModel()->getObjectInstance();
-$lRegexInArray->pushValue('plop.plop@plop.plop');
-$lRegexInArray->unshiftValue('plop@plop.fr');
-$lTestRestricted->setValue('emails', $lRegexInArray);
+$regexInArray = $testRestricted->getProperty('emails')->getModel()->getObjectInstance();
+$regexInArray->pushValue('plop.plop@plop.plop');
+$regexInArray->unshiftValue('plop@plop.fr');
+$testRestricted->setValue('emails', $regexInArray);
 
-$lTestRestricted->setValue('naturalNumber', 45);
-$lTestRestricted->setValue('birthDate', new ComhonDateTime('2000-01-01'));
+$testRestricted->setValue('naturalNumber', 45);
+$testRestricted->setValue('birthDate', new ComhonDateTime('2000-01-01'));
 
-$lIntervalInArray = $lTestRestricted->initValue('intervalInArray');
-$lIntervalInArray->pushValue(1);
-$lIntervalInArray->unshiftValue(-1.4);
-$lTestRestricted->setValue('intervalInArray', $lIntervalInArray);
+$intervalInArray = $testRestricted->initValue('intervalInArray');
+$intervalInArray->pushValue(1);
+$intervalInArray->unshiftValue(-1.4);
+$testRestricted->setValue('intervalInArray', $intervalInArray);
 
-$lTestRestricted->initValue('enumIntArray');
-$lTestRestricted->initValue('enumFloatArray');
+$testRestricted->initValue('enumIntArray');
+$testRestricted->initValue('enumFloatArray');
 
-$lTest->setValue('enumValue', 'plop1');
-$lTest->getValue('enumIntArray')->setValue(0, 1);
-$lTest->getValue('enumIntArray')->setValue(1, 3);
-$lTest->getValue('enumFloatArray')->pushValue(1.5);
-$lTest->getValue('enumFloatArray')->pushValue(3.5);
+$test->setValue('enumValue', 'plop1');
+$test->getValue('enumIntArray')->setValue(0, 1);
+$test->getValue('enumIntArray')->setValue(1, 3);
+$test->getValue('enumFloatArray')->pushValue(1.5);
+$test->getValue('enumFloatArray')->pushValue(3.5);
 
 
 /** ************** test export import with values not in restriction fail *************** **/
 
-$lTestRestricted->getValue('enumFloatArray')->pushValue(4.5, true, false);
+$testRestricted->getValue('enumFloatArray')->pushValue(4.5, true, false);
 
 try {
-	$lTestRestricted->export($lStdPrivateInterfacer);
-	$lThrow = true;
+	$testRestricted->export($stdPrivateInterfacer);
+	$throw = true;
 } catch (NotSatisfiedRestrictionException $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new Exception('export with values not in enum');
 }
 
-$lTestRestricted->getValue('enumFloatArray')->popValue();
-$lTestRestricted->export($lStdPrivateInterfacer);
-$lTestRestricted->getValue('enumFloatArray')->unshiftValue(4.5, true, false);
+$testRestricted->getValue('enumFloatArray')->popValue();
+$testRestricted->export($stdPrivateInterfacer);
+$testRestricted->getValue('enumFloatArray')->unshiftValue(4.5, true, false);
 
 try {
-	$lTestRestricted->export($lStdPrivateInterfacer);
-	$lThrow = true;
+	$testRestricted->export($stdPrivateInterfacer);
+	$throw = true;
 } catch (NotSatisfiedRestrictionException $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new Exception('export with values not in enum');
 }
-$lTestRestricted->getValue('enumFloatArray')->shiftValue();
-$lTestRestricted->export($lStdPrivateInterfacer);
+$testRestricted->getValue('enumFloatArray')->shiftValue();
+$testRestricted->export($stdPrivateInterfacer);
 
-if (!compareJson(json_encode($lTestRestricted->export($lStdPrivateInterfacer)), '{"enumIntArray":[],"enumFloatArray":[],"emails":["plop@plop.fr","plop.plop@plop.plop"],"intervalInArray":[-1.4,1],"color":"#12abA8","naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00"}')) {
+if (!compareJson(json_encode($testRestricted->export($stdPrivateInterfacer)), '{"enumIntArray":[],"enumFloatArray":[],"emails":["plop@plop.fr","plop.plop@plop.plop"],"intervalInArray":[-1.4,1],"color":"#12abA8","naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00"}')) {
 	throw new Exception('bad value');
 }
-$lTestRestricted->fill(json_decode('{"color":"#12abA8","emails":[],"naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00","intervalInArray":[],"enumIntArray":[],"enumFloatArray":[]}'), $lStdPrivateInterfacer);
+$testRestricted->fill(json_decode('{"color":"#12abA8","emails":[],"naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00","intervalInArray":[],"enumIntArray":[],"enumFloatArray":[]}'), $stdPrivateInterfacer);
 
 try {
-	$lTestRestricted->fill(json_decode('{"color":"#12abA8","emails":[],"naturalNumber":-5,"birthDate":"2000-01-01T00:00:00+01:00","intervalInArray":[],"enumIntArray":[],"enumFloatArray":[]}'), $lStdPrivateInterfacer);
-	$lThrow = true;
+	$testRestricted->fill(json_decode('{"color":"#12abA8","emails":[],"naturalNumber":-5,"birthDate":"2000-01-01T00:00:00+01:00","intervalInArray":[],"enumIntArray":[],"enumFloatArray":[]}'), $stdPrivateInterfacer);
+	$throw = true;
 } catch (NotSatisfiedRestrictionException $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new Exception('export with values not in enum');
 }
 
 /** ************** test set value array with good restriction but not same instance *************** **/
 
-$lRestriction = new Interval(']-1.50, 2[', $lModelFloat);
-$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'intervalValue');
-$lObjectArray = new ObjectArray($lModelRestrictedArray);
-$lTestRestricted->setValue('intervalInArray', $lObjectArray);
+$restriction = new Interval(']-1.50, 2[', $modelFloat);
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, 'intervalValue');
+$objectArray = new ObjectArray($modelRestrictedArray);
+$testRestricted->setValue('intervalInArray', $objectArray);
 
-$lRestriction = new Regex('email');
-$lModelRestrictedArray = new ModelRestrictedArray($lModelString, $lRestriction, 'email');
-$lObjectArray = new ObjectArray($lModelRestrictedArray);
-$lTestRestricted->setValue('emails', $lObjectArray);
+$restriction = new Regex('email');
+$modelRestrictedArray = new ModelRestrictedArray($modelString, $restriction, 'email');
+$objectArray = new ObjectArray($modelRestrictedArray);
+$testRestricted->setValue('emails', $objectArray);
 
-$lRestriction = new Enum([3.5, 1.5]);
-$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'enumArrayValue');
-$lObjectArray = new ObjectArray($lModelRestrictedArray);
-$lTestRestricted->setValue('enumFloatArray', $lObjectArray);
+$restriction = new Enum([3.5, 1.5]);
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, 'enumArrayValue');
+$objectArray = new ObjectArray($modelRestrictedArray);
+$testRestricted->setValue('enumFloatArray', $objectArray);
 
 /** ************** test set value array with bad restriction *************** **/
 
-$lModelFloat  = ModelManager::getInstance()->getInstanceModel('float');
-$lModelString = ModelManager::getInstance()->getInstanceModel('string');
+$modelFloat  = ModelManager::getInstance()->getInstanceModel('float');
+$modelString = ModelManager::getInstance()->getInstanceModel('string');
 
 // Interval should be ']-1.50, 2['
-$lRestriction = new Interval(']-1.50, 2]', $lModelFloat);
-$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'intervalValue');
-$lObjectArray = new ObjectArray($lModelRestrictedArray);
-testSetBadArrayValue($lTestRestricted, 'intervalInArray', $lObjectArray);
+$restriction = new Interval(']-1.50, 2]', $modelFloat);
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, 'intervalValue');
+$objectArray = new ObjectArray($modelRestrictedArray);
+testSetBadArrayValue($testRestricted, 'intervalInArray', $objectArray);
 
-$lRestriction = new Regex('color');
-$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'intervalValue');
-$lObjectArray = new ObjectArray($lModelRestrictedArray);
-testSetBadArrayValue($lTestRestricted, 'intervalInArray', $lObjectArray);
+$restriction = new Regex('color');
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, 'intervalValue');
+$objectArray = new ObjectArray($modelRestrictedArray);
+testSetBadArrayValue($testRestricted, 'intervalInArray', $objectArray);
 
 // Regex should be 'email'
-$lRestriction = new Regex('color');
-$lModelRestrictedArray = new ModelRestrictedArray($lModelString, $lRestriction, 'email');
-$lObjectArray = new ObjectArray($lModelRestrictedArray);
-testSetBadArrayValue($lTestRestricted, 'emails', $lObjectArray);
+$restriction = new Regex('color');
+$modelRestrictedArray = new ModelRestrictedArray($modelString, $restriction, 'email');
+$objectArray = new ObjectArray($modelRestrictedArray);
+testSetBadArrayValue($testRestricted, 'emails', $objectArray);
 
-$lRestriction = new Interval(']-1.50, 2]', $lModelFloat);
-$lModelRestrictedArray = new ModelRestrictedArray($lModelString, $lRestriction, 'email');
-$lObjectArray = new ObjectArray($lModelRestrictedArray);
-testSetBadArrayValue($lTestRestricted, 'emails', $lObjectArray);
+$restriction = new Interval(']-1.50, 2]', $modelFloat);
+$modelRestrictedArray = new ModelRestrictedArray($modelString, $restriction, 'email');
+$objectArray = new ObjectArray($modelRestrictedArray);
+testSetBadArrayValue($testRestricted, 'emails', $objectArray);
 
 // Enumshould be [3.5, 1.5]
-$lRestriction = new Enum([30.5, 1.5]);
-$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'enumArrayValue');
-$lObjectArray = new ObjectArray($lModelRestrictedArray);
-testSetBadArrayValue($lTestRestricted, 'enumFloatArray', $lObjectArray);
+$restriction = new Enum([30.5, 1.5]);
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, 'enumArrayValue');
+$objectArray = new ObjectArray($modelRestrictedArray);
+testSetBadArrayValue($testRestricted, 'enumFloatArray', $objectArray);
 
-$lRestriction = new Interval(']-1.50, 2]', $lModelFloat);
-$lModelRestrictedArray = new ModelRestrictedArray($lModelFloat, $lRestriction, 'enumArrayValue');
-$lObjectArray = new ObjectArray($lModelRestrictedArray);
-testSetBadArrayValue($lTestRestricted, 'enumFloatArray', $lObjectArray);
+$restriction = new Interval(']-1.50, 2]', $modelFloat);
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, 'enumArrayValue');
+$objectArray = new ObjectArray($modelRestrictedArray);
+testSetBadArrayValue($testRestricted, 'enumFloatArray', $objectArray);
 
 
 $time_end = microtime(true);

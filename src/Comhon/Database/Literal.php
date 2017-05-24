@@ -24,15 +24,15 @@ class Literal {
 	const INF_EQUAL  = '<=';
 	const DIFF       = '<>';
 	
-	private static $sIndex = 0;
+	private static $index = 0;
 
-	protected $mId;
-	protected $mTable;
-	protected $mColumn;
-	protected $mOperator;
-	protected $mValue;
+	protected $id;
+	protected $table;
+	protected $column;
+	protected $operator;
+	protected $value;
 	
-	protected static $sAcceptedOperators = [
+	protected static $acceptedOperators = [
 		self::EQUAL      => null,
 		self::SUPP       => null,
 		self::INF        => null,
@@ -41,7 +41,7 @@ class Literal {
 		self::DIFF       => null
 	];
 	
-	protected static $sOppositeOperator = [
+	protected static $oppositeOperator = [
 		self::EQUAL      => self::DIFF,
 		self::INF        => self::SUPP_EQUAL,
 		self::INF_EQUAL  => self::SUPP,
@@ -52,106 +52,106 @@ class Literal {
 	
 	/**
 	 * construtor
-	 * @param unknown $pTable
-	 * @param unknown $pColumn 
-	 * @param unknown $pOperator
-	 * @param unknown $pValue could be :
+	 * @param unknown $table
+	 * @param unknown $column 
+	 * @param unknown $operator
+	 * @param unknown $value could be :
 	 * - null
 	 * - a string
 	 * - a number
 	 * - an array with null or string or number values
-	 * @param string $pModelName
+	 * @param string $modelName
 	 * @throws \Exception
 	 */
-	public function __construct($pTable, $pColumn, $pOperator, $pValue) {
-		$this->mTable     = $pTable;
-		$this->mOperator  = $pOperator;
-		$this->mValue     = $pValue;
-		$this->mColumn    = $pColumn;
+	public function __construct($table, $column, $operator, $value) {
+		$this->table     = $table;
+		$this->operator  = $operator;
+		$this->value     = $value;
+		$this->column    = $column;
 		$this->_verifLiteral();
 	}
 	
 	protected function _verifLiteral() {
-		if (!array_key_exists($this->mOperator, self::$sAcceptedOperators)) {
-			throw new \Exception('operator \''.$this->mOperator.'\' doesn\'t exists');
+		if (!array_key_exists($this->operator, self::$acceptedOperators)) {
+			throw new \Exception('operator \''.$this->operator.'\' doesn\'t exists');
 		}
-		if (is_null($this->mValue) && ($this->mOperator != '=') && ($this->mOperator != '<>')) {
-			throw new \Exception('literal with operator \''.$this->mOperator.'\' can\'t have null value');
+		if (is_null($this->value) && ($this->operator != '=') && ($this->operator != '<>')) {
+			throw new \Exception('literal with operator \''.$this->operator.'\' can\'t have null value');
 		}
-		if (is_array($this->mValue) && ($this->mOperator != '=') && ($this->mOperator != '<>')) {
-			throw new \Exception('literal with operator \''.$this->mOperator.'\' can\'t have array value');
+		if (is_array($this->value) && ($this->operator != '=') && ($this->operator != '<>')) {
+			throw new \Exception('literal with operator \''.$this->operator.'\' can\'t have array value');
 		}
 	}
 
 	public function getId() {
-		return $this->mId;
+		return $this->id;
 	}
 	
-	public function setId($pId) {
-		$this->mId = $pId;
+	public function setId($id) {
+		$this->id = $id;
 	}
 	
 	public function hasId() {
-		return !is_null($this->mId);
+		return !is_null($this->id);
 	}
 	
 	public function getTable() {
-		return $this->mTable;
+		return $this->table;
 	}
 	
 	public function getPropertyName() {
-		return $this->mColumn;
+		return $this->column;
 	}
 	
 	public function getOperator() {
-		return $this->mOperator;
+		return $this->operator;
 	}
 	
 	public function reverseOperator() {
-		$this->mOperator = self::$sOppositeOperator[$this->mOperator];
+		$this->operator = self::$oppositeOperator[$this->operator];
 	}
 	
 	public function getValue() {
-		return $this->mValue;
+		return $this->value;
 	}
 	
 	/**
-	 * @param array $pValues
+	 * @param array $values
 	 * @return string
 	 */
-	public function export(&$pValues) {
-		$lColumnTable = (($this->mTable instanceof TableNode) ? $this->mTable->getExportName() : $this->mTable) . '.' . $this->mColumn;
-		if ((($this->mOperator == '=') || ($this->mOperator == '<>')) && is_array($this->mValue)) {
+	public function export(&$values) {
+		$columnTable = (($this->table instanceof TableNode) ? $this->table->getExportName() : $this->table) . '.' . $this->column;
+		if ((($this->operator == '=') || ($this->operator == '<>')) && is_array($this->value)) {
 			$i = 0;
-			$lToReplaceValues = [];
-			$lHasNullValue = false;
-			while ($i < count($this->mValue)) {
-				if (is_null($this->mValue[$i])) {
-					$lHasNullValue = true;
+			$toReplaceValues = [];
+			$hasNullValue = false;
+			while ($i < count($this->value)) {
+				if (is_null($this->value[$i])) {
+					$hasNullValue = true;
 				}else {
-					$pValues[] = $this->mValue[$i];
-					$lToReplaceValues[] = '?';
+					$values[] = $this->value[$i];
+					$toReplaceValues[] = '?';
 				}
 				$i++;
 			}
-			$lOperator = ($this->mOperator == '=') ? ' IN ' : ' NOT IN ';
-			$lToReplaceValues = '('.implode(',', $lToReplaceValues).')';
-			$lStringValue = sprintf('%s %s %s', $lColumnTable, $lOperator, $lToReplaceValues);
-			if ($lHasNullValue) {
-				$lOperator = ($this->mOperator == '=') ? 'is null' : 'is not null';
-				$lConnector = ($this->mOperator == '=') ? 'or' : 'and';
-				$lStringValue = sprintf('(%s %s %s %s)', $lStringValue, $lConnector, $lColumnTable, $lOperator);
+			$operator = ($this->operator == '=') ? ' IN ' : ' NOT IN ';
+			$toReplaceValues = '('.implode(',', $toReplaceValues).')';
+			$stringValue = sprintf('%s %s %s', $columnTable, $operator, $toReplaceValues);
+			if ($hasNullValue) {
+				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
+				$connector = ($this->operator == '=') ? 'or' : 'and';
+				$stringValue = sprintf('(%s %s %s %s)', $stringValue, $connector, $columnTable, $operator);
 			}
 		}else {
-			if (is_null($this->mValue)) {
-				$lOperator = ($this->mOperator == '=') ? 'is null' : 'is not null';
-				$lStringValue = sprintf('%s %s', $lColumnTable, $lOperator);
+			if (is_null($this->value)) {
+				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
+				$stringValue = sprintf('%s %s', $columnTable, $operator);
 			}else {
-				$pValues[] = $this->mValue;
-				$lStringValue = sprintf('%s %s ?', $lColumnTable, $this->mOperator);
+				$values[] = $this->value;
+				$stringValue = sprintf('%s %s ?', $columnTable, $this->operator);
 			}
 		}
-		return $lStringValue;
+		return $stringValue;
 	}
 	
 	/**
@@ -159,218 +159,218 @@ class Literal {
 	 * @return string
 	 */
 	public function exportWithValue() {
-		if ((($this->mOperator == '=') || ($this->mOperator == '<>')) && is_array($this->mValue)) {
+		if ((($this->operator == '=') || ($this->operator == '<>')) && is_array($this->value)) {
 			$i = 0;
-			$lToReplaceValues = [];
-			$lHasNullValue = false;
-			while ($i < count($this->mValue)) {
-				if (is_null($this->mValue[$i])) {
-					$lHasNullValue = true;
+			$toReplaceValues = [];
+			$hasNullValue = false;
+			while ($i < count($this->value)) {
+				if (is_null($this->value[$i])) {
+					$hasNullValue = true;
 				}else {
-					$lToReplaceValues[] = $this->mValue[$i];
+					$toReplaceValues[] = $this->value[$i];
 				}
 				$i++;
 			}
-			$lOperator = ($this->mOperator == '=') ? ' IN ' : ' NOT IN ';
-			$lToReplaceValues = '('.implode(',', $lToReplaceValues).')';
-			$lStringValue = sprintf('%s.%s %s %s', $this->mTable, $this->mColumn, $lOperator, $lToReplaceValues);
-			if ($lHasNullValue) {
-				$lOperator = ($this->mOperator == '=') ? 'is null' : 'is not null';
-				$lConnector = ($this->mOperator == '=') ? 'or' : 'and';
-				$lStringValue = sprintf('(%s %s %s.%s %s)', $lStringValue, $lConnector, $this->mTable, $this->mColumn, $lOperator);
+			$operator = ($this->operator == '=') ? ' IN ' : ' NOT IN ';
+			$toReplaceValues = '('.implode(',', $toReplaceValues).')';
+			$stringValue = sprintf('%s.%s %s %s', $this->table, $this->column, $operator, $toReplaceValues);
+			if ($hasNullValue) {
+				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
+				$connector = ($this->operator == '=') ? 'or' : 'and';
+				$stringValue = sprintf('(%s %s %s.%s %s)', $stringValue, $connector, $this->table, $this->column, $operator);
 			}
 		}else {
-			if (is_null($this->mValue)) {
-				$lOperator = ($this->mOperator == '=') ? 'is null' : 'is not null';
-				$lStringValue = sprintf('%s.%s %s', $this->mTable, $this->mColumn, $lOperator);
+			if (is_null($this->value)) {
+				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
+				$stringValue = sprintf('%s.%s %s', $this->table, $this->column, $operator);
 			}else {
-				$lStringValue = sprintf('%s.%s %s %s', $this->mTable, $this->mColumn, $this->mOperator, $this->mValue);
+				$stringValue = sprintf('%s.%s %s %s', $this->table, $this->column, $this->operator, $this->value);
 			}
 		}
-		return $lStringValue;
+		return $stringValue;
 	}
 	
 	/**
-	 * @param stdClass $pStdObject
-	 * @param Model $pMainModel (reference is specified to stay compatible with inherited function, there's probably a better way...)
-	 * @param Literal[] $pLiteralCollection
-	 * @param SelectQuery $pSelectQuery
-	 * @param boolean $pAllowPrivateProperties
+	 * @param stdClass $stdObject
+	 * @param Model $mainModel (reference is specified to stay compatible with inherited function, there's probably a better way...)
+	 * @param Literal[] $literalCollection
+	 * @param SelectQuery $selectQuery
+	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function stdObjectToLiteral($pStdObject, &$pMainModel, $pLiteralCollection = null, $pSelectQuery = null, $pAllowPrivateProperties = true) {
-		if (isset($pStdObject->id) && !is_null($pLiteralCollection)) {
-			if (!array_key_exists($pStdObject->id, $pLiteralCollection)) {
-				throw new \Exception("literal id '{$pStdObject->id}' is not defined in literal collection");
+	public static function stdObjectToLiteral($stdObject, &$mainModel, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
+		if (isset($stdObject->id) && !is_null($literalCollection)) {
+			if (!array_key_exists($stdObject->id, $literalCollection)) {
+				throw new \Exception("literal id '{$stdObject->id}' is not defined in literal collection");
 			}
-			return $pLiteralCollection[$pStdObject->id];
+			return $literalCollection[$stdObject->id];
 		}
-		self::_verifStdObject($pStdObject);
-		$lTable = $pStdObject->node;
+		self::_verifStdObject($stdObject);
+		$table = $stdObject->node;
 		
-		if (isset($pStdObject->queue)) {
-			list($lJoinedTables, $lOn) = self::_getJoinedTablesFromQueue($pMainModel, $pStdObject->queue, $pAllowPrivateProperties);
-			$lSelectQuery = self::_setSubSelectQuery($lJoinedTables, $lOn, $pStdObject, $pAllowPrivateProperties);
-			$lRigthTable  = new TableNode($lSelectQuery, 't_'.self::$sIndex++, false);
+		if (isset($stdObject->queue)) {
+			list($joinedTables, $on) = self::_getJoinedTablesFromQueue($mainModel, $stdObject->queue, $allowPrivateProperties);
+			$subSelectQuery = self::_setSubSelectQuery($joinedTables, $on, $stdObject, $allowPrivateProperties);
+			$rigthTable  = new TableNode($subSelectQuery, 't_'.self::$index++, false);
 			
-			if (!is_null($pSelectQuery)) {
-				$pSelectQuery->join(SelectQuery::LEFT_JOIN, $lRigthTable, self::_getJoinColumns($lTable, $lRigthTable->getExportName(), $lOn));
+			if (!is_null($selectQuery)) {
+				$selectQuery->join(SelectQuery::LEFT_JOIN, $rigthTable, self::_getJoinColumns($table, $rigthTable->getExportName(), $on));
 			}
-			if (count($lOn) == 1) {
-				$lLiteral = new Literal($lRigthTable->getExportName(), $lOn[0][1], Literal::DIFF, null);
+			if (count($on) == 1) {
+				$literal = new Literal($rigthTable->getExportName(), $on[0][1], Literal::DIFF, null);
 			} else {
-				$lLiteral = new NotNullJoinLiteral();
-				foreach ($lOn as $lLiteralArray) {
-					$lLiteral->addLiteral($lRigthTable->getExportName(), $lLiteralArray[1]);
+				$literal = new NotNullJoinLiteral();
+				foreach ($on as $literalArray) {
+					$literal->addLiteral($rigthTable->getExportName(), $literalArray[1]);
 				}
 			}
 		}
 		else {
-			$lProperty =  $pMainModel->getProperty($pStdObject->property, true);
-			if ($lProperty->isAggregation()) {
-				throw new \Exception("literal cannot contain aggregation porperty '{$pStdObject->property}'");
+			$property =  $mainModel->getProperty($stdObject->property, true);
+			if ($property->isAggregation()) {
+				throw new \Exception("literal cannot contain aggregation porperty '{$stdObject->property}'");
 			}
-			if (!$pAllowPrivateProperties && $lProperty->isPrivate()) {
-				throw new \Exception("literal contain private property '{$lProperty->getName()}'");
+			if (!$allowPrivateProperties && $property->isPrivate()) {
+				throw new \Exception("literal contain private property '{$property->getName()}'");
 			}
-			$lLiteral  = new Literal($lTable, $lProperty->getSerializationName(), $pStdObject->operator, $pStdObject->value);
+			$literal  = new Literal($table, $property->getSerializationName(), $stdObject->operator, $stdObject->value);
 		}
-		if (isset($pStdObject->id)) {
-			$lLiteral->setId($pStdObject->id);
+		if (isset($stdObject->id)) {
+			$literal->setId($stdObject->id);
 		}
-		return $lLiteral;
+		return $literal;
 	}
 	
-	private static function _verifStdObject($pStdObject) {
-		if (!isset($pStdObject->node)) {
-			throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
+	private static function _verifStdObject($stdObject) {
+		if (!isset($stdObject->node)) {
+			throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
 		}
-		if (isset($pStdObject->queue)) {
-			if (!(isset($pStdObject->havingLiteral) xor isset($pStdObject->havingLogicalJunction)) || !is_object($pStdObject->queue)) {
-				throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
+		if (isset($stdObject->queue)) {
+			if (!(isset($stdObject->havingLiteral) xor isset($stdObject->havingLogicalJunction)) || !is_object($stdObject->queue)) {
+				throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
 			}
-		} else if (!isset($pStdObject->property) || !isset($pStdObject->operator) || !isset($pStdObject->value) || !isset($pStdObject->node)) {
-			throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
+		} else if (!isset($stdObject->property) || !isset($stdObject->operator) || !isset($stdObject->value) || !isset($stdObject->node)) {
+			throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
 		}
 	}
 	
 	/**
 	 * 
-	 * @param MainModel $pModel
-	 * @param \stdClass $pQueue
-	 * @param boolean $pAllowPrivateProperties
+	 * @param MainModel $model
+	 * @param \stdClass $queue
+	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
 	 * @return [[], []]
 	 * - first element is array of joined tables
 	 * - second element is array of columns that will be use for group, select and joins with principale query
 	 */
-	private static function _getJoinedTablesFromQueue(MainModel $pModel, $pQueue, $pAllowPrivateProperties) {
-		$lFirstTable    = new TableNode($pModel->getSqlTableUnit()->getSettings()->getValue('name'), null, false);
-		$lLeftTable     = $lFirstTable;
-		$lFirstModel    = $pModel;
-		$lLeftModel     = $lFirstModel;
-		$lFirstNode     = $pQueue;
-		$lCurrentNode   = $lFirstNode;
-		$lJoinedTables  = [];
-		$lOn            = null;
+	private static function _getJoinedTablesFromQueue(MainModel $model, $queue, $allowPrivateProperties) {
+		$firstTable    = new TableNode($model->getSqlTableUnit()->getSettings()->getValue('name'), null, false);
+		$leftTable     = $firstTable;
+		$firstModel    = $model;
+		$leftModel     = $firstModel;
+		$firstNode     = $queue;
+		$currentNode   = $firstNode;
+		$joinedTables  = [];
+		$on            = null;
 		
-		while (!is_null($lCurrentNode)) {
-			if (!is_object($lCurrentNode) || !isset($lCurrentNode->property)) {
-				throw new \Exception('malformed stdObject literal : '.json_encode($pStdObject));
+		while (!is_null($currentNode)) {
+			if (!is_object($currentNode) || !isset($currentNode->property)) {
+				throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
 			}
-			$lProperty = $lLeftModel->getProperty($lCurrentNode->property, true);
-			if (!$pAllowPrivateProperties && $lProperty->isPrivate()) {
-				throw new \Exception("literal contain private property '{$lProperty->getName()}'");
+			$property = $leftModel->getProperty($currentNode->property, true);
+			if (!$allowPrivateProperties && $property->isPrivate()) {
+				throw new \Exception("literal contain private property '{$property->getName()}'");
 			}
-			$lLeftJoin       = ComplexLoadRequest::prepareJoinedTable($lLeftTable, $lProperty, self::_getAlias());
-			$lJoinedTables[] = $lLeftJoin;
+			$leftJoin       = ComplexLoadRequest::prepareJoinedTable($leftTable, $property, self::_getAlias());
+			$joinedTables[] = $leftJoin;
 			
 			
-			$lLeftModel   = $lLeftJoin['model'];
-			$lLeftTable   = $lLeftJoin['table'];
-			$lCurrentNode = isset($lCurrentNode->child) ? $lCurrentNode->child : null;
+			$leftModel   = $leftJoin['model'];
+			$leftTable   = $leftJoin['table'];
+			$currentNode = isset($currentNode->child) ? $currentNode->child : null;
 		}
-		if (!is_null($lFirstNode)) {
-			$lOn = [];
-			if (!($lJoinedTables[0]['join_on'] instanceof LogicalJunction) || $lJoinedTables[0]['join_on']->getType() !== LogicalJunction::DISJUNCTION) {
-				$lFirstJoinedTable = $lJoinedTables[0];
-				if ($lFirstJoinedTable['join_on'] instanceof LogicalJunction) {
-					foreach ($lFirstJoinedTable['join_on']->getLiterals() as $lLiteral) {
-						$lOn[] = [$lLiteral->getPropertyName(), $lLiteral->getColumnRight()];
+		if (!is_null($firstNode)) {
+			$on = [];
+			if (!($joinedTables[0]['join_on'] instanceof LogicalJunction) || $joinedTables[0]['join_on']->getType() !== LogicalJunction::DISJUNCTION) {
+				$firstJoinedTable = $joinedTables[0];
+				if ($firstJoinedTable['join_on'] instanceof LogicalJunction) {
+					foreach ($firstJoinedTable['join_on']->getLiterals() as $literal) {
+						$on[] = [$literal->getPropertyName(), $literal->getColumnRight()];
 					}
 				} else {
-					$lOn[] = [$lFirstJoinedTable['join_on']->getPropertyName(), $lFirstJoinedTable['join_on']->getColumnRight()];
+					$on[] = [$firstJoinedTable['join_on']->getPropertyName(), $firstJoinedTable['join_on']->getColumnRight()];
 				}
 			} else {
-				array_unshift($lJoinedTables, ['table' => $lFirstTable, 'model' => $lFirstModel]);
-				foreach ($pModel->getSerializationIds() as $lColumn) {
-					$lOn[] = [$lColumn, $lColumn];
+				array_unshift($joinedTables, ['table' => $firstTable, 'model' => $firstModel]);
+				foreach ($model->getSerializationIds() as $column) {
+					$on[] = [$column, $column];
 				}
 			}
 		}
-		return [$lJoinedTables, $lOn];
+		return [$joinedTables, $on];
 	}
 	
 	private static function _getAlias() {
-		return 't_'.self::$sIndex++;
+		return 't_'.self::$index++;
 	}
 	
 	/**
 	 * 
-	 * @param TableNode $pMainTable
-	 * @param Model $pMainModel
-	 * @param [] $pJoinedTables
-	 * @param \stdClass $pStdObject
-	 * @param boolean $pAllowPrivateProperties
+	 * @param TableNode $mainTable
+	 * @param Model $mainModel
+	 * @param [] $joinedTables
+	 * @param \stdClass $stdObject
+	 * @param boolean $allowPrivateProperties
 	 * @return SelectQuery
 	 */
-	private static function _setSubSelectQuery($pJoinedTables, $pGroupColumns, $pStdObject, $pAllowPrivateProperties) {
-		$lMainTable   = $pJoinedTables[0]['table'];
-		$lSelectQuery = new SelectQuery($lMainTable);
+	private static function _setSubSelectQuery($joinedTables, $groupColumns, $stdObject, $allowPrivateProperties) {
+		$mainTable   = $joinedTables[0]['table'];
+		$selectQuery = new SelectQuery($mainTable);
 		
-		for ($i = 1; $i < count($pJoinedTables); $i++) {
-			$lJoinTable = $pJoinedTables[$i];
-			$lSelectQuery->join(SelectQuery::INNER_JOIN, $lJoinTable['table'], $lJoinTable['join_on']);
+		for ($i = 1; $i < count($joinedTables); $i++) {
+			$joinTable = $joinedTables[$i];
+			$selectQuery->join(SelectQuery::INNER_JOIN, $joinTable['table'], $joinTable['join_on']);
 		}
 			
-		$lLastTable = $pJoinedTables[count($pJoinedTables) - 1]['table'];
-		$lLastModel = $pJoinedTables[count($pJoinedTables) - 1]['model'];
+		$lastTable = $joinedTables[count($joinedTables) - 1]['table'];
+		$lastModel = $joinedTables[count($joinedTables) - 1]['model'];
 
-		$lSelectQuery->setMainTableAsCurrentTable();
-		foreach ($pGroupColumns as $lColumns) {
-			$lMainTable->addSelectedColumn($lColumns[1]);
-			$lSelectQuery->addGroupColumn($lColumns[1]);
+		$selectQuery->setMainTableAsCurrentTable();
+		foreach ($groupColumns as $columns) {
+			$mainTable->addSelectedColumn($columns[1]);
+			$selectQuery->addGroupColumn($columns[1]);
 		}
 		
-		if (isset($pStdObject->havingLogicalJunction)) {
-			$lHaving = HavingLogicalJunction::stdObjectToHavingLogicalJunction($pStdObject->havingLogicalJunction, $lMainTable, $lLastTable, $lLastModel, $pAllowPrivateProperties);
+		if (isset($stdObject->havingLogicalJunction)) {
+			$having = HavingLogicalJunction::stdObjectToHavingLogicalJunction($stdObject->havingLogicalJunction, $mainTable, $lastTable, $lastModel, $allowPrivateProperties);
 		} else {
-			$lTable  = isset($pStdObject->havingLiteral->function) && ($pStdObject->havingLiteral->function == HavingLiteral::COUNT) ? $lMainTable : $lLastTable;
-			$lHaving = HavingLiteral::stdObjectToHavingLiteral($pStdObject->havingLiteral, $lTable, $lLastModel, $pAllowPrivateProperties);
+			$table  = isset($stdObject->havingLiteral->function) && ($stdObject->havingLiteral->function == HavingLiteral::COUNT) ? $mainTable : $lastTable;
+			$having = HavingLiteral::stdObjectToHavingLiteral($stdObject->havingLiteral, $table, $lastModel, $allowPrivateProperties);
 		}
-		$lSelectQuery->having($lHaving);
-		return $lSelectQuery;
+		$selectQuery->having($having);
+		return $selectQuery;
 	}
 	
 	/**
 	 * 
-	 * @param string $lLeftTable
-	 * @param string $pRightTable
-	 * @param [] $pOn
+	 * @param string $leftTable
+	 * @param string $rightTable
+	 * @param [] $on
 	 * @return OnLogicalJunction|OnLiteral
 	 */
-	private function _getJoinColumns($lLeftTable, $pRightTable, $pOn) {
-		if (count($pOn) == 1) {
-			$lOn = new OnLiteral($lLeftTable, $pOn[0][0], Literal::EQUAL, $pRightTable, $pOn[0][1]);
+	private function _getJoinColumns($leftTable, $rightTable, $on) {
+		if (count($on) == 1) {
+			$onLiteral = new OnLiteral($leftTable, $on[0][0], Literal::EQUAL, $rightTable, $on[0][1]);
 		} else {
-			$lOn = new OnLogicalJunction(LogicalJunction::CONJUNCTION);
-			foreach ($pOn as $lOnLiteralArray) {
-				$lOnLiteral = new OnLiteral($lLeftTable, $lOnLiteralArray[0], Literal::EQUAL, $pRightTable, $lOnLiteralArray[1]);
-				$lOn->addLiteral($lOnLiteral);
+			$onLiteral = new OnLogicalJunction(LogicalJunction::CONJUNCTION);
+			foreach ($on as $onLiteralArray) {
+				$onSubLiteral = new OnLiteral($leftTable, $onLiteralArray[0], Literal::EQUAL, $rightTable, $onLiteralArray[1]);
+				$onLiteral->addLiteral($onSubLiteral);
 			}
 		}
-		return $lOn;
+		return $onLiteral;
 	}
 	
 }

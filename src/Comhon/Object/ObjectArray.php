@@ -21,94 +21,94 @@ class ObjectArray extends ComhonObject implements \Iterator {
 
 	/**
 	 *
-	 * @param string|Model $pModel can be a model name or an instance of model
-	 * @param boolean $lIsLoaded
+	 * @param string|Model $model can be a model name or an instance of model
+	 * @param boolean $isLoaded
 	 */
-	final public function __construct($pModel, $pIsLoaded = true, $pElementName = null) {
-		if ($pModel instanceof ModelArray) {
-			$lModel = $pModel;
+	final public function __construct($model, $isLoaded = true, $elementName = null) {
+		if ($model instanceof ModelArray) {
+			$objectModel = $model;
 		} else {
-			$lElementModel = ($pModel instanceof Model) ? $pModel : ModelManager::getInstance()->getInstanceModel($pModel);
+			$elementModel = ($model instanceof Model) ? $model : ModelManager::getInstance()->getInstanceModel($model);
 		
-			if ($lElementModel instanceof ModelContainer) {
+			if ($elementModel instanceof ModelContainer) {
 				throw new \Exception('Object cannot have ModelContainer except ModelArray');
 			}
-			$lModel = new ModelArray($lElementModel, is_null($pElementName) ? $pModel->getName() : $pElementName);
+			$objectModel = new ModelArray($elementModel, is_null($elementName) ? $model->getName() : $elementName);
 		}
-		$this->setIsLoaded($pIsLoaded);
-		$this->_affectModel($lModel);
+		$this->setIsLoaded($isLoaded);
+		$this->_affectModel($objectModel);
 	}
 	
 	/**
 	 *
-	 * @param string $pName
-	 * @param string[] $pPropertiesFilter
-	 * @param boolean $pForceLoad if object is already loaded, force to reload object
+	 * @param string $name
+	 * @param string[] $propertiesFilter
+	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
 	 */
-	public function loadValue($pkey, $pPropertiesFilter = null, $pForceLoad = false) {
-		return $this->getModel()->getUniqueModel()->loadAndFillObject($this->getValue($pkey), $pPropertiesFilter, $pForceLoad);
+	public function loadValue($pkey, $propertiesFilter = null, $forceLoad = false) {
+		return $this->getModel()->getUniqueModel()->loadAndFillObject($this->getValue($pkey), $propertiesFilter, $forceLoad);
 	}
 	
 	public function getId() {
 		return null;
 	}
 	
-	public final function setValues($pValues) {
-		$this->_setValues($pValues);
+	public final function setValues($values) {
+		$this->_setValues($values);
 	}
 	
-	public final function pushValue($pValue, $pFlagAsUpdated = true, $pStrict = true) {
-		if ($pStrict) {
-			$this->getModel()->verifElementValue($pValue);
+	public final function pushValue($value, $flagAsUpdated = true, $strict = true) {
+		if ($strict) {
+			$this->getModel()->verifElementValue($value);
 		}
-		$this->_pushValue($pValue, $pFlagAsUpdated);
+		$this->_pushValue($value, $flagAsUpdated);
 	}
 	
-	public final function popValue($pFlagAsUpdated = true) {
-		$this->_popValue($pFlagAsUpdated);
+	public final function popValue($flagAsUpdated = true) {
+		$this->_popValue($flagAsUpdated);
 	}
 	
-	public final function unshiftValue($pValue, $pFlagAsUpdated = true, $pStrict = true) {
-		if ($pStrict) {
-			$this->getModel()->verifElementValue($pValue);
+	public final function unshiftValue($value, $flagAsUpdated = true, $strict = true) {
+		if ($strict) {
+			$this->getModel()->verifElementValue($value);
 		}
-		$this->_unshiftValue($pValue, $pFlagAsUpdated);
+		$this->_unshiftValue($value, $flagAsUpdated);
 	}
 	
-	public final function shiftValue($pFlagAsUpdated = true) {
-		$this->_shiftValue($pFlagAsUpdated);
+	public final function shiftValue($flagAsUpdated = true) {
+		$this->_shiftValue($flagAsUpdated);
 	}
 	
-	public function resetUpdatedStatus($pRecursive = true) {
-		if ($pRecursive) {
-			$lObjectHashMap = [];
-			$this->_resetUpdatedStatusRecursive($lObjectHashMap);
+	public function resetUpdatedStatus($recursive = true) {
+		if ($recursive) {
+			$objectHashMap = [];
+			$this->_resetUpdatedStatusRecursive($objectHashMap);
 		}else {
 			$this->_resetUpdatedStatus();
 			if ($this->getModel()->getModel() instanceof ModelDateTime) {
-				foreach ($this->getValues() as $lValue) {
-					if ($lValue instanceof ComhonDateTime) {
-						$lValue->resetUpdatedStatus(false);
+				foreach ($this->getValues() as $value) {
+					if ($value instanceof ComhonDateTime) {
+						$value->resetUpdatedStatus(false);
 					}
 				}
 			}
 		}
 	}
 	
-	protected function _resetUpdatedStatusRecursive(&$pObjectHashMap) {
+	protected function _resetUpdatedStatusRecursive(&$objectHashMap) {
 		$this->_resetUpdatedStatus();
 		if ($this->getModel()->getModel() instanceof ModelDateTime) {
-			foreach ($this->getValues() as $lValue) {
-				if ($lValue instanceof ComhonDateTime) {
-					$lValue->resetUpdatedStatus(false);
+			foreach ($this->getValues() as $value) {
+				if ($value instanceof ComhonDateTime) {
+					$value->resetUpdatedStatus(false);
 				}
 			}
 		}
 		else if ($this->getModel()->getModel()->isComplex()) {
-			foreach ($this->getValues() as $lValue) {
-				if ($lValue instanceof ComhonObject) {
-					$lValue->_resetUpdatedStatusRecursive($pObjectHashMap);
+			foreach ($this->getValues() as $value) {
+				if ($value instanceof ComhonObject) {
+					$value->_resetUpdatedStatusRecursive($objectHashMap);
 				}
 			}
 		}
@@ -121,15 +121,15 @@ class ObjectArray extends ComhonObject implements \Iterator {
 	public function isUpdated() {
 		if (!$this->isFlagedAsUpdated()) {
 			if ($this->getModel()->getModel()->isComplex()) {
-				foreach ($this->getValues() as $lValue) {
-					if (($lValue instanceof ComhonObject) && $lValue->isUpdated()) {
+				foreach ($this->getValues() as $value) {
+					if (($value instanceof ComhonObject) && $value->isUpdated()) {
 						return true;
 					}
 				}
 			}
 			else if ($this->getModel()->getModel() instanceof ModelDateTime) {
-				foreach ($this->getValues() as $lValue) {
-					if (($lValue instanceof ComhonDateTime) && $lValue->isUpdated()) {
+				foreach ($this->getValues() as $value) {
+					if (($value instanceof ComhonDateTime) && $value->isUpdated()) {
 						return true;
 					}
 				}
@@ -144,8 +144,8 @@ class ObjectArray extends ComhonObject implements \Iterator {
 	 */
 	public function isIdUpdated() {
 		if (!$this->isFlagedAsUpdated() && $this->getModel()->getModel()->isComplex()) {
-			foreach ($this->getValues() as $lValue) {
-				if (($lValue instanceof ComhonObject) && $lValue->isIdUpdated()) {
+			foreach ($this->getValues() as $value) {
+				if (($value instanceof ComhonObject) && $value->isIdUpdated()) {
 					return true;
 				}
 			}
@@ -156,20 +156,20 @@ class ObjectArray extends ComhonObject implements \Iterator {
 	/**
 	 * verify if a value has been updated
 	 * only works for object that have a model insance of MainModel, otherwise false will be return
-	 * @param string $pPropertyName
+	 * @param string $propertyName
 	 * @return boolean
 	 */
-	public function isUpdatedValue($pKey) {
+	public function isUpdatedValue($key) {
 		if (!$this->isFlagedAsUpdated()) {
 			if ($this->getModel()->getModel()->isComplex()) {
-				$lValue = $this->getValue($pKey);
-				if (($lValue instanceof ComhonObject) && $lValue->isUpdated()) {
+				$value = $this->getValue($key);
+				if (($value instanceof ComhonObject) && $value->isUpdated()) {
 					return true;
 				}
 			}
 			else if ($this->getModel()->getModel() instanceof ModelDateTime) {
-				$lValue = $this->getValue($pKey);
-				if (($lValue instanceof ComhonDateTime) && $lValue->isUpdated()) {
+				$value = $this->getValue($key);
+				if (($value instanceof ComhonDateTime) && $value->isUpdated()) {
 					return true;
 				}
 			}

@@ -21,50 +21,50 @@ use Comhon\Model\Model;
 
 class Property {
 
-	protected $mModel;
-	protected $mName;
-	protected $mSerializationName;
-	protected $mIsId;
-	protected $mIsPrivate;
-	protected $mIsSerializable;
-	protected $mDefault;
-	protected $mInterfaceAsNodeXml;
+	protected $model;
+	protected $name;
+	protected $serializationName;
+	protected $isId;
+	protected $isPrivate;
+	protected $isSerializable;
+	protected $default;
+	protected $interfaceAsNodeXml;
 	
 	/**
 	 * 
-	 * @param Model $pModel
-	 * @param string $pName
-	 * @param string $pSerializationName
-	 * @param boolean $pIsId
-	 * @param boolean $pIsPrivate
-	 * @param boolean $pIsSerializable
-	 * @param mixed $pDefault
-	 * @param unknown $pRestriction
-	 * @param boolean $pIsInterfacedAsNodeXml
+	 * @param Model $model
+	 * @param string $name
+	 * @param string $serializationName
+	 * @param boolean $isId
+	 * @param boolean $isPrivate
+	 * @param boolean $isSerializable
+	 * @param mixed $default
+	 * @param unknown $restriction
+	 * @param boolean $isInterfacedAsNodeXml
 	 * @throws \Exception
 	 */
-	public function __construct(Model $pModel, $pName, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pIsSerializable = true, $pDefault = null, $pIsInterfacedAsNodeXml = null) {
-		$this->mModel = $pModel;
-		$this->mName = $pName;
-		$this->mSerializationName = is_null($pSerializationName) ? $this->mName : $pSerializationName;
-		$this->mIsId = $pIsId;
-		$this->mIsPrivate = $pIsPrivate;
-		$this->mIsSerializable = $pIsSerializable;
-		$this->mDefault = $pDefault;
+	public function __construct(Model $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
+		$this->model = $model;
+		$this->name = $name;
+		$this->serializationName = is_null($serializationName) ? $this->name : $serializationName;
+		$this->isId = $isId;
+		$this->isPrivate = $isPrivate;
+		$this->isSerializable = $isSerializable;
+		$this->default = $default;
 		
-		if ($this->mModel instanceof SimpleModel) {
-			$this->mInterfaceAsNodeXml = is_null($pIsInterfacedAsNodeXml) ? false : $pIsInterfacedAsNodeXml;
+		if ($this->model instanceof SimpleModel) {
+			$this->interfaceAsNodeXml = is_null($isInterfacedAsNodeXml) ? false : $isInterfacedAsNodeXml;
 		} else {
-			if (!is_null($pIsInterfacedAsNodeXml) && !$pIsInterfacedAsNodeXml) {
+			if (!is_null($isInterfacedAsNodeXml) && !$isInterfacedAsNodeXml) {
 				trigger_error('warning! 8th parameter is ignored, property with complex model is inevitably interfaced as node xml');
 			}
 			// without inheritance foreign property may be exported as attribute because only id is exported
 			// but due to inheritance, model name can be exported with id so we need to export as node
-			$this->mInterfaceAsNodeXml = true;
+			$this->interfaceAsNodeXml = true;
 		}
 		
-		if ($this->mIsId && !($this->mModel instanceof SimpleModel)) {
-			throw new \Exception("id property with name '$pName' must be a simple model");
+		if ($this->isId && !($this->model instanceof SimpleModel)) {
+			throw new \Exception("id property with name '$name' must be a simple model");
 		}
 	}
 	
@@ -72,48 +72,48 @@ class Property {
 	 * @return Model
 	 */
 	public function getModel() {
-		$this->mModel->load();
-		return $this->mModel;
+		$this->model->load();
+		return $this->model;
 	}
 	
 	public function getUniqueModel() {
-		$lUniqueModel = $this->getModel();
-		while ($lUniqueModel instanceof ModelContainer) {
-			$lUniqueModel = $lUniqueModel->getModel();
+		$uniqueModel = $this->getModel();
+		while ($uniqueModel instanceof ModelContainer) {
+			$uniqueModel = $uniqueModel->getModel();
 		}
-		$lUniqueModel->load();
-		return $lUniqueModel;
+		$uniqueModel->load();
+		return $uniqueModel;
 	}
 	
 	public function getName() {
-		return $this->mName;
+		return $this->name;
 	}
 	
 	public function getSerializationName() {
-		return $this->mSerializationName;
+		return $this->serializationName;
 	}
 	
 	public function isId() {
-		return $this->mIsId;
+		return $this->isId;
 	}
 	
 	public function isPrivate() {
-		return $this->mIsPrivate;
+		return $this->isPrivate;
 	}
 	
 	public function isSerializable() {
-		return $this->mIsSerializable;
+		return $this->isSerializable;
 	}
 	
 	public function hasDefaultValue() {
-		return !is_null($this->mDefault);
+		return !is_null($this->default);
 	}
 	
 	public function getDefaultValue() {
-		if ($this->mModel instanceof ModelDateTime) {
-			return new ComhonDateTime($this->mDefault);
+		if ($this->model instanceof ModelDateTime) {
+			return new ComhonDateTime($this->default);
 		}
-		return $this->mDefault;
+		return $this->default;
 	}
 	
 	public function getSerialization() {
@@ -129,11 +129,11 @@ class Property {
 	}
 	
 	public function isComplex() {
-		return $this->mModel->isComplex();
+		return $this->model->isComplex();
 	}
 	
 	public function hasModelDateTime() {
-		return ($this->mModel instanceof ModelDateTime);
+		return ($this->model instanceof ModelDateTime);
 	}
 	
 	/**
@@ -147,34 +147,34 @@ class Property {
 	/**
 	 * verify if property is interfaceable for export/import in public/private/serialization mode
 	 * 
-	 * @param boolean $pPrivate if true private mode, otherwise public mode
-	 * @param boolean $pSerialization if true serialization mode, otherwise model mode
+	 * @param boolean $private if true private mode, otherwise public mode
+	 * @param boolean $serialization if true serialization mode, otherwise model mode
 	 * @return boolean true if property is interfaceable
 	 */
-	public function isInterfaceable($pPrivate, $pSerialization) {
-		return ($pPrivate || !$this->mIsPrivate) && (!$pSerialization || $this->mIsSerializable);
+	public function isInterfaceable($private, $serialization) {
+		return ($private || !$this->isPrivate) && (!$serialization || $this->isSerializable);
 	}
 	
 	/**
 	 * verify if property is exportable in public/private/serialization mode
 	 * 
-	 * @param boolean $pPrivate if true private mode, otherwise public mode
-	 * @param boolean $pSerialization if true serialization mode, otherwise model mode
-	 * @param mixed $pValue value that we want to export
+	 * @param boolean $private if true private mode, otherwise public mode
+	 * @param boolean $serialization if true serialization mode, otherwise model mode
+	 * @param mixed $value value that we want to export
 	 * @return boolean true if property is interfaceable
 	 */
-	public function isExportable($pPrivate, $pSerialization, $pValue) {
-		return (is_null($pValue) || $this->getModel()->verifValue($pValue)) && $this->isInterfaceable($pPrivate, $pSerialization);
+	public function isExportable($private, $serialization, $value) {
+		return (is_null($value) || $this->getModel()->verifValue($value)) && $this->isInterfaceable($private, $serialization);
 	}
 	
 	/**
 	 * verify if value is satisfiable regarding restriction property
 	 *
-	 * @param mixed $pValue
-	 * @param boolean $pThrowException
+	 * @param mixed $value
+	 * @param boolean $throwException
 	 * @return boolean true if property is satisfiable
 	 */
-	public function isSatisfiable($pValue, $pThrowException = false) {
+	public function isSatisfiable($value, $throwException = false) {
 		return true;
 	}
 	
@@ -183,7 +183,7 @@ class Property {
 	 * @return boolean true if property is interfaceable
 	 */
 	public function isInterfacedAsNodeXml() {
-		return $this->mInterfaceAsNodeXml;
+		return $this->interfaceAsNodeXml;
 	}
 	
 	public function getAggregationProperties() {
@@ -192,41 +192,41 @@ class Property {
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
-	 * @param string[] $pPropertiesFilter
-	 * @param boolean $pForceLoad if object is already loaded, force to reload object
+	 * @param ComhonObject $object
+	 * @param string[] $propertiesFilter
+	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @throws \Exception
 	 */
-	public function loadValue(ComhonObject $pObject, $pPropertiesFilter = [], $pForceLoad = false) {
+	public function loadValue(ComhonObject $object, $propertiesFilter = [], $forceLoad = false) {
 		throw new \Exception('cannot load object, property is not foreign property');
 	}
 	
 	/**
 	 * 
-	 * @param ObjectArray $pObject
-	 * @param ComhonObject $pParentObject
-	 * @param boolean $pForceLoad if object is already loaded, force to reload object
+	 * @param ObjectArray $object
+	 * @param ComhonObject $parentObject
+	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @throws \Exception
 	 */
-	public function loadValueIds(ObjectArray $pObject, ComhonObject $pParentObject, $pForceLoad = false) {
+	public function loadValueIds(ObjectArray $object, ComhonObject $parentObject, $forceLoad = false) {
 		throw new \Exception('cannot load aggregation ids, property is not aggregation property');
 	}
 	
 	/**
 	 * 
-	 * @param Property $pProperty
+	 * @param Property $property
 	 * @return boolean
 	 */
-	public function isEqual(Property $pProperty) {
-		return $this === $pProperty || (
-			get_class($this)          === get_class($pProperty) &&
-			$this->mModel             === $pProperty->getModel() &&
-			$this->mName              === $pProperty->getName() &&
-			$this->mIsId              === $pProperty->isId() &&
-			$this->mIsPrivate         === $pProperty->isPrivate() &&
-			$this->mDefault           === $pProperty->getDefaultValue() &&
-			$this->mIsSerializable    === $pProperty->isSerializable() &&
-			$this->mSerializationName === $pProperty->getSerializationName()
+	public function isEqual(Property $property) {
+		return $this === $property || (
+			get_class($this)          === get_class($property) &&
+			$this->model             === $property->getModel() &&
+			$this->name              === $property->getName() &&
+			$this->isId              === $property->isId() &&
+			$this->isPrivate         === $property->isPrivate() &&
+			$this->default           === $property->getDefaultValue() &&
+			$this->isSerializable    === $property->isSerializable() &&
+			$this->serializationName === $property->getSerializationName()
 		);
 	}
 }

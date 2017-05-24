@@ -15,26 +15,26 @@ interface NoScalarTypedInterfacer{
 	
 	/**
 	 * 
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 */
-	public function castValueToString($pValue);
+	public function castValueToString($value);
 	
 	/**
 	 *
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 */
-	public function castValueToInteger($pValue);
+	public function castValueToInteger($value);
 	
 	/**
 	 *
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 */
-	public function castValueToFloat($pValue);
+	public function castValueToFloat($value);
 	
 	/**
 	 *
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 */
-	public function castValueToBoolean($pValue);
+	public function castValueToBoolean($value);
 	
 }

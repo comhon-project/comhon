@@ -17,51 +17,51 @@ use Comhon\Model\Model;
 class Regex implements Restriction {
 	
 	/** @var string */
-	private $mRegex;
+	private $regex;
 	
 	/**
 	 * 
-	 * @param string $pRegex
+	 * @param string $regex
 	 */
-	public function __construct($pName) {
-		$this->mRegex = RegexCollection::getInstance()->getRegex($pName);
+	public function __construct($name) {
+		$this->regex = RegexCollection::getInstance()->getRegex($name);
 	}
 	
 	/**
 	 *
-	 * @param string $pValue
+	 * @param string $value
 	 */
-	public function satisfy($pValue) {
-		return preg_match($this->mRegex, $pValue) === 1;
+	public function satisfy($value) {
+		return preg_match($this->regex, $value) === 1;
 	}
 	
 	/**
 	 * verify if specified restriction is equal to $this
-	 * @param Regex $pRestriction
+	 * @param Regex $restriction
 	 */
-	public function isEqual(Restriction $pRestriction) {
-		return $this === $pRestriction || (($pRestriction instanceof Regex) && $this->mRegex === $pRestriction->mRegex);
+	public function isEqual(Restriction $restriction) {
+		return $this === $restriction || (($restriction instanceof Regex) && $this->regex === $restriction->regex);
 	}
 	
 	/**
 	 * verify if specified model can use this restriction
-	 * @param Model $pModel
+	 * @param Model $model
 	 */
-	public function isAllowedModel(Model $pModel) {
-		return $pModel instanceof ModelString;
+	public function isAllowedModel(Model $model) {
+		return $model instanceof ModelString;
 	}
 	
 	/**
 	 * stringify restriction and value
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 */
-	public function toString($pValue) {
-		if (!is_string($pValue)) {
-			$lClass = gettype($pValue) == 'object' ? get_class($pValue) : gettype($pValue);
-			return "Value passed to Regex must be an instance of string, instance of $lClass given";
+	public function toString($value) {
+		if (!is_string($value)) {
+			$class = gettype($value) == 'object' ? get_class($value) : gettype($value);
+			return "Value passed to Regex must be an instance of string, instance of $class given";
 		}
-		return $pValue . ($this->satisfy($pValue) ? ' ' : ' doesn\'t ')
-			. 'satisfy regex ' . $this->mRegex;
+		return $value . ($this->satisfy($value) ? ' ' : ' doesn\'t ')
+			. 'satisfy regex ' . $this->regex;
 	}
 	
 }

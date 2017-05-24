@@ -15,12 +15,12 @@ use Comhon\Model\Model;
 
 class MultipleForeignProperty extends ForeignProperty {
 
-	private $mMultipleIdProperties = [];
-	private $mPropertiesInitialized = false;
+	private $multipleIdProperties = [];
+	private $propertiesInitialized = false;
 	
-	public function __construct(Model $pModel, $pName, $pSerializationNames, $pIsPrivate = false, $pIsSerializable = true) {
-		parent::__construct($pModel, $pName, null, $pIsPrivate, $pIsSerializable);
-		$this->mMultipleIdProperties = $pSerializationNames;
+	public function __construct(Model $model, $name, $serializationNames, $isPrivate = false, $isSerializable = true) {
+		parent::__construct($model, $name, null, $isPrivate, $isSerializable);
+		$this->multipleIdProperties = $serializationNames;
 	}
 	
 	/**
@@ -32,35 +32,35 @@ class MultipleForeignProperty extends ForeignProperty {
 	}
 	
 	public function getMultipleIdProperties() {
-		if (!$this->mPropertiesInitialized) {
-			$lModel = $this->getUniqueModel();
-			$lIdProperties = $lModel->getIdProperties();
-			if (count($lIdProperties) != count($this->mMultipleIdProperties)) {
+		if (!$this->propertiesInitialized) {
+			$model = $this->getUniqueModel();
+			$idProperties = $model->getIdProperties();
+			if (count($idProperties) != count($this->multipleIdProperties)) {
 				throw new \Exception('ids properties and serialization names doesn\t match : '
-					.json_encode(array_keys($lIdProperties)).' != '. json_encode(array_values($this->mMultipleIdProperties)));
+					.json_encode(array_keys($idProperties)).' != '. json_encode(array_values($this->multipleIdProperties)));
 			}
-			$lMultipleIdProperties = [];
-			foreach ($lIdProperties as $lIdPropertyName => $lIdProperty) {
-				if (!array_key_exists($lIdProperty->getName(), $this->mMultipleIdProperties)) {
+			$multipleIdProperties = [];
+			foreach ($idProperties as $idPropertyName => $idProperty) {
+				if (!array_key_exists($idProperty->getName(), $this->multipleIdProperties)) {
 					throw new \Exception('ids properties and serialization names doesn\t match : '
-						.json_encode(array_keys($lIdProperties)).' != '. json_encode($this->mMultipleIdProperties));
+						.json_encode(array_keys($idProperties)).' != '. json_encode($this->multipleIdProperties));
 				}
-				$lMultipleIdProperties[$this->mMultipleIdProperties[$lIdProperty->getName()]] = $lIdProperty;
+				$multipleIdProperties[$this->multipleIdProperties[$idProperty->getName()]] = $idProperty;
 			}
-			$this->mMultipleIdProperties = $lMultipleIdProperties;
-			$this->mPropertiesInitialized = true;
+			$this->multipleIdProperties = $multipleIdProperties;
+			$this->propertiesInitialized = true;
 		}
-		return $this->mMultipleIdProperties;
+		return $this->multipleIdProperties;
 	}
 	
 	/**
 	 * verify if property is interfaceable for export/import in public/private/serialization mode
-	 * @param boolean $pPrivate if true private mode, otherwise public mode
-	 * @param boolean $pSerialization if true serialization mode, otherwise model mode
+	 * @param boolean $private if true private mode, otherwise public mode
+	 * @param boolean $serialization if true serialization mode, otherwise model mode
 	 * @return boolean true if property is interfaceable
 	 */
-	public function isInterfaceable($pPrivate, $pSerialization) {
-		return !$pSerialization && parent::isInterfaceable($pPrivate, $pSerialization);
+	public function isInterfaceable($private, $serialization) {
+		return !$serialization && parent::isInterfaceable($private, $serialization);
 	}
 	
 }

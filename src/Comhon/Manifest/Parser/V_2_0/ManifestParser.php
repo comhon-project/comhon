@@ -30,222 +30,222 @@ use Comhon\Interfacer\XMLInterfacer;
 class ManifestParser extends ParentManifestParser {
 
 	public function getExtends() {
-		if ($this->mFocusLocalTypes) {
-			$lCurrent = current($this->mLocalTypes);
-			return $this->mInterfacer->getValue($lCurrent, self::_EXTENDS);
+		if ($this->focusLocalTypes) {
+			$current = current($this->localTypes);
+			return $this->interfacer->getValue($current, self::_EXTENDS);
 		} else {
-			return $this->mInterfacer->getValue($this->mManifest, self::_EXTENDS);
+			return $this->interfacer->getValue($this->manifest, self::_EXTENDS);
 		}
 	}
 	
 	public function getObjectClass() {
-		if ($this->mFocusLocalTypes) {
-			$lCurrent = current($this->mLocalTypes);
-			return $this->mInterfacer->getValue($lCurrent, self::_OBJECT);
+		if ($this->focusLocalTypes) {
+			$current = current($this->localTypes);
+			return $this->interfacer->getValue($current, self::_OBJECT);
 		} else {
-			return $this->mInterfacer->getValue($this->mManifest, self::_OBJECT);
+			return $this->interfacer->getValue($this->manifest, self::_OBJECT);
 		}
 	}
 	
 	public function getCurrentLocalTypeId() {
-		$lCurrent = current($this->mLocalTypes);
-		return $this->mInterfacer->getValue($lCurrent, self::NAME);
+		$current = current($this->localTypes);
+		return $this->interfacer->getValue($current, self::NAME);
 	}
 	
 	protected function _getLocalTypes() {
-		return $this->mInterfacer->hasValue($this->mManifest, 'types', true)
-			? $this->mInterfacer->getTraversableNode($this->mInterfacer->getValue($this->mManifest, 'types', true))
+		return $this->interfacer->hasValue($this->manifest, 'types', true)
+			? $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, 'types', true))
 			: []; 
 	}
 	
 	protected function _getCurrentProperties() {
-		$lParentNode = $this->mFocusLocalTypes ? current($this->mLocalTypes) : $this->mManifest;
-		return $this->mInterfacer->hasValue($lParentNode, 'properties', true)
-			? $this->mInterfacer->getTraversableNode($this->mInterfacer->getValue($lParentNode, 'properties', true))
+		$parentNode = $this->focusLocalTypes ? current($this->localTypes) : $this->manifest;
+		return $this->interfacer->hasValue($parentNode, 'properties', true)
+			? $this->interfacer->getTraversableNode($this->interfacer->getValue($parentNode, 'properties', true))
 			: [];
 	}
 	
 	public function getCurrentPropertyModelName() {
-		return $this->_getPropertyModelName(current($this->mCurrentProperties));
+		return $this->_getPropertyModelName(current($this->currentProperties));
 	}
 	
-	private function _getPropertyModelName($pProperty) {
-		$lModelName = $this->mInterfacer->getValue($pProperty, 'type');
-		if ($lModelName == 'array') {
-			$lModelName = $this->_getPropertyModelName($this->mInterfacer->getValue($pProperty, 'values', true));
+	private function _getPropertyModelName($property) {
+		$modelName = $this->interfacer->getValue($property, 'type');
+		if ($modelName == 'array') {
+			$modelName = $this->_getPropertyModelName($this->interfacer->getValue($property, 'values', true));
 		}
-		return $lModelName;
+		return $modelName;
 	}
 	
 	/**
 	 * @return string
 	 */
 	protected function _isCurrentPropertyForeign() {
-		$lCurrentProperty = current($this->mCurrentProperties);
+		$currentProperty = current($this->currentProperties);
 		
-		return $this->mInterfacer->hasValue($lCurrentProperty, self::IS_FOREIGN)
+		return $this->interfacer->hasValue($currentProperty, self::IS_FOREIGN)
 			? (
-				$this->mCastValues
-					? $this->mInterfacer->castValueToBoolean($this->mInterfacer->getValue($lCurrentProperty, self::IS_FOREIGN))
-					: $this->mInterfacer->getValue($lCurrentProperty, self::IS_FOREIGN)
+				$this->castValues
+					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($currentProperty, self::IS_FOREIGN))
+					: $this->interfacer->getValue($currentProperty, self::IS_FOREIGN)
 			)
 			: false;
 	}
 	
-	protected function _getBaseInfosProperty(Model $pPropertyModel) {
-		$lCurrentProperty = current($this->mCurrentProperties);
+	protected function _getBaseInfosProperty(Model $propertyModel) {
+		$currentProperty = current($this->currentProperties);
 	
-		$lIsId = $this->mInterfacer->hasValue($lCurrentProperty, self::IS_ID)
+		$isId = $this->interfacer->hasValue($currentProperty, self::IS_ID)
 			? (
-				$this->mCastValues
-					? $this->mInterfacer->castValueToBoolean($this->mInterfacer->getValue($lCurrentProperty, self::IS_ID))
-					: $this->mInterfacer->getValue($lCurrentProperty, self::IS_ID)
+				$this->castValues
+					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($currentProperty, self::IS_ID))
+					: $this->interfacer->getValue($currentProperty, self::IS_ID)
 			)
 			: false;
 		
-		$lIsPrivate = $this->mInterfacer->hasValue($lCurrentProperty, self::IS_PRIVATE)
+		$isPrivate = $this->interfacer->hasValue($currentProperty, self::IS_PRIVATE)
 			? (
-				$this->mCastValues
-					? $this->mInterfacer->castValueToBoolean($this->mInterfacer->getValue($lCurrentProperty, self::IS_PRIVATE))
-					: $this->mInterfacer->getValue($lCurrentProperty, self::IS_PRIVATE)
+				$this->castValues
+					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($currentProperty, self::IS_PRIVATE))
+					: $this->interfacer->getValue($currentProperty, self::IS_PRIVATE)
 			)
 			: false;
 		
-		$lName      = $this->mInterfacer->getValue($lCurrentProperty, self::NAME);
-		$lModel     = $this->_completePropertyModel($lCurrentProperty, $pPropertyModel);
+		$name      = $this->interfacer->getValue($currentProperty, self::NAME);
+		$model     = $this->_completePropertyModel($currentProperty, $propertyModel);
 		
-		if ($this->mInterfacer->hasValue($lCurrentProperty, 'xml')) {
-			$lType = $this->mInterfacer->getValue($lCurrentProperty, 'xml');
-			if ($lType === self::XML_ATTRIBUTE) {
-				$lInterfaceAsNodeXml = false;
-			} else if ($lType === self::XML_NODE) {
-				$lInterfaceAsNodeXml = true;
+		if ($this->interfacer->hasValue($currentProperty, 'xml')) {
+			$type = $this->interfacer->getValue($currentProperty, 'xml');
+			if ($type === self::XML_ATTRIBUTE) {
+				$interfaceAsNodeXml = false;
+			} else if ($type === self::XML_NODE) {
+				$interfaceAsNodeXml = true;
 			} else {
-				throw new \Exception('invalid xml value : '.$lType);
+				throw new \Exception('invalid xml value : '.$type);
 			}
 		} else {
-			$lInterfaceAsNodeXml = null;
+			$interfaceAsNodeXml = null;
 		}
 		
-		return [$lName, $lModel, $lIsId, $lIsPrivate, $lInterfaceAsNodeXml];
+		return [$name, $model, $isId, $isPrivate, $interfaceAsNodeXml];
 	}
 	
 	/**
 	 *
-	 * @param mixed $pCurrentNode
-	 * @param Model $pUniqueModel
+	 * @param mixed $currentNode
+	 * @param Model $uniqueModel
 	 */
-	protected function _getRestriction($pCurrentNode, Model $pUniqueModel) {
-		if ($pUniqueModel instanceof ModelContainer) {
+	protected function _getRestriction($currentNode, Model $uniqueModel) {
+		if ($uniqueModel instanceof ModelContainer) {
 			return null;
 		}
-		$lRestriction  = null;
+		$restriction  = null;
 		
-		if ($this->mInterfacer->hasValue($pCurrentNode, 'enum', true)) {
-			$lEnumValues = $this->mInterfacer->getTraversableNode($this->mInterfacer->getValue($pCurrentNode, 'enum', true));
-			if ($this->mInterfacer instanceof XMLInterfacer) {
-				if ($pUniqueModel instanceof ModelInteger) {
-					foreach ($lEnumValues as $lKey => $lDomNode) {
-						$lEnumValues[$lKey] = (integer) $this->mInterfacer->extractNodeText($lDomNode);
+		if ($this->interfacer->hasValue($currentNode, 'enum', true)) {
+			$enumValues = $this->interfacer->getTraversableNode($this->interfacer->getValue($currentNode, 'enum', true));
+			if ($this->interfacer instanceof XMLInterfacer) {
+				if ($uniqueModel instanceof ModelInteger) {
+					foreach ($enumValues as $key => $domNode) {
+						$enumValues[$key] = (integer) $this->interfacer->extractNodeText($domNode);
 					}
-				} elseif (($pUniqueModel instanceof ModelString) || ($pUniqueModel instanceof ModelFloat)) {
-					foreach ($lEnumValues as $lKey => $lDomNode) {
-						$lEnumValues[$lKey] = $this->mInterfacer->extractNodeText($lDomNode);
+				} elseif (($uniqueModel instanceof ModelString) || ($uniqueModel instanceof ModelFloat)) {
+					foreach ($enumValues as $key => $domNode) {
+						$enumValues[$key] = $this->interfacer->extractNodeText($domNode);
 					}
 				} else {
-					throw new \Exception('enum cannot be defined on '.$pUniqueModel->getName());
+					throw new \Exception('enum cannot be defined on '.$uniqueModel->getName());
 				}
 			}
-			$lRestriction = new Enum($lEnumValues);
+			$restriction = new Enum($enumValues);
 		}
-		elseif ($this->mInterfacer->hasValue($pCurrentNode, 'interval')) {
-			$lRestriction = new Interval($this->mInterfacer->getValue($pCurrentNode, 'interval'), $pUniqueModel);
+		elseif ($this->interfacer->hasValue($currentNode, 'interval')) {
+			$restriction = new Interval($this->interfacer->getValue($currentNode, 'interval'), $uniqueModel);
 			
 		}
-		elseif ($this->mInterfacer->hasValue($pCurrentNode, 'pattern')) {
-			if (!($pUniqueModel instanceof ModelString)) {
-				throw new \Exception('pattern cannot be defined on '.$pUniqueModel->getName());
+		elseif ($this->interfacer->hasValue($currentNode, 'pattern')) {
+			if (!($uniqueModel instanceof ModelString)) {
+				throw new \Exception('pattern cannot be defined on '.$uniqueModel->getName());
 			}
-			$lRestriction = new Regex($this->mInterfacer->getValue($pCurrentNode, 'pattern'));
+			$restriction = new Regex($this->interfacer->getValue($currentNode, 'pattern'));
 		}
 		
-		return $lRestriction;
+		return $restriction;
 	}
 	
 	/**
 	 *
-	 * @param Model $pUniqueModel
+	 * @param Model $uniqueModel
 	 * @return mixed|null
 	 */
-	protected function _getDefaultValue(Model $pPropertyModel) {
-		$lCurrentProperty = current($this->mCurrentProperties);
+	protected function _getDefaultValue(Model $propertyModel) {
+		$currentProperty = current($this->currentProperties);
 		
-		if ($this->mInterfacer->hasValue($lCurrentProperty, 'default')) {
-			$lDefault = $this->mInterfacer->getValue($lCurrentProperty, 'default');
-			if ($pPropertyModel instanceof ModelDateTime) {
-				if (new \DateTime($lDefault) === false) {
-					throw new \Exception('invalid default value time format : '.$lDefault);
+		if ($this->interfacer->hasValue($currentProperty, 'default')) {
+			$default = $this->interfacer->getValue($currentProperty, 'default');
+			if ($propertyModel instanceof ModelDateTime) {
+				if (new \DateTime($default) === false) {
+					throw new \Exception('invalid default value time format : '.$default);
 				}
-			} else if ($pPropertyModel instanceof SimpleModel) {
-				$lDefault = $pPropertyModel->importSimple($lDefault, $this->mInterfacer);
+			} else if ($propertyModel instanceof SimpleModel) {
+				$default = $propertyModel->importSimple($default, $this->interfacer);
 			} else {
 				throw new \Exception('default value can\'t be applied on complex model');
 			}
 		} else {
-			$lDefault = null;
+			$default = null;
 		}
-		return $lDefault;
+		return $default;
 	}
 	
 	/**
 	 * add model container if needed
-	 * @param mixed $pPropertyNode
-	 * @param Model $pModel
+	 * @param mixed $propertyNode
+	 * @param Model $model
 	 * @throws \Exception
 	 * @return Model
 	 */
-	private function _completePropertyModel($pPropertyNode, $pUniqueModel) {
-		$lPropertyModel = $pUniqueModel;
-		$lTypeId        = $this->mInterfacer->getValue($pPropertyNode,'type');
+	private function _completePropertyModel($propertyNode, $uniqueModel) {
+		$propertyModel = $uniqueModel;
+		$typeId        = $this->interfacer->getValue($propertyNode,'type');
 	
-		if ($lTypeId == 'array') {
-			$lValuesNode = $this->mInterfacer->getValue($pPropertyNode, 'values', true);
-			if (is_null($lValuesNode)) {
+		if ($typeId == 'array') {
+			$valuesNode = $this->interfacer->getValue($propertyNode, 'values', true);
+			if (is_null($valuesNode)) {
 				throw new \Exception('type array must have a values node');
 			}
-			$lValuesName = $this->mInterfacer->getValue($lValuesNode, 'name');
-			if (is_null($lValuesName)) {
+			$valuesName = $this->interfacer->getValue($valuesNode, 'name');
+			if (is_null($valuesName)) {
 				throw new \Exception('type array must have a values name property');
 			}
-			$lSubModel = $this->_completePropertyModel($lValuesNode, $pUniqueModel);
-			$lRestriction = $this->_getRestriction($lValuesNode, $pUniqueModel);
-			if (is_null($lRestriction)) {
-				$lPropertyModel = new ModelArray($lSubModel, $lValuesName);
+			$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
+			$restriction = $this->_getRestriction($valuesNode, $uniqueModel);
+			if (is_null($restriction)) {
+				$propertyModel = new ModelArray($subModel, $valuesName);
 			} else {
-				$lPropertyModel = new ModelRestrictedArray($lSubModel, $lRestriction, $lValuesName);
+				$propertyModel = new ModelRestrictedArray($subModel, $restriction, $valuesName);
 			}
 		}
-		return $lPropertyModel;
+		return $propertyModel;
 	}
 	
 	/**
 	 *
-	 * @param array $pInstanceModels
+	 * @param array $instanceModels
 	 * @throws \Exception
 	 */
-	public function registerComplexLocalModels(&$pInstanceModels, $pManifestPath_ad) {
-		if ($this->mInterfacer->hasValue($this->mManifest, 'manifests', true)) {
-			$lList = $this->mInterfacer->getTraversableNode($this->mInterfacer->getValue($this->mManifest, 'manifests', true), true);
-			if ($this->mInterfacer instanceof XMLInterfacer) {
-				foreach ($lList as $lName => $lDomNode) {
-					$lList[$lName] = $this->mInterfacer->extractNodeText($lDomNode);
+	public function registerComplexLocalModels(&$instanceModels, $manifestPath_ad) {
+		if ($this->interfacer->hasValue($this->manifest, 'manifests', true)) {
+			$list = $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, 'manifests', true), true);
+			if ($this->interfacer instanceof XMLInterfacer) {
+				foreach ($list as $name => $domNode) {
+					$list[$name] = $this->interfacer->extractNodeText($domNode);
 				}
 			}
-			foreach ($lList as $lType => $lManifestPath_rfe) {
-				if (array_key_exists($lType, $pInstanceModels)) {
-					throw new \Exception("several model with same type : '$lType'");
+			foreach ($list as $type => $manifestPath_rfe) {
+				if (array_key_exists($type, $instanceModels)) {
+					throw new \Exception("several model with same type : '$type'");
 				}
-				$pInstanceModels[$lType] = [$pManifestPath_ad.'/'.$lManifestPath_rfe, null];
+				$instanceModels[$type] = [$manifestPath_ad.'/'.$manifestPath_rfe, null];
 			}
 		}
 	}

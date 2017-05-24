@@ -6,33 +6,33 @@ use Comhon\Database\DatabaseController;
 
 $time_start = microtime(true);
 
-$lModelPerson = ModelManager::getInstance()->getInstanceModel('person');
-$lPerson = $lModelPerson->getObjectInstance();
+$modelPerson = ModelManager::getInstance()->getInstanceModel('person');
+$person = $modelPerson->getObjectInstance();
 
 /** ************************* test if casted object is updated in database ************************** **/
 
-if ($lPerson->save() !== 1) {
+if ($person->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 
-$lDbHandler = DatabaseController::getInstanceWithDataBaseId(1);
-$lStatement = $lDbHandler->executeSimpleQuery('select sex from person where id = '.$lPerson->getId());
-$lResult = $lStatement->fetchAll();
-if ($lResult[0]['sex'] !== 'person') {
-	throw new Exception("bad inheritance key '{$lResult[0]['sex']}'");
+$dbHandler = DatabaseController::getInstanceWithDataBaseId(1);
+$statement = $dbHandler->executeSimpleQuery('select sex from person where id = '.$person->getId());
+$result = $statement->fetchAll();
+if ($result[0]['sex'] !== 'person') {
+	throw new Exception("bad inheritance key '{$result[0]['sex']}'");
 }
 
-$lPerson->cast(ModelManager::getInstance()->getInstanceModel('man'));
-if ($lPerson->save(SqlTable::UPDATE) !== 1) {
+$person->cast(ModelManager::getInstance()->getInstanceModel('man'));
+if ($person->save(SqlTable::UPDATE) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-$lStatement = $lDbHandler->executeSimpleQuery('select sex from person where id = '.$lPerson->getId());
-$lResult = $lStatement->fetchAll();
-if ($lResult[0]['sex'] !== 'man') {
-	throw new Exception("bad inheritance key '{$lResult[0]['sex']}'");
+$statement = $dbHandler->executeSimpleQuery('select sex from person where id = '.$person->getId());
+$result = $statement->fetchAll();
+if ($result[0]['sex'] !== 'man') {
+	throw new Exception("bad inheritance key '{$result[0]['sex']}'");
 }
 
-if ($lPerson->delete() !== 1) {
+if ($person->delete() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 

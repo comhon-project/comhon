@@ -20,70 +20,70 @@ use Comhon\Interfacer\StdObjectInterfacer;
 
 abstract class SerializationManifestParser {
 	
-	protected $mManifest;
-	protected $mModel;
-	protected $mInterfacer;
+	protected $manifest;
+	protected $model;
+	protected $interfacer;
 
-	public abstract function getPropertySerializationInfos($pPropertyName);
+	public abstract function getPropertySerializationInfos($propertyName);
 	
 	protected abstract function _getSerializationSettings();
 	public abstract function getInheritanceKey();
 	
 	/**
-	 * @param Model $pModel
-	 * @param string $pManifest
+	 * @param Model $model
+	 * @param string $manifest
 	 */
-	public final function __construct(MainModel $pModel, $pManifest) {
-		$this->mInterfacer = $this->_getInterfacer($pManifest);
-		$this->mModel      = $pModel;
-		$this->mManifest   = $pManifest;
+	public final function __construct(MainModel $model, $manifest) {
+		$this->interfacer = $this->_getInterfacer($manifest);
+		$this->model      = $model;
+		$this->manifest   = $manifest;
 		
-		$this->mInterfacer->setSerialContext(true);
-		$this->mInterfacer->setPrivateContext(true);
+		$this->interfacer->setSerialContext(true);
+		$this->interfacer->setPrivateContext(true);
 	}
 	
 	/**
 	 * 
-	 * @param Model $pModel
-	 * @param string $pSerializationManifestPath_afe
+	 * @param Model $model
+	 * @param string $serializationManifestPath_afe
 	 * @throws \Exception
 	 * @return SerializationManifestParser
 	 */
-	public static function getInstance(Model $pModel, $pSerializationManifestPath_afe) {
-		switch (mb_strtolower(pathinfo($pSerializationManifestPath_afe, PATHINFO_EXTENSION))) {
+	public static function getInstance(Model $model, $serializationManifestPath_afe) {
+		switch (mb_strtolower(pathinfo($serializationManifestPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
-				$lInterfacer = new XMLInterfacer();
+				$interfacer = new XMLInterfacer();
 				break;
 			case 'json':
-				$lInterfacer = new AssocArrayInterfacer();
+				$interfacer = new AssocArrayInterfacer();
 				break;
 			default:
-				throw new \Exception('extension not recognized for manifest file : '.$pSerializationManifestPath_afe);
+				throw new \Exception('extension not recognized for manifest file : '.$serializationManifestPath_afe);
 		}
-		return self::getVersionnedInstance($pModel, $pSerializationManifestPath_afe, $lInterfacer);
+		return self::getVersionnedInstance($model, $serializationManifestPath_afe, $interfacer);
 		
 	}
 	
-	public final function getSerializationSettings(MainModel $pModel) {
-		if ($this->mModel !== $pModel) {
+	public final function getSerializationSettings(MainModel $model) {
+		if ($this->model !== $model) {
 			throw new \Exception('not same models');
 		}
-		return $this->mModel->hasLoadedSerialization()
-			? $this->mModel->getSerialization()->getSettings() : $this->_getSerializationSettings();
+		return $this->model->hasLoadedSerialization()
+			? $this->model->getSerialization()->getSettings() : $this->_getSerializationSettings();
 	}
 	
 	/**
 	 * get interfacer able to interpret manifest
-	 * @param [] $pManifest
+	 * @param [] $manifest
 	 */
-	public function _getInterfacer($pManifest) {
-		if (is_array($pManifest)) {
+	public function _getInterfacer($manifest) {
+		if (is_array($manifest)) {
 			return new AssocArrayInterfacer();
 		}
-		if ($pManifest instanceof \stdClass) {
+		if ($manifest instanceof \stdClass) {
 			return new StdObjectInterfacer();
 		}
-		if ($pManifest instanceof \DOMElement) {
+		if ($manifest instanceof \DOMElement) {
 			return new XMLInterfacer();
 		}
 		throw new \Exception('not recognized manifest format');
@@ -91,26 +91,26 @@ abstract class SerializationManifestParser {
 	
 	/**
 	 *
-	 * @param Model $pModel
-	 * @param string $pSerializationManifestPath_afe
-	 * @param Interfacer $pInterfacer
+	 * @param Model $model
+	 * @param string $serializationManifestPath_afe
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return ManifestParser
 	 */
-	public static function getVersionnedInstance($pModel, $pSerializationManifestPath_afe, Interfacer $pInterfacer) {
-		$lManifest = $pInterfacer->read($pSerializationManifestPath_afe);
+	public static function getVersionnedInstance($model, $serializationManifestPath_afe, Interfacer $interfacer) {
+		$manifest = $interfacer->read($serializationManifestPath_afe);
 		
-		if ($lManifest === false || is_null($lManifest)) {
-			throw new \Exception("serialization manifest file not found or malformed '$pSerializationManifestPath_afe'");
+		if ($manifest === false || is_null($manifest)) {
+			throw new \Exception("serialization manifest file not found or malformed '$serializationManifestPath_afe'");
 		}
 		
-		if (!$pInterfacer->hasValue($lManifest, 'version')) {
-			throw new \Exception("serialization manifest '$pSerializationManifestPath_afe' doesn't have version");
+		if (!$interfacer->hasValue($manifest, 'version')) {
+			throw new \Exception("serialization manifest '$serializationManifestPath_afe' doesn't have version");
 		}
-		$lVersion = (string) $pInterfacer->getValue($lManifest, 'version');
-		switch ($lVersion) {
-			case '2.0': return new V_2_0\SerializationManifestParser($pModel, $lManifest);
-			default:    throw new \Exception("version $lVersion not recognized for manifest $pSerializationManifestPath_afe");
+		$version = (string) $interfacer->getValue($manifest, 'version');
+		switch ($version) {
+			case '2.0': return new V_2_0\SerializationManifestParser($model, $manifest);
+			default:    throw new \Exception("version $version not recognized for manifest $serializationManifestPath_afe");
 		}
 	}
 }

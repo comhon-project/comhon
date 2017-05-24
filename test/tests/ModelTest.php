@@ -20,20 +20,20 @@ if (ModelManager::getInstance()->hasInstanceModel('sqlTable')) {
 	throw new Exception('model already initialized');
 }
 
-$lTestModel    = ModelManager::getInstance()->getInstanceModel('test');
-$lTestModelTow = ModelManager::getInstance()->getInstanceModel('test');
+$testModel    = ModelManager::getInstance()->getInstanceModel('test');
+$testModelTow = ModelManager::getInstance()->getInstanceModel('test');
 
 /** ****************************** same test model instance ****************************** **/
-if ($lTestModel !== $lTestModelTow) {
+if ($testModel !== $testModelTow) {
 	throw new Exception('models haven\'t same instance');
 }
 
 /** ****************************** basic test for model 'test' ****************************** **/
-if ($lTestModel->getName() !== 'test') {
+if ($testModel->getName() !== 'test') {
 	throw new Exception('model hasn\'t good name');
 }
-if (json_encode($lTestModel->getPropertiesNames()) !== '["name","stringValue","floatValue","booleanValue","dateValue","objectValue","objectValues","objectContainer","foreignObjectValues","enumValue","enumIntArray","enumFloatArray","objectRefParent"]') {
-	throw new Exception("model {$lTestModel->getName()} hasn't good properties : ".json_encode($lTestModel->getPropertiesNames()));
+if (json_encode($testModel->getPropertiesNames()) !== '["name","stringValue","floatValue","booleanValue","dateValue","objectValue","objectValues","objectContainer","foreignObjectValues","enumValue","enumIntArray","enumFloatArray","objectRefParent"]') {
+	throw new Exception("model {$testModel->getName()} hasn't good properties : ".json_encode($testModel->getPropertiesNames()));
 }
 
 /** ******************** test local model 'personLocal' load status ******************** **/
@@ -44,27 +44,27 @@ if (ModelManager::getInstance()->isModelLoaded('personLocal', 'test')) {
 	throw new Exception('model must be not loaded');
 }
 /** ******************** load model 'personLocal' by calling getmodel() ******************** **/
-$lLocalPersonModel = $lTestModel->getProperty('objectContainer')->getModel()->getProperty('person')->getModel();
+$localPersonModel = $testModel->getProperty('objectContainer')->getModel()->getProperty('person')->getModel();
 
 /** ******************** test local model 'personLocal' load status ******************** **/
 if (!ModelManager::getInstance()->isModelLoaded('personLocal', 'test')) {
 	throw new Exception('model must be loaded');
 }
-if (!$lLocalPersonModel->isLoaded()) {
+if (!$localPersonModel->isLoaded()) {
 	throw new Exception('model must be loaded');
 }
 
 /** ****************************** same model instance ****************************** **/
-if ($lLocalPersonModel !== ModelManager::getInstance()->getInstanceModel('personLocal', 'test')) {
+if ($localPersonModel !== ModelManager::getInstance()->getInstanceModel('personLocal', 'test')) {
 	throw new Exception('models haven\'t same instance');
 }
 
 /** ****************************** basic test for model 'personLocal' ****************************** **/
-if ($lLocalPersonModel->getName() !== 'personLocal') {
+if ($localPersonModel->getName() !== 'personLocal') {
 	throw new Exception('model hasn\'t good name');
 }
-if (json_encode($lLocalPersonModel->getPropertiesNames()) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes"]') {
-	throw new Exception("model {$lLocalPersonModel->getName()} hasn't good properties : ".json_encode($lLocalPersonModel->getPropertiesNames()));
+if (json_encode($localPersonModel->getPropertiesNames()) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes"]') {
+	throw new Exception("model {$localPersonModel->getName()} hasn't good properties : ".json_encode($localPersonModel->getPropertiesNames()));
 }
 
 /** ****************************** test load status of model 'place' ****************************** **/
@@ -76,13 +76,13 @@ if (ModelManager::getInstance()->isModelLoaded('place')) {
 	throw new Exception('model must be not loaded');
 }
 
-$lPlaceForeignModel = $lLocalPersonModel->getProperty('birthPlace')->getModel();
+$placeForeignModel = $localPersonModel->getProperty('birthPlace')->getModel();
 
-if (!($lPlaceForeignModel instanceof ModelForeign)) {
+if (!($placeForeignModel instanceof ModelForeign)) {
 	throw new Exception('model of property \'birthPlace\' is not a foreign model');
 }
-$lPlaceModel = $lPlaceForeignModel->getModel();
-if (!($lPlaceModel instanceof MainModel)) {
+$placeModel = $placeForeignModel->getModel();
+if (!($placeModel instanceof MainModel)) {
 	throw new Exception('foreign model of property \'birthPlace\' is not a main model');
 }
 
@@ -94,10 +94,10 @@ if (!ModelManager::getInstance()->isModelLoaded('place')) {
 	throw new Exception('model must be loaded');
 }
 
-$lPlaceModelTow = ModelManager::getInstance()->getInstanceModel('place');
+$placeModelTow = ModelManager::getInstance()->getInstanceModel('place');
 
 /** ****************************** same place model instance ****************************** **/
-if ($lPlaceModel !== $lPlaceModelTow) {
+if ($placeModel !== $placeModelTow) {
 	throw new Exception('models haven\'t same instance');
 }
 
@@ -113,71 +113,71 @@ throw new Exception("model must be not loaded");
 }
 */
 
-$lTestDbModel = ModelManager::getInstance()->getInstanceModel('testDb');
+$testDbModel = ModelManager::getInstance()->getInstanceModel('testDb');
 
-if ($lTestDbModel->getName() !== 'testDb') {
+if ($testDbModel->getName() !== 'testDb') {
 	throw new Exception('model hasn\'t good name');
 }
-if (json_encode($lTestDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb","objectsWithId","foreignObjects","lonelyForeignObject","lonelyForeignObjectTwo","defaultValue","manBodyJson","womanXml","notSerializedValue","notSerializedForeignObject","boolean","boolean2","childrenTestDb"]') {
-	throw new Exception("model {$lTestDbModel->getName()} hasn't good properties : ".json_encode($lTestDbModel->getPropertiesNames()));
+if (json_encode($testDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb","objectsWithId","foreignObjects","lonelyForeignObject","lonelyForeignObjectTwo","defaultValue","manBodyJson","womanXml","notSerializedValue","notSerializedForeignObject","boolean","boolean2","childrenTestDb"]') {
+	throw new Exception("model {$testDbModel->getName()} hasn't good properties : ".json_encode($testDbModel->getPropertiesNames()));
 }
-$lDbModel = $lTestDbModel->getSerialization()->getSettings()->getProperty('database')->getModel();
-if ($lDbModel->getName() !== 'sqlDatabase') {
+$dbModel = $testDbModel->getSerialization()->getSettings()->getProperty('database')->getModel();
+if ($dbModel->getName() !== 'sqlDatabase') {
 	throw new Exception('model hasn\'t good name');
 }
-if ($lTestDbModel->getProperty('integer')->isPrivate()) {
+if ($testDbModel->getProperty('integer')->isPrivate()) {
 	throw new Exception('is private');
 }
-if (!$lTestDbModel->getProperty('string')->isPrivate()) {
+if (!$testDbModel->getProperty('string')->isPrivate()) {
 	throw new Exception('is not private');
 }
-if (!$lTestDbModel->getProperty('string')->isPrivate()) {
+if (!$testDbModel->getProperty('string')->isPrivate()) {
 	throw new Exception('is not private');
 }
-$lLocalModel = ModelManager::getInstance()->getInstanceModel('objectWithIdAndMoreMore', 'testDb');
-if (!$lLocalModel->getProperty('plop3')->isPrivate()) {
+$localModel = ModelManager::getInstance()->getInstanceModel('objectWithIdAndMoreMore', 'testDb');
+if (!$localModel->getProperty('plop3')->isPrivate()) {
 	throw new Exception('is not private');
 }
 
-if (!$lTestDbModel->getProperty('timestamp')->isSerializable()) {
+if (!$testDbModel->getProperty('timestamp')->isSerializable()) {
 	throw new Exception('is not serializable');
 }
-if ($lTestDbModel->getProperty('notSerializedValue')->isSerializable()) {
+if ($testDbModel->getProperty('notSerializedValue')->isSerializable()) {
 	throw new Exception('is serializable');
 }
-if ($lTestDbModel->getProperty('notSerializedForeignObject')->isSerializable()) {
+if ($testDbModel->getProperty('notSerializedForeignObject')->isSerializable()) {
 	throw new Exception('is serializable');
 }
 
 /** ****************************** test serialization before load ****************************** **/
 
-$lStdPrivateInterfacer = new StdObjectInterfacer();
-$lStdPrivateInterfacer->setPrivateContext(true);
+$stdPrivateInterfacer = new StdObjectInterfacer();
+$stdPrivateInterfacer->setPrivateContext(true);
 
-if (json_encode($lTestDbModel->getSerialization()->getSettings()->export($lStdPrivateInterfacer)) !== '{"name":"test","database":"1"}') {
-	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");
+if (json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"test","database":"1"}') {
+	throw new Exception("model {$testDbModel->getName()} hasn't good values");
 }
 
-if (json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->export($lStdPrivateInterfacer)) !== '{"id":"1"}') {
-	throw new Exception("model {$lTestDbModel->getName()} hasn't good values : ".json_encode($lTestDbModel->getSerialization()->getSettings()->getValue('database')->export($lStdPrivateInterfacer)));
+if (json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"1"}') {
+	throw new Exception("model {$testDbModel->getName()} hasn't good values : ".json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)));
 }
-if ($lTestDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
+if ($testDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
 	throw new Exception('object must be not loaded');
 }
 
 // LOAD VALUE
-$lTestDbModel->getSerialization()->getSettings()->loadValue('database');
+$testDbModel->getSerialization()->getSettings()->loadValue('database');
 
 /** ****************************** test serialization after load ****************************** **/
-if (json_encode($lTestDbModel->getSerialization()->getSettings()->export($lStdPrivateInterfacer)) !== '{"name":"test","database":"1"}') {
-	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");
+if (json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"test","database":"1"}') {
+	throw new Exception("model {$testDbModel->getName()} hasn't good values");
 }
-$lStdPublicInterfacer = new StdObjectInterfacer();
-$lObjDb = $lTestDbModel->getSerialization()->getSettings()->getValue('database')->export($lStdPublicInterfacer);
-if (!compareJson(json_encode($lObjDb), '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}')) {
-	throw new Exception("model {$lTestDbModel->getName()} hasn't good values");
+$stdPublicInterfacer = new StdObjectInterfacer();
+$objDb = $testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPublicInterfacer);
+if (!compareJson(json_encode($objDb), '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}')) {
+	throw new Exception("model {$testDbModel->getName()} hasn't good values");
 }
-if (!$lTestDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
+if (!$testDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
 	throw new Exception('object must be loaded');
 }
 
@@ -190,31 +190,31 @@ if (!ModelManager::getInstance()->isModelLoaded('sqlDatabase')) {
 }
 
 /** ****************************** same serialization object and model instance ****************************** **/
-if ($lPlaceModel->getSerialization()->getSettings()->getValue('database') !== $lTestDbModel->getSerialization()->getSettings()->getValue('database')) {
+if ($placeModel->getSerialization()->getSettings()->getValue('database') !== $testDbModel->getSerialization()->getSettings()->getValue('database')) {
 	throw new Exception('models haven\'t same serialization');
 }
 
-if ($lPlaceModel->getSerialization()->getSettings()->getModel() !== $lTestDbModel->getSerialization()->getSettings()->getModel()) {
+if ($placeModel->getSerialization()->getSettings()->getModel() !== $testDbModel->getSerialization()->getSettings()->getModel()) {
 	throw new Exception('models haven\'t same instance');
 }
 
-if (ModelManager::getInstance()->getInstanceModel('sqlDatabase') !== $lTestDbModel->getSerialization()->getSettings()->getValue('database')->getModel()) {
+if (ModelManager::getInstance()->getInstanceModel('sqlDatabase') !== $testDbModel->getSerialization()->getSettings()->getValue('database')->getModel()) {
 	throw new Exception('models haven\'t same instance');
 }
 
-if (ModelManager::getInstance()->getInstanceModel('sqlTable') !== $lTestDbModel->getSerialization()->getSettings()->getModel()) {
+if (ModelManager::getInstance()->getInstanceModel('sqlTable') !== $testDbModel->getSerialization()->getSettings()->getModel()) {
 	throw new Exception('models haven\'t same instance');
 }
 
-$lObj        = $lTestModel->getObjectInstance();
-$lModelArray = $lObj->getProperty('objectValues')->getModel();
-$lObjArray   = $lModelArray->getObjectInstance();
-$lObjValue   = $lObj->getproperty('objectValue')->getModel()->getObjectInstance();
+$obj        = $testModel->getObjectInstance();
+$modelArray = $obj->getProperty('objectValues')->getModel();
+$objArray   = $modelArray->getObjectInstance();
+$objValue   = $obj->getproperty('objectValue')->getModel()->getObjectInstance();
 
-$lObj->setId('sddsdfffff');
-$lObj->setValue('objectValue', $lObjValue);
-$lObj->setValue('objectValues', $lObjArray);
-$lObj->setValue('foreignObjectValues', $lObjArray);
+$obj->setId('sddsdfffff');
+$obj->setValue('objectValue', $objValue);
+$obj->setValue('objectValues', $objArray);
+$obj->setValue('foreignObjectValues', $objArray);
 
 if (!ModelManager::getInstance()->hasInstanceModel('sqlTable')) {
 	throw new Exception('model already initialized');
@@ -222,71 +222,71 @@ if (!ModelManager::getInstance()->hasInstanceModel('sqlTable')) {
 
 /** **************** test Comhon DateTime ****************** **/
 
-$lDateTime = new ComhonDateTime('now');
-if ($lDateTime->isUpdated()) {
+$dateTime = new ComhonDateTime('now');
+if ($dateTime->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 
-$lDateTime->add(new DateInterval('P0Y0M0DT5H0M0S'));
-if (!$lDateTime->isUpdated()) {
+$dateTime->add(new DateInterval('P0Y0M0DT5H0M0S'));
+if (!$dateTime->isUpdated()) {
 	throw new Exception('should be updated');
 }
-$lDateTime->resetUpdatedStatus();
-if ($lDateTime->isUpdated()) {
+$dateTime->resetUpdatedStatus();
+if ($dateTime->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 
-$lDateTime->modify('+1 day');
-if (!$lDateTime->isUpdated()) {
+$dateTime->modify('+1 day');
+if (!$dateTime->isUpdated()) {
 	throw new Exception('should be updated');
 }
-$lDateTime->resetUpdatedStatus();
-if ($lDateTime->isUpdated()) {
+$dateTime->resetUpdatedStatus();
+if ($dateTime->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 
-$lDateTime->setDate(2001, 2, 3);
-if (!$lDateTime->isUpdated()) {
+$dateTime->setDate(2001, 2, 3);
+if (!$dateTime->isUpdated()) {
 	throw new Exception('should be updated');
 }
-$lDateTime->resetUpdatedStatus();
-if ($lDateTime->isUpdated()) {
+$dateTime->resetUpdatedStatus();
+if ($dateTime->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 
-$lDateTime->setISODate(2008, 2);
-if (!$lDateTime->isUpdated()) {
+$dateTime->setISODate(2008, 2);
+if (!$dateTime->isUpdated()) {
 	throw new Exception('should be updated');
 }
-$lDateTime->resetUpdatedStatus();
-if ($lDateTime->isUpdated()) {
+$dateTime->resetUpdatedStatus();
+if ($dateTime->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 
-$lDateTime->setTime(14, 55);
-if (!$lDateTime->isUpdated()) {
+$dateTime->setTime(14, 55);
+if (!$dateTime->isUpdated()) {
 	throw new Exception('should be updated');
 }
-$lDateTime->resetUpdatedStatus();
-if ($lDateTime->isUpdated()) {
+$dateTime->resetUpdatedStatus();
+if ($dateTime->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 
-$lDateTime->setTimestamp(1171502725);
-if (!$lDateTime->isUpdated()) {
+$dateTime->setTimestamp(1171502725);
+if (!$dateTime->isUpdated()) {
 	throw new Exception('should be updated');
 }
-$lDateTime->resetUpdatedStatus();
-if ($lDateTime->isUpdated()) {
+$dateTime->resetUpdatedStatus();
+if ($dateTime->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 
-$lDateTime->sub(new DateInterval('P10D'));
-if (!$lDateTime->isUpdated()) {
+$dateTime->sub(new DateInterval('P10D'));
+if (!$dateTime->isUpdated()) {
 	throw new Exception('should be updated');
 }
-$lDateTime->resetUpdatedStatus();
-if ($lDateTime->isUpdated()) {
+$dateTime->resetUpdatedStatus();
+if ($dateTime->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 

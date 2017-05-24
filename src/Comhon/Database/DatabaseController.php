@@ -19,9 +19,9 @@ class DatabaseController {
 	const MYSQL = 'mysql';
 	const PGSQL = 'pgsql';
 
-	private static $sInstances = [];
+	private static $instances = [];
 	
-	private static $sInsertReturns = [
+	private static $insertReturns = [
 		//'cubrid' => null,
 		//'dblib' => 'OUTPUT',
 		//'firebird' => 'RETURNING',
@@ -36,36 +36,36 @@ class DatabaseController {
 		//'4D'
 	];
 	
-	private static $sSupportedLastInsertId = [
+	private static $supportedLastInsertId = [
 		'mysql',
 		//'cubrid',
 		//'informix',
 		//'sqlsrv',
 	];
 	
-	private $mId;
-	private $mDbHandle;
-	private $mPreparedQueries = [];
-	private $mPreparedQueriesParamCount = [];
-	private $mIsSupportedLastInsertId;
-	private $mInsertReturn;
+	private $id;
+	private $dbHandle;
+	private $preparedQueries = [];
+	private $preparedQueriesParamCount = [];
+	private $isSupportedLastInsertId;
+	private $insertReturn;
 	
 	/**
-	 * @param ComhonObject $pDbReference
+	 * @param ComhonObject $dbReference
 	 * @throws \Exception
 	 */
-	private function __construct(ComhonObject $pDbReference) {
-		if (!array_key_exists($pDbReference->getValue('DBMS'), self::$sInsertReturns)) {
-			throw new \Exception("DBMS '{$pDbReference->getValue('DBMS')}' not supported yet");
+	private function __construct(ComhonObject $dbReference) {
+		if (!array_key_exists($dbReference->getValue('DBMS'), self::$insertReturns)) {
+			throw new \Exception("DBMS '{$dbReference->getValue('DBMS')}' not supported yet");
 		}
-		$this->mId = $pDbReference->getValue('id');
-		$lDataSourceName = sprintf('%s:dbname=%s;host=%s', $pDbReference->getValue('DBMS'), $pDbReference->getValue('name'), $pDbReference->getValue('host'));
-		if ($pDbReference->hasValue('port')) {
-			$lDataSourceName .= sprintf(';port=%s', $pDbReference->getValue('port'));
+		$this->id = $dbReference->getValue('id');
+		$dataSourceName = sprintf('%s:dbname=%s;host=%s', $dbReference->getValue('DBMS'), $dbReference->getValue('name'), $dbReference->getValue('host'));
+		if ($dbReference->hasValue('port')) {
+			$dataSourceName .= sprintf(';port=%s', $dbReference->getValue('port'));
 		}
-		$this->mDbHandle = new \PDO($lDataSourceName, $pDbReference->getValue('user'), $pDbReference->getValue('password'));
-		$this->mIsSupportedLastInsertId = in_array($pDbReference->getValue('DBMS'), self::$sSupportedLastInsertId);
-		$this->mInsertReturn = self::$sInsertReturns[$pDbReference->getValue('DBMS')];
+		$this->dbHandle = new \PDO($dataSourceName, $dbReference->getValue('user'), $dbReference->getValue('password'));
+		$this->isSupportedLastInsertId = in_array($dbReference->getValue('DBMS'), self::$supportedLastInsertId);
+		$this->insertReturn = self::$insertReturns[$dbReference->getValue('DBMS')];
 		$this->_setDatabaseOptions();
 	}
 	
@@ -73,110 +73,110 @@ class DatabaseController {
 	 * @return boolean true if \PDO pilote support function \PDO::lastInsertId
 	 */
 	public function isSupportedLastInsertId() {
-		return $this->mIsSupportedLastInsertId;
+		return $this->isSupportedLastInsertId;
 	}
 	
 	/**
 	 * @return string|null keyword to use for returning value in insert query, null if returning is not supported
 	 */
 	public function getInsertReturn() {
-		return $this->mInsertReturn;
+		return $this->insertReturn;
 	}
 	
 	private function  _setDatabaseOptions() {
-		$lDate               = new \DateTime('now', new \DateTimeZone(Config::getInstance()->getDataBaseTimezone()));
-		$lTotalOffsetSeconds = $lDate->getOffset();
-		$lOffsetOperator     = ($lTotalOffsetSeconds >= 0) ? '+' : '-';
-		$lOffsetHours        = floor(abs($lTotalOffsetSeconds) / 3600);
-		$lOffsetMinutes      = floor((abs($lTotalOffsetSeconds) % 3600) / 60);
-		$lOffset             = $lOffsetOperator . $lOffsetHours . ':' . $lOffsetMinutes;
+		$date               = new \DateTime('now', new \DateTimeZone(Config::getInstance()->getDataBaseTimezone()));
+		$totalOffsetSeconds = $date->getOffset();
+		$offsetOperator     = ($totalOffsetSeconds >= 0) ? '+' : '-';
+		$offsetHours        = floor(abs($totalOffsetSeconds) / 3600);
+		$offsetMinutes      = floor((abs($totalOffsetSeconds) % 3600) / 60);
+		$offset             = $offsetOperator . $offsetHours . ':' . $offsetMinutes;
 		
-		$this->mDbHandle->exec('SET NAMES '.Config::getInstance()->getDataBaseCharset().';');
-		$this->mDbHandle->exec("SET time_zone = '$lOffset';");
+		$this->dbHandle->exec('SET NAMES '.Config::getInstance()->getDataBaseCharset().';');
+		$this->dbHandle->exec("SET time_zone = '$offset';");
 
 		// do not transform int to string (doesn't work)
-		// $this->mDbHandle->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-		// $this->mDbHandle->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
+		// $this->dbHandle->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+		// $this->dbHandle->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
 	}
 
 	/**
-	 * @param integer $pId
+	 * @param integer $id
 	 * @return DatabaseController
 	 */
-	public static function getInstanceWithDataBaseId($pId) {
-		$lReturn = null;
-		if (array_key_exists($pId, self::$sInstances)) {
-			$lReturn = self::$sInstances[$pId];
+	public static function getInstanceWithDataBaseId($id) {
+		$return = null;
+		if (array_key_exists($id, self::$instances)) {
+			$return = self::$instances[$id];
 		}
-		return $lReturn;
+		return $return;
 	}
 	
 	/**
-	 * @param ComhonObject $pDbReference
+	 * @param ComhonObject $dbReference
 	 * @return DatabaseController
 	 */
-	public static function getInstanceWithDataBaseObject(ComhonObject $pDbReference) {
-		$lReturn = null;
-		if (!$pDbReference->hasValue('id')) {
+	public static function getInstanceWithDataBaseObject(ComhonObject $dbReference) {
+		$return = null;
+		if (!$dbReference->hasValue('id')) {
 			throw new \Exception('malformed database reference');
 		}
-		$lId = $pDbReference->getValue('id');
-		if (array_key_exists($lId, self::$sInstances)) {
-			$lReturn = self::$sInstances[$lId];
-		}else if ($pDbReference->hasValues(['id', 'DBMS', 'host', 'name', 'user', 'password'])) {
-			$lReturn = new DatabaseController($pDbReference);
-			self::$sInstances[$lId] = $lReturn;
+		$id = $dbReference->getValue('id');
+		if (array_key_exists($id, self::$instances)) {
+			$return = self::$instances[$id];
+		}else if ($dbReference->hasValues(['id', 'DBMS', 'host', 'name', 'user', 'password'])) {
+			$return = new DatabaseController($dbReference);
+			self::$instances[$id] = $return;
 		}else {
 			throw new \Exception('malformed database reference');
 		}
-		return $lReturn;
+		return $return;
 	}
 	
 	/**
 	 * prepare query
-	 * @param string $pQuery
-	 * @param array $pValues values to replace in the query
+	 * @param string $query
+	 * @param array $values values to replace in the query
 	 * @throws \Exception
 	 * @return PDOStatement
 	 */
-	private function _prepareQuery($pQuery, $pValues = []) {
-		if (!array_key_exists($pQuery, $this->mPreparedQueries)) {
-			$this->mPreparedQueries[$pQuery] = $this->mDbHandle->prepare($pQuery);
-			$this->mPreparedQueriesParamCount[$pQuery] = count($pValues);
+	private function _prepareQuery($query, $values = []) {
+		if (!array_key_exists($query, $this->preparedQueries)) {
+			$this->preparedQueries[$query] = $this->dbHandle->prepare($query);
+			$this->preparedQueriesParamCount[$query] = count($values);
 		}
-		else if (count($pValues) !== $this->mPreparedQueriesParamCount[$pQuery]) {
-			throw new \Exception("prepareQuery query failed : query should have {$this->mPreparedQueriesParamCount[$lQueryId]} values, ".count($pValues).' given.');
+		else if (count($values) !== $this->preparedQueriesParamCount[$query]) {
+			throw new \Exception("prepareQuery query failed : query should have {$this->preparedQueriesParamCount[$query]} values, ".count($values).' given.');
 		}
-		$lPreparedQuery = $this->mPreparedQueries[$pQuery];
-		for ($i = 0; $i < count($pValues); $i++) {
-			if (is_null($pValues[$i])) {
-				$lResult = $lPreparedQuery->bindValue($i+1, $pValues[$i], \PDO::PARAM_NULL);
-			} else if (is_bool($pValues[$i])) {
-				$lResult = $lPreparedQuery->bindValue($i+1, $pValues[$i], \PDO::PARAM_BOOL);
+		$preparedQuery = $this->preparedQueries[$query];
+		for ($i = 0; $i < count($values); $i++) {
+			if (is_null($values[$i])) {
+				$result = $preparedQuery->bindValue($i+1, $values[$i], \PDO::PARAM_NULL);
+			} else if (is_bool($values[$i])) {
+				$result = $preparedQuery->bindValue($i+1, $values[$i], \PDO::PARAM_BOOL);
 			} else {
-				$lResult = $lPreparedQuery->bindValue($i+1, $pValues[$i]);
+				$result = $preparedQuery->bindValue($i+1, $values[$i]);
 			}
-			if ($lResult === false) {
-				trigger_error("\nbindValue query failed :\n'".$lPreparedQuery->queryString."'\n");
-				throw new \Exception("\nbindValue query failed :\n'".$lPreparedQuery->queryString."'\n");
+			if ($result === false) {
+				trigger_error("\nbindValue query failed :\n'".$preparedQuery->queryString."'\n");
+				throw new \Exception("\nbindValue query failed :\n'".$preparedQuery->queryString."'\n");
 			}
 		}
-		return $lPreparedQuery;
+		return $preparedQuery;
 	}
 	
 	/**
-	 * execute the query that match with $pQueryId
-	 * @param PDOStatement $pPDOStatement
+	 * execute the query that match with $queryId
+	 * @param PDOStatement $PDOStatement
 	 * @throws \Exception
 	 */
-	private function _doQuery($pPDOStatement) {
-		if (!$pPDOStatement->execute()) {
-			$lMessage = "\n\nexecution query failed :\n'"
-					.$pPDOStatement->queryString
+	private function _doQuery($PDOStatement) {
+		if (!$PDOStatement->execute()) {
+			$message = "\n\nexecution query failed :\n'"
+					.$PDOStatement->queryString
 					."'\n\nPDO errorInfo : \n"
-							.var_export($pPDOStatement->errorInfo(), true)
+							.var_export($PDOStatement->errorInfo(), true)
 							."'\n";
-			throw new \Exception($lMessage);
+			throw new \Exception($message);
 		}
 	}
 	
@@ -184,35 +184,35 @@ class DatabaseController {
 	 * return the last insert id
 	 */
 	public function lastInsertId() {
-		return $this->mDbHandle->lastInsertId();
+		return $this->dbHandle->lastInsertId();
 	}
 	
 	/**
 	 * prepare, execute and return result of query
-	 * @param SelectQuery $pSelectQuery
-	 * @param integer $pFetchStyle
+	 * @param SelectQuery $selectQuery
+	 * @param integer $fetchStyle
 	 * @throws \Exception
 	 * @return array
 	 */
-	public function executeSelectQuery(SelectQuery $pSelectQuery, $pFetchStyle = \PDO::FETCH_ASSOC) {
-		list($lQuery, $lValues) = $pSelectQuery->export();
-		//var_dump("\n\n".vsprintf(str_replace('?', "%s", $lQuery), $lValues));
-		return $this->executeSimpleQuery($lQuery, $lValues)->fetchAll($pFetchStyle);
+	public function executeSelectQuery(SelectQuery $selectQuery, $fetchStyle = \PDO::FETCH_ASSOC) {
+		list($query, $values) = $selectQuery->export();
+		//var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
+		return $this->executeSimpleQuery($query, $values)->fetchAll($fetchStyle);
 	}
 	
 	/**
 	 * prepare, execute and return result of query
-	 * @param string $pSelectQuery
-	 * @param array $pValues
+	 * @param string $selectQuery
+	 * @param array $values
 	 * @throws \Exception
 	 * @return PDOStatement
 	 */
-	public function executeSimpleQuery($pQuery, $pValues = []) {
-		//var_dump("\n\n".vsprintf(str_replace('?', "%s", $pQuery), $pValues));
-		$lPDOStatement = $this->_prepareQuery($pQuery, $pValues);
-		$this->_doQuery($lPDOStatement);
+	public function executeSimpleQuery($query, $values = []) {
+		//var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
+		$PDOStatement = $this->_prepareQuery($query, $values);
+		$this->_doQuery($PDOStatement);
 		
-		return $lPDOStatement;
+		return $PDOStatement;
 	}
 	
 }

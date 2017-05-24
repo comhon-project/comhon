@@ -15,9 +15,9 @@ use Comhon\Model\Model;
 
 class NotSupportedModelIntervalException extends \Exception {
 	
-	public function __construct(Model $pModel) {
+	public function __construct(Model $model) {
 		parent::__construct(
-			"interval cannot be defined on model '{$pModel->getName()}'", 
+			"interval cannot be defined on model '{$model->getName()}'", 
 			ConstantException::NOT_SUPPORTED_MODEL_INTERVAL_EXCEPTION
 		);
 	}

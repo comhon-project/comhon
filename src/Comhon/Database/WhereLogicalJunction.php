@@ -14,31 +14,31 @@ namespace Comhon\Database;
 class WhereLogicalJunction extends LogicalJunction {
 	
 	/**
-	 * @param Literal $pLiteral
+	 * @param Literal $literal
 	 */
-	public function addLiteral(Literal $pLiteral) {
-		$this->_addLiteral($pLiteral);
+	public function addLiteral(Literal $literal) {
+		$this->_addLiteral($literal);
 	}
 	
 	/**
-	 * @param WhereLiteral $pLiteral
+	 * @param WhereLiteral $literal
 	 */
-	private function _addLiteral(WhereLiteral $pLiteral) {
-		$this->mLiterals[] = $pLiteral;
+	private function _addLiteral(WhereLiteral $literal) {
+		$this->literals[] = $literal;
 	}
 	
 	/**
-	 * @param LogicalJunction $pLogicalJunction
+	 * @param LogicalJunction $logicalJunction
 	 */
-	public function addLogicalJunction(LogicalJunction $pLogicalJunction) {
-		$this->_addLogicalJunction($pLogicalJunction);
+	public function addLogicalJunction(LogicalJunction $logicalJunction) {
+		$this->_addLogicalJunction($logicalJunction);
 	}
 	
 	/**
-	 * @param WhereLogicalJunction $pLogicalJunction
+	 * @param WhereLogicalJunction $logicalJunction
 	 */
-	private function _addLogicalJunction(WhereLogicalJunction $pLogicalJunction) {
-		$this->mLogicalJunction[] = $pLogicalJunction;
+	private function _addLogicalJunction(WhereLogicalJunction $logicalJunction) {
+		$this->logicalJunction[] = $logicalJunction;
 	}
 	
 }

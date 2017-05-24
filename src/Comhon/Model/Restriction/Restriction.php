@@ -17,26 +17,26 @@ interface Restriction {
 	
 	/**
 	 *
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 */
-	public function satisfy($pValue);
+	public function satisfy($value);
 	
 	/**
 	 * verify if specified restriction is equal to $this
-	 * @param Restriction $pRestriction
+	 * @param Restriction $restriction
 	 */
-	public function isEqual(Restriction $pRestriction);
+	public function isEqual(Restriction $restriction);
 	
 	/**
 	 * verify if specified model can use this restriction
-	 * @param Model $pModel
+	 * @param Model $model
 	 */
-	public function isAllowedModel(Model $pModel);
+	public function isAllowedModel(Model $model);
 	
 	/**
 	 * stringify restriction and value
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 */
-	public function toString($pValue);
+	public function toString($value);
 	
 }

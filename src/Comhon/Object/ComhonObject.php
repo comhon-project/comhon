@@ -22,18 +22,18 @@ use Comhon\Interfacer\StdObjectInterfacer;
 
 abstract class ComhonObject {
 
-	private $mModel;
-	private $mValues        = [];
-	private $mIsLoaded;
-	private $mUpdatedValues = [];
-	private $mIsUpdated     = false;
-	private $mIsCasted      = false;
+	private $model;
+	private $values        = [];
+	private $isLoaded;
+	private $updatedValues = [];
+	private $isUpdated     = false;
+	private $isCasted      = false;
 	
-	final protected function _affectModel(Model $pModel) {
-		if (!is_null($this->mModel)) {
+	final protected function _affectModel(Model $model) {
+		if (!is_null($this->model)) {
 			throw new \Exception('object already initialized');
 		}
-		$this->mModel = $pModel;
+		$this->model = $model;
 	}
 	
 	
@@ -45,133 +45,133 @@ abstract class ComhonObject {
 	
 	/**
 	 * 
-	 * @param string $pName
-	 * @param unknown $pValue
-	 * @param boolean $pFlagAsUpdated if true, flag value as updated
-	 * @param boolean $pStrict if true, verify value type
+	 * @param string $name
+	 * @param unknown $value
+	 * @param boolean $flagAsUpdated if true, flag value as updated
+	 * @param boolean $strict if true, verify value type
 	 */
-	public final function setValue($pName, $pValue, $pFlagAsUpdated = true, $pStrict = true) {
-		if ($pStrict) {
+	public final function setValue($name, $value, $flagAsUpdated = true, $strict = true) {
+		if ($strict) {
 			if ($this instanceof ObjectArray) {
-				$this->mModel->verifElementValue($pValue);
+				$this->model->verifElementValue($value);
 			} else {
-				$lProperty = $this->mModel->getProperty($pName, true);
-				$lProperty->isSatisfiable($pValue, true);
-				if (!is_null($pValue)) {
-					$lProperty->getModel()->verifValue($pValue);
+				$property = $this->model->getProperty($name, true);
+				$property->isSatisfiable($value, true);
+				if (!is_null($value)) {
+					$property->getModel()->verifValue($value);
 				}
-				if ($lProperty->isAggregation()) {
-					$pFlagAsUpdated = false;
+				if ($property->isAggregation()) {
+					$flagAsUpdated = false;
 				}
 			}
 		}
-		if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel)) {
-			if ($this->hasCompleteId() && MainObjectCollection::getInstance()->getObject($this->getId(), $this->mModel->getName()) === $this) {
+		if ($this->model->hasIdProperty($name) && ($this->model instanceof MainModel)) {
+			if ($this->hasCompleteId() && MainObjectCollection::getInstance()->getObject($this->getId(), $this->model->getName()) === $this) {
 				MainObjectCollection::getInstance()->removeObject($this);
 			}
-			$this->mValues[$pName] = $pValue;
+			$this->values[$name] = $value;
 			MainObjectCollection::getInstance()->addObject($this, false);
 		} else {
-			$this->mValues[$pName] = $pValue;
+			$this->values[$name] = $value;
 		}
-		if ($pFlagAsUpdated) {
-			$this->mUpdatedValues[$pName] = false;
-			$this->mIsUpdated = true;
-		} else if (array_key_exists($pName, $this->mUpdatedValues)) {
-			unset($this->mUpdatedValues[$pName]);
-			if (empty($this->mUpdatedValues)) {
-				$this->mIsUpdated = false;
+		if ($flagAsUpdated) {
+			$this->updatedValues[$name] = false;
+			$this->isUpdated = true;
+		} else if (array_key_exists($name, $this->updatedValues)) {
+			unset($this->updatedValues[$name]);
+			if (empty($this->updatedValues)) {
+				$this->isUpdated = false;
 			}
 		}
 	}
 	
-	protected final function _pushValue($pValue, $pFlagAsUpdated) {
-		$this->mValues[] = $pValue;
-		if ($pFlagAsUpdated) {
-			$this->mIsUpdated = true;
+	protected final function _pushValue($value, $flagAsUpdated) {
+		$this->values[] = $value;
+		if ($flagAsUpdated) {
+			$this->isUpdated = true;
 		}
 	}
 	
-	public final function _popValue($pFlagAsUpdated) {
-		array_pop($this->mValues);
-		if ($pFlagAsUpdated) {
-			$this->mIsUpdated = true;
+	public final function _popValue($flagAsUpdated) {
+		array_pop($this->values);
+		if ($flagAsUpdated) {
+			$this->isUpdated = true;
 		}
 	}
 	
-	public final function _unshiftValue($pValue, $pFlagAsUpdated) {
-		array_unshift($this->mValues, $pValue);
-		if ($pFlagAsUpdated) {
-			$this->mIsUpdated = true;
+	public final function _unshiftValue($value, $flagAsUpdated) {
+		array_unshift($this->values, $value);
+		if ($flagAsUpdated) {
+			$this->isUpdated = true;
 		}
 	}
 	
-	public final function _shiftValue($pFlagAsUpdated) {
-		array_shift($this->mValues);
-		if ($pFlagAsUpdated) {
-			$this->mIsUpdated = true;
+	public final function _shiftValue($flagAsUpdated) {
+		array_shift($this->values);
+		if ($flagAsUpdated) {
+			$this->isUpdated = true;
 		}
 	}
 	
-	public final function unsetValue($pName, $pFlagAsUpdated = true) {
-		if ($this->hasValue($pName)) {
-			if ($this->mModel->hasIdProperty($pName) && ($this->mModel instanceof MainModel)) {
+	public final function unsetValue($name, $flagAsUpdated = true) {
+		if ($this->hasValue($name)) {
+			if ($this->model->hasIdProperty($name) && ($this->model instanceof MainModel)) {
 				MainObjectCollection::getInstance()->removeObject($this);
 			}
-			unset($this->mValues[$pName]);
-			if ($pFlagAsUpdated) {
-				$this->mIsUpdated = true;
-				$this->mUpdatedValues[$pName] = true;
+			unset($this->values[$name]);
+			if ($flagAsUpdated) {
+				$this->isUpdated = true;
+				$this->updatedValues[$name] = true;
 			}
 		}
 	}
 	
 	/**
 	 * instanciate a ComhonObject and add it to values
-	 * @param unknown $pPropertyName
-	 * @param string $pIsLoaded
-	 * @param boolean $pFlagAsUpdated if true, flag value as updated
+	 * @param unknown $propertyName
+	 * @param string $isLoaded
+	 * @param boolean $flagAsUpdated if true, flag value as updated
 	 * @return ComhonObject
 	 */
-	public final function initValue($pPropertyName, $pIsLoaded = true, $pFlagAsUpdated = true) {
-		$this->setValue($pPropertyName, $this->getInstanceValue($pPropertyName, $pIsLoaded), $pFlagAsUpdated);
-		return $this->mValues[$pPropertyName];
+	public final function initValue($propertyName, $isLoaded = true, $flagAsUpdated = true) {
+		$this->setValue($propertyName, $this->getInstanceValue($propertyName, $isLoaded), $flagAsUpdated);
+		return $this->values[$propertyName];
 	}
 	
-	protected final function _setValues(array $pValues) {
-		$this->mValues = $pValues;
-		$this->mIsUpdated = true;
+	protected final function _setValues(array $values) {
+		$this->values = $values;
+		$this->isUpdated = true;
 	}
 	
 	/**
 	 * reset values and reset update status
 	 */
 	public final function reset() {
-		if ($this->mModel->hasIdProperties() && ($this->mModel instanceof MainModel)) {
+		if ($this->model->hasIdProperties() && ($this->model instanceof MainModel)) {
 			MainObjectCollection::getInstance()->removeObject($this);
 		}
-		$this->mValues = [];
-		$this->mIsUpdated = false;
-		$this->mUpdatedValues = [];
+		$this->values = [];
+		$this->isUpdated = false;
+		$this->updatedValues = [];
 		if (!($this instanceof ObjectArray)) {
-			foreach ($this->mModel->getPropertiesWithDefaultValues() as $lProperty) {
-				$this->setValue($lProperty->getName(), $lProperty->getDefaultValue(), false);
+			foreach ($this->model->getPropertiesWithDefaultValues() as $property) {
+				$this->setValue($property->getName(), $property->getDefaultValue(), false);
 			}
 		}
 	}
 	
-	public function setId($pId, $pFlagAsUpdated = true) {
-		if ($this->mModel->hasUniqueIdProperty()) {
-			$this->setValue($this->mModel->getUniqueIdProperty()->getName(), $pId, $pFlagAsUpdated);
+	public function setId($id, $flagAsUpdated = true) {
+		if ($this->model->hasUniqueIdProperty()) {
+			$this->setValue($this->model->getUniqueIdProperty()->getName(), $id, $flagAsUpdated);
 		}
 		else {
-			$lIdValues = $this->mModel->decodeId($pId);
-			if (count($this->mModel->getIdProperties()) !== count($lIdValues)) {
-				throw new \Exception('invalid id : '.$pId);
+			$idValues = $this->model->decodeId($id);
+			if (count($this->model->getIdProperties()) !== count($idValues)) {
+				throw new \Exception('invalid id : '.$id);
 			}
 			$i = 0;
-			foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
-				$this->setValue($lPropertyName, $lIdValues[$i], $pFlagAsUpdated);
+			foreach ($this->model->getIdProperties() as $propertyName => $property) {
+				$this->setValue($propertyName, $idValues[$i], $flagAsUpdated);
 				$i++;
 			}
 		}
@@ -181,13 +181,13 @@ abstract class ComhonObject {
 	 * reoder values in same order than properties
 	 */
 	public final function reorderValues() {
-		$lValues = [];
-		foreach ($this->mModel->getProperties() as $lPropertyName => $lProperty) {
-			if (array_key_exists($lPropertyName, $this->mValues)) {
-				$lValues[$lPropertyName] = $this->mValues[$lPropertyName];
+		$values = [];
+		foreach ($this->model->getProperties() as $propertyName => $property) {
+			if (array_key_exists($propertyName, $this->values)) {
+				$values[$propertyName] = $this->values[$propertyName];
 			}
 		}
-		$this->mValues = $lValues;
+		$this->values = $values;
 	}
 	
 	/***********************************************************************************************\
@@ -196,46 +196,46 @@ abstract class ComhonObject {
 	|                                                                                               |
 	\***********************************************************************************************/
 	
-	public final function getValue($pName) {
-		return ($this->hasValue($pName)) ? $this->mValues[$pName] : null;
+	public final function getValue($name) {
+		return ($this->hasValue($name)) ? $this->values[$name] : null;
 	}
 	
-	public final function getInstanceValue($pPropertyName, $pIsLoaded = true) {
-		return $this->getProperty($pPropertyName, true)->getModel()->getObjectInstance($pIsLoaded);
+	public final function getInstanceValue($propertyName, $isLoaded = true) {
+		return $this->getProperty($propertyName, true)->getModel()->getObjectInstance($isLoaded);
 	}
 	
 	public final function getValues() {
-		return $this->mValues;
+		return $this->values;
 	}
 	
 	public final function getDeletedValues() {
-		$lDeletedValues = [];
-		foreach ($this->mUpdatedValues as $lPropertyName => $lDeleted) {
-			if ($lDeleted) {
-				$lDeletedValues[] = $lPropertyName;
+		$deletedValues = [];
+		foreach ($this->updatedValues as $propertyName => $deleted) {
+			if ($deleted) {
+				$deletedValues[] = $propertyName;
 			}
 		}
-		return $lDeletedValues;
+		return $deletedValues;
 	}
 	
 	public final function getUpdatedValues() {
-		return $this->mUpdatedValues;
+		return $this->updatedValues;
 	}
 	
 	public function getId() {
-		if ($this->mModel->hasUniqueIdProperty()) {
-			return $this->getValue($this->mModel->getUniqueIdProperty()->getName());
+		if ($this->model->hasUniqueIdProperty()) {
+			return $this->getValue($this->model->getUniqueIdProperty()->getName());
 		}
-		$lValues = [];
-		foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
-			$lValues[] = $this->getValue($lPropertyName);
+		$values = [];
+		foreach ($this->model->getIdProperties() as $propertyName => $property) {
+			$values[] = $this->getValue($propertyName);
 		}
-		return $this->mModel->encodeId($lValues);
+		return $this->model->encodeId($values);
 	}
 	
 	public final function hasCompleteId() {
-		foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
-			if(is_null($this->getValue($lPropertyName))) {
+		foreach ($this->model->getIdProperties() as $propertyName => $property) {
+			if(is_null($this->getValue($propertyName))) {
 				return false;
 			}
 		}
@@ -243,20 +243,20 @@ abstract class ComhonObject {
 	}
 	
 	public final function verifCompleteId() {
-		foreach ($this->mModel->getIdProperties() as $lPropertyName => $lProperty) {
-			if(is_null($this->getValue($lPropertyName)) || $this->getValue($lPropertyName) == '') {
-				throw new \Excpetion("id is not complete, property '$lPropertyName' is empty");
+		foreach ($this->model->getIdProperties() as $propertyName => $property) {
+			if(is_null($this->getValue($propertyName)) || $this->getValue($propertyName) == '') {
+				throw new \Excpetion("id is not complete, property '$propertyName' is empty");
 			}
 		}
 	}
 	
-	public final function hasValue($pName) {
-		return array_key_exists($pName, $this->mValues);
+	public final function hasValue($name) {
+		return array_key_exists($name, $this->values);
 	}
 	
 	public final function hasValues($Names) {
-		foreach ($Names as $lName) {
-			if (!$this->hasValue($lName)) {
+		foreach ($Names as $name) {
+			if (!$this->hasValue($name)) {
 				return false;
 			}
 		}
@@ -264,7 +264,7 @@ abstract class ComhonObject {
 	}
 	
 	public final function getValuesCount() {
-		return count($this->mValues);
+		return count($this->values);
 	}
 	
 	
@@ -275,23 +275,23 @@ abstract class ComhonObject {
 	 \***********************************************************************************************/
 	
 	protected function _rewind() {
-		reset($this->mValues);
+		reset($this->values);
 	}
 	
 	protected function _current() {
-		return current($this->mValues);
+		return current($this->values);
 	}
 	
 	protected function _key() {
-		return key($this->mValues);
+		return key($this->values);
 	}
 	
 	protected function _next() {
-		next($this->mValues);
+		next($this->values);
 	}
 	
 	protected function _valid() {
-		return key($this->mValues) !== null;
+		return key($this->values) !== null;
 	}
 	
 	/***********************************************************************************************\
@@ -305,19 +305,19 @@ abstract class ComhonObject {
 	 * @return boolean
 	 */
 	public function isUpdated() {
-		if (!$this->mIsUpdated) {
-			foreach ($this->getModel()->getComplexProperties() as $lPropertyName => $lProperty) {
-				if ($this->isUpdatedValue($lPropertyName)) {
+		if (!$this->isUpdated) {
+			foreach ($this->getModel()->getComplexProperties() as $propertyName => $property) {
+				if ($this->isUpdatedValue($propertyName)) {
 					return true;
 				}
 			}
-			foreach ($this->getModel()->getDateTimeProperties() as $lPropertyName => $lProperty) {
-				if ($this->isUpdatedValue($lPropertyName)) {
+			foreach ($this->getModel()->getDateTimeProperties() as $propertyName => $property) {
+				if ($this->isUpdatedValue($propertyName)) {
 					return true;
 				}
 			}
 		}
-		return $this->mIsUpdated;
+		return $this->isUpdated;
 	}
 	
 	/**
@@ -325,8 +325,8 @@ abstract class ComhonObject {
 	 * @return boolean
 	 */
 	public function isIdUpdated() {
-		foreach ($this->getModel()->getIdProperties() as $lPropertyName => $lProperty) {
-			if ($this->isUpdatedValue($lPropertyName)) {
+		foreach ($this->getModel()->getIdProperties() as $propertyName => $property) {
+			if ($this->isUpdatedValue($propertyName)) {
 				return true;
 			}
 		}
@@ -336,21 +336,21 @@ abstract class ComhonObject {
 	/**
 	 * verify if a value has been updated
 	 * only works for object that have a model insance of MainModel, otherwise false will be return 
-	 * @param string $pPropertyName
+	 * @param string $propertyName
 	 * @return boolean
 	 */
-	public function isUpdatedValue($pPropertyName) {
-		if ($this->hasProperty($pPropertyName)) {
-			if (array_key_exists($pPropertyName, $this->mUpdatedValues)) {
+	public function isUpdatedValue($propertyName) {
+		if ($this->hasProperty($propertyName)) {
+			if (array_key_exists($propertyName, $this->updatedValues)) {
 				return true;
-			} else if ($this->hasValue($pPropertyName)) {
-				if ($this->mValues[$pPropertyName] instanceof ComhonObject) {
-					return $this->getProperty($pPropertyName)->isForeign()
-						? $this->mValues[$pPropertyName]->isIdUpdated()
-						: $this->mValues[$pPropertyName]->isUpdated();
+			} else if ($this->hasValue($propertyName)) {
+				if ($this->values[$propertyName] instanceof ComhonObject) {
+					return $this->getProperty($propertyName)->isForeign()
+						? $this->values[$propertyName]->isIdUpdated()
+						: $this->values[$propertyName]->isUpdated();
 				}
-				else if ($this->mValues[$pPropertyName] instanceof ComhonDateTime) {
-					return $this->mValues[$pPropertyName]->isUpdated();
+				else if ($this->values[$propertyName] instanceof ComhonDateTime) {
+					return $this->values[$propertyName]->isUpdated();
 				}
 			}
 		}
@@ -363,80 +363,80 @@ abstract class ComhonObject {
 	 * @return boolean
 	 */
 	public function isFlagedAsUpdated() {
-		return $this->mIsUpdated;
+		return $this->isUpdated;
 	}
 	
 	/**
 	 * verify if a value is flaged as updated
 	 * do not use this function to known if a value is updated (use self::isUpdatedValue)
-	 * @param unknown $pPropertyName
+	 * @param unknown $propertyName
 	 * @return boolean
 	 */
-	public function isValueFlagedAsUpdated($pPropertyName) {
-		return array_key_exists($pPropertyName, $this->mUpdatedValues);
+	public function isValueFlagedAsUpdated($propertyName) {
+		return array_key_exists($propertyName, $this->updatedValues);
 	}
 	
-	public function resetUpdatedStatus($pRecursive = true) {
-		if ($pRecursive) {
-			$lObjectHashMap = [];
-			$this->_resetUpdatedStatusRecursive($lObjectHashMap);
+	public function resetUpdatedStatus($recursive = true) {
+		if ($recursive) {
+			$objectHashMap = [];
+			$this->_resetUpdatedStatusRecursive($objectHashMap);
 		}else {
-			$this->mIsUpdated = false;
-			$this->mUpdatedValues = [];
-			foreach ($this->mModel->getDateTimeProperties() as $lPropertyName => $lProperty) {
-				if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof ComhonDateTime)) {
-					$this->getValue($lPropertyName)->resetUpdatedStatus(false);
+			$this->isUpdated = false;
+			$this->updatedValues = [];
+			foreach ($this->model->getDateTimeProperties() as $propertyName => $property) {
+				if ($this->hasValue($propertyName) && ($this->getValue($propertyName) instanceof ComhonDateTime)) {
+					$this->getValue($propertyName)->resetUpdatedStatus(false);
 				}
 			}
 		}
 	}
 	
-	protected function _resetUpdatedStatusRecursive(&$pObjectHashMap) {
-		if (array_key_exists(spl_object_hash($this), $pObjectHashMap)) {
-			if ($pObjectHashMap[spl_object_hash($this)] > 0) {
+	protected function _resetUpdatedStatusRecursive(&$objectHashMap) {
+		if (array_key_exists(spl_object_hash($this), $objectHashMap)) {
+			if ($objectHashMap[spl_object_hash($this)] > 0) {
 				trigger_error('Warning loop detected');
 				return;
 			}
 		} else {
-			$pObjectHashMap[spl_object_hash($this)] = 0;
+			$objectHashMap[spl_object_hash($this)] = 0;
 		}
-		$pObjectHashMap[spl_object_hash($this)]++;
-		$this->mIsUpdated = false;
-		$this->mUpdatedValues = [];
-		foreach ($this->mModel->getComplexProperties() as $lPropertyName => $lProperty) {
-			if (!$lProperty->isForeign()) {
-				if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof ComhonObject)) {
-					$this->getValue($lPropertyName)->_resetUpdatedStatusRecursive($pObjectHashMap);
+		$objectHashMap[spl_object_hash($this)]++;
+		$this->isUpdated = false;
+		$this->updatedValues = [];
+		foreach ($this->model->getComplexProperties() as $propertyName => $property) {
+			if (!$property->isForeign()) {
+				if ($this->hasValue($propertyName) && ($this->getValue($propertyName) instanceof ComhonObject)) {
+					$this->getValue($propertyName)->_resetUpdatedStatusRecursive($objectHashMap);
 				}
-			} else if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof ObjectArray)) {
-				$this->getValue($lPropertyName)->resetUpdatedStatus(false);
+			} else if ($this->hasValue($propertyName) && ($this->getValue($propertyName) instanceof ObjectArray)) {
+				$this->getValue($propertyName)->resetUpdatedStatus(false);
 			}
 		}
-		foreach ($this->mModel->getDateTimeProperties() as $lPropertyName => $lProperty) {
-			if ($this->hasValue($lPropertyName) && ($this->getValue($lPropertyName) instanceof ComhonDateTime)) {
-				$this->getValue($lPropertyName)->resetUpdatedStatus(false);
+		foreach ($this->model->getDateTimeProperties() as $propertyName => $property) {
+			if ($this->hasValue($propertyName) && ($this->getValue($propertyName) instanceof ComhonDateTime)) {
+				$this->getValue($propertyName)->resetUpdatedStatus(false);
 			}
 		}
-		$pObjectHashMap[spl_object_hash($this)]--;
+		$objectHashMap[spl_object_hash($this)]--;
 	}
 	
 	/**
 	 * reset updated Status (reset only self::mIsUpdated and self::mUpdatedValues)
 	 */
 	protected final function _resetUpdatedStatus() {
-		$this->mIsUpdated = false;
-		$this->mUpdatedValues = [];
+		$this->isUpdated = false;
+		$this->updatedValues = [];
 	}
 	
 	/**
 	 * flag value as updated
-	 * @param string $pPropertyName
+	 * @param string $propertyName
 	 * @return boolean true if success
 	 */
-	public function flagValueAsUpdated($pPropertyName) {
-		if ($this->hasValue($pPropertyName)) {
-			$this->mIsUpdated = true;
-			$this->mUpdatedValues[$pPropertyName] = false;
+	public function flagValueAsUpdated($propertyName) {
+		if ($this->hasValue($propertyName)) {
+			$this->isUpdated = true;
+			$this->updatedValues[$propertyName] = false;
 			return true;
 		}
 		return false;
@@ -447,15 +447,15 @@ abstract class ComhonObject {
 	 * @return boolean
 	 */
 	public final function isLoaded() {
-		return $this->mIsLoaded;
+		return $this->isLoaded;
 	}
 	
 	/**
 	 * 
-	 * @param boolean $pIsLoaded
+	 * @param boolean $isLoaded
 	 */
-	public final function setIsLoaded($pIsLoaded) {
-		$this->mIsLoaded = $pIsLoaded;
+	public final function setIsLoaded($isLoaded) {
+		$this->isLoaded = $isLoaded;
 	}
 	
 	/**
@@ -463,7 +463,7 @@ abstract class ComhonObject {
 	 * @return boolean
 	 */
 	public final function isCasted() {
-		return $this->mIsCasted;
+		return $this->isCasted;
 	}
 	
 	/***********************************************************************************************\
@@ -477,57 +477,57 @@ abstract class ComhonObject {
 	 * @return Model
 	 */
 	public final function getModel() {
-		return $this->mModel;
+		return $this->model;
 	}
 	
-	public final function cast(Model $pModel) {
+	public final function cast(Model $model) {
 		if ($this instanceof ObjectArray) {
 			throw new \Exception('object array cannot be casted');
 		}
-		if ($this->mModel === $pModel) {
+		if ($this->model === $model) {
 			return;
 		}
-		if (!$pModel->isInheritedFrom($this->mModel)) {
-			throw new CastException($pModel, $this->mModel);
+		if (!$model->isInheritedFrom($this->model)) {
+			throw new CastException($model, $this->model);
 		}
-		$lAddObject = false;
+		$addObject = false;
 		if ($this->hasCompleteId() && $this->getModel()->hasIdProperties()) {
-			$lObject = MainObjectCollection::getInstance()->getObject($this->getId(), $pModel->getName());
-			if ($lObject === $this) {
-				$lAddObject = true;
-				if (MainObjectCollection::getInstance()->hasObject($this->getId(), $pModel->getName(), false)) {
-					throw new \Exception("Cannot cast object to '{$pModel->getName()}'. Object with id '{$this->getId()}' and model '{$pModel->getName()}' already exists in MainModelCollection");
+			$object = MainObjectCollection::getInstance()->getObject($this->getId(), $model->getName());
+			if ($object === $this) {
+				$addObject = true;
+				if (MainObjectCollection::getInstance()->hasObject($this->getId(), $model->getName(), false)) {
+					throw new \Exception("Cannot cast object to '{$model->getName()}'. Object with id '{$this->getId()}' and model '{$model->getName()}' already exists in MainModelCollection");
 				}
 			}
 		}
-		$this->mModel = $pModel;
-		$this->mIsCasted = true;
-		if ($this->mModel instanceof MainModel) {
-			foreach ($this->mModel->getAggregations() as $lProperty) {
-				if (!array_key_exists($lProperty->getName(), $this->mValues)) {
-					$this->initValue($lProperty->getName(), false, false);
+		$this->model = $model;
+		$this->isCasted = true;
+		if ($this->model instanceof MainModel) {
+			foreach ($this->model->getAggregations() as $property) {
+				if (!array_key_exists($property->getName(), $this->values)) {
+					$this->initValue($property->getName(), false, false);
 				}
 			}
-			if ($lAddObject) {
+			if ($addObject) {
 				MainObjectCollection::getInstance()->addObject($this);
 			}
 		}
 	}
 	
-	public final function hasProperty($pPropertyName) {
-		return $this->mModel->hasProperty($pPropertyName);
+	public final function hasProperty($propertyName) {
+		return $this->model->hasProperty($propertyName);
 	}
 	
 	public final function getProperties() {
-		return $this->mModel->getProperties();
+		return $this->model->getProperties();
 	}
 	
 	public final function getPropertiesNames() {
-		return $this->mModel->getPropertiesNames();
+		return $this->model->getPropertiesNames();
 	}
 	
-	public final function getProperty($pPropertyName, $pThrowException = false) {
-		return $this->mModel->getProperty($pPropertyName, $pThrowException);
+	public final function getProperty($propertyName, $throwException = false) {
+		return $this->model->getProperty($propertyName, $throwException);
 	}
 	
 	/***********************************************************************************************\
@@ -538,15 +538,15 @@ abstract class ComhonObject {
 	
 	/**
 	 *
-	 * @param string $pOperation specify it only if object serialization is sqlDatabase
+	 * @param string $operation specify it only if object serialization is sqlDatabase
 	 * @throws \Exception
 	 * @return integer
 	 */
-	public final function save($pOperation = null) {
+	public final function save($operation = null) {
 		if (is_null($this->getModel()->getSerialization())) {
 			throw new \Exception('model doesn\'t have serialization');
 		}
-		return $this->getModel()->getSerialization()->saveObject($this, $pOperation);
+		return $this->getModel()->getSerialization()->saveObject($this, $operation);
 	}
 	
 	/**
@@ -563,34 +563,34 @@ abstract class ComhonObject {
 	
 	/**
 	 * load value
-	 * @param string $pName
-	 * @param string[] $pPropertiesFilter
-	 * @param boolean $pForceLoad if object is already loaded, force to reload object
+	 * @param string $name
+	 * @param string[] $propertiesFilter
+	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
 	 */
-	public function loadValue($pName, $pPropertiesFilter = null, $pForceLoad = false) {
-		$lProperty = $this->getProperty($pName, true);
-		if ($lProperty instanceof AggregationProperty) {
-			if (!$this->hasValue($pName)) {
-				$this->initValue($pName, false);
+	public function loadValue($name, $propertiesFilter = null, $forceLoad = false) {
+		$property = $this->getProperty($name, true);
+		if ($property instanceof AggregationProperty) {
+			if (!$this->hasValue($name)) {
+				$this->initValue($name, false);
 			}
-			return $lProperty->loadAggregationValue($this->getValue($pName), $this, $pPropertiesFilter, $pForceLoad);
+			return $property->loadAggregationValue($this->getValue($name), $this, $propertiesFilter, $forceLoad);
 		} else {
-			return $lProperty->loadValue($this->getValue($pName), $pPropertiesFilter, $pForceLoad);
+			return $property->loadValue($this->getValue($name), $propertiesFilter, $forceLoad);
 		}
 	}
 	
 	/**
 	 * load aggregation by retrieving only ids
-	 * @param string $pName
-	 * @param boolean $pForceLoad if object is already loaded, force to reload object
+	 * @param string $name
+	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
 	 */
-	public final function loadValueIds($pName, $pForceLoad = false) {
-		if (!$this->hasValue($pName)) {
-			$this->initValue($pName, false);
+	public final function loadValueIds($name, $forceLoad = false) {
+		if (!$this->hasValue($name)) {
+			$this->initValue($name, false);
 		}
-		return $this->getProperty($pName, true)->loadValueIds($this->getValue($pName), $this, $pForceLoad);
+		return $this->getProperty($name, true)->loadValueIds($this->getValue($name), $this, $forceLoad);
 	}
 	
 	/***********************************************************************************************\
@@ -601,20 +601,20 @@ abstract class ComhonObject {
 	
 	/**
 	 * 
-	 * @param Interfacer $pInterfacer
+	 * @param Interfacer $interfacer
 	 * @return mixed|null
 	 */
-	public final function export(Interfacer $pInterfacer) {
-		return $this->mModel->export($this, $pInterfacer);
+	public final function export(Interfacer $interfacer) {
+		return $this->model->export($this, $interfacer);
 	}
 	
 	/**
 	 * 
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
 	 */
-	public final function fill($pInterfacedObject, Interfacer $pInterfacer) {
-		$this->mModel->fillObject($this, $pInterfacedObject, $pInterfacer);
+	public final function fill($interfacedObject, Interfacer $interfacer) {
+		$this->model->fillObject($this, $interfacedObject, $interfacer);
 	}
 	
 	 /***********************************************************************************************\
@@ -629,9 +629,9 @@ abstract class ComhonObject {
 	 */
 	public function __toString() {
 		try {
-			$lInterfacer = new StdObjectInterfacer();
-			$lInterfacer->setPrivateContext(true);
-			return json_encode($lInterfacer->export($this), JSON_PRETTY_PRINT)."\n";
+			$interfacer = new StdObjectInterfacer();
+			$interfacer->setPrivateContext(true);
+			return json_encode($interfacer->export($this), JSON_PRETTY_PRINT)."\n";
 		} catch (Exception $e) {
 			trigger_error($e->getMessage());
 		}
@@ -643,12 +643,12 @@ abstract class ComhonObject {
 	 * @return array
 	 */
 	public function __debugInfo() {
-		$lDebugObject = get_object_vars($this);
-		if (!array_key_exists('mModel', $lDebugObject)) {
+		$debugObject = get_object_vars($this);
+		if (!array_key_exists('model', $debugObject)) {
 			throw new \Exception('model attribut doesn\'t exist anymore');
 		}
-		$lDebugObject['mModel'] = $this->mModel->getName();
-		return $lDebugObject;
+		$debugObject['model'] = $this->model->getName();
+		return $debugObject;
 	}
 	
 }

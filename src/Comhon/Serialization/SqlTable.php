@@ -38,33 +38,33 @@ class SqlTable extends SerializationUnit {
 	const FLOAT_INDEX   = 1;
 	const BOOLEAN_INDEX = 2;
 	
-	private $mDbController;
-	private $mTableId;
+	private $dbController;
+	private $tableId;
 
-	private static $sAutoIncrementColumns = [];
-	private static $sColumnsToEscape = [];
-	private static $sModelInfos = [];
+	private static $autoIncrementColumns = [];
+	private static $columnsToEscape = [];
+	private static $modelInfos = [];
 	
-	private static $sInterfacer;
+	private static $interfacer;
 	
-	private function _initDatabaseInterfacing(Model $pModel) {
-		if (is_null($this->mDbController)) {
-			$this->mSettings->loadValue('database');
-			$this->mTableId = $this->mSettings->getValue('name').'_'.$this->mSettings->getValue('database')->getValue('id');
-			$this->mDbController = DatabaseController::getInstanceWithDataBaseObject($this->mSettings->getValue('database'));
+	private function _initDatabaseInterfacing(Model $model) {
+		if (is_null($this->dbController)) {
+			$this->settings->loadValue('database');
+			$this->tableId = $this->settings->getValue('name').'_'.$this->settings->getValue('database')->getValue('id');
+			$this->dbController = DatabaseController::getInstanceWithDataBaseObject($this->settings->getValue('database'));
 			$this->_initColumnsInfos();
 		}
-		$this->_initColumnsProperties($pModel);
+		$this->_initColumnsProperties($model);
 	}
 	
 	private function _initColumnsInfos() {
-		if (!array_key_exists($this->mTableId, self::$sAutoIncrementColumns)) {
-			list(self::$sAutoIncrementColumns[$this->mTableId], self::$sColumnsToEscape[$this->mTableId]) = $this->_getSpecifiqueColumns();
+		if (!array_key_exists($this->tableId, self::$autoIncrementColumns)) {
+			list(self::$autoIncrementColumns[$this->tableId], self::$columnsToEscape[$this->tableId]) = $this->_getSpecifiqueColumns();
 		}
 	}
 	
 	private function _getTableId() {
-		return $this->mSettings->getValue('name').'_'.$this->mSettings->getValue('database')->getValue('id');
+		return $this->settings->getValue('name').'_'.$this->settings->getValue('database')->getValue('id');
 	}
 	
 	/**
@@ -72,7 +72,7 @@ class SqlTable extends SerializationUnit {
 	 * @return [string[],string[]]
 	 */
 	private function _getSpecifiqueColumns() {
-	switch ($this->mSettings->getValue('database')->getValue('DBMS')) {
+	switch ($this->settings->getValue('database')->getValue('DBMS')) {
 			case 'mysql': return $this->_getSpecifiqueColumnsMySql();
 			//case 'pgsql':
 			//case 'cubrid':
@@ -85,7 +85,7 @@ class SqlTable extends SerializationUnit {
 			//case 'odbc':
 			//case 'sqlite':
 			//case '4D':
-			default: throw new \Exception("DBMS '{$this->mSettings->getValue('database')->getValue('DBMS')}' not managed");
+			default: throw new \Exception("DBMS '{$this->settings->getValue('database')->getValue('DBMS')}' not managed");
 		}
 	}
 	
@@ -94,23 +94,23 @@ class SqlTable extends SerializationUnit {
 	 * @return [string[],string[]]
 	 */
 	private function _getSpecifiqueColumnsMySql() {
-		$lDBMS = $this->mSettings->getValue('database')->getValue('DBMS');
-		$lAutoIncrementColumns = [];
-		$lColumnsToEscape = [];
+		$DBMS = $this->settings->getValue('database')->getValue('DBMS');
+		$autoIncrementColumns = [];
+		$columnsToEscape = [];
 		
-		$lQuery = 'SHOW COLUMNS FROM '.$this->mSettings->getValue('name');
-		$lResult = $this->mDbController->executeSimpleQuery($lQuery)->fetchAll(\PDO::FETCH_ASSOC);
+		$query = 'SHOW COLUMNS FROM '.$this->settings->getValue('name');
+		$result = $this->dbController->executeSimpleQuery($query)->fetchAll(\PDO::FETCH_ASSOC);
 		
-		foreach ($lResult as $lRow) {
-			if ($lRow['Extra'] === 'auto_increment') {
-				$lAutoIncrementColumns[] = $lRow['Field'];
+		foreach ($result as $row) {
+			if ($row['Extra'] === 'auto_increment') {
+				$autoIncrementColumns[] = $row['Field'];
 				break;
 			}
-			if (SqlUtils::isReservedWorld($lDBMS, $lRow['Field'])) {
-				$lColumnsToEscape[$lRow['Field']] = '`'.$lRow['Field'].'`';
+			if (SqlUtils::isReservedWorld($DBMS, $row['Field'])) {
+				$columnsToEscape[$row['Field']] = '`'.$row['Field'].'`';
 			}
 		}
-		return [$lAutoIncrementColumns, $lColumnsToEscape];
+		return [$autoIncrementColumns, $columnsToEscape];
 	}
 	
 	/**
@@ -118,9 +118,9 @@ class SqlTable extends SerializationUnit {
 	 * @return [string[],string[]]
 	 */
 	private function _getSpecifiqueColumnsPgSql() {
-		$lDBMS = $this->mSettings->getValue('database')->getValue('DBMS');
-		$lAutoIncrementColumns = [];
-		$lColumnsToEscape = [];
+		$DBMS = $this->settings->getValue('database')->getValue('DBMS');
+		$autoIncrementColumns = [];
+		$columnsToEscape = [];
 	
 		// TODO manage sequence
 		// else if ($has_sequence) {
@@ -130,510 +130,510 @@ class SqlTable extends SerializationUnit {
 		//   SELECT pg_get_serial_sequence('<table_name>', '<column_name>')
 		// }
 		
-		return [$lAutoIncrementColumns, $lColumnsToEscape];
+		return [$autoIncrementColumns, $columnsToEscape];
 	}
 	
-	private function _initColumnsProperties(Model $pModel) {
-		if (array_key_exists($pModel->getName(), self::$sModelInfos)) {
+	private function _initColumnsProperties(Model $model) {
+		if (array_key_exists($model->getName(), self::$modelInfos)) {
 			return;
 		}
-		$lAutoIncrementProperties = [];
-		$lHasIncrementalId = false;
+		$autoIncrementProperties = [];
+		$hasIncrementalId = false;
 		
-		$lAutoIncrementColumns = self::$sAutoIncrementColumns[$this->mTableId];
-		if (!empty($lAutoIncrementColumns)) {
-			foreach ($pModel->getSerializableProperties() as $lProperty) {
-				if (in_array($lProperty->getSerializationName(), $lAutoIncrementColumns)) {
-					$lAutoIncrementProperties[] = $lProperty->getName();
-					if ($lProperty->isId()) {
-						$lHasIncrementalId = true;
+		$autoIncrementColumns = self::$autoIncrementColumns[$this->tableId];
+		if (!empty($autoIncrementColumns)) {
+			foreach ($model->getSerializableProperties() as $property) {
+				if (in_array($property->getSerializationName(), $autoIncrementColumns)) {
+					$autoIncrementProperties[] = $property->getName();
+					if ($property->isId()) {
+						$hasIncrementalId = true;
 					}
 				}
 			}
 		}
 		
-		self::$sModelInfos[$pModel->getName()] = [
-			self::HAS_INCR_ID_INDEX          => $lHasIncrementalId,
-			self::AUTO_INCR_PROPERTIES_INDEX => $lAutoIncrementProperties,
-			self::COLUMS_TO_CAST_INDEX       => self::_initColumnsToCast($pModel),
+		self::$modelInfos[$model->getName()] = [
+			self::HAS_INCR_ID_INDEX          => $hasIncrementalId,
+			self::AUTO_INCR_PROPERTIES_INDEX => $autoIncrementProperties,
+			self::COLUMS_TO_CAST_INDEX       => self::_initColumnsToCast($model),
 		];
 	}
 	
-	private static function _initColumnsToCast(Model $pModel) {
-		if (array_key_exists($pModel->getName(), self::$sModelInfos)) {
-			return self::$sModelInfos[$pModel->getName()][self::COLUMS_TO_CAST_INDEX];
+	private static function _initColumnsToCast(Model $model) {
+		if (array_key_exists($model->getName(), self::$modelInfos)) {
+			return self::$modelInfos[$model->getName()][self::COLUMS_TO_CAST_INDEX];
 		}
-		$lCastIntegerColumns = [];
-		$lCastFloatColumns   = [];
-		$lCastBooleanColumns = [];
-		foreach ($pModel->getSerializableProperties() as $lProperty) {
-			if ($lProperty->isSerializable()) {
-				if (!$lProperty->isForeign()) {
-					if ($lProperty->getModel() instanceof ModelInteger) {
-						$lCastIntegerColumns[] = $lProperty->getSerializationName();
-					} else if ($lProperty->getModel() instanceof ModelFloat) {
-						$lCastFloatColumns[] = $lProperty->getSerializationName();
-					} else if (($lProperty->getModel() instanceof ModelBoolean)) {
-						$lCastBooleanColumns[] = $lProperty->getSerializationName();
+		$castIntegerColumns = [];
+		$castFloatColumns   = [];
+		$castBooleanColumns = [];
+		foreach ($model->getSerializableProperties() as $property) {
+			if ($property->isSerializable()) {
+				if (!$property->isForeign()) {
+					if ($property->getModel() instanceof ModelInteger) {
+						$castIntegerColumns[] = $property->getSerializationName();
+					} else if ($property->getModel() instanceof ModelFloat) {
+						$castFloatColumns[] = $property->getSerializationName();
+					} else if (($property->getModel() instanceof ModelBoolean)) {
+						$castBooleanColumns[] = $property->getSerializationName();
 					}
 				}
-				else if (!$lProperty->isAggregation()) {
-					if ($lProperty->hasMultipleSerializationNames()) {
-						foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lProperty) {
-							if ($lProperty->getModel() instanceof ModelInteger) {
-								$lCastIntegerColumns[] = $lSerializationName;
-							} else if ($lProperty->getModel() instanceof ModelFloat) {
-								$lCastFloatColumns[] = $lSerializationName;
-							} else if (($lProperty->getModel() instanceof ModelBoolean)) {
-								$lCastBooleanColumns[] = $lSerializationName;
+				else if (!$property->isAggregation()) {
+					if ($property->hasMultipleSerializationNames()) {
+						foreach ($property->getMultipleIdProperties() as $serializationName => $property) {
+							if ($property->getModel() instanceof ModelInteger) {
+								$castIntegerColumns[] = $serializationName;
+							} else if ($property->getModel() instanceof ModelFloat) {
+								$castFloatColumns[] = $serializationName;
+							} else if (($property->getModel() instanceof ModelBoolean)) {
+								$castBooleanColumns[] = $serializationName;
 							}
 						}
 					}
-					else if ($lProperty->getModel()->hasUniqueIdProperty()) {
-						if ($lProperty->getModel()->getFirstIdProperty()->getModel() instanceof ModelInteger) {
-							$lCastIntegerColumns[] = $lProperty->getSerializationName();
-						} else if ($lProperty->getModel()->getFirstIdProperty()->getModel() instanceof ModelFloat) {
-							$lCastFloatColumns[] = $lProperty->getSerializationName();
-						} else if (($lProperty->getModel() instanceof ModelBoolean)) {
-							$lCastBooleanColumns[] = $lProperty->getSerializationName();
+					else if ($property->getModel()->hasUniqueIdProperty()) {
+						if ($property->getModel()->getFirstIdProperty()->getModel() instanceof ModelInteger) {
+							$castIntegerColumns[] = $property->getSerializationName();
+						} else if ($property->getModel()->getFirstIdProperty()->getModel() instanceof ModelFloat) {
+							$castFloatColumns[] = $property->getSerializationName();
+						} else if (($property->getModel() instanceof ModelBoolean)) {
+							$castBooleanColumns[] = $property->getSerializationName();
 						}
 					}
 				}
 			}
 		}
-		return [$lCastIntegerColumns, $lCastFloatColumns, $lCastBooleanColumns];
+		return [$castIntegerColumns, $castFloatColumns, $castBooleanColumns];
 	}
 	
-	public static function getInterfacer($pFlagObjectAsLoaded = true) {
-		if (is_null(self::$sInterfacer)) {
-			self::$sInterfacer = new AssocArrayInterfacer();
-			self::$sInterfacer->setPrivateContext(true);
-			self::$sInterfacer->setSerialContext(true);
-			self::$sInterfacer->setFlagValuesAsUpdated(false);
-			self::$sInterfacer->setDateTimeFormat('Y-m-d H:i:s');
-			self::$sInterfacer->setDateTimeZone(Config::getInstance()->getDataBaseTimezone());
-			self::$sInterfacer->setFlattenValues(true);
+	public static function getInterfacer($flagObjectAsLoaded = true) {
+		if (is_null(self::$interfacer)) {
+			self::$interfacer = new AssocArrayInterfacer();
+			self::$interfacer->setPrivateContext(true);
+			self::$interfacer->setSerialContext(true);
+			self::$interfacer->setFlagValuesAsUpdated(false);
+			self::$interfacer->setDateTimeFormat('Y-m-d H:i:s');
+			self::$interfacer->setDateTimeZone(Config::getInstance()->getDataBaseTimezone());
+			self::$interfacer->setFlattenValues(true);
 		}
-		self::$sInterfacer->setFlagObjectAsLoaded($pFlagObjectAsLoaded);
-		return self::$sInterfacer;
+		self::$interfacer->setFlagObjectAsLoaded($flagObjectAsLoaded);
+		return self::$interfacer;
 	}
 	
 	/**
-	 * @param ComhonObject $pObject
-	 * @param string $pOperation
+	 * @param ComhonObject $object
+	 * @param string $operation
 	 * @return integer
 	 */
-	protected function _saveObject(ComhonObject $pObject, $pOperation = null) {
-		$this->_initDatabaseInterfacing($pObject->getModel());
+	protected function _saveObject(ComhonObject $object, $operation = null) {
+		$this->_initDatabaseInterfacing($object->getModel());
 		
-		if (self::$sModelInfos[$pObject->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
-			return $this->_saveObjectWithIncrementalId($pObject);
-		} else if ($pOperation == self::CREATE) {
-			return $this->_insertObject($pObject);
-		} else if ($pOperation == self::UPDATE) {
-			return $this->_updateObject($pObject);
+		if (self::$modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
+			return $this->_saveObjectWithIncrementalId($object);
+		} else if ($operation == self::CREATE) {
+			return $this->_insertObject($object);
+		} else if ($operation == self::UPDATE) {
+			return $this->_updateObject($object);
 		} else {
-			throw new \Exception('unknown operation '.$pOperation);
+			throw new \Exception('unknown operation '.$operation);
 		}
 	}
 	
 	/**
 	 *
-	 * @param ComhonObject $pObject
+	 * @param ComhonObject $object
 	 * @throws \Exception
 	 * @return integer
 	 */
-	private function _saveObjectWithIncrementalId(ComhonObject $pObject) {
-		if (!self::$sModelInfos[$pObject->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
+	private function _saveObjectWithIncrementalId(ComhonObject $object) {
+		if (!self::$modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
 			throw new \Exception('operation not specified');
 		}
-		if ($pObject->hasCompleteId()) {
-			return $this->_updateObject($pObject);
+		if ($object->hasCompleteId()) {
+			return $this->_updateObject($object);
 		} else {
-			return $this->_insertObject($pObject);
+			return $this->_insertObject($object);
 		}
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
+	 * @param ComhonObject $object
 	 * @throws \Exception
 	 * @return integer
 	 */
-	private function _insertObject(ComhonObject $pObject) {
-		$lInterfacer = self::getInterfacer();
-		$lInterfacer->setExportOnlyUpdatedValues(false);
-		$lMapOfString = $pObject->export($lInterfacer);
+	private function _insertObject(ComhonObject $object) {
+		$interfacer = self::getInterfacer();
+		$interfacer->setExportOnlyUpdatedValues(false);
+		$mapOfString = $object->export($interfacer);
 		if (!is_null($this->getInheritanceKey())) {
-			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getName();
+			$mapOfString[$this->getInheritanceKey()] = $object->getModel()->getName();
 		}
 		
-		if (is_null($this->mDbController->getInsertReturn())) {
-			$lQuery = 'INSERT INTO '.$this->mSettings->getValue('name').' ('.$this->_getSelectColumnString($lMapOfString)
-					.') VALUES ('.implode(', ', array_fill(0, count($lMapOfString), '?')).');';
-		}else if ($this->mDbController->getInsertReturn() == 'RETURNING') {
+		if (is_null($this->dbController->getInsertReturn())) {
+			$query = 'INSERT INTO '.$this->settings->getValue('name').' ('.$this->_getSelectColumnString($mapOfString)
+					.') VALUES ('.implode(', ', array_fill(0, count($mapOfString), '?')).');';
+		}else if ($this->dbController->getInsertReturn() == 'RETURNING') {
 			// TODO
 			throw new \Exception('not supported yet');
-		}else if ($this->mDbController->getInsertReturn() == 'OUTPUT') {
+		}else if ($this->dbController->getInsertReturn() == 'OUTPUT') {
 			// TODO
 			throw new \Exception('not supported yet');
 		}
-		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, array_values($lMapOfString));
-		$lAffectedRows = $lStatement->rowCount();
+		$statement = $this->dbController->executeSimpleQuery($query, array_values($mapOfString));
+		$affectedRows = $statement->rowCount();
 		
-		$lAutoIncrementProperties = self::$sModelInfos[$pObject->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
-		if (($lAffectedRows > 0) && !empty($lAutoIncrementProperties)) {
-			if ($this->mDbController->isSupportedLastInsertId()) {
-				$lIncrementalValue = $pObject->getProperty($lAutoIncrementProperties[0])->getModel()->castValue($this->mDbController->lastInsertId());
-				$pObject->setValue($lAutoIncrementProperties[0], $lIncrementalValue, false);
+		$autoIncrementProperties = self::$modelInfos[$object->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
+		if (($affectedRows > 0) && !empty($autoIncrementProperties)) {
+			if ($this->dbController->isSupportedLastInsertId()) {
+				$incrementalValue = $object->getProperty($autoIncrementProperties[0])->getModel()->castValue($this->dbController->lastInsertId());
+				$object->setValue($autoIncrementProperties[0], $incrementalValue, false);
 			} else {
 				// TODO manage sequence with return value
 			}
 		}
-		return $lAffectedRows;
+		return $affectedRows;
 	}
 	
 	/**
 	 * 
-	 * @param [] $pMapOfString
+	 * @param [] $mapOfString
 	 * @return string
 	 */
-	private function _getSelectColumnString($pMapOfString) {
-		$lColumnsToEscape = self::$sColumnsToEscape[$this->mTableId];
+	private function _getSelectColumnString($mapOfString) {
+		$columnsToEscape = self::$columnsToEscape[$this->tableId];
 		
-		if (empty($lColumnsToEscape)) {
-			return implode(', ', array_keys($pMapOfString));
+		if (empty($columnsToEscape)) {
+			return implode(', ', array_keys($mapOfString));
 		} else {
-			$lColumns = [];
-			foreach ($pMapOfString as $lColumn => $lString) {
-				if (array_key_exists($lColumn, $lColumnsToEscape)) {
-					$lColumns[] = $lColumnsToEscape[$lColumn];
+			$columns = [];
+			foreach ($mapOfString as $column => $string) {
+				if (array_key_exists($column, $columnsToEscape)) {
+					$columns[] = $columnsToEscape[$column];
 				} else {
-					$lColumns[] = $lColumn;
+					$columns[] = $column;
 				}
 			}
-			return implode(', ', $lColumns);
+			return implode(', ', $columns);
 		}
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
+	 * @param ComhonObject $object
 	 * @throws \Exception
 	 * @return integer
 	 */
-	private function _updateObject(ComhonObject $pObject) {
-		if (!$pObject->getModel()->hasIdProperties() || !$pObject->hasCompleteId()) {
+	private function _updateObject(ComhonObject $object) {
+		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
 			throw new \Exception('update operation require complete id');
 		}
-		$lModel            = $pObject->getModel();
-		$lConditions       = [];
-		$lUpdates          = [];
-		$lUpdateValues     = [];
-		$lConditionsValues = [];
+		$model            = $object->getModel();
+		$conditions       = [];
+		$updates          = [];
+		$updateValues     = [];
+		$conditionsValues = [];
 
-		$lInterfacer = self::getInterfacer();
-		$lInterfacer->setExportOnlyUpdatedValues(true);
-		$lMapOfString = $pObject->export($lInterfacer);
-		foreach ($pObject->getDeletedValues() as $lPropertyName) {
-			$lProperty = $lModel->getProperty($lPropertyName);
-			if (!$lProperty->isId() && !$lProperty->isAggregation()) {
-				$lMapOfString[$lProperty->getSerializationName()] = null;
+		$interfacer = self::getInterfacer();
+		$interfacer->setExportOnlyUpdatedValues(true);
+		$mapOfString = $object->export($interfacer);
+		foreach ($object->getDeletedValues() as $propertyName) {
+			$property = $model->getProperty($propertyName);
+			if (!$property->isId() && !$property->isAggregation()) {
+				$mapOfString[$property->getSerializationName()] = null;
 			}
 		}
 		
-		foreach ($pObject->getModel()->getIdProperties() as $lIdPropertyName => $lIdProperty) {
-			$lColumn = $lIdProperty->getSerializationName();
-			$lValue  = $pObject->getValue($lIdPropertyName);
-			if (is_null($lValue)) {
+		foreach ($object->getModel()->getIdProperties() as $idPropertyName => $idProperty) {
+			$column = $idProperty->getSerializationName();
+			$value  = $object->getValue($idPropertyName);
+			if (is_null($value)) {
 				throw new \Exception('update failed, id is not set');
 			}
-			unset($lMapOfString[$lColumn]);
-			$lConditions[]       = "$lColumn = ?";
-			$lConditionsValues[] = $lValue;
+			unset($mapOfString[$column]);
+			$conditions[]       = "$column = ?";
+			$conditionsValues[] = $value;
 		}
-		if (empty($lMapOfString) && !$pObject->isCasted()) {
+		if (empty($mapOfString) && !$object->isCasted()) {
 			return 0;
 		}
 		if (!is_null($this->getInheritanceKey())) {
-			$lMapOfString[$this->getInheritanceKey()] = $pObject->getModel()->getName();
+			$mapOfString[$this->getInheritanceKey()] = $object->getModel()->getName();
 		}
-		$lColumnsToEscape = self::$sColumnsToEscape[$this->mTableId];
-		foreach ($lMapOfString as $lColumn => $lValue) {
-			if (array_key_exists($lColumn, $lColumnsToEscape)) {
-				$lColumn   = $lColumnsToEscape[$lColumn];
+		$columnsToEscape = self::$columnsToEscape[$this->tableId];
+		foreach ($mapOfString as $column => $value) {
+			if (array_key_exists($column, $columnsToEscape)) {
+				$column   = $columnsToEscape[$column];
 			}
-			$lUpdates[]      = "$lColumn = ?";
-			$lUpdateValues[] = $lValue;
+			$updates[]      = "$column = ?";
+			$updateValues[] = $value;
 		}
-		$lQuery = 'UPDATE '.$this->mSettings->getValue('name').' SET '.implode(', ', $lUpdates).' WHERE '.implode(' and ', $lConditions).';';
-		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, array_merge($lUpdateValues, $lConditionsValues));
+		$query = 'UPDATE '.$this->settings->getValue('name').' SET '.implode(', ', $updates).' WHERE '.implode(' and ', $conditions).';';
+		$statement = $this->dbController->executeSimpleQuery($query, array_merge($updateValues, $conditionsValues));
 		
-		return $lStatement->rowCount();
+		return $statement->rowCount();
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
+	 * @param ComhonObject $object
 	 * @throws \Exception
 	 * @return integer
 	 */
-	protected function _deleteObject(ComhonObject $pObject) {
-		if (!$pObject->getModel()->hasIdProperties() || !$pObject->hasCompleteId()) {
+	protected function _deleteObject(ComhonObject $object) {
+		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
 			throw new \Exception('delete operation require complete id');
 		}
-		$this->_initDatabaseInterfacing($pObject->getModel());
+		$this->_initDatabaseInterfacing($object->getModel());
 		
-		$lModel            = $pObject->getModel();
-		$lConditions       = [];
-		$lConditionsValues = [];
+		$model            = $object->getModel();
+		$conditions       = [];
+		$conditionsValues = [];
 	
-		foreach ($pObject->getModel()->getIdProperties() as $lIdPropertyName => $lIdProperty) {
-			$lColumn = $lIdProperty->getSerializationName();
-			$lValue  = $pObject->getValue($lIdPropertyName);
-			if (is_null($lValue)) {
+		foreach ($object->getModel()->getIdProperties() as $idPropertyName => $idProperty) {
+			$column = $idProperty->getSerializationName();
+			$value  = $object->getValue($idPropertyName);
+			if (is_null($value)) {
 				throw new \Exception('delete failed, id is not set');
 			}
-			$lConditions[]       = "$lColumn = ?";
-			$lConditionsValues[] = $lValue;
+			$conditions[]       = "$column = ?";
+			$conditionsValues[] = $value;
 		}
-		$lQuery = 'DELETE FROM '.$this->mSettings->getValue('name').' WHERE '.implode(' and ', $lConditions).';';
-		$lStatement = $this->mDbController->executeSimpleQuery($lQuery, $lConditionsValues);
+		$query = 'DELETE FROM '.$this->settings->getValue('name').' WHERE '.implode(' and ', $conditions).';';
+		$statement = $this->dbController->executeSimpleQuery($query, $conditionsValues);
 		
-		return $lStatement->rowCount();
+		return $statement->rowCount();
 	}
 	
 	/**
-	 * @param ComhonObject $pObject
-	 * @param string[] $pPropertiesFilter
+	 * @param ComhonObject $object
+	 * @param string[] $propertiesFilter
 	 * @return boolean
 	 */
-	protected function _loadObject(ComhonObject $pObject, $pPropertiesFilter = null) {
-		$lModel         = $pObject->getModel();
-		$lConjunction   = new LogicalJunction(LogicalJunction::CONJUNCTION);
-		$lSelectColumns = [];
+	protected function _loadObject(ComhonObject $object, $propertiesFilter = null) {
+		$model         = $object->getModel();
+		$conjunction   = new LogicalJunction(LogicalJunction::CONJUNCTION);
+		$selectColumns = [];
 		
-		foreach ($lModel->getIdProperties() as $lPropertyName => $lProperty) {
-			$lConjunction->addLiteral(new Literal($this->mSettings->getValue('name'), $lProperty->getSerializationName(), '=', $pObject->getValue($lPropertyName)));
+		foreach ($model->getIdProperties() as $propertyName => $property) {
+			$conjunction->addLiteral(new Literal($this->settings->getValue('name'), $property->getSerializationName(), '=', $object->getValue($propertyName)));
 		}
-		if (is_array($pPropertiesFilter)) {
-			foreach ($pPropertiesFilter as $lPropertyName) {
-				$lSelectColumns[] = $lModel->getProperty($lPropertyName, true)->getSerializationName();
+		if (is_array($propertiesFilter)) {
+			foreach ($propertiesFilter as $propertyName) {
+				$selectColumns[] = $model->getProperty($propertyName, true)->getSerializationName();
 			}
 		}
-		$lReturn = $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lConjunction, false);
-		return $lReturn;
+		$return = $this->_loadObjectFromDatabase($object, $selectColumns, $conjunction, false);
+		return $return;
 	}
 	
-	public function loadAggregation(ObjectArray $pObject, $pParentId, $pAggregationProperties, $pPropertiesFilter = null) {
-		$lModel         = $pObject->getModel()->getUniqueModel();
-		$lDisjunction   = $this->getAggregationConditions($lModel, $pParentId, $pAggregationProperties);
-		$lSelectColumns = [];
+	public function loadAggregation(ObjectArray $object, $parentId, $aggregationProperties, $propertiesFilter = null) {
+		$model         = $object->getModel()->getUniqueModel();
+		$disjunction   = $this->getAggregationConditions($model, $parentId, $aggregationProperties);
+		$selectColumns = [];
 		
-		if (count($lDisjunction->getLiterals()) == 0 && count($lDisjunction->getLogicalJunction()) == 0) {
+		if (count($disjunction->getLiterals()) == 0 && count($disjunction->getLogicalJunction()) == 0) {
 			throw new \Exception('error : property is not serialized in database aggregation');
 		}
-		if (is_array($pPropertiesFilter)) {
-			foreach ($pPropertiesFilter as $lPropertyName) {
-				$lSelectColumns[] = $lModel->getProperty($lPropertyName, true)->getSerializationName();
+		if (is_array($propertiesFilter)) {
+			foreach ($propertiesFilter as $propertyName) {
+				$selectColumns[] = $model->getProperty($propertyName, true)->getSerializationName();
 			}
-			if (!empty($lSelectColumns)) {
-				foreach ($pAggregationProperties as $lAggregationProperty) {
-					$lProperty = $lModel->getProperty($lAggregationProperty, true);
-					if ($lProperty->hasMultipleSerializationNames()) {
-						foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lMultipleForeignProperty) {
-							$lSelectColumns[] = $lSerializationName;
+			if (!empty($selectColumns)) {
+				foreach ($aggregationProperties as $aggregationProperty) {
+					$property = $model->getProperty($aggregationProperty, true);
+					if ($property->hasMultipleSerializationNames()) {
+						foreach ($property->getMultipleIdProperties() as $serializationName => $multipleForeignProperty) {
+							$selectColumns[] = $serializationName;
 						}
 					} else {
-						$lSelectColumns[] = $lProperty->getSerializationName();
+						$selectColumns[] = $property->getSerializationName();
 					}
 				}
-				array_unique($lSelectColumns);
+				array_unique($selectColumns);
 			}
 		}
-		return $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lDisjunction, false);
+		return $this->_loadObjectFromDatabase($object, $selectColumns, $disjunction, false);
 	}
 	
-	public function loadAggregationIds(ObjectArray $pObject, $pParentId, $pAggregationProperties) {
-		$lModel         = $pObject->getModel()->getUniqueModel();
-		$lDisjunction   = $this->getAggregationConditions($lModel, $pParentId, $pAggregationProperties);
-		$lSelectColumns = [];
-		$lIdProperties  = $lModel->getIdProperties();
+	public function loadAggregationIds(ObjectArray $object, $parentId, $aggregationProperties) {
+		$model         = $object->getModel()->getUniqueModel();
+		$disjunction   = $this->getAggregationConditions($model, $parentId, $aggregationProperties);
+		$selectColumns = [];
+		$idProperties  = $model->getIdProperties();
 		
-		if (count($lDisjunction->getLiterals()) == 0 && count($lDisjunction->getLogicalJunction()) == 0) {
+		if (count($disjunction->getLiterals()) == 0 && count($disjunction->getLogicalJunction()) == 0) {
 			throw new \Exception('error : property is not serialized in database aggregation');
 		}
-		if (empty($lIdProperties)) {
-			throw new \Exception("cannot load aggregation ids, model '{$lModel->getName()}' doesn't have property id");
+		if (empty($idProperties)) {
+			throw new \Exception("cannot load aggregation ids, model '{$model->getName()}' doesn't have property id");
 		}
-		foreach ($lIdProperties as $lProperty) {
-			$lSelectColumns[] = $lProperty->getSerializationName();
+		foreach ($idProperties as $property) {
+			$selectColumns[] = $property->getSerializationName();
 		}
-		foreach ($pAggregationProperties as $lAggregationProperty) {
-			$lProperty = $lModel->getProperty($lAggregationProperty, true);
-			if ($lProperty->hasMultipleSerializationNames()) {
-				foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lMultipleForeignProperty) {
-					$lSelectColumns[] = $lSerializationName;
+		foreach ($aggregationProperties as $aggregationProperty) {
+			$property = $model->getProperty($aggregationProperty, true);
+			if ($property->hasMultipleSerializationNames()) {
+				foreach ($property->getMultipleIdProperties() as $serializationName => $multipleForeignProperty) {
+					$selectColumns[] = $serializationName;
 				}
 			} else {
-				$lSelectColumns[] = $lProperty->getSerializationName();
+				$selectColumns[] = $property->getSerializationName();
 			}
 		}
-		return $this->_loadObjectFromDatabase($pObject, $lSelectColumns, $lDisjunction, true);
+		return $this->_loadObjectFromDatabase($object, $selectColumns, $disjunction, true);
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
-	 * @param string[] $pSelectColumns
-	 * @param LogicalJunction $pLogicalJunction
-	 * @param boolean $pOnlyIds used only for aggregation loading
+	 * @param ComhonObject $object
+	 * @param string[] $selectColumns
+	 * @param LogicalJunction $logicalJunction
+	 * @param boolean $onlyIds used only for aggregation loading
 	 * @return boolean
 	 */
-	private function _loadObjectFromDatabase(ComhonObject $pObject, $pSelectColumns, LogicalJunction $pLogicalJunction, $pOnlyIds) {
-		$lSuccess = false;
-		$this->_initDatabaseInterfacing($pObject->getModel());
+	private function _loadObjectFromDatabase(ComhonObject $object, $selectColumns, LogicalJunction $logicalJunction, $onlyIds) {
+		$success = false;
+		$this->_initDatabaseInterfacing($object->getModel());
 		
-		$lSelectQuery = new SelectQuery($this->mSettings->getValue('name'));
-		$lSelectQuery->where($pLogicalJunction);
+		$selectQuery = new SelectQuery($this->settings->getValue('name'));
+		$selectQuery->where($logicalJunction);
 		
-		if (!empty($pSelectColumns) && $pObject->getModel()->hasIdProperties()) {
-			foreach ($pObject->getModel()->getIdProperties() as $lProperty) {
-				if (!in_array($lProperty->getSerializationName(), $pSelectColumns)) {
-					$lSelectQuery->getMainTable()->addSelectedColumn($lProperty->getSerializationName());
+		if (!empty($selectColumns) && $object->getModel()->hasIdProperties()) {
+			foreach ($object->getModel()->getIdProperties() as $property) {
+				if (!in_array($property->getSerializationName(), $selectColumns)) {
+					$selectQuery->getMainTable()->addSelectedColumn($property->getSerializationName());
 				}
 			}
 		}
-		foreach ($pSelectColumns as $lColumn) {
-			$lSelectQuery->getMainTable()->addSelectedColumn($lColumn);
+		foreach ($selectColumns as $column) {
+			$selectQuery->getMainTable()->addSelectedColumn($column);
 		}
-		$lRows = $this->mDbController->executeSelectQuery($lSelectQuery);
+		$rows = $this->dbController->executeSelectQuery($selectQuery);
 		
-		if ($pObject->getModel() instanceof ModelArray) {
-			$lIsModelArray = true;
-			self::castStringifiedColumns($lRows, $pObject->getModel()->getUniqueModel());
+		if ($object->getModel() instanceof ModelArray) {
+			$isModelArray = true;
+			self::castStringifiedColumns($rows, $object->getModel()->getUniqueModel());
 		} else {
-			$lIsModelArray = false;
-			self::castStringifiedColumns($lRows, $pObject->getModel());
+			$isModelArray = false;
+			self::castStringifiedColumns($rows, $object->getModel());
 		}
 		
-		if (is_array($lRows) && ($lIsModelArray || (count($lRows) == 1))) {
+		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {
 			if (!is_null($this->getInheritanceKey())) {
-				if ($lIsModelArray) {
-					$lExtendsModel = $pObject->getModel()->getUniqueModel();
-					foreach ($lRows as &$lRow) {
-						$lModel = $this->getInheritedModel($lRow, $lExtendsModel);
-						$lRow[Interfacer::INHERITANCE_KEY] = $lModel->getName();
+				if ($isModelArray) {
+					$extendsModel = $object->getModel()->getUniqueModel();
+					foreach ($rows as &$row) {
+						$model = $this->getInheritedModel($row, $extendsModel);
+						$row[Interfacer::INHERITANCE_KEY] = $model->getName();
 					}
 				} else {
-					$lModel = $this->getInheritedModel($lRows[0], $pObject->getModel());
-					if ($lModel !== $pObject->getModel()) {
-						$pObject->cast($lModel);
+					$model = $this->getInheritedModel($rows[0], $object->getModel());
+					if ($model !== $object->getModel()) {
+						$object->cast($model);
 					}
 				}
 			}
-			$lInterfacer = self::getInterfacer(!$pOnlyIds);
-			$pObject->fill($lIsModelArray ? $lRows : $lRows[0], $lInterfacer);
-			$lSuccess = true;
+			$interfacer = self::getInterfacer(!$onlyIds);
+			$object->fill($isModelArray ? $rows : $rows[0], $interfacer);
+			$success = true;
 		}
-		return $lSuccess;
+		return $success;
 	}
 	
-	public function getAggregationConditions($pModel, $pParentId, $pAggregationProperties) {
+	public function getAggregationConditions($model, $parentId, $aggregationProperties) {
 		
-		$lDisjunction = new LogicalJunction(LogicalJunction::DISJUNCTION);
-		foreach ($pAggregationProperties as $lAggregationProperty) {
-			$lProperty = $pModel->getProperty($lAggregationProperty, true);
-			if ($lProperty->hasMultipleSerializationNames()) {
-				$lDecodedId = json_decode($pParentId);
-				$lConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
-				foreach ($lProperty->getMultipleIdProperties() as $lSerializationName => $lMultipleForeignProperty) {
-					$lConjunction->addLiteral(new Literal($this->mSettings->getValue('name'), $lSerializationName, '=', current($lDecodedId)));
-					next($lDecodedId);
+		$disjunction = new LogicalJunction(LogicalJunction::DISJUNCTION);
+		foreach ($aggregationProperties as $aggregationProperty) {
+			$property = $model->getProperty($aggregationProperty, true);
+			if ($property->hasMultipleSerializationNames()) {
+				$decodedId = json_decode($parentId);
+				$conjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
+				foreach ($property->getMultipleIdProperties() as $serializationName => $multipleForeignProperty) {
+					$conjunction->addLiteral(new Literal($this->settings->getValue('name'), $serializationName, '=', current($decodedId)));
+					next($decodedId);
 				}
-				$lDisjunction->addLogicalJunction($lConjunction);
+				$disjunction->addLogicalJunction($conjunction);
 			} else {
-				$lDisjunction->addLiteral(new Literal($this->mSettings->getValue('name'), $lProperty->getSerializationName(), '=', $pParentId));
+				$disjunction->addLiteral(new Literal($this->settings->getValue('name'), $property->getSerializationName(), '=', $parentId));
 			}
 		}
-		return $lDisjunction;
+		return $disjunction;
 	}
 	
 	/**
-	 * @param array $pValue
-	 * @param Model $pExtendsModel
+	 * @param array $value
+	 * @param Model $extendsModel
 	 * @return Model
 	 */
-	public function getInheritedModel($pValue, Model $pExtendsModel) {
-		return array_key_exists($this->mInheritanceKey, $pValue) && !is_null($pValue[$this->mInheritanceKey]) 
-				? ModelManager::getInstance()->getInstanceModel($pValue[$this->mInheritanceKey]) : $pExtendsModel;
+	public function getInheritedModel($value, Model $extendsModel) {
+		return array_key_exists($this->inheritanceKey, $value) && !is_null($value[$this->inheritanceKey]) 
+				? ModelManager::getInstance()->getInstanceModel($value[$this->inheritanceKey]) : $extendsModel;
 	}
 	
-	public static function castStringifiedColumns(&$pRows, Model $pModel) {
-		if (empty($pRows)) {
+	public static function castStringifiedColumns(&$rows, Model $model) {
+		if (empty($rows)) {
 			return;
 		}
-		$lColumnsToCast = self::_initColumnsToCast($pModel);
-		$lCastIntegerColumns = [];
-		$lCastFloatColumns   = [];
-		$lCastBooleanColumns = [];
-		foreach ($lColumnsToCast[self::INTEGER_INDEX] as $lColumn) {
-			if (isset($pRows[0][$lColumn])) {
-				foreach ($pRows as $lRow) {
-					if (is_null($lRow[$lColumn])) {
+		$columnsToCast = self::_initColumnsToCast($model);
+		$castIntegerColumns = [];
+		$castFloatColumns   = [];
+		$castBooleanColumns = [];
+		foreach ($columnsToCast[self::INTEGER_INDEX] as $column) {
+			if (isset($rows[0][$column])) {
+				foreach ($rows as $row) {
+					if (is_null($row[$column])) {
 						continue;
 					}
-					if (is_string($lRow[$lColumn])) {
-						$lCastIntegerColumns[] = $lColumn;
+					if (is_string($row[$column])) {
+						$castIntegerColumns[] = $column;
 					}
 					break;
 				}
 			}
 		}
-		foreach ($lColumnsToCast[self::FLOAT_INDEX] as $lColumn) {
-			if (isset($pRows[0][$lColumn])) {
-				foreach ($pRows as $lRow) {
-					if (is_null($lRow[$lColumn])) {
+		foreach ($columnsToCast[self::FLOAT_INDEX] as $column) {
+			if (isset($rows[0][$column])) {
+				foreach ($rows as $row) {
+					if (is_null($row[$column])) {
 						continue;
 					}
-					if (is_string($lRow[$lColumn])) {
-						$lCastFloatColumns[] = $lColumn;
+					if (is_string($row[$column])) {
+						$castFloatColumns[] = $column;
 					}
 					break;
 				}
 			}
 		}
-		foreach ($lColumnsToCast[self::BOOLEAN_INDEX] as $lColumn) {
-			if (isset($pRows[0][$lColumn])) {
-				foreach ($pRows as $lRow) {
-					if (is_null($lRow[$lColumn])) {
+		foreach ($columnsToCast[self::BOOLEAN_INDEX] as $column) {
+			if (isset($rows[0][$column])) {
+				foreach ($rows as $row) {
+					if (is_null($row[$column])) {
 						continue;
 					}
-					if (is_string($lRow[$lColumn])) {
-						$lCastBooleanColumns[] = $lColumn;
+					if (is_string($row[$column])) {
+						$castBooleanColumns[] = $column;
 					}
 					break;
 				}
 			}
 		}
-		if (!empty($lCastIntegerColumns) || !empty($lCastFloatColumns) || !empty($lCastBooleanColumns)) {
-			for ($i = 0; $i < count($pRows); $i++) {
-				foreach ($lCastIntegerColumns as $lColumn) {
-					if (is_numeric($pRows[$i][$lColumn])) {
-						$pRows[$i][$lColumn] = (integer) $pRows[$i][$lColumn];
+		if (!empty($castIntegerColumns) || !empty($castFloatColumns) || !empty($castBooleanColumns)) {
+			for ($i = 0; $i < count($rows); $i++) {
+				foreach ($castIntegerColumns as $column) {
+					if (is_numeric($rows[$i][$column])) {
+						$rows[$i][$column] = (integer) $rows[$i][$column];
 					}
 				}
-				foreach ($lCastFloatColumns as $lColumn) {
-					if (is_numeric($pRows[$i][$lColumn])) {
-						$pRows[$i][$lColumn] = (float) $pRows[$i][$lColumn];
+				foreach ($castFloatColumns as $column) {
+					if (is_numeric($rows[$i][$column])) {
+						$rows[$i][$column] = (float) $rows[$i][$column];
 					}
 				}
-				foreach ($lCastBooleanColumns as $lColumn) {
-					$lValue = $pRows[$i][$lColumn];
-					if ($lValue === '1' || $lValue === 't') {
-						$pRows[$i][$lColumn]= true;
-					} else if ($lValue === '0' || $lValue === 'f') {
-						$pRows[$i][$lColumn]= false;
+				foreach ($castBooleanColumns as $column) {
+					$value = $rows[$i][$column];
+					if ($value === '1' || $value === 't') {
+						$rows[$i][$column]= true;
+					} else if ($value === '0' || $value === 'f') {
+						$rows[$i][$column]= false;
 					}
 				}
 			}

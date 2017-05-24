@@ -21,73 +21,73 @@ use Comhon\Exception\ControllerParameterException;
 
 abstract class Visitor {
 	
-	protected $mMainObject;
-	protected $mParams;
-	private   $mInstanceObjectHash = [];
-	private   $mPropertyNameStack;
+	protected $mainObject;
+	protected $params;
+	private   $instanceObjectHash = [];
+	private   $propertyNameStack;
 	
 	/**
 	 * execute controller
-	 * @param ComhonObject $pObject
-	 * @param array $pParams
-	 * @param array $pVisitRootObject
+	 * @param ComhonObject $object
+	 * @param array $params
+	 * @param array $visitRootObject
 	 * @return unknown|boolean
 	 */
-	public final function execute(ComhonObject $pObject, $pParams = []) {
-		$this->_verifParameters($pParams);
-		if ($pObject->getModel() instanceof Model) {
-			$this->mPropertyNameStack = [];
-			$this->mMainObject        = $pObject;
-			$this->mParams            = $pParams;	
+	public final function execute(ComhonObject $object, $params = []) {
+		$this->_verifParameters($params);
+		if ($object->getModel() instanceof Model) {
+			$this->propertyNameStack = [];
+			$this->mainObject        = $object;
+			$this->params            = $params;	
 
-			$this->_init($pObject);
+			$this->_init($object);
 			
 			if ($this->_isVisitRootObject()) {
-				$lModelName   = $pObject->getModel()->getName();
-				$lProperty    = new ForeignProperty($pObject->getModel(), $lModelName);
-				$lCustomModel = new ModelCustom('modelCustom', [$lProperty]);
-				$lRootObject  = $lCustomModel->getObjectInstance();
-				$lRootObject->setValue($lModelName, $pObject);
-				$this->_accept($lRootObject, $lModelName, $lModelName);
+				$modelName   = $object->getModel()->getName();
+				$property    = new ForeignProperty($object->getModel(), $modelName);
+				$customModel = new ModelCustom('modelCustom', [$property]);
+				$rootObject  = $customModel->getObjectInstance();
+				$rootObject->setValue($modelName, $object);
+				$this->_accept($rootObject, $modelName, $modelName);
 			} else {
-				$this->_acceptChildren($pObject);
+				$this->_acceptChildren($object);
 			}
 			
-			return $this->_finalize($pObject);
+			return $this->_finalize($object);
 		}
 		return false;
 	}
 	
-	private function _accept($pParentObject, $pKey, $pPropertyName) {
-		if (!is_null($pParentObject->getValue($pKey))) {
-			$this->mPropertyNameStack[] = $pPropertyName;
-			$lVisitChild = $this->_visit($pParentObject, $pKey, $this->mPropertyNameStack);
-			if ($lVisitChild) {
-				$this->_acceptChildren($pParentObject->getValue($pKey));
+	private function _accept($parentObject, $key, $propertyName) {
+		if (!is_null($parentObject->getValue($key))) {
+			$this->propertyNameStack[] = $propertyName;
+			$visitChild = $this->_visit($parentObject, $key, $this->propertyNameStack);
+			if ($visitChild) {
+				$this->_acceptChildren($parentObject->getValue($key));
 			}
-			$this->_postVisit($pParentObject, $pKey, $this->mPropertyNameStack);
-			array_pop($this->mPropertyNameStack);
+			$this->_postVisit($parentObject, $key, $this->propertyNameStack);
+			array_pop($this->propertyNameStack);
 		}
 	}
 	
-	private function _acceptChildren($pObject) {
-		if (is_null($pObject)) {
+	private function _acceptChildren($object) {
+		if (is_null($object)) {
 			return;
 		}
-		if ($pObject instanceof ObjectArray) {
-			$lPropertyName = $pObject->getModel()->getElementName();
-			foreach ($pObject->getValues() as $lKey => $lObject) {
-				$this->_accept($pObject, $lKey, $lPropertyName);
+		if ($object instanceof ObjectArray) {
+			$propertyName = $object->getModel()->getElementName();
+			foreach ($object->getValues() as $key => $value) {
+				$this->_accept($object, $key, $propertyName);
 			}
 		}
-		else if (!array_key_exists(spl_object_hash($pObject), $this->mInstanceObjectHash)) {
-			$this->mInstanceObjectHash[spl_object_hash($pObject)] = $pObject;
-			foreach ($pObject->getModel()->getProperties() as $lPropertyName => $lProperty) {
-				if (! ($lProperty->getUniqueModel() instanceof SimpleModel)) {
-					$this->_accept($pObject, $lPropertyName, $lPropertyName);
+		else if (!array_key_exists(spl_object_hash($object), $this->instanceObjectHash)) {
+			$this->instanceObjectHash[spl_object_hash($object)] = $object;
+			foreach ($object->getModel()->getProperties() as $propertyName => $property) {
+				if (! ($property->getUniqueModel() instanceof SimpleModel)) {
+					$this->_accept($object, $propertyName, $propertyName);
 				}
 			}
-			unset($this->mInstanceObjectHash[spl_object_hash($pObject)]);
+			unset($this->instanceObjectHash[spl_object_hash($object)]);
 		}
 	}
 	
@@ -96,31 +96,31 @@ abstract class Visitor {
 		return true;
 	}
 	
-	private function _verifParameters($pParams) {
-		$lParameters = $this->_getMandatoryParameters();
-		if (is_array($lParameters)) {
-			if (!empty($lParameters)) {
-				if (!is_array($pParams)) {
-					throw new ControllerParameterException(implode(', ', $lParameters));
+	private function _verifParameters($params) {
+		$parameters = $this->_getMandatoryParameters();
+		if (is_array($parameters)) {
+			if (!empty($parameters)) {
+				if (!is_array($params)) {
+					throw new ControllerParameterException(implode(', ', $parameters));
 				}
-				foreach ($lParameters as $lParameterName) {
-					if (!array_key_exists($lParameterName, $pParams)) {
-						throw new ControllerParameterException($lParameterName);
+				foreach ($parameters as $parameterName) {
+					if (!array_key_exists($parameterName, $params)) {
+						throw new ControllerParameterException($parameterName);
 					}
 				}
 			}
-		} else if (!is_null($lParameters)) {
+		} else if (!is_null($parameters)) {
 			throw new ControllerParameterException(null);
 		}
 	}
 
 	protected abstract function _getMandatoryParameters();
 
-	protected abstract function _init($pObject);
+	protected abstract function _init($object);
 	
-	protected abstract function _visit($pParentObject, $pKey, $pPropertyNameStack);
+	protected abstract function _visit($parentObject, $key, $propertyNameStack);
 	
-	protected abstract function _postVisit($pParentObject, $pKey, $pPropertyNameStack);
+	protected abstract function _postVisit($parentObject, $key, $propertyNameStack);
 	
-	protected abstract function _finalize($pObject);
+	protected abstract function _finalize($object);
 }

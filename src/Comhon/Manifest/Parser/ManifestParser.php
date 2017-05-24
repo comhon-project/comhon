@@ -39,14 +39,14 @@ abstract class ManifestParser {
 	const XML_NODE      = 'node';
 	const XML_ATTRIBUTE = 'attribute';
 
-	protected $mManifest;
-	protected $mSerializationManifestParser;
-	protected $mInterfacer;
-	protected $mCastValues;
+	protected $manifest;
+	protected $serializationManifestParser;
+	protected $interfacer;
+	protected $castValues;
 
-	protected $mFocusLocalTypes = false;
-	protected $mLocalTypes;
-	protected $mCurrentProperties;
+	protected $focusLocalTypes = false;
+	protected $localTypes;
+	protected $currentProperties;
 
 	abstract public function getExtends();
 	abstract public function getObjectClass();
@@ -55,59 +55,59 @@ abstract class ManifestParser {
 
 	abstract protected function _getLocalTypes();
 	abstract protected function _getCurrentProperties();
-	abstract protected function _getBaseInfosProperty(Model $pPropertyModel);
-	abstract protected function _getDefaultValue(Model $pPropertyModel);
-	abstract protected function _getRestriction($pCurrentNode, Model $pPropertyModel);
+	abstract protected function _getBaseInfosProperty(Model $propertyModel);
+	abstract protected function _getDefaultValue(Model $propertyModel);
+	abstract protected function _getRestriction($currentNode, Model $propertyModel);
 	abstract protected function _isCurrentPropertyForeign();
 	
 	/**
-	 * @param Model $pModel
-	 * @param string $pManifestPath_afe
-	 * @param string $pSerializationManifestPath_afe
+	 * @param Model $model
+	 * @param string $manifestPath_afe
+	 * @param string $serializationManifestPath_afe
 	 */
-	public final function __construct(Model $pModel, $pManifest, $pSerializationManifestPath_afe = null) {
-		$this->mInterfacer        = $this->_getInterfacer($pManifest);
-		$this->mManifest          = $pManifest;
-		$this->mCurrentProperties = $this->_getCurrentProperties();
-		$this->mLocalTypes        = $this->_getLocalTypes();
-		$this->mCastValues        = ($this->mInterfacer instanceof NoScalarTypedInterfacer);
+	public final function __construct(Model $model, $manifest, $serializationManifestPath_afe = null) {
+		$this->interfacer        = $this->_getInterfacer($manifest);
+		$this->manifest          = $manifest;
+		$this->currentProperties = $this->_getCurrentProperties();
+		$this->localTypes        = $this->_getLocalTypes();
+		$this->castValues        = ($this->interfacer instanceof NoScalarTypedInterfacer);
 		
-		if (empty($this->mCurrentProperties)) {
+		if (empty($this->currentProperties)) {
 			throw new \Exception('manifest must have at least one property');
 		}
-		if (($pModel instanceof MainModel) && !is_null($pSerializationManifestPath_afe)) {
-			$this->mSerializationManifestParser = SerializationManifestParser::getInstance($pModel, $pSerializationManifestPath_afe);
+		if (($model instanceof MainModel) && !is_null($serializationManifestPath_afe)) {
+			$this->serializationManifestParser = SerializationManifestParser::getInstance($model, $serializationManifestPath_afe);
 		}
 	}
 	
 	public function getSerializationManifestParser() {
-		return $this->mSerializationManifestParser;
+		return $this->serializationManifestParser;
 	}
 	
 	public function getLocalTypesCount() {
-		return count($this->mLocalTypes);
+		return count($this->localTypes);
 	}
 	
 	public function isFocusOnLocalTypes() {
-		return $this->mFocusLocalTypes;
+		return $this->focusLocalTypes;
 	}
 	
 	public function activateFocusOnLocalTypes() {
-		reset($this->mLocalTypes);
-		$this->mFocusLocalTypes   = true;
-		$this->mCurrentProperties = $this->_getCurrentProperties();
+		reset($this->localTypes);
+		$this->focusLocalTypes   = true;
+		$this->currentProperties = $this->_getCurrentProperties();
 		
-		if (empty($this->mCurrentProperties)) {
+		if (empty($this->currentProperties)) {
 			throw new \Exception('manifest must have at least one property');
 		}
 	}
 	
 	public function desactivateFocusOnLocalTypes() {
-		reset($this->mLocalTypes);
-		$this->mFocusLocalTypes   = false;
-		$this->mCurrentProperties = $this->_getCurrentProperties();
+		reset($this->localTypes);
+		$this->focusLocalTypes   = false;
+		$this->currentProperties = $this->_getCurrentProperties();
 		
-		if (empty($this->mCurrentProperties)) {
+		if (empty($this->currentProperties)) {
 			throw new \Exception('manifest must have at least one property');
 		}
 	}
@@ -117,10 +117,10 @@ abstract class ManifestParser {
 	 * @return boolean false if cannot go to next element (typically when current element is the last)
 	 */
 	public function nextLocalType() {
-		if ($this->mFocusLocalTypes && (next($this->mLocalTypes) !== false)) {
-			$this->mCurrentProperties = $this->_getCurrentProperties();
+		if ($this->focusLocalTypes && (next($this->localTypes) !== false)) {
+			$this->currentProperties = $this->_getCurrentProperties();
 			
-			if (empty($this->mCurrentProperties)) {
+			if (empty($this->currentProperties)) {
 				throw new \Exception('local type must have at least one property');
 			}
 			return true;
@@ -133,120 +133,120 @@ abstract class ManifestParser {
 	 * @return boolean false if cannot go to next element (typically when current element is the last)
 	 */
 	public function nextProperty() {
-		return next($this->mCurrentProperties) !== false;
+		return next($this->currentProperties) !== false;
 	}
 	
 	/**
 	 * 
-	 * @param Model $pPropertyModel
+	 * @param Model $propertyModel
 	 * @throws Exception
 	 * @return Property
 	 */
-	public function getCurrentProperty(Model $pPropertyModel) {
+	public function getCurrentProperty(Model $propertyModel) {
 		if ($this->_isCurrentPropertyForeign()) {
-			list($lName, $lModel, $lIsId, $lIsPrivate, $lInterfaceAsNodeXml) = $this->_getBaseInfosProperty($pPropertyModel);
-			list($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames) = $this->_getBaseSerializationInfosProperty($lName);
+			list($name, $model, $isId, $isPrivate, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
+			list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
 			
-			if ($lName === Interfacer::INHERITANCE_KEY || $lSerializationName === Interfacer::INHERITANCE_KEY) {
+			if ($name === Interfacer::INHERITANCE_KEY || $serializationName === Interfacer::INHERITANCE_KEY) {
 				throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
 			}
-			$lModelForeign = new ModelForeign($lModel);
-			if (!empty($lSerializationNames)) {
-				if (count($lSerializationNames) < 2) {
+			$modelForeign = new ModelForeign($model);
+			if (!empty($serializationNames)) {
+				if (count($serializationNames) < 2) {
 					throw new \Exception('serializationNames must have at least two elements');
-				}else if (!is_null($lSerializationName)) {
+				}else if (!is_null($serializationName)) {
 					throw new \Exception('serializationName and serializationNames cannot cohexist');
-				} else if (!is_null($lAggregations)) {
+				} else if (!is_null($aggregations)) {
 					throw new \Exception('aggregation and serializationNames cannot cohexist');
 				}
-				$lProperty = new MultipleForeignProperty($lModelForeign, $lName, $lSerializationNames, $lIsPrivate, $lIsSerializable);
+				$property = new MultipleForeignProperty($modelForeign, $name, $serializationNames, $isPrivate, $isSerializable);
 			}
-			else if (is_null($lAggregations)) {
-				$lProperty = new ForeignProperty($lModelForeign, $lName, $lSerializationName, $lIsPrivate, $lIsSerializable);
+			else if (is_null($aggregations)) {
+				$property = new ForeignProperty($modelForeign, $name, $serializationName, $isPrivate, $isSerializable);
 			} else {
-				$lProperty = new AggregationProperty($lModelForeign, $lName, $lAggregations, $lSerializationName, $lIsPrivate);
+				$property = new AggregationProperty($modelForeign, $name, $aggregations, $serializationName, $isPrivate);
 			}
 		}
 		else {
-			list($lName, $lModel, $lIsId, $lIsPrivate, $lInterfaceAsNodeXml) = $this->_getBaseInfosProperty($pPropertyModel);
-			list($lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames) = $this->_getBaseSerializationInfosProperty($lName);
+			list($name, $model, $isId, $isPrivate, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
+			list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
 			
-			if ($lName === Interfacer::INHERITANCE_KEY || $lSerializationName === Interfacer::INHERITANCE_KEY) {
+			if ($name === Interfacer::INHERITANCE_KEY || $serializationName === Interfacer::INHERITANCE_KEY) {
 				throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
 			}
-			$lDefault = $this->_getDefaultValue($lModel);
-			$lRestriction = $this->_getRestriction(current($this->mCurrentProperties), $lModel);
+			$default = $this->_getDefaultValue($model);
+			$restriction = $this->_getRestriction(current($this->currentProperties), $model);
 			
-			if (!empty($lSerializationNames)) {
+			if (!empty($serializationNames)) {
 				throw new \Exception('several serialization names only allowed for foreign properties');
 			}
-			if (is_null($lRestriction)) {
-				$lProperty = new Property($lModel, $lName, $lSerializationName, $lIsId, $lIsPrivate, $lIsSerializable, $lDefault, $lInterfaceAsNodeXml);
+			if (is_null($restriction)) {
+				$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isSerializable, $default, $interfaceAsNodeXml);
 			} else {
-				$lProperty = new RestrictedProperty($lModel, $lName, $lRestriction, $lSerializationName, $lIsId, $lIsPrivate, $lIsSerializable, $lDefault, $lInterfaceAsNodeXml);
+				$property = new RestrictedProperty($model, $name, $restriction, $serializationName, $isId, $isPrivate, $isSerializable, $default, $interfaceAsNodeXml);
 				// verify default value
 				// get it from property due to dateTime that need to instanciate DateTime object
-				if (!is_null($lDefault) && !$lRestriction->satisfy($lProperty->getDefaultValue())) {
-					throw new NotSatisfiedRestrictionException($lProperty->getDefaultValue(), $lRestriction);
+				if (!is_null($default) && !$restriction->satisfy($property->getDefaultValue())) {
+					throw new NotSatisfiedRestrictionException($property->getDefaultValue(), $restriction);
 				}
 			}
 		}
-		return $lProperty;
+		return $property;
 	}
 	
-	private function _getBaseSerializationInfosProperty($pPropertyName) {
-		if (!$this->mFocusLocalTypes && !is_null($this->mSerializationManifestParser)) {
-			return $this->mSerializationManifestParser->getPropertySerializationInfos($pPropertyName);
+	private function _getBaseSerializationInfosProperty($propertyName) {
+		if (!$this->focusLocalTypes && !is_null($this->serializationManifestParser)) {
+			return $this->serializationManifestParser->getPropertySerializationInfos($propertyName);
 		}
 		return [null, null, true, []];
 	}
 	
 	/**
 	 * register path of each manifest
-	 * @param string $pManifestListPath_afe
-	 * @param string $pSerializationListPath_afe
-	 * @param array $pModelMap
+	 * @param string $manifestListPath_afe
+	 * @param string $serializationListPath_afe
+	 * @param array $modelMap
 	 * @throws \Exception
 	 */
-	public static function registerComplexModels($pManifestListPath_afe, $pSerializationListPath_afe, &$pModelMap) {
-		$lSerializationMap = self::_getSerializationMap($pSerializationListPath_afe);
-		self::_registerComplexModels($pManifestListPath_afe, $lSerializationMap, $pModelMap);
+	public static function registerComplexModels($manifestListPath_afe, $serializationListPath_afe, &$modelMap) {
+		$serializationMap = self::_getSerializationMap($serializationListPath_afe);
+		self::_registerComplexModels($manifestListPath_afe, $serializationMap, $modelMap);
 	}
 	
 	/**
 	 * 
-	 * @param Model $pModel
-	 * @param string $pManifestPath_afe
-	 * @param string $pSerializationManifestPath_afe
+	 * @param Model $model
+	 * @param string $manifestPath_afe
+	 * @param string $serializationManifestPath_afe
 	 * @throws \Exception
 	 * @return ManifestParser
 	 */
-	public static function getInstance(Model $pModel, $pManifestPath_afe, $pSerializationManifestPath_afe) {
-		switch (mb_strtolower(pathinfo($pManifestPath_afe, PATHINFO_EXTENSION))) {
+	public static function getInstance(Model $model, $manifestPath_afe, $serializationManifestPath_afe) {
+		switch (mb_strtolower(pathinfo($manifestPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
-				$lInterfacer = new XMLInterfacer();
+				$interfacer = new XMLInterfacer();
 				break;
 			case 'json':
-				$lInterfacer = new AssocArrayInterfacer();
+				$interfacer = new AssocArrayInterfacer();
 				break;
 			default:
-				throw new \Exception('extension not recognized for manifest file : '.$pManifestPath_afe);
+				throw new \Exception('extension not recognized for manifest file : '.$manifestPath_afe);
 		}
-		return self::getVersionnedInstance($pModel, $pManifestPath_afe, $pSerializationManifestPath_afe, $lInterfacer);
+		return self::getVersionnedInstance($model, $manifestPath_afe, $serializationManifestPath_afe, $interfacer);
 	}
 	
 	/**
 	 * get interfacer able to interpret manifest
-	 * @param [] $pManifest
+	 * @param [] $manifest
 	 */
-	public function _getInterfacer($pManifest) {
-		if (is_array($pManifest)) {
+	public function _getInterfacer($manifest) {
+		if (is_array($manifest)) {
 			return new AssocArrayInterfacer();
 		}
-		if ($pManifest instanceof \stdClass) {
+		if ($manifest instanceof \stdClass) {
 			return new StdObjectInterfacer();
 		}
-		if ($pManifest instanceof \DOMElement) {
+		if ($manifest instanceof \DOMElement) {
 			return new XMLInterfacer();
 		}
 		throw new \Exception('not recognized manifest format');
@@ -254,148 +254,148 @@ abstract class ManifestParser {
 	
 	/**
 	 * register path of each manifest
-	 * @param string $pManifestListPath_afe
-	 * @param string[] $pSerializationMap
-	 * @param array $pModelMap
+	 * @param string $manifestListPath_afe
+	 * @param string[] $serializationMap
+	 * @param array $modelMap
 	 * @throws \Exception
 	 */
-	protected static function _registerComplexModels($pManifestListPath_afe, $pSerializationMap, &$pModelMap) {
-		$lManifestListFolder_ad = dirname($pManifestListPath_afe);
+	protected static function _registerComplexModels($manifestListPath_afe, $serializationMap, &$modelMap) {
+		$manifestListFolder_ad = dirname($manifestListPath_afe);
 		
-		switch (mb_strtolower(pathinfo($pManifestListPath_afe, PATHINFO_EXTENSION))) {
+		switch (mb_strtolower(pathinfo($manifestListPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
-				$lInterfacer = new XMLInterfacer();
+				$interfacer = new XMLInterfacer();
 				break;
 			case 'json':
-				$lInterfacer = new AssocArrayInterfacer();
+				$interfacer = new AssocArrayInterfacer();
 				break;
 			default:
-				throw new \Exception('extension not recognized for manifest list file : '.$pManifestListPath_afe);
+				throw new \Exception('extension not recognized for manifest list file : '.$manifestListPath_afe);
 		}
 		
-		$lManifestList = $lInterfacer->read($pManifestListPath_afe);
-		if ($lManifestList === false || is_null($lManifestList)) {
-			throw new \Exception("manifestList file not found or malformed '$pManifestListPath_afe'");
+		$manifestList = $interfacer->read($manifestListPath_afe);
+		if ($manifestList === false || is_null($manifestList)) {
+			throw new \Exception("manifestList file not found or malformed '$manifestListPath_afe'");
 		}
-		if (!$lInterfacer->hasValue($lManifestList, 'version')) {
-			throw new \Exception("manifest list '$pManifestListPath_afe' doesn't have version");
+		if (!$interfacer->hasValue($manifestList, 'version')) {
+			throw new \Exception("manifest list '$manifestListPath_afe' doesn't have version");
 		}
-		$lVersion = (string) $lInterfacer->getValue($lManifestList, 'version');
-		switch ($lVersion) {
-			case '2.0': return self::_registerComplexModels_2_0($lManifestList, $lManifestListFolder_ad, $pSerializationMap, $pModelMap, $lInterfacer);
-			default:    throw new \Exception("version $lVersion not recognized for manifest list $pManifestListPath_afe");
+		$version = (string) $interfacer->getValue($manifestList, 'version');
+		switch ($version) {
+			case '2.0': return self::_registerComplexModels_2_0($manifestList, $manifestListFolder_ad, $serializationMap, $modelMap, $interfacer);
+			default:    throw new \Exception("version $version not recognized for manifest list $manifestListPath_afe");
 		}
 	}
 	
 	/**
 	 *
-	 * @param [] $pManifestList
-	 * @param string $pManifestListFolder_ad
-	 * @param string[] $pSerializationMap
-	 * @param array $pModelMap
-	 * @param Interfacer $pInterfacer
+	 * @param [] $manifestList
+	 * @param string $manifestListFolder_ad
+	 * @param string[] $serializationMap
+	 * @param array $modelMap
+	 * @param Interfacer $interfacer
 	 */
-	protected static function _registerComplexModels_2_0($pManifestList, $pManifestListFolder_ad, $pSerializationMap, &$pModelMap, Interfacer $pInterfacer) {
-		$lList = $pInterfacer->getTraversableNode($pInterfacer->getValue($pManifestList, 'list', true), true);
-		if (is_null($lList)) {
+	protected static function _registerComplexModels_2_0($manifestList, $manifestListFolder_ad, $serializationMap, &$modelMap, Interfacer $interfacer) {
+		$list = $interfacer->getTraversableNode($interfacer->getValue($manifestList, 'list', true), true);
+		if (is_null($list)) {
 			throw new \Exception('malformed manifest list file, property \'list\' is missing');
 		}
-		if ($pInterfacer instanceof XMLInterfacer) {
-			foreach ($lList as $lName => $lDomNode) {
-				$lList[$lName] = $pInterfacer->extractNodeText($lDomNode);
+		if ($interfacer instanceof XMLInterfacer) {
+			foreach ($list as $name => $domNode) {
+				$list[$name] = $interfacer->extractNodeText($domNode);
 			}
 		}
-		foreach ($lList as $lModelName => $lManifestPath_rfe) {
-			if (array_key_exists($lModelName, $pModelMap)) {
-				throw new Exception("several model with same type : '$lModelName'");
+		foreach ($list as $modelName => $manifestPath_rfe) {
+			if (array_key_exists($modelName, $modelMap)) {
+				throw new Exception("several model with same type : '$modelName'");
 			}
-			$lSerializationPath_afe = array_key_exists($lModelName, $pSerializationMap) ? $pSerializationMap[$lModelName] : null;
-			$pModelMap[$lModelName] = [$pManifestListFolder_ad.'/'.$lManifestPath_rfe, $lSerializationPath_afe];
+			$serializationPath_afe = array_key_exists($modelName, $serializationMap) ? $serializationMap[$modelName] : null;
+			$modelMap[$modelName] = [$manifestListFolder_ad.'/'.$manifestPath_rfe, $serializationPath_afe];
 		}
 	}
 	
 	/**
 	 *
-	 * @param string $pSerializationListPath_afe
+	 * @param string $serializationListPath_afe
 	 * @throws \Exception
 	 * @return string[]
 	 */
-	protected static function _getSerializationMap($pSerializationListPath_afe) {
-		$lSerializationMap = [];
-		$pSerializationListFolrder_ad = dirname($pSerializationListPath_afe);
+	protected static function _getSerializationMap($serializationListPath_afe) {
+		$serializationMap = [];
+		$serializationListFolrder_ad = dirname($serializationListPath_afe);
 		
-		switch (mb_strtolower(pathinfo($pSerializationListPath_afe, PATHINFO_EXTENSION))) {
+		switch (mb_strtolower(pathinfo($serializationListPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
-				$lInterfacer = new XMLInterfacer();
+				$interfacer = new XMLInterfacer();
 				break;
 			case 'json':
-				$lInterfacer = new AssocArrayInterfacer();
+				$interfacer = new AssocArrayInterfacer();
 				break;
 			default:
-				throw new \Exception('extension not recognized for serialization manifest list file : '.$pSerializationListPath_afe);
+				throw new \Exception('extension not recognized for serialization manifest list file : '.$serializationListPath_afe);
 		}
 		
-		$lSerializationList = $lInterfacer->read($pSerializationListPath_afe);
-		if ($lSerializationList === false || is_null($lSerializationList)) {
-			throw new \Exception("serializationList file not found or malformed '$pSerializationListPath_afe'");
+		$serializationList = $interfacer->read($serializationListPath_afe);
+		if ($serializationList=== false || is_null($serializationList)) {
+			throw new \Exception("serializationList file not found or malformed '$serializationListPath_afe'");
 		}
-		if (!$lInterfacer->hasValue($lSerializationList, 'version')) {
-			throw new \Exception("serialization list '$pSerializationListPath_afe' doesn't have version");
+		if (!$interfacer->hasValue($serializationList, 'version')) {
+			throw new \Exception("serialization list '$serializationListPath_afe' doesn't have version");
 		}
-		$lVersion = (string) $lInterfacer->getValue($lSerializationList, 'version');
-		switch ($lVersion) {
-			case '2.0': return self::_getSerializationMap_2_0($lSerializationList, $pSerializationListFolrder_ad, $lInterfacer);
-			default:    throw new \Exception("version $lVersion not recognized for serialization list $pSerializationListPath_afe");
+		$version = (string) $interfacer->getValue($serializationList, 'version');
+		switch ($version) {
+			case '2.0': return self::_getSerializationMap_2_0($serializationList, $serializationListFolrder_ad, $interfacer);
+			default:    throw new \Exception("version $version not recognized for serialization list $serializationListPath_afe");
 		}
 	}
 	
 	/**
 	 *
-	 * @param [] $pSerializationList
-	 * @param string $pSerializationListFolrder_ad
-	 * @param Interfacer $pInterfacer
+	 * @param [] $serializationList
+	 * @param string $serializationListFolrder_ad
+	 * @param Interfacer $interfacer
 	 * @return string[]
 	 */
-	protected static function _getSerializationMap_2_0($pSerializationList, $pSerializationListFolrder_ad, Interfacer $pInterfacer) {
-		$lSerializationMap = [];
-		$lList = $pInterfacer->getTraversableNode($pInterfacer->getValue($pSerializationList, 'list', true), true);
-		if (is_null($lList)) {
+	protected static function _getSerializationMap_2_0($serializationList, $serializationListFolrder_ad, Interfacer $interfacer) {
+		$serializationMap = [];
+		$list = $interfacer->getTraversableNode($interfacer->getValue($serializationList, 'list', true), true);
+		if (is_null($list)) {
 			throw new \Exception('malformed serialization list file, property \'list\' is missing');
 		}
-		if ($pInterfacer instanceof XMLInterfacer) {
-			foreach ($lList as $lName => $lDomNode) {
-				$lList[$lName] = $pInterfacer->extractNodeText($lDomNode);
+		if ($interfacer instanceof XMLInterfacer) {
+			foreach ($list as $name => $domNode) {
+				$list[$name] = $interfacer->extractNodeText($domNode);
 			}
 		}
-		foreach ($lList as $lModelName => $lSerializationPath_rfe) {
-			$lSerializationMap[$lModelName] = $pSerializationListFolrder_ad.'/'.$lSerializationPath_rfe;
+		foreach ($list as $modelName => $serializationPath_rfe) {
+			$serializationMap[$modelName] = $serializationListFolrder_ad.'/'.$serializationPath_rfe;
 		}
-		return $lSerializationMap;
+		return $serializationMap;
 	}
 	
 	/**
 	 *
-	 * @param Model $pModel
-	 * @param string $pManifestPath_afe
-	 * @param string $pSerializationManifestPath_afe
-	 * @param Interfacer $pInterfacer
+	 * @param Model $model
+	 * @param string $manifestPath_afe
+	 * @param string $serializationManifestPath_afe
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return ManifestParser
 	 */
-	public static function getVersionnedInstance($pModel, $pManifestPath_afe, $pSerializationManifestPath_afe, Interfacer $pInterfacer) {
-		$lManifest = $pInterfacer->read($pManifestPath_afe);
+	public static function getVersionnedInstance($model, $manifestPath_afe, $serializationManifestPath_afe, Interfacer $interfacer) {
+		$manifest = $interfacer->read($manifestPath_afe);
 		
-		if ($lManifest === false || is_null($lManifest)) {
-			throw new \Exception("manifest file not found or malformed '$pManifestPath_afe'");
+		if ($manifest === false || is_null($manifest)) {
+			throw new \Exception("manifest file not found or malformed '$manifestPath_afe'");
 		}
 		
-		if (!$pInterfacer->hasValue($lManifest, 'version')) {
-			throw new \Exception("manifest '$pManifestPath_afe' doesn't have version");
+		if (!$interfacer->hasValue($manifest, 'version')) {
+			throw new \Exception("manifest '$manifestPath_afe' doesn't have version");
 		}
-		$lVersion = (string) $pInterfacer->getValue($lManifest, 'version');
-		switch ($lVersion) {
-			case '2.0': return new V_2_0\ManifestParser($pModel, $lManifest, $pSerializationManifestPath_afe, $pInterfacer);
-			default:    throw new \Exception("version $lVersion not recognized for manifest $pManifestPath_afe");
+		$version = (string) $interfacer->getValue($manifest, 'version');
+		switch ($version) {
+			case '2.0': return new V_2_0\ManifestParser($model, $manifest, $serializationManifestPath_afe, $interfacer);
+			default:    throw new \Exception("version $version not recognized for manifest $manifestPath_afe");
 		}
 	}
 	

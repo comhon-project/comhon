@@ -16,40 +16,40 @@ use Comhon\Model\Model;
 
 class ForeignProperty extends Property {
 	
-	public function __construct(Model $pModel, $pName, $pSerializationName = null, $pIsPrivate = false, $pIsSerializable = true) {
-		parent::__construct($pModel, $pName, $pSerializationName, false, $pIsPrivate, $pIsSerializable);
+	public function __construct(Model $model, $name, $serializationName = null, $isPrivate = false, $isSerializable = true) {
+		parent::__construct($model, $name, $serializationName, false, $isPrivate, $isSerializable);
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
-	 * @param string[] $pPropertiesFilter
-	 * @param boolean $pForceLoad if object is already loaded, force to reload object
+	 * @param ComhonObject $object
+	 * @param string[] $propertiesFilter
+	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @throws \Exception
 	 */
-	public function loadValue(ComhonObject $pObject, $pPropertiesFilter = null, $pForceLoad = false) {
-		$this->getModel()->verifValue($pObject);
-		if ($pObject->isLoaded() && !$pForceLoad) {
+	public function loadValue(ComhonObject $object, $propertiesFilter = null, $forceLoad = false) {
+		$this->getModel()->verifValue($object);
+		if ($object->isLoaded() && !$forceLoad) {
 			return false;
 		}
-		if ($pObject->getModel() !== $this->getUniqueModel() && !$pObject->getModel()->isInheritedFrom($this->getUniqueModel())) {
-			$lReflexion1 = new \ReflectionClass(get_class($pObject->getModel()));
-			$lReflexion2 = new \ReflectionClass(get_class($this->getUniqueModel()));
-			throw new \Exception("object not compatible with property : {$pObject->getModel()->getName()} ({$lReflexion1->getShortName()}) | {$this->getUniqueModel()->getName()} ({$lReflexion2->getShortName()})");
+		if ($object->getModel() !== $this->getUniqueModel() && !$object->getModel()->isInheritedFrom($this->getUniqueModel())) {
+			$reflexion1 = new \ReflectionClass(get_class($object->getModel()));
+			$reflexion2 = new \ReflectionClass(get_class($this->getUniqueModel()));
+			throw new \Exception("object not compatible with property : {$object->getModel()->getName()} ({$reflexion1->getShortName()}) | {$this->getUniqueModel()->getName()} ({$reflexion2->getShortName()})");
 		}
-		$lSerializationUnit = $this->getUniqueModel()->getSerialization();
-		if (is_null($lSerializationUnit)) {
+		$serializationUnit = $this->getUniqueModel()->getSerialization();
+		if (is_null($serializationUnit)) {
 			return false;
 		}
-		return $lSerializationUnit->loadObject($pObject, $pPropertiesFilter);
+		return $serializationUnit->loadObject($object, $propertiesFilter);
 	}
 	
 	public function getSerialization() {
 		return $this->getUniqueModel()->getSerialization();
 	}
 	
-	public function hasSerializationUnit($pSerializationType) {
-		return $this->getUniqueModel()->hasSerializationUnit($pSerializationType);
+	public function hasSerializationUnit($serializationType) {
+		return $this->getUniqueModel()->hasSerializationUnit($serializationType);
 	}
 	
 	public function hasSqlTableUnit() {
@@ -70,12 +70,12 @@ class ForeignProperty extends Property {
 	
 	/**
 	 * verify if property is interfaceable for export/import in public/private/serialization mode
-	 * @param boolean $pPrivate if true private mode, otherwise public mode
-	 * @param boolean $pSerialization if true serialization mode, otherwise model mode
+	 * @param boolean $private if true private mode, otherwise public mode
+	 * @param boolean $serialization if true serialization mode, otherwise model mode
 	 * @return boolean true if property is interfaceable
 	 */
-	public function isInterfaceable($pPrivate, $pSerialization) {
-		return parent::isInterfaceable($pPrivate, $pSerialization) && ($pPrivate || !$this->getUniqueModel()->hasPrivateIdProperty());
+	public function isInterfaceable($private, $serialization) {
+		return parent::isInterfaceable($private, $serialization) && ($private || !$this->getUniqueModel()->hasPrivateIdProperty());
 	}
 	
 }

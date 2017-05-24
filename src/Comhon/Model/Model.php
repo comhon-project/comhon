@@ -31,87 +31,87 @@ abstract class Model {
 	 * array used to avoid infinite loop when objects are visited
 	 * @var integer[]
 	 */
-	private static $sInstanceObjectHash = [];
+	private static $instanceObjectHash = [];
 	
 	/** @var string */
-	protected $mModelName;
+	protected $modelName;
 	
 	/** @var boolean */
-	protected $mIsLoaded = false;
+	protected $isLoaded = false;
 	
 	/** @var boolean */
-	protected $mIsLoading = false;
+	protected $isLoading = false;
 	
 	/** @var Model */
-	private $mExtendsModel;
+	private $extendsModel;
 	
 	/** @var string */
-	private $mObjectClass = 'Comhon\Object\Object';
+	private $objectClass = 'Comhon\Object\Object';
 	
 	/** @var boolean */
-	private $mIsExtended = false;
+	private $isExtended = false;
 	
 	/** @var Property[] */
-	private $mProperties   = [];
+	private $properties   = [];
 	
 	/** @var Property[] */
-	private $mIdProperties = [];
+	private $idProperties = [];
 	
 	/** @var Property[] */
-	private $mAggregations = [];
+	private $aggregations = [];
 	
 	/** @var Property[] */
-	private $mPublicProperties  = [];
+	private $publicProperties  = [];
 	
 	/** @var Property[] */
-	private $mSerializableProperties = [];
+	private $serializableProperties = [];
 	
 	/** @var Property[] */
-	private $mPropertiesWithDefaultValues = [];
+	private $propertiesWithDefaultValues = [];
 	
 	/** @var Property[] */
-	private $mMultipleForeignProperties = [];
+	private $multipleForeignProperties = [];
 	
 	/** @var Property[] */
-	private $mComplexProperties = [];
+	private $complexProperties = [];
 	
 	/** @var Property[] */
-	private $mDateTimeProperties = [];
+	private $dateTimeProperties = [];
 	
 	/** @var Property */
-	private $mUniqueIdProperty;
+	private $uniqueIdProperty;
 	
 	/** @var boolean */
-	private $mHasPrivateIdProperty;
+	private $hasPrivateIdProperty;
 	
 	/**
 	 * don't instanciate a model by yourself because it take time.
 	 * to get a model instance use singleton ModelManager.
 	 */
-	public function __construct($pModelName, $pLoadModel) {
-		$this->mModelName = $pModelName;
-		if ($pLoadModel) {
+	public function __construct($modelName, $loadModel) {
+		$this->modelName = $modelName;
+		if ($loadModel) {
 			$this->load();
 		}
 	}
 	
 	public final function load() {
-		if (!$this->mIsLoaded && !$this->mIsLoading) {
-			$this->mIsLoading = true;
-			$lResult = ModelManager::getInstance()->getProperties($this);
-			$this->mExtendsModel = $lResult[ModelManager::EXTENDS_MODEL];
-			$this->_setProperties($lResult[ModelManager::PROPERTIES]);
+		if (!$this->isLoaded && !$this->isLoading) {
+			$this->isLoading = true;
+			$result = ModelManager::getInstance()->getProperties($this);
+			$this->extendsModel = $result[ModelManager::EXTENDS_MODEL];
+			$this->_setProperties($result[ModelManager::PROPERTIES]);
 
-			if (!is_null($lResult[ModelManager::OBJECT_CLASS])) {
-				if ($this->mObjectClass !== $lResult[ModelManager::OBJECT_CLASS]) {
-					$this->mObjectClass = $lResult[ModelManager::OBJECT_CLASS];
-					$this->mIsExtended = true;
+			if (!is_null($result[ModelManager::OBJECT_CLASS])) {
+				if ($this->objectClass !== $result[ModelManager::OBJECT_CLASS]) {
+					$this->objectClass = $result[ModelManager::OBJECT_CLASS];
+					$this->isExtended = true;
 				}
 			}
 			$this->_setSerialization();
 			$this->_init();
-			$this->mIsLoaded  = true;
-			$this->mIsLoading = false;
+			$this->isLoaded  = true;
+			$this->isLoading = false;
 		}
 	}
 	
@@ -122,66 +122,66 @@ abstract class Model {
 	}
 	
 	public function getObjectClass() {
-		return $this->mObjectClass;
+		return $this->objectClass;
 	}
 	
 	/**
 	 * 
-	 * @param boolean $pIsloaded
+	 * @param boolean $isloaded
 	 * @return ComhonObject
 	 */
-	public function getObjectInstance($pIsloaded = true) {
-		if ($this->mIsExtended) {
-			$lObject = new $this->mObjectClass($pIsloaded);
+	public function getObjectInstance($isloaded = true) {
+		if ($this->isExtended) {
+			$object = new $this->objectClass($isloaded);
 
-			if ($lObject->getModel() !== $this) {
-				throw new \Exception("object doesn't have good model. {$this->getName()} expected, {$lObject->getModel()->getName()} given");
+			if ($object->getModel() !== $this) {
+				throw new \Exception("object doesn't have good model. {$this->getName()} expected, {$object->getModel()->getName()} given");
 			}
-			return $lObject;
+			return $object;
 		} else {
-			return new Object($this, $pIsloaded);
+			return new Object($this, $isloaded);
 		}
 		
 	}
 	
 	public function getExtendsModel() {
-		return $this->mExtendsModel;
+		return $this->extendsModel;
 	}
 	
 	public function hasExtendsModel() {
-		return !is_null($this->mExtendsModel);
+		return !is_null($this->extendsModel);
 	}
 	
-	public function isInheritedFrom(Model $pModel) {
-		$lModel = $this;
-		$lIsInherited = false;
-		while (!is_null($lModel->mExtendsModel) && !$lIsInherited) {
-			$lIsInherited = $pModel === $lModel->mExtendsModel;
-			$lModel = $lModel->mExtendsModel;
+	public function isInheritedFrom(Model $model) {
+		$currentModel = $this;
+		$isInherited = false;
+		while (!is_null($currentModel->extendsModel) && !$isInherited) {
+			$isInherited = $model === $currentModel->extendsModel;
+			$currentModel = $currentModel->extendsModel;
 		}
-		return $lIsInherited;
+		return $isInherited;
 	}
 	
 	/**
 	 * get or create an instance of ComhonObject
-	 * @param integer|string $pId
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param boolean $pIsFirstLevel
-	 * @param boolean $pIsForeign
+	 * @param integer|string $id
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param boolean $isFirstLevel
+	 * @param boolean $isForeign
 	 * @return ComhonObject
 	 * @throws \Exception
 	 */
-	protected function _getOrCreateObjectInstance($pId, Interfacer $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel, $pIsForeign = false) {
+	protected function _getOrCreateObjectInstance($id, Interfacer $interfacer, $localObjectCollection, $isFirstLevel, $isForeign = false) {
 		throw new \Exception('can\'t apply function. Only callable for MainModel or LocalModel');
 	}
 	
 	public function getName() {
-		return $this->mModelName;
+		return $this->modelName;
 	}
 	
 	public function getMainModelName() {
-		return $this->mModelName;
+		return $this->modelName;
 	}
 	
 	/**
@@ -189,15 +189,15 @@ abstract class Model {
 	 * @return Property[]
 	 */
 	public function getProperties() {
-		return $this->mProperties;
+		return $this->properties;
 	}
 	
 	/**
 	 *
 	 * @return Property[]
 	 */
-	public function getSpecificProperties($pPrivate, $pSerialization) {
-		return $pPrivate ? $this->mProperties : $this->mPublicProperties;
+	public function getSpecificProperties($private, $serialization) {
+		return $private ? $this->properties : $this->publicProperties;
 	}
 	
 	/**
@@ -205,7 +205,7 @@ abstract class Model {
 	 * @return Property[]
 	 */
 	public function getComplexProperties() {
-		return $this->mComplexProperties;
+		return $this->complexProperties;
 	}
 	
 	/**
@@ -213,7 +213,7 @@ abstract class Model {
 	 * @return Property[]
 	 */
 	public function getDateTimeProperties() {
-		return $this->mDateTimeProperties;
+		return $this->dateTimeProperties;
 	}
 	
 	/**
@@ -221,7 +221,7 @@ abstract class Model {
 	 * @return Property[]
 	 */
 	public function getPublicProperties() {
-		return $this->mPublicProperties;
+		return $this->publicProperties;
 	}
 	
 	/**
@@ -229,135 +229,135 @@ abstract class Model {
 	 * @return string[]
 	 */
 	public function getPropertiesNames() {
-		return array_keys($this->mProperties);
+		return array_keys($this->properties);
 	}
 	
 	/**
 	 * 
-	 * @param string $pPropertyName
-	 * @param string $pThrowException
+	 * @param string $propertyName
+	 * @param string $throwException
 	 * @throws PropertyException
 	 * @return Property
 	 */
-	public function getProperty($pPropertyName, $pThrowException = false) {
-		if ($this->hasProperty($pPropertyName)) {
-			return $this->mProperties[$pPropertyName];
+	public function getProperty($propertyName, $throwException = false) {
+		if ($this->hasProperty($propertyName)) {
+			return $this->properties[$propertyName];
 		}
-		else if ($pThrowException) {
-			throw new PropertyException($this, $pPropertyName);
+		else if ($throwException) {
+			throw new PropertyException($this, $propertyName);
 		}
 		return null;
 	}
 	
 	/**
 	 *
-	 * @param string $pPropertyName
-	 * @param string $pThrowException
+	 * @param string $propertyName
+	 * @param string $throwException
 	 * @throws PropertyException
 	 * @return Property
 	 */
-	public function getIdProperty($pPropertyName, $pThrowException = false) {
-		if ($this->hasIdProperty($pPropertyName)) {
-			return $this->mIdProperties[$pPropertyName];
+	public function getIdProperty($propertyName, $throwException = false) {
+		if ($this->hasIdProperty($propertyName)) {
+			return $this->idProperties[$propertyName];
 		}
-		else if ($pThrowException) {
-			throw new PropertyException($this, $pPropertyName);
+		else if ($throwException) {
+			throw new PropertyException($this, $propertyName);
 		}
 		return null;
 	}
 	
 	/**
 	 * 
-	 * @param Property[] $pProperties
+	 * @param Property[] $properties
 	 */
-	protected function _setProperties($pProperties) {
-		$lPublicIdProperties = [];
+	protected function _setProperties($properties) {
+		$publicIdProperties = [];
 		
 		// first we register id properties to be sure to have them in first positions
-		foreach ($pProperties as $lProperty) {
-			if ($lProperty->isId()) {
-				$this->mIdProperties[$lProperty->getName()] = $lProperty;
-				if (!$lProperty->isPrivate()) {
-					$lPublicIdProperties[$lProperty->getName()] = $lProperty;
+		foreach ($properties as $property) {
+			if ($property->isId()) {
+				$this->idProperties[$property->getName()] = $property;
+				if (!$property->isPrivate()) {
+					$publicIdProperties[$property->getName()] = $property;
 				}
-				if ($lProperty->isSerializable()) {
-					$this->mSerializableProperties[$lProperty->getName()] = $lProperty;
-					if (!$lProperty->isPrivate()) {
-						$this->mPublicSerializableProperties[$lProperty->getName()] = $lProperty;
+				if ($property->isSerializable()) {
+					$this->serializableProperties[$property->getName()] = $property;
+					if (!$property->isPrivate()) {
+						$this->publicSerializableProperties[$property->getName()] = $property;
 					}
 				}
-				if (!$lProperty->isPrivate()) {
-					$this->mPublicProperties[$lProperty->getName()] = $lProperty;
+				if (!$property->isPrivate()) {
+					$this->publicProperties[$property->getName()] = $property;
 				}
-				$this->mProperties[$lProperty->getName()] = $lProperty;
+				$this->properties[$property->getName()] = $property;
 			}
 		}
 		// second we register others properties
-		foreach ($pProperties as $lProperty) {
-			if (!$lProperty->isId()) {
-				if ($lProperty->hasDefaultValue()) {
-					$this->mPropertiesWithDefaultValues[$lProperty->getName()] = $lProperty;
-				} else if ($lProperty->isAggregation()) {
-					$this->mAggregations[$lProperty->getName()] = $lProperty;
-				} else if ($lProperty->hasMultipleSerializationNames()) {
-					$this->mMultipleForeignProperties[$lProperty->getName()] = $lProperty;
+		foreach ($properties as $property) {
+			if (!$property->isId()) {
+				if ($property->hasDefaultValue()) {
+					$this->propertiesWithDefaultValues[$property->getName()] = $property;
+				} else if ($property->isAggregation()) {
+					$this->aggregations[$property->getName()] = $property;
+				} else if ($property->hasMultipleSerializationNames()) {
+					$this->multipleForeignProperties[$property->getName()] = $property;
 				}
-				if ($lProperty->isSerializable()) {
-					$this->mSerializableProperties[$lProperty->getName()] = $lProperty;
-					if (!$lProperty->isPrivate()) {
-						$this->mPublicSerializableProperties[$lProperty->getName()] = $lProperty;
+				if ($property->isSerializable()) {
+					$this->serializableProperties[$property->getName()] = $property;
+					if (!$property->isPrivate()) {
+						$this->publicSerializableProperties[$property->getName()] = $property;
 					}
 				}
-				if (!$lProperty->isPrivate()) {
-					$this->mPublicProperties[$lProperty->getName()] = $lProperty;
+				if (!$property->isPrivate()) {
+					$this->publicProperties[$property->getName()] = $property;
 				}
-				if ($lProperty->isComplex()) {
-					$this->mComplexProperties[$lProperty->getName()] = $lProperty;
+				if ($property->isComplex()) {
+					$this->complexProperties[$property->getName()] = $property;
 				}
-				if ($lProperty->hasModelDateTime()) {
-					$this->mDateTimeProperties[$lProperty->getName()] = $lProperty;
+				if ($property->hasModelDateTime()) {
+					$this->dateTimeProperties[$property->getName()] = $property;
 				}
-				$this->mProperties[$lProperty->getName()] = $lProperty;
+				$this->properties[$property->getName()] = $property;
 			}
 		}
-		if (count($this->mIdProperties) == 1) {
-			reset($this->mIdProperties);
-			$this->mUniqueIdProperty = current($this->mIdProperties);
+		if (count($this->idProperties) == 1) {
+			reset($this->idProperties);
+			$this->uniqueIdProperty = current($this->idProperties);
 		}
-		if (count($this->mIdProperties) != count($lPublicIdProperties)) {
-			$this->mHasPrivateIdProperty = true;
+		if (count($this->idProperties) != count($publicIdProperties)) {
+			$this->hasPrivateIdProperty = true;
 		}
 	}
 	
-	public function hasProperty($pPropertyName) {
-		return array_key_exists($pPropertyName, $this->mProperties);
+	public function hasProperty($propertyName) {
+		return array_key_exists($propertyName, $this->properties);
 	}
 	
-	public function hasIdProperty($pPropertyName) {
-		return array_key_exists($pPropertyName, $this->mIdProperties);
+	public function hasIdProperty($propertyName) {
+		return array_key_exists($propertyName, $this->idProperties);
 	}
 	
 	/**
 	 * get foreign properties that have their own serialization
-	 * @param string $pSerializationType ("sqlTable", "jsonFile"...)
+	 * @param string $serializationType ("sqlTable", "jsonFile"...)
 	 * @return Property[]
 	 */
-	public function getForeignSerializableProperties($pSerializationType) {
-		$lProperties = [];
-		foreach ($this->mProperties as $lPropertyName => $lProperty) {
-			if (($lProperty instanceof ForeignProperty) && $lProperty->hasSerializationUnit($pSerializationType)) {
-				$lProperties[] = $lProperty;
+	public function getForeignSerializableProperties($serializationType) {
+		$properties = [];
+		foreach ($this->properties as $propertyName => $property) {
+			if (($property instanceof ForeignProperty) && $property->hasSerializationUnit($serializationType)) {
+				$properties[] = $property;
 			}
 		}
-		return $lProperties;
+		return $properties;
 	}
 	
 	public function getSerializableProperties() {
-		return $this->mSerializableProperties;
+		return $this->serializableProperties;
 	}
 	
 	public function getIdProperties() {
-		return $this->mIdProperties;
+		return $this->idProperties;
 	}
 	
 	/**
@@ -365,19 +365,19 @@ abstract class Model {
 	 * @return Property|null
 	 */
 	public function getUniqueIdProperty() {
-		return $this->mUniqueIdProperty;
+		return $this->uniqueIdProperty;
 	}
 	
 	public function hasUniqueIdProperty() {
-		return !is_null($this->mUniqueIdProperty);
+		return !is_null($this->uniqueIdProperty);
 	}
 	
 	public function hasPrivateIdProperty() {
-		return $this->mHasPrivateIdProperty;
+		return $this->hasPrivateIdProperty;
 	}
 	
 	public function hasIdProperties() {
-		return !empty($this->mIdProperties);
+		return !empty($this->idProperties);
 	}
 	
 	/**
@@ -385,7 +385,7 @@ abstract class Model {
 	 * @return Property:
 	 */
 	public function getPropertiesWithDefaultValues() {
-		return $this->mPropertiesWithDefaultValues;
+		return $this->propertiesWithDefaultValues;
 	}
 	
 	/**
@@ -393,24 +393,24 @@ abstract class Model {
 	 * @return AggregationProperty[]:
 	 */
 	public function getAggregations() {
-		return $this->mAggregations;
+		return $this->aggregations;
 	}
 	
 	public function getSerializationIds() {
-		$lSerializationIds = [];
-		foreach ($this->mIdProperties as $lIdProperty) {
-			$lSerializationIds[] = $lIdProperty->getSerializationName();
+		$serializationIds = [];
+		foreach ($this->idProperties as $idProperty) {
+			$serializationIds[] = $idProperty->getSerializationName();
 		}
-		return $lSerializationIds;
+		return $serializationIds;
 	}
 	
 	public function getFirstIdProperty() {
-		reset($this->mIdProperties);
-		return empty($this->mIdProperties) ? null : current($this->mIdProperties);
+		reset($this->idProperties);
+		return empty($this->idProperties) ? null : current($this->idProperties);
 	}
 	
 	public function isLoaded() {
-		return $this->mIsLoaded;
+		return $this->isLoaded;
 	}
 	
 	public function isComplex() {
@@ -424,7 +424,7 @@ abstract class Model {
 		return null;
 	}
 	
-	public function hasSerializationUnit($pSerializationType) {
+	public function hasSerializationUnit($serializationType) {
 		return false;
 	}
 	
@@ -448,156 +448,156 @@ abstract class Model {
 	}
 	
 	/**
-	 * @param array $pIdValues encode id in json format
+	 * @param array $idValues encode id in json format
 	 */
-	public function encodeId($pIdValues) {
-		return empty($pIdValues) ? null : json_encode($pIdValues);
+	public function encodeId($idValues) {
+		return empty($idValues) ? null : json_encode($idValues);
 	}
 	
 	/**
-	 * @param string $pId decode id from json format
+	 * @param string $id decode id from json format
 	 */
-	public function decodeId($pId) {
-		return json_decode($pId);
+	public function decodeId($id) {
+		return json_decode($id);
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
-	 * @param Interfacer $pInterfacer
+	 * @param ComhonObject $object
+	 * @param Interfacer $interfacer
 	 */
-	protected function _addMainCurrentObject(ComhonObject $pObject, Interfacer $pInterfacer) {
-		if ($pInterfacer->hasToExportMainForeignObjects() && ($pObject->getModel() instanceof MainModel) && !is_null($pObject->getId()) && $pObject->hasCompleteId()) {
-			$pInterfacer->addMainForeignObject($pInterfacer->createNode('empty'), $pObject->getId(), $pObject->getModel());
+	protected function _addMainCurrentObject(ComhonObject $object, Interfacer $interfacer) {
+		if ($interfacer->hasToExportMainForeignObjects() && ($object->getModel() instanceof MainModel) && !is_null($object->getId()) && $object->hasCompleteId()) {
+			$interfacer->addMainForeignObject($interfacer->createNode('empty'), $object->getId(), $object->getModel());
 		}
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
-	 * @param Interfacer $pInterfacer
+	 * @param ComhonObject $object
+	 * @param Interfacer $interfacer
 	 */
-	protected function _removeMainCurrentObject(ComhonObject $pObject, Interfacer $pInterfacer) {
-		if ($pInterfacer->hasToExportMainForeignObjects() && ($pObject->getModel() instanceof MainModel) && !is_null($pObject->getId()) && $pObject->hasCompleteId()) {
-			$pInterfacer->removeMainForeignObject($pObject->getId(), $pObject->getModel());
+	protected function _removeMainCurrentObject(ComhonObject $object, Interfacer $interfacer) {
+		if ($interfacer->hasToExportMainForeignObjects() && ($object->getModel() instanceof MainModel) && !is_null($object->getId()) && $object->hasCompleteId()) {
+			$interfacer->removeMainForeignObject($object->getId(), $object->getModel());
 		}
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
-	 * @param Interfacer $pInterfacer
+	 * @param ComhonObject $object
+	 * @param Interfacer $interfacer
 	 * @return mixed|null
 	 */
-	public final function export(ComhonObject $pObject, Interfacer $pInterfacer) {
-		$pInterfacer->initializeExport();
-		self::$sInstanceObjectHash = [];
-		$this->_addMainCurrentObject($pObject, $pInterfacer);
-		$lNode = $this->_export($pObject, $this->getName(), $pInterfacer, true);
-		$this->_removeMainCurrentObject($pObject, $pInterfacer);
-		self::$sInstanceObjectHash = [];
-		$pInterfacer->finalizeExport($lNode);
-		return $lNode;
+	public final function export(ComhonObject $object, Interfacer $interfacer) {
+		$interfacer->initializeExport();
+		self::$instanceObjectHash = [];
+		$this->_addMainCurrentObject($object, $interfacer);
+		$node = $this->_export($object, $this->getName(), $interfacer, true);
+		$this->_removeMainCurrentObject($object, $interfacer);
+		self::$instanceObjectHash = [];
+		$interfacer->finalizeExport($node);
+		return $node;
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject|null $pObject
-	 * @param string $pNodeName
-	 * @param Interfacer $pInterfacer
-	 * @param boolean $pIsFirstLevel
+	 * @param ComhonObject|null $object
+	 * @param string $nodeName
+	 * @param Interfacer $interfacer
+	 * @param boolean $isFirstLevel
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	protected function _export($pObject, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
-		if (is_null($pObject)) {
+	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel) {
+		if (is_null($object)) {
 			return null;
 		}
-		$lNode              = $pInterfacer->createNode($pNodeName);
-		$lPrivate           = $pInterfacer->isPrivateContext();
-		$lIsSerialContext   = $pInterfacer->isSerialContext();
-		$lOnlyUpdatedValues = $pIsFirstLevel && $pInterfacer->hasToExportOnlyUpdatedValues();
-		$lPropertiesFilter  = $pInterfacer->getPropertiesFilter($pObject->getModel()->getName());
+		$node              = $interfacer->createNode($nodeName);
+		$private           = $interfacer->isPrivateContext();
+		$isSerialContext   = $interfacer->isSerialContext();
+		$onlyUpdatedValues = $isFirstLevel && $interfacer->hasToExportOnlyUpdatedValues();
+		$propertiesFilter  = $interfacer->getPropertiesFilter($object->getModel()->getName());
 		
-		if (array_key_exists(spl_object_hash($pObject), self::$sInstanceObjectHash)) {
-			if (self::$sInstanceObjectHash[spl_object_hash($pObject)] > 0) {
-				throw new \Exception("Loop detected. Object '{$pObject->getModel()->getName()}' can't be exported");
+		if (array_key_exists(spl_object_hash($object), self::$instanceObjectHash)) {
+			if (self::$instanceObjectHash[spl_object_hash($object)] > 0) {
+				throw new \Exception("Loop detected. Object '{$object->getModel()->getName()}' can't be exported");
 			}
 		} else {
-			self::$sInstanceObjectHash[spl_object_hash($pObject)] = 0;
+			self::$instanceObjectHash[spl_object_hash($object)] = 0;
 		}
-		self::$sInstanceObjectHash[spl_object_hash($pObject)]++;
-		$lProperties = $pObject->getModel()->getSpecificProperties($lPrivate, $lIsSerialContext);
-		foreach ($pObject->getValues() as $lPropertyName => $lValue) {
-			if (array_key_exists($lPropertyName, $lProperties)) {
-				$lProperty = $lProperties[$lPropertyName];
+		self::$instanceObjectHash[spl_object_hash($object)]++;
+		$properties = $object->getModel()->getSpecificProperties($private, $isSerialContext);
+		foreach ($object->getValues() as $propertyName => $value) {
+			if (array_key_exists($propertyName, $properties)) {
+				$property = $properties[$propertyName];
 				
-				if ($lProperty->isExportable($lPrivate, $lIsSerialContext, $lValue)) {
-					if ((!$lOnlyUpdatedValues || $lProperty->isId() || $pObject->isUpdatedValue($lPropertyName))
-						&& (is_null($lPropertiesFilter) || array_key_exists($lPropertyName, $lPropertiesFilter))) {
-						$lPropertyName  = $lIsSerialContext ? $lProperty->getSerializationName() : $lPropertyName;
-						$lExportedValue = $lProperty->getModel()->_export($lValue, $lPropertyName, $pInterfacer, false);
-						$pInterfacer->setValue($lNode, $lExportedValue, $lPropertyName, $lProperty->isInterfacedAsNodeXml());
+				if ($property->isExportable($private, $isSerialContext, $value)) {
+					if ((!$onlyUpdatedValues || $property->isId() || $object->isUpdatedValue($propertyName))
+						&& (is_null($propertiesFilter) || array_key_exists($propertyName, $propertiesFilter))) {
+						$propertyName  = $isSerialContext ? $property->getSerializationName() : $propertyName;
+						$exportedValue = $property->getModel()->_export($value, $propertyName, $interfacer, false);
+						$interfacer->setValue($node, $exportedValue, $propertyName, $property->isInterfacedAsNodeXml());
 					}
-					else if ($lProperty->isForeign() && $pInterfacer->hasToExportMainForeignObjects() && !is_null($lValue)) {
-						$lProperty->getModel()->_export($lValue, $lValue->getModel()->getName(), $pInterfacer, false);
+					else if ($property->isForeign() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
+						$property->getModel()->_export($value, $value->getModel()->getName(), $interfacer, false);
 					}
 				}
-				else if ($lIsSerialContext && $lProperty->isAggregation() && $pInterfacer->hasToExportMainForeignObjects() && !is_null($lValue)) {
-					$lProperty->getModel()->_export($lValue, $lValue->getModel()->getName(), $pInterfacer, false);
+				else if ($isSerialContext && $property->isAggregation() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
+					$property->getModel()->_export($value, $value->getModel()->getName(), $interfacer, false);
 				}
 			}
 		}
-		if ($lIsSerialContext) {
-			foreach ($pObject->getModel()->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
-				$lForeignObject = $pObject->getValue($lPropertyName);
-				if (!is_null($lForeignObject) && $lMultipleForeignProperty->getModel()->verifValue($lForeignObject)) {
-					if (!$lForeignObject->hasCompleteId()) {
-						throw new \Exception("Warning cannot export id of foreign property with model '{$this->mModelName}' because object doesn't have complete id");
+		if ($isSerialContext) {
+			foreach ($object->getModel()->multipleForeignProperties as $propertyName => $multipleForeignProperty) {
+				$foreignObject = $object->getValue($propertyName);
+				if (!is_null($foreignObject) && $multipleForeignProperty->getModel()->verifValue($foreignObject)) {
+					if (!$foreignObject->hasCompleteId()) {
+						throw new \Exception("Warning cannot export id of foreign property with model '{$this->modelName}' because object doesn't have complete id");
 					}
-					foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-						if (!$lOnlyUpdatedValues || $lForeignObject->isUpdatedValue($lIdProperty->getName())) {
-							$lIdValue = $lForeignObject->getValue($lIdProperty->getName());
-							$lIdProperty->getModel()->verifValue($lIdValue);
-							$lIdValue = $lIdProperty->getModel()->_export($lIdValue, $lSerializationName, $pInterfacer, false);
-							$pInterfacer->setValue($lNode, $lIdValue, $lSerializationName);
+					foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
+						if (!$onlyUpdatedValues || $foreignObject->isUpdatedValue($idProperty->getName())) {
+							$idValue = $foreignObject->getValue($idProperty->getName());
+							$idProperty->getModel()->verifValue($idValue);
+							$idValue = $idProperty->getModel()->_export($idValue, $serializationName, $interfacer, false);
+							$interfacer->setValue($node, $idValue, $serializationName);
 						}
 					}
 				}
 			}
 		}
-		if ($pIsFirstLevel && $pInterfacer->hasToFlattenValues()) {
-			$this->_flattenValues($lNode, $pObject, $pInterfacer);
+		if ($isFirstLevel && $interfacer->hasToFlattenValues()) {
+			$this->_flattenValues($node, $object, $interfacer);
 		}
-		if ($pObject->getModel() !== $this) {
-			if (!$pObject->getModel()->isInheritedFrom($this)) {
+		if ($object->getModel() !== $this) {
+			if (!$object->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
 			}
-			$pInterfacer->setValue($lNode, $pObject->getModel()->getName(), Interfacer::INHERITANCE_KEY);
+			$interfacer->setValue($node, $object->getModel()->getName(), Interfacer::INHERITANCE_KEY);
 		}
-		self::$sInstanceObjectHash[spl_object_hash($pObject)]--;
-		return $lNode;
+		self::$instanceObjectHash[spl_object_hash($object)]--;
+		return $node;
 	}
 	
 	/**
 	 * 
-	 * @param mixed $pNode
-	 * @param ComhonObject $pObject
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $node
+	 * @param ComhonObject $object
+	 * @param Interfacer $interfacer
 	 */
-	protected function _flattenValues(&$pNode, ComhonObject $pObject, Interfacer $pInterfacer) {
-		foreach ($pObject->getModel()->getComplexProperties() as $lPropertyName => $lComplexProperty) {
-			$lInterfacedPropertyName = $pInterfacer->isSerialContext() ? $lComplexProperty->getSerializationName() : $lPropertyName;
+	protected function _flattenValues(&$node, ComhonObject $object, Interfacer $interfacer) {
+		foreach ($object->getModel()->getComplexProperties() as $propertyName => $complexProperty) {
+			$interfacedPropertyName = $interfacer->isSerialContext() ? $complexProperty->getSerializationName() : $propertyName;
 			
-			if (!$lComplexProperty->isForeign() || ($pObject->getValue($lPropertyName) instanceof ObjectArray)) {
-				$pInterfacer->flattenNode($pNode, $lInterfacedPropertyName);
+			if (!$complexProperty->isForeign() || ($object->getValue($propertyName) instanceof ObjectArray)) {
+				$interfacer->flattenNode($node, $interfacedPropertyName);
 			}
-			else if ($pInterfacer->isComplexInterfacedId($pInterfacer->getValue($pNode, $lInterfacedPropertyName, true))) {
-				$lForeignObject = $pObject->getValue($lPropertyName);
-				if ($lForeignObject->getModel() instanceof MainModel) {
-					$pInterfacer->replaceValue($pNode, $lInterfacedPropertyName, $lForeignObject->getId());
+			else if ($interfacer->isComplexInterfacedId($interfacer->getValue($node, $interfacedPropertyName, true))) {
+				$foreignObject = $object->getValue($propertyName);
+				if ($foreignObject->getModel() instanceof MainModel) {
+					$interfacer->replaceValue($node, $interfacedPropertyName, $foreignObject->getId());
 				} else {
-					$pInterfacer->flattenNode($pNode, $lInterfacedPropertyName);
+					$interfacer->flattenNode($node, $interfacedPropertyName);
 				}
 			}
 		}
@@ -605,289 +605,289 @@ abstract class Model {
 	
 	/**
 	 *
-	 * @param ComhonObject $pObject
-	 * @param string $pNodeName
-	 * @param Interfacer $pInterfacer
+	 * @param ComhonObject $object
+	 * @param string $nodeName
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	protected function _exportId(ComhonObject $pObject, $pNodeName, Interfacer $pInterfacer) {
-		if ($pObject->getModel() !== $this) {
-			if (!$pObject->getModel()->isInheritedFrom($this)) {
+	protected function _exportId(ComhonObject $object, $nodeName, Interfacer $interfacer) {
+		if ($object->getModel() !== $this) {
+			if (!$object->getModel()->isInheritedFrom($this)) {
 				throw new \Exception('object doesn\'t have good model');
 			}
-			$lObjectId = $pInterfacer->createNode($pNodeName);
-			$pInterfacer->setValue($lObjectId, $pObject->getModel()->_toInterfacedId($pObject, $pInterfacer), Interfacer::COMPLEX_ID_KEY);
-			$pInterfacer->setValue($lObjectId, $pObject->getModel()->getName(), Interfacer::INHERITANCE_KEY);
-			return $lObjectId;
+			$objectId = $interfacer->createNode($nodeName);
+			$interfacer->setValue($objectId, $object->getModel()->_toInterfacedId($object, $interfacer), Interfacer::COMPLEX_ID_KEY);
+			$interfacer->setValue($objectId, $object->getModel()->getName(), Interfacer::INHERITANCE_KEY);
+			return $objectId;
 		}
-		return $this->_toInterfacedId($pObject, $pInterfacer);
+		return $this->_toInterfacedId($object, $interfacer);
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
+	 * @param ComhonObject $object
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 */
-	public function fillObject(ComhonObject $pObject, $pInterfacedObject, Interfacer $pInterfacer) {
+	public function fillObject(ComhonObject $object, $interfacedObject, Interfacer $interfacer) {
 		throw new \Exception('can\'t apply function fillObject(). Only callable for MainModel');
 	}
 	
 	/**
 	 *
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return ComhonObject
 	 */
-	public function import($pInterfacedObject, Interfacer $pInterfacer) {
+	public function import($interfacedObject, Interfacer $interfacer) {
 		throw new \Exception('can\'t apply function import(). Only callable for MainModel');
 	}
 	
 	/**
 	 *
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
 	 * @throws \Exception
 	 * @return ComhonObject
 	 */
-	protected function _importMain($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection) {
+	protected function _importMain($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection) {
 		throw new \Exception('can\'t apply function _importFromObjectArray(). Only callable for MainModel');
 	}
 	
 	/**
 	 * 
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param MainModel $pParentMainModel
-	 * @param boolean $pIsFirstLevel
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param MainModel $parentMainModel
+	 * @param boolean $isFirstLevel
 	 * @return ComhonObject
 	 */
-	protected function _getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
-		$lInheritance = $pInterfacer->getValue($pInterfacedObject, Interfacer::INHERITANCE_KEY);
-		$lModel = is_null($lInheritance) ? $this : $this->_getIneritedModel($lInheritance, $pParentMainModel);
-		$lId = $lModel->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer);
+	protected function _getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
+		$inheritance = $interfacer->getValue($interfacedObject, Interfacer::INHERITANCE_KEY);
+		$model = is_null($inheritance) ? $this : $this->_getIneritedModel($inheritance, $parentMainModel);
+		$id = $model->getIdFromInterfacedObject($interfacedObject, $interfacer);
 		
-		return $lModel->_getOrCreateObjectInstance($lId, $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel);
+		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, $isFirstLevel);
 	}
 	
 	/**
 	 * 
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
 	 * @return NULL
 	 */
-	public function getIdFromInterfacedObject($pInterfacedObject, Interfacer $pInterfacer) {
-		$lIsSerialContext = $pInterfacer->isSerialContext();
-		$lPrivate = $pInterfacer->isPrivateContext();
-		if (!is_null($this->mUniqueIdProperty)) {
-			if (!$this->mUniqueIdProperty->isInterfaceable($lPrivate, $lIsSerialContext)) {
+	public function getIdFromInterfacedObject($interfacedObject, Interfacer $interfacer) {
+		$isSerialContext = $interfacer->isSerialContext();
+		$private = $interfacer->isPrivateContext();
+		if (!is_null($this->uniqueIdProperty)) {
+			if (!$this->uniqueIdProperty->isInterfaceable($private, $isSerialContext)) {
 				return null;
 			}
-			$lPropertyName = $lIsSerialContext ? $this->mUniqueIdProperty->getSerializationName() : $this->mUniqueIdProperty->getName();
-			$lId = $pInterfacer->getValue($pInterfacedObject, $lPropertyName, $this->mUniqueIdProperty->isInterfacedAsNodeXml());
-			return $this->mUniqueIdProperty->getModel()->importSimple($lId, $pInterfacer);
+			$propertyName = $isSerialContext ? $this->uniqueIdProperty->getSerializationName() : $this->uniqueIdProperty->getName();
+			$id = $interfacer->getValue($interfacedObject, $propertyName, $this->uniqueIdProperty->isInterfacedAsNodeXml());
+			return $this->uniqueIdProperty->getModel()->importSimple($id, $interfacer);
 		}
-		$lIdValues = [];
-		foreach ($this->getIdProperties() as $lIdProperty) {
-			if ($lIdProperty->isInterfaceable($lPrivate, $lIsSerialContext)) {
-				$lPropertyName = $lIsSerialContext ? $lIdProperty->getSerializationName() : $lIdProperty->getName();
-				$lIdValue = $pInterfacer->getValue($pInterfacedObject, $lPropertyName, $lIdProperty->isInterfacedAsNodeXml());
-				$lIdValues[] = $lIdProperty->getModel()->importSimple($lIdValue, $pInterfacer);
+		$idValues = [];
+		foreach ($this->getIdProperties() as $idProperty) {
+			if ($idProperty->isInterfaceable($private, $isSerialContext)) {
+				$propertyName = $isSerialContext ? $idProperty->getSerializationName() : $idProperty->getName();
+				$idValue = $interfacer->getValue($interfacedObject, $propertyName, $idProperty->isInterfacedAsNodeXml());
+				$idValues[] = $idProperty->getModel()->importSimple($idValue, $interfacer);
 			} else {
-				$lIdValues[] = null;
+				$idValues[] = null;
 			}
 		}
-		return $this->encodeId($lIdValues);
+		return $this->encodeId($idValues);
 	}
 	
 	/**
 	 * 
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param MainModel $pParentMainModel
-	 * @param boolean $pIsFirstLevel
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param MainModel $parentMainModel
+	 * @param boolean $isFirstLevel
 	 * @return ComhonObject|null
 	 */
-	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
-		if ($pInterfacer->isNullValue($pInterfacedObject)) {
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
+		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
-		if (!$pInterfacer->isNodeValue($pInterfacedObject)) {
-			if (($pInterfacer instanceof StdObjectInterfacer) && is_array($pInterfacedObject) && empty($pInterfacedObject)) {
-				$pInterfacedObject = new \stdClass();
+		if (!$interfacer->isNodeValue($interfacedObject)) {
+			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
+				$interfacedObject = new \stdClass();
 			} else {
 				throw new \Exception('unexpeted value type');
 			}
 		}
-		$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $pParentMainModel, $pIsFirstLevel);
-		$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $pParentMainModel, $pIsFirstLevel);
-		return $lObject;
+		$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, $parentMainModel, $isFirstLevel);
+		$this->_fillObject($object, $interfacedObject, $interfacer, $localObjectCollection, $parentMainModel, $isFirstLevel);
+		return $object;
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param MainModel $pParentMainModel
-	 * @param boolean $pIsFirstLevel
+	 * @param ComhonObject $object
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param MainModel $parentMainModel
+	 * @param boolean $isFirstLevel
 	 * @throws \Exception
 	 */
-	protected function _fillObject(ComhonObject $pObject, $pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
-		$lModel = $pObject->getModel();
-		if ($lModel !== $this && !$lModel->isInheritedFrom($this)) {
+	protected function _fillObject(ComhonObject $object, $interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
+		$model = $object->getModel();
+		if ($model !== $this && !$model->isInheritedFrom($this)) {
 			throw new \Exception('object doesn\'t have good model');
 		}
-		if ($pIsFirstLevel && $pInterfacer->hasToFlattenValues()) {
-			$this->_unFlattenValues($pInterfacedObject, $pObject, $pInterfacer);
+		if ($isFirstLevel && $interfacer->hasToFlattenValues()) {
+			$this->_unFlattenValues($interfacedObject, $object, $interfacer);
 		}
 		if ($this instanceof MainModel) {
-			$pParentMainModel = $this;
+			$parentMainModel = $this;
 		}
 		
-		$lPrivate           = $pInterfacer->isPrivateContext();
-		$lIsSerialContext   = $pInterfacer->isSerialContext();
-		$lFlagAsUpdated     = $pInterfacer->hasToFlagValuesAsUpdated();
-		$lProperties        = $lModel->getSpecificProperties($lPrivate, $lIsSerialContext);
+		$private           = $interfacer->isPrivateContext();
+		$isSerialContext   = $interfacer->isSerialContext();
+		$flagAsUpdated     = $interfacer->hasToFlagValuesAsUpdated();
+		$properties        = $model->getSpecificProperties($private, $isSerialContext);
 		
-		foreach ($lProperties as $lPropertyName => $lProperty) {
-			if ($lProperty->isInterfaceable($lPrivate, $lIsSerialContext)) {
-				$lInterfacedPropertyName = $lIsSerialContext ? $lProperty->getSerializationName() : $lPropertyName;
-				if ($pInterfacer->hasValue($pInterfacedObject, $lInterfacedPropertyName, $lProperty->isInterfacedAsNodeXml())) {
-					$lValue = $pInterfacer->getValue($pInterfacedObject, $lInterfacedPropertyName, $lProperty->isInterfacedAsNodeXml());
-					$lValue = $pInterfacer->isNullValue($lValue) ? null
-						: $lProperty->getModel()->_import($lValue, $pInterfacer, $pLocalObjectCollection, $pParentMainModel);
-					$pObject->setValue($lPropertyName, $lValue, $lFlagAsUpdated);
+		foreach ($properties as $propertyName => $property) {
+			if ($property->isInterfaceable($private, $isSerialContext)) {
+				$interfacedPropertyName = $isSerialContext ? $property->getSerializationName() : $propertyName;
+				if ($interfacer->hasValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml())) {
+					$value = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
+					$value = $interfacer->isNullValue($value) ? null
+						: $property->getModel()->_import($value, $interfacer, $localObjectCollection, $parentMainModel);
+					$object->setValue($propertyName, $value, $flagAsUpdated);
 				}
 			}
 		}
-		if ($lIsSerialContext) {
-			foreach ($lModel->mMultipleForeignProperties as $lPropertyName => $lMultipleForeignProperty) {
-				$lId = [];
-				foreach ($lMultipleForeignProperty->getMultipleIdProperties() as $lSerializationName => $lIdProperty) {
-					if ($pInterfacer->hasValue($pInterfacedObject, $lSerializationName)) {
-						$lIdPart = $pInterfacer->getValue($pInterfacedObject, $lSerializationName);
-						if ($pInterfacer instanceof NoScalarTypedInterfacer) {
-							$lIdPart = $pInterfacer->isNullValue($lValue) ? null
-								: $lIdProperty->getModel()->importSimple($lIdPart, $pInterfacer);
+		if ($isSerialContext) {
+			foreach ($model->multipleForeignProperties as $propertyName => $multipleForeignProperty) {
+				$id = [];
+				foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
+					if ($interfacer->hasValue($interfacedObject, $serializationName)) {
+						$idPart = $interfacer->getValue($interfacedObject, $serializationName);
+						if ($interfacer instanceof NoScalarTypedInterfacer) {
+							$idPart = $interfacer->isNullValue($value) ? null
+								: $idProperty->getModel()->importSimple($idPart, $interfacer);
 						}
-						$lId[] = $lIdPart;
+						$id[] = $idPart;
 					}
 				}
-				if (count($lId) !== count($lMultipleForeignProperty->getMultipleIdProperties())) {
+				if (count($id) !== count($multipleForeignProperty->getMultipleIdProperties())) {
 					throw new \Exception('not complete multiple id foreign value');
 				}
-				$lValue = $lMultipleForeignProperty->getModel()->_import(json_encode($lId), $pInterfacer, $pLocalObjectCollection, $pParentMainModel);
-				$pObject->setValue($lPropertyName, $lValue, $lFlagAsUpdated);
+				$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, $localObjectCollection, $parentMainModel);
+				$object->setValue($propertyName, $value, $flagAsUpdated);
 			}
 		}
 	}
 	
 	/**
 	 *
-	 * @param mixed $pNode
-	 * @param ComhonObject $pObject
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $node
+	 * @param ComhonObject $object
+	 * @param Interfacer $interfacer
 	 */
-	protected function _unFlattenValues(&$pNode, ComhonObject $pObject, Interfacer $pInterfacer) {
-		foreach ($pObject->getModel()->getComplexProperties() as $lPropertyName => $lComplexProperty) {
-			$lInterfacedPropertyName = $pInterfacer->isSerialContext() ? $lComplexProperty->getSerializationName() : $lPropertyName;
+	protected function _unFlattenValues(&$node, ComhonObject $object, Interfacer $interfacer) {
+		foreach ($object->getModel()->getComplexProperties() as $propertyName => $complexProperty) {
+			$interfacedPropertyName = $interfacer->isSerialContext() ? $complexProperty->getSerializationName() : $propertyName;
 			
-			if (!$lComplexProperty->isForeign() || $lComplexProperty->getModel()->getModel() instanceof ModelArray) {
-				$pInterfacer->unFlattenNode($pNode, $lInterfacedPropertyName);
+			if (!$complexProperty->isForeign() || $complexProperty->getModel()->getModel() instanceof ModelArray) {
+				$interfacer->unFlattenNode($node, $interfacedPropertyName);
 			}
-			else if ($pInterfacer->isFlattenComplexInterfacedId($pInterfacer->getValue($pNode, $lInterfacedPropertyName, true))) {
-				$pInterfacer->unFlattenNode($pNode, $lInterfacedPropertyName);
+			else if ($interfacer->isFlattenComplexInterfacedId($interfacer->getValue($node, $interfacedPropertyName, true))) {
+				$interfacer->unFlattenNode($node, $interfacedPropertyName);
 			}
 		}
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param MainModel $pParentMainModel
+	 * @param mixed $value
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param MainModel $parentMainModel
 	 * @return ComhonObject
 	 */
-	protected function _importId($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel) {
-		if ($pInterfacer->isNullValue($pValue)) {
+	protected function _importId($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel) {
+		if ($interfacer->isNullValue($value)) {
 			return null;
 		}
-		if ($pInterfacer->isComplexInterfacedId($pValue)) {
-			if (!$pInterfacer->hasValue($pValue, Interfacer::COMPLEX_ID_KEY) || !$pInterfacer->hasValue($pValue, Interfacer::INHERITANCE_KEY)) {
+		if ($interfacer->isComplexInterfacedId($value)) {
+			if (!$interfacer->hasValue($value, Interfacer::COMPLEX_ID_KEY) || !$interfacer->hasValue($value, Interfacer::INHERITANCE_KEY)) {
 				throw new \Exception('object id must have property \''.Interfacer::COMPLEX_ID_KEY.'\' and \''.Interfacer::INHERITANCE_KEY.'\'');
 			}
-			$lId = $pInterfacer->getValue($pValue, Interfacer::COMPLEX_ID_KEY);
-			$lInheritance = $pInterfacer->getValue($pValue, Interfacer::INHERITANCE_KEY);
-			$lModel = $this->_getIneritedModel($lInheritance, $pParentMainModel);
+			$id = $interfacer->getValue($value, Interfacer::COMPLEX_ID_KEY);
+			$inheritance = $interfacer->getValue($value, Interfacer::INHERITANCE_KEY);
+			$model = $this->_getIneritedModel($inheritance, $parentMainModel);
 		}
 		else {
-			$lId = $pValue;
-			$lModel = $this;
+			$id = $value;
+			$model = $this;
 		}
-		if ($pInterfacer instanceof NoScalarTypedInterfacer) {
-			/** @var SimpleModel $lModel */
-			if ($lModel->hasUniqueIdProperty()) {
-				$lId = $lModel->getUniqueIdProperty()->getModel()->importSimple($lId, $pInterfacer);
-			} else if (!is_string($lId)) {
-				$lId = $pInterfacer->castValueToString($lId);
+		if ($interfacer instanceof NoScalarTypedInterfacer) {
+			/** @var SimpleModel $model */
+			if ($model->hasUniqueIdProperty()) {
+				$id = $model->getUniqueIdProperty()->getModel()->importSimple($id, $interfacer);
+			} else if (!is_string($id)) {
+				$id = $interfacer->castValueToString($id);
 			}
 		}
-		if (is_null($lId)) {
+		if (is_null($id)) {
 			return null;
 		}
-		if (is_object($lId) || is_array($lId) || $lId === '') {
-			$lId = is_object($lId) || is_array($lId) ? json_encode($lId) : $lId;
-			throw new \Exception("malformed id '$lId' for model '{$this->mModelName}'");
+		if (is_object($id) || is_array($id) || $id === '') {
+			$id = is_object($id) || is_array($id) ? json_encode($id) : $id;
+			throw new \Exception("malformed id '$id' for model '{$this->modelName}'");
 		}
 		
-		return $lModel->_getOrCreateObjectInstance($lId, $pInterfacer, $pLocalObjectCollection, false, true);
+		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, false, true);
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
-	 * @param Interfacer $pInterfacer
+	 * @param ComhonObject $object
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return integer|string
 	 */
-	public function _toInterfacedId(ComhonObject $pObject, Interfacer $pInterfacer) {
-		if (!$pObject->hasCompleteId()) {
-			throw new \Exception("Warning cannot export id of foreign property with model '{$this->mModelName}' because object doesn't have complete id");
+	public function _toInterfacedId(ComhonObject $object, Interfacer $interfacer) {
+		if (!$object->hasCompleteId()) {
+			throw new \Exception("Warning cannot export id of foreign property with model '{$this->modelName}' because object doesn't have complete id");
 		}
-		return $pObject->getId();
+		return $object->getId();
 	}
 	
-	protected function _buildObjectFromId($pId, $pIsloaded, $pFlagAsUpdated) {
-		return $this->_fillObjectwithId($this->getObjectInstance($pIsloaded), $pId, $pFlagAsUpdated);
+	protected function _buildObjectFromId($id, $isloaded, $flagAsUpdated) {
+		return $this->_fillObjectwithId($this->getObjectInstance($isloaded), $id, $flagAsUpdated);
 	}
 	
-	protected function _fillObjectwithId(ComhonObject $pObject, $pId, $pFlagAsUpdated) {
-		if ($pObject->getModel() !== $this) {
-			throw new \Exception("object doesn't have good model. {$this->getName()} expected, {$pObject->getModel()->getName()} given");
+	protected function _fillObjectwithId(ComhonObject $object, $id, $flagAsUpdated) {
+		if ($object->getModel() !== $this) {
+			throw new \Exception("object doesn't have good model. {$this->getName()} expected, {$object->getModel()->getName()} given");
 		}
-		if (!is_null($pId)) {
-			$pObject->setId($pId, $pFlagAsUpdated);
+		if (!is_null($id)) {
+			$object->setId($id, $flagAsUpdated);
 		}
-		return $pObject;
+		return $object;
 	}
 	
 	/**
-	 * @param ComhonObject $pValue
+	 * @param ComhonObject $value
 	 */
-	public function verifValue($pValue) {
-		if (!($pValue instanceof ComhonObject) || ($pValue->getModel() !== $this && !$pValue->getModel()->isInheritedFrom($this))) {
-			$lNodes = debug_backtrace();
-			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
-			throw new \Exception("Argument passed to {$lNodes[0]['class']}::{$lNodes[0]['function']}() must be an instance of $this->mObjectClass, instance of $lClass given, called in {$lNodes[0]['file']} on line {$lNodes[0]['line']} and defined in {$lNodes[0]['file']}");
+	public function verifValue($value) {
+		if (!($value instanceof ComhonObject) || ($value->getModel() !== $this && !$value->getModel()->isInheritedFrom($this))) {
+			$nodes = debug_backtrace();
+			$class = gettype($value) == 'object' ? get_class($value): gettype($value);
+			throw new \Exception("Argument passed to {$nodes[0]['class']}::{$nodes[0]['function']}() must be an instance of $this->objectClass, instance of $class given, called in {$nodes[0]['file']} on line {$nodes[0]['line']} and defined in {$nodes[0]['file']}");
 		}
 		return true;
 	}

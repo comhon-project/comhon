@@ -17,86 +17,86 @@ use Comhon\Interfacer\XMLInterfacer;
 
 class SerializationManifestParser extends ParentSerializationManifestParser {
 
-	public function getPropertySerializationInfos($pPropertyName) {
-		$lSerializationName  = null;
-		$lAggregations       = null;
-		$lIsSerializable     = true;
-		$lSerializationNames = [];
-		$lProperties         = $this->mInterfacer->getValue($this->mManifest, 'properties', true);
+	public function getPropertySerializationInfos($propertyName) {
+		$serializationName  = null;
+		$aggregations       = null;
+		$isSerializable     = true;
+		$serializationNames = [];
+		$properties         = $this->interfacer->getValue($this->manifest, 'properties', true);
 		
-		if (!is_null($lProperties) && $this->mInterfacer->hasValue($lProperties, $pPropertyName, true)) {
-			$lSerializationNode = $this->mInterfacer->getValue($lProperties, $pPropertyName, true);
-			if ($this->mInterfacer->hasValue($lSerializationNode, 'serializationName')) {
-				$lSerializationName = $this->mInterfacer->getValue($lSerializationNode, 'serializationName');
-				if ($this->mInterfacer->hasValue($lSerializationNode, 'serializationNames')) {
+		if (!is_null($properties) && $this->interfacer->hasValue($properties, $propertyName, true)) {
+			$serializationNode = $this->interfacer->getValue($properties, $propertyName, true);
+			if ($this->interfacer->hasValue($serializationNode, 'serializationName')) {
+				$serializationName = $this->interfacer->getValue($serializationNode, 'serializationName');
+				if ($this->interfacer->hasValue($serializationNode, 'serializationNames')) {
 					throw new \Exception('serializationName and serializationNames cannot cohexist');
 				}
 			}
-			else if ($this->mInterfacer->hasValue($lSerializationNode, 'serializationNames', true)) {
-				$lSerializationNames = $this->mInterfacer->getTraversableNode(
-					$this->mInterfacer->getValue($lSerializationNode, 'serializationNames', true),
+			else if ($this->interfacer->hasValue($serializationNode, 'serializationNames', true)) {
+				$serializationNames = $this->interfacer->getTraversableNode(
+					$this->interfacer->getValue($serializationNode, 'serializationNames', true),
 					true
 				);
-				if ($this->mInterfacer instanceof XMLInterfacer) {
-					foreach ($lSerializationNames as $lKey => $lSerializationNameNode) {
-						$lSerializationNames[$lKey] = $this->mInterfacer->extractNodeText($lSerializationNameNode);
+				if ($this->interfacer instanceof XMLInterfacer) {
+					foreach ($serializationNames as $key => $serializationNameNode) {
+						$serializationNames[$key] = $this->interfacer->extractNodeText($serializationNameNode);
 					}
 				}
 			}
-			if ($this->mInterfacer->hasValue($lSerializationNode, 'aggregations', true)) {
-				$lAggregations = $this->mInterfacer->getTraversableNode(
-					$this->mInterfacer->getValue($lSerializationNode, 'aggregations', true)
+			if ($this->interfacer->hasValue($serializationNode, 'aggregations', true)) {
+				$aggregations = $this->interfacer->getTraversableNode(
+					$this->interfacer->getValue($serializationNode, 'aggregations', true)
 				);
-				if ($this->mInterfacer instanceof XMLInterfacer) {
-					foreach ($lAggregations as $lKey => $lSerializationNameNode) {
-						$lAggregations[$lKey] = $this->mInterfacer->extractNodeText($lSerializationNameNode);
+				if ($this->interfacer instanceof XMLInterfacer) {
+					foreach ($aggregations as $key => $serializationNameNode) {
+						$aggregations[$key] = $this->interfacer->extractNodeText($serializationNameNode);
 					}
 				}
 			}
-			if ($this->mInterfacer->hasValue($lSerializationNode, 'is_serializable')) {
-				$lIsSerializable = $this->mInterfacer->getValue($lSerializationNode, 'is_serializable');
-				if ($this->mInterfacer instanceof XMLInterfacer) {
-					$lIsSerializable = $this->mInterfacer->castValueToBoolean($lIsSerializable);
+			if ($this->interfacer->hasValue($serializationNode, 'is_serializable')) {
+				$isSerializable = $this->interfacer->getValue($serializationNode, 'is_serializable');
+				if ($this->interfacer instanceof XMLInterfacer) {
+					$isSerializable = $this->interfacer->castValueToBoolean($isSerializable);
 				}
 			}
 		}
 		
-		return [$lSerializationName, $lAggregations, $lIsSerializable, $lSerializationNames];
+		return [$serializationName, $aggregations, $isSerializable, $serializationNames];
 	}
 	
 	protected function _getSerializationSettings() {
-		return $this->mInterfacer->hasValue($this->mManifest, 'serialization', true)
-			? $this->_buildSerializationSettings($this->mInterfacer->getValue($this->mManifest, 'serialization', true))
+		return $this->interfacer->hasValue($this->manifest, 'serialization', true)
+			? $this->_buildSerializationSettings($this->interfacer->getValue($this->manifest, 'serialization', true))
 			: null;
 	}
 	
-	private function _buildSerializationSettings($pSerializationNode) {
-		$lType = $this->mInterfacer->getValue($pSerializationNode, 'type');
-		if ($this->mInterfacer->hasValue($pSerializationNode, 'value', true)) {
-			$lSerialization = ModelManager::getInstance()->getInstanceModel($lType)->getObjectInstance();
-			$lSerialization->fill($this->mInterfacer->getValue($pSerializationNode, 'value', true), $this->mInterfacer);
-		} else if ($this->mInterfacer->hasValue($pSerializationNode, 'id')) {
-			$lId = $this->mInterfacer->getValue($pSerializationNode, 'id');
-			if (empty($lId)) {
+	private function _buildSerializationSettings($serializationNode) {
+		$type = $this->interfacer->getValue($serializationNode, 'type');
+		if ($this->interfacer->hasValue($serializationNode, 'value', true)) {
+			$serialization = ModelManager::getInstance()->getInstanceModel($type)->getObjectInstance();
+			$serialization->fill($this->interfacer->getValue($serializationNode, 'value', true), $this->interfacer);
+		} else if ($this->interfacer->hasValue($serializationNode, 'id')) {
+			$id = $this->interfacer->getValue($serializationNode, 'id');
+			if (empty($id)) {
 				throw new \Exception('malformed serialization, must have description or id');
 			}
-			$lSerialization =  ModelManager::getInstance()->getInstanceModel($lType)->loadObject($lId);
-			if (is_null($lSerialization)) {
-				throw new \Exception("impossible to load $lType serialization with id '$lId'");
+			$serialization =  ModelManager::getInstance()->getInstanceModel($type)->loadObject($id);
+			if (is_null($serialization)) {
+				throw new \Exception("impossible to load $type serialization with id '$id'");
 			}
 		} else {
 			throw new \Exception('malformed serialization');
 		}
-		return $lSerialization;
+		return $serialization;
 	}
 	
 	public function getInheritanceKey() {
-		$lSerializationNode = $this->mInterfacer->getValue($this->mManifest, 'serialization', true);
-		return is_null($lSerializationNode)
+		$serializationNode = $this->interfacer->getValue($this->manifest, 'serialization', true);
+		return is_null($serializationNode)
 			? null
 			: (
-				$this->mInterfacer->hasValue($lSerializationNode, 'inheritanceKey')
-					? $this->mInterfacer->getValue($lSerializationNode, 'inheritanceKey')
+				$this->interfacer->hasValue($serializationNode, 'inheritanceKey')
+					? $this->interfacer->getValue($serializationNode, 'inheritanceKey')
 					: null
 			);
 	}

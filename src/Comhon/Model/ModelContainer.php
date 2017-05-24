@@ -17,18 +17,18 @@ use Comhon\Object\Collection\ObjectCollection;
 
 abstract class ModelContainer extends Model {
 
-	protected $mModel;
-	protected $mIsLoaded = true;
+	protected $model;
+	protected $isLoaded = true;
 	
-	public function __construct(Model $pModel) {
-		$this->mModel = $pModel;
+	public function __construct(Model $model) {
+		$this->model = $model;
 	}
 	
 	public function getObjectClass() {
 		throw new \Exception('containers models don\'t have associated class (except array and foreign model)');
 	}
 	
-	public function getObjectInstance($pIsloaded = true) {
+	public function getObjectInstance($isloaded = true) {
 		throw new \Exception('containers models don\'t have associated class (except array and foreign model)');
 	}
 	
@@ -36,8 +36,8 @@ abstract class ModelContainer extends Model {
 		return $this->getModel()->getName();
 	}
 	
-	public function getProperty($pPropertyName, $pThrowException = false) {
-		return $this->getModel()->getProperty($pPropertyName);
+	public function getProperty($propertyName, $throwException = false) {
+		return $this->getModel()->getProperty($propertyName);
 	}
 	
 	public function getProperties() {
@@ -53,21 +53,21 @@ abstract class ModelContainer extends Model {
 	}
 	
 	public function getModel() {
-		$this->mModel->load();
-		return $this->mModel;
+		$this->model->load();
+		return $this->model;
 	}
 	
 	public function getUniqueModel() {
-		$lUniqueModel = $this->mModel;
-		while ($lUniqueModel instanceof ModelContainer) {
-			$lUniqueModel = $lUniqueModel->getModel();
+		$uniqueModel = $this->model;
+		while ($uniqueModel instanceof ModelContainer) {
+			$uniqueModel = $uniqueModel->getModel();
 		}
-		$lUniqueModel->load();
-		return $lUniqueModel;
+		$uniqueModel->load();
+		return $uniqueModel;
 	}
 	
-	public function hasProperty($pPropertyName) {
-		return $this->getModel()->hasProperty($pPropertyName);
+	public function hasProperty($propertyName) {
+		return $this->getModel()->hasProperty($propertyName);
 	}
 	
 	public final function getExportKeys() {
@@ -75,8 +75,8 @@ abstract class ModelContainer extends Model {
 	}
 	
 	
-	public function getExportKey($pKey) {
-		return $this->getModel()->getExportKey($pKey);
+	public function getExportKey($key) {
+		return $this->getModel()->getExportKey($key);
 	}
 	
 	public function getIdProperties() {
@@ -104,7 +104,7 @@ abstract class ModelContainer extends Model {
 	}
 	
 	public function isLoaded() {
-		return $this->mModel->isLoaded();
+		return $this->model->isLoaded();
 	}
 	
 	public function getSerialization() {
@@ -120,26 +120,26 @@ abstract class ModelContainer extends Model {
 	
 	/**
 	 *
-	 * @param ComhonObject $pObject
-	 * @param string $pNodeName
-	 * @param Interfacer $pInterfacer
-	 * @param boolean $pIsFirstLevel
+	 * @param ComhonObject $object
+	 * @param string $nodeName
+	 * @param Interfacer $interfacer
+	 * @param boolean $isFirstLevel
 	 * @throws \Exception
 	 */
-	protected function _export($pObject, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
+	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel) {
 		throw new \Exception('must be overrided');
 	}
 	
 	/**
 	 *
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param MainModel $pParentMainModel
-	 * @param boolean $pIsFirstLevel
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param MainModel $parentMainModel
+	 * @param boolean $isFirstLevel
 	 * @return NULL|unknown
 	 */
-	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
 		throw new \Exception('must be overrided');
 	}
 	

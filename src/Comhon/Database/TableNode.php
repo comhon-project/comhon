@@ -13,25 +13,25 @@ namespace Comhon\Database;
 
 class TableNode {
 
-	private $mTable;
-	private $mAlias;
-	private $mExportName;
-	private $mSelectedColumns = [];
-	private $mSelectAllColumns = true;
+	private $table;
+	private $alias;
+	private $exportName;
+	private $selectedColumns = [];
+	private $selectAllColumns = true;
 	
 	/**
 	 * 
-	 * @param string|SelectQuery $pTable
-	 * @param string $pAlias
+	 * @param string|SelectQuery $table
+	 * @param string $alias
 	 */
-	public function __construct($pTable, $pAlias = null, $pSelectAllColumns = true) {
-		if (($pTable instanceof SelectQuery) && is_null($pAlias)) {
+	public function __construct($table, $alias = null, $selectAllColumns = true) {
+		if (($table instanceof SelectQuery) && is_null($alias)) {
 			throw new \Exception('TableNode must have an alias if specified table is an instance of SelectQuery');
 		}
-		$this->mTable = $pTable;
-		$this->mAlias = $pAlias;
-		$this->mExportName = is_null($this->mAlias) ? $this->mTable : $this->mAlias;
-		$this->mSelectAllColumns = $pSelectAllColumns;
+		$this->table = $table;
+		$this->alias = $alias;
+		$this->exportName = is_null($this->alias) ? $this->table : $this->alias;
+		$this->selectAllColumns = $selectAllColumns;
 	}
 	
 	/**
@@ -39,7 +39,7 @@ class TableNode {
 	 * @return string return table name or alias if exists
 	 */
 	public function getTable() {
-		return $this->mTable;
+		return $this->table;
 	}
 	
 	/**
@@ -47,20 +47,20 @@ class TableNode {
 	 * @return string return table name or alias if exists
 	 */
 	public function getExportName() {
-		return $this->mExportName;
+		return $this->exportName;
 	}
 	
 	/**
 	 * add selected column
 	 * if export all columns has been set to true, it is automaticaly set to false
-	 * @param string $pColumn
-	 * @param string $pAlias
+	 * @param string $column
+	 * @param string $alias
 	 * @return TableNode
 	 */
-	public function addSelectedColumn($pColumn, $pAlias = null) {
-		$this->mSelectAllColumns = false;
-		$this->mSelectedColumns[] = is_null($pAlias) 
-			? $this->mExportName . '.' . $pColumn : $this->mExportName . '.' . $pColumn . ' AS ' . $pAlias;
+	public function addSelectedColumn($column, $alias = null) {
+		$this->selectAllColumns = false;
+		$this->selectedColumns[] = is_null($alias) 
+			? $this->exportName . '.' . $column : $this->exportName . '.' . $column . ' AS ' . $alias;
 		return $this;
 	}
 	
@@ -69,20 +69,20 @@ class TableNode {
 	 * @return TableNode
 	 */
 	public function resetSelectedColumns() {
-		$this->mSelectedColumns = [];
+		$this->selectedColumns = [];
 		return $this;
 	}
 	
 	/**
 	 * determine if all columns will be selected or not
-	 * @param boolean $pColumn if true, all selected columns previously set will be reset
+	 * @param boolean $column if true, all selected columns previously set will be reset
 	 * @return TableNode
 	 */
-	public function selectAllColumns($pBoolean) {
-		if ($pBoolean) {
-			$this->mSelectedColumns = [];
+	public function selectAllColumns($boolean) {
+		if ($boolean) {
+			$this->selectedColumns = [];
 		}
-		$this->mSelectAllColumns = $pBoolean;
+		$this->selectAllColumns = $boolean;
 		return $this;
 	}
 	
@@ -91,7 +91,7 @@ class TableNode {
 	 * @return boolean
 	 */
 	public function areAllColumnsSelected() {
-		return $this->mSelectAllColumns;
+		return $this->selectAllColumns;
 	}
 	
 	/**
@@ -99,7 +99,7 @@ class TableNode {
 	 * @return boolean
 	 */
 	public function hasSelectedColumns() {
-		return $this->mSelectAllColumns || !empty($this->mSelectedColumns);
+		return $this->selectAllColumns || !empty($this->selectedColumns);
 	}
 	
 	/**
@@ -107,7 +107,7 @@ class TableNode {
 	 * @return string
 	 */
 	public function exportSelectedColumns() {
-		return ($this->mSelectAllColumns) ? $this->mExportName.'.*' : implode(', ', $this->mSelectedColumns);
+		return ($this->selectAllColumns) ? $this->exportName.'.*' : implode(', ', $this->selectedColumns);
 	}
 	
 	/**
@@ -117,13 +117,13 @@ class TableNode {
 	 * - second emement is an array of exported values that need to be checked and replace in exported table
 	 */
 	public function exportTable() {
-		if ($this->mTable instanceof SelectQuery) {
-			list($lSelectQuery, $lValues) = $this->mTable->export();
-			$lExport = " ($lSelectQuery) AS $this->mAlias";
+		if ($this->table instanceof SelectQuery) {
+			list($selectQuery, $values) = $this->table->export();
+			$export = " ($selectQuery) AS $this->alias";
 		} else {
-			$lValues = [];
-			$lExport = is_null($this->mAlias) ? $this->mTable : $this->mTable . ' AS ' . $this->mAlias;
+			$values = [];
+			$export = is_null($this->alias) ? $this->table : $this->table . ' AS ' . $this->alias;
 		}
-		return [$lExport, $lValues];
+		return [$export, $values];
 	}
 }

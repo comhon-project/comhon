@@ -20,51 +20,51 @@ class ModelBoolean extends SimpleModel {
 	const ID = 'boolean';
 	
 	protected function _init() {
-		$this->mModelName = self::ID;
+		$this->modelName = self::ID;
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $value
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	public function exportSimple($pValue, Interfacer $pInterfacer) {
-		if (is_null($pValue)) {
-			return $pValue;
+	public function exportSimple($value, Interfacer $interfacer) {
+		if (is_null($value)) {
+			return $value;
 		}
-		if ($pInterfacer instanceof XMLInterfacer) {
-			return $pValue ? 1 : 0;
+		if ($interfacer instanceof XMLInterfacer) {
+			return $value ? 1 : 0;
 		}
-		return $pValue;
+		return $value;
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $value
+	 * @param Interfacer $interfacer
 	 * @return boolean|null
 	 */
-	public function importSimple($pValue, Interfacer $pInterfacer) {
-		if (is_null($pValue)) {
-			return $pValue;
+	public function importSimple($value, Interfacer $interfacer) {
+		if (is_null($value)) {
+			return $value;
 		}
-		if ($pInterfacer instanceof NoScalarTypedInterfacer) {
-			$pValue = $pInterfacer->castValueToBoolean($pValue);
+		if ($interfacer instanceof NoScalarTypedInterfacer) {
+			$value = $interfacer->castValueToBoolean($value);
 		}
-		return $pValue;
+		return $value;
 	}
 	
-	public function castValue($pValue) {
-		return (boolean) $pValue;
+	public function castValue($value) {
+		return (boolean) $value;
 	}
 	
-	public function verifValue($pValue) {
-		if (!is_bool($pValue)) {
-			$lNodes = debug_backtrace();
-			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
-			throw new \Exception("Argument passed to {$lNodes[0]['class']}::{$lNodes[0]['function']}() must be a boolean, instance of $lClass given, called in {$lNodes[0]['file']} on line {$lNodes[0]['line']} and defined in {$lNodes[0]['file']}");
+	public function verifValue($value) {
+		if (!is_bool($value)) {
+			$nodes = debug_backtrace();
+			$class = gettype($value) == 'object' ? get_class($value): gettype($value);
+			throw new \Exception("Argument passed to {$nodes[0]['class']}::{$nodes[0]['function']}() must be a boolean, instance of $class given, called in {$nodes[0]['file']} on line {$nodes[0]['line']} and defined in {$nodes[0]['file']}");
 		}
 		return true;
 	}

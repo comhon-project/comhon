@@ -38,29 +38,29 @@ abstract class Interfacer {
 	const INHERITANCE_KEY = '__inheritance__';
 	const COMPLEX_ID_KEY = 'id';
 	
-	private static $sAllowedMergeTypes = [
+	private static $allowedMergeTypes = [
 		self::MERGE,
 		self::OVERWRITE,
 		self::NO_MERGE
 	];
 	
-	private $mPrivate             = false;
-	private $mSerialContext       = false;
-	private $mDateTimeZone        = null;
-	private $mDateTimeFormat      = 'c';
-	private $mUpdatedValueOnly    = false;
-	private $mPropertiesFilters   = [];
-	private $mFlattenValues       = false;
-	private $mMergeType           = self::MERGE;
-	private $mFlagValuesAsUpdated      = true;
-	private $mFlagObjectAsLoaded       = true;
-	private $mExportMainForeignObjects = false;
+	private $private             = false;
+	private $serialContext       = false;
+	private $dateTimeZone        = null;
+	private $dateTimeFormat      = 'c';
+	private $updatedValueOnly    = false;
+	private $propertiesFilters   = [];
+	private $flattenValues       = false;
+	private $mergeType           = self::MERGE;
+	private $flagValuesAsUpdated      = true;
+	private $flagObjectAsLoaded       = true;
+	private $exportMainForeignObjects = false;
 	
-	protected $mMainForeignObjects  = null;
-	protected $mMainForeignIds      = null;
+	protected $mainForeignObjects  = null;
+	protected $mainForeignIds      = null;
 	
 	final public function __construct() {
-		$this->mDateTimeZone = new \DateTimeZone(date_default_timezone_get());
+		$this->dateTimeZone = new \DateTimeZone(date_default_timezone_get());
 		$this->_initInstance();
 	}
 	
@@ -78,15 +78,15 @@ abstract class Interfacer {
 	 * @return boolean
 	 */
 	public function isPrivateContext() {
-		return $this->mPrivate;
+		return $this->private;
 	}
 	
 	/**
 	 * define if private properties have to be interfaced
-	 * @param boolean $pBoolean
+	 * @param boolean $boolean
 	 */
-	public function setPrivateContext($pBoolean) {
-		$this->mPrivate = $pBoolean;
+	public function setPrivateContext($boolean) {
+		$this->private = $boolean;
 	}
 	
 	/**
@@ -94,15 +94,15 @@ abstract class Interfacer {
 	 * @return boolean
 	 */
 	public function isSerialContext() {
-		return $this->mSerialContext;
+		return $this->serialContext;
 	}
 	
 	/**
 	 * define if interfacer is used in serial context (serialization / deserialization)
-	 * @param boolean $pBoolean if true, use properties serialization name, and ignore aggregations
+	 * @param boolean $boolean if true, use properties serialization name, and ignore aggregations
 	 */
-	public function setSerialContext($pBoolean) {
-		$this->mSerialContext = $pBoolean;
+	public function setSerialContext($boolean) {
+		$this->serialContext = $boolean;
 	}
 	
 	/**
@@ -110,23 +110,23 @@ abstract class Interfacer {
 	 * @return \DateTimeZone
 	 */
 	public function getDateTimeZone() {
-		return $this->mDateTimeZone;
+		return $this->dateTimeZone;
 	}
 	
 	/**
 	 * set date time zone
-	 * @param string $pTimeZone
+	 * @param string $timeZone
 	 */
-	public function setDateTimeZone($pTimeZone) {
-		$this->mDateTimeZone = new \DateTimeZone($pTimeZone);
+	public function setDateTimeZone($timeZone) {
+		$this->dateTimeZone = new \DateTimeZone($timeZone);
 	}
 	
 	/**
 	 * set default date time zone
-	 * @param string $pTimeZone
+	 * @param string $timeZone
 	 */
 	public function setDefaultDateTimeZone() {
-		$this->mDateTimeZone = new \DateTimeZone(date_default_timezone_get());
+		$this->dateTimeZone = new \DateTimeZone(date_default_timezone_get());
 	}
 	
 	/**
@@ -134,15 +134,15 @@ abstract class Interfacer {
 	 * @return string
 	 */
 	public function getDateTimeFormat() {
-		return $this->mDateTimeFormat;
+		return $this->dateTimeFormat;
 	}
 	
 	/**
 	 * set date time format
-	 * @param string $pDateTimeFormat
+	 * @param string $dateTimeFormat
 	 */
-	public function setDateTimeFormat($pDateTimeFormat) {
-		$this->mDateTimeFormat = $pDateTimeFormat;
+	public function setDateTimeFormat($dateTimeFormat) {
+		$this->dateTimeFormat = $dateTimeFormat;
 	}
 	
 	/**
@@ -150,34 +150,34 @@ abstract class Interfacer {
 	 * @return boolean
 	 */
 	public function hasToExportOnlyUpdatedValues() {
-		return $this->mUpdatedValueOnly;
+		return $this->updatedValueOnly;
 	}
 	
 	/**
 	 * define if has to export only updated values
-	 * @param boolean $pBoolean
+	 * @param boolean $boolean
 	 */
-	public function setExportOnlyUpdatedValues($pBoolean) {
-		$this->mUpdatedValueOnly = $pBoolean;
+	public function setExportOnlyUpdatedValues($boolean) {
+		$this->updatedValueOnly = $boolean;
 	}
 	
 	/**
 	 * verify if has properties filter for specified model
-	 * @param string $pModelName
-	 * @return boolean $pBoolean
+	 * @param string $modelName
+	 * @return boolean $boolean
 	 */
-	public function hasPropertiesFilter($pModelName) {
-		return array_key_exists($pModelName, $this->mPropertiesFilters);
+	public function hasPropertiesFilter($modelName) {
+		return array_key_exists($modelName, $this->propertiesFilters);
 	}
 	
 	/**
 	 * get properties filter for specified model (properties names are stored in array keys)
-	 * @param string $pModelName
+	 * @param string $modelName
 	 * @return array|null return null if filter doesn't exist for specified model
 	 */
-	public function getPropertiesFilter($pModelName) {
-		return array_key_exists($pModelName, $this->mPropertiesFilters)
-		? $this->mPropertiesFilters[$pModelName]
+	public function getPropertiesFilter($modelName) {
+		return array_key_exists($modelName, $this->propertiesFilters)
+		? $this->propertiesFilters[$modelName]
 		: null;
 	}
 	
@@ -185,30 +185,30 @@ abstract class Interfacer {
 	 * reset properties filter
 	 */
 	public function resetPropertiesFilters() {
-		$this->mPropertiesFilters = [];
+		$this->propertiesFilters = [];
 	}
 	
 	/**
 	 * set properties filter for specified model
-	 * @param string[] $pPropertiesNames
-	 * @param string $pModelName
+	 * @param string[] $propertiesNames
+	 * @param string $modelName
 	 */
-	public function setPropertiesFilter($pPropertiesNames, $pModelName) {
-		if (is_array($pPropertiesNames)) {
-			$this->mPropertiesFilters[$pModelName] = array_flip($pPropertiesNames);
-			$lModel = ModelManager::getInstance()->getInstanceModel($pModelName);
-			foreach ($lModel->getIdProperties()as $lPropertyName => $lProperty) {
-				$this->mPropertiesFilters[$pModelName][$lPropertyName] = null;
+	public function setPropertiesFilter($propertiesNames, $modelName) {
+		if (is_array($propertiesNames)) {
+			$this->propertiesFilters[$modelName] = array_flip($propertiesNames);
+			$model = ModelManager::getInstance()->getInstanceModel($modelName);
+			foreach ($model->getIdProperties()as $propertyName => $property) {
+				$this->propertiesFilters[$modelName][$propertyName] = null;
 			}
 		}
 	}
 	
 	/**
 	 * 
-	 * @param boolean $pBoolean
+	 * @param boolean $boolean
 	 */
-	public function setFlattenValues($pBoolean) {
-		$this->mFlattenValues = $pBoolean;
+	public function setFlattenValues($boolean) {
+		$this->flattenValues = $boolean;
 	}
 	
 	/**
@@ -216,7 +216,7 @@ abstract class Interfacer {
 	 * @return boolean
 	 */
 	public function hasToFlattenValues() {
-		return $this->mFlattenValues;
+		return $this->flattenValues;
 	}
 	
 	/**
@@ -224,60 +224,60 @@ abstract class Interfacer {
 	 * @return boolean
 	 */
 	public function hasToExportMainForeignObjects() {
-		return $this->mExportMainForeignObjects;
+		return $this->exportMainForeignObjects;
 	}
 	
 	/**
 	 * define if has to export main foreign objects
-	 * @param boolean $pBoolean
+	 * @param boolean $boolean
 	 */
-	public function setExportMainForeignObjects($pBoolean) {
-		$this->mExportMainForeignObjects = $pBoolean;
+	public function setExportMainForeignObjects($boolean) {
+		$this->exportMainForeignObjects = $boolean;
 	}
 	
 	/**
 	 * initialize export
 	 */
 	public function initializeExport() {
-		$this->mMainForeignObjects = $this->mExportMainForeignObjects ? $this->createNode('objects') : null;
-		$this->mMainForeignIds = $this->mExportMainForeignObjects ? [] : null;
+		$this->mainForeignObjects = $this->exportMainForeignObjects ? $this->createNode('objects') : null;
+		$this->mainForeignIds = $this->exportMainForeignObjects ? [] : null;
 	}
 	
 	/**
 	 * finalize export
-	 * @param mixed $pRootNode
+	 * @param mixed $rootNode
 	 */
-	public function finalizeExport($pRootNode) {
+	public function finalizeExport($rootNode) {
 		// do nothing (overrided in XMLInterfacer)
 	}
 	
 	/**
 	 * 
-	 * @param mixed $pNode
-	 * @param string|integer $pNodeId
-	 * @param Model $pModel
+	 * @param mixed $node
+	 * @param string|integer $nodeId
+	 * @param Model $model
 	 */
-	public function addMainForeignObject($pNode, $pNodeId, Model $pModel) {
-		if (!is_null($this->mMainForeignObjects)) {
-			$lModelName = $pModel->getName();
-			if (!$this->hasValue($this->mMainForeignObjects, $lModelName, true)) {
-				$this->setValue($this->mMainForeignObjects, $this->createNode($lModelName), $lModelName);
+	public function addMainForeignObject($node, $nodeId, Model $model) {
+		if (!is_null($this->mainForeignObjects)) {
+			$modelName = $model->getName();
+			if (!$this->hasValue($this->mainForeignObjects, $modelName, true)) {
+				$this->setValue($this->mainForeignObjects, $this->createNode($modelName), $modelName);
 			}
-			$this->setValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNode, $pNodeId);
+			$this->setValue($this->getValue($this->mainForeignObjects, $modelName, true), $node, $nodeId);
 		}
 	}
 	
 	/**
 	 *
-	 * @param mixed $pNode
-	 * @param string|integer $pNodeId
-	 * @param Model $pModel
+	 * @param mixed $node
+	 * @param string|integer $nodeId
+	 * @param Model $model
 	 */
-	public function removeMainForeignObject($pNodeId, Model $pModel) {
-		if (!is_null($this->mMainForeignObjects)) {
-			$lModelName = $pModel->getName();
-			if ($this->hasValue($this->mMainForeignObjects, $lModelName, true)) {
-				$this->unsetValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNodeId, true);
+	public function removeMainForeignObject($nodeId, Model $model) {
+		if (!is_null($this->mainForeignObjects)) {
+			$modelName = $model->getName();
+			if ($this->hasValue($this->mainForeignObjects, $modelName, true)) {
+				$this->unsetValue($this->getValue($this->mainForeignObjects, $modelName, true), $nodeId, true);
 			}
 		}
 	}
@@ -287,25 +287,25 @@ abstract class Interfacer {
 	 * @return array
 	 */
 	public function getMainForeignObjects() {
-		return $this->mMainForeignObjects;
+		return $this->mainForeignObjects;
 	}
 	
 	/**
 	 *
 	 * @return array
 	 */
-	public function hasMainForeignObject($pModelName, $pId) {
-		return !is_null($this->mMainForeignObjects)
-			&& $this->hasValue($this->mMainForeignObjects, $pModelName, true)
-			&& $this->hasValue($this->getValue($this->mMainForeignObjects, $pModelName, true), $pId, true);
+	public function hasMainForeignObject($modelName, $id) {
+		return !is_null($this->mainForeignObjects)
+			&& $this->hasValue($this->mainForeignObjects, $modelName, true)
+			&& $this->hasValue($this->getValue($this->mainForeignObjects, $modelName, true), $id, true);
 	}
 	
 	/**
 	 *
-	 * @param boolean $pBoolean
+	 * @param boolean $boolean
 	 */
-	public function setFlagValuesAsUpdated($pBoolean) {
-		$this->mFlagValuesAsUpdated = $pBoolean;
+	public function setFlagValuesAsUpdated($boolean) {
+		$this->flagValuesAsUpdated = $boolean;
 	}
 	
 	/**
@@ -313,15 +313,15 @@ abstract class Interfacer {
 	 * @return boolean
 	 */
 	public function hasToFlagValuesAsUpdated() {
-		return $this->mFlagValuesAsUpdated;
+		return $this->flagValuesAsUpdated;
 	}
 	
 	/**
 	 *
-	 * @param boolean $pBoolean
+	 * @param boolean $boolean
 	 */
-	public function setFlagObjectAsLoaded($pBoolean) {
-		$this->mFlagObjectAsLoaded = $pBoolean;
+	public function setFlagObjectAsLoaded($boolean) {
+		$this->flagObjectAsLoaded = $boolean;
 	}
 	
 	/**
@@ -329,18 +329,18 @@ abstract class Interfacer {
 	 * @return boolean
 	 */
 	public function hasToFlagObjectAsLoaded() {
-		return $this->mFlagObjectAsLoaded;
+		return $this->flagObjectAsLoaded;
 	}
 	
 	/**
 	 *
-	 * @param integer $pMergeType
+	 * @param integer $mergeType
 	 */
-	public function setMergeType($pMergeType) {
-		if (!in_array($pMergeType, self::$sAllowedMergeTypes)) {
-			throw new \Exception("merge type '$pMergeType' not allowed");
+	public function setMergeType($mergeType) {
+		if (!in_array($mergeType, self::$allowedMergeTypes)) {
+			throw new \Exception("merge type '$mergeType' not allowed");
 		}
-		$this->mMergeType = $pMergeType;
+		$this->mergeType = $mergeType;
 	}
 	
 	/**
@@ -348,153 +348,153 @@ abstract class Interfacer {
 	 * @return integer
 	 */
 	public function getMergeType() {
-		return $this->mMergeType;
+		return $this->mergeType;
 	}
 	
 	/**
 	 * 
-	 * @param mixed $pNode
-	 * @param string $pPropertyName
-	 * @param boolean $pAsNode
+	 * @param mixed $node
+	 * @param string $propertyName
+	 * @param boolean $asNode
 	 * @return mixed
 	 */
-	abstract public function &getValue(&$pNode, $pPropertyName, $pAsNode = false);
+	abstract public function &getValue(&$node, $propertyName, $asNode = false);
 	
 	/**
 	 * 
-	 * @param mixed $pNode
-	 * @param string $pPropertyName
-	 * @param boolean $pAsNode
+	 * @param mixed $node
+	 * @param string $propertyName
+	 * @param boolean $asNode
 	 * @return boolean
 	 */
-	abstract public function hasValue($pNode, $pPropertyName, $pAsNode = false);
+	abstract public function hasValue($node, $propertyName, $asNode = false);
 	
 	/**
 	 *
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return boolean
 	 */
-	abstract public function isNullValue($pValue);
+	abstract public function isNullValue($value);
 	
 	/**
 	 *
-	 * @param mixed $pNode
-	 * @param boolean $pGetElementName only used for XMLInterfacer
+	 * @param mixed $node
+	 * @param boolean $getElementName only used for XMLInterfacer
 	 * @return mixed
 	 */
-	abstract public function getTraversableNode($pNode, $pGetElementName = false);
+	abstract public function getTraversableNode($node, $getElementName = false);
 	
 	/**
 	 * verify if value is a node
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return boolean
 	 */
-	abstract public function isNodeValue($pValue);
+	abstract public function isNodeValue($value);
 	
 	/**
 	 * verify if value is a array node
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return boolean
 	 */
-	abstract public function isArrayNodeValue($pValue);
+	abstract public function isArrayNodeValue($value);
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return mixed
 	 */
-	abstract public function isComplexInterfacedId($pValue);
+	abstract public function isComplexInterfacedId($value);
 	
 	/**
 	 * verify if value is a flatten complex id (with inheritance key)
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return mixed
 	 */
-	abstract public function isFlattenComplexInterfacedId($pValue);
+	abstract public function isFlattenComplexInterfacedId($value);
 	
 	/**
 	 * 
-	 * @param mixed $pNode
-	 * @param mixed $pValue
-	 * @param string $pName
-	 * @param boolean $pAsNode
+	 * @param mixed $node
+	 * @param mixed $value
+	 * @param string $name
+	 * @param boolean $asNode
 	 * @return mixed
 	 */
-	abstract public function setValue(&$pNode, $pValue, $pName = null, $pAsNode = false);
+	abstract public function setValue(&$node, $value, $name = null, $asNode = false);
 	
 	/**
 	 *
-	 * @param mixed $pNode
-	 * @param string $pName
-	 * @param boolean $pAsNode
+	 * @param mixed $node
+	 * @param string $name
+	 * @param boolean $asNode
 	 * @return mixed
 	 */
-	abstract public function unsetValue(&$pNode, $pName, $pAsNode = false);
+	abstract public function unsetValue(&$node, $name, $asNode = false);
 	
 	/**
 	 *
-	 * @param mixed $pNode
-	 * @param mixed $pValue
-	 * @param string $pName
+	 * @param mixed $node
+	 * @param mixed $value
+	 * @param string $name
 	 * @return mixed
 	 */
-	abstract public function addValue(&$pNode, $pValue, $pName = null);
+	abstract public function addValue(&$node, $value, $name = null);
 	
 	/**
-	 * @param string $pName
+	 * @param string $name
 	 * return mixed
 	 */
-	abstract public function createNode($pName = null);
+	abstract public function createNode($name = null);
 	
 	/**
-	 * @param string $pName
+	 * @param string $name
 	 * @return mixed
 	 */
-	abstract public function createNodeArray($pName = null);
+	abstract public function createNodeArray($name = null);
 	
 	/**
 	 * transform given node to string
-	 * @param mixed $pNode
+	 * @param mixed $node
 	 * @return string
 	 */
-	abstract public function toString($pNode);
+	abstract public function toString($node);
 	
 	/**
 	 * write file with given content
-	 * @param mixed $pNode
-	 * @param string $pPath
+	 * @param mixed $node
+	 * @param string $path
 	 * @return boolean
 	 */
-	abstract public function write($pNode, $pPath);
+	abstract public function write($node, $path);
 	
 	/**
 	 * read file and load node with file content
-	 * @param string $pPath
+	 * @param string $path
 	 * @return mixed|boolean return false on failure
 	 */
-	abstract public function read($pPath);
+	abstract public function read($path);
 	
 	/**
 	 * flatten value (transform object/array to string)
-	 * @param mixed $pNode
-	 * @param string $pName
+	 * @param mixed $node
+	 * @param string $name
 	 */
-	abstract public function flattenNode(&$pNode, $pName);
+	abstract public function flattenNode(&$node, $name);
 	
 	/**
 	 * unflatten value (transform string to object/array)
-	 * @param array $pNode
-	 * @param string $pName
+	 * @param array $node
+	 * @param string $name
 	 */
-	abstract public function unFlattenNode(&$pNode, $pName);
+	abstract public function unFlattenNode(&$node, $name);
 	
 	/**
 	 * replace value
-	 * @param mixed $pNode
-	 * @param string $pName
-	 * @param mixed $pValue
+	 * @param mixed $node
+	 * @param string $name
+	 * @param mixed $value
 	 */
-	abstract public function replaceValue(&$pNode, $pName, $pValue);
+	abstract public function replaceValue(&$node, $name, $value);
 	
 	/**
 	 * verify if interfaced object has typed scalar values (int, float, string...).
@@ -506,118 +506,118 @@ abstract class Interfacer {
 	
 	/**
 	 * export given comhon object to interfaced object 
-	 * @param ComhonObject $pObject
-	 * @param array $pPreferences
+	 * @param ComhonObject $object
+	 * @param array $preferences
 	 */
-	public function export(ComhonObject $pObject, $pPreferences = []) {
-		$this->setPreferences($pPreferences);
-		return $pObject->export($this);
+	public function export(ComhonObject $object, $preferences = []) {
+		$this->setPreferences($preferences);
+		return $object->export($this);
 	}
 	
 	/**
 	 * import given node and construct comhon object
-	 * @param mixed $pNode
-	 * @param MainModel $pModel
-	 * @param array $pPreferences
+	 * @param mixed $node
+	 * @param MainModel $model
+	 * @param array $preferences
 	 * @return ComhonObject
 	 */
-	public function import($pNode, MainModel $pModel, array $pPreferences = []) {
-		$this->setPreferences($pPreferences);
-		return $pModel->import($pNode, $this);
+	public function import($node, MainModel $model, array $preferences = []) {
+		$this->setPreferences($preferences);
+		return $model->import($node, $this);
 	}
 	
 	/**
 	 *
-	 * @param mixed $pNode
+	 * @param mixed $node
 	 * @return boolean
 	 */
-	public function setPreferences(array $pPreferences) {
+	public function setPreferences(array $preferences) {
 		// private
-		if (array_key_exists(self::PRIVATE_CONTEXT, $pPreferences)) {
-			if (!is_bool($pPreferences[self::PRIVATE_CONTEXT])) {
+		if (array_key_exists(self::PRIVATE_CONTEXT, $preferences)) {
+			if (!is_bool($preferences[self::PRIVATE_CONTEXT])) {
 				throw new \Exception('preference "'.self::PRIVATE_CONTEXT.'" should be a boolean');
 			}
-			$this->setPrivateContext($pPreferences[self::PRIVATE_CONTEXT]);
+			$this->setPrivateContext($preferences[self::PRIVATE_CONTEXT]);
 		}
 		
 		// serial context
-		if (array_key_exists(self::SERIAL_CONTEXT, $pPreferences)) {
-			if (!is_bool($pPreferences[self::SERIAL_CONTEXT])) {
+		if (array_key_exists(self::SERIAL_CONTEXT, $preferences)) {
+			if (!is_bool($preferences[self::SERIAL_CONTEXT])) {
 				throw new \Exception('preference "'.self::SERIAL_CONTEXT.'" should be a boolean');
 			}
-			$this->setSerialContext($pPreferences[self::SERIAL_CONTEXT]);
+			$this->setSerialContext($preferences[self::SERIAL_CONTEXT]);
 		}
 		
 		// date time zone
-		if (array_key_exists(self::DATE_TIME_ZONE, $pPreferences)) {
-			if (!is_string($pPreferences[self::DATE_TIME_ZONE])) {
+		if (array_key_exists(self::DATE_TIME_ZONE, $preferences)) {
+			if (!is_string($preferences[self::DATE_TIME_ZONE])) {
 				throw new \Exception('preference "'.self::DATE_TIME_ZONE.'" should be a string');
 			}
-			$this->setDateTimeZone($pPreferences[self::DATE_TIME_ZONE]);
+			$this->setDateTimeZone($preferences[self::DATE_TIME_ZONE]);
 		}
 		
 		// date time format
-		if (array_key_exists(self::DATE_TIME_FORMAT, $pPreferences)) {
-			if (!is_string($pPreferences[self::DATE_TIME_FORMAT])) {
+		if (array_key_exists(self::DATE_TIME_FORMAT, $preferences)) {
+			if (!is_string($preferences[self::DATE_TIME_FORMAT])) {
 				throw new \Exception('preference "'.self::DATE_TIME_FORMAT.'" should be a string');
 			}
-			$this->setDateTimeFormat($pPreferences[self::DATE_TIME_FORMAT]);
+			$this->setDateTimeFormat($preferences[self::DATE_TIME_FORMAT]);
 		}
 		
 		// only updated values
-		if (array_key_exists(self::ONLY_UPDATED_VALUES, $pPreferences)) {
-			if (!is_bool($pPreferences[self::ONLY_UPDATED_VALUES])) {
+		if (array_key_exists(self::ONLY_UPDATED_VALUES, $preferences)) {
+			if (!is_bool($preferences[self::ONLY_UPDATED_VALUES])) {
 				throw new \Exception('preference "'.self::ONLY_UPDATED_VALUES.'" should be a boolean');
 			}
-			$this->setExportOnlyUpdatedValues($pPreferences[self::ONLY_UPDATED_VALUES]);
+			$this->setExportOnlyUpdatedValues($preferences[self::ONLY_UPDATED_VALUES]);
 		}
 		
 		// preoperties filters
-		if (array_key_exists(self::PROPERTIES_FILTERS, $pPreferences)) {
-			if (!is_array($pPreferences[self::PROPERTIES_FILTERS])) {
+		if (array_key_exists(self::PROPERTIES_FILTERS, $preferences)) {
+			if (!is_array($preferences[self::PROPERTIES_FILTERS])) {
 				throw new \Exception('preference "'.self::PROPERTIES_FILTERS.'" should be an array');
 			}
 			$this->resetPropertiesFilters();
-			foreach ($pPreferences[self::PROPERTIES_FILTERS] as $lModelName => $lProperties) {
-				$this->setPropertiesFilter($lProperties, $lModelName);
+			foreach ($preferences[self::PROPERTIES_FILTERS] as $modelName => $properties) {
+				$this->setPropertiesFilter($properties, $modelName);
 			}
 		}
 		
 		// flatten values
-		if (array_key_exists(self::FLATTEN_VALUES, $pPreferences)) {
-			if (!is_bool($pPreferences[self::FLATTEN_VALUES])) {
+		if (array_key_exists(self::FLATTEN_VALUES, $preferences)) {
+			if (!is_bool($preferences[self::FLATTEN_VALUES])) {
 				throw new \Exception('preference "'.self::FLATTEN_VALUES.'" should be a boolean');
 			}
-			$this->setFlattenValues($pPreferences[self::FLATTEN_VALUES]);
+			$this->setFlattenValues($preferences[self::FLATTEN_VALUES]);
 		}
 		
 		// main foreign objects
-		if (array_key_exists(self::MAIN_FOREIGN_OBJECTS, $pPreferences)) {
-			if (!is_bool($pPreferences[self::MAIN_FOREIGN_OBJECTS])) {
+		if (array_key_exists(self::MAIN_FOREIGN_OBJECTS, $preferences)) {
+			if (!is_bool($preferences[self::MAIN_FOREIGN_OBJECTS])) {
 				throw new \Exception('preference "'.self::MAIN_FOREIGN_OBJECTS.'" should be a boolean');
 			}
-			$this->setExportMainForeignObjects($pPreferences[self::MAIN_FOREIGN_OBJECTS]);
+			$this->setExportMainForeignObjects($preferences[self::MAIN_FOREIGN_OBJECTS]);
 		}
 		
 		// flag values as updated
-		if (array_key_exists(self::FLAG_VALUES_AS_UPDATED, $pPreferences)) {
-			if (!is_bool($pPreferences[self::FLAG_VALUES_AS_UPDATED])) {
+		if (array_key_exists(self::FLAG_VALUES_AS_UPDATED, $preferences)) {
+			if (!is_bool($preferences[self::FLAG_VALUES_AS_UPDATED])) {
 				throw new \Exception('preference "'.self::FLAG_VALUES_AS_UPDATED.'" should be a boolean');
 			}
-			$this->setFlagValuesAsUpdated($pPreferences[self::FLAG_VALUES_AS_UPDATED]);
+			$this->setFlagValuesAsUpdated($preferences[self::FLAG_VALUES_AS_UPDATED]);
 		}
 		
 		// flag Object as updated
-		if (array_key_exists(self::FLAG_OBJECT_AS_LOADED, $pPreferences)) {
-			if (!is_bool($pPreferences[self::FLAG_OBJECT_AS_LOADED])) {
+		if (array_key_exists(self::FLAG_OBJECT_AS_LOADED, $preferences)) {
+			if (!is_bool($preferences[self::FLAG_OBJECT_AS_LOADED])) {
 				throw new \Exception('preference "'.self::FLAG_OBJECT_AS_LOADED.'" should be a boolean');
 			}
-			$this->setFlagObjectAsLoaded($pPreferences[self::FLAG_OBJECT_AS_LOADED]);
+			$this->setFlagObjectAsLoaded($preferences[self::FLAG_OBJECT_AS_LOADED]);
 		}
 		
 		// merge type
-		if (array_key_exists(self::MERGE_TYPE, $pPreferences)) {
-			$this->setMergeType($pPreferences[self::MERGE_TYPE]);
+		if (array_key_exists(self::MERGE_TYPE, $preferences)) {
+			$this->setMergeType($preferences[self::MERGE_TYPE]);
 		}
 	}
 	

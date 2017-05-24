@@ -16,279 +16,279 @@ use Comhon\Utils\Utils;
 abstract class LogicalJunctionOptimizer {
 	
 	/**
-	 * transform logical junctions in $pLogicalJunction to literals if it's possible
-	 * @param LogicalJunction $pLogicalJunction
+	 * transform logical junctions in $logicalJunction to literals if it's possible
+	 * @param LogicalJunction $logicalJunction
 	 */
-	public static function logicalJunctionToLiterals($pLogicalJunction) {
-		$lNewLogicalJunction = new LogicalJunction($pLogicalJunction->getType());
-		self::_logicalJunctionToLiterals($lNewLogicalJunction, $pLogicalJunction);
-		return $lNewLogicalJunction;
+	public static function logicalJunctionToLiterals($logicalJunction) {
+		$newLogicalJunction = new LogicalJunction($logicalJunction->getType());
+		self::_logicalJunctionToLiterals($newLogicalJunction, $logicalJunction);
+		return $newLogicalJunction;
 	}
 	
 	/**
 	 * transform logical junctions to literals if it's possible
-	 * @param LogicalJunction $pNewLogicalJunction
-	 * @param LogicalJunction $pLogicalJunction
+	 * @param LogicalJunction $newLogicalJunction
+	 * @param LogicalJunction $logicalJunction
 	 */
-	private static function _logicalJunctionToLiterals($pNewLogicalJunction, $pLogicalJunction) {
-		$lLink = $pLogicalJunction->getType();
-		foreach ($pLogicalJunction->getLiterals() as $lLiteral) {
-			$pNewLogicalJunction->addLiteral($lLiteral);
+	private static function _logicalJunctionToLiterals($newLogicalJunction, $logicalJunction) {
+		$link = $logicalJunction->getType();
+		foreach ($logicalJunction->getLiterals() as $literal) {
+			$newLogicalJunction->addLiteral($literal);
 		}
-		foreach ($pLogicalJunction->getLogicalJunction() as $lLogicalJunction) {
-			if ($lLogicalJunction->hasOnlyOneLiteral() || ($lLogicalJunction->getType() == $lLink)) {
-				self::_logicalJunctionToLiterals($pNewLogicalJunction, $lLogicalJunction);
+		foreach ($logicalJunction->getLogicalJunction() as $subLogicalJunction) {
+			if ($subLogicalJunction->hasOnlyOneLiteral() || ($subLogicalJunction->getType() == $link)) {
+				self::_logicalJunctionToLiterals($newLogicalJunction, $subLogicalJunction);
 			}else {
-				$pNewLogicalJunction->addLogicalJunction(self::logicalJunctionToLiterals($lLogicalJunction));
+				$newLogicalJunction->addLogicalJunction(self::logicalJunctionToLiterals($subLogicalJunction));
 			}
 		}
 	}
 	
 	/**
 	 * optimize query literals to optimize execution time of query
-	 * @param unknown $pLogicalJunction
-	 * @param integer $pCountMax	optimisation will not be executed if there is more literals than $pCountMax
+	 * @param unknown $logicalJunction
+	 * @param integer $countMax	optimisation will not be executed if there is more literals than $countMax
 	 * 								actually, optimization is exponential and it can take more time than request itself
 	 */
-	public static function optimizeLiterals($pLogicalJunction, $pCountMax = 10) {
-		$lFlattenedLiterals = $pLogicalJunction->getFlattenedLiterals('md5');
-		$lLiteralKeys = [];
-		foreach ($lFlattenedLiterals as $lKey => $lLiteral) {
-			$lLiteralKeys[] = $lKey;
+	public static function optimizeLiterals($logicalJunction, $countMax = 10) {
+		$flattenedLiterals = $logicalJunction->getFlattenedLiterals('md5');
+		$literalKeys = [];
+		foreach ($flattenedLiterals as $key => $literal) {
+			$literalKeys[] = $key;
 		
 		}
-		if (count($lLiteralKeys) > $pCountMax) {
-			return $pLogicalJunction;
+		if (count($literalKeys) > $countMax) {
+			return $logicalJunction;
 		}
-		$pLogicalJunction = LogicalJunctionOptimizer::logicalJunctionToLiterals($pLogicalJunction);
-		$lLogicalConjunctions = self::_setLogicalConjunctions($pLogicalJunction, $lFlattenedLiterals, $lLiteralKeys);
-		$lEssentialPrimeImplicants = self::_execQuineMcCluskeyAlgorithm($lLogicalConjunctions);
-		$lLiteralsToFactoryze = self::_findLiteralsToFactoryze($lEssentialPrimeImplicants);
-		$lLogicalJunction = self::_setFinalLogicalJunction($lEssentialPrimeImplicants, $lFlattenedLiterals, $lLiteralsToFactoryze, $lLiteralKeys);
+		$logicalJunction = LogicalJunctionOptimizer::logicalJunctionToLiterals($logicalJunction);
+		$logicalConjunctions = self::_setLogicalConjunctions($logicalJunction, $flattenedLiterals, $literalKeys);
+		$essentialPrimeImplicants = self::_execQuineMcCluskeyAlgorithm($logicalConjunctions);
+		$literalsToFactoryze = self::_findLiteralsToFactoryze($essentialPrimeImplicants);
+		$newLogicalJunction = self::_setFinalLogicalJunction($essentialPrimeImplicants, $flattenedLiterals, $literalsToFactoryze, $literalKeys);
 		
-		return $lLogicalJunction;
+		return $newLogicalJunction;
 	}
 	
-	private static function _setLogicalConjunctions($pLogicalJunction, $pFlattenedLiterals, $pLiteralKeys) {
-		$lLiteralValues = [];
-		$lLiterals = [];
-		$lLogicalConjunctions = [];
-		foreach ($pFlattenedLiterals as $lKey => $lLiteral) {
-			$lLiteralValues[] = false;
-			$lLiterals[$lKey] = false;
+	private static function _setLogicalConjunctions($logicalJunction, $flattenedLiterals, $literalKeys) {
+		$literalValues = [];
+		$literals = [];
+		$logicalConjunctions = [];
+		foreach ($flattenedLiterals as $key => $literal) {
+			$literalValues[] = false;
+			$literals[$key] = false;
 				
 		}
-		$lNbTrueValues = 0;
-		$i = count($pFlattenedLiterals) - 1;
+		$nbTrueValues = 0;
+		$i = count($flattenedLiterals) - 1;
 		while ($i > -1) {
-			if ($lLiteralValues[$i] === false) {
-				$lLiteralValues[$i] = true;
-				$lLiterals[$pLiteralKeys[$i]] = true;
-				$lNbTrueValues++;
-				for ($j = $i + 1; $j < count($pFlattenedLiterals); $j++) {
-					$lLiteralValues[$j] = false;
-					$lLiterals[$pLiteralKeys[$j]] = false;
-					$lNbTrueValues--;
+			if ($literalValues[$i] === false) {
+				$literalValues[$i] = true;
+				$literals[$literalKeys[$i]] = true;
+				$nbTrueValues++;
+				for ($j = $i + 1; $j < count($flattenedLiterals); $j++) {
+					$literalValues[$j] = false;
+					$literals[$literalKeys[$j]] = false;
+					$nbTrueValues--;
 				}
-				$i = count($pFlattenedLiterals) - 1;
-				$lSatisfied = $pLogicalJunction->isSatisfied($lLiterals);
+				$i = count($flattenedLiterals) - 1;
+				$satisfied = $logicalJunction->isSatisfied($literals);
 		
-				if ($lSatisfied) {
-					$lLogicalConjunctions[$lNbTrueValues][] = $lLiteralValues;
+				if ($satisfied) {
+					$logicalConjunctions[$nbTrueValues][] = $literalValues;
 				}
 			}else {
 				$i--;
 			}
 		}
-		return $lLogicalConjunctions;
+		return $logicalConjunctions;
 	}
 	
-	private static function _execQuineMcCluskeyAlgorithm(&$pLogicalConjunctions) {
-		$lPrimeImplicants = [];
-		self::_findPrimeImplicants($pLogicalConjunctions, $lPrimeImplicants);
-		return self::_findEssentialPrimeImplicants($pLogicalConjunctions, $lPrimeImplicants);
+	private static function _execQuineMcCluskeyAlgorithm(&$logicalConjunctions) {
+		$primeImplicants = [];
+		self::_findPrimeImplicants($logicalConjunctions, $primeImplicants);
+		return self::_findEssentialPrimeImplicants($logicalConjunctions, $primeImplicants);
 	}
 	
-	private static function _findPrimeImplicants($pLogicalConjunctions, &$lPrimeImplicants) {
+	private static function _findPrimeImplicants($logicalConjunctions, &$primeImplicants) {
 		$i = 0;
-		$lNbVisitedConjunctions = 0;
-		$lNewLogicalConjunctions = [];
-		$lPreviousLastAddedConjunctions = [];
-		while ($lNbVisitedConjunctions < count($pLogicalConjunctions)) {
-			$lLastAddedConjunctions = [];
+		$nbVisitedConjunctions = 0;
+		$newLogicalConjunctions = [];
+		$previousLastAddedConjunctions = [];
+		while ($nbVisitedConjunctions < count($logicalConjunctions)) {
+			$lastAddedConjunctions = [];
 			$k = $i + 1;
-			if ((array_key_exists($i, $pLogicalConjunctions))) {
-				foreach ($pLogicalConjunctions[$i] as $lFirstIndex => $lBaseValues) {
-					$lMatch = false;
-					if ($lNbVisitedConjunctions < count($pLogicalConjunctions) - 1) {
-						while (!array_key_exists($k, $pLogicalConjunctions)) {
+			if ((array_key_exists($i, $logicalConjunctions))) {
+				foreach ($logicalConjunctions[$i] as $firstIndex => $baseValues) {
+					$match = false;
+					if ($nbVisitedConjunctions < count($logicalConjunctions) - 1) {
+						while (!array_key_exists($k, $logicalConjunctions)) {
 							$k++;
 						}
-						foreach ($pLogicalConjunctions[$k] as $lSecondIndex => $lValues) {
-							$lIndexDifference = null;
-							for ($j = 0; $j < count($lBaseValues); $j++) {
-								if ($lBaseValues[$j] !== $lValues[$j]) {
-									if (!is_null($lIndexDifference)) {
-										$lIndexDifference = null;
+						foreach ($logicalConjunctions[$k] as $secondIndex => $values) {
+							$indexDifference = null;
+							for ($j = 0; $j < count($baseValues); $j++) {
+								if ($baseValues[$j] !== $values[$j]) {
+									if (!is_null($indexDifference)) {
+										$indexDifference = null;
 										break;
 									}
-									$lIndexDifference = $j;
+									$indexDifference = $j;
 								}
 							}
-							if (!is_null($lIndexDifference)) {
-								$lMatch = true;
-								$lLastAddedConjunctions[$lSecondIndex] = null;
-								$lNewLogicalConjunctions[$i][] = $lBaseValues;
-								$lNewLogicalConjunctions[$i][count($lNewLogicalConjunctions[$i]) - 1][$lIndexDifference] = null;
+							if (!is_null($indexDifference)) {
+								$match = true;
+								$lastAddedConjunctions[$secondIndex] = null;
+								$newLogicalConjunctions[$i][] = $baseValues;
+								$newLogicalConjunctions[$i][count($newLogicalConjunctions[$i]) - 1][$indexDifference] = null;
 							}
 						}
 					}
-					if (!$lMatch && !array_key_exists($lFirstIndex, $lPreviousLastAddedConjunctions)) {
-						$lPrimeImplicants[] = $lBaseValues;
+					if (!$match && !array_key_exists($firstIndex, $previousLastAddedConjunctions)) {
+						$primeImplicants[] = $baseValues;
 					}
 				}
-				$lPreviousLastAddedConjunctions = $lLastAddedConjunctions;
-				$lNbVisitedConjunctions++;
+				$previousLastAddedConjunctions = $lastAddedConjunctions;
+				$nbVisitedConjunctions++;
 			}
 			$i = $k;
 		}
 
-		if (!empty($lNewLogicalConjunctions)) {
-			self::_findPrimeImplicants($lNewLogicalConjunctions, $lPrimeImplicants);
+		if (!empty($newLogicalConjunctions)) {
+			self::_findPrimeImplicants($newLogicalConjunctions, $primeImplicants);
 		}
 	}
 	
-	private static function _findEssentialPrimeImplicants($pAllLogicalConjunctions, $pPrimeImplicants) {
-		$lEssentialPrimeImplicants = [];
-		$lMatrix = self::_buildMatrix($pAllLogicalConjunctions, $pPrimeImplicants);
+	private static function _findEssentialPrimeImplicants($allLogicalConjunctions, $primeImplicants) {
+		$essentialPrimeImplicants = [];
+		$matrix = self::_buildMatrix($allLogicalConjunctions, $primeImplicants);
 		
-		$lAllConjunctionsMatches = [];
-		for ($i = 0; $i < count($lMatrix); $i++) {
-			if (!array_key_exists($i, $lAllConjunctionsMatches)) {
-				$lNbImplicantsMatches = array_pop($lMatrix[$i]);
-				$lCurrentNbImplicantsMatches = 0;
-				$lIndexConjunctionsMatches = 0;
-				$lConjunctionsMatches = [];
+		$allConjunctionsMatches = [];
+		for ($i = 0; $i < count($matrix); $i++) {
+			if (!array_key_exists($i, $allConjunctionsMatches)) {
+				$nbImplicantsMatches = array_pop($matrix[$i]);
+				$currentNbImplicantsMatches = 0;
+				$indexConjunctionsMatches = 0;
+				$conjunctionsMatches = [];
 				$j = 0;
-				while (($j < count($lMatrix[$i])) && ($lCurrentNbImplicantsMatches < $lNbImplicantsMatches)) {
-					if ($lMatrix[$i][$j]) {
-						$lArrayMatches = [];
-						$lCurrentNbImplicantsMatches++;
-						for ($k = 0; $k < count($lMatrix); $k++) {
-							if ($lMatrix[$k][$j] && (!array_key_exists($i, $lAllConjunctionsMatches))) {
-								$lArrayMatches[$k] = null;
+				while (($j < count($matrix[$i])) && ($currentNbImplicantsMatches < $nbImplicantsMatches)) {
+					if ($matrix[$i][$j]) {
+						$arrayMatches = [];
+						$currentNbImplicantsMatches++;
+						for ($k = 0; $k < count($matrix); $k++) {
+							if ($matrix[$k][$j] && (!array_key_exists($i, $allConjunctionsMatches))) {
+								$arrayMatches[$k] = null;
 							}
 						}
-						if (count($lArrayMatches) > count($lConjunctionsMatches)) {
-							$lIndexConjunctionsMatches = $j;
-							$lConjunctionsMatches = $lArrayMatches;
+						if (count($arrayMatches) > count($conjunctionsMatches)) {
+							$indexConjunctionsMatches = $j;
+							$conjunctionsMatches = $arrayMatches;
 						}
 					}
 					$j++;
 				}
-				$lAllConjunctionsMatches = Utils::array_merge($lAllConjunctionsMatches, $lConjunctionsMatches);
-				$lEssentialPrimeImplicants[] = $pPrimeImplicants[$lIndexConjunctionsMatches];
+				$allConjunctionsMatches = Utils::array_merge($allConjunctionsMatches, $conjunctionsMatches);
+				$essentialPrimeImplicants[] = $primeImplicants[$indexConjunctionsMatches];
 			}
 		}
-		return $lEssentialPrimeImplicants;
+		return $essentialPrimeImplicants;
 	}
 	
-	private static function _buildMatrix($pAllLogicalConjunctions, $pPrimeImplicants) {
-		$lMatrix = [];
-		foreach ($pAllLogicalConjunctions as $lKey => $lLogicalConjunctions) {
-			foreach ($lLogicalConjunctions as $lIndex => $lValues) {
-				$lNbMatches = 0;
-				$lMatches = [];
-				foreach ($pPrimeImplicants as $lPrimeImplicant) {
-					$lMatch = true;
-					for ($i = 0; $i < count($lValues); $i++) {
-						if (!is_null($lPrimeImplicant[$i]) && ($lValues[$i] !== $lPrimeImplicant[$i])) {
-							$lMatch = false;
+	private static function _buildMatrix($allLogicalConjunctions, $primeImplicants) {
+		$matrix = [];
+		foreach ($allLogicalConjunctions as $key => $logicalConjunctions) {
+			foreach ($logicalConjunctions as $index => $values) {
+				$nbMatches = 0;
+				$matches = [];
+				foreach ($primeImplicants as $primeImplicant) {
+					$match = true;
+					for ($i = 0; $i < count($values); $i++) {
+						if (!is_null($primeImplicant[$i]) && ($values[$i] !== $primeImplicant[$i])) {
+							$match = false;
 							break;
 						}
 					}
-					$lMatches[] = $lMatch;
-					if ($lMatch) {
-						$lNbMatches++;
+					$matches[] = $match;
+					if ($match) {
+						$nbMatches++;
 					}
 				}
-				$lMatches[] = $lNbMatches;
-				$lMatrix[] = $lMatches;
+				$matches[] = $nbMatches;
+				$matrix[] = $matches;
 			}
 		}
-		usort($lMatrix, ['Comhon\Database\LogicalJunctionOptimizer', 'sortByLastValue']);
-		return $lMatrix;
+		usort($matrix, ['Comhon\Database\LogicalJunctionOptimizer', 'sortByLastValue']);
+		return $matrix;
 	}
 	
-	public static function sortByLastValue($lArray1, $lArray2) {
-		if ($lArray1[count($lArray1) - 1] == $lArray2[count($lArray2) - 1]) {
+	public static function sortByLastValue($array1, $array2) {
+		if ($array1[count($array1) - 1] == $array2[count($array2) - 1]) {
 			return 0;
 		}
-		return ($lArray1[count($lArray1) - 1] < $lArray2[count($lArray2) - 1]) ? -1 : 1;
+		return ($array1[count($array1) - 1] < $array2[count($array2) - 1]) ? -1 : 1;
 	}
 	
 	/**
 	 * 
-	 * @param array $pEssentialPrimeImplicants
+	 * @param array $essentialPrimeImplicants
 	 * @return array
 	 */
-	private static function _findLiteralsToFactoryze($pEssentialPrimeImplicants) {
-		$lLiteralsToFactoryze = [];
-		if (!empty($pEssentialPrimeImplicants)) {
-			foreach ($pEssentialPrimeImplicants[0] as  $i => $lValue) {
-				if (!is_null($lValue)) {
-					$lLiteralsToFactoryze[$i] = $lValue;
+	private static function _findLiteralsToFactoryze($essentialPrimeImplicants) {
+		$literalsToFactoryze = [];
+		if (!empty($essentialPrimeImplicants)) {
+			foreach ($essentialPrimeImplicants[0] as  $i => $value) {
+				if (!is_null($value)) {
+					$literalsToFactoryze[$i] = $value;
 				}
 			}
-			foreach ($pEssentialPrimeImplicants as $lEssentialPrimeImplicantValues) {
-				$lIndexes = [];
-				foreach ($lLiteralsToFactoryze as $i => $lValue) {
-					if ($lValue !== $lEssentialPrimeImplicantValues[$i]) {
-						$lIndexes[] = $i;
+			foreach ($essentialPrimeImplicants as $essentialPrimeImplicantValues) {
+				$indexes = [];
+				foreach ($literalsToFactoryze as $i => $value) {
+					if ($value !== $essentialPrimeImplicantValues[$i]) {
+						$indexes[] = $i;
 					}
 				}
-				foreach ($lIndexes as $lIndex) {
-					unset($lLiteralsToFactoryze[$lIndex]);
+				foreach ($indexes as $index) {
+					unset($literalsToFactoryze[$index]);
 				}
-				if (empty($lLiteralsToFactoryze)) {
+				if (empty($literalsToFactoryze)) {
 					break;
 				}
 			}
 		}
-		return array_keys($lLiteralsToFactoryze);
+		return array_keys($literalsToFactoryze);
 	}
 	
-	private static function _setFinalLogicalJunction($pEssentialPrimeImplicants, $pFlattenedLiterals, $pLiteralsToFactoryze, $pLiteralKeys) {
-		$lLiteralsToFactoryzeByKey = [];
-		$lFirstConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
-		if (!empty($pLiteralsToFactoryze)) {
-			foreach ($pLiteralsToFactoryze as $pLiteralIndex) {
-				$lFirstConjunction->addLiteral($pFlattenedLiterals[$pLiteralKeys[$pLiteralIndex]]);
-				$lLiteralsToFactoryzeByKey[$pLiteralIndex] = null;
+	private static function _setFinalLogicalJunction($essentialPrimeImplicants, $flattenedLiterals, $literalsToFactoryze, $literalKeys) {
+		$literalsToFactoryzeByKey = [];
+		$firstConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
+		if (!empty($literalsToFactoryze)) {
+			foreach ($literalsToFactoryze as $literalIndex) {
+				$firstConjunction->addLiteral($flattenedLiterals[$literalKeys[$literalIndex]]);
+				$literalsToFactoryzeByKey[$literalIndex] = null;
 			}
 		}
 
-		$lDisjunction = new LogicalJunction(LogicalJunction::DISJUNCTION);
-		$lFirstConjunction->addLogicalJunction($lDisjunction);
+		$disjunction = new LogicalJunction(LogicalJunction::DISJUNCTION);
+		$firstConjunction->addLogicalJunction($disjunction);
 		
-		foreach ($pEssentialPrimeImplicants as $lEssentialPrimeImplicantValues) {
-			$lConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
-			foreach ($lEssentialPrimeImplicantValues as $lIndex => $lValue) {
+		foreach ($essentialPrimeImplicants as $essentialPrimeImplicantValues) {
+			$conjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
+			foreach ($essentialPrimeImplicantValues as $index => $value) {
 				// if literal hasn't been factorised
-				if (!array_key_exists($lIndex, $lLiteralsToFactoryzeByKey)) {
-					if ($lValue === true) {
-						$lConjunction->addLiteral($pFlattenedLiterals[$pLiteralKeys[$lIndex]]);
-					}else if ($lValue === false) {
-						$lLiteral = $pFlattenedLiterals[$pLiteralKeys[$lIndex]];
-						$lOppositeLiteral = clone $lLiteral;
-						$lOppositeLiteral->reverseOperator();
-						$lConjunction->addLiteral($lOppositeLiteral);
+				if (!array_key_exists($index, $literalsToFactoryzeByKey)) {
+					if ($value === true) {
+						$conjunction->addLiteral($flattenedLiterals[$literalKeys[$index]]);
+					}else if ($value === false) {
+						$literal = $flattenedLiterals[$literalKeys[$index]];
+						$oppositeLiteral = clone $literal;
+						$oppositeLiteral->reverseOperator();
+						$conjunction->addLiteral($oppositeLiteral);
 					}
 				}
 		
 			}
-			$lDisjunction->addLogicalJunction($lConjunction);
+			$disjunction->addLogicalJunction($conjunction);
 		}
-		return $lFirstConjunction;
+		return $firstConjunction;
 	}
 }

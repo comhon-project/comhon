@@ -11,506 +11,506 @@ use Comhon\Object\ObjectArray;
 
 $time_start = microtime(true);
 
-$lStdPrivateInterfacer = new StdObjectInterfacer();
-$lStdPrivateInterfacer->setPrivateContext(true);
-$lStdPublicInterfacer = new StdObjectInterfacer();
-$lStdPublicInterfacer->setPrivateContext(false);
-$lXmlPrivateInterfacer = new XMLInterfacer();
-$lXmlPrivateInterfacer->setPrivateContext(true);
-$lArrayPrivateInterfacer = new AssocArrayInterfacer();
-$lArrayPrivateInterfacer->setPrivateContext(true);
-$lArrayPrivateInterfacer->setFlattenValues(true);
+$stdPrivateInterfacer = new StdObjectInterfacer();
+$stdPrivateInterfacer->setPrivateContext(true);
+$stdPublicInterfacer = new StdObjectInterfacer();
+$stdPublicInterfacer->setPrivateContext(false);
+$xmlPrivateInterfacer = new XMLInterfacer();
+$xmlPrivateInterfacer->setPrivateContext(true);
+$arrayPrivateInterfacer = new AssocArrayInterfacer();
+$arrayPrivateInterfacer->setPrivateContext(true);
+$arrayPrivateInterfacer->setFlattenValues(true);
 
-$lTestDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
-if (!is_null($lTestDbFromCollection)) {
+$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
+if (!is_null($testDbFromCollection)) {
 	throw new Exception('must be null');
 }
 
 /** ****************************** test load new value ****************************** **/
 
-$lDbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
-/** @var Object $lTestDb */
-$lTestDb = $lDbTestModel->loadObject('[1,"50"]');
-$lMainParentTestDb = $lTestDb->getValue('mainParentTestDb');
-$lObject = $lTestDb->getValue('object');
-$lObjectId = $lTestDb->getValue('objectWithId');
+$dbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
+/** @var Object $testDb */
+$testDb = $dbTestModel->loadObject('[1,"50"]');
+$mainParentTestDb = $testDb->getValue('mainParentTestDb');
+$object = $testDb->getValue('object');
+$objectId = $testDb->getValue('objectWithId');
 
-if ($lTestDb->isUpdated()) {
+if ($testDb->isUpdated()) {
 	throw new Exception('should not be updated');
 }
-if ($lTestDb->isIdUpdated()) {
+if ($testDb->isIdUpdated()) {
 	throw new Exception('id should not be updated');
 }
-if (json_encode($lTestDb->getUpdatedValues()) !== '[]') {
+if (json_encode($testDb->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated value');
 }
-foreach ($lTestDb->getProperties() as $lProperty) {
-	if ($lTestDb->isUpdatedValue($lProperty->getName())) {
+foreach ($testDb->getProperties() as $property) {
+	if ($testDb->isUpdatedValue($property->getName())) {
 		throw new Exception('should not have updated value');
 	}
 }
 
-$lTestDb->unsetValue('mainParentTestDb');
+$testDb->unsetValue('mainParentTestDb');
 
-if (!$lTestDb->isUpdated()) {
+if (!$testDb->isUpdated()) {
 	throw new Exception('should be updated');
 }
-if ($lTestDb->isIdUpdated()) {
+if ($testDb->isIdUpdated()) {
 	throw new Exception('id should not be updated');
 }
-if (json_encode($lTestDb->getUpdatedValues()) !== '{"mainParentTestDb":true}') {
+if (json_encode($testDb->getUpdatedValues()) !== '{"mainParentTestDb":true}') {
 	throw new Exception('should have updated value');
 }
-foreach ($lTestDb->getProperties() as $lProperty) {
-	if ($lProperty->getName() == 'mainParentTestDb') {
-		if (!$lTestDb->isUpdatedValue($lProperty->getName())) {
+foreach ($testDb->getProperties() as $property) {
+	if ($property->getName() == 'mainParentTestDb') {
+		if (!$testDb->isUpdatedValue($property->getName())) {
 			throw new Exception('should be updated value');
 		}
 	}
-	else if ($lTestDb->isUpdatedValue($lProperty->getName())) {
+	else if ($testDb->isUpdatedValue($property->getName())) {
 		throw new Exception('should not be updated value');
 	}
 }
 
-$lTestDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
-if (is_null($lTestDbFromCollection) || $lTestDbFromCollection !== $lTestDb) {
+$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
+if (is_null($testDbFromCollection) || $testDbFromCollection !== $testDb) {
 	throw new Exception('null or not same instance');
 }
 
 /** ****************************** test load existing value ****************************** **/
 
-$lTestDb2 = $lDbTestModel->loadObject('[1,"50"]');
-$lMainParentTestDb2 = $lTestDb2->getValue('mainParentTestDb');
-$lObject2 = $lTestDb2->getValue('object');
-$lObjectId2 = $lTestDb2->getValue('objectWithId');
+$testDb2 = $dbTestModel->loadObject('[1,"50"]');
+$mainParentTestDb2 = $testDb2->getValue('mainParentTestDb');
+$object2 = $testDb2->getValue('object');
+$objectId2 = $testDb2->getValue('objectWithId');
 
-$lTestDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
-if (is_null($lTestDbFromCollection) || $lTestDbFromCollection !== $lTestDb) {
+$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
+if (is_null($testDbFromCollection) || $testDbFromCollection !== $testDb) {
 	throw new Exception('object loaded different than object in ObjectCollection');
 }
 
-// $lTestDb2 must be same instance than $lTestDb and not modified
-if ($lTestDb !== $lTestDb2 || !is_null($lMainParentTestDb2) || $lObject !== $lObject2 || $lObjectId !== $lObjectId2) {
+// $testDb2 must be same instance than $testDb and not modified
+if ($testDb !== $testDb2 || !is_null($mainParentTestDb2) || $object !== $object2 || $objectId !== $objectId2) {
 	throw new \Exception(' not same object');
 }
 
-if (!$lTestDb->isUpdated()) {
+if (!$testDb->isUpdated()) {
 	throw new Exception('should be updated');
 }
-if ($lTestDb->isIdUpdated()) {
+if ($testDb->isIdUpdated()) {
 	throw new Exception('id should not be updated');
 }
-if (json_encode($lTestDb->getUpdatedValues()) !== '{"mainParentTestDb":true}') {
+if (json_encode($testDb->getUpdatedValues()) !== '{"mainParentTestDb":true}') {
 	throw new Exception('should have updated value');
 }
-foreach ($lTestDb->getProperties() as $lProperty) {
-	if ($lProperty->getName() == 'mainParentTestDb') {
-		if (!$lTestDb->isUpdatedValue($lProperty->getName())) {
+foreach ($testDb->getProperties() as $property) {
+	if ($property->getName() == 'mainParentTestDb') {
+		if (!$testDb->isUpdatedValue($property->getName())) {
 			throw new Exception('should be updated value');
 		}
 	}
-	else if ($lTestDb->isUpdatedValue($lProperty->getName())) {
+	else if ($testDb->isUpdatedValue($property->getName())) {
 		throw new Exception('should not be updated value');
 	}
 }
 
 /** ****************************** test load existing value and force to reload ****************************** **/
 
-$lTestDb3 = $lDbTestModel->loadObject('[1,"50"]', null, true);
-$lMainParentTestDb3 = $lTestDb3->getValue('mainParentTestDb');
-$lObject3 = $lTestDb3->getValue('object');
-$lObjectId3 = $lTestDb3->getValue('objectWithId');
+$testDb3 = $dbTestModel->loadObject('[1,"50"]', null, true);
+$mainParentTestDb3 = $testDb3->getValue('mainParentTestDb');
+$object3 = $testDb3->getValue('object');
+$objectId3 = $testDb3->getValue('objectWithId');
 
-$lTestDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
-if (is_null($lTestDbFromCollection) || $lTestDbFromCollection !== $lTestDb) {
+$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
+if (is_null($testDbFromCollection) || $testDbFromCollection !== $testDb) {
 	throw new Exception('object loaded different than object in ObjectCollection');
 }
 
-// $lTestDb3 must be same instance than $lTestDb with restored 'mainParentTestDb' and not same instance of 'object' due to database reload
-if ($lTestDb !== $lTestDb3 || $lMainParentTestDb !== $lMainParentTestDb3 || $lObject === $lObject3 || $lObjectId !== $lObjectId3) {
+// $testDb3 must be same instance than $testDb with restored 'mainParentTestDb' and not same instance of 'object' due to database reload
+if ($testDb !== $testDb3 || $mainParentTestDb !== $mainParentTestDb3 || $object === $object3 || $objectId !== $objectId3) {
 	throw new \Exception(' not same object');
 }
 
-if ($lTestDb->isUpdated()) {
+if ($testDb->isUpdated()) {
 	throw new Exception('should not be updated');
 }
-if ($lTestDb->isIdUpdated()) {
+if ($testDb->isIdUpdated()) {
 	throw new Exception('id should not be updated');
 }
-if (json_encode($lTestDb->getUpdatedValues()) !== '[]') {
+if (json_encode($testDb->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated value');
 }
-foreach ($lTestDb->getProperties() as $lProperty) {
-	if ($lTestDb->isUpdatedValue($lProperty->getName())) {
+foreach ($testDb->getProperties() as $property) {
+	if ($testDb->isUpdatedValue($property->getName())) {
 		throw new Exception('should not be updated value');
 	}
 }
 
 /** ****************************** test foreign value ****************************** **/
 
-$lMainParentTestDb = $lTestDb->getValue('mainParentTestDb');
+$mainParentTestDb = $testDb->getValue('mainParentTestDb');
 
-if ($lMainParentTestDb->isLoaded()) {
+if ($mainParentTestDb->isLoaded()) {
 	throw new Exception('foreign value must be unloaded');
 }
-$lTestDb->loadValue('mainParentTestDb');
+$testDb->loadValue('mainParentTestDb');
 
-if (!$lMainParentTestDb->isLoaded()) {
+if (!$mainParentTestDb->isLoaded()) {
 	throw new Exception('foreign value must be loaded');
 }
 
-if ($lTestDb->isUpdated()) {
+if ($testDb->isUpdated()) {
 	throw new Exception('should not be updated');
 }
-if ($lMainParentTestDb->isUpdated()) {
+if ($mainParentTestDb->isUpdated()) {
 	throw new Exception('should not be updated');
 }
-if ($lMainParentTestDb->isIdUpdated()) {
+if ($mainParentTestDb->isIdUpdated()) {
 	throw new Exception('id should not be updated');
 }
-if (json_encode($lMainParentTestDb->getUpdatedValues()) !== '[]') {
+if (json_encode($mainParentTestDb->getUpdatedValues()) !== '[]') {
 	throw new Exception('should not have updated value');
 }
-foreach ($lMainParentTestDb->getProperties() as $lProperty) {
-	if ($lMainParentTestDb->isUpdatedValue($lProperty->getName())) {
+foreach ($mainParentTestDb->getProperties() as $property) {
+	if ($mainParentTestDb->isUpdatedValue($property->getName())) {
 		throw new Exception('should not be updated value');
 	}
 }
 
-$lId = $lMainParentTestDb->getId();
-$lMainParentTestDb->unsetValue('id');
+$id = $mainParentTestDb->getId();
+$mainParentTestDb->unsetValue('id');
 
-if (json_encode($lMainParentTestDb->getUpdatedValues()) !== '{"id":true}') {
+if (json_encode($mainParentTestDb->getUpdatedValues()) !== '{"id":true}') {
 	throw new Exception('should have id updated value');
 }
-if (!$lMainParentTestDb->isIdUpdated()) {
+if (!$mainParentTestDb->isIdUpdated()) {
 	throw new Exception('id should be updated');
 }
-if (!$lTestDb->isUpdated()) {
+if (!$testDb->isUpdated()) {
 	throw new Exception('should be updated');
 }
 
 try {
-	$lTestDb->export($lStdPublicInterfacer);
-	$lThrow = true;
+	$testDb->export($stdPublicInterfacer);
+	$throw = true;
 } catch (Exception $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new Exception('should not export foreign object without complete id');
 }
 
-$lMainParentTestDb->setId($lId);
-$lTestDb->export($lStdPublicInterfacer);
+$mainParentTestDb->setId($id);
+$testDb->export($stdPublicInterfacer);
 
-if (!$lTestDb->isUpdated()) {
+if (!$testDb->isUpdated()) {
 	throw new Exception('should be updated');
 }
-if (!$lTestDb->isUpdatedValue('mainParentTestDb')) {
+if (!$testDb->isUpdatedValue('mainParentTestDb')) {
 	throw new Exception('should be updated');
 }
-if ($lTestDb->isValueFlagedAsUpdated('mainParentTestDb')) {
+if ($testDb->isValueFlagedAsUpdated('mainParentTestDb')) {
 	throw new Exception('should not be flaged as updated');
 }
-if (!$lMainParentTestDb->isUpdated()) {
+if (!$mainParentTestDb->isUpdated()) {
 	throw new Exception('should be updated');
 }
-if (!$lMainParentTestDb->isIdUpdated()) {
+if (!$mainParentTestDb->isIdUpdated()) {
 	throw new Exception('id should be updated');
 }
-if (json_encode($lMainParentTestDb->getUpdatedValues()) !== '{"id":false}') {
+if (json_encode($mainParentTestDb->getUpdatedValues()) !== '{"id":false}') {
 	throw new Exception('should have id updated value');
 }
-foreach ($lMainParentTestDb->getProperties() as $lProperty) {
-	if ($lProperty->getName() == 'id') {
-		if (!$lMainParentTestDb->isUpdatedValue($lProperty->getName())) {
+foreach ($mainParentTestDb->getProperties() as $property) {
+	if ($property->getName() == 'id') {
+		if (!$mainParentTestDb->isUpdatedValue($property->getName())) {
 			throw new Exception('should be updated value');
 		}
 	}
-	else if ($lMainParentTestDb->isUpdatedValue($lProperty->getName())) {
+	else if ($mainParentTestDb->isUpdatedValue($property->getName())) {
 		throw new Exception('should not be updated value');
 	}
 }
 
-$lMainParentTestDb->resetUpdatedStatus();
+$mainParentTestDb->resetUpdatedStatus();
 
-if ($lMainParentTestDb->isUpdated()) {
+if ($mainParentTestDb->isUpdated()) {
 	throw new Exception('should not be updated');
 }
-if ($lTestDb->isUpdated()) {
+if ($testDb->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 
 /** ****************************** test load ids aggregation value ****************************** **/
 
-$lTestDbs = MainObjectCollection::getInstance()->getModelObjects('testDb');
-$lTestDbById = [];
-foreach ($lTestDbs as $lTestDb) {
-	$lTestDbById[$lTestDb->getId()] = $lTestDb;
-	if ($lTestDb->getValue('mainParentTestDb') !== $lMainParentTestDb) {
+$testDbs = MainObjectCollection::getInstance()->getModelObjects('testDb');
+$testDbById = [];
+foreach ($testDbs as $testDb) {
+	$testDbById[$testDb->getId()] = $testDb;
+	if ($testDb->getValue('mainParentTestDb') !== $mainParentTestDb) {
 		throw new Exception('foreign value different than existing value');
 	}
 }
-if ($lMainParentTestDb->hasValue('childrenTestDb')) {
+if ($mainParentTestDb->hasValue('childrenTestDb')) {
 	throw new Exception('should not be set');
 }
-$lMainParentTestDb->loadValueIds('childrenTestDb');
+$mainParentTestDb->loadValueIds('childrenTestDb');
 
-if (!$lMainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
+if (!$mainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
 	throw new Exception('foreign value must be loaded');
 }
-if ($lMainParentTestDb->getValue('childrenTestDb')->count() != 6) {
-	throw new Exception('bad children count : '.count($lMainParentTestDb->getValue('childrenTestDb')->getValues()));
+if ($mainParentTestDb->getValue('childrenTestDb')->count() != 6) {
+	throw new Exception('bad children count : '.count($mainParentTestDb->getValue('childrenTestDb')->getValues()));
 }
-if ($lMainParentTestDb->isUpdated()) {
+if ($mainParentTestDb->isUpdated()) {
 	throw new Exception('should not be updated');
 }
-if ($lMainParentTestDb->isFlagedAsUpdated()) {
+if ($mainParentTestDb->isFlagedAsUpdated()) {
 	throw new Exception('should not be updated');
 }
-if ($lMainParentTestDb->getValue('childrenTestDb')->isFlagedAsUpdated()) {
+if ($mainParentTestDb->getValue('childrenTestDb')->isFlagedAsUpdated()) {
 	throw new Exception('should not be updated');
 }
-if ($lMainParentTestDb->getValue('childrenTestDb')->isIdUpdated()) {
+if ($mainParentTestDb->getValue('childrenTestDb')->isIdUpdated()) {
 	throw new Exception('id should not be updated');
 }
-if ($lMainParentTestDb->getValue('childrenTestDb')->isUpdated()) {
+if ($mainParentTestDb->getValue('childrenTestDb')->isUpdated()) {
 	throw new Exception('should not be updated');
 }
 
-foreach ($lMainParentTestDb->getValue('childrenTestDb') as $lValue) {
-	if (array_key_exists($lValue->getId(), $lTestDbById)) {
-		if ($lValue !== $lTestDbById[$lValue->getId()]) {
+foreach ($mainParentTestDb->getValue('childrenTestDb') as $value) {
+	if (array_key_exists($value->getId(), $testDbById)) {
+		if ($value !== $testDbById[$value->getId()]) {
 			throw new Exception('foreign value different than existing value');
 		}
-	} else if ($lValue->isLoaded()) {
+	} else if ($value->isLoaded()) {
 		throw new Exception('foreign value must be unloaded');
-	} else if ($lMainParentTestDb !== $lValue->getValue('mainParentTestDb')) {
+	} else if ($mainParentTestDb !== $value->getValue('mainParentTestDb')) {
 		throw new Exception('should be same instance');
 	}
 }
 
 /** ****************************** test load ids aggregation value ****************************** **/
 
-$lTestDbs = MainObjectCollection::getInstance()->getModelObjects('testDb');
-$lTestDbById = [];
+$testDbs = MainObjectCollection::getInstance()->getModelObjects('testDb');
+$testDbById = [];
 
-foreach ($lTestDbs as $lTestDb) {
-	$lTestDbById[$lTestDb->getId()] = $lTestDb;
-	if ($lTestDb->isLoaded() && $lTestDb->getValue('mainParentTestDb') !== $lMainParentTestDb) {
+foreach ($testDbs as $testDb) {
+	$testDbById[$testDb->getId()] = $testDb;
+	if ($testDb->isLoaded() && $testDb->getValue('mainParentTestDb') !== $mainParentTestDb) {
 		throw new Exception('foreign value different than existing value');
 	}
 }
 
-$lMainParentTestDb->unsetValue('childrenTestDb');
-$lMainParentTestDb->setValue('childrenTestDb', $lMainParentTestDb->getModel()->getproperty('childrenTestDb')->getModel()->getObjectInstance(false));
+$mainParentTestDb->unsetValue('childrenTestDb');
+$mainParentTestDb->setValue('childrenTestDb', $mainParentTestDb->getModel()->getproperty('childrenTestDb')->getModel()->getObjectInstance(false));
 
-if ($lMainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
+if ($mainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
 	throw new Exception('foreign value must be unloaded');
 }
-$lMainParentTestDb->loadValue('childrenTestDb');
+$mainParentTestDb->loadValue('childrenTestDb');
 
-if (!$lMainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
+if (!$mainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
 	throw new Exception('foreign value must be loaded');
 }
-if (count($lMainParentTestDb->getValue('childrenTestDb')->getValues()) != count($lTestDbById)) {
+if (count($mainParentTestDb->getValue('childrenTestDb')->getValues()) != count($testDbById)) {
 	throw new Exception('different children count');
 }
 
-foreach ($lMainParentTestDb->getValue('childrenTestDb') as $lValue) {
-	if (!array_key_exists($lValue->getId(), $lTestDbById)) {
+foreach ($mainParentTestDb->getValue('childrenTestDb') as $value) {
+	if (!array_key_exists($value->getId(), $testDbById)) {
 		throw new Exception('child must be already existing');
 	}
-	if ($lValue !== $lTestDbById[$lValue->getId()]) {
+	if ($value !== $testDbById[$value->getId()]) {
 		throw new Exception('foreign value different than existing value');
 	}
-	if (!$lValue->isLoaded()) {
+	if (!$value->isLoaded()) {
 		throw new Exception('foreign value must be loaded');
 	}
 }
 
 /** ****************************** test default values ****************************** **/
 
-$lTestModel = ModelManager::getInstance()->getInstanceModel('test');
-$lTest = $lTestModel->getObjectInstance();
-$lTest->initValue('objectValue');
+$testModel = ModelManager::getInstance()->getInstanceModel('test');
+$test = $testModel->getObjectInstance();
+$test->initValue('objectValue');
 
-if (!compareJson(json_encode($lTest->export($lStdPublicInterfacer)), '{"stringValue":"plop","floatValue":1.5,"booleanValue":true,"dateValue":"2016-11-13T20:04:05+01:00","objectValue":{"stringValue":"plop2","booleanValue":false}}')) {
+if (!compareJson(json_encode($test->export($stdPublicInterfacer)), '{"stringValue":"plop","floatValue":1.5,"booleanValue":true,"dateValue":"2016-11-13T20:04:05+01:00","objectValue":{"stringValue":"plop2","booleanValue":false}}')) {
 	throw new Exception('not good default values');
 }
 
 /** ****************************** test enum values ****************************** **/
 
-$lTest->initValue('enumIntArray');
-$lTest->initValue('enumFloatArray');
+$test->initValue('enumIntArray');
+$test->initValue('enumFloatArray');
 
-$lTest->setValue('enumValue', 'plop1');
-$lTest->getValue('enumIntArray')->setValue(0, 1);
-$lTest->getValue('enumIntArray')->setValue(1, 3);
-$lTest->getValue('enumFloatArray')->pushValue(1.5);
-$lTest->getValue('enumFloatArray')->pushValue(3.5);
+$test->setValue('enumValue', 'plop1');
+$test->getValue('enumIntArray')->setValue(0, 1);
+$test->getValue('enumIntArray')->setValue(1, 3);
+$test->getValue('enumFloatArray')->pushValue(1.5);
+$test->getValue('enumFloatArray')->pushValue(3.5);
 
 /** ****************************** test import with no merge and reference to root object ****************************** **/
 
-$lTest->setId('plopplop');
+$test->setId('plopplop');
 try {
-	MainObjectCollection::getInstance()->addObject($lTest);
-	$lThrow = true;
+	MainObjectCollection::getInstance()->addObject($test);
+	$throw = true;
 } catch (Exception $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new Exception('should be already added');
 }
 
-$lObjectRefParent = $lTest->initValue('objectRefParent');
-$lObjectRefParent->setValue('name', 'hahahahaha');
-$lObjectRefParent->setValue('parent', $lTest);
+$objectRefParent = $test->initValue('objectRefParent');
+$objectRefParent->setValue('name', 'hahahahaha');
+$objectRefParent->setValue('parent', $test);
 
-$lTest2 = $lTestModel->import($lTest->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
-if ($lTest2 !== $lTest || $lTest2 !== $lTest2->getValue('objectRefParent')->getValue('parent')) {
+$test2 = $testModel->import($test->export($stdPrivateInterfacer), $stdPrivateInterfacer);
+if ($test2 !== $test || $test2 !== $test2->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
-$lStdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$lTest3 = $lTestModel->import($lTest->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
-if ($lTest3 === $lTest) {
+$stdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$test3 = $testModel->import($test->export($stdPrivateInterfacer), $stdPrivateInterfacer);
+if ($test3 === $test) {
 	throw new \Exception('same instance');
 }
-if ($lTest === $lTest3->getValue('objectRefParent')->getValue('parent')) {
+if ($test === $test3->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('same instance');
 }
-if ($lTest3 !== $lTest3->getValue('objectRefParent')->getValue('parent')) {
+if ($test3 !== $test3->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
 
-if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getName())) {
+if ($test !== MainObjectCollection::getInstance()->getObject($test->getId(), $test->getModel()->getName())) {
 	throw new \Exception('not same instance');
 }
 
-$lTest2 = $lTestModel->import($lTest->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
-if ($lTest2 !== $lTest || $lTest2 !== $lTest2->getValue('objectRefParent')->getValue('parent')) {
+$test2 = $testModel->import($test->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
+if ($test2 !== $test || $test2 !== $test2->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
-$lXmlPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$lTest3 = $lTestModel->import($lTest->export($lXmlPrivateInterfacer), $lXmlPrivateInterfacer);
-if ($lTest3 === $lTest) {
+$xmlPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$test3 = $testModel->import($test->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
+if ($test3 === $test) {
 	throw new \Exception('same instance');
 }
-if ($lTest === $lTest3->getValue('objectRefParent')->getValue('parent')) {
+if ($test === $test3->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('same instance');
 }
-if ($lTest3 !== $lTest3->getValue('objectRefParent')->getValue('parent')) {
+if ($test3 !== $test3->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
 
-if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getName())) {
+if ($test !== MainObjectCollection::getInstance()->getObject($test->getId(), $test->getModel()->getName())) {
 	throw new \Exception('not same instance');
 }
 
-$lTest2 = $lTestModel->import($lTest->export($lArrayPrivateInterfacer), $lArrayPrivateInterfacer);
-if ($lTest2 !== $lTest || $lTest2 !== $lTest2->getValue('objectRefParent')->getValue('parent')) {
+$test2 = $testModel->import($test->export($arrayPrivateInterfacer), $arrayPrivateInterfacer);
+if ($test2 !== $test || $test2 !== $test2->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
-$lArrayPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$lTest3 = $lTestModel->import($lTest->export($lArrayPrivateInterfacer), $lArrayPrivateInterfacer);
-if ($lTest3 === $lTest) {
+$arrayPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$test3 = $testModel->import($test->export($arrayPrivateInterfacer), $arrayPrivateInterfacer);
+if ($test3 === $test) {
 	throw new \Exception('same instance');
 }
-if ($lTest === $lTest3->getValue('objectRefParent')->getValue('parent')) {
+if ($test === $test3->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('same instance');
 }
-if ($lTest3 !== $lTest3->getValue('objectRefParent')->getValue('parent')) {
+if ($test3 !== $test3->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
 
-if ($lTest !== MainObjectCollection::getInstance()->getObject($lTest->getId(), $lTest->getModel()->getName())) {
+if ($test !== MainObjectCollection::getInstance()->getObject($test->getId(), $test->getModel()->getName())) {
 	throw new \Exception('not same instance');
 }
 
-$lId = 'plopplop';
-if ($lTest->getId() !== $lId) {
+$id = 'plopplop';
+if ($test->getId() !== $id) {
 	throw new \Exception('not good id');
 }
-$lNewId = 'hehe';
-$lTest->setId($lNewId);
-if ($lTest->getId() !== $lNewId) {
+$newId = 'hehe';
+$test->setId($newId);
+if ($test->getId() !== $newId) {
 	throw new \Exception('id not updated');
 }
-if (!is_null(MainObjectCollection::getInstance()->getObject($lId, $lTest->getModel()->getName()))) {
+if (!is_null(MainObjectCollection::getInstance()->getObject($id, $test->getModel()->getName()))) {
 	throw new \Exception('object not moved');
 }
-if (is_null(MainObjectCollection::getInstance()->getObject($lNewId, $lTest->getModel()->getName()))) {
+if (is_null(MainObjectCollection::getInstance()->getObject($newId, $test->getModel()->getName()))) {
 	throw new \Exception('object not moved');
 }
-$lTest->setId($lId);
-if ($lTest->getId() !== $lId) {
+$test->setId($id);
+if ($test->getId() !== $id) {
 	throw new \Exception('id not updated');
 }
-if (is_null(MainObjectCollection::getInstance()->getObject($lId, $lTest->getModel()->getName()))) {
+if (is_null(MainObjectCollection::getInstance()->getObject($id, $test->getModel()->getName()))) {
 	throw new \Exception('object not moved');
 }
-if (!is_null(MainObjectCollection::getInstance()->getObject($lNewId, $lTest->getModel()->getName()))) {
+if (!is_null(MainObjectCollection::getInstance()->getObject($newId, $test->getModel()->getName()))) {
 	throw new \Exception('object not moved');
 }
 
 /** ********* test import main foreign value not in singleton MainObjectCollection ********** **/
 
-$lMainTestModel = ModelManager::getInstance()->getInstanceModel('mainTestDb');
-$lMainTestDb = $lMainTestModel->getObjectInstance();
-$lMainTestDb->setId(4287);
-MainObjectCollection::getInstance()->removeObject($lMainTestDb);
+$mainTestModel = ModelManager::getInstance()->getInstanceModel('mainTestDb');
+$mainTestDb = $mainTestModel->getObjectInstance();
+$mainTestDb->setId(4287);
+MainObjectCollection::getInstance()->removeObject($mainTestDb);
 
-$lTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
-$lTestDb = $lTestModel->getObjectInstance();
-$lTestDb->setId('[4567,"74107"]');
-$lTestDb->setValue('mainParentTestDb', $lMainTestDb);
+$testModel = ModelManager::getInstance()->getInstanceModel('testDb');
+$testDb = $testModel->getObjectInstance();
+$testDb->setId('[4567,"74107"]');
+$testDb->setValue('mainParentTestDb', $mainTestDb);
 
-$lTestDb->fill($lTestDb->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+$testDb->fill($testDb->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 
-if ($lMainTestDb !== $lTestDb->getValue('mainParentTestDb')) {
+if ($mainTestDb !== $testDb->getValue('mainParentTestDb')) {
 	throw new \Exception('bad object instance');
 }
 
 /** ********* idem with object array ******* **/
 
-$lMainTestDb2 = $lMainTestModel->getObjectInstance();
-$lMainTestDb2->setId(8541);
+$mainTestDb2 = $mainTestModel->getObjectInstance();
+$mainTestDb2->setId(8541);
 
-$lArray = new ObjectArray($lMainTestModel);
-$lArray->pushValue($lMainTestDb);
-$lArray->pushValue($lMainTestDb2);
+$array = new ObjectArray($mainTestModel);
+$array->pushValue($mainTestDb);
+$array->pushValue($mainTestDb2);
 
-MainObjectCollection::getInstance()->removeObject($lMainTestDb2);
-MainObjectCollection::getInstance()->removeObject($lMainTestDb);
-$lStdPrivateInterfacer->setMergeType(Interfacer::MERGE);
-$lArray->fill($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+MainObjectCollection::getInstance()->removeObject($mainTestDb2);
+MainObjectCollection::getInstance()->removeObject($mainTestDb);
+$stdPrivateInterfacer->setMergeType(Interfacer::MERGE);
+$array->fill($array->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 
-if ($lMainTestDb !== $lArray->getValue(0) || $lMainTestDb2 !== $lArray->getValue(1)) {
+if ($mainTestDb !== $array->getValue(0) || $mainTestDb2 !== $array->getValue(1)) {
 	throw new \Exception('bad object instance');
 }
 
 // add new instance but with existing id (8541) in MainObjectCollection
-MainObjectCollection::getInstance()->removeObject($lMainTestDb2);
-$lMainTestDb3 = $lMainTestModel->getObjectInstance();
-$lMainTestDb3->setId(8541);
-if (MainObjectCollection::getInstance()->getObject(8541, 'mainTestDb') !== $lMainTestDb3) {
+MainObjectCollection::getInstance()->removeObject($mainTestDb2);
+$mainTestDb3 = $mainTestModel->getObjectInstance();
+$mainTestDb3->setId(8541);
+if (MainObjectCollection::getInstance()->getObject(8541, 'mainTestDb') !== $mainTestDb3) {
 	throw new \Exception('bad object instance');
 }
 
-MainObjectCollection::getInstance()->removeObject($lMainTestDb);
-$lStdPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
-$lArray->fill($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+MainObjectCollection::getInstance()->removeObject($mainTestDb);
+$stdPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$array->fill($array->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 
-if ($lMainTestDb !== $lArray->getValue(0) || $lMainTestDb2 !== $lArray->getValue(1)) {
+if ($mainTestDb !== $array->getValue(0) || $mainTestDb2 !== $array->getValue(1)) {
 	throw new \Exception('bad object instance');
 }
 
-MainObjectCollection::getInstance()->removeObject($lMainTestDb2);
-MainObjectCollection::getInstance()->removeObject($lMainTestDb);
-$lStdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$lArray->fill($lArray->export($lStdPrivateInterfacer), $lStdPrivateInterfacer);
+MainObjectCollection::getInstance()->removeObject($mainTestDb2);
+MainObjectCollection::getInstance()->removeObject($mainTestDb);
+$stdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
+$array->fill($array->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 
-if ($lMainTestDb === $lArray->getValue(0) || $lMainTestDb2 === $lArray->getValue(1)) {
+if ($mainTestDb === $array->getValue(0) || $mainTestDb2 === $array->getValue(1)) {
 	throw new \Exception('bad object instance');
 }
 

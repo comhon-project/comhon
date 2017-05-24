@@ -19,53 +19,53 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	const NULL_VALUE = 'nil';
 	const NIL_URI = 'http://www.w3.org/2001/XMLSchema-instance';
 	
-	private $mDomDocument;
-	private $mNullElements = [];
+	private $domDocument;
+	private $nullElements = [];
 	
 	/**
 	 * initialize DomDocument that permit to contruct nodes
 	 * @throws \Exception
 	 */
 	protected function _initInstance() {
-		$this->mDomDocument = new \DOMDocument();
-		$this->mNullElements = [];
+		$this->domDocument = new \DOMDocument();
+		$this->nullElements = [];
 	}
 	
 	/**
 	 * initialize export
 	 */
 	public function initializeExport() {
-		$this->mDomDocument = new \DOMDocument();
-		$this->mNullElements = [];
+		$this->domDocument = new \DOMDocument();
+		$this->nullElements = [];
 		parent::initializeExport();
 	}
 	
 	/**
 	 * finalize export
-	 * @param mixed $pRootNode
+	 * @param mixed $rootNode
 	 */
-	public function finalizeExport($pRootNode) {
-		parent::finalizeExport($pRootNode);
-		$this->mDomDocument->appendChild($pRootNode);
-		if (!empty($this->mNullElements)) {
-			$this->mDomDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
-			foreach ($this->mNullElements as $lDomElement) {
-				$lDomElement->setAttributeNS(self::NIL_URI, self::NULL_VALUE, 'true');
+	public function finalizeExport($rootNode) {
+		parent::finalizeExport($rootNode);
+		$this->domDocument->appendChild($rootNode);
+		if (!empty($this->nullElements)) {
+			$this->domDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
+			foreach ($this->nullElements as $domElement) {
+				$domElement->setAttributeNS(self::NIL_URI, self::NULL_VALUE, 'true');
 			}
-			$this->mNullElements = [];
+			$this->nullElements = [];
 		}
 	}
 	
 	/**
 	 *
-	 * @param \DOMElement $pNode
-	 * @param string $pPropertyName
+	 * @param \DOMElement $node
+	 * @param string $propertyName
 	 * @return \DOMElement|null
 	 */
-	private function getChildNode($pNode, $pPropertyName) {
-		foreach ($pNode->childNodes as $lChild) {
-			if ($lChild->nodeName === $pPropertyName) {
-				return $lChild;
+	private function getChildNode($node, $propertyName) {
+		foreach ($node->childNodes as $child) {
+			if ($child->nodeName === $propertyName) {
+				return $child;
 			}
 		}
 		return null;
@@ -73,160 +73,160 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 *
-	 * @param \DOMElement $pNode
-	 * @param string $pPropertyName
-	 * @param boolean $pAsNode
+	 * @param \DOMElement $node
+	 * @param string $propertyName
+	 * @param boolean $asNode
 	 * @return \DOMElement|string|null
 	 */
-	public function &getValue(&$pNode, $pPropertyName, $pAsNode = false) {
-		if ($pAsNode) {
-			$lChildNode = $this->getChildNode($pNode, $pPropertyName);
-			if (!is_null($lChildNode) && $this->isNodeNull($lChildNode)) {
-				$lChildNode = null;
+	public function &getValue(&$node, $propertyName, $asNode = false) {
+		if ($asNode) {
+			$childNode = $this->getChildNode($node, $propertyName);
+			if (!is_null($childNode) && $this->isNodeNull($childNode)) {
+				$childNode = null;
 			}
-			return $lChildNode;
-		} else if ($pNode->hasAttribute($pPropertyName)) {
-			$lAttribute = $pNode->getAttribute($pPropertyName);
-			if ($lAttribute == self::NS_NULL_VALUE) {
-				$lAttribute = null;
+			return $childNode;
+		} else if ($node->hasAttribute($propertyName)) {
+			$attribute = $node->getAttribute($propertyName);
+			if ($attribute == self::NS_NULL_VALUE) {
+				$attribute = null;
 			}
-			return $lAttribute;
+			return $attribute;
 		}
 		// ugly but we return reference so we have to return a variable
-		$lNull = null;
-		return $lNull;
+		$null = null;
+		return $null;
 	}
 	
 	/**
 	 *
-	 * @param \DOMElement $pNode
+	 * @param \DOMElement $node
 	 * @return boolean
 	 */
-	public function isNodeNull(\DOMElement $pNode) {
-		return $pNode->hasAttributeNS(self::NIL_URI, self::NULL_VALUE);
+	public function isNodeNull(\DOMElement $node) {
+		return $node->hasAttributeNS(self::NIL_URI, self::NULL_VALUE);
 	}
 	
 	/**
 	 *
-	 * @param \DOMElement $pNode
-	 * @param string $pPropertyName
-	 * @param boolean $pAsNode
+	 * @param \DOMElement $node
+	 * @param string $propertyName
+	 * @param boolean $asNode
 	 * @return boolean
 	 */
-	public function hasValue($pNode, $pPropertyName, $pAsNode = false) {
-		return $pAsNode ? 
-			!is_null($this->getChildNode($pNode, $pPropertyName)) 
-			: $pNode->hasAttribute($pPropertyName);
+	public function hasValue($node, $propertyName, $asNode = false) {
+		return $asNode ? 
+			!is_null($this->getChildNode($node, $propertyName)) 
+			: $node->hasAttribute($propertyName);
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return boolean
 	 */
-	public function isNullValue($pValue) {
-		return ($pValue instanceof \DOMElement) ? $this->isNodeNull($pValue) : (is_null($pValue) || $pValue === self::NS_NULL_VALUE);
+	public function isNullValue($value) {
+		return ($value instanceof \DOMElement) ? $this->isNodeNull($value) : (is_null($value) || $value === self::NS_NULL_VALUE);
 	}
 	
 	/**
 	 *
-	 * @param \DOMElement $pNode
-	 * @param boolean $pGetElementName if true return nodes names as key other wise return indexes
+	 * @param \DOMElement $node
+	 * @param boolean $getElementName if true return nodes names as key other wise return indexes
 	 * @return array|null
 	 */
-	public function getTraversableNode($pNode, $pGetElementName = false) {
-		if (!($pNode instanceof \DOMElement)) {
+	public function getTraversableNode($node, $getElementName = false) {
+		if (!($node instanceof \DOMElement)) {
 			throw new \Exception('bad node type');
 		}
-		$lArray = [];
-		if ($pGetElementName) {
-			foreach ($pNode->childNodes as $lDomNode) {
-				if ($lDomNode->nodeType === XML_ELEMENT_NODE) {
-					if (array_key_exists($lDomNode->nodeName, $lArray)) {
-						throw new \Exception("duplicated name '$lDomNode->nodeName'");
+		$array = [];
+		if ($getElementName) {
+			foreach ($node->childNodes as $domNode) {
+				if ($domNode->nodeType === XML_ELEMENT_NODE) {
+					if (array_key_exists($domNode->nodeName, $array)) {
+						throw new \Exception("duplicated name '$domNode->nodeName'");
 					}
-					$lArray[$lDomNode->nodeName] = $lDomNode;
+					$array[$domNode->nodeName] = $domNode;
 				}
 			}
 		}
 		else {
-			foreach ($pNode->childNodes as $lDomNode) {
-				if ($lDomNode->nodeType === XML_ELEMENT_NODE) {
-					$lArray[] = $lDomNode;
+			foreach ($node->childNodes as $domNode) {
+				if ($domNode->nodeType === XML_ELEMENT_NODE) {
+					$array[] = $domNode;
 				}
 			}
 		}
-		return $lArray;
+		return $array;
 	}
 	
 	/**
 	 * verify if value is a DOMElement
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return boolean
 	 */
-	public function isNodeValue($pValue) {
-		return ($pValue instanceof \DOMElement);
+	public function isNodeValue($value) {
+		return ($value instanceof \DOMElement);
 	}
 	
 	/**
 	 * verify if value is a DOMElement
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return boolean
 	 */
-	public function isArrayNodeValue($pValue) {
-		return ($pValue instanceof \DOMElement);
+	public function isArrayNodeValue($value) {
+		return ($value instanceof \DOMElement);
 	}
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return mixed
 	 */
-	public function isComplexInterfacedId($pValue) {
-		return ($pValue instanceof \DOMElement) && $pValue->hasAttribute(self::COMPLEX_ID_KEY);
+	public function isComplexInterfacedId($value) {
+		return ($value instanceof \DOMElement) && $value->hasAttribute(self::COMPLEX_ID_KEY);
 	}
 	
 	/**
 	 * verify if value is a flatten complex id (with inheritance key)
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return mixed
 	 */
-	public function isFlattenComplexInterfacedId($pValue) {
-		return $this->isComplexInterfacedId($pValue);
+	public function isFlattenComplexInterfacedId($value) {
+		return $this->isComplexInterfacedId($value);
 	}
 	
 	/**
 	 * 
-	 * @param \DOMElement $pNode
-	 * @param mixed $pValue if scalar value, set attribute. else if \DOMElement, append child
-	 * @param string $pName used only if $pValue if scalar value
-	 * @param boolean $pAsNode used only if $pValue if scalar value
+	 * @param \DOMElement $node
+	 * @param mixed $value if scalar value, set attribute. else if \DOMElement, append child
+	 * @param string $name used only if $value if scalar value
+	 * @param boolean $asNode used only if $value if scalar value
 	 * @return \DOMNode|null return added node or null if nothing added
 	 */
-	public function setValue(&$pNode, $pValue, $pName = null, $pAsNode = false) {
-		if (!($pNode instanceof \DOMElement)) {
+	public function setValue(&$node, $value, $name = null, $asNode = false) {
+		if (!($node instanceof \DOMElement)) {
 			throw new \Exception('first parameter should be an instance of \DOMElement');
 		}
-		if ($pValue instanceof \DOMNode) {
-			return $pNode->appendChild($pValue);
+		if ($value instanceof \DOMNode) {
+			return $node->appendChild($value);
 		} else {
-			if ($pAsNode) {
-				$lChildNode = $pNode->appendChild($this->mDomDocument->createElement($pName));
-				if (is_null($pValue)) {
+			if ($asNode) {
+				$childNode = $node->appendChild($this->domDocument->createElement($name));
+				if (is_null($value)) {
 					// xsi:nil attributes cannot be added in parallel due to namespace
-					// actually in export context $pNode is not currently added to it's parent
+					// actually in export context $node is not currently added to it's parent
 					// and DomNode can't find xsi namespace and throw exception
 					// so xsi:nil attribute will be added for each node at the end of export
-					$this->mNullElements[] = $lChildNode;
+					$this->nullElements[] = $childNode;
 				} else {
-					$lChildNode->appendChild($this->mDomDocument->createTextNode($pValue));
+					$childNode->appendChild($this->domDocument->createTextNode($value));
 				}
-				return $lChildNode;
+				return $childNode;
 			} else {
-				if (is_null($pValue)) {
-					return $pNode->setAttribute($pName, self::NS_NULL_VALUE);
+				if (is_null($value)) {
+					return $node->setAttribute($name, self::NS_NULL_VALUE);
 				} else {
-					return $pNode->setAttribute($pName, $pValue);
+					return $node->setAttribute($name, $value);
 				}
 			}
 		}
@@ -234,255 +234,255 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 *
-	 * @param \DOMElement $pNode
-	 * @param string $pName
-	 * @param boolean $pAsNode
+	 * @param \DOMElement $node
+	 * @param string $name
+	 * @param boolean $asNode
 	 * @return mixed
 	 */
-	public function unsetValue(&$pNode, $pName, $pAsNode = false) {
-		if ($pAsNode) {
-			$lDomElement= $this->getChildNode($pNode, $pName);
-			if (!is_null($lDomElement)) {
-				$pNode->removeChild($lDomElement);
+	public function unsetValue(&$node, $name, $asNode = false) {
+		if ($asNode) {
+			$domElement= $this->getChildNode($node, $name);
+			if (!is_null($domElement)) {
+				$node->removeChild($domElement);
 			}
 		} else {
-			$pNode->removeAttribute($pName);
+			$node->removeAttribute($name);
 		}
 	}
 	
 	/**
 	 *
-	 * @param \DOMElement $pNode
-	 * @param \DOMNode $pValue
-	 * @param string $pName used only if $pValue if scalar value
+	 * @param \DOMElement $node
+	 * @param \DOMNode $value
+	 * @param string $name used only if $value if scalar value
 	 * @return \DOMElement
 	 */
-	public function addValue(&$pNode, $pValue, $pName = null) {
-		return $this->setValue($pNode, $pValue, $pName, true);
+	public function addValue(&$node, $value, $name = null) {
+		return $this->setValue($node, $value, $name, true);
 	}
 	
 	/**
-	 * @param string $pName
+	 * @param string $name
 	 * return \DOMElement
 	 */
-	public function createNode($pName = null) {
-		if (is_null($pName)) {
+	public function createNode($name = null) {
+		if (is_null($name)) {
 			throw new \Exception('first parameter can not be null');
 		}
-		return $this->mDomDocument->createElement($pName);
+		return $this->domDocument->createElement($name);
 	}
 	
 	/**
-	 * @param string $pName
+	 * @param string $name
 	 * @return \DOMElement
 	 */
-	public function createNodeArray($pName = null) {
-		return $this->createNode($pName);
+	public function createNodeArray($name = null) {
+		return $this->createNode($name);
 	}
 	
 	/**
 	 * transform given node to string
-	 * @param \DOMElement $pNode
+	 * @param \DOMElement $node
 	 * @return string
 	 */
-	public function toString($pNode) {
-		return $this->mDomDocument->saveXML($pNode);
+	public function toString($node) {
+		return $this->domDocument->saveXML($node);
 	}
 	
 	/**
 	 * write file with given content
-	 * @param \DOMElement $pNode
-	 * @param string $pPath
+	 * @param \DOMElement $node
+	 * @param string $path
 	 * @return boolean
 	 */
-	public function write($pNode, $pPath) {
-		return file_put_contents($pPath, $this->mDomDocument->saveXML($pNode)) !== false;
+	public function write($node, $path) {
+		return file_put_contents($path, $this->domDocument->saveXML($node)) !== false;
 	}
 	
 	/**
 	 * read file and load node with file content
-	 * @param string $pPath
+	 * @param string $path
 	 * @return \DOMElement|boolean return false on failure
 	 */
-	public function read($pPath) {
-		if (!$this->mDomDocument->load($pPath)) {
+	public function read($path) {
+		if (!$this->domDocument->load($path)) {
 			return false;
 		}
-		if ($this->mDomDocument->childNodes->length !== 1 || !($this->mDomDocument->childNodes->item(0) instanceof \DOMElement)) {
+		if ($this->domDocument->childNodes->length !== 1 || !($this->domDocument->childNodes->item(0) instanceof \DOMElement)) {
 			trigger_error('wrong xml, XMLInterfacer manage only xml with one and only one root node');
 			return false;
 		}
-		return $this->mDomDocument->childNodes->item(0);
+		return $this->domDocument->childNodes->item(0);
 	}
 	
 	/**
 	 * flatten value (transform object/array to string)
-	 * @param \DOMElement $pNode
-	 * @param string $pName
+	 * @param \DOMElement $node
+	 * @param string $name
 	 */
-	public function flattenNode(&$pNode, $pName) {
-		$lDomElement = $this->getChildNode($pNode, $pName);
-		if (!is_null($lDomElement)) {
-			$lString = '';
-			$lToRemove = [];
-			foreach ($lDomElement->childNodes as $lChild) {
-				$lToRemove[] = $lChild;
-				$lString .= $this->mDomDocument->saveXML($lChild);
+	public function flattenNode(&$node, $name) {
+		$domElement = $this->getChildNode($node, $name);
+		if (!is_null($domElement)) {
+			$string = '';
+			$toRemove = [];
+			foreach ($domElement->childNodes as $child) {
+				$toRemove[] = $child;
+				$string .= $this->domDocument->saveXML($child);
 			}
-			foreach ($lToRemove as $lChild) {
-				$lDomElement->removeChild($lChild);
+			foreach ($toRemove as $child) {
+				$domElement->removeChild($child);
 			}
-			$lDomElement->appendChild($this->mDomDocument->createTextNode($lString));
+			$domElement->appendChild($this->domDocument->createTextNode($string));
 		}
 	}
 	
 	/**
 	 * unflatten value (transform string to object)
-	 * @param array $pNode
-	 * @param string $pName
+	 * @param array $node
+	 * @param string $name
 	 */
-	public function unFlattenNode(&$pNode, $pName) {
-		$lDomElement = $this->getChildNode($pNode, $pName);
-		if (!is_null($lDomElement)) {
-			if ($this->extractNodeText($lDomElement) === '') {
+	public function unFlattenNode(&$node, $name) {
+		$domElement = $this->getChildNode($node, $name);
+		if (!is_null($domElement)) {
+			if ($this->extractNodeText($domElement) === '') {
 				return;
 			}
-			$lTempDoc = new \DOMDocument();
-			$lTempDoc->loadXML('<temp>'.$this->extractNodeText($lDomElement).'</temp>');
+			$tempDoc = new \DOMDocument();
+			$tempDoc->loadXML('<temp>'.$this->extractNodeText($domElement).'</temp>');
 			
-			if ($lTempDoc->childNodes->length !== 1 || !($lTempDoc->childNodes->item(0) instanceof \DOMElement)) {
+			if ($tempDoc->childNodes->length !== 1 || !($tempDoc->childNodes->item(0) instanceof \DOMElement)) {
 				throw new \Exception('wrong xml, XMLInterfacer manage only xml with one and only one root node');
 			}
-			$lToRemove = [];
-			foreach ($lDomElement->childNodes as $lChild) {
-				$lToRemove[] = $lChild;
+			$toRemove = [];
+			foreach ($domElement->childNodes as $child) {
+				$toRemove[] = $child;
 			}
-			foreach ($lToRemove as $lChild) {
-				$lDomElement->removeChild($lChild);
+			foreach ($toRemove as $child) {
+				$domElement->removeChild($child);
 			}
-			foreach ($lTempDoc->childNodes->item(0)->childNodes as $lChild) {
-				$lNode = $this->mDomDocument->importNode($lChild, true);
-				$lDomElement->appendChild($lNode);
+			foreach ($tempDoc->childNodes->item(0)->childNodes as $child) {
+				$childNode = $this->domDocument->importNode($child, true);
+				$domElement->appendChild($childNode);
 			}
 		}
 	}
 	
 	/**
 	 * replace value
-	 * @param \DOMElement $pNode
-	 * @param string $pName
-	 * @param mixed $pValue
+	 * @param \DOMElement $node
+	 * @param string $name
+	 * @param mixed $value
 	 */
-	public function replaceValue(&$pNode, $pName, $pValue) {
-		$lDomElement = $this->getChildNode($pNode, $pName);
-		if (!is_null($lDomElement)) {
-			$pNode->removeChild($lDomElement);
-			$this->setValue($pNode, $pValue, $pName, true);
+	public function replaceValue(&$node, $name, $value) {
+		$domElement = $this->getChildNode($node, $name);
+		if (!is_null($domElement)) {
+			$node->removeChild($domElement);
+			$this->setValue($node, $value, $name, true);
 		}
 	}
 	
 	/**
-	 * @param string $pValue
+	 * @param string $value
 	 * @return integer
 	 */
-	public function castValueToString($pValue) {
-		if ($pValue instanceof \DOMElement) {
-			$pValue = $this->extractNodeText($pValue);
+	public function castValueToString($value) {
+		if ($value instanceof \DOMElement) {
+			$value = $this->extractNodeText($value);
 		}
-		return $pValue;
+		return $value;
 	}
 	
 	/**
-	 * @param string $pValue
+	 * @param string $value
 	 * @return float
 	 */
-	public function castValueToInteger($pValue) {
-		if ($pValue instanceof \DOMElement) {
-			$pValue = $this->extractNodeText($pValue);
+	public function castValueToInteger($value) {
+		if ($value instanceof \DOMElement) {
+			$value = $this->extractNodeText($value);
 		}
-		if (!is_numeric($pValue)) {
+		if (!is_numeric($value)) {
 			throw new \Exception('value has to be numeric');
 		}
-		return (integer) $pValue;
+		return (integer) $value;
 	}
 	
 	/**
-	 * @param string $pValue
+	 * @param string $value
 	 * @return boolean
 	 */
-	public function castValueToFloat($pValue) {
-		if ($pValue instanceof \DOMElement) {
-			$pValue = $this->extractNodeText($pValue);
+	public function castValueToFloat($value) {
+		if ($value instanceof \DOMElement) {
+			$value = $this->extractNodeText($value);
 		}
-		if (!is_numeric($pValue)) {
+		if (!is_numeric($value)) {
 			throw new \Exception('value has to be numeric');
 		}
-		return (float) $pValue;
+		return (float) $value;
 	}
 	
 	/**
-	 * @param string $pValue
+	 * @param string $value
 	 * @return boolean
 	 */
-	public function castValueToBoolean($pValue) {
-		if ($pValue instanceof \DOMElement) {
-			$pValue = $this->extractNodeText($pValue);
+	public function castValueToBoolean($value) {
+		if ($value instanceof \DOMElement) {
+			$value = $this->extractNodeText($value);
 		}
-		if ($pValue !== '0' && $pValue !== '1') {
+		if ($value !== '0' && $value !== '1') {
 			throw new \Exception('value has to be "0" or "1"');
 		}
-		return $pValue === '1';
+		return $value === '1';
 	}
 	
 	/**
 	 * 
-	 * @param \DOMElement $pNode
+	 * @param \DOMElement $node
 	 * @return string
 	 */
-	public function extractNodeText(\DOMElement $pNode) {
-		if ($pNode->childNodes->length != 1) {
+	public function extractNodeText(\DOMElement $node) {
+		if ($node->childNodes->length != 1) {
 			throw new \Exception('malformed node, should only contain one text');
 		}
-		if ($pNode->childNodes->item(0)->nodeType != XML_TEXT_NODE) {
+		if ($node->childNodes->item(0)->nodeType != XML_TEXT_NODE) {
 			throw new \Exception('malformed node, should only contain one text');
 		}
-		return $pNode->childNodes->item(0)->nodeValue;
+		return $node->childNodes->item(0)->nodeValue;
 	}
 	
 	/**
 	 *
-	 * @param mixed $pNode
-	 * @param string|integer $pNodeId
-	 * @param Model $pModel
+	 * @param mixed $node
+	 * @param string|integer $nodeId
+	 * @param Model $model
 	 */
-	public function addMainForeignObject($pNode, $pNodeId, Model $pModel) {
-		if (!is_null($this->mMainForeignObjects)) {
-			$lModelName = $pModel->getName();
-			if (!$this->hasValue($this->mMainForeignObjects, $lModelName, true)) {
-				$this->setValue($this->mMainForeignObjects, $this->createNode($lModelName));
-				$this->mMainForeignIds[$lModelName] = [];
+	public function addMainForeignObject($node, $nodeId, Model $model) {
+		if (!is_null($this->mainForeignObjects)) {
+			$modelName = $model->getName();
+			if (!$this->hasValue($this->mainForeignObjects, $modelName, true)) {
+				$this->setValue($this->mainForeignObjects, $this->createNode($modelName));
+				$this->mainForeignIds[$modelName] = [];
 			}
-			if (isset($this->mMainForeignIds[$lModelName][$pNodeId])) {
-				$this->getValue($this->mMainForeignObjects, $lModelName, true)->removeChild($this->mMainForeignIds[$lModelName][$pNodeId]);
+			if (isset($this->mainForeignIds[$modelName][$nodeId])) {
+				$this->getValue($this->mainForeignObjects, $modelName, true)->removeChild($this->mainForeignIds[$modelName][$nodeId]);
 			}
-			$this->unsetValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNodeId, true);
-			$this->setValue($this->getValue($this->mMainForeignObjects, $lModelName, true), $pNode);
-			$this->mMainForeignIds[$lModelName][$pNodeId] = $pNode;
+			$this->unsetValue($this->getValue($this->mainForeignObjects, $modelName, true), $nodeId, true);
+			$this->setValue($this->getValue($this->mainForeignObjects, $modelName, true), $node);
+			$this->mainForeignIds[$modelName][$nodeId] = $node;
 		}
 	}
 	
 	/**
 	 *
-	 * @param mixed $pNode
-	 * @param string|integer $pNodeId
-	 * @param Model $pModel
+	 * @param mixed $node
+	 * @param string|integer $nodeId
+	 * @param Model $model
 	 */
-	public function removeMainForeignObject($pNodeId, Model $pModel) {
-		if (!is_null($this->mMainForeignObjects)) {
-			$lModelName = $pModel->getName();
-			if ($this->hasValue($this->mMainForeignObjects, $lModelName, true)) {
-				$this->getValue($this->mMainForeignObjects, $lModelName, true)->removeChild($this->mMainForeignIds[$lModelName][$pNodeId]);
-				unset($this->mMainForeignIds[$lModelName][$pNodeId]);
+	public function removeMainForeignObject($nodeId, Model $model) {
+		if (!is_null($this->mainForeignObjects)) {
+			$modelName = $model->getName();
+			if ($this->hasValue($this->mainForeignObjects, $modelName, true)) {
+				$this->getValue($this->mainForeignObjects, $modelName, true)->removeChild($this->mainForeignIds[$modelName][$nodeId]);
+				unset($this->mainForeignIds[$modelName][$nodeId]);
 			}
 		}
 	}
@@ -491,9 +491,9 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 *
 	 * @return array
 	 */
-	public function hasMainForeignObject($pModelName, $pId) {
-		return !is_null($this->mMainForeignIds)
-			&& array_key_exists($pModelName, $this->mMainForeignIds)
-			&& array_key_exists($pId, $this->mMainForeignIds[$pModelName]);
+	public function hasMainForeignObject($modelName, $id) {
+		return !is_null($this->mainForeignIds)
+			&& array_key_exists($modelName, $this->mainForeignIds)
+			&& array_key_exists($id, $this->mainForeignIds[$modelName]);
 	}
 }

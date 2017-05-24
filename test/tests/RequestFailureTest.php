@@ -26,11 +26,11 @@ $Json = '{
 	}
 }';
 
-$lResult = ObjectService::getObjects(json_decode($Json));
+$result = ObjectService::getObjects(json_decode($Json));
 
-if (!is_object($lResult) || !isset($lResult->success) || $lResult->success 
-		|| !isset($lResult->error) || !isset($lResult->error->message) || $lResult->error->message !== "private property 'string' can't be a filter property for public request") {
-	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
+if (!is_object($result) || !isset($result->success) || $result->success 
+		|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "private property 'string' can't be a filter property for public request") {
+	throw new Exception('bad ObjectService::getObjects return '.json_encode($result));
 }
 
 /** ****************************** test literal private request ****************************** **/
@@ -53,11 +53,11 @@ $Json = '{
 	}
 }';
 
-$lResult = ObjectService::getObjects(json_decode($Json));
+$result = ObjectService::getObjects(json_decode($Json));
 
-if (!is_object($lResult) || !isset($lResult->success) || $lResult->success
-|| !isset($lResult->error) || !isset($lResult->error->message) || $lResult->error->message !== "literal contain private property 'string'") {
-	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
+if (!is_object($result) || !isset($result->success) || $result->success
+|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "literal contain private property 'string'") {
+	throw new Exception('bad ObjectService::getObjects return '.json_encode($result));
 }
 
 /** ****************************** test literal private request ****************************** **/
@@ -89,11 +89,11 @@ $Json = '{
 	}
 }';
 
-$lResult = ObjectService::getObjects(json_decode($Json));
+$result = ObjectService::getObjects(json_decode($Json));
 
-if (!is_object($lResult) || !isset($lResult->success) || $lResult->success
-|| !isset($lResult->error) || !isset($lResult->error->message) || $lResult->error->message !== "having literal contain private property 'string'") {
-	throw new Exception('bad ObjectService::getObjects return '.json_encode($lResult));
+if (!is_object($result) || !isset($result->success) || $result->success
+|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "having literal contain private property 'string'") {
+	throw new Exception('bad ObjectService::getObjects return '.json_encode($result));
 }
 
 $time_end = microtime(true);

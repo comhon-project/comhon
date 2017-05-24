@@ -14,31 +14,31 @@ namespace Comhon\Database;
 class OnLogicalJunction extends LogicalJunction {
 	
 	/**
-	 * @param Literal $pLiteral
+	 * @param Literal $literal
 	 */
-	public function addLiteral(Literal $pLiteral) {
-		$this->_addLiteral($pLiteral);
+	public function addLiteral(Literal $literal) {
+		$this->_addLiteral($literal);
 	}
 	
 	/**
-	 * @param OnLiteral $pLiteral
+	 * @param OnLiteral $literal
 	 */
-	private function _addLiteral(OnLiteral $pLiteral) {
-		$this->mLiterals[] = $pLiteral;
+	private function _addLiteral(OnLiteral $literal) {
+		$this->literals[] = $literal;
 	}
 	
 	/**
-	 * @param LogicalJunction $pLogicalJunction
+	 * @param LogicalJunction $logicalJunction
 	 */
-	public function addLogicalJunction(LogicalJunction $pLogicalJunction) {
-		$this->_addLogicalJunction($pLogicalJunction);
+	public function addLogicalJunction(LogicalJunction $logicalJunction) {
+		$this->_addLogicalJunction($logicalJunction);
 	}
 	
 	/**
-	 * @param OnLogicalJunction $pLogicalJunction
+	 * @param OnLogicalJunction $logicalJunction
 	 */
-	private function _addLogicalJunction(OnLogicalJunction $pLogicalJunction) {
-		$this->mLogicalJunction[] = $pLogicalJunction;
+	private function _addLogicalJunction(OnLogicalJunction $logicalJunction) {
+		$this->logicalJunction[] = $logicalJunction;
 	}
 	
 }

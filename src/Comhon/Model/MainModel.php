@@ -24,20 +24,20 @@ use Comhon\Interfacer\StdObjectInterfacer;
 
 class MainModel extends Model {
 	
-	private $mSerialization            = null;
-	private $mSerializationInitialised = false;
+	private $serialization            = null;
+	private $serializationInitialised = false;
 	
 	protected final function _setSerialization() {
-		if (!$this->mSerializationInitialised) {
-			$this->mSerialization = ModelManager::getInstance()->getSerializationInstance($this);
-			$this->mSerializationInitialised = true;
+		if (!$this->serializationInitialised) {
+			$this->serialization = ModelManager::getInstance()->getSerializationInstance($this);
+			$this->serializationInitialised = true;
 		}
 		if ($this->hasExtendsModel()) {
 			if (count($this->getIdProperties()) != count($this->getExtendsModel()->getIdProperties())) {
 				throw new \Exception('extended model with same serialization doesn\'t have same id(s)');
 			}
-			foreach ($this->getExtendsModel()->getIdProperties() as $lPropertyName => $lProperty) {
-				if (!$this->hasIdProperty($lPropertyName) || !$lProperty->isEqual($this->getIdProperty($lPropertyName))) {
+			foreach ($this->getExtendsModel()->getIdProperties() as $propertyName => $property) {
+				if (!$this->hasIdProperty($propertyName) || !$property->isEqual($this->getIdProperty($propertyName))) {
 					throw new \Exception('extended model with same serialization doesn\'t have same id(s)');
 				}
 			}
@@ -45,229 +45,229 @@ class MainModel extends Model {
 	}
 	
 	public function hasLoadedSerialization() {
-		return $this->mSerializationInitialised;
+		return $this->serializationInitialised;
 	}
 	
 	/**
 	 * @return SerializationUnit
 	 */
 	public function getSerialization() {
-		return $this->mSerialization;
+		return $this->serialization;
 	}
 	
 	public function hasSerialization() {
-		return !is_null($this->mSerialization);
+		return !is_null($this->serialization);
 	}
 	
 	public function hasSqlTableUnit() {
-		return !is_null($this->mSerialization) && ($this->mSerialization instanceof SqlTable);
+		return !is_null($this->serialization) && ($this->serialization instanceof SqlTable);
 	}
 	
 	public function getSqlTableUnit() {
-		return !is_null($this->mSerialization) && ($this->mSerialization instanceof SqlTable) ? $this->mSerialization : null;
+		return !is_null($this->serialization) && ($this->serialization instanceof SqlTable) ? $this->serialization : null;
 	}
 	
-	public function hasSerializationUnit($pSerializationType) {
-		return !is_null($this->mSerialization) && ($this->mSerialization->getType() == $pSerializationType);
+	public function hasSerializationUnit($serializationType) {
+		return !is_null($this->serialization) && ($this->serialization->getType() == $serializationType);
 	}
 	
 	public function hasPartialSerialization() {
-		return ($this->mSerialization instanceof SqlTable);
+		return ($this->serialization instanceof SqlTable);
 	}
 	
 	/**
 	 * @return ComhonObject
 	 */
 	public function getSerializationSettings() {
-		return is_null($this->mSerialization) ? null : $this->mSerialization->getSettings();
+		return is_null($this->serialization) ? null : $this->serialization->getSettings();
 	}
 	
 	/**
 	 *
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return ComhonObject
 	 */
-	public function import($pInterfacedObject, Interfacer $pInterfacer) {
-		return $this->_importMain($pInterfacedObject, $pInterfacer, new ObjectCollection());
+	public function import($interfacedObject, Interfacer $interfacer) {
+		return $this->_importMain($interfacedObject, $interfacer, new ObjectCollection());
 	}
 	
 	/**
 	 *
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
 	 * @throws \Exception
 	 * @return ComhonObject
 	 */
-	protected function _importMain($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection) {
+	protected function _importMain($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection) {
 		$this->load();
-		if ($pInterfacedObject instanceof \SimpleXMLElement) {
-			$pInterfacedObject= dom_import_simplexml($pInterfacedObject);
+		if ($interfacedObject instanceof \SimpleXMLElement) {
+			$interfacedObject= dom_import_simplexml($interfacedObject);
 		}
-		if (!$pInterfacer->isNodeValue($pInterfacedObject)) {
-			if (($pInterfacer instanceof StdObjectInterfacer) && is_array($pInterfacedObject) && empty($pInterfacedObject)) {
-				$pInterfacedObject = new \stdClass();
+		if (!$interfacer->isNodeValue($interfacedObject)) {
+			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
+				$interfacedObject = new \stdClass();
 			} else {
 				throw new \Exception('interfaced object doesn\'t match with interfacer');
 			}
 		}
 		
-		switch ($pInterfacer->getMergeType()) {
+		switch ($interfacer->getMergeType()) {
 			case Interfacer::MERGE:
-				$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $this, true);
-				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($lObject), $this, true);
+				$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, $this, true);
+				$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), $this, true);
 				break;
 			case Interfacer::OVERWRITE:
-				$lObject = $this->_getOrCreateObjectInstanceFromInterfacedObject($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $this, true);
-				$lObject->reset();
-				$this->_fillObject($lObject, $pInterfacedObject, $pInterfacer, new ObjectCollection(), $this, true);
+				$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, $this, true);
+				$object->reset();
+				$this->_fillObject($object, $interfacedObject, $interfacer, new ObjectCollection(), $this, true);
 				break;
 			case Interfacer::NO_MERGE:
-				$lExistingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $this->mModelName);
-				if (!is_null($lExistingObject)) {
-					MainObjectCollection::getInstance()->removeObject($lExistingObject);
+				$existingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($interfacedObject, $interfacer), $this->modelName);
+				if (!is_null($existingObject)) {
+					MainObjectCollection::getInstance()->removeObject($existingObject);
 				}
-				$lObject = $this->_import($pInterfacedObject, $pInterfacer, new ObjectCollection(), $this, true);
+				$object = $this->_import($interfacedObject, $interfacer, new ObjectCollection(), $this, true);
 				
-				if (!is_null($lExistingObject)) {
-					MainObjectCollection::getInstance()->removeObject($lObject);
-					MainObjectCollection::getInstance()->addObject($lExistingObject);
+				if (!is_null($existingObject)) {
+					MainObjectCollection::getInstance()->removeObject($object);
+					MainObjectCollection::getInstance()->addObject($existingObject);
 				}
 				break;
 			default:
-				throw new \Exception('undefined merge type '.$pMergeType);
+				throw new \Exception('undefined merge type '.$mergeType);
 		}
-		return $lObject;
+		return $object;
 	}
 	
 	/**
 	 *
-	 * @param ComhonObject $pObject
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
+	 * @param ComhonObject $object
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 */
-	public function fillObject(ComhonObject $pObject, $pInterfacedObject, Interfacer $pInterfacer) {
+	public function fillObject(ComhonObject $object, $interfacedObject, Interfacer $interfacer) {
 		$this->load();
-		if ($pInterfacedObject instanceof \SimpleXMLElement) {
-			$pInterfacedObject= dom_import_simplexml($pInterfacedObject);
+		if ($interfacedObject instanceof \SimpleXMLElement) {
+			$interfacedObject= dom_import_simplexml($interfacedObject);
 		}
-		if (!$pInterfacer->isNodeValue($pInterfacedObject)) {
-			if (($pInterfacer instanceof StdObjectInterfacer) && is_array($pInterfacedObject) && empty($pInterfacedObject)) {
-				$pInterfacedObject = new \stdClass();
+		if (!$interfacer->isNodeValue($interfacedObject)) {
+			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
+				$interfacedObject = new \stdClass();
 			} else {
 				throw new \Exception('interfaced object doesn\'t match with interfacer');
 			}
 		}
 		
-		$this->_verifIdBeforeFillObject($pObject, $this->getIdFromInterfacedObject($pInterfacedObject, $pInterfacer), $pInterfacer->hasToFlagValuesAsUpdated());
+		$this->_verifIdBeforeFillObject($object, $this->getIdFromInterfacedObject($interfacedObject, $interfacer), $interfacer->hasToFlagValuesAsUpdated());
 		
-		MainObjectCollection::getInstance()->addObject($pObject, false);
-		$this->_fillObject($pObject, $pInterfacedObject, $pInterfacer, $this->_loadLocalObjectCollection($pObject), $this, true);
-		if ($pInterfacer->hasToFlagObjectAsLoaded()) {
-			$pObject->setIsLoaded(true);
+		MainObjectCollection::getInstance()->addObject($object, false);
+		$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), $this, true);
+		if ($interfacer->hasToFlagObjectAsLoaded()) {
+			$object->setIsLoaded(true);
 		}
 	}
 	
-	private function _verifIdBeforeFillObject(ComhonObject $pObject, $pId, $pFlagAsUpdated) {
-		if ($pObject->getModel() !== $this) {
+	private function _verifIdBeforeFillObject(ComhonObject $object, $id, $flagAsUpdated) {
+		if ($object->getModel() !== $this) {
 			throw new \Exception('current model instance must be same instance of object model');
 		}
 		if (!$this->hasIdProperties()) {
 			return ;
 		}
-		if (!$pObject->hasCompleteId()) {
-			$this->_fillObjectwithId($pObject, $pId, $pFlagAsUpdated);
+		if (!$object->hasCompleteId()) {
+			$this->_fillObjectwithId($object, $id, $flagAsUpdated);
 		}
-		if (!$pObject->hasCompleteId()) {
+		if (!$object->hasCompleteId()) {
 			return ;
 		}
-		$lObjectId = $pObject->getId();
-		if ($pId === 0) {
-			if ($lObjectId !== 0 && $lObjectId !== '0') {
-				$lMessageId = is_null($pId) ? 'null' : $pId;
-				throw new \Exception("id must be the same as imported value id : {$pObject->getId()} !== $lMessageId");
+		$objectId = $object->getId();
+		if ($id === 0) {
+			if ($objectId !== 0 && $objectId !== '0') {
+				$messageId = is_null($id) ? 'null' : $id;
+				throw new \Exception("id must be the same as imported value id : {$object->getId()} !== $messageId");
 			}
-		} else if ($lObjectId === 0) {
-			if ($pId !== 0 && $pId !== '0') {
-				$lMessageId = is_null($pId) ? 'null' : $pId;
-				throw new \Exception("id must be the same as imported value id : {$pObject->getId()} !== $lMessageId");
+		} else if ($objectId === 0) {
+			if ($id !== 0 && $id !== '0') {
+				$messageId = is_null($id) ? 'null' : $id;
+				throw new \Exception("id must be the same as imported value id : {$object->getId()} !== $messageId");
 			}
 		}
-		else if ($pObject->getId() != $pId) {
-			$lMessageId = is_null($pId) ? 'null' : $pId;
-			throw new \Exception("id must be the same as imported value id : {$pObject->getId()} !== $lMessageId");
+		else if ($object->getId() != $id) {
+			$messageId = is_null($id) ? 'null' : $id;
+			throw new \Exception("id must be the same as imported value id : {$object->getId()} !== $messageId");
 		}
-		$lObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
-		if (!is_null($lObject) && $lObject !== $pObject) {
-		 	throw new \Exception("A different instance object with same id '$pId' already exists in MainObjectCollection.\n"
+		$storedObject = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
+		if (!is_null($storedObject) && $storedObject!== $object) {
+		 	throw new \Exception("A different instance object with same id '$id' already exists in MainObjectCollection.\n"
 		 						.'If you want to build a new instance with this id, you must go through Model and specify merge type as '.Interfacer::NO_MERGE.' (no merge)');
 		}
 	}
 	
 	/**
 	 *
-	 * @param ComhonObject $pObject
-	 * @param string $pNodeName
-	 * @param Interfacer $pInterfacer
+	 * @param ComhonObject $object
+	 * @param string $nodeName
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	protected function _exportId(ComhonObject $pObject, $pNodeName, Interfacer $pInterfacer) {
-		$lNodeId = parent::_exportId($pObject, $pNodeName, $pInterfacer);
+	protected function _exportId(ComhonObject $object, $nodeName, Interfacer $interfacer) {
+		$nodeId = parent::_exportId($object, $nodeName, $interfacer);
 		
-		if ($pInterfacer->hasToExportMainForeignObjects()) {
-			if ($pObject->getModel() === $this) {
-				$lModel = $this;
+		if ($interfacer->hasToExportMainForeignObjects()) {
+			if ($object->getModel() === $this) {
+				$model = $this;
 			} else {
-				if (!$pObject->getModel()->isInheritedFrom($this)) {
+				if (!$object->getModel()->isInheritedFrom($this)) {
 					throw new \Exception('object doesn\'t have good model');
 				}
-				$lModel = $pObject->getModel();
+				$model = $object->getModel();
 			}
-			$lValueId   = $this->_toInterfacedId($pObject, $pInterfacer);
-			$lModelName = $lModel->getName();
+			$valueId   = $this->_toInterfacedId($object, $interfacer);
+			$modelName = $model->getName();
 			
-			if (!$pInterfacer->hasMainForeignObject($lModelName, $lValueId)) {
-				$pInterfacer->addMainForeignObject($pInterfacer->createNode('empty'), $lValueId, $pObject->getModel());
-				$pInterfacer->addMainForeignObject($lModel->_export($pObject, $lModel->getName(), $pInterfacer, true), $lValueId, $pObject->getModel());
+			if (!$interfacer->hasMainForeignObject($modelName, $valueId)) {
+				$interfacer->addMainForeignObject($interfacer->createNode('empty'), $valueId, $object->getModel());
+				$interfacer->addMainForeignObject($model->_export($object, $model->getName(), $interfacer, true), $valueId, $object->getModel());
 			}
 		}
-		return $lNodeId;
+		return $nodeId;
 	}
 	
 	/**
 	 * load serialized object 
-	 * @param string|integer $pId
-	 * @param string[] $pPropertiesFilter
-	 * @param boolean $pForceLoad if object already exists and is already loaded, force to reload object
+	 * @param string|integer $id
+	 * @param string[] $propertiesFilter
+	 * @param boolean $forceLoad if object already exists and is already loaded, force to reload object
 	 * @throws \Exception
 	 * @return ComhonObject|null null if load is unsuccessfull
 	 */
-	public function loadObject($pId, $pPropertiesFilter = null, $pForceLoad = false) {
+	public function loadObject($id, $propertiesFilter = null, $forceLoad = false) {
 		$this->load();
 		if (!$this->hasIdProperties()) {
-			throw new \Exception("model '$this->mModelName' must have at least one id property to load object");
+			throw new \Exception("model '$this->modelName' must have at least one id property to load object");
 		}
-		$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
+		$mainObject = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
 		
-		if (is_null($lMainObject)) {
-			$lMainObject = $this->_buildObjectFromId($pId, false, false);
-			$lNewObject = true;
-		} else if ($lMainObject->isLoaded() && !$pForceLoad) {
-			return $lMainObject;
+		if (is_null($mainObject)) {
+			$mainObject = $this->_buildObjectFromId($id, false, false);
+			$newObject = true;
+		} else if ($mainObject->isLoaded() && !$forceLoad) {
+			return $mainObject;
 		} else {
-			$lNewObject = false;
+			$newObject = false;
 		}
 		
 		try {
-			return $this->loadAndFillObject($lMainObject, $pPropertiesFilter, $pForceLoad) ? $lMainObject : null;
+			return $this->loadAndFillObject($mainObject, $propertiesFilter, $forceLoad) ? $mainObject : null;
 		} catch (CastException $e) {
 			// replace by finally block for php 5.5+
-			if ($lNewObject) {
-				$lMainObject->reset();
+			if ($newObject) {
+				$mainObject->reset();
 				throw $e;
 			}
 		}
@@ -275,92 +275,92 @@ class MainModel extends Model {
 	
 	/**
 	 * load instancied object with serialized object
-	 * @param ComhonObject $pObject
-	 * @param string[] $pPropertiesFilter
-	 * @param boolean $pForceLoad if object already exists and is already loaded, force to reload object
+	 * @param ComhonObject $object
+	 * @param string[] $propertiesFilter
+	 * @param boolean $forceLoad if object already exists and is already loaded, force to reload object
 	 * @throws \Exception
 	 * @return ComhonObject|null null if load is unsuccessfull
 	 */
-	public function loadAndFillObject(ComhonObject $pObject, $pPropertiesFilter = null, $pForceLoad = false) {
-		$lSuccess = false;
+	public function loadAndFillObject(ComhonObject $object, $propertiesFilter = null, $forceLoad = false) {
+		$success = false;
 		$this->load();
-		if (is_null($lSerializationUnit = $this->getSerialization())) {
+		if (is_null($serializationUnit = $this->getSerialization())) {
 			throw new \Exception('model doesn\'t have serialization');
 		}
-		if (!$pObject->isLoaded() || $pForceLoad) {
-			$lSuccess = $lSerializationUnit->loadObject($pObject, $pPropertiesFilter);
+		if (!$object->isLoaded() || $forceLoad) {
+			$success = $serializationUnit->loadObject($object, $propertiesFilter);
 		}
-		return $lSuccess;
+		return $success;
 	}
 	
 	/**
 	 * get or create an instance of ComhonObject
-	 * @param integer|string $pId
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param boolean $pIsFirstLevel
-	 * @param boolean $pIsForeign
+	 * @param integer|string $id
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param boolean $isFirstLevel
+	 * @param boolean $isForeign
 	 * @return ComhonObject
 	 * @throws \Exception
 	 */
-	protected function _getOrCreateObjectInstance($pId, Interfacer $pInterfacer, $pLocalObjectCollection, $pIsFirstLevel, $pIsForeign = false) {
-		$lIsloaded = !$pIsForeign && (!$pIsFirstLevel || $pInterfacer->hasToFlagObjectAsLoaded());
+	protected function _getOrCreateObjectInstance($id, Interfacer $interfacer, $localObjectCollection, $isFirstLevel, $isForeign = false) {
+		$isloaded = !$isForeign && (!$isFirstLevel || $interfacer->hasToFlagObjectAsLoaded());
 		
 		if (!$this->hasIdProperties()) {
-			$lMainObject = $this->getObjectInstance($lIsloaded);
+			$mainObject = $this->getObjectInstance($isloaded);
 		}
 		else {
-			$lMainObject = $pLocalObjectCollection->getObject($pId, $this->mModelName);
-			if (is_null($lMainObject)) {
-				$lMainObject = MainObjectCollection::getInstance()->getObject($pId, $this->mModelName);
+			$mainObject = $localObjectCollection->getObject($id, $this->modelName);
+			if (is_null($mainObject)) {
+				$mainObject = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
 			}
-			if (is_null($lMainObject)) {
-				$lMainObject = $this->_buildObjectFromId($pId, $lIsloaded, $pInterfacer->hasToFlagValuesAsUpdated());
-				$pLocalObjectCollection->addObject($lMainObject);
+			if (is_null($mainObject)) {
+				$mainObject = $this->_buildObjectFromId($id, $isloaded, $interfacer->hasToFlagValuesAsUpdated());
+				$localObjectCollection->addObject($mainObject);
 			}
 			else {
-				$pLocalObjectCollection->addObject($lMainObject, false);
-				if (!$pLocalObjectCollection->hasObject($pId, $this->mModelName, false)) {
-					$lMainObject->cast($this);
-					$pLocalObjectCollection->addObject($lMainObject, false);
+				$localObjectCollection->addObject($mainObject, false);
+				if (!$localObjectCollection->hasObject($id, $this->modelName, false)) {
+					$mainObject->cast($this);
+					$localObjectCollection->addObject($mainObject, false);
 				}
-				if ($lIsloaded || ($pIsFirstLevel && $pInterfacer->getMergeType() !== Interfacer::MERGE)) {
-					$lMainObject->setIsLoaded($lIsloaded);
+				if ($isloaded || ($isFirstLevel && $interfacer->getMergeType() !== Interfacer::MERGE)) {
+					$mainObject->setIsLoaded($isloaded);
 				}
 			}
 		}
-		return $lMainObject;
+		return $mainObject;
 	}
 	
 	/**
-	 * @param string $pInheritanceModelName
-	 * @param MainModel $pParentMainModel
+	 * @param string $inheritanceModelName
+	 * @param MainModel $parentMainModel
 	 * @return Model;
 	 */
-	protected function _getIneritedModel($pInheritanceModelName, MainModel $pParentMainModel) {
-		if (ModelManager::getInstance()->hasModel($pInheritanceModelName)) {
-			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName);
-			if (ModelManager::getInstance()->hasModel($pInheritanceModelName, $pParentMainModel->getName())) {
-				throw new \Exception("cannot determine if model '$pInheritanceModelName' is local or main model");
+	protected function _getIneritedModel($inheritanceModelName, MainModel $parentMainModel) {
+		if (ModelManager::getInstance()->hasModel($inheritanceModelName)) {
+			$model = ModelManager::getInstance()->getInstanceModel($inheritanceModelName);
+			if (ModelManager::getInstance()->hasModel($inheritanceModelName, $parentMainModel->getName())) {
+				throw new \Exception("cannot determine if model '$inheritanceModelName' is local or main model");
 			}
-			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName);
+			$model = ModelManager::getInstance()->getInstanceModel($inheritanceModelName);
 		} else {
-			$lModel = ModelManager::getInstance()->getInstanceModel($pInheritanceModelName, $pParentMainModel->getName());
+			$model = ModelManager::getInstance()->getInstanceModel($inheritanceModelName, $parentMainModel->getName());
 		}
-		if (!$lModel->isInheritedFrom($this)) {
-			throw new \Exception("model '{$lModel->getName()}' doesn't inherit from '{$this->getName()}'");
+		if (!$model->isInheritedFrom($this)) {
+			throw new \Exception("model '{$model->getName()}' doesn't inherit from '{$this->getName()}'");
 		}
-		return $lModel;
+		return $model;
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $pObject
+	 * @param ComhonObject $object
 	 * @return ObjectCollection
 	 */
-	private function _loadLocalObjectCollection($pObject) {
-		$lObjectCollectionCreator = new ObjectCollectionCreator();
-		return $lObjectCollectionCreator->execute($pObject);
+	private function _loadLocalObjectCollection($object) {
+		$objectCollectionCreator = new ObjectCollectionCreator();
+		return $objectCollectionCreator->execute($object);
 	}
 	
 }

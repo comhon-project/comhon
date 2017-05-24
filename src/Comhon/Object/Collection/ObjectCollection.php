@@ -18,170 +18,170 @@ use Comhon\Model\Singleton\ModelManager;
 
 class ObjectCollection {
 	
-	protected $mMap = [];
+	protected $map = [];
 	
 	/**
 	 * get ComhonObject with Model if exists
-	 * @param string|integer $pId
-	 * @param string $pModelName
-	 * @param boolean $pInlcudeInheritance if true, search in extended model with same serialization too
+	 * @param string|integer $id
+	 * @param string $modelName
+	 * @param boolean $inlcudeInheritance if true, search in extended model with same serialization too
 	 * @return ComhonObject|null
 	 */
-	public function getObject($pId, $pModelName, $pInlcudeInheritance = true) {
-		$lObject = array_key_exists($pModelName, $this->mMap) && array_key_exists($pId, $this->mMap[$pModelName])
-			? $this->mMap[$pModelName][$pId]
+	public function getObject($id, $modelName, $inlcudeInheritance = true) {
+		$object = array_key_exists($modelName, $this->map) && array_key_exists($id, $this->map[$modelName])
+			? $this->map[$modelName][$id]
 			: null;
 		
-		if (is_null($lObject) && $pInlcudeInheritance && ModelManager::getInstance()->hasModel($pModelName)) {
-			$lCurrentModel = ModelManager::getInstance()->getInstanceModel($pModelName);
-			$lSerialization = $lCurrentModel->getSerializationSettings();
+		if (is_null($object) && $inlcudeInheritance && ModelManager::getInstance()->hasModel($modelName)) {
+			$currentModel = ModelManager::getInstance()->getInstanceModel($modelName);
+			$serialization = $currentModel->getSerializationSettings();
 			
-			if (!is_null($lSerialization)) {
-				$lModelNames = [];
-				$lModel = $lCurrentModel->getExtendsModel();
-				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
-					$lModelNames[] = $lModel->getName();
-					if (isset($this->mMap[$lModel->getName()][$pId])) {
-						if (in_array($this->mMap[$lModel->getName()][$pId]->getModel()->getName(), $lModelNames)) {
-							$lObject = $this->mMap[$lModel->getName()][$pId];
+			if (!is_null($serialization)) {
+				$modelNames = [];
+				$model = $currentModel->getExtendsModel();
+				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
+					$modelNames[] = $model->getName();
+					if (isset($this->map[$model->getName()][$id])) {
+						if (in_array($this->map[$model->getName()][$id]->getModel()->getName(), $modelNames)) {
+							$object = $this->map[$model->getName()][$id];
 						}
 						break;
 					}
-					$lModel = $lModel->getExtendsModel();
+					$model = $model->getExtendsModel();
 				}
 			}
 		}
-		return $lObject;
+		return $object;
 	}
 	
 	/**
 	 * verify if ComhonObject with specified Model and id exists in ObjectCollection
-	 * @param string|integer $pId
-	 * @param string $pModelName
-	 * @param boolean $pInlcudeInheritance if true, search in extended model with same serialization too
+	 * @param string|integer $id
+	 * @param string $modelName
+	 * @param boolean $inlcudeInheritance if true, search in extended model with same serialization too
 	 * @return boolean true if exists
 	 */
-	public function hasObject($pId, $pModelName, $pInlcudeInheritance = true) {
-		$lHasObject = array_key_exists($pModelName, $this->mMap) && array_key_exists($pId, $this->mMap[$pModelName]);
+	public function hasObject($id, $modelName, $inlcudeInheritance = true) {
+		$hasObject = array_key_exists($modelName, $this->map) && array_key_exists($id, $this->map[$modelName]);
 		
-		if (!$lHasObject && $pInlcudeInheritance && ModelManager::getInstance()->hasModel($pModelName)) {
-			$lCurrentModel = ModelManager::getInstance()->getInstanceModel($pModelName);
-			$lSerialization = $lCurrentModel->getSerializationSettings();
+		if (!$hasObject && $inlcudeInheritance && ModelManager::getInstance()->hasModel($modelName)) {
+			$currentModel = ModelManager::getInstance()->getInstanceModel($modelName);
+			$serialization = $currentModel->getSerializationSettings();
 			
-			if (!is_null($lSerialization)) {
-				$lModelNames = [];
-				$lModel = $lCurrentModel->getExtendsModel();
-				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
-					$lModelNames[] = $lModel->getName();
-					if (isset($this->mMap[$lModel->getName()][$pId])) {
-						$lHasObject = in_array($this->mMap[$lModel->getName()][$pId]->getModel()->getName(), $lModelNames);
+			if (!is_null($serialization)) {
+				$modelNames = [];
+				$model = $currentModel->getExtendsModel();
+				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
+					$modelNames[] = $model->getName();
+					if (isset($this->map[$model->getName()][$id])) {
+						$hasObject = in_array($this->map[$model->getName()][$id]->getModel()->getName(), $modelNames);
 						break;
 					}
-					$lModel = $lModel->getExtendsModel();
+					$model = $model->getExtendsModel();
 				}
 			}
 		}
-		return $lHasObject;
+		return $hasObject;
 	}
 	
 	/**
 	 * get all ComhonObjects with specified Model if exists
-	 * @param string $pModelName
+	 * @param string $modelName
 	 * @return ComhonObject|null
 	 */
-	public function getModelObjects($pModelName) {
-		return array_key_exists($pModelName, $this->mMap) ? $this->mMap[$pModelName] : null;
+	public function getModelObjects($modelName) {
+		return array_key_exists($modelName, $this->map) ? $this->map[$modelName] : null;
 	}
 	
 	/**
 	 * add object (if not already added)
-	 * @param ComhonObject $pObject
-	 * @param boolean $pThrowException throw exception if object already added
+	 * @param ComhonObject $object
+	 * @param boolean $throwException throw exception if object already added
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function addObject(ComhonObject $pObject, $pThrowException = true) {
-		$lSuccess = false;
+	public function addObject(ComhonObject $object, $throwException = true) {
+		$success = false;
 		
-		if ($pObject->hasCompleteId() && $pObject->getModel()->hasIdProperties()) {
-			$lModelName = $pObject->getModel()->getName();
-			$lId = $pObject->getId();
-			if (!array_key_exists($lModelName, $this->mMap)) {
-				$this->mMap[$lModelName] = [];
+		if ($object->hasCompleteId() && $object->getModel()->hasIdProperties()) {
+			$modelName = $object->getModel()->getName();
+			$id = $object->getId();
+			if (!array_key_exists($modelName, $this->map)) {
+				$this->map[$modelName] = [];
 			}
 			// if object NOT already added, we can add it
-			if(!array_key_exists($lId, $this->mMap[$lModelName])) {
-				$this->mMap[$lModelName][$lId] = $pObject;
-				$lSuccess = true;
+			if(!array_key_exists($id, $this->map[$modelName])) {
+				$this->map[$modelName][$id] = $object;
+				$success = true;
 			}
-			else if ($pThrowException) {
+			else if ($throwException) {
 				throw new \Exception('object already added');
 			}
 		}
 		
-		if ($lSuccess) {
-			$lSerialization = $pObject->getModel()->getSerializationSettings();
+		if ($success) {
+			$serialization = $object->getModel()->getSerializationSettings();
 			
-			if (!is_null($lSerialization)) {
-				$lId    = $pObject->getId();
-				$lModel = $pObject->getModel()->getExtendsModel();
-				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
-					if (isset($this->mMap[$lModel->getName()][$lId])) {
-						if ($this->mMap[$lModel->getName()][$lId] !== $pObject) {
+			if (!is_null($serialization)) {
+				$id    = $object->getId();
+				$model = $object->getModel()->getExtendsModel();
+				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
+					if (isset($this->map[$model->getName()][$id])) {
+						if ($this->map[$model->getName()][$id] !== $object) {
 							throw new \Exception('extends model already has different object instance with same id');
 						}
 						break;
 					}
-					$this->mMap[$lModel->getName()][$lId] = $pObject;
-					$lModel = $lModel->getExtendsModel();
+					$this->map[$model->getName()][$id] = $object;
+					$model = $model->getExtendsModel();
 				}
 			}
 		}
-		return $lSuccess;
+		return $success;
 	}
 	
 	/**
 	 * remove object from collection if exists
-	 * @param ComhonObject $pObject
+	 * @param ComhonObject $object
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function removeObject(ComhonObject $pObject) {
-		$lSuccess = false;
-		if ($pObject->hasCompleteId() && $this->getObject($pObject->getId(), $pObject->getModel()->getName()) === $pObject) {
-			unset($this->mMap[$pObject->getModel()->getName()][$pObject->getId()]);
-			$lSuccess = true;
+	public function removeObject(ComhonObject $object) {
+		$success = false;
+		if ($object->hasCompleteId() && $this->getObject($object->getId(), $object->getModel()->getName()) === $object) {
+			unset($this->map[$object->getModel()->getName()][$object->getId()]);
+			$success = true;
 		}
 		
-		if ($lSuccess) {
-			$lSerialization = $pObject->getModel()->getSerializationSettings();
+		if ($success) {
+			$serialization = $object->getModel()->getSerializationSettings();
 			
-			if (!is_null($lSerialization)) {
-				$lId    = $pObject->getId();
-				$lModel = $pObject->getModel()->getExtendsModel();
-				while (!is_null($lModel) && $lModel->getSerializationSettings() === $lSerialization) {
-					if (!isset($this->mMap[$lModel->getName()][$lId]) || $this->mMap[$lModel->getName()][$lId] !== $pObject) {
+			if (!is_null($serialization)) {
+				$id    = $object->getId();
+				$model = $object->getModel()->getExtendsModel();
+				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
+					if (!isset($this->map[$model->getName()][$id]) || $this->map[$model->getName()][$id] !== $object) {
 						throw new \Exception('extends model doesn\'t have object or has different object instance with same id');
 					}
-					unset($this->mMap[$lModel->getName()][$lId]);
-					$lModel = $lModel->getExtendsModel();
+					unset($this->map[$model->getName()][$id]);
+					$model = $model->getExtendsModel();
 				}
 			}
 		}
-		return $lSuccess;
+		return $success;
 	}
 	
 	public function toStdObject() {
-		$lArray = [];
-		$lInterfacer = new StdObjectInterfacer();
-		$lInterfacer->setPrivateContext(true);
-		foreach ($this->mMap as $lModelName => $lObjectById) {
-			$lArray[$lModelName] = [];
-			foreach ($lObjectById as $lId => $lObject) {
-				$lArray[$lModelName][$lId] = $lObject->export($lInterfacer);
+		$array = [];
+		$interfacer = new StdObjectInterfacer();
+		$interfacer->setPrivateContext(true);
+		foreach ($this->map as $modelName => $objectById) {
+			$array[$modelName] = [];
+			foreach ($objectById as $id => $object) {
+				$array[$modelName][$id] = $object->export($interfacer);
 			}
 		}
-		return $lArray;
+		return $array;
 	}
 	
 	public function toString() {

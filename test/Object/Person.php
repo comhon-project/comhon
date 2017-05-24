@@ -10,15 +10,15 @@ class Person extends ExtendableObject {
 		return 'person';
 	}
 	
-	public function setFirstName($pFirstName) {
-		$this->setValue('firstName', $pFirstName);
+	public function setFirstName($firstName) {
+		$this->setValue('firstName', $firstName);
 	}
 	
-	public function setLastName($pFirstName) {
-		$this->setValue('lastName', $pFirstName);
+	public function setLastName($firstName) {
+		$this->setValue('lastName', $firstName);
 	}
 	
-	public function setBirthDate(ComhonDateTime $pBirthDate) {
-		$this->setValue('birthDate', $pBirthDate, true, false);
+	public function setBirthDate(ComhonDateTime $birthDate) {
+		$this->setValue('birthDate', $birthDate, true, false);
 	}
 }

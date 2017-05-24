@@ -13,18 +13,18 @@ namespace Comhon\Database;
 
 class OnLiteral extends Literal {
 
-	private $mColumnRight;
+	private $columnRight;
 	
-	public function __construct($pTableLeft, $pColumnLeft, $pOperator, $pTableRight, $pColumnRight) {
-		$this->mColumnRight = $pColumnRight;
-		parent::__construct($pTableLeft, $pColumnLeft, $pOperator, $pTableRight);
+	public function __construct($tableLeft, $columnLeft, $operator, $tableRight, $columnRight) {
+		$this->columnRight = $columnRight;
+		parent::__construct($tableLeft, $columnLeft, $operator, $tableRight);
 	}
 	
 	/**
 	 * @return string
 	 */
 	public function getColumnRight() {
-		return $this->mColumnRight;
+		return $this->columnRight;
 	}
 	
 	/**
@@ -32,36 +32,36 @@ class OnLiteral extends Literal {
 	 * @return string|TableNode
 	 */
 	public function getTableRight() {
-		return $this->mValue;
+		return $this->value;
 	}
 	
 	/**
-	 * @param array $pValues
+	 * @param array $values
 	 * @return string
 	 */
-	public function export(&$pValues) {
-		$lLeft = (($this->mTable instanceof TableNode) ? $this->mTable->getExportName() : $this->mTable) . '.' . $this->mColumn;
-		$lRight = (($this->mValue instanceof TableNode) ? $this->mValue->getExportName() : $this->mValue) . '.' . $this->mColumnRight;
-		return sprintf('%s %s %s', $lLeft, $this->mOperator, $lRight);
+	public function export(&$values) {
+		$left = (($this->table instanceof TableNode) ? $this->table->getExportName() : $this->table) . '.' . $this->column;
+		$right = (($this->value instanceof TableNode) ? $this->value->getExportName() : $this->value) . '.' . $this->columnRight;
+		return sprintf('%s %s %s', $left, $this->operator, $right);
 	}
 	
 	/**
 	 * 
-	 * @param \stdClass $pStdObject
+	 * @param \stdClass $stdObject
 	 * @throws \Exception
 	 */
-	private static function _verifStdObject($pStdObject) {
+	private static function _verifStdObject($stdObject) {
 		throw new \Exception('cannot build OnLiteral from stdClass object');
 	}
 	
 	/**
 	 * 
-	 * @param \stdClass $pStdObject
-	 * @param [] $pLeftJoins
-	 * @param [] $pLiteralCollection
+	 * @param \stdClass $stdObject
+	 * @param [] $leftJoins
+	 * @param [] $literalCollection
 	 * @throws \Exception
 	 */
-	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null, $pSelectQuery = null, $pAllowPrivateProperties = true) {
+	public static function stdObjectToLiteral($stdObject, &$leftJoins, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
 		throw new \Exception('cannot build OnLiteral from stdClass object');
 	}
 	

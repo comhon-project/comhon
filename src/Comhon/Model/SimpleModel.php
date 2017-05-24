@@ -23,7 +23,7 @@ abstract class SimpleModel extends Model {
 	 * to get a model instance use singleton ModelManager
 	 */
 	public final function __construct() {
-		$this->mIsLoaded = true;
+		$this->isLoaded = true;
 		$this->_init();
 	}
 	
@@ -35,68 +35,68 @@ abstract class SimpleModel extends Model {
 		throw new \Exception('simple models don\'t have associated class');
 	}
 	
-	public function getObjectInstance($pIsloaded = true) {
+	public function getObjectInstance($isloaded = true) {
 		throw new \Exception('simple models don\'t have associated class');
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
-	 * @param string $pNodeName
-	 * @param Interfacer $pInterfacer
-	 * @param boolean $pIsFirstLevel
+	 * @param mixed $value
+	 * @param string $nodeName
+	 * @param Interfacer $interfacer
+	 * @param boolean $isFirstLevel
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	final protected function _export($pValue, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
-		return $this->exportSimple($pValue, $pInterfacer);
+	final protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel) {
+		return $this->exportSimple($value, $interfacer);
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $value
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	public function exportSimple($pValue, Interfacer $pInterfacer) {
-		return $pValue;
+	public function exportSimple($value, Interfacer $interfacer) {
+		return $value;
 	}
 	
 	/**
 	 *
-	 * @param ComhonDateTime $pValue
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param MainModel $pParentMainModel
-	 * @param boolean $pIsFirstLevel
+	 * @param ComhonDateTime $value
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param MainModel $parentMainModel
+	 * @param boolean $isFirstLevel
 	 * @return NULL|unknown
 	 */
-	final protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
-		return $this->importSimple($pValue, $pInterfacer);
+	final protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
+		return $this->importSimple($value, $interfacer);
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $value
+	 * @param Interfacer $interfacer
 	 * @return string|null
 	 */
-	public function importSimple($pValue, Interfacer $pInterfacer) {
-		if (is_null($pValue)) {
-			return $pValue;
+	public function importSimple($value, Interfacer $interfacer) {
+		if (is_null($value)) {
+			return $value;
 		}
-		if ($pInterfacer instanceof NoScalarTypedInterfacer) {
-			$pValue = $pInterfacer->castValueToString($pValue);
+		if ($interfacer instanceof NoScalarTypedInterfacer) {
+			$value = $interfacer->castValueToString($value);
 		}
-		return $pValue;
+		return $value;
 	}
 	
-	public function verifValue($pValue) {
+	public function verifValue($value) {
 		throw new \Exception('should be overrided');
 	}
 	
 
-	public abstract function castValue($pValue);
+	public abstract function castValue($value);
 	
 }

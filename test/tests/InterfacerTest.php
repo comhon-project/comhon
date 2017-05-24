@@ -11,115 +11,115 @@ $time_start = microtime(true);
 
 /** ************************* std **************************** **/
 
-$lInterfacer= new StdObjectInterfacer();
-$lNode = $lInterfacer->createNode('root');
-$lCreatedNode = $lInterfacer->createNode('object');
-$lInterfacer->setValue($lNode, $lCreatedNode, 'object');
-$lInterfacer->setValue($lCreatedNode, 'value', 'prop');
-$lInterfacer->setValue($lCreatedNode, 'value_node', 'prop_node', true);
-$lInterfacer->setValue($lNode, 'root_value', 'root_prop');
+$interfacer= new StdObjectInterfacer();
+$node = $interfacer->createNode('root');
+$createdNode = $interfacer->createNode('object');
+$interfacer->setValue($node, $createdNode, 'object');
+$interfacer->setValue($createdNode, 'value', 'prop');
+$interfacer->setValue($createdNode, 'value_node', 'prop_node', true);
+$interfacer->setValue($node, 'root_value', 'root_prop');
 
-$lNodeArray = $lInterfacer->createNodeArray('array');
-$lInterfacer->addValue($lNodeArray, 'value1', 'element');
-$lInterfacer->addValue($lNodeArray, 'value2', 'element');
+$nodeArray = $interfacer->createNodeArray('array');
+$interfacer->addValue($nodeArray, 'value1', 'element');
+$interfacer->addValue($nodeArray, 'value2', 'element');
 
-$lCreatedNode = $lInterfacer->createNode('element');
-$lInterfacer->setValue($lCreatedNode, 123, 'object_element_prop');
-$lInterfacer->setValue($lCreatedNode, 123, 'object_element_node', true);
-$lInterfacer->addValue($lNodeArray, $lCreatedNode);
+$createdNode = $interfacer->createNode('element');
+$interfacer->setValue($createdNode, 123, 'object_element_prop');
+$interfacer->setValue($createdNode, 123, 'object_element_node', true);
+$interfacer->addValue($nodeArray, $createdNode);
 
-$lInterfacer->setValue($lNode, $lNodeArray, 'array');
-$lInterfacer->flattenNode($lNode, 'array');
+$interfacer->setValue($node, $nodeArray, 'array');
+$interfacer->flattenNode($node, 'array');
 
-if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
+if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
 	throw new Exception('bad value');
 }
 
-$lInterfacer->unflattenNode($lNode, 'array');
-if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":["value1","value2",{"object_element_prop":123,"object_element_node":123}]}') {
+$interfacer->unflattenNode($node, 'array');
+if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":["value1","value2",{"object_element_prop":123,"object_element_node":123}]}') {
 	throw new Exception('bad value');
 }
 
-$lInterfacer->flattenNode($lNode, 'array');
-if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
+$interfacer->flattenNode($node, 'array');
+if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
 	throw new Exception('bad value');
 }
 
 /** ************************* XML **************************** **/
 
-$lInterfacer = new XMLInterfacer();
-$lNode = $lInterfacer->createNode('root');
-$lCreatedNode = $lInterfacer->createNode('object');
-$lInterfacer->setValue($lNode, $lCreatedNode, 'object');
-$lInterfacer->setValue($lCreatedNode, 'value', 'prop');
-$lInterfacer->setValue($lCreatedNode, 'value_node', 'prop_node', true);
-$lInterfacer->setValue($lNode, 'root_value', 'root_prop');
+$interfacer = new XMLInterfacer();
+$node = $interfacer->createNode('root');
+$createdNode = $interfacer->createNode('object');
+$interfacer->setValue($node, $createdNode, 'object');
+$interfacer->setValue($createdNode, 'value', 'prop');
+$interfacer->setValue($createdNode, 'value_node', 'prop_node', true);
+$interfacer->setValue($node, 'root_value', 'root_prop');
 
-$lNodeArray = $lInterfacer->createNodeArray('array');
-$lInterfacer->addValue($lNodeArray, 'value1', 'element');
-$lInterfacer->addValue($lNodeArray, 'value2', 'element');
+$nodeArray = $interfacer->createNodeArray('array');
+$interfacer->addValue($nodeArray, 'value1', 'element');
+$interfacer->addValue($nodeArray, 'value2', 'element');
 
-$lCreatedNode = $lInterfacer->createNode('element');
-$lInterfacer->setValue($lCreatedNode, 123, 'object_element_prop');
-$lInterfacer->setValue($lCreatedNode, 123, 'object_element_node', true);
-$lInterfacer->addValue($lNodeArray, $lCreatedNode);
+$createdNode = $interfacer->createNode('element');
+$interfacer->setValue($createdNode, 123, 'object_element_prop');
+$interfacer->setValue($createdNode, 123, 'object_element_node', true);
+$interfacer->addValue($nodeArray, $createdNode);
 
-$lInterfacer->setValue($lNode, $lNodeArray, 'array');
-$lInterfacer->flattenNode($lNode, 'array');
+$interfacer->setValue($node, $nodeArray, 'array');
+$interfacer->flattenNode($node, 'array');
 
-if (!compareXML($lInterfacer->toString($lNode), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>')) {
+if (!compareXML($interfacer->toString($node), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>')) {
 	throw new Exception('bad value');
 }
 
-$lInterfacer->unflattenNode($lNode, 'array');
-if (!compareXML($lInterfacer->toString($lNode), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array><element>value1</element><element>value2</element><element object_element_prop="123"><object_element_node>123</object_element_node></element></array></root>')) {
+$interfacer->unflattenNode($node, 'array');
+if (!compareXML($interfacer->toString($node), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array><element>value1</element><element>value2</element><element object_element_prop="123"><object_element_node>123</object_element_node></element></array></root>')) {
 	throw new Exception('bad value');
 }
 
-$lInterfacer->flattenNode($lNode, 'array');
-if (!compareXML($lInterfacer->toString($lNode), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>')) {
+$interfacer->flattenNode($node, 'array');
+if (!compareXML($interfacer->toString($node), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>')) {
 	throw new Exception('bad value');
 }
 
 /** ************************* array **************************** **/
 
-$lInterfacer= new AssocArrayInterfacer();
-$lNode = $lInterfacer->createNode('root');
-$lCreatedNode = $lInterfacer->createNode('object');
-$lInterfacer->setValue($lCreatedNode, 'value', 'prop');
-$lInterfacer->setValue($lCreatedNode, 'value_node', 'prop_node', true);
-$lInterfacer->setValue($lNode, $lCreatedNode, 'object');
-$lInterfacer->setValue($lNode, 'root_value', 'root_prop');
+$interfacer= new AssocArrayInterfacer();
+$node = $interfacer->createNode('root');
+$createdNode = $interfacer->createNode('object');
+$interfacer->setValue($createdNode, 'value', 'prop');
+$interfacer->setValue($createdNode, 'value_node', 'prop_node', true);
+$interfacer->setValue($node, $createdNode, 'object');
+$interfacer->setValue($node, 'root_value', 'root_prop');
 
-$lNodeArray = $lInterfacer->createNodeArray('array');
-$lInterfacer->addValue($lNodeArray, 'value1', 'element');
-$lInterfacer->addValue($lNodeArray, 'value2', 'element');
+$nodeArray = $interfacer->createNodeArray('array');
+$interfacer->addValue($nodeArray, 'value1', 'element');
+$interfacer->addValue($nodeArray, 'value2', 'element');
 
-$lCreatedNode = $lInterfacer->createNode('element');
-$lInterfacer->setValue($lCreatedNode, 123, 'object_element_prop');
-$lInterfacer->setValue($lCreatedNode, 123, 'object_element_node', true);
-$lInterfacer->addValue($lNodeArray, $lCreatedNode);
+$createdNode = $interfacer->createNode('element');
+$interfacer->setValue($createdNode, 123, 'object_element_prop');
+$interfacer->setValue($createdNode, 123, 'object_element_node', true);
+$interfacer->addValue($nodeArray, $createdNode);
 
-$lInterfacer->setValue($lNode, $lNodeArray, 'array');
-$lInterfacer->flattenNode($lNode, 'array');
+$interfacer->setValue($node, $nodeArray, 'array');
+$interfacer->flattenNode($node, 'array');
 
-if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
+if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
 	throw new Exception('bad value');
 }
 
-$lInterfacer->unflattenNode($lNode, 'array');
-if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":["value1","value2",{"object_element_prop":123,"object_element_node":123}]}') {
+$interfacer->unflattenNode($node, 'array');
+if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":["value1","value2",{"object_element_prop":123,"object_element_node":123}]}') {
 	throw new Exception('bad value');
 }
 
-$lInterfacer->flattenNode($lNode, 'array');
-if ($lInterfacer->toString($lNode) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
+$interfacer->flattenNode($node, 'array');
+if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
 	throw new Exception('bad value');
 }
 
 /** ************************* preferences **************************** **/
 
-$lPreferences = [
+$preferences = [
 	Interfacer::PRIVATE_CONTEXT        => true,
 	Interfacer::SERIAL_CONTEXT         => true,
 	Interfacer::DATE_TIME_ZONE         => 'Pacific/Tahiti',
@@ -133,42 +133,42 @@ $lPreferences = [
 	Interfacer::MERGE_TYPE             => Interfacer::NO_MERGE
 ];
 
-$lInterfacer->setPreferences($lPreferences);
+$interfacer->setPreferences($preferences);
 
-if ($lInterfacer->isPrivateContext() !== true) {
+if ($interfacer->isPrivateContext() !== true) {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->isSerialContext() !== true) {
+if ($interfacer->isSerialContext() !== true) {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->getDateTimeZone()->getName() !== 'Pacific/Tahiti') {
+if ($interfacer->getDateTimeZone()->getName() !== 'Pacific/Tahiti') {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->getDateTimeFormat() !== 'Y-m-d H:i:s') {
+if ($interfacer->getDateTimeFormat() !== 'Y-m-d H:i:s') {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->hasToExportOnlyUpdatedValues() !== true) {
+if ($interfacer->hasToExportOnlyUpdatedValues() !== true) {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->getPropertiesFilter('haha') !== null) {
+if ($interfacer->getPropertiesFilter('haha') !== null) {
 	throw new Exception('bad value');
 }
-if (json_encode($lInterfacer->getPropertiesFilter('person')) !== '{"haha":0,"hoho":1,"id":null}') {
+if (json_encode($interfacer->getPropertiesFilter('person')) !== '{"haha":0,"hoho":1,"id":null}') {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->hasToFlattenValues() !== true) {
+if ($interfacer->hasToFlattenValues() !== true) {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->hasToExportMainForeignObjects() !== true) {
+if ($interfacer->hasToExportMainForeignObjects() !== true) {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->hasToFlagValuesAsUpdated() !== false) {
+if ($interfacer->hasToFlagValuesAsUpdated() !== false) {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->hasToFlagObjectAsLoaded() !== false) {
+if ($interfacer->hasToFlagObjectAsLoaded() !== false) {
 	throw new Exception('bad value');
 }
-if ($lInterfacer->getMergeType() !== Interfacer::NO_MERGE) {
+if ($interfacer->getMergeType() !== Interfacer::NO_MERGE) {
 	throw new Exception('bad value');
 }
 

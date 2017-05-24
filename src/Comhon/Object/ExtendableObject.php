@@ -24,20 +24,20 @@ abstract class ExtendableObject extends ComhonObject {
 	
 	/**
 	 * 
-	 * @param boolean $lIsLoaded
+	 * @param boolean $isLoaded
 	 */
-	final public function __construct($pIsLoaded = true) {
-		$lModel = ModelManager::getInstance()->getInstanceModel($this->_getModelName());
+	final public function __construct($isLoaded = true) {
+		$model = ModelManager::getInstance()->getInstanceModel($this->_getModelName());
 		
-		if ($lModel instanceof SimpleModel) {
+		if ($model instanceof SimpleModel) {
 			throw new \Exception('Extendable object cannot have SimpleModel');
 		}
-		$this->_affectModel($lModel);
+		$this->_affectModel($model);
 		
-		foreach ($lModel->getPropertiesWithDefaultValues() as $lProperty) {
-			$this->setValue($lProperty->getName(), $lProperty->getDefaultValue(), false);
+		foreach ($model->getPropertiesWithDefaultValues() as $property) {
+			$this->setValue($property->getName(), $property->getDefaultValue(), false);
 		}
-		$this->setIsLoaded($pIsLoaded);
+		$this->setIsLoaded($isLoaded);
 	}
 	
 }

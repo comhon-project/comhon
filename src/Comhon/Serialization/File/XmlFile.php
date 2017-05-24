@@ -21,11 +21,11 @@ class XmlFile extends SerializationFile {
 	 * @return XMLInterfacer
 	 */
 	protected function _getInterfacer() {
-		$lInterfacer = new XMLInterfacer();
-		$lInterfacer->setSerialContext(true);
-		$lInterfacer->setPrivateContext(true);
-		$lInterfacer->setFlagValuesAsUpdated(false);
-		return $lInterfacer;
+		$interfacer = new XMLInterfacer();
+		$interfacer->setSerialContext(true);
+		$interfacer->setPrivateContext(true);
+		$interfacer->setFlagValuesAsUpdated(false);
+		return $interfacer;
 	}
 	
 }

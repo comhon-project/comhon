@@ -21,11 +21,11 @@ class JsonFile extends SerializationFile {
 	 * @return StdObjectInterfacer
 	 */
 	protected function _getInterfacer() {
-		$lInterfacer = new StdObjectInterfacer();
-		$lInterfacer->setSerialContext(true);
-		$lInterfacer->setPrivateContext(true);
-		$lInterfacer->setFlagValuesAsUpdated(false);
-		return $lInterfacer;
+		$interfacer = new StdObjectInterfacer();
+		$interfacer->setSerialContext(true);
+		$interfacer->setPrivateContext(true);
+		$interfacer->setFlagValuesAsUpdated(false);
+		return $interfacer;
 	}
 	
 }

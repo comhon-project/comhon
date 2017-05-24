@@ -30,30 +30,30 @@ class MainObjectCollection extends ObjectCollection {
 	
 	/**
 	 * add object with mainModel (if not already added)
-	 * @param ComhonObject $pObject
-	 * @param boolean $pThrowException throw exception if object already added
+	 * @param ComhonObject $object
+	 * @param boolean $throwException throw exception if object already added
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function addObject(ComhonObject $pObject, $pThrowException = true) {
-		if (!($pObject->getModel() instanceof MainModel)) {
+	public function addObject(ComhonObject $object, $throwException = true) {
+		if (!($object->getModel() instanceof MainModel)) {
 			throw new \Exception('mdodel must be instance of MainModel');
 		}
-		return parent::addObject($pObject, $pThrowException);
+		return parent::addObject($object, $throwException);
 	}
 	
 	
 	/**
 	 * add object with mainModel (if not already added)
-	 * @param ComhonObject $pObject
-	 * @param boolean $pThrowException throw exception if object can't be added (no complete id or object already added)
+	 * @param ComhonObject $object
+	 * @param boolean $throwException throw exception if object can't be added (no complete id or object already added)
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function removeObject(ComhonObject $pObject) {
-		if (!($pObject->getModel() instanceof MainModel)) {
+	public function removeObject(ComhonObject $object) {
+		if (!($object->getModel() instanceof MainModel)) {
 			throw new \Exception('mdodel must be instance of MainModel');
 		}
-		return parent::removeObject($pObject);
+		return parent::removeObject($object);
 	}
 }

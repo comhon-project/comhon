@@ -24,38 +24,38 @@ class ModelArray extends ModelContainer {
 	 * for exemple if we have a ModelArray 'children', each element name would be 'child'
 	 * @var string
 	 */
-	private $mElementName;
+	private $elementName;
 	
-	public function __construct($pModel, $pElementName) {
-		parent::__construct($pModel);
-		$this->mElementName = $pElementName;
+	public function __construct($model, $elementName) {
+		parent::__construct($model);
+		$this->elementName = $elementName;
 	}
 	
 	public function getElementName() {
-		return $this->mElementName;
+		return $this->elementName;
 	}
 	
 	public function getObjectClass() {
 		return 'Comhon\Object\ObjectArray';
 	}
 	
-	public function getObjectInstance($pIsloaded = true) {
-		return new ObjectArray($this, $pIsloaded);
+	public function getObjectInstance($isloaded = true) {
+		return new ObjectArray($this, $isloaded);
 	}
 	
 	/**
 	 *
-	 * @param ObjectArray $pObjectArray
-	 * @param Interfacer $pInterfacer
+	 * @param ObjectArray $objectArray
+	 * @param Interfacer $interfacer
 	 */
-	protected function _addMainCurrentObject(ComhonObject $pObjectArray, Interfacer $pInterfacer) {
-		if (!($pObjectArray instanceof ObjectArray)) {
+	protected function _addMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer) {
+		if (!($objectArray instanceof ObjectArray)) {
 			throw new \Exception('first parameter should be ObjectArray');
 		}
-		if ($pInterfacer->hasToExportMainForeignObjects()) {
-			foreach ($pObjectArray->getValues() as $lObject) {
-				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
-					$pInterfacer->addMainForeignObject($pInterfacer->createNode('empty'), $lObject->getId(), $lObject->getModel());
+		if ($interfacer->hasToExportMainForeignObjects()) {
+			foreach ($objectArray->getValues() as $object) {
+				if (!is_null($object) && ($object->getModel() instanceof MainModel) && !is_null($object->getId()) && $object->hasCompleteId()) {
+					$interfacer->addMainForeignObject($interfacer->createNode('empty'), $object->getId(), $object->getModel());
 				}
 			}
 		}
@@ -63,17 +63,17 @@ class ModelArray extends ModelContainer {
 	
 	/**
 	 *
-	 * @param ObjectArray $pObjectArray
-	 * @param Interfacer $pInterfacer
+	 * @param ObjectArray $objectArray
+	 * @param Interfacer $interfacer
 	 */
-	protected function _removeMainCurrentObject(ComhonObject $pObjectArray, Interfacer $pInterfacer) {
-		if (!($pObjectArray instanceof ObjectArray)) {
+	protected function _removeMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer) {
+		if (!($objectArray instanceof ObjectArray)) {
 			throw new \Exception('first parameter should be ObjectArray');
 		}
-		if ($pInterfacer->hasToExportMainForeignObjects()) {
-			foreach ($pObjectArray->getValues() as $lObject) {
-				if (!is_null($lObject) && ($lObject->getModel() instanceof MainModel) && !is_null($lObject->getId()) && $lObject->hasCompleteId()) {
-					$pInterfacer->removeMainForeignObject($lObject->getId(), $lObject->getModel());
+		if ($interfacer->hasToExportMainForeignObjects()) {
+			foreach ($objectArray->getValues() as $object) {
+				if (!is_null($object) && ($object->getModel() instanceof MainModel) && !is_null($object->getId()) && $object->hasCompleteId()) {
+					$interfacer->removeMainForeignObject($object->getId(), $object->getModel());
 				}
 			}
 		}
@@ -81,162 +81,162 @@ class ModelArray extends ModelContainer {
 	
 	/**
 	 *
-	 * @param ComhonObject|null $pObjectArray
-	 * @param string $pNodeName
-	 * @param Interfacer $pInterfacer
-	 * @param boolean $pIsFirstLevel
+	 * @param ComhonObject|null $objectArray
+	 * @param string $nodeName
+	 * @param Interfacer $interfacer
+	 * @param boolean $isFirstLevel
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	protected function _export($pObjectArray, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
-		if (is_null($pObjectArray)) {
+	protected function _export($objectArray, $nodeName, Interfacer $interfacer, $isFirstLevel) {
+		if (is_null($objectArray)) {
 			return null;
 		}
-		$this->verifValue($pObjectArray);
-		if (!$pObjectArray->isLoaded()) {
+		$this->verifValue($objectArray);
+		if (!$objectArray->isLoaded()) {
 			return  Interfacer::__UNLOAD__;
 		}
-		$lNodeArray = $pInterfacer->createNodeArray($pNodeName);
+		$nodeArray = $interfacer->createNodeArray($nodeName);
 		
-		foreach ($pObjectArray->getValues() as $lValue) {
-			$this->verifElementValue($lValue);
-			$pInterfacer->addValue($lNodeArray, $this->getModel()->_export($lValue, $this->mElementName, $pInterfacer, $pIsFirstLevel), $this->mElementName);
+		foreach ($objectArray->getValues() as $value) {
+			$this->verifElementValue($value);
+			$interfacer->addValue($nodeArray, $this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel), $this->elementName);
 		}
-		return $lNodeArray;
+		return $nodeArray;
 	}
 	
 	/**
 	 *
-	 * @param ObjectArray $pObjectArray
-	 * @param string $pNodeName
-	 * @param Interfacer $pInterfacer
+	 * @param ObjectArray $objectArray
+	 * @param string $nodeName
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	protected function _exportId(ComhonObject $pObjectArray, $pNodeName, Interfacer $pInterfacer) {
-		$this->verifValue($pObjectArray);
-		if (!$pObjectArray->isLoaded()) {
+	protected function _exportId(ComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
+		$this->verifValue($objectArray);
+		if (!$objectArray->isLoaded()) {
 			return  Interfacer::__UNLOAD__;
 		}
-		$lNodeArray = $pInterfacer->createNodeArray($pNodeName);
-		foreach ($pObjectArray->getValues() as $lValue) {
-			if (is_null($lValue)) {
-				$pInterfacer->addValue($lNodeArray, null, $this->mElementName);
+		$nodeArray = $interfacer->createNodeArray($nodeName);
+		foreach ($objectArray->getValues() as $value) {
+			if (is_null($value)) {
+				$interfacer->addValue($nodeArray, null, $this->elementName);
 			} else {
-				$this->verifElementValue($lValue);
-				$pInterfacer->addValue($lNodeArray, $this->getModel()->_exportId($lValue, $this->mElementName, $pInterfacer), $this->mElementName);
+				$this->verifElementValue($value);
+				$interfacer->addValue($nodeArray, $this->getModel()->_exportId($value, $this->elementName, $interfacer), $this->elementName);
 			}
 		}
-		return $lNodeArray;
+		return $nodeArray;
 	}
 	
 	
 	/**
 	 *
-	 * @param mixed $pValue
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param MainModel $pParentMainModel
-	 * @param boolean $pIsFirstLevel
+	 * @param mixed $value
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param MainModel $parentMainModel
+	 * @param boolean $isFirstLevel
 	 * @return ComhonObject
 	 */
-	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
-		if ($pInterfacer->isNullValue($pInterfacedObject)) {
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
+		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
-		if (!$pInterfacer->isArrayNodeValue($pInterfacedObject)) {
+		if (!$interfacer->isArrayNodeValue($interfacedObject)) {
 			throw new \Exception('unexpeted value type');
 		}
-		$lObjectArray = $this->getObjectInstance();
-		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
-			$lObjectArray->pushValue($this->getModel()->_import($lElement, $pInterfacer, $pLocalObjectCollection, $pParentMainModel, $pIsFirstLevel), $pInterfacer->hasToFlagValuesAsUpdated());
+		$objectArray = $this->getObjectInstance();
+		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
+			$objectArray->pushValue($this->getModel()->_import($element, $interfacer, $localObjectCollection, $parentMainModel, $isFirstLevel), $interfacer->hasToFlagValuesAsUpdated());
 		}
-		return $lObjectArray;
+		return $objectArray;
 	}
 	
 	/**
 	 *
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param MainModel $pParentMainModel
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param MainModel $parentMainModel
 	 * @return ComhonObject
 	 */
-	protected function _importId($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel) {
-		if (is_null($pInterfacedObject)) {
+	protected function _importId($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel) {
+		if (is_null($interfacedObject)) {
 			return null;
 		}
-		$lObjectArray = $this->getObjectInstance();
-		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
-			$lObjectArray->pushValue($this->getModel()->_importId($lElement, $pInterfacer, $pLocalObjectCollection, $pParentMainModel), $pInterfacer->hasToFlagValuesAsUpdated());
+		$objectArray = $this->getObjectInstance();
+		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
+			$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, $localObjectCollection, $parentMainModel), $interfacer->hasToFlagValuesAsUpdated());
 		}
-		return $lObjectArray;
+		return $objectArray;
 	}
 	
 	/**
 	 *
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return ObjectArray
 	 */
-	public function import($pInterfacedObject, Interfacer $pInterfacer) {
+	public function import($interfacedObject, Interfacer $interfacer) {
 		$this->load();
-		if (is_null($pInterfacedObject)) {
+		if (is_null($interfacedObject)) {
 			return null;
 		}
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
-		$lObjectArray = $this->getObjectInstance();
-		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
-			$lObjectArray->pushValue($this->getModel()->import($lElement, $pInterfacer), $pInterfacer->hasToFlagValuesAsUpdated());
+		$objectArray = $this->getObjectInstance();
+		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
+			$objectArray->pushValue($this->getModel()->import($element, $interfacer), $interfacer->hasToFlagValuesAsUpdated());
 		}
-		return $lObjectArray;
+		return $objectArray;
 	}
 	
 	/**
 	 *
-	 * @param ObjectArray $pObjectArray
-	 * @param mixed $pInterfacedObject
-	 * @param Interfacer $pInterfacer
+	 * @param ObjectArray $objectArray
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 */
-	public function fillObject(ComhonObject $pObjectArray, $pInterfacedObject, Interfacer $pInterfacer) {
+	public function fillObject(ComhonObject $objectArray, $interfacedObject, Interfacer $interfacer) {
 		$this->load();
-		$this->verifValue($pObjectArray);
+		$this->verifValue($objectArray);
 		if (!($this->getModel() instanceof MainModel)) {
 			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
 		}
-		$lLocalObjectCollection = new ObjectCollection();
-		if ($pInterfacer->getMergeType() !== Interfacer::NO_MERGE) {
-			foreach ($pObjectArray->getValues() as $lValue) {
-				$lLocalObjectCollection->addObject($lValue);
+		$localObjectCollection = new ObjectCollection();
+		if ($interfacer->getMergeType() !== Interfacer::NO_MERGE) {
+			foreach ($objectArray->getValues() as $value) {
+				$localObjectCollection->addObject($value);
 			}
 		}
-		$pObjectArray->reset();
-		foreach ($pInterfacer->getTraversableNode($pInterfacedObject) as $lElement) {
-			$pObjectArray->pushValue($this->getModel()->_importMain($lElement, $pInterfacer, $lLocalObjectCollection), $pInterfacer->hasToFlagValuesAsUpdated());
+		$objectArray->reset();
+		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
+			$objectArray->pushValue($this->getModel()->_importMain($element, $interfacer, $localObjectCollection), $interfacer->hasToFlagValuesAsUpdated());
 		}
-		$pObjectArray->setIsLoaded(true);
+		$objectArray->setIsLoaded(true);
 	}
 	
-	public function verifValue($pValue) {
-		if (!($pValue instanceof ObjectArray) || ($pValue->getModel()->getModel() !== $this->getModel() && !$pValue->getModel()->getModel()->isInheritedFrom($this->getModel()))) {
-			$lNodes = debug_backtrace();
-			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
-			throw new \Exception("Argument passed to {$lNodes[0]['class']}::{$lNodes[0]['function']}() must be an instance of {$this->getObjectClass()}, instance of $lClass given, called in {$lNodes[0]['file']} on line {$lNodes[0]['line']} and defined in {$lNodes[0]['file']}");
+	public function verifValue($value) {
+		if (!($value instanceof ObjectArray) || ($value->getModel()->getModel() !== $this->getModel() && !$value->getModel()->getModel()->isInheritedFrom($this->getModel()))) {
+			$nodes = debug_backtrace();
+			$class = gettype($value) == 'object' ? get_class($value): gettype($value);
+			throw new \Exception("Argument passed to {$nodes[0]['class']}::{$nodes[0]['function']}() must be an instance of {$this->getObjectClass()}, instance of $class given, called in {$nodes[0]['file']} on line {$nodes[0]['line']} and defined in {$nodes[0]['file']}");
 		}
 		return true;
 	}
 	
 	/**
 	 * 
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return boolean
 	 */
-	public function verifElementValue($pValue) {
-		return is_null($pValue) ? true : $this->getModel()->verifValue($pValue);
+	public function verifElementValue($value) {
+		return is_null($value) ? true : $this->getModel()->verifValue($value);
 	}
 	
 }

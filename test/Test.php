@@ -5,8 +5,8 @@ set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit
 
 require_once 'Comhon.php';
 
-spl_autoload_register(function ($pClass) {
-	include_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $pClass) . '.php';
+spl_autoload_register(function ($class) {
+	include_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
 });
 
 /**
@@ -312,8 +312,8 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Re
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueRestrictionTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
 
+// add percent
 // add error code (verifvalue precise model if differents (instead of class that are the same))
-// remove prefix $p $l $m
 // add Php doc
 
 // composer

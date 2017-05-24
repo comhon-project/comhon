@@ -22,62 +22,62 @@ use Comhon\Exception\NotSatisfiedRestrictionException;
 class ModelRestrictedArray extends ModelArray {
 	
 	/** @var Restriction */
-	private $mRestriction;
+	private $restriction;
 	
-	public function __construct($pModel, Restriction $pRestriction, $pElementName) {
-		parent::__construct($pModel, $pElementName);
-		$this->mRestriction = $pRestriction;
+	public function __construct($model, Restriction $restriction, $elementName) {
+		parent::__construct($model, $elementName);
+		$this->restriction = $restriction;
 		
-		if (!($this->mModel instanceof SimpleModel)) {
-			throw new \Exception('ModelRestrictedArray can only contain SimpleModel, '.get_class($this->mModel).' given');
+		if (!($this->model instanceof SimpleModel)) {
+			throw new \Exception('ModelRestrictedArray can only contain SimpleModel, '.get_class($this->model).' given');
 		}
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param MainModel $pParentMainModel
-	 * @param boolean $pIsFirstLevel
+	 * @param mixed $value
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param MainModel $parentMainModel
+	 * @param boolean $isFirstLevel
 	 * @return ComhonObject
 	 */
-	protected function _import($pInterfacedObject, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
-		$lObjectArray = parent::_import($pInterfacedObject, $pInterfacer, $pLocalObjectCollection, $pParentMainModel, $pIsFirstLevel);
-		foreach ($lObjectArray->getValues() as $lValue) {
-			if (!$this->mRestriction->satisfy($lValue)) {
-				throw new NotSatisfiedRestrictionException($lValue, $this->mRestriction);
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
+		$objectArray = parent::_import($interfacedObject, $interfacer, $localObjectCollection, $parentMainModel, $isFirstLevel);
+		foreach ($objectArray->getValues() as $value) {
+			if (!$this->restriction->satisfy($value)) {
+				throw new NotSatisfiedRestrictionException($value, $this->restriction);
 			}
 		}
-		return $lObjectArray;
+		return $objectArray;
 	}
 	
-	public function verifValue($pValue) {
+	public function verifValue($value) {
 		if (
-			!($pValue instanceof ObjectArray) 
+			!($value instanceof ObjectArray) 
 			|| (
-				$pValue->getModel() !== $this 
-				&& $pValue->getModel()->getModel() !== $this->getModel() 
+				$value->getModel() !== $this 
+				&& $value->getModel()->getModel() !== $this->getModel() 
 			)
-			|| !($pValue->getModel() instanceof ModelRestrictedArray)
-			|| !$this->mRestriction->isEqual($pValue->getModel()->mRestriction)
+			|| !($value->getModel() instanceof ModelRestrictedArray)
+			|| !$this->restriction->isEqual($value->getModel()->restriction)
 		) {
-			$lNodes = debug_backtrace();
-			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
-			throw new \Exception("Argument passed to {$lNodes[0]['class']}::{$lNodes[0]['function']}() must be an instance of {$this->getObjectClass()}, instance of $lClass given, called in {$lNodes[0]['file']} on line {$lNodes[0]['line']} and defined in {$lNodes[0]['file']}");
+			$nodes = debug_backtrace();
+			$class = gettype($value) == 'object' ? get_class($value): gettype($value);
+			throw new \Exception("Argument passed to {$nodes[0]['class']}::{$nodes[0]['function']}() must be an instance of {$this->getObjectClass()}, instance of $class given, called in {$nodes[0]['file']} on line {$nodes[0]['line']} and defined in {$nodes[0]['file']}");
 		}
 		return true;
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 * @return boolean
 	 */
-	public function verifElementValue($pValue) {
-		parent::verifElementValue($pValue);
-		if (!$this->mRestriction->satisfy($pValue)) {
-			throw new NotSatisfiedRestrictionException($pValue, $this->mRestriction);
+	public function verifElementValue($value) {
+		parent::verifElementValue($value);
+		if (!$this->restriction->satisfy($value)) {
+			throw new NotSatisfiedRestrictionException($value, $this->restriction);
 		}
 		return true;
 	}

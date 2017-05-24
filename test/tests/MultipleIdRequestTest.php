@@ -50,8 +50,8 @@ $Json = '{
 //          AND t_18.main_test_id IS NOT NULL ) 
 // GROUP  BY main_test.id 
 
-$lResult = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($lResult), '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[1,\"1501774389\"]","[2,\"50\"]","[2,\"102\"]"]}]}')) {
+$result = ObjectService::getObjects(json_decode($Json));
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[1,\"1501774389\"]","[2,\"50\"]","[2,\"102\"]"]}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -102,8 +102,8 @@ $Json = '{
 // GROUP  BY main_test.id 
 
 
-$lResult = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($lResult), '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[1,\"1501774389\"]","[2,\"50\"]","[2,\"102\"]"]}]}')) {
+$result = ObjectService::getObjects(json_decode($Json));
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[1,\"1501774389\"]","[2,\"50\"]","[2,\"102\"]"]}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -133,8 +133,8 @@ $Json = '{
 //            OR test.string IS NULL )) 
 // GROUP  BY child_test.id 
 
-$lResult = ObjectService::getObjects(json_decode($Json), true);
-if (json_encode($lResult) !== '{"success":true,"result":[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]}') {
+$result = ObjectService::getObjects(json_decode($Json), true);
+if (json_encode($result) !== '{"success":true,"result":[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]}') {
 	throw new \Exception('bad result');
 }
 

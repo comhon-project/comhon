@@ -22,35 +22,35 @@ class ComplexLiteral extends WhereLiteral {
 	const IN     = 'IN';
 	const NOT_IN = 'NOT IN';
 	
-	protected static $sAcceptedOperators = [
+	protected static $acceptedOperators = [
 			self::IN     => null,
 			self::NOT_IN => null
 	];
 	
-	protected static $sOppositeOperator = [
+	protected static $oppositeOperator = [
 			self::IN     => self::NOT_IN,
 			self::NOT_IN => self::IN
 	];
 	
 	protected function _verifLiteral() {
-		if (!array_key_exists($this->mOperator, self::$sAcceptedOperators)) {
-			throw new \Exception('operator \''.$this->mOperator.'\' doesn\'t exists');
+		if (!array_key_exists($this->operator, self::$acceptedOperators)) {
+			throw new \Exception('operator \''.$this->operator.'\' doesn\'t exists');
 		}
-		if (!is_null($this->mValue) && !($this->mValue instanceof SelectQuery)) {
+		if (!is_null($this->value) && !($this->value instanceof SelectQuery)) {
 			throw new \Exception('complex literal must have a query value');
 		}
 	}
 	
 	/**
-	 * @param array $pValues
+	 * @param array $globalValues
 	 * @return string
 	 */
-	public function export(&$pValues) {
-		list($lQuery, $lValues) = $this->mValue->export();
-		foreach ($lValues as $lValue) {
-			$pValues[] = $lValue;
+	public function export(&$globalValues) {
+		list($query, $values) = $this->value->export();
+		foreach ($values as $value) {
+			$globalValues[] = $value;
 		}
-		return sprintf('%s.%s %s (%s)', $this->mTable, $this->mColumn, $this->mOperator, $lQuery);
+		return sprintf('%s.%s %s (%s)', $this->table, $this->column, $this->operator, $query);
 	}
 	
 	/**
@@ -58,6 +58,6 @@ class ComplexLiteral extends WhereLiteral {
 	 * @return string
 	 */
 	public function exportWithValue() {
-		return sprintf('%s.%s %s (%s)', $this->mTable, $this->mColumn, $this->mOperator, $this->mValue->exportWithValue());
+		return sprintf('%s.%s %s (%s)', $this->table, $this->column, $this->operator, $this->value->exportWithValue());
 	}
 }

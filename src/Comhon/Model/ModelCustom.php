@@ -13,10 +13,10 @@ namespace Comhon\Model;
 
 class ModelCustom extends Model {
 
-	public function __construct($pModelName, $pProperties) {
-		$this->mModelName = $pModelName;
-		$this->mIsLoaded = true;
-		$this->_setProperties($pProperties);
+	public function __construct($modelName, $properties) {
+		$this->modelName = $modelName;
+		$this->isLoaded = true;
+		$this->_setProperties($properties);
 	}
 	
 }

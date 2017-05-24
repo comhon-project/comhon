@@ -17,7 +17,7 @@ if (!ModelManager::getInstance()->hasInstanceModel('person')) {
 if (ModelManager::getInstance()->isModelLoaded('person')) {
 	throw new Exception('model already loaded');
 }
-$lPersonModel = ModelManager::getInstance()->getInstanceModel('person');
+$personModel = ModelManager::getInstance()->getInstanceModel('person');
 
 if (!ModelManager::getInstance()->isModelLoaded('person')) {
 	throw new Exception('model not initialized');
@@ -26,22 +26,22 @@ if (ModelManager::getInstance()->isModelLoaded('woman')) {
 	throw new Exception('model already initialized');
 }
 
-$lWomanModel = ModelManager::getInstance()->getInstanceModel('woman');
+$womanModel = ModelManager::getInstance()->getInstanceModel('woman');
 
 if (!ModelManager::getInstance()->isModelLoaded('woman')) {
 	throw new Exception('model not initialized');
 }
-if (json_encode(array_keys($lWomanModel->getProperties())) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","bodies"]') {
+if (json_encode(array_keys($womanModel->getProperties())) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","bodies"]') {
 	throw new Exception('bad model properties');
 }
-if ($lWomanModel->getSerializationSettings() !== $lPersonModel->getSerializationSettings()) {
+if ($womanModel->getSerializationSettings() !== $personModel->getSerializationSettings()) {
 	throw new Exception('not same serialization');
 }
-if (ModelManager::getInstance()->getInstanceModel('man')->getSerializationSettings() !== $lPersonModel->getSerializationSettings()) {
+if (ModelManager::getInstance()->getInstanceModel('man')->getSerializationSettings() !== $personModel->getSerializationSettings()) {
 	throw new Exception('not same serialization');
 }
 
-if ($lWomanModel->getProperty('id') !== $lPersonModel->getProperty('id')) {
+if ($womanModel->getProperty('id') !== $personModel->getProperty('id')) {
 	throw new Exception('not same instance of property');
 }
 
@@ -54,14 +54,14 @@ if (!ModelManager::getInstance()->hasInstanceModel('womanBody')) {
 if (ModelManager::getInstance()->isModelLoaded('womanBody')) {
 	throw new Exception('model already loaded');
 }
-$lWomanBodyModel = $lWomanModel->getProperty('bodies')->getModel()->getModel()->getModel();
+$womanBodyModel = $womanModel->getProperty('bodies')->getModel()->getModel()->getModel();
 if (!ModelManager::getInstance()->isModelLoaded('womanBody')) {
 	throw new Exception('model not loaded');
 }
-if ($lWomanBodyModel->getName() !== 'womanBody') {
+if ($womanBodyModel->getName() !== 'womanBody') {
 	throw new Exception('bad model name');
 }
-if (!$lWomanBodyModel->isLoaded()) {
+if (!$womanBodyModel->isLoaded()) {
 	throw new Exception('model not loaded');
 }
 if (!ModelManager::getInstance()->hasInstanceModel('body')) {
@@ -70,50 +70,50 @@ if (!ModelManager::getInstance()->hasInstanceModel('body')) {
 if (!ModelManager::getInstance()->isModelLoaded('body')) {
 	throw new Exception('model not loaded');
 }
-if (json_encode(array_keys($lWomanBodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner","chestSize"]') {
-	throw new Exception('bad model properties '.json_encode(array_keys($lWomanBodyModel->getProperties())));
+if (json_encode(array_keys($womanBodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner","chestSize"]') {
+	throw new Exception('bad model properties '.json_encode(array_keys($womanBodyModel->getProperties())));
 }
-$lBodyModel = ModelManager::getInstance()->getInstanceModel('body');
-if (json_encode(array_keys($lBodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner"]') {
+$bodyModel = ModelManager::getInstance()->getInstanceModel('body');
+if (json_encode(array_keys($bodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner"]') {
 	throw new Exception('bad model properties');
 }
-if ($lBodyModel->getProperty('hairColor') !== $lWomanBodyModel->getProperty('hairColor')) {
+if ($bodyModel->getProperty('hairColor') !== $womanBodyModel->getProperty('hairColor')) {
 	throw new Exception('not same instance of property');
 }
-if ($lBodyModel->getProperty('owner') === $lWomanBodyModel->getProperty('owner')) {
+if ($bodyModel->getProperty('owner') === $womanBodyModel->getProperty('owner')) {
 	throw new Exception('same instance of property');
 }
 
-$lTatooModel = $lWomanBodyModel->getProperty('tatoos')->getModel()->getModel();
-if ($lTatooModel->getName() !== 'tatoo') {
+$tatooModel = $womanBodyModel->getProperty('tatoos')->getModel()->getModel();
+if ($tatooModel->getName() !== 'tatoo') {
 	throw new Exception('bad model name');
 }
-if (json_encode(array_keys($lTatooModel->getProperties())) !== '["type","location","tatooArtist"]') {
+if (json_encode(array_keys($tatooModel->getProperties())) !== '["type","location","tatooArtist"]') {
 	throw new Exception('bad model properties');
 }
-$lArtModel = $lTatooModel->getExtendsModel();
-$lArtModelTow = ModelManager::getInstance()->getInstanceModel('art', 'body');
+$artModel = $tatooModel->getExtendsModel();
+$artModelTow = ModelManager::getInstance()->getInstanceModel('art', 'body');
 
-if ($lArtModel !== $lArtModelTow) {
+if ($artModel !== $artModelTow) {
 	throw new Exception('not same instance of model');
 }
-if (json_encode(array_keys($lArtModel->getProperties())) !== '["type","location"]') {
+if (json_encode(array_keys($artModel->getProperties())) !== '["type","location"]') {
 	throw new Exception('bad model properties');
 }
-if ($lTatooModel->getProperty('location') !== $lArtModel->getProperty('location')) {
+if ($tatooModel->getProperty('location') !== $artModel->getProperty('location')) {
 	throw new Exception('not same instance of property');
 }
 
 /** ************** test types defined in extended model ****************** **/
 
-$lBodyTatooModel = ModelManager::getInstance()->getInstanceModel('tatoo', 'body');
-$lWomanBodyTatooModel = ModelManager::getInstance()->getInstanceModel('tatoo', 'womanBody');
+$bodyTatooModel = ModelManager::getInstance()->getInstanceModel('tatoo', 'body');
+$womanBodyTatooModel = ModelManager::getInstance()->getInstanceModel('tatoo', 'womanBody');
 
-if ($lBodyTatooModel->getName() !== 'tatoo') {
+if ($bodyTatooModel->getName() !== 'tatoo') {
 	throw new Exception('bad model');
 }
 
-if ($lBodyTatooModel !== $lWomanBodyTatooModel) {
+if ($bodyTatooModel !== $womanBodyTatooModel) {
 	throw new Exception('not same instance model');
 }
 

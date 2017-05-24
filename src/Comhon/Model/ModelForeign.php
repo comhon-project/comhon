@@ -17,9 +17,9 @@ use Comhon\Object\Collection\ObjectCollection;
 
 class ModelForeign extends ModelContainer {
 
-	public function __construct($pModel) {
-		parent::__construct($pModel);
-		if ($this->mModel instanceof SimpleModel) {
+	public function __construct($model) {
+		parent::__construct($model);
+		if ($this->model instanceof SimpleModel) {
 			throw new Exception('model of foreign model can\'t be a simple model');
 		}
 	}
@@ -28,47 +28,47 @@ class ModelForeign extends ModelContainer {
 		return $this->getModel()->getObjectClass();
 	}
 	
-	public function getObjectInstance($pIsloaded = true) {
-		return $this->getModel()->getObjectInstance($pIsloaded);
+	public function getObjectInstance($isloaded = true) {
+		return $this->getModel()->getObjectInstance($isloaded);
 	}
 	
 	/**
 	 *
-	 * @param ComhonObject $pObject
-	 * @param string $pNodeName
-	 * @param Interfacer $pInterfacer
-	 * @param boolean $pIsFirstLevel
+	 * @param ComhonObject $object
+	 * @param string $nodeName
+	 * @param Interfacer $interfacer
+	 * @param boolean $isFirstLevel
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	protected function _export($pObject, $pNodeName, Interfacer $pInterfacer, $pIsFirstLevel) {
-		if (is_null($pObject)) {
+	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel) {
+		if (is_null($object)) {
 			return null;
 		}
 		if (!$this->getUniqueModel()->hasIdProperties()) {
 			throw new \Exception('foreign property with local model must have id');
 		}
-		return $this->getModel()->_exportId($pObject, $pNodeName, $pInterfacer);
+		return $this->getModel()->_exportId($object, $nodeName, $interfacer);
 	}
 	
 	/**
 	 *
-	 * @param ComhonDateTime $pValue
-	 * @param Interfacer $pInterfacer
-	 * @param ObjectCollection $pLocalObjectCollection
-	 * @param MainModel $pParentMainModel
-	 * @param boolean $pIsFirstLevel
+	 * @param ComhonDateTime $value
+	 * @param Interfacer $interfacer
+	 * @param ObjectCollection $localObjectCollection
+	 * @param MainModel $parentMainModel
+	 * @param boolean $isFirstLevel
 	 * @return NULL|unknown
 	 */
-	protected function _import($pValue, Interfacer $pInterfacer, ObjectCollection $pLocalObjectCollection, MainModel $pParentMainModel, $pIsFirstLevel = false) {
+	protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
 		if (!$this->getUniqueModel()->hasIdProperties()) {
 			throw new \Exception("foreign property must have model with id ({$this->getName()})");
 		}
-		return $this->getModel()->_importId($pValue, $pInterfacer, $pLocalObjectCollection, $pParentMainModel, $pIsFirstLevel);
+		return $this->getModel()->_importId($value, $interfacer, $localObjectCollection, $parentMainModel, $isFirstLevel);
 	}
 	
-	public function verifValue($pValue) {
-		$this->mModel->verifValue($pValue);
+	public function verifValue($value) {
+		$this->model->verifValue($value);
 		return true;
 	}
 }

@@ -14,51 +14,51 @@ namespace Comhon\Database;
 class HavingLogicalJunction extends LogicalJunction {
 	
 	/**
-	 * @param Literal $pLiteral
+	 * @param Literal $literal
 	 */
-	public function addLiteral(Literal $pLiteral) {
-		$this->_addLiteral($pLiteral);
+	public function addLiteral(Literal $literal) {
+		$this->_addLiteral($literal);
 	}
 	
 	/**
-	 * @param HavingLiteral $pLiteral
+	 * @param HavingLiteral $literal
 	 */
-	private function _addLiteral(HavingLiteral $pLiteral) {
-		$this->mLiterals[] = $pLiteral;
+	private function _addLiteral(HavingLiteral $literal) {
+		$this->literals[] = $literal;
 	}
 	
 	/**
-	 * @param LogicalJunction $pLogicalJunction
+	 * @param LogicalJunction $logicalJunction
 	 */
-	public function addLogicalJunction(LogicalJunction $pLogicalJunction) {
-		$this->_addLogicalJunction($pLogicalJunction);
+	public function addLogicalJunction(LogicalJunction $logicalJunction) {
+		$this->_addLogicalJunction($logicalJunction);
 	}
 	
 	/**
-	 * @param HavingLogicalJunction $pLogicalJunction
+	 * @param HavingLogicalJunction $logicalJunction
 	 */
-	private function _addLogicalJunction(HavingLogicalJunction $pLogicalJunction) {
-		$this->mLogicalJunction[] = $pLogicalJunction;
+	private function _addLogicalJunction(HavingLogicalJunction $logicalJunction) {
+		$this->logicalJunction[] = $logicalJunction;
 	}
 	
 	
-	public static function stdObjectToHavingLogicalJunction($pStdObject, $pFirstTable, $pLastTable, $pLastModel, $pAllowPrivateProperties) {
-		if (!is_object($pStdObject) || !isset($pStdObject->type) || (isset($pStdObject->logicalJunctions) && !is_array($pStdObject->logicalJunctions)) || (isset($pStdObject->literals) && !is_array($pStdObject->literals))) {
-			throw new \Exception('malformed stdObject LogicalJunction : '.json_encode($pStdObject));
+	public static function stdObjectToHavingLogicalJunction($stdObject, $firstTable, $lastTable, $lastModel, $allowPrivateProperties) {
+		if (!is_object($stdObject) || !isset($stdObject->type) || (isset($stdObject->logicalJunctions) && !is_array($stdObject->logicalJunctions)) || (isset($stdObject->literals) && !is_array($stdObject->literals))) {
+			throw new \Exception('malformed stdObject LogicalJunction : '.json_encode($stdObject));
 		}
-		$lLogicalJunction = new HavingLogicalJunction($pStdObject->type);
-		if (isset($pStdObject->logicalJunctions)) {
-			foreach ($pStdObject->logicalJunctions as $lStdObjectLogicalJunction) {
-				$lLogicalJunction->addLogicalJunction(self::stdObjectToHavingLogicalJunction($lStdObjectLogicalJunction, $pFirstTable, $pLastTable, $pLastModel, $pAllowPrivateProperties));
+		$logicalJunction = new HavingLogicalJunction($stdObject->type);
+		if (isset($stdObject->logicalJunctions)) {
+			foreach ($stdObject->logicalJunctions as $stdObjectLogicalJunction) {
+				$logicalJunction->addLogicalJunction(self::stdObjectToHavingLogicalJunction($stdObjectLogicalJunction, $firstTable, $lastTable, $lastModel, $allowPrivateProperties));
 			}
 		}
-		if (isset($pStdObject->literals)) {
-			foreach ($pStdObject->literals as $lStdObjectLiteral) {
-				$lTable = isset($lStdObjectLiteral->havingLiteral->function) && ($pStdObject->havingLiteral->function == HavingLiteral::COUNT) ? $pFirstTable : $pLastTable;
-				$lLogicalJunction->addLiteral(HavingLiteral::stdObjectToHavingLiteral($lStdObjectLiteral, $lTable, $pLastModel, $pAllowPrivateProperties));
+		if (isset($stdObject->literals)) {
+			foreach ($stdObject->literals as $stdObjectLiteral) {
+				$table = isset($stdObjectLiteral->havingLiteral->function) && ($stdObject->havingLiteral->function == HavingLiteral::COUNT) ? $firstTable : $lastTable;
+				$logicalJunction->addLiteral(HavingLiteral::stdObjectToHavingLiteral($stdObjectLiteral, $table, $lastModel, $allowPrivateProperties));
 			}
 		}
-		return $lLogicalJunction;
+		return $logicalJunction;
 	}
 	
 }

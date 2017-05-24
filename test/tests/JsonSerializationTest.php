@@ -5,46 +5,46 @@ use Comhon\Serialization\File\XmlFile;
 
 $time_start = microtime(true);
 
-$lManModelJson = ModelManager::getInstance()->getInstanceModel('manBodyJson');
-$lTestJson = $lManModelJson->loadObject(156);
+$manModelJson = ModelManager::getInstance()->getInstanceModel('manBodyJson');
+$testJson = $manModelJson->loadObject(156);
 
-$lTestJson->setId(200);
-if ($lTestJson->save() !== 1) {
+$testJson->setId(200);
+if ($testJson->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-if ($lTestJson->save(XmlFile::UPDATE) !== 1) {
+if ($testJson->save(XmlFile::UPDATE) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 
 try {
-	$lTestJson->save(XmlFile::CREATE);
-	$lThrow = true;
+	$testJson->save(XmlFile::CREATE);
+	$throw = true;
 } catch (Exception $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new \Exception('serialization souhld not be successfull ');
 }
 
-$lTestJson->setId(789456159);
-if ($lTestJson->save(XmlFile::UPDATE) !== 0) {
+$testJson->setId(789456159);
+if ($testJson->save(XmlFile::UPDATE) !== 0) {
 	throw new \Exception('serialization souhld not be successfull');
 }
 
-if ($lTestJson->save(XmlFile::CREATE) !== 1) {
+if ($testJson->save(XmlFile::CREATE) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-if ($lTestJson->save() !== 1) {
+if ($testJson->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-if ($lTestJson->save(XmlFile::UPDATE) !== 1) {
+if ($testJson->save(XmlFile::UPDATE) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-if ($lTestJson->delete() !== 1) {
+if ($testJson->delete() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 
-if ($lTestJson->save(XmlFile::UPDATE) !== 0) {
+if ($testJson->save(XmlFile::UPDATE) !== 0) {
 	throw new \Exception('serialization souhld not be successfull');
 }
 

@@ -92,20 +92,20 @@
             "is_foreign": true
         },
         {
+            "name": "objectsWithId",
+            "type": "array",
             "values": {
                 "type": "objectWithId",
                 "name": "objectWithId"
-            },
-            "name": "objectsWithId",
-            "type": "array"
+            }
         },
         {
+            "name": "foreignObjects",
+            "type": "array",
             "values": {
                 "type": "objectWithId",
                 "name": "foreignObject"
             },
-            "name": "foreignObjects",
-            "type": "array",
             "is_foreign": true
         },
         {
@@ -151,12 +151,12 @@
             "type": "boolean"
         },
         {
+            "name": "childrenTestDb",
+            "type": "array",
             "values": {
                 "type": "childTestDb",
                 "name": "childTestDb"
             },
-            "name": "childrenTestDb",
-            "type": "array",
             "is_foreign": true
         }
     ]

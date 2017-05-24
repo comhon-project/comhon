@@ -28,77 +28,77 @@ class Interval implements Restriction {
 	const INTEGER_INTERVAL  = '/^([\\[\\]])\\s*((?:-?\\d+)|(?:\\d*))\\s*,\\s*((?:-?\\d+)|(?:\\d*))\\s*([\\[\\]])$/';
 	
 	/** @var mixed */
-	private $mLeftEndPoint  = null;
+	private $leftEndPoint  = null;
 	
 	/** @var mixed */
-	private $mRightEndPoint = null;
+	private $rightEndPoint = null;
 	
 	/** @var boolean */
-	private $mIsLeftClosed  = true;
+	private $isLeftClosed  = true;
 	
 	/** @var boolean */
-	private $mIsRightClosed = true;
+	private $isRightClosed = true;
 	
-	public function __construct($pInterval, Model $pModel) {
-		$lMatches = [];
-		if ($pModel instanceof ModelFloat) {
-			if (!preg_match(self::FLOAT_INTERVAL, $pInterval, $lMatches)) {
-				throw new MalformedIntervalException($pInterval);
+	public function __construct($interval, Model $model) {
+		$matches = [];
+		if ($model instanceof ModelFloat) {
+			if (!preg_match(self::FLOAT_INTERVAL, $interval, $matches)) {
+				throw new MalformedIntervalException($interval);
 			}
-			$lMatches[2] = $lMatches[2] === '' ? null : (float) $lMatches[2];
-			$lMatches[3] = $lMatches[3] === '' ? null : (float) $lMatches[3];
+			$matches[2] = $matches[2] === '' ? null : (float) $matches[2];
+			$matches[3] = $matches[3] === '' ? null : (float) $matches[3];
 		}
-		elseif ($pModel instanceof ModelInteger) {
-			if (!preg_match(self::INTEGER_INTERVAL, $pInterval, $lMatches)) {
-				throw new MalformedIntervalException($pInterval);
+		elseif ($model instanceof ModelInteger) {
+			if (!preg_match(self::INTEGER_INTERVAL, $interval, $matches)) {
+				throw new MalformedIntervalException($interval);
 			}
-			$lMatches[2] = $lMatches[2] === '' ? null : (integer) $lMatches[2];
-			$lMatches[3] = $lMatches[3] === '' ? null : (integer) $lMatches[3];
+			$matches[2] = $matches[2] === '' ? null : (integer) $matches[2];
+			$matches[3] = $matches[3] === '' ? null : (integer) $matches[3];
 		}
-		elseif ($pModel instanceof ModelDateTime) {
-			if (!preg_match(self::DATETIME_INTERVAL, $pInterval, $lMatches)) {
-				throw new MalformedIntervalException($pInterval);
+		elseif ($model instanceof ModelDateTime) {
+			if (!preg_match(self::DATETIME_INTERVAL, $interval, $matches)) {
+				throw new MalformedIntervalException($interval);
 			}
-			$lMatches[2] = trim($lMatches[2]);
-			$lMatches[3] = trim($lMatches[3]);
-			$lMatches[2] = $lMatches[2] === '' ? null : new \DateTime($lMatches[2]);
-			$lMatches[3] = $lMatches[3] === '' ? null : new \DateTime($lMatches[3]);
+			$matches[2] = trim($matches[2]);
+			$matches[3] = trim($matches[3]);
+			$matches[2] = $matches[2] === '' ? null : new \DateTime($matches[2]);
+			$matches[3] = $matches[3] === '' ? null : new \DateTime($matches[3]);
 		} else {
-			throw new NotSupportedModelIntervalException($pModel);
+			throw new NotSupportedModelIntervalException($model);
 		}
-		$this->mIsLeftClosed  = $lMatches[1] === '[';
-		$this->mIsRightClosed = $lMatches[4] === ']';
-		$this->mLeftEndPoint  = $lMatches[2];
-		$this->mRightEndPoint = $lMatches[3];
+		$this->isLeftClosed  = $matches[1] === '[';
+		$this->isRightClosed = $matches[4] === ']';
+		$this->leftEndPoint  = $matches[2];
+		$this->rightEndPoint = $matches[3];
 		
-		if ($this->mLeftEndPoint > $this->mRightEndPoint) {
-			throw new MalformedIntervalException($pInterval);
+		if ($this->leftEndPoint > $this->rightEndPoint) {
+			throw new MalformedIntervalException($interval);
 		}
 	}
 	
 	/**
 	 * 
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 */
-	public function satisfy($pValue) {
-		if (is_null($pValue)) {
+	public function satisfy($value) {
+		if (is_null($value)) {
 			return false;
 		}
-		if (!is_null($this->mLeftEndPoint)) {
-			if ($this->mIsLeftClosed) {
-				if ($pValue < $this->mLeftEndPoint) {
+		if (!is_null($this->leftEndPoint)) {
+			if ($this->isLeftClosed) {
+				if ($value < $this->leftEndPoint) {
 					return false;
 				}
-			} elseif ($pValue <= $this->mLeftEndPoint) {
+			} elseif ($value <= $this->leftEndPoint) {
 				return false;
 			}
 		}
-		if (!is_null($this->mRightEndPoint)) {
-			if ($this->mIsRightClosed) {
-				if ($pValue > $this->mRightEndPoint) {
+		if (!is_null($this->rightEndPoint)) {
+			if ($this->isRightClosed) {
+				if ($value > $this->rightEndPoint) {
 					return false;
 				}
-			} elseif ($pValue >= $this->mRightEndPoint) {
+			} elseif ($value >= $this->rightEndPoint) {
 				return false;
 			}
 		}
@@ -108,47 +108,47 @@ class Interval implements Restriction {
 	
 	/**
 	 * verify if specified restriction is equal to $this
-	 * @param Interval $pRestriction
+	 * @param Interval $restriction
 	 */
-	public function isEqual(Restriction $pRestriction) {
-		return $this === $pRestriction
+	public function isEqual(Restriction $restriction) {
+		return $this === $restriction
 			|| (
-				($pRestriction instanceof Interval)
-				&& $this->mIsLeftClosed  === $pRestriction->mIsLeftClosed
-				&& $this->mIsRightClosed === $pRestriction->mIsRightClosed
-				&& $this->mLeftEndPoint  === $pRestriction->mLeftEndPoint
-				&& $this->mRightEndPoint === $pRestriction->mRightEndPoint
+				($restriction instanceof Interval)
+				&& $this->isLeftClosed  === $restriction->isLeftClosed
+				&& $this->isRightClosed === $restriction->isRightClosed
+				&& $this->leftEndPoint  === $restriction->leftEndPoint
+				&& $this->rightEndPoint === $restriction->rightEndPoint
 			);
 	}
 	
 	/**
 	 * verify if specified model can use this restriction
-	 * @param Model $pModel
+	 * @param Model $model
 	 */
-	public function isAllowedModel(Model $pModel) {
-		return ($pModel instanceof ModelInteger)
-			|| ($pModel instanceof ModelFloat)
-			|| ($pModel instanceof ModelDateTime);
+	public function isAllowedModel(Model $model) {
+		return ($model instanceof ModelInteger)
+			|| ($model instanceof ModelFloat)
+			|| ($model instanceof ModelDateTime);
 	}
 	
 	/**
 	 * stringify restriction and value
-	 * @param mixed $pValue
+	 * @param mixed $value
 	 */
-	public function toString($pValue) {
-		if (!is_float($pValue) && !is_integer($pValue) && !($pValue instanceof ComhonDateTime)) {
-			$lClass = gettype($pValue) == 'object' ? get_class($pValue) : gettype($pValue);
-			return "Value passed to Interval must be an instance of integer, float or ComhonDateTime, instance of $lClass given";
+	public function toString($value) {
+		if (!is_float($value) && !is_integer($value) && !($value instanceof ComhonDateTime)) {
+			$class = gettype($value) == 'object' ? get_class($value) : gettype($value);
+			return "Value passed to Interval must be an instance of integer, float or ComhonDateTime, instance of $class given";
 		}
 		
-		return (($pValue instanceof ComhonDateTime) ? $pValue->format('c') : $pValue) 
-			. ' is' . ($this->satisfy($pValue) ? ' ' : ' not ')
+		return (($value instanceof ComhonDateTime) ? $value->format('c') : $value) 
+			. ' is' . ($this->satisfy($value) ? ' ' : ' not ')
 			. 'in interval '
-			. ($this->mIsLeftClosed ? '[' : ']')
-			. (($this->mLeftEndPoint instanceof \DateTime)	? $this->mLeftEndPoint->format('c')	: $this->mLeftEndPoint)
+			. ($this->isLeftClosed ? '[' : ']')
+			. (($this->leftEndPoint instanceof \DateTime)	? $this->leftEndPoint->format('c')	: $this->leftEndPoint)
 			. ','
-			. (($this->mRightEndPoint instanceof \DateTime) ? $this->mRightEndPoint->format('c') : $this->mRightEndPoint)
-			. ($this->mIsRightClosed ? ']' : '[');
+			. (($this->rightEndPoint instanceof \DateTime) ? $this->rightEndPoint->format('c') : $this->rightEndPoint)
+			. ($this->isRightClosed ? ']' : '[');
 	}
 	
 }

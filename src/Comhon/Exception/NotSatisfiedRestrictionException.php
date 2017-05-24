@@ -15,9 +15,9 @@ use Comhon\Model\Restriction\Restriction;
 
 class NotSatisfiedRestrictionException extends \Exception {
 	
-	public function __construct($pValue, Restriction $pRestriction) {
-		$lMessage = $pRestriction->toString($pValue);
-		parent::__construct($lMessage, ConstantException::NOT_SATISFIED_RESTRICTION_EXCEPTION);
+	public function __construct($value, Restriction $restriction) {
+		$message = $restriction->toString($value);
+		parent::__construct($message, ConstantException::NOT_SATISFIED_RESTRICTION_EXCEPTION);
 	}
 	
 }

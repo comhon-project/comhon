@@ -21,247 +21,247 @@ class LogicalJunction {
 	const DISJUNCTION = 'disjunction';
 	const CONJUNCTION = 'conjunction';
 	
-	protected $mType;
-	protected $mLiterals = [];
-	protected $mLogicalJunction = [];
+	protected $type;
+	protected $literals = [];
+	protected $logicalJunction = [];
 	
-	private static $sAcceptedTypes = [
+	private static $acceptedTypes = [
 		self::DISJUNCTION => 'or',
 		self::CONJUNCTION => 'and'
 	];
 	
 	/**
 	 * 
-	 * @param string $pType can be self::CONJUNCTION or self::DISJUNCTION
+	 * @param string $type can be self::CONJUNCTION or self::DISJUNCTION
 	 */
-	public function __construct($pType) {
-		if (!array_key_exists($pType, self::$sAcceptedTypes)) {
-			throw new \Exception("type '$pType' doesn't exists");
+	public function __construct($type) {
+		if (!array_key_exists($type, self::$acceptedTypes)) {
+			throw new \Exception("type '$type' doesn't exists");
 		}
-		$this->mType = $pType;
+		$this->type = $type;
 	}
 	
 	public function getType() {
-		return $this->mType;
+		return $this->type;
 	}
 	
 	public function getOperator() {
-		return self::$sAcceptedTypes[$this->mType];
+		return self::$acceptedTypes[$this->type];
 	}
 	
 	/**
-	 * @param Literal $pLiteral
+	 * @param Literal $literal
 	 */
-	public function addLiteral(Literal $pLiteral) {
-		$this->mLiterals[] = $pLiteral;
+	public function addLiteral(Literal $literal) {
+		$this->literals[] = $literal;
 	}
 	
 	/**
-	 * @param LogicalJunction $pLogicalJunction
+	 * @param LogicalJunction $logicalJunction
 	 */
-	public function addLogicalJunction(LogicalJunction $pLogicalJunction) {
-		$this->mLogicalJunction[] = $pLogicalJunction;
+	public function addLogicalJunction(LogicalJunction $logicalJunction) {
+		$this->logicalJunction[] = $logicalJunction;
 	}
 	
 	/**
-	 * @param array $pLiterals
+	 * @param array $literals
 	 */
-	public function setLiterals($pLiterals) {
-		$this->mLiterals = $pLiterals;
+	public function setLiterals($literals) {
+		$this->literals = $literals;
 	}
 	
 	/**
-	 * @param array $pLogicalJunction
+	 * @param array $logicalJunction
 	 */
-	public function setLogicalJunction($pLogicalJunction) {
-		$this->mLogicalJunction = $pLogicalJunction;
+	public function setLogicalJunction($logicalJunction) {
+		$this->logicalJunction = $logicalJunction;
 	}
 	
 	/**
-	 * @param string $pKeyType can be "index" or "md5"
+	 * @param string $keyType can be "index" or "md5"
 	 * @return array:
 	 */
-	public function getLiterals($pKeyType = 'index') {
-		$lReturn = $this->mLiterals;
-		if ($pKeyType == 'md5') {
-			$lReturn = [];
-			foreach ($this->mLiterals as $lLiteral) {
-				$lReturn[md5($lLiteral->exportWithValue())] = $lLiteral;
+	public function getLiterals($keyType = 'index') {
+		$return = $this->literals;
+		if ($keyType == 'md5') {
+			$return = [];
+			foreach ($this->literals as $literal) {
+				$return[md5($literal->exportWithValue())] = $literal;
 			}
 		}
-		return $lReturn;
+		return $return;
 	}
 	
 	public function getLogicalJunction() {
-		return $this->mLogicalJunction;
+		return $this->logicalJunction;
 	}
 	
 	/**
 	 * 
-	 * @param string $pKeyType can be "index" or "md5"
+	 * @param string $keyType can be "index" or "md5"
 	 * @return array
 	 */
-	public function getFlattenedLiterals($pKeyType = 'index') {
-		$lLiterals = [];
-		$this->getFlattenedLiteralsWithRefParam($lLiterals, $pKeyType);
-		return $lLiterals;
+	public function getFlattenedLiterals($keyType = 'index') {
+		$literals= [];
+		$this->getFlattenedLiteralsWithRefParam($literals, $keyType);
+		return $literals;
 	}
 	
 	/**
 	 * don't call this function, call getFlattenedLiterals
-	 * @param array $pLiterals
-	 * @param array $pKeyType
+	 * @param array $literals
+	 * @param array $keyType
 	 */
-	public function getFlattenedLiteralsWithRefParam(&$pLiterals, $pKeyType) {
-		foreach ($this->mLiterals as $lLiteral) {
-			switch ($pKeyType) {
+	public function getFlattenedLiteralsWithRefParam(&$literals, $keyType) {
+		foreach ($this->literals as $literal) {
+			switch ($keyType) {
 				case 'md5':
-					$pLiterals[md5($lLiteral->exportWithValue())] = $lLiteral;
+					$literals[md5($literal->exportWithValue())] = $literal;
 					break;
 				default:
-					$pLiterals[] = $lLiteral;
+					$literals[] = $literal;
 					break;
 			}
 		}
-		foreach ($this->mLogicalJunction as $lLogicalJunction) {
-			$lLogicalJunction->getFlattenedLiteralsWithRefParam($pLiterals, $pKeyType);
+		foreach ($this->logicalJunction as $logicalJunction) {
+			$logicalJunction->getFlattenedLiteralsWithRefParam($literals, $keyType);
 		}
 	}
 	
 	/**
-	 * @param array $pValues
+	 * @param array $values
 	 * @return string
 	 */
-	public function export(&$pValues) {
-		$lArray = [];
-		foreach ($this->mLiterals as $lLiteral) {
-			$lArray[] = $lLiteral->export($pValues);
+	public function export(&$values) {
+		$array = [];
+		foreach ($this->literals as $literal) {
+			$array[] = $literal->export($values);
 		}
-		foreach ($this->mLogicalJunction as $lLogicalJunction) {
-			$lResult = $lLogicalJunction->export($pValues);
-			if ($lResult != '') {
-				$lArray[] = $lResult;
+		foreach ($this->logicalJunction as $logicalJunction) {
+			$result = $logicalJunction->export($values);
+			if ($result != '') {
+				$array[] = $result;
 			}
 		}
-		return (!empty($lArray)) ? '('.implode(' '.$this->getOperator().' ', $lArray).')' : '';
+		return (!empty($array)) ? '('.implode(' '.$this->getOperator().' ', $array).')' : '';
 	}
 	
 	/**
 	 * @return string
 	 */
 	public function exportDebug() {
-		$lArray = [];
-		foreach ($this->mLiterals as $lLiteral) {
-			$lArray[] = $lLiteral->exportWithValue();
+		$array = [];
+		foreach ($this->literals as $literal) {
+			$array[] = $literal->exportWithValue();
 		}
-		foreach ($this->mLogicalJunction as $lLogicalJunction) {
-			$lResult = $lLogicalJunction->exportDebug();
-			if ($lResult != '') {
-				$lArray[] = $lResult;
+		foreach ($this->logicalJunction as $logicalJunction) {
+			$result = $logicalJunction->exportDebug();
+			if ($result != '') {
+				$array[] = $result;
 			}
 		}
-		return (!empty($lArray)) ? '('.implode(' '.$this->getOperator().' ', $lArray).')' : '';
+		return (!empty($array)) ? '('.implode(' '.$this->getOperator().' ', $array).')' : '';
 	}
 	
 	public function hasOnlyOneLiteral() {
-		$lhasOnlyOneLiteral = false;
-		if (count($this->mLiterals) > 1) {
+		$hasOnlyOneLiteral = false;
+		if (count($this->literals) > 1) {
 			return false;
-		}elseif (count($this->mLiterals) == 1) {
-			$lhasOnlyOneLiteral = true;
+		}elseif (count($this->literals) == 1) {
+			$hasOnlyOneLiteral = true;
 		}
-		foreach ($this->mLogicalJunction as $lLogicalJunction) {
-			if ($lLogicalJunction->hasLiterals()) {
-				if ($lhasOnlyOneLiteral) {
+		foreach ($this->logicalJunction as $logicalJunction) {
+			if ($logicalJunction->hasLiterals()) {
+				if ($hasOnlyOneLiteral) {
 					return false;
-				}elseif ($lLogicalJunction->hasOnlyOneLiteral()) {
-					$lhasOnlyOneLiteral = true;
+				}elseif ($logicalJunction->hasOnlyOneLiteral()) {
+					$hasOnlyOneLiteral = true;
 				}else {
 					return false;
 				}
 			}
 		}
-		return $lhasOnlyOneLiteral;
+		return $hasOnlyOneLiteral;
 	}
 	
 	public function hasLiterals() {
-		if (!empty($this->mLiterals)) {
+		if (!empty($this->literals)) {
 			return true;
-		}foreach ($this->mLogicalJunction as $lLogicalJunction) {
-			if ($lLogicalJunction->hasLiterals()) {
+		}foreach ($this->logicalJunction as $logicalJunction) {
+			if ($logicalJunction->hasLiterals()) {
 				return true;
 			}
 		}
 		return false;
 	}
 	
-	public function isSatisfied($pPredicates) {
-		$lReturn = false;
-		if ($this->mType == self::CONJUNCTION) {
-			$lReturn = $this->_isSatisfiedConjunction($pPredicates);
-		}elseif ($this->mType == self::DISJUNCTION) {
-			$lReturn = $this->_isSatisfiedDisjunction($pPredicates);
+	public function isSatisfied($predicates) {
+		$return = false;
+		if ($this->type == self::CONJUNCTION) {
+			$return = $this->_isSatisfiedConjunction($predicates);
+		}elseif ($this->type == self::DISJUNCTION) {
+			$return = $this->_isSatisfiedDisjunction($predicates);
 		}
-		return $lReturn;
+		return $return;
 	}
 	
-	private function _isSatisfiedConjunction($pPredicates) {
-		foreach ($this->getLiterals('md5') as $lKey => $lLiteral) {
-			if (!$pPredicates[$lKey]) {
+	private function _isSatisfiedConjunction($predicates) {
+		foreach ($this->getLiterals('md5') as $key => $literal) {
+			if (!$predicates[$key]) {
 				return false;
 			}
 		}
-		foreach ($this->mLogicalJunction as $lLogicalJunction) {
-			if (!$lLogicalJunction->isSatisfied($pPredicates)) {
+		foreach ($this->logicalJunction as $logicalJunction) {
+			if (!$logicalJunction->isSatisfied($predicates)) {
 				return false;
 			}
 		}
 		return true;
 	}
 	
-	private function _isSatisfiedDisjunction($pPredicates) {
-		$lSatisfied = false;
-		foreach ($this->getLiterals('md5') as $lKey => $lLiteral) {
-			$lSatisfied = $lSatisfied || $pPredicates[$lKey];
+	private function _isSatisfiedDisjunction($predicates) {
+		$satisfied = false;
+		foreach ($this->getLiterals('md5') as $key => $literal) {
+			$satisfied = $satisfied || $predicates[$key];
 		}
-		foreach ($this->mLogicalJunction as $lLogicalJunction) {
-			$lSatisfied = $lSatisfied || $lLogicalJunction->isSatisfied($pPredicates);
+		foreach ($this->logicalJunction as $logicalJunction) {
+			$satisfied = $satisfied || $logicalJunction->isSatisfied($predicates);
 		}
-		return $lSatisfied;
+		return $satisfied;
 	}
 	
 	/**
 	 * 
-	 * @param \stdClass $pStdObject
-	 * @param Model[] $pModelByNodeId
-	 * @param Literal[] $pLiteralCollection
-	 * @param SelectQuery $pSelectQuery
-	 * @param boolean $pAllowPrivateProperties
+	 * @param \stdClass $stdObject
+	 * @param Model[] $modelByNodeId
+	 * @param Literal[] $literalCollection
+	 * @param SelectQuery $selectQuery
+	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
 	 * @return LogicalJunction
 	 */
-	public static function stdObjectToLogicalJunction($pStdObject, $pModelByNodeId, $pLiteralCollection = null, $pSelectQuery = null, $pAllowPrivateProperties = true) {
-		if (!isset($pStdObject->type) || (isset($pStdObject->logicalJunctions) && !is_array($pStdObject->logicalJunctions)) || (isset($pStdObject->literals) && !is_array($pStdObject->literals))) {
-			throw new \Exception('malformed stdObject LogicalJunction : '.json_encode($pStdObject));
+	public static function stdObjectToLogicalJunction($stdObject, $modelByNodeId, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
+		if (!isset($stdObject->type) || (isset($stdObject->logicalJunctions) && !is_array($stdObject->logicalJunctions)) || (isset($stdObject->literals) && !is_array($stdObject->literals))) {
+			throw new \Exception('malformed stdObject LogicalJunction : '.json_encode($stdObject));
 		}
-		$lLogicalJunction = new LogicalJunction($pStdObject->type);
-		if (isset($pStdObject->logicalJunctions)) {
-			foreach ($pStdObject->logicalJunctions as $lStdObjectLogicalJunction) {
-				$lLogicalJunction->addLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($lStdObjectLogicalJunction, $pModelByNodeId, $pLiteralCollection, $pSelectQuery, $pAllowPrivateProperties));
+		$logicalJunction = new LogicalJunction($stdObject->type);
+		if (isset($stdObject->logicalJunctions)) {
+			foreach ($stdObject->logicalJunctions as $stdObjectLogicalJunction) {
+				$logicalJunction->addLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($stdObjectLogicalJunction, $modelByNodeId, $literalCollection, $selectQuery, $allowPrivateProperties));
 			}
 		}
-		if (isset($pStdObject->literals)) {
-			foreach ($pStdObject->literals as $lStdObjectLiteral) {
-				if (isset($lStdObjectLiteral->id)) {
-					$lModel = null;
-				} else if (isset($lStdObjectLiteral->node) && array_key_exists($lStdObjectLiteral->node, $pModelByNodeId)) {
-					$lModel = $pModelByNodeId[$lStdObjectLiteral->node];
+		if (isset($stdObject->literals)) {
+			foreach ($stdObject->literals as $stdObjectLiteral) {
+				if (isset($stdObjectLiteral->id)) {
+					$model = null;
+				} else if (isset($stdObjectLiteral->node) && array_key_exists($stdObjectLiteral->node, $modelByNodeId)) {
+					$model = $modelByNodeId[$stdObjectLiteral->node];
 				} else {
-					throw new \Exception('node doesn\' exists or not recognized'.json_encode($lStdObjectLiteral));
+					throw new \Exception('node doesn\' exists or not recognized'.json_encode($stdObjectLiteral));
 				}
-				$lLogicalJunction->addLiteral(Literal::stdObjectToLiteral($lStdObjectLiteral, $lModel, $pLiteralCollection, $pSelectQuery, $pAllowPrivateProperties));
+				$logicalJunction->addLiteral(Literal::stdObjectToLiteral($stdObjectLiteral, $model, $literalCollection, $selectQuery, $allowPrivateProperties));
 			}
 		}
-		return $lLogicalJunction;
+		return $logicalJunction;
 	}
 }

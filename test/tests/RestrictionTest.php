@@ -15,7 +15,7 @@ use Comhon\Exception\NotExistingRegexException;
 
 $time_start = microtime(true);
 
-$lGroupedRegexTests = [
+$groupedRegexTests = [
 	'color' => [
 		'azeBazeAze',
 		'#a1F233',
@@ -119,7 +119,7 @@ $lGroupedRegexTests = [
 ];
 
 
-$lGroupedMalformedRegexTests = [
+$groupedMalformedRegexTests = [
 	'color' => [
 		'azeBaze1Aze',
 		'azeBazeAze ',
@@ -273,35 +273,35 @@ $lGroupedMalformedRegexTests = [
 	]
 ];
 
-foreach ($lGroupedRegexTests as $lPattern => $lRegexTests) {
-	if (substr($lPattern, 0, 1) == '/') { // pattern
-		foreach ($lRegexTests as $lRegexTest) {
-			if (preg_match($lPattern, $lRegexTest) !== 1) {
-				throw new Exception("$lPattern '$lRegexTest' should be valid");
+foreach ($groupedRegexTests as $pattern => $regexTests) {
+	if (substr($pattern, 0, 1) == '/') { // pattern
+		foreach ($regexTests as $regexTest) {
+			if (preg_match($pattern, $regexTest) !== 1) {
+				throw new Exception("$pattern '$regexTest' should be valid");
 			}
 		}
 	} else { // name of a pattern
-		$lRegex = new Regex($lPattern);
-		foreach ($lRegexTests as $lRegexTest) {
-			if ($lRegex->satisfy($lRegexTest) !== true) {
-				throw new Exception("$lPattern '$lRegexTest' should be valid");
+		$regex = new Regex($pattern);
+		foreach ($regexTests as $regexTest) {
+			if ($regex->satisfy($regexTest) !== true) {
+				throw new Exception("$pattern '$regexTest' should be valid");
 			}
 		}
 	}
 }
 
-foreach ($lGroupedMalformedRegexTests as $lPattern => $lRegexTests) {
-	if (substr($lPattern, 0, 1) == '/') { // pattern
-		foreach ($lRegexTests as $lRegexTest) {
-			if (preg_match($lPattern, $lRegexTest) !== 0) {
-				throw new Exception("$lPattern '$lRegexTest' should be not valid");
+foreach ($groupedMalformedRegexTests as $pattern => $regexTests) {
+	if (substr($pattern, 0, 1) == '/') { // pattern
+		foreach ($regexTests as $regexTest) {
+			if (preg_match($pattern, $regexTest) !== 0) {
+				throw new Exception("$pattern '$regexTest' should be not valid");
 			}
 		}
 	} else { // name of a pattern
-		$lRegex = new Regex($lPattern);
-		foreach ($lRegexTests as $lRegexTest) {
-			if ($lRegex->satisfy($lRegexTest) !== false) {
-				throw new Exception("$lPattern '$lRegexTest' should be not valid");
+		$regex = new Regex($pattern);
+		foreach ($regexTests as $regexTest) {
+			if ($regex->satisfy($regexTest) !== false) {
+				throw new Exception("$pattern '$regexTest' should be not valid");
 			}
 		}
 	}
@@ -309,113 +309,113 @@ foreach ($lGroupedMalformedRegexTests as $lPattern => $lRegexTests) {
 
 /** ********************** integer interval *********************** **/
 
-$lModelInteger = ModelManager::getInstance()->getInstanceModel(ModelInteger::ID);
-$lThrow = true;
+$modelInteger = ModelManager::getInstance()->getInstanceModel(ModelInteger::ID);
+$throw = true;
 try {
-	$lInterval = new Interval('] 1 ,-1 [', $lModelInteger);
+	$interval = new Interval('] 1 ,-1 [', $modelInteger);
 } catch (MalformedIntervalException $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new Exception('should throw exception (left > right)');
 }
-$lInterval = new Interval('] -2 ,15 [', $lModelInteger);
+$interval = new Interval('] -2 ,15 [', $modelInteger);
 if (
-	!$lInterval->satisfy(13) 
-	|| !$lInterval->satisfy(-1)
-	|| $lInterval->satisfy(-2)
-	|| $lInterval->satisfy(15)
-	|| $lInterval->satisfy(-101)
-	|| $lInterval->satisfy(101)
+	!$interval->satisfy(13) 
+	|| !$interval->satisfy(-1)
+	|| $interval->satisfy(-2)
+	|| $interval->satisfy(15)
+	|| $interval->satisfy(-101)
+	|| $interval->satisfy(101)
 ) {
 	throw new Exception('unexpected statisfaction');
 }
 
 /** ********************** float interval *********************** **/
 
-$lModelFloat = ModelManager::getInstance()->getInstanceModel(ModelFloat::ID);
-$lThrow = true;
+$modelFloat = ModelManager::getInstance()->getInstanceModel(ModelFloat::ID);
+$throw = true;
 try {
-	$lInterval = new Interval('] 1.12 ,-1.45 [', $lModelFloat);
+	$interval = new Interval('] 1.12 ,-1.45 [', $modelFloat);
 } catch (MalformedIntervalException $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new Exception('should throw exception (left > right)');
 }
-$lInterval = new Interval('[ -2.12 ,15 ]', $lModelFloat);
+$interval = new Interval('[ -2.12 ,15 ]', $modelFloat);
 if (
-	!$lInterval->satisfy(13.45)
-	|| !$lInterval->satisfy(-1)
-	|| !$lInterval->satisfy(-2.12)
-	|| !$lInterval->satisfy(15)
-	|| $lInterval->satisfy(-101)
-	|| $lInterval->satisfy(101.24)
+	!$interval->satisfy(13.45)
+	|| !$interval->satisfy(-1)
+	|| !$interval->satisfy(-2.12)
+	|| !$interval->satisfy(15)
+	|| $interval->satisfy(-101)
+	|| $interval->satisfy(101.24)
 ) {
 	throw new Exception('unexpected statisfaction');
 }
 
 /** ********************** datetime interval *********************** **/
 
-$lModelDateTime = ModelManager::getInstance()->getInstanceModel(ModelDateTime::ID);
-$lThrow = true;
+$modelDateTime = ModelManager::getInstance()->getInstanceModel(ModelDateTime::ID);
+$throw = true;
 try {
-	$lInterval = new Interval('] 2017-05-01 12:53:54 ,2016-05-01 12:53:54 [', $lModelDateTime);
+	$interval = new Interval('] 2017-05-01 12:53:54 ,2016-05-01 12:53:54 [', $modelDateTime);
 } catch (MalformedIntervalException $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new Exception('should throw exception (left > right)');
 }
-$lInterval = new Interval('[ 2016-05-01 12:53:54 ,2017-05-01 12:53:54 [', $lModelDateTime);
+$interval = new Interval('[ 2016-05-01 12:53:54 ,2017-05-01 12:53:54 [', $modelDateTime);
 if (
-	!$lInterval->satisfy(new ComhonDateTime('2016-10-01 12:53:54'))
-	|| !$lInterval->satisfy(new ComhonDateTime('2016-05-01 12:53:54'))
-	|| $lInterval->satisfy(new ComhonDateTime('2017-05-01 12:53:54'))
-	|| $lInterval->satisfy(new ComhonDateTime('2010-05-01 12:53:54'))
-	|| $lInterval->satisfy(new ComhonDateTime('2020-05-01 12:53:54'))
+	!$interval->satisfy(new ComhonDateTime('2016-10-01 12:53:54'))
+	|| !$interval->satisfy(new ComhonDateTime('2016-05-01 12:53:54'))
+	|| $interval->satisfy(new ComhonDateTime('2017-05-01 12:53:54'))
+	|| $interval->satisfy(new ComhonDateTime('2010-05-01 12:53:54'))
+	|| $interval->satisfy(new ComhonDateTime('2020-05-01 12:53:54'))
 ) {
 	throw new Exception('unexpected statisfaction');
 }
 
 /** ********************** enum *********************** **/
 
-$lEnum = new Enum([0, 45.45 , 753, 'aezaze']);
+$enum = new Enum([0, 45.45 , 753, 'aezaze']);
 
 if (
-	!$lEnum->satisfy(45.4500)
-	|| !$lEnum->satisfy('45.45')
-	|| !$lEnum->satisfy(0)
-	|| !$lEnum->satisfy(753)
-	|| !$lEnum->satisfy('753')
-	|| !$lEnum->satisfy('aezaze')
-	|| $lEnum->satisfy('2020-05-01 12:53:54')
-	|| $lEnum->satisfy(789)
-	|| $lEnum->satisfy(0.78)
+	!$enum->satisfy(45.4500)
+	|| !$enum->satisfy('45.45')
+	|| !$enum->satisfy(0)
+	|| !$enum->satisfy(753)
+	|| !$enum->satisfy('753')
+	|| !$enum->satisfy('aezaze')
+	|| $enum->satisfy('2020-05-01 12:53:54')
+	|| $enum->satisfy(789)
+	|| $enum->satisfy(0.78)
 ) {
 	throw new Exception('unexpected statisfaction');
 }
 
 /** *********************** other malformed restriction ***************************** **/
 
-$lModelString = ModelManager::getInstance()->getInstanceModel(ModelString::ID);
-$lThrow = true;
+$modelString = ModelManager::getInstance()->getInstanceModel(ModelString::ID);
+$throw = true;
 try {
-	$lInterval = new Interval('] 2017-05-01 12:53:54 ,2016-05-01 12:53:54 [', $lModelString);
+	$interval = new Interval('] 2017-05-01 12:53:54 ,2016-05-01 12:53:54 [', $modelString);
 } catch (NotSupportedModelIntervalException $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new Exception('should throw exception (left > right)');
 }
 
-$lThrow = true;
+$throw = true;
 try {
-	$lRegex = new Regex('bad_name');
+	$regex = new Regex('bad_name');
 } catch (NotExistingRegexException $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new Exception('should throw exception (left > right)');
 }
 

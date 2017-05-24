@@ -17,37 +17,37 @@ class Utils {
 	 * merge arrays
 	 * keep numeric keys even if all keys are numeric 
 	 * (native function array_merge transform them to have a non assoc array (0,1,2,3...))
-	 * @param array $pOrginalArray
-	 * @param array $pArrayToMerge
+	 * @param array $orginalArray
+	 * @param array $arrayToMerge
 	 * @return array
 	 */
-	public static function array_merge($pOrginalArray, $pArrayToMerge) {
-		foreach ($pArrayToMerge as $lKey => $Value) {
-			$pOrginalArray[$lKey] = $Value;
+	public static function array_merge($orginalArray, $arrayToMerge) {
+		foreach ($arrayToMerge as $key => $Value) {
+			$orginalArray[$key] = $Value;
 		}
-		return $pOrginalArray;
+		return $orginalArray;
 	}
 	
 	/**
 	 * 
-	 * @param string $pDir
+	 * @param string $dir
 	 * @return boolean true if success
 	 */
-	public static function delTree($pDir) {
-		$lFiles = array_diff(scandir($pDir), ['.','..']);
-		foreach ($lFiles as $lFile) {
-			(is_dir("$pDir/$lFile")) ? self::delTree("$pDir/$lFile") : unlink("$pDir/$lFile");
+	public static function delTree($dir) {
+		$files = array_diff(scandir($dir), ['.','..']);
+		foreach ($files as $file) {
+			(is_dir("$dir/$file")) ? self::delTree("$dir/$file") : unlink("$dir/$file");
 		}
-		return rmdir($pDir);
+		return rmdir($dir);
 	}
 	
 	/**
 	 * print called function
 	 */
 	public static function printStack() {
-        $lNodes = debug_backtrace();
-        for ($i = 1; $i < count($lNodes); $i++) {
-        	trigger_error("$i. ".basename($lNodes[$i]['file']) .' : ' .$lNodes[$i]['function'] .'(' .$lNodes[$i]['line'].')');
+        $nodes = debug_backtrace();
+        for ($i = 1; $i < count($nodes); $i++) {
+        	trigger_error("$i. ".basename($nodes[$i]['file']) .' : ' .$nodes[$i]['function'] .'(' .$nodes[$i]['line'].')');
         }
     } 
     

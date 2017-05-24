@@ -20,7 +20,7 @@ use Comhon\Object\Collection\ObjectCollection;
  */
 class ObjectCollectionCreator extends Visitor {
 
-	private $mLocalObjectCollection;
+	private $localObjectCollection;
 	
 	protected function _getMandatoryParameters() {
 		return null;
@@ -30,26 +30,26 @@ class ObjectCollectionCreator extends Visitor {
 		return false;
 	}
 	
-	protected function _init($pObject) {
-		$this->mLocalObjectCollection = new ObjectCollection();
+	protected function _init($object) {
+		$this->localObjectCollection = new ObjectCollection();
 	}
 	
-	protected function _visit($pParentObject, $pKey, $pPropertyNameStack) {
-		$lValue = $pParentObject->getValue($pKey);
+	protected function _visit($parentObject, $key, $propertyNameStack) {
+		$value = $parentObject->getValue($key);
 		
 		// each element will be visited if return true
-		if ($lValue->getModel() instanceof ModelArray) {
+		if ($value->getModel() instanceof ModelArray) {
 			return true;
 		}
-		$lSuccess = $this->mLocalObjectCollection->addObject($lValue, false);
+		$success = $this->localObjectCollection->addObject($value, false);
 		
 		// we don't want to visit child object with main model because they can't share LocalObjectCollection
-		return !($lValue->getModel() instanceof MainModel);
+		return !($value->getModel() instanceof MainModel);
 	}
 	
-	protected function _postVisit($pParentObject, $pKey, $pPropertyNameStack) {}
+	protected function _postVisit($parentObject, $key, $propertyNameStack) {}
 	
-	protected function _finalize($pObject) {
-		return $this->mLocalObjectCollection;
+	protected function _finalize($object) {
+		return $this->localObjectCollection;
 	}
 }

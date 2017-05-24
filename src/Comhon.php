@@ -10,13 +10,13 @@
  */
 
 
-spl_autoload_register(function ($pClass) {
-	$lPrefix = 'Comhon\\';
+spl_autoload_register(function ($class) {
+	$prefix = 'Comhon\\';
 	
-	if (strncmp($lPrefix, $pClass, strlen($lPrefix)) !== 0) {
+	if (strncmp($prefix, $class, strlen($prefix)) !== 0) {
 		return;
 	}
-	if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $pClass) . '.php')) {
-		include_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $pClass) . '.php';
+	if (file_exists(__DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php')) {
+		include_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
 	}
 });

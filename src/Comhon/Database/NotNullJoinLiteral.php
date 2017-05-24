@@ -13,42 +13,42 @@ namespace Comhon\Database;
 
 class NotNullJoinLiteral extends Literal {
 
-	private $mConjunction;
+	private $conjunction;
 	
 	public function __construct() {
-		$this->mConjunction = new Conjunction();
+		$this->conjunction = new Conjunction();
 	}
 	
-	public function addLiteral($pTable, $pColumn) {
-		$this->mConjunction->addLiteral(new Literal($pTable, $pColumn, Literal::DIFF, null));
+	public function addLiteral($table, $column) {
+		$this->conjunction->addLiteral(new Literal($table, $column, Literal::DIFF, null));
 	}
 	
 	
 	/**
-	 * @param array $pValues
+	 * @param array $values
 	 * @return string
 	 */
-	public function export(&$pValues) {
-		return $this->mConjunction->export($pValues);
+	public function export(&$values) {
+		return $this->conjunction->export($values);
 	}
 	
 	/**
 	 * 
-	 * @param \stdClass $pStdObject
+	 * @param \stdClass $stdObject
 	 * @throws \Exception
 	 */
-	private static function _verifStdObject($pStdObject) {
+	private static function _verifStdObject($stdObject) {
 		throw new \Exception('cannot build NotNullLiteral from stdClass object');
 	}
 	
 	/**
 	 * 
-	 * @param \stdClass $pStdObject
-	 * @param [] $pLeftJoins
-	 * @param [] $pLiteralCollection
+	 * @param \stdClass $stdObject
+	 * @param [] $leftJoins
+	 * @param [] $literalCollection
 	 * @throws \Exception
 	 */
-	public static function stdObjectToLiteral($pStdObject, &$pLeftJoins, $pLiteralCollection = null, $pSelectQuery = null, $pAllowPrivateProperties = true) {
+	public static function stdObjectToLiteral($stdObject, &$leftJoins, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
 		throw new \Exception('cannot build NotNullLiteral from stdClass object');
 	}
 	

@@ -19,58 +19,58 @@ use Comhon\Model\Singleton\ModelManager;
 
 class ObjectService {
 	
-	public static function getObject($pParams, $pPrivate = false) {
+	public static function getObject($params, $private = false) {
 		try {
-			if (!isset($pParams->id)) {
+			if (!isset($params->id)) {
 				throw new \Exception('request doesn\'t have id');
 			}
-			$lObject = SimpleLoadRequest::buildObjectLoadRequest($pParams, $pPrivate)->execute();
-			$lModel  = ModelManager::getInstance()->getInstanceModel($pParams->model);
-			$lInterfacer = new StdObjectInterfacer();
-			$lInterfacer->setPropertiesFilter(self::_getFilterProperties($pParams, $lObject), $lObject->getModel()->getName());
-			return self::_setSuccessReturn($lModel->export($lObject, $lInterfacer));
+			$object = SimpleLoadRequest::buildObjectLoadRequest($params, $private)->execute();
+			$model  = ModelManager::getInstance()->getInstanceModel($params->model);
+			$interfacer = new StdObjectInterfacer();
+			$interfacer->setPropertiesFilter(self::_getFilterProperties($params, $object), $object->getModel()->getName());
+			return self::_setSuccessReturn($model->export($object, $interfacer));
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}
 	}
 	
-	public static function getObjects($pParams, $pPrivate = false) {
+	public static function getObjects($params, $private = false) {
 		try {
-			$lObjectArray = ComplexLoadRequest::buildObjectLoadRequest($pParams, $pPrivate)->execute();
-			$lInterfacer = new StdObjectInterfacer();
-			$lModelFilter = [$lObjectArray->getModel()->getName() => self::_getFilterProperties($pParams, $lObjectArray)];
-			return self::_setSuccessReturn($lInterfacer->export($lObjectArray, [Interfacer::PROPERTIES_FILTERS => $lModelFilter]));
+			$objectArray = ComplexLoadRequest::buildObjectLoadRequest($params, $private)->execute();
+			$interfacer = new StdObjectInterfacer();
+			$modelFilter = [$objectArray->getModel()->getName() => self::_getFilterProperties($params, $objectArray)];
+			return self::_setSuccessReturn($interfacer->export($objectArray, [Interfacer::PROPERTIES_FILTERS => $modelFilter]));
 		} catch (\Exception $e) {
 			return self::_setErrorReturn($e);
 		}
 	}
 	
-	private static function _getFilterProperties($pParams, $pOject) {
-		if (!isset($pParams->properties) || empty($pParams->properties)) {
+	private static function _getFilterProperties($params, $oject) {
+		if (!isset($params->properties) || empty($params->properties)) {
 			return null;
 		}
-		$lFilterProperties = $pParams->properties;
-		if ($pOject->getModel()->hasIdProperties()) {
-			foreach ($pOject->getModel()->getIdProperties() as $lProperty) {
-				$lFilterProperties[] = $lProperty->getName();
+		$filterProperties = $params->properties;
+		if ($oject->getModel()->hasIdProperties()) {
+			foreach ($oject->getModel()->getIdProperties() as $property) {
+				$filterProperties[] = $property->getName();
 			}
 		}
-		return array_unique($lFilterProperties);
+		return array_unique($filterProperties);
 	}
 	
-	private static function _setSuccessReturn($pReturnValue) {
-		$lReturn = new \stdClass();
-		$lReturn->success = true;
-		$lReturn->result  = $pReturnValue;
-		return $lReturn;
+	private static function _setSuccessReturn($returnValue) {
+		$return = new \stdClass();
+		$return->success = true;
+		$return->result  = $returnValue;
+		return $return;
 	}
 	
-	private static function _setErrorReturn(\Exception $pException) {
-		$lReturn = new \stdClass();
-		$lReturn->success        = false;
-		$lReturn->error          = new \stdClass();
-		$lReturn->error->message = $pException->getMessage();
-		return $lReturn;
+	private static function _setErrorReturn(\Exception $exception) {
+		$return = new \stdClass();
+		$return->success        = false;
+		$return->error          = new \stdClass();
+		$return->error->message = $exception->getMessage();
+		return $return;
 	}
 	
 }

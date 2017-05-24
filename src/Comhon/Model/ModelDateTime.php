@@ -20,75 +20,75 @@ class ModelDateTime extends SimpleModel {
 	const ID = 'dateTime';
 	
 	protected function _init() {
-		$this->mModelName = self::ID;
+		$this->modelName = self::ID;
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $value
+	 * @param Interfacer $interfacer
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	public function exportSimple($pValue, Interfacer $pInterfacer) {
-		if (is_null($pValue)) {
-			return $pValue;
+	public function exportSimple($value, Interfacer $interfacer) {
+		if (is_null($value)) {
+			return $value;
 		}
-		return $this->toString($pValue, $pInterfacer->getDateTimeZone(), $pInterfacer->getDateTimeFormat());
+		return $this->toString($value, $interfacer->getDateTimeZone(), $interfacer->getDateTimeFormat());
 	}
 	
 	/**
 	 *
-	 * @param mixed $pValue
-	 * @param Interfacer $pInterfacer
+	 * @param mixed $value
+	 * @param Interfacer $interfacer
 	 * @return ComhonDateTime|null
 	 */
-	public function importSimple($pValue, Interfacer $pInterfacer) {
-		if (is_null($pValue)) {
-			return $pValue;
+	public function importSimple($value, Interfacer $interfacer) {
+		if (is_null($value)) {
+			return $value;
 		}
-		if ($pInterfacer instanceof NoScalarTypedInterfacer) {
-			$pValue = $pInterfacer->castValueToString($pValue);
+		if ($interfacer instanceof NoScalarTypedInterfacer) {
+			$value = $interfacer->castValueToString($value);
 		}
-		return $this->fromString($pValue, $pInterfacer->getDateTimeZone());
+		return $this->fromString($value, $interfacer->getDateTimeZone());
 	}
 	
 	/**
 	 * 
-	 * @param string $pValue
-	 * @param \DateTimeZone $pDateTimeZone
+	 * @param string $value
+	 * @param \DateTimeZone $dateTimeZone
 	 * @return ComhonDateTime
 	 */
-	public function fromString($pValue, \DateTimeZone $pDateTimeZone) {
-		$lDateTime = new ComhonDateTime($pValue, $pDateTimeZone);
-		if ($lDateTime->getTimezone()->getName() !== $pDateTimeZone->getName()) {
-			$lDateTime->setTimezone($pDateTimeZone);
+	public function fromString($value, \DateTimeZone $dateTimeZone) {
+		$dateTime = new ComhonDateTime($value, $dateTimeZone);
+		if ($dateTime->getTimezone()->getName() !== $dateTimeZone->getName()) {
+			$dateTime->setTimezone($dateTimeZone);
 		}
-		return $lDateTime;
+		return $dateTime;
 	}
 	
-	public function toString(ComhonDateTime $pDateTime, $pDateTimeZone, $pDateFormat = 'c') {
-		if ($pDateTimeZone->getName() == $pDateTime->getTimezone()->getName()) {
-			return $pDateTime->format($pDateFormat);
+	public function toString(ComhonDateTime $dateTime, $dateTimeZone, $dateFormat = 'c') {
+		if ($dateTimeZone->getName() == $dateTime->getTimezone()->getName()) {
+			return $dateTime->format($dateFormat);
 		}
 		else {
-			$lDateTimeZone = $pDateTime->getTimezone();
-			$pDateTime->setTimezone($pDateTimeZone);
-			$lDateTimeString =  $pDateTime->format($pDateFormat);
-			$pDateTime->setTimezone($lDateTimeZone);
-			return $lDateTimeString;
+			$OriginDateTimeZone = $dateTime->getTimezone();
+			$dateTime->setTimezone($dateTimeZone);
+			$dateTimeString = $dateTime->format($dateFormat);
+			$dateTime->setTimezone($OriginDateTimeZone);
+			return $dateTimeString;
 		}
 	}
 	
-	public function castValue($pValue) {
+	public function castValue($value) {
 		throw new \Exception('cannot cast datetime object');
 	}
 	
-	public function verifValue($pValue) {
-		if (!($pValue instanceof ComhonDateTime)) {
-			$lNodes = debug_backtrace();
-			$lClass = gettype($pValue) == 'object' ? get_class($pValue): gettype($pValue);
-			throw new \Exception("Argument passed to {$lNodes[0]['class']}::{$lNodes[0]['function']}() must be an instance of dateTime, instance of $lClass given, called in {$lNodes[0]['file']} on line {$lNodes[0]['line']} and defined in {$lNodes[0]['file']}");
+	public function verifValue($value) {
+		if (!($value instanceof ComhonDateTime)) {
+			$nodes = debug_backtrace();
+			$class = gettype($value) == 'object' ? get_class($value): gettype($value);
+			throw new \Exception("Argument passed to {$nodes[0]['class']}::{$nodes[0]['function']}() must be an instance of dateTime, instance of $class given, called in {$nodes[0]['file']} on line {$nodes[0]['line']} and defined in {$nodes[0]['file']}");
 		}
 		return true;
 	}

@@ -13,7 +13,7 @@ namespace Comhon\Utils;
 
 class SqlUtils {
 
-	private static $sMySQL_ReservedWords = [
+	private static $mySQL_ReservedWords = [
 		'ACCESSIBLE'=>null,'ADD'=>null,'ALL'=>null,'ALTER'=>null,'ANALYZE'=>null,'AND'=>null,'AS'=>null,'ASC'=>null,'ASENSITIVE'=>null,'BEFORE'=>null,'BETWEEN'=>null,'BIGINT'=>null,'BINARY'=>null,'BLOB'=>null,'BOTH'=>null,'BY'=>null,'CALL'=>null,'CASCADE'=>null,'CASE'=>null,
 		'CHANGE'=>null,'CHAR'=>null,'CHARACTER'=>null,'CHECK'=>null,'COLLATE'=>null,'COLUMN'=>null,'CONDITION'=>null,'CONSTRAINT'=>null,'CONTINUE'=>null,'CONVERT'=>null,'CREATE'=>null,'CROSS'=>null,'CURRENT_DATE'=>null,
 		'CURRENT_TIME'=>null,'CURRENT_TIMESTAMP'=>null,'CURRENT_USER'=>null,'CURSOR'=>null,'DATABASE'=>null,'DATABASES'=>null,'DAY_HOUR'=>null,'DAY_MICROSECOND'=>null,'DAY_MINUTE'=>null,'DAY_SECOND'=>null,'DEC'=>null,'DECIMAL'=>null,
@@ -32,7 +32,7 @@ class SqlUtils {
 		'USING'=>null,'UTC_DATE'=>null,'UTC_TIME'=>null,'UTC_TIMESTAMP'=>null,'VALUES'=>null,'VARBINARY'=>null,'VARCHAR'=>null,'VARCHARACTER'=>null,'VARYING'=>null,'VIRTUAL'=>null,'WHEN'=>null,'WHERE'=>null,'WHILE'=>null,'WITH'=>null,'WRITE'=>null,'XOR'=>null,'YEAR_MONTH'=>null
 	];
 	
-	private static $sPostgreSQL_ReservedWords = [
+	private static $postgreSQL_ReservedWords = [
 		'ALL'=>null,'ANALYSE'=>null,'ANALYZE'=>null,'AND'=>null,'ANY'=>null,'ARRAY'=>null,'AS'=>null,'ASC'=>null,'ASYMMETRIC'=>null,'BOTH'=>null,
 		'CASE'=>null,'CAST'=>null,'CHECK'=>null,'COLLATE'=>null,'COLUMN'=>null,'CONSTRAINT'=>null,'CREATE'=>null,'CURRENT_CATALOG'=>null,'CURRENT_DATE'=>null,
 		'CURRENT_ROLE'=>null,'CURRENT_TIME'=>null,'CURRENT_TIMESTAMP'=>null,'CURRENT_USER'=>null,'DEFAULT'=>null,'DEFERRABLE'=>null,'DESC'=>null,'DISTINCT'=>null,
@@ -45,15 +45,15 @@ class SqlUtils {
 	
 	/**
 	 * 
-	 * @param string $pDBMS
-	 * @param string $pWord
+	 * @param string $DBMS
+	 * @param string $word
 	 * @throws \Exception
 	 * @return boolean
 	 */
-	public static function isReservedWorld($pDBMS, $pWord) {
-		switch ($pDBMS) {
-			case 'mysql': return array_key_exists(strtoupper($pWord), self::$sMySQL_ReservedWords);      break;
-			case 'pgsql': return array_key_exists(strtoupper($pWord), self::$sPostgreSQL_ReservedWords); break;
+	public static function isReservedWorld($DBMS, $word) {
+		switch ($DBMS) {
+			case 'mysql': return array_key_exists(strtoupper($word), self::$mySQL_ReservedWords);      break;
+			case 'pgsql': return array_key_exists(strtoupper($word), self::$postgreSQL_ReservedWords); break;
 			//case 'cubrid':
 			//case 'dblib':
 			//case 'firebird':
@@ -64,25 +64,25 @@ class SqlUtils {
 			//case 'odbc':
 			//case 'sqlite':
 			//case '4D':
-			default: throw new \Exception("DBMS '$pDBMS' not managed");
+			default: throw new \Exception("DBMS '$DBMS' not managed");
 		}
 	}
 	
 	/**
 	 * 
-	 * @param string $pWord
+	 * @param string $word
 	 * @return boolean
 	 */
-	public static function isMySQLReservedWorld($pWord) {
-		return array_key_exists(strtoupper($pWord), self::$sMySQL_ReservedWords);
+	public static function isMySQLReservedWorld($word) {
+		return array_key_exists(strtoupper($word), self::$mySQL_ReservedWords);
 	}
 	
 	/**
 	 * 
-	 * @param string $pWord
+	 * @param string $word
 	 * @return boolean
 	 */
-	public static function isPostgreSQLReservedWorld($pWord) {
-		return array_key_exists(strtoupper($pWord), self::$sPostgreSQL_ReservedWords);
+	public static function isPostgreSQLReservedWorld($word) {
+		return array_key_exists(strtoupper($word), self::$postgreSQL_ReservedWords);
 	}
 }

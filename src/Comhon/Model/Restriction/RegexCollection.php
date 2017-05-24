@@ -18,7 +18,7 @@ class RegexCollection {
 	
 	private  static $_instance;
 	
-	private $mRegexs;
+	private $regexs;
 	
 	/**
 	 * 
@@ -28,8 +28,8 @@ class RegexCollection {
 	public static function getInstance() {
 		if (!isset(self::$_instance)) {
 			self::$_instance = new self();
-			self::$_instance->mRegexs = json_decode(file_get_contents(Config::getInstance()->getRegexListPath()), true);
-			if (!is_array(self::$_instance->mRegexs)) {
+			self::$_instance->regexs = json_decode(file_get_contents(Config::getInstance()->getRegexListPath()), true);
+			if (!is_array(self::$_instance->regexs)) {
 				throw new \Exception('failure when try to load regex list');
 			}
 		}
@@ -39,15 +39,15 @@ class RegexCollection {
 	
 	/**
 	 * 
-	 * @param string $pName
+	 * @param string $name
 	 * @throws \Exception
 	 * @return string
 	 */
-	public function getRegex($pName) {
-		if (!array_key_exists($pName, $this->mRegexs)) {
-			throw new NotExistingRegexException($pName);
+	public function getRegex($name) {
+		if (!array_key_exists($name, $this->regexs)) {
+			throw new NotExistingRegexException($name);
 		}
-		return $this->mRegexs[$pName];
+		return $this->regexs[$name];
 	}
 	
 }

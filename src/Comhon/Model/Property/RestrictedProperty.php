@@ -17,56 +17,56 @@ use Comhon\Exception\NotSatisfiedRestrictionException;
 
 class RestrictedProperty extends Property {
 	
-	private $mRestriction;
+	private $restriction;
 	
 	/**
 	 *
-	 * @param Model $pModel
-	 * @param string $pName
-	 * @param string $pSerializationName
-	 * @param boolean $pIsId
-	 * @param boolean $pIsPrivate
-	 * @param boolean $pIsSerializable
-	 * @param mixed $pDefault
-	 * @param unknown $pRestriction
-	 * @param boolean $pIsInterfacedAsNodeXml
-	 * @param Restriction $pRestriction
+	 * @param Model $model
+	 * @param string $name
+	 * @param string $serializationName
+	 * @param boolean $isId
+	 * @param boolean $isPrivate
+	 * @param boolean $isSerializable
+	 * @param mixed $default
+	 * @param unknown $restriction
+	 * @param boolean $isInterfacedAsNodeXml
+	 * @param Restriction $restriction
 	 * @throws \Exception
 	 */
-	public function __construct(Model $pModel, $pName, Restriction $pRestriction, $pSerializationName = null, $pIsId = false, $pIsPrivate = false, $pIsSerializable = true, $pDefault = null, $pIsInterfacedAsNodeXml = null) {
-		parent::__construct($pModel, $pName, $pSerializationName, false, $pIsPrivate, $pIsSerializable);
-		if (!$pRestriction->isAllowedModel($this->mModel)) {
+	public function __construct(Model $model, $name, Restriction $restriction, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
+		parent::__construct($model, $name, $serializationName, false, $isPrivate, $isSerializable);
+		if (!$restriction->isAllowedModel($this->model)) {
 			throw new \Exception('restriction doesn\'t allow specified model');
 		}
-		$this->mRestriction = $pRestriction;
+		$this->restriction = $restriction;
 	}
 	
 	/**
 	 * verify if property is exportable in public/private/serialization mode
 	 *
-	 * @param boolean $pPrivate if true private mode, otherwise public mode
-	 * @param boolean $pSerialization if true serialization mode, otherwise model mode
-	 * @param mixed $pValue value that we want to export
+	 * @param boolean $private if true private mode, otherwise public mode
+	 * @param boolean $serialization if true serialization mode, otherwise model mode
+	 * @param mixed $value value that we want to export
 	 * @return boolean true if property is interfaceable
 	 */
-	public function isExportable($pPrivate, $pSerialization, $pValue) {
-		$this->isSatisfiable($pValue, true);
-		return parent::isExportable($pPrivate, $pSerialization, $pValue);
+	public function isExportable($private, $serialization, $value) {
+		$this->isSatisfiable($value, true);
+		return parent::isExportable($private, $serialization, $value);
 	}
 	
 	/**
 	 * verify if value is satisfiable regarding restriction property
 	 *
-	 * @param mixed $pValue
-	 * @param boolean $pThrowException
+	 * @param mixed $value
+	 * @param boolean $throwException
 	 * @return boolean true if property is satisfiable
 	 */
-	public function isSatisfiable($pValue, $pThrowException = false) {
-		$lIsSatisfiable = $this->mRestriction->satisfy($pValue);
-		if (!$lIsSatisfiable && $pThrowException) {
-			throw new NotSatisfiedRestrictionException($pValue, $this->mRestriction);
+	public function isSatisfiable($value, $throwException = false) {
+		$isSatisfiable = $this->restriction->satisfy($value);
+		if (!$isSatisfiable && $throwException) {
+			throw new NotSatisfiedRestrictionException($value, $this->restriction);
 		}
-		return $lIsSatisfiable;
+		return $isSatisfiable;
 	}
 	
 }

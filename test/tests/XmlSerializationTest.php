@@ -5,46 +5,46 @@ use Comhon\Serialization\File\XmlFile;
 
 $time_start = microtime(true);
 
-$lTestXmlModel = ModelManager::getInstance()->getInstanceModel('testXml');
-$lTestXml = $lTestXmlModel->loadObject('plop2');
+$testXmlModel = ModelManager::getInstance()->getInstanceModel('testXml');
+$testXml = $testXmlModel->loadObject('plop2');
 
-$lTestXml->setId('plop4');
-if ($lTestXml->save() !== 1) {
+$testXml->setId('plop4');
+if ($testXml->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-if ($lTestXml->save(XmlFile::UPDATE) !== 1) {
+if ($testXml->save(XmlFile::UPDATE) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 
 try {
-	$lTestXml->save(XmlFile::CREATE);
-	$lThrow = true;
+	$testXml->save(XmlFile::CREATE);
+	$throw = true;
 } catch (Exception $e) {
-	$lThrow = false;
+	$throw = false;
 }
-if ($lThrow) {
+if ($throw) {
 	throw new \Exception('serialization souhld not be successfull ');
 }
 
-$lTestXml->setId('non_existing_id');
-if ($lTestXml->save(XmlFile::UPDATE) !== 0) {
+$testXml->setId('non_existing_id');
+if ($testXml->save(XmlFile::UPDATE) !== 0) {
 	throw new \Exception('serialization souhld not be successfull');
 }
 
-if ($lTestXml->save(XmlFile::CREATE) !== 1) {
+if ($testXml->save(XmlFile::CREATE) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-if ($lTestXml->save() !== 1) {
+if ($testXml->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-if ($lTestXml->save(XmlFile::UPDATE) !== 1) {
+if ($testXml->save(XmlFile::UPDATE) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
-if ($lTestXml->delete() !== 1) {
+if ($testXml->delete() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 
-if ($lTestXml->save(XmlFile::UPDATE) !== 0) {
+if ($testXml->save(XmlFile::UPDATE) !== 0) {
 	throw new \Exception('serialization souhld not be successfull');
 }
 

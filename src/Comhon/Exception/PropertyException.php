@@ -13,9 +13,9 @@ namespace Comhon\Exception;
 
 class PropertyException extends \Exception {
 	
-	public function __construct($pModel, $pPropertyName) {
-		$lMessage = "Unknown property '$pPropertyName' for model '{$pModel->getName()}'";
-		parent::__construct($lMessage, ConstantException::PROPERTY_EXCEPTION);
+	public function __construct($model, $propertyName) {
+		$message = "Unknown property '$propertyName' for model '{$model->getName()}'";
+		parent::__construct($message, ConstantException::PROPERTY_EXCEPTION);
 	}
 	
 }

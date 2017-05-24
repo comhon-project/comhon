@@ -13,7 +13,7 @@ namespace Comhon\Object;
 
 class ComhonDateTime extends \DateTime {
 	
-	private $mIsUpdated = false;
+	private $isUpdated = false;
 	
 	/**
 	 * (non-PHPdoc)
@@ -21,7 +21,7 @@ class ComhonDateTime extends \DateTime {
 	 */
 	public function add($interval) {
 		parent::add($interval);
-		$this->mIsUpdated = true;
+		$this->isUpdated = true;
 	}
 	
 	/**
@@ -30,7 +30,7 @@ class ComhonDateTime extends \DateTime {
 	 */
 	public function modify($modify) {
 		parent::modify($modify);
-		$this->mIsUpdated = true;
+		$this->isUpdated = true;
 	}
 	
 	/**
@@ -39,7 +39,7 @@ class ComhonDateTime extends \DateTime {
 	 */
 	public function setDate($year, $month , $day) {
 		parent::setDate($year, $month , $day);
-		$this->mIsUpdated = true;
+		$this->isUpdated = true;
 	}
 	
 	/**
@@ -48,7 +48,7 @@ class ComhonDateTime extends \DateTime {
 	 */
 	public function setISODate($year, $week, $day = null) {
 		parent::setISODate($year, $week, $day);
-		$this->mIsUpdated = true;
+		$this->isUpdated = true;
 	}
 	
 	/**
@@ -57,7 +57,7 @@ class ComhonDateTime extends \DateTime {
 	 */
 	public function setTime($hour, $minute, $second = null) {
 		parent::setTime($hour, $minute, $second);
-		$this->mIsUpdated = true;
+		$this->isUpdated = true;
 	}
 	
 	/**
@@ -66,7 +66,7 @@ class ComhonDateTime extends \DateTime {
 	 */
 	public function setTimestamp($unixtimestamp) {
 		parent::setTimestamp($unixtimestamp);
-		$this->mIsUpdated = true;
+		$this->isUpdated = true;
 	}
 	
 	/**
@@ -75,7 +75,7 @@ class ComhonDateTime extends \DateTime {
 	 */
 	public function sub($interval) {
 		parent::sub($interval);
-		$this->mIsUpdated = true;
+		$this->isUpdated = true;
 	}
 	
 	/**
@@ -83,14 +83,14 @@ class ComhonDateTime extends \DateTime {
 	 * @return boolean
 	 */
 	public function isUpdated() {
-		return $this->mIsUpdated;
+		return $this->isUpdated;
 	}
 	
 	/**
 	 * reset updated status
 	 */
 	public function resetUpdatedStatus() {
-		$this->mIsUpdated = false;
+		$this->isUpdated = false;
 	}
 	
 }

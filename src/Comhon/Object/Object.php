@@ -21,21 +21,21 @@ final class Object extends ComhonObject {
 
 	/**
 	 * 
-	 * @param string|Model $pModel can be a model name or an instance of model
-	 * @param boolean $lIsLoaded
+	 * @param string|Model $model can be a model name or an instance of model
+	 * @param boolean $isLoaded
 	 */
-	final public function __construct($pModel, $pIsLoaded = true) {
-		$lModel = ($pModel instanceof Model) ? $pModel : ModelManager::getInstance()->getInstanceModel($pModel);
+	final public function __construct($model, $isLoaded = true) {
+		$objectModel = ($model instanceof Model) ? $model : ModelManager::getInstance()->getInstanceModel($model);
 		
-		if (($lModel instanceof ModelContainer) || ($lModel instanceof SimpleModel)) {
+		if (($objectModel instanceof ModelContainer) || ($objectModel instanceof SimpleModel)) {
 			throw new \Exception('Object cannot have ModelContainer or SimpleModel');
 		}
-		$this->_affectModel($lModel);
+		$this->_affectModel($objectModel);
 		
-		foreach ($lModel->getPropertiesWithDefaultValues() as $lProperty) {
-			$this->setValue($lProperty->getName(), $lProperty->getDefaultValue(), false);
+		foreach ($objectModel->getPropertiesWithDefaultValues() as $property) {
+			$this->setValue($property->getName(), $property->getDefaultValue(), false);
 		}
-		$this->setIsLoaded($pIsLoaded);
+		$this->setIsLoaded($isLoaded);
 	}
 	
 }

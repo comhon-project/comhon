@@ -33,11 +33,10 @@ class ModelManager {
 	const SERIALIZATION  = 'serialization';
 	const EXTENDS_MODEL  = 'extendsModel';
 	
-	private $mInstanceModels;
-	private $mCurrentXmlSerialization;
-	private $mLocalTypes = [];
-	private $mManifestParser;
-	private $mSerializationManifestParser;
+	private $instanceModels;
+	private $localTypes = [];
+	private $manifestParser;
+	private $serializationManifestParser;
 	
 	private  static $_instance;
 	
@@ -55,18 +54,18 @@ class ModelManager {
 		ManifestParser::registerComplexModels(
 			__DIR__ . DIRECTORY_SEPARATOR .'..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Manifest' . DIRECTORY_SEPARATOR . 'Collection' . DIRECTORY_SEPARATOR . 'Manifest'. DIRECTORY_SEPARATOR .'manifestList.json', 
 			__DIR__ . DIRECTORY_SEPARATOR .'..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Manifest' . DIRECTORY_SEPARATOR . 'Collection' . DIRECTORY_SEPARATOR . 'Serialization' . DIRECTORY_SEPARATOR . 'serializationList.json',
-			$this->mInstanceModels
+			$this->instanceModels
 		);
 		
 		ManifestParser::registerComplexModels(
 			Config::getInstance()->getManifestListPath(),
 			Config::getInstance()->getSerializationListPath(),
-			$this->mInstanceModels
+			$this->instanceModels
 		);
 	}	
 	
 	private function _registerSimpleModelClasses() {
-		$this->mInstanceModels = [
+		$this->instanceModels = [
 			ModelInteger::ID  => new ModelInteger(),
 			ModelFloat::ID    => new ModelFloat(),
 			ModelBoolean::ID  => new ModelBoolean(),
@@ -76,44 +75,44 @@ class ModelManager {
 	}
 	
 	
-	public function hasModel($pModelName, $pMainModelName = null) {
-		if (is_null($pMainModelName)) {
-			return array_key_exists($pModelName, $this->mInstanceModels);
+	public function hasModel($modelName, $mainModelName = null) {
+		if (is_null($mainModelName)) {
+			return array_key_exists($modelName, $this->instanceModels);
 		} else {
-			return array_key_exists($pMainModelName, $this->mLocalTypes) && array_key_exists($pModelName, $this->mLocalTypes[$pMainModelName]);
+			return array_key_exists($mainModelName, $this->localTypes) && array_key_exists($modelName, $this->localTypes[$mainModelName]);
 		}
 	}
 	
-	public function hasInstanceModel($pModelName, $pMainModelName = null) {
-		if (!$this->hasModel($pModelName, $pMainModelName)) {
-			throw new \Exception("model $pModelName doesn't exists");
+	public function hasInstanceModel($modelName, $mainModelName = null) {
+		if (!$this->hasModel($modelName, $mainModelName)) {
+			throw new \Exception("model $modelName doesn't exists");
 		}
-		if (is_null($pMainModelName)) {
-			$lInstanceModels =& $this->mInstanceModels;
+		if (is_null($mainModelName)) {
+			$instanceModels =& $this->instanceModels;
 		} else {
-			$lInstanceModels =& $this->mLocalTypes[$pMainModelName];
+			$instanceModels =& $this->localTypes[$mainModelName];
 		}
-		return is_object($lInstanceModels[$pModelName]) || array_key_exists(2, $lInstanceModels[$pModelName]);
+		return is_object($instanceModels[$modelName]) || array_key_exists(2, $instanceModels[$modelName]);
 	}
 	
-	public function isModelLoaded($pModelName, $pMainModelName = null) {
-		if (!$this->hasModel($pModelName, $pMainModelName)) {
-			throw new \Exception("model $pModelName doesn't exists");
+	public function isModelLoaded($modelName, $mainModelName = null) {
+		if (!$this->hasModel($modelName, $mainModelName)) {
+			throw new \Exception("model $modelName doesn't exists");
 		}
-		if (is_null($pMainModelName)) {
-			$lInstanceModels =& $this->mInstanceModels;
+		if (is_null($mainModelName)) {
+			$instanceModels =& $this->instanceModels;
 		} else {
-			$lInstanceModels =& $this->mLocalTypes[$pMainModelName];
+			$instanceModels =& $this->localTypes[$mainModelName];
 		}
-		if (is_object($lInstanceModels[$pModelName])) {
-			if (!$lInstanceModels[$pModelName]->isLoaded()) {
-				throw new \Exception("$pModelName must be loaded");
+		if (is_object($instanceModels[$modelName])) {
+			if (!$instanceModels[$modelName]->isLoaded()) {
+				throw new \Exception("$modelName must be loaded");
 			}
 			return true;
 		}
-		if (array_key_exists(2, $lInstanceModels[$pModelName])) {
-			if ($lInstanceModels[$pModelName][2]->isLoaded()) {
-				throw new \Exception("$pModelName must be not loaded");
+		if (array_key_exists(2, $instanceModels[$modelName])) {
+			if ($instanceModels[$modelName][2]->isLoaded()) {
+				throw new \Exception("$modelName must be not loaded");
 			}
 			return false;
 		}
@@ -122,273 +121,273 @@ class ModelManager {
 	
 	/**
 	 * get model instance (specify main model name if you request a local model)
-	 * @param string $pModelName
-	 * @param string $pMainModelName
+	 * @param string $modelName
+	 * @param string $mainModelName
 	 * @return Model
 	 */
-	public function getInstanceModel($pModelName, $pMainModelName = null) {
-		$lReturn = $this->_getInstanceModel($pModelName, $pMainModelName, true);
-		$lReturn->load();
-		return $lReturn;
+	public function getInstanceModel($modelName, $mainModelName = null) {
+		$return = $this->_getInstanceModel($modelName, $mainModelName, true);
+		$return->load();
+		return $return;
 	}
 	
 	/**
 	 * 
-	 * @param string $pModelName
-	 * @param string $pMainModelName null if $pModelName is a main model name
-	 * @param boolean $pLoadModel
+	 * @param string $modelName
+	 * @param string $mainModelName null if $modelName is a main model name
+	 * @param boolean $loadModel
 	 * @throws \Exception
 	 * @return NULL|Model
 	 */
-	private function _getInstanceModel($pModelName, $pMainModelName, $pLoadModel) {
-		$lReturn = null;
-		if (is_null($pMainModelName)) {
-			$lInstanceModels =& $this->mInstanceModels;
+	private function _getInstanceModel($modelName, $mainModelName, $loadModel) {
+		$return = null;
+		if (is_null($mainModelName)) {
+			$instanceModels =& $this->instanceModels;
 		} else {
 			// call getInstanceModel() to be sure to have a loaded main model
-			$lMainModel = $this->getInstanceModel($pMainModelName);
-			if (!array_key_exists($pModelName, $this->mLocalTypes[$pMainModelName])) {
-				$lExists = false;
-				while (!is_null($lMainModel->getExtendsModel()) && !$lExists) {
-					$lExists = array_key_exists($pModelName, $this->mLocalTypes[$lMainModel->getExtendsModel()->getName()]);
-					$lMainModel = $lMainModel->getExtendsModel();
+			$mainModel = $this->getInstanceModel($mainModelName);
+			if (!array_key_exists($modelName, $this->localTypes[$mainModelName])) {
+				$exists = false;
+				while (!is_null($mainModel->getExtendsModel()) && !$exists) {
+					$exists = array_key_exists($modelName, $this->localTypes[$mainModel->getExtendsModel()->getName()]);
+					$mainModel = $mainModel->getExtendsModel();
 				}
-				if ($lExists) {
-					$pMainModelName = $lMainModel->getName();
+				if ($exists) {
+					$mainModelName = $mainModel->getName();
 				}
 			}
-			$lInstanceModels =& $this->mLocalTypes[$pMainModelName];
+			$instanceModels =& $this->localTypes[$mainModelName];
 		}
-		if (!array_key_exists($pModelName, $lInstanceModels)) { // model doesn't exists
-			$lMessageModel = is_null($pMainModelName) ? "main model '$pModelName'" : "local model '$pModelName' in main model '$pMainModelName'";
-			throw new \Exception("$lMessageModel doesn't exists, you must define it");
+		if (!array_key_exists($modelName, $instanceModels)) { // model doesn't exists
+			$messageModel = is_null($mainModelName) ? "main model '$modelName'" : "local model '$modelName' in main model '$mainModelName'";
+			throw new \Exception("$messageModel doesn't exists, you must define it");
 		}
-		if (is_object($lInstanceModels[$pModelName])) { // model already initialized
-			$lReturn = $lInstanceModels[$pModelName];
+		if (is_object($instanceModels[$modelName])) { // model already initialized
+			$return = $instanceModels[$modelName];
 		}else {
-			if (count($lInstanceModels[$pModelName]) == 3) {
-				$lReturn = $lInstanceModels[$pModelName][2];
+			if (count($instanceModels[$modelName]) == 3) {
+				$return = $instanceModels[$modelName][2];
 			} else {
-				if (is_null($pMainModelName)) {
-					$lReturn = new MainModel($pModelName, $pLoadModel);
+				if (is_null($mainModelName)) {
+					$return = new MainModel($modelName, $loadModel);
 				} else {
-					$lReturn = new LocalModel($pModelName, $pMainModelName, $pLoadModel);
+					$return = new LocalModel($modelName, $mainModelName, $loadModel);
 				}
 				
-				if (is_object($lInstanceModels[$pModelName])) {
-					if ($lInstanceModels[$pModelName] !== $lReturn) {
-						throw new \Exception('already exists '.$pModelName.' '.var_export($pMainModelName, true));
+				if (is_object($instanceModels[$modelName])) {
+					if ($instanceModels[$modelName] !== $return) {
+						throw new \Exception('already exists '.$modelName.' '.var_export($mainModelName, true));
 					}
-					if (!$pLoadModel) {
+					if (!$loadModel) {
 						throw new \Exception('model has been loaded');
 					}
 				}
 				else { // else add model
-					if ($pLoadModel) {
-						$lInstanceModels[$pModelName] = $lReturn;
+					if ($loadModel) {
+						$instanceModels[$modelName] = $return;
 					} else {
-						$lInstanceModels[$pModelName][] = $lReturn;
+						$instanceModels[$modelName][] = $return;
 					}
 				}
 			}
 		}
-		return $lReturn;
+		return $return;
 	}
 	
 	/**
 	 * 
-	 * @param Model $pModel
+	 * @param Model $model
 	 */
-	private function _addInstanceModel(Model $pModel) {
-		if ($pModel instanceof LocalModel) {
-			$lMainModel = $this->getInstanceModel($pModel->getMainModelName());
-			$lInstanceModels =& $this->mLocalTypes[$pModel->getMainModelName()];
+	private function _addInstanceModel(Model $model) {
+		if ($model instanceof LocalModel) {
+			$mainModel = $this->getInstanceModel($model->getMainModelName());
+			$instanceModels =& $this->localTypes[$model->getMainModelName()];
 		} else {
-			$lInstanceModels =& $this->mInstanceModels;
+			$instanceModels =& $this->instanceModels;
 		}
 		
-		if (is_object($lInstanceModels[$pModel->getName()])) {
+		if (is_object($instanceModels[$model->getName()])) {
 			throw new \Exception('model already added');
 		}
-		$lInstanceModels[$pModel->getName()] = $pModel;
+		$instanceModels[$model->getName()] = $model;
 	}
 	
-	public function getProperties(Model $pModel) {
-		$lReturn = null;
+	public function getProperties(Model $model) {
+		$return = null;
 		
-		if ($pModel instanceof LocalModel) {
-			$lInstanceModels =& $this->mLocalTypes[$pModel->getMainModel()->getName()];
+		if ($model instanceof LocalModel) {
+			$instanceModels =& $this->localTypes[$model->getMainModel()->getName()];
 		} else {
-			$lInstanceModels =& $this->mInstanceModels;
+			$instanceModels =& $this->instanceModels;
 		}
 		
-		if (is_null($this->mManifestParser) && is_object($lInstanceModels[$pModel->getName()]) && $lInstanceModels[$pModel->getName()]->isLoaded()) {
-			$lReturn = [
-				self::PROPERTIES     => $pModel->getProperties(), 
-				self::EXTENDS_MODEL  => $pModel->getExtendsModel(),
-				self::OBJECT_CLASS   => $pModel->getObjectClass()
+		if (is_null($this->manifestParser) && is_object($instanceModels[$model->getName()]) && $instanceModels[$model->getName()]->isLoaded()) {
+			$return = [
+				self::PROPERTIES     => $model->getProperties(), 
+				self::EXTENDS_MODEL  => $model->getExtendsModel(),
+				self::OBJECT_CLASS   => $model->getObjectClass()
 			];
-			if ($pModel instanceof MainModel) {
-				$lReturn[self::SERIALIZATION] = $pModel->getSerialization();
+			if ($model instanceof MainModel) {
+				$return[self::SERIALIZATION] = $model->getSerialization();
 			}
 		}else {
-			$lUnsetManifestParser = false;
-			if (is_null($this->mManifestParser)) {
-				$lUnsetManifestParser   = true;
-				$lManifestPath_afe      = $lInstanceModels[$pModel->getName()][0];
-				$lManifestPath_ad       = dirname($lManifestPath_afe);
-				$lSerializationPath_afe = !is_null($lInstanceModels[$pModel->getName()][1]) ? $lInstanceModels[$pModel->getName()][1] : null;
-				$this->mManifestParser  = ManifestParser::getInstance($pModel, $lManifestPath_afe, $lSerializationPath_afe);
+			$unsetManifestParser = false;
+			if (is_null($this->manifestParser)) {
+				$unsetManifestParser   = true;
+				$manifestPath_afe      = $instanceModels[$model->getName()][0];
+				$manifestPath_ad       = dirname($manifestPath_afe);
+				$serializationPath_afe = !is_null($instanceModels[$model->getName()][1]) ? $instanceModels[$model->getName()][1] : null;
+				$this->manifestParser  = ManifestParser::getInstance($model, $manifestPath_afe, $serializationPath_afe);
 				
-				$this->_addInstanceModel($pModel);
-				$this->_buildLocalTypes($pModel, $lManifestPath_ad);
+				$this->_addInstanceModel($model);
+				$this->_buildLocalTypes($model, $manifestPath_ad);
 			}
-			$lExtendsModel = $this->_getExtendsModel($pModel);
+			$extendsModel = $this->_getExtendsModel($model);
 			
-			$lReturn = [
-				self::EXTENDS_MODEL => $lExtendsModel,
-				self::OBJECT_CLASS  => $this->mManifestParser->getObjectClass(),
-				self::PROPERTIES    => $this->_buildProperties($pModel, $lExtendsModel)
+			$return = [
+				self::EXTENDS_MODEL => $extendsModel,
+				self::OBJECT_CLASS  => $this->manifestParser->getObjectClass(),
+				self::PROPERTIES    => $this->_buildProperties($model, $extendsModel)
 			];
 			
-			if ($lUnsetManifestParser) {
-				$this->mSerializationManifestParser = $this->mManifestParser->getSerializationManifestParser();
-				unset($this->mManifestParser);
-				$this->mManifestParser = null;
+			if ($unsetManifestParser) {
+				$this->serializationManifestParser = $this->manifestParser->getSerializationManifestParser();
+				unset($this->manifestParser);
+				$this->manifestParser = null;
 			}
 		}
-		return $lReturn;
+		return $return;
 	}
 	
-	private function _buildLocalTypes($pModel, $pManifestPath_ad) {
-		if ($this->mManifestParser->isFocusOnLocalTypes()) {
+	private function _buildLocalTypes($model, $manifestPath_ad) {
+		if ($this->manifestParser->isFocusOnLocalTypes()) {
 			throw new \Exception('cannot define local types in local types');
 		}
-		if (!($pModel instanceof MainModel)) {
+		if (!($model instanceof MainModel)) {
 			// perhaps allow local models defined in there own manifest to have local types
 			return;
 		}
-		$this->mLocalTypes[$pModel->getName()] = [];
-		if ($this->mManifestParser->getLocalTypesCount() > 0) {
-			$lXmlLocalTypes = [];
-			$lMainModelName = $pModel->getName();
+		$this->localTypes[$model->getName()] = [];
+		if ($this->manifestParser->getLocalTypesCount() > 0) {
+			$xmlLocalTypes = [];
+			$mainModelName = $model->getName();
 			
-			$this->mManifestParser->registerComplexLocalModels($this->mLocalTypes[$lMainModelName], $pManifestPath_ad);
-			$this->mManifestParser->activateFocusOnLocalTypes();
+			$this->manifestParser->registerComplexLocalModels($this->localTypes[$mainModelName], $manifestPath_ad);
+			$this->manifestParser->activateFocusOnLocalTypes();
 			
 			do {
-				$lTypeId = $this->mManifestParser->getCurrentLocalTypeId();
+				$typeId = $this->manifestParser->getCurrentLocalTypeId();
 				
-				if (array_key_exists($lTypeId, $this->mInstanceModels)) {
-					throw new \Exception("local model in main model '$lMainModelName' has same name than another main model '$lTypeId' ");
+				if (array_key_exists($typeId, $this->instanceModels)) {
+					throw new \Exception("local model in main model '$mainModelName' has same name than another main model '$typeId' ");
 				}
-				if (array_key_exists($lTypeId, $this->mLocalTypes[$lMainModelName])) {
-					throw new \Exception("several local model with same type '$lTypeId' in main model '$lMainModelName'");
+				if (array_key_exists($typeId, $this->localTypes[$mainModelName])) {
+					throw new \Exception("several local model with same type '$typeId' in main model '$mainModelName'");
 				}
-				$this->mLocalTypes[$lMainModelName][$lTypeId] = new LocalModel($lTypeId, $lMainModelName, false);
-			} while ($this->mManifestParser->nextLocalType());
+				$this->localTypes[$mainModelName][$typeId] = new LocalModel($typeId, $mainModelName, false);
+			} while ($this->manifestParser->nextLocalType());
 			
-			$this->mManifestParser->activateFocusOnLocalTypes();
+			$this->manifestParser->activateFocusOnLocalTypes();
 			do {
-				$lTypeId = $this->mManifestParser->getCurrentLocalTypeId();
-				$this->mLocalTypes[$lMainModelName][$lTypeId]->load();
-			} while ($this->mManifestParser->nextLocalType());
+				$typeId = $this->manifestParser->getCurrentLocalTypeId();
+				$this->localTypes[$mainModelName][$typeId]->load();
+			} while ($this->manifestParser->nextLocalType());
 			
-			$this->mManifestParser->desactivateFocusOnLocalTypes();
+			$this->manifestParser->desactivateFocusOnLocalTypes();
 		}
 	}
 	
-	private function _getExtendsModel(Model $pModel) {
-		$lModel = null;
-		$lModelName = $this->mManifestParser->getExtends();
-		if (!is_null($lModelName)) {
-			$lMainModelName = $pModel->getMainModelName();
-			if ($pModel instanceof MainModel) {
-				$lMainModelName = null;
+	private function _getExtendsModel(Model $model) {
+		$extendsModel = null;
+		$modelName = $this->manifestParser->getExtends();
+		if (!is_null($modelName)) {
+			$mainModelName = $model->getMainModelName();
+			if ($model instanceof MainModel) {
+				$mainModelName = null;
 			}
-			else if (array_key_exists($lModelName, $this->mInstanceModels)) {
-				if (!is_null($lMainModelName) && array_key_exists($lModelName, $this->mLocalTypes[$lMainModelName])) {
-					throw new \Exception("cannot determine if property '$lModelName' is local or main model");
+			else if (array_key_exists($modelName, $this->instanceModels)) {
+				if (!is_null($mainModelName) && array_key_exists($modelName, $this->localTypes[$mainModelName])) {
+					throw new \Exception("cannot determine if property '$modelName' is local or main model");
 				}
-				$lMainModelName = null;
+				$mainModelName = null;
 			}
-			$lManifestParser = $this->mManifestParser;
-			$this->mManifestParser = null;
-			$lModel = $this->getInstanceModel($lModelName, $lMainModelName);
-			$this->mManifestParser = $lManifestParser;
+			$manifestParser = $this->manifestParser;
+			$this->manifestParser = null;
+			$extendsModel = $this->getInstanceModel($modelName, $mainModelName);
+			$this->manifestParser = $manifestParser;
 		}
-		return $lModel;
+		return $extendsModel;
 	}
 	
 	/**
-	 * @param Model $pCurrentModel
-	 * @param Model $lExtendsModel
+	 * @param Model $currentModel
+	 * @param Model $extendsModel
 	 * @throws \Exception
 	 * @return Property[]
 	 */
-	private function _buildProperties(Model $pCurrentModel, Model $lExtendsModel = null) {
-		$lProperties = is_null($lExtendsModel) ? [] : $lExtendsModel->getProperties();
+	private function _buildProperties(Model $currentModel, Model $extendsModel = null) {
+		$properties = is_null($extendsModel) ? [] : $extendsModel->getProperties();
 	
 		do {
-			$lModelName     = $this->mManifestParser->getCurrentPropertyModelName();
-			$lMainModelName = $pCurrentModel->getMainModelName();
+			$modelName     = $this->manifestParser->getCurrentPropertyModelName();
+			$mainModelName = $currentModel->getMainModelName();
 			
-			if (array_key_exists($lModelName, $this->mInstanceModels)) {
-				if (!is_null($lMainModelName) && array_key_exists($lModelName, $this->mLocalTypes[$lMainModelName])) {
-					throw new \Exception("cannot determine if property '$lModelName' is local or main model");
+			if (array_key_exists($modelName, $this->instanceModels)) {
+				if (!is_null($mainModelName) && array_key_exists($modelName, $this->localTypes[$mainModelName])) {
+					throw new \Exception("cannot determine if property '$modelName' is local or main model");
 				}
-				$lMainModelName = null;
+				$mainModelName = null;
 			}
 			
-			$lPropertyModel = $this->_getInstanceModel($lModelName, $lMainModelName, false);
-			$lProperty      = $this->mManifestParser->getCurrentProperty($lPropertyModel);
+			$propertyModel = $this->_getInstanceModel($modelName, $mainModelName, false);
+			$property      = $this->manifestParser->getCurrentProperty($propertyModel);
 			
-			$lProperties[$lProperty->getName()] = $lProperty;
-		} while ($this->mManifestParser->nextProperty());
+			$properties[$property->getName()] = $property;
+		} while ($this->manifestParser->nextProperty());
 	
-		return $lProperties;
+		return $properties;
 	}
 	
-	public function getSerializationInstance(MainModel $pModel) {
-		if (!is_null($this->mSerializationManifestParser)) {
-			$lInheritanceKey        =  $this->mSerializationManifestParser->getInheritanceKey();
-			$lSerializationSettings = $this->mSerializationManifestParser->getSerializationSettings($pModel);
-			$lSerialization         = $this->_getUniqueSerialization($pModel, $lSerializationSettings, $lInheritanceKey);
-			unset($this->mSerializationManifestParser);
-			$this->mSerializationManifestParser = null;
-			return $lSerialization;
+	public function getSerializationInstance(MainModel $model) {
+		if (!is_null($this->serializationManifestParser)) {
+			$inheritanceKey        =  $this->serializationManifestParser->getInheritanceKey();
+			$serializationSettings = $this->serializationManifestParser->getSerializationSettings($model);
+			$serialization         = $this->_getUniqueSerialization($model, $serializationSettings, $inheritanceKey);
+			unset($this->serializationManifestParser);
+			$this->serializationManifestParser = null;
+			return $serialization;
 		}
-		return $this->_getUniqueSerialization($pModel);
+		return $this->_getUniqueSerialization($model);
 	}
 	
-	private function _getUniqueSerialization(MainModel $pModel, ComhonObject $pSerializationSettings = null, $pInheritanceKey = null) {
-		$lSerialization = null;
-		if (!is_null($pModel->getExtendsModel()) && !is_null($pModel->getExtendsModel()->getSerialization())) {
-			$lExtendedSerializationSettings = $pModel->getExtendsModel()->getSerialization()->getSettings();
-			$lExtendedInheritanceKey = $pModel->getExtendsModel()->getSerialization()->getInheritanceKey();
-			$lSame = false;
+	private function _getUniqueSerialization(MainModel $model, ComhonObject $serializationSettings = null, $inheritanceKey = null) {
+		$serialization = null;
+		if (!is_null($model->getExtendsModel()) && !is_null($model->getExtendsModel()->getSerialization())) {
+			$extendedSerializationSettings = $model->getExtendsModel()->getSerialization()->getSettings();
+			$extendedInheritanceKey = $model->getExtendsModel()->getSerialization()->getInheritanceKey();
+			$same = false;
 			
-			if (is_null($pSerializationSettings) || $pSerializationSettings === $lExtendedSerializationSettings) {
-				$lSame = true;
+			if (is_null($serializationSettings) || $serializationSettings === $extendedSerializationSettings) {
+				$same = true;
 			}
-			else if ($pSerializationSettings->getModel()->getName() == $lExtendedSerializationSettings->getModel()->getName()) {
-				$lSame = true;
-				foreach ($pSerializationSettings->getModel()->getProperties() as $lProperty) {
-					if ($pSerializationSettings->getValue($lProperty->getName()) !== $lExtendedSerializationSettings->getValue($lProperty->getName())) {
-						$lSame = false;
+			else if ($serializationSettings->getModel()->getName() == $extendedSerializationSettings->getModel()->getName()) {
+				$same = true;
+				foreach ($serializationSettings->getModel()->getProperties() as $property) {
+					if ($serializationSettings->getValue($property->getName()) !== $extendedSerializationSettings->getValue($property->getName())) {
+						$same = false;
 						break;
 					}
 				}
 			}
-			if ($lSame) {
-				$lInheritanceKey = is_null($pInheritanceKey) ? $lExtendedInheritanceKey : $pInheritanceKey;
-				$lSerialization = SerializationUnit::getInstance($lExtendedSerializationSettings, $lInheritanceKey);
+			if ($same) {
+				$inheritanceKey = is_null($inheritanceKey) ? $extendedInheritanceKey : $inheritanceKey;
+				$serialization = SerializationUnit::getInstance($extendedSerializationSettings, $inheritanceKey);
 			} else {
-				$lSerialization = SerializationUnit::getInstance($pSerializationSettings, $pInheritanceKey);
+				$serialization = SerializationUnit::getInstance($serializationSettings, $inheritanceKey);
 			}
-		} else if (!is_null($pSerializationSettings)) {
-			$lSerialization = SerializationUnit::getInstance($pSerializationSettings, $pInheritanceKey);
+		} else if (!is_null($serializationSettings)) {
+			$serialization = SerializationUnit::getInstance($serializationSettings, $inheritanceKey);
 		}
-		return $lSerialization;
+		return $serialization;
 	}
 }
