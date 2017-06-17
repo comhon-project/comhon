@@ -91,7 +91,7 @@ if ($tatooModel->getName() !== 'tatoo') {
 if (json_encode(array_keys($tatooModel->getProperties())) !== '["type","location","tatooArtist"]') {
 	throw new Exception('bad model properties');
 }
-$artModel = $tatooModel->getExtendsModel();
+$artModel = $tatooModel->getParent();
 $artModelTow = ModelManager::getInstance()->getInstanceModel('art', 'body');
 
 if ($artModel !== $artModelTow) {

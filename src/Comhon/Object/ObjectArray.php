@@ -11,18 +11,19 @@
 
 namespace Comhon\Object;
 
-use Comhon\Model\MainModel;
 use Comhon\Model\Model;
 use Comhon\Model\ModelDateTime;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\ModelArray;
+use Comhon\Model\ModelContainer;
 
-class ObjectArray extends ComhonObject implements \Iterator {
+final class ObjectArray extends ComhonObject implements \Iterator {
 
 	/**
 	 *
 	 * @param string|Model $model can be a model name or an instance of model
 	 * @param boolean $isLoaded
+	 * @param string $elementName
 	 */
 	final public function __construct($model, $isLoaded = true, $elementName = null) {
 		if ($model instanceof ModelArray) {
@@ -40,47 +41,93 @@ class ObjectArray extends ComhonObject implements \Iterator {
 	}
 	
 	/**
-	 *
-	 * @param string $name
-	 * @param string[] $propertiesFilter
-	 * @param boolean $forceLoad if object is already loaded, force to reload object
-	 * @return boolean true if loading is successfull (loading can fail if object is not serialized)
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\ComhonObject::reset()
 	 */
-	public function loadValue($pkey, $propertiesFilter = null, $forceLoad = false) {
+	final public function reset() {
+		$this->_reset();
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\ComhonObject::loadValue()
+	 */
+	final public function loadValue($pkey, $propertiesFilter = null, $forceLoad = false) {
 		return $this->getModel()->getUniqueModel()->loadAndFillObject($this->getValue($pkey), $propertiesFilter, $forceLoad);
 	}
 	
-	public function getId() {
-		return null;
+	/**
+	 * set values
+	 * 
+	 * @param unknown $values
+	 * @param string $flagAsUpdated
+	 * @param string $strict
+	 */
+	final public function setValues($values, $flagAsUpdated = true, $strict = true) {
+		if ($strict) {
+			foreach ($values as $value) {
+				$this->getModel()->verifElementValue($value);
+			}
+		}
+		$this->_setValues($values, $flagAsUpdated);
 	}
 	
-	public final function setValues($values) {
-		$this->_setValues($values);
-	}
-	
-	public final function pushValue($value, $flagAsUpdated = true, $strict = true) {
+	/**
+	 * add value at the end of array self::$values
+	 * 
+	 * @param mixed $value
+	 * @param boolean $flagAsUpdated
+	 * @param boolean $strict
+	 */
+	final public function pushValue($value, $flagAsUpdated = true, $strict = true) {
 		if ($strict) {
 			$this->getModel()->verifElementValue($value);
 		}
 		$this->_pushValue($value, $flagAsUpdated);
 	}
 	
-	public final function popValue($flagAsUpdated = true) {
-		$this->_popValue($flagAsUpdated);
+	/**
+	 * remove last value from array self::$values
+	 *
+	 * @param boolean $flagAsUpdated
+	 * @return mixed the last value of array. If array is empty,null will be returned.
+	 */
+	final public function popValue($flagAsUpdated = true) {
+		return $this->_popValue($flagAsUpdated);
 	}
 	
-	public final function unshiftValue($value, $flagAsUpdated = true, $strict = true) {
+	/**
+	 * add value at the beginning of array self::$values
+	 * 
+	 * @param mixed $value
+	 * @param boolean $flagAsUpdated
+	 * @param boolean $strict
+	 */
+	final public function unshiftValue($value, $flagAsUpdated = true, $strict = true) {
 		if ($strict) {
 			$this->getModel()->verifElementValue($value);
 		}
 		$this->_unshiftValue($value, $flagAsUpdated);
 	}
 	
-	public final function shiftValue($flagAsUpdated = true) {
-		$this->_shiftValue($flagAsUpdated);
+	/**
+	 * remove first value from array self::$values
+	 *
+	 * @param boolean $flagAsUpdated
+	 * @return mixed the first value of array. If array is empty,null will be returned.
+	 */
+	final public function shiftValue($flagAsUpdated = true) {
+		return $this->_shiftValue($flagAsUpdated);
 	}
 	
-	public function resetUpdatedStatus($recursive = true) {
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\ComhonObject::resetUpdatedStatus()
+	 */
+	final public function resetUpdatedStatus($recursive = true) {
 		if ($recursive) {
 			$objectHashMap = [];
 			$this->_resetUpdatedStatusRecursive($objectHashMap);
@@ -96,7 +143,12 @@ class ObjectArray extends ComhonObject implements \Iterator {
 		}
 	}
 	
-	protected function _resetUpdatedStatusRecursive(&$objectHashMap) {
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\ComhonObject::_resetUpdatedStatusRecursive()
+	 */
+	final protected function _resetUpdatedStatusRecursive(&$objectHashMap) {
 		$this->_resetUpdatedStatus();
 		if ($this->getModel()->getModel() instanceof ModelDateTime) {
 			foreach ($this->getValues() as $value) {
@@ -115,10 +167,11 @@ class ObjectArray extends ComhonObject implements \Iterator {
 	}
 	
 	/**
-	 * verify if at least one value has been updated
-	 * @return boolean
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\ComhonObject::isUpdated()
 	 */
-	public function isUpdated() {
+	final public function isUpdated() {
 		if (!$this->isFlagedAsUpdated()) {
 			if ($this->getModel()->getModel()->isComplex()) {
 				foreach ($this->getValues() as $value) {
@@ -139,10 +192,11 @@ class ObjectArray extends ComhonObject implements \Iterator {
 	}
 	
 	/**
-	 * verify if at least one value has been updated
+	 * verify if at least one id value has been updated among all values
+	 * 
 	 * @return boolean
 	 */
-	public function isIdUpdated() {
+	final public function isIdUpdated() {
 		if (!$this->isFlagedAsUpdated() && $this->getModel()->getModel()->isComplex()) {
 			foreach ($this->getValues() as $value) {
 				if (($value instanceof ComhonObject) && $value->isIdUpdated()) {
@@ -154,12 +208,11 @@ class ObjectArray extends ComhonObject implements \Iterator {
 	}
 	
 	/**
-	 * verify if a value has been updated
-	 * only works for object that have a model insance of MainModel, otherwise false will be return
-	 * @param string $propertyName
-	 * @return boolean
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\ComhonObject::isUpdatedValue()
 	 */
-	public function isUpdatedValue($key) {
+	final public function isUpdatedValue($key) {
 		if (!$this->isFlagedAsUpdated()) {
 			if ($this->getModel()->getModel()->isComplex()) {
 				$value = $this->getValue($key);
@@ -178,7 +231,12 @@ class ObjectArray extends ComhonObject implements \Iterator {
 	}
 	
 	
-	public function count() {
+	/**
+	 * get count of element in array self::values
+	 * 
+	 * @return number
+	 */
+	final public function count() {
 		return count($this->getValues());
 	}
 	
@@ -188,24 +246,44 @@ class ObjectArray extends ComhonObject implements \Iterator {
 	 |                                                                                               |
 	 \***********************************************************************************************/
 	
-	
-	public function rewind() {
+	 /**
+	  * Set the internal pointer of self::$values to its first element
+	  */
+	final public function rewind() {
 		$this->_rewind();
 	}
 	
-	public function current() {
+	/**
+	 * Return the current element in self::$values
+	 * 
+	 * @return mixed
+	 */
+	final public function current() {
 		return $this->_current();
 	}
 	
-	public function key() {
+	/**
+	 * Fetch a key from self::$values
+	 * 
+	 * @return mixed
+	 */
+	final public function key() {
 		return $this->_key();
 	}
 	
-	public function next() {
+	/**
+	 * Advance the internal array pointer of self::$values
+	 */
+	final public function next() {
 		$this->_next();
 	}
 	
-	public function valid() {
+	/**
+	 * verify if current internal array pointer of self::$values is valid
+	 * 
+	 * @return boolean
+	 */
+	final public function valid() {
 		return $this->_valid();
 	}
 	

@@ -21,39 +21,43 @@ class Regex implements Restriction {
 	
 	/**
 	 * 
-	 * @param string $regex
+	 * @param string $name the name of a regex
 	 */
 	public function __construct($name) {
 		$this->regex = RegexCollection::getInstance()->getRegex($name);
 	}
 	
 	/**
-	 *
-	 * @param string $value
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::satisfy()
 	 */
 	public function satisfy($value) {
 		return preg_match($this->regex, $value) === 1;
 	}
 	
 	/**
-	 * verify if specified restriction is equal to $this
-	 * @param Regex $restriction
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::isEqual()
 	 */
 	public function isEqual(Restriction $restriction) {
 		return $this === $restriction || (($restriction instanceof Regex) && $this->regex === $restriction->regex);
 	}
 	
 	/**
-	 * verify if specified model can use this restriction
-	 * @param Model $model
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::isAllowedModel()
 	 */
 	public function isAllowedModel(Model $model) {
 		return $model instanceof ModelString;
 	}
 	
 	/**
-	 * stringify restriction and value
-	 * @param mixed $value
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
 	public function toString($value) {
 		if (!is_string($value)) {

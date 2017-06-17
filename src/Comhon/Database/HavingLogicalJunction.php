@@ -14,6 +14,8 @@ namespace Comhon\Database;
 class HavingLogicalJunction extends LogicalJunction {
 	
 	/**
+	 * add literal
+	 * 
 	 * @param Literal $literal
 	 */
 	public function addLiteral(Literal $literal) {
@@ -21,6 +23,8 @@ class HavingLogicalJunction extends LogicalJunction {
 	}
 	
 	/**
+	 * add having literal
+	 * 
 	 * @param HavingLiteral $literal
 	 */
 	private function _addLiteral(HavingLiteral $literal) {
@@ -28,6 +32,8 @@ class HavingLogicalJunction extends LogicalJunction {
 	}
 	
 	/**
+	 * add logical junction
+	 * 
 	 * @param LogicalJunction $logicalJunction
 	 */
 	public function addLogicalJunction(LogicalJunction $logicalJunction) {
@@ -35,13 +41,24 @@ class HavingLogicalJunction extends LogicalJunction {
 	}
 	
 	/**
+	 * add having logical junction
+	 * 
 	 * @param HavingLogicalJunction $logicalJunction
 	 */
 	private function _addLogicalJunction(HavingLogicalJunction $logicalJunction) {
 		$this->logicalJunction[] = $logicalJunction;
 	}
 	
-	
+	/**
+	 * 
+	 * @param \stdClass $stdObject
+	 * @param TableNode|string $firstTable table to link with literals with function HavingLiteral::COUNT
+	 * @param TableNode|string $lastTable table to link with literals with other function than HavingLiteral::COUNT
+	 * @param \Comhon\Model\Model $lastModel model linked to $lastTable
+	 * @param boolean $allowPrivateProperties
+	 * @throws \Exception
+	 * @return HavingLogicalJunction
+	 */
 	public static function stdObjectToHavingLogicalJunction($stdObject, $firstTable, $lastTable, $lastModel, $allowPrivateProperties) {
 		if (!is_object($stdObject) || !isset($stdObject->type) || (isset($stdObject->logicalJunctions) && !is_array($stdObject->logicalJunctions)) || (isset($stdObject->literals) && !is_array($stdObject->literals))) {
 			throw new \Exception('malformed stdObject LogicalJunction : '.json_encode($stdObject));

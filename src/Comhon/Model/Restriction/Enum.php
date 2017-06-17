@@ -33,6 +33,11 @@ class Enum implements Restriction {
 		}
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::satisfy()
+	 */
 	public function satisfy($value) {
 		if (is_float($value)) {
 			return array_key_exists((string) $value, $this->enum);
@@ -43,8 +48,9 @@ class Enum implements Restriction {
 	}
 	
 	/**
-	 * verify if specified restriction is equal to $this
-	 * @param Enum $restriction
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::isEqual()
 	 */
 	public function isEqual(Restriction $restriction) {
 		if ($this === $restriction) {
@@ -65,8 +71,9 @@ class Enum implements Restriction {
 	}
 	
 	/**
-	 * verify if specified model can use this restriction
-	 * @param Model $model
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::isAllowedModel()
 	 */
 	public function isAllowedModel(Model $model) {
 		return ($model instanceof ModelInteger)
@@ -75,8 +82,9 @@ class Enum implements Restriction {
 	}
 	
 	/**
-	 * stringify restriction and value
-	 * @param mixed $value
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
 	public function toString($value) {
 		if (!is_float($value) && !is_integer($value) && !is_string($value)) {

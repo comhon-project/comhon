@@ -11,21 +11,22 @@
 
 namespace Comhon\Object\Collection;
 
-use Comhon\Object\ComhonObject;
 use Comhon\Model\Model;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Model\Singleton\ModelManager;
+use Comhon\Object\ObjectUnique;
 
 class ObjectCollection {
 	
 	protected $map = [];
 	
 	/**
-	 * get ComhonObject with Model if exists
+	 * get comhon object with specified model name (if exists in ObjectCollection)
+	 * 
 	 * @param string|integer $id
 	 * @param string $modelName
 	 * @param boolean $inlcudeInheritance if true, search in extended model with same serialization too
-	 * @return ComhonObject|null
+	 * @return \Comhon\Object\ObjectUnique|null null if not found
 	 */
 	public function getObject($id, $modelName, $inlcudeInheritance = true) {
 		$object = array_key_exists($modelName, $this->map) && array_key_exists($id, $this->map[$modelName])
@@ -38,7 +39,7 @@ class ObjectCollection {
 			
 			if (!is_null($serialization)) {
 				$modelNames = [];
-				$model = $currentModel->getExtendsModel();
+				$model = $currentModel->getParent();
 				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
 					$modelNames[] = $model->getName();
 					if (isset($this->map[$model->getName()][$id])) {
@@ -47,7 +48,7 @@ class ObjectCollection {
 						}
 						break;
 					}
-					$model = $model->getExtendsModel();
+					$model = $model->getParent();
 				}
 			}
 		}
@@ -55,7 +56,8 @@ class ObjectCollection {
 	}
 	
 	/**
-	 * verify if ComhonObject with specified Model and id exists in ObjectCollection
+	 * verify if comhon object with specified model name and id exists in ObjectCollection
+	 * 
 	 * @param string|integer $id
 	 * @param string $modelName
 	 * @param boolean $inlcudeInheritance if true, search in extended model with same serialization too
@@ -70,14 +72,14 @@ class ObjectCollection {
 			
 			if (!is_null($serialization)) {
 				$modelNames = [];
-				$model = $currentModel->getExtendsModel();
+				$model = $currentModel->getParent();
 				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
 					$modelNames[] = $model->getName();
 					if (isset($this->map[$model->getName()][$id])) {
 						$hasObject = in_array($this->map[$model->getName()][$id]->getModel()->getName(), $modelNames);
 						break;
 					}
-					$model = $model->getExtendsModel();
+					$model = $model->getParent();
 				}
 			}
 		}
@@ -85,22 +87,24 @@ class ObjectCollection {
 	}
 	
 	/**
-	 * get all ComhonObjects with specified Model if exists
+	 * get all comhon objects with specified model name if exists
+	 * 
 	 * @param string $modelName
-	 * @return ComhonObject|null
+	 * @return \Comhon\Object\ObjectUnique[]
 	 */
 	public function getModelObjects($modelName) {
-		return array_key_exists($modelName, $this->map) ? $this->map[$modelName] : null;
+		return array_key_exists($modelName, $this->map) ? $this->map[$modelName] : [];
 	}
 	
 	/**
-	 * add object (if not already added)
-	 * @param ComhonObject $object
+	 * add comhon object (if not already added)
+	 * 
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @param boolean $throwException throw exception if object already added
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function addObject(ComhonObject $object, $throwException = true) {
+	public function addObject(ObjectUnique $object, $throwException = true) {
 		$success = false;
 		
 		if ($object->hasCompleteId() && $object->getModel()->hasIdProperties()) {
@@ -124,16 +128,16 @@ class ObjectCollection {
 			
 			if (!is_null($serialization)) {
 				$id    = $object->getId();
-				$model = $object->getModel()->getExtendsModel();
+				$model = $object->getModel()->getParent();
 				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
 					if (isset($this->map[$model->getName()][$id])) {
 						if ($this->map[$model->getName()][$id] !== $object) {
-							throw new \Exception('extends model already has different object instance with same id');
+							throw new \Exception('parent model already has different object instance with same id');
 						}
 						break;
 					}
 					$this->map[$model->getName()][$id] = $object;
-					$model = $model->getExtendsModel();
+					$model = $model->getParent();
 				}
 			}
 		}
@@ -141,12 +145,13 @@ class ObjectCollection {
 	}
 	
 	/**
-	 * remove object from collection if exists
-	 * @param ComhonObject $object
+	 * remove comhon object from collection if exists
+	 * 
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function removeObject(ComhonObject $object) {
+	public function removeObject(ObjectUnique $object) {
 		$success = false;
 		if ($object->hasCompleteId() && $this->getObject($object->getId(), $object->getModel()->getName()) === $object) {
 			unset($this->map[$object->getModel()->getName()][$object->getId()]);
@@ -158,19 +163,24 @@ class ObjectCollection {
 			
 			if (!is_null($serialization)) {
 				$id    = $object->getId();
-				$model = $object->getModel()->getExtendsModel();
+				$model = $object->getModel()->getParent();
 				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
 					if (!isset($this->map[$model->getName()][$id]) || $this->map[$model->getName()][$id] !== $object) {
-						throw new \Exception('extends model doesn\'t have object or has different object instance with same id');
+						throw new \Exception('parent model doesn\'t have object or has different object instance with same id');
 					}
 					unset($this->map[$model->getName()][$id]);
-					$model = $model->getExtendsModel();
+					$model = $model->getParent();
 				}
 			}
 		}
 		return $success;
 	}
 	
+	/**
+	 * export all comhon objects in stdClass objets
+	 * 
+	 * @return array[]
+	 */
 	public function toStdObject() {
 		$array = [];
 		$interfacer = new StdObjectInterfacer();
@@ -184,6 +194,11 @@ class ObjectCollection {
 		return $array;
 	}
 	
+	/**
+	 * export all comhon objects in stdClass objets and json encode them
+	 * 
+	 * @return string
+	 */
 	public function toString() {
 		return json_encode($this->toStdObject());
 	}

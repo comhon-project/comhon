@@ -17,8 +17,10 @@ use Comhon\Interfacer\XMLInterfacer;
 class XmlFile extends SerializationFile {
 	
 	/**
-	 *
-	 * @return XMLInterfacer
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationFile::_getInterfacer()
+	 * 
+	 * @return \Comhon\Interfacer\XMLInterfacer
 	 */
 	protected function _getInterfacer() {
 		$interfacer = new XMLInterfacer();

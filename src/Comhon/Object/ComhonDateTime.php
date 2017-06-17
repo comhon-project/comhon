@@ -13,10 +13,12 @@ namespace Comhon\Object;
 
 class ComhonDateTime extends \DateTime {
 	
+	/** @var boolean */
 	private $isUpdated = false;
 	
 	/**
-	 * (non-PHPdoc)
+	 * 
+	 * {@inheritDoc}
 	 * @see DateTime::add()
 	 */
 	public function add($interval) {
@@ -25,7 +27,8 @@ class ComhonDateTime extends \DateTime {
 	}
 	
 	/**
-	 * (non-PHPdoc)
+	 * 
+	 * {@inheritDoc}
 	 * @see DateTime::modify()
 	 */
 	public function modify($modify) {
@@ -34,7 +37,8 @@ class ComhonDateTime extends \DateTime {
 	}
 	
 	/**
-	 * (non-PHPdoc)
+	 * 
+	 * {@inheritDoc}
 	 * @see DateTime::setDate()
 	 */
 	public function setDate($year, $month , $day) {
@@ -43,7 +47,8 @@ class ComhonDateTime extends \DateTime {
 	}
 	
 	/**
-	 * (non-PHPdoc)
+	 * 
+	 * {@inheritDoc}
 	 * @see DateTime::setISODate()
 	 */
 	public function setISODate($year, $week, $day = null) {
@@ -52,7 +57,8 @@ class ComhonDateTime extends \DateTime {
 	}
 	
 	/**
-	 * (non-PHPdoc)
+	 * 
+	 * {@inheritDoc}
 	 * @see DateTime::setTime()
 	 */
 	public function setTime($hour, $minute, $second = null) {
@@ -61,7 +67,8 @@ class ComhonDateTime extends \DateTime {
 	}
 	
 	/**
-	 * (non-PHPdoc)
+	 * 
+	 * {@inheritDoc}
 	 * @see DateTime::setTimestamp()
 	 */
 	public function setTimestamp($unixtimestamp) {
@@ -70,7 +77,8 @@ class ComhonDateTime extends \DateTime {
 	}
 	
 	/**
-	 * (non-PHPdoc)
+	 * 
+	 * {@inheritDoc}
 	 * @see DateTime::sub()
 	 */
 	public function sub($interval) {
@@ -80,6 +88,7 @@ class ComhonDateTime extends \DateTime {
 	
 	/**
 	 * verify if datetime has been updated
+	 * 
 	 * @return boolean
 	 */
 	public function isUpdated() {

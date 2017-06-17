@@ -18,14 +18,23 @@ namespace Comhon\Database;
  */
 class LogicalJunction {
 
+	/** @var string */
 	const DISJUNCTION = 'disjunction';
+	
+	/** @var string */
 	const CONJUNCTION = 'conjunction';
 	
+	/** @var string */
 	protected $type;
-	protected $literals = [];
-	protected $logicalJunction = [];
 	
-	private static $acceptedTypes = [
+	/** @var Literal[] */
+	protected $literals = [];
+	
+	/** @var LogicalJunction[] */
+	protected $logicalJunctions = [];
+	
+	/** @var string[] */
+	private static $allowedTypes = [
 		self::DISJUNCTION => 'or',
 		self::CONJUNCTION => 'and'
 	];
@@ -35,21 +44,33 @@ class LogicalJunction {
 	 * @param string $type can be self::CONJUNCTION or self::DISJUNCTION
 	 */
 	public function __construct($type) {
-		if (!array_key_exists($type, self::$acceptedTypes)) {
+		if (!array_key_exists($type, self::$allowedTypes)) {
 			throw new \Exception("type '$type' doesn't exists");
 		}
 		$this->type = $type;
 	}
 	
+	/**
+	 * get type
+	 * 
+	 * @return string
+	 */
 	public function getType() {
 		return $this->type;
 	}
 	
+	/**
+	 * get sql operator
+	 * 
+	 * @return string
+	 */
 	public function getOperator() {
-		return self::$acceptedTypes[$this->type];
+		return self::$allowedTypes[$this->type];
 	}
 	
 	/**
+	 * add literal
+	 * 
 	 * @param Literal $literal
 	 */
 	public function addLiteral(Literal $literal) {
@@ -57,33 +78,35 @@ class LogicalJunction {
 	}
 	
 	/**
+	 * add logical junction
+	 * 
 	 * @param LogicalJunction $logicalJunction
 	 */
 	public function addLogicalJunction(LogicalJunction $logicalJunction) {
-		$this->logicalJunction[] = $logicalJunction;
+		$this->logicalJunctions[] = $logicalJunction;
 	}
 	
 	/**
-	 * @param array $literals
+	 * @param Literal[] $literals
 	 */
 	public function setLiterals($literals) {
 		$this->literals = $literals;
 	}
 	
 	/**
-	 * @param array $logicalJunction
+	 * @param LogicalJunction[] $logicalJunctions
 	 */
-	public function setLogicalJunction($logicalJunction) {
-		$this->logicalJunction = $logicalJunction;
+	public function setLogicalJunction($logicalJunctions) {
+		$this->logicalJunctions = $logicalJunctions;
 	}
 	
 	/**
-	 * @param string $keyType can be "index" or "md5"
-	 * @return array:
+	 * @param boolean $indexByMD5 if true index literals by md5 (calcul all md5 for each call)
+	 * @return Literal[]:
 	 */
-	public function getLiterals($keyType = 'index') {
+	public function getLiterals($indexByMD5 = false) {
 		$return = $this->literals;
-		if ($keyType == 'md5') {
+		if ($indexByMD5) {
 			$return = [];
 			foreach ($this->literals as $literal) {
 				$return[md5($literal->exportWithValue())] = $literal;
@@ -92,44 +115,46 @@ class LogicalJunction {
 		return $return;
 	}
 	
-	public function getLogicalJunction() {
-		return $this->logicalJunction;
+	/**
+	 * 
+	 * @return LogicalJunction[]
+	 */
+	public function getLogicalJunctions() {
+		return $this->logicalJunctions;
 	}
 	
 	/**
 	 * 
-	 * @param string $keyType can be "index" or "md5"
-	 * @return array
+	 * @param boolean $indexByMD5 if true index literals by md5 (calcul all md5 for each call)
+	 * @return Literal[]
 	 */
-	public function getFlattenedLiterals($keyType = 'index') {
+	public function getFlattenedLiterals($indexByMD5 = false) {
 		$literals= [];
-		$this->getFlattenedLiteralsWithRefParam($literals, $keyType);
+		$this->_getFlattenedLiteralsWithRefParam($literals, $indexByMD5);
 		return $literals;
 	}
 	
 	/**
-	 * don't call this function, call getFlattenedLiterals
-	 * @param array $literals
-	 * @param array $keyType
+	 * @param  Literal[] $literals
+	 * @param boolean $indexByMD5 if true index literals by md5 (calcul all md5 for each call)
 	 */
-	public function getFlattenedLiteralsWithRefParam(&$literals, $keyType) {
+	protected function _getFlattenedLiteralsWithRefParam(&$literals, $indexByMD5) {
 		foreach ($this->literals as $literal) {
-			switch ($keyType) {
-				case 'md5':
-					$literals[md5($literal->exportWithValue())] = $literal;
-					break;
-				default:
-					$literals[] = $literal;
-					break;
+			if ($indexByMD5) {
+				$literals[md5($literal->exportWithValue())] = $literal;
+			} else {
+				$literals[] = $literal;
 			}
 		}
-		foreach ($this->logicalJunction as $logicalJunction) {
-			$logicalJunction->getFlattenedLiteralsWithRefParam($literals, $keyType);
+		foreach ($this->logicalJunctions as $logicalJunction) {
+			$logicalJunction->_getFlattenedLiteralsWithRefParam($literals, $indexByMD5);
 		}
 	}
 	
 	/**
-	 * @param array $values
+	 * export stringified logical junction to integrate it in sql query
+	 * 
+	 * @param mixed[] $values values to bind
 	 * @return string
 	 */
 	public function export(&$values) {
@@ -137,7 +162,7 @@ class LogicalJunction {
 		foreach ($this->literals as $literal) {
 			$array[] = $literal->export($values);
 		}
-		foreach ($this->logicalJunction as $logicalJunction) {
+		foreach ($this->logicalJunctions as $logicalJunction) {
 			$result = $logicalJunction->export($values);
 			if ($result != '') {
 				$array[] = $result;
@@ -147,6 +172,10 @@ class LogicalJunction {
 	}
 	
 	/**
+	 * export stringified logical junction to integrate it in sql query
+	 * DO NOT USE this function to build a query that will be executed (it doesn't prevent from injection)
+	 * USE this function to see what query looks like
+	 *
 	 * @return string
 	 */
 	public function exportDebug() {
@@ -154,7 +183,7 @@ class LogicalJunction {
 		foreach ($this->literals as $literal) {
 			$array[] = $literal->exportWithValue();
 		}
-		foreach ($this->logicalJunction as $logicalJunction) {
+		foreach ($this->logicalJunctions as $logicalJunction) {
 			$result = $logicalJunction->exportDebug();
 			if ($result != '') {
 				$array[] = $result;
@@ -163,6 +192,11 @@ class LogicalJunction {
 		return (!empty($array)) ? '('.implode(' '.$this->getOperator().' ', $array).')' : '';
 	}
 	
+	/**
+	 * verify if logical junction contain one and only one literal
+	 * 
+	 * @return boolean
+	 */
 	public function hasOnlyOneLiteral() {
 		$hasOnlyOneLiteral = false;
 		if (count($this->literals) > 1) {
@@ -170,7 +204,7 @@ class LogicalJunction {
 		}elseif (count($this->literals) == 1) {
 			$hasOnlyOneLiteral = true;
 		}
-		foreach ($this->logicalJunction as $logicalJunction) {
+		foreach ($this->logicalJunctions as $logicalJunction) {
 			if ($logicalJunction->hasLiterals()) {
 				if ($hasOnlyOneLiteral) {
 					return false;
@@ -184,10 +218,15 @@ class LogicalJunction {
 		return $hasOnlyOneLiteral;
 	}
 	
+	/**
+	 * verify if logical junction contain at least one literal
+	 * 
+	 * @return boolean
+	 */
 	public function hasLiterals() {
 		if (!empty($this->literals)) {
 			return true;
-		}foreach ($this->logicalJunction as $logicalJunction) {
+		}foreach ($this->logicalJunctions as $logicalJunction) {
 			if ($logicalJunction->hasLiterals()) {
 				return true;
 			}
@@ -195,6 +234,11 @@ class LogicalJunction {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @param boolean[] $predicates
+	 * @return boolean
+	 */
 	public function isSatisfied($predicates) {
 		$return = false;
 		if ($this->type == self::CONJUNCTION) {
@@ -205,13 +249,18 @@ class LogicalJunction {
 		return $return;
 	}
 	
+	/**
+	 *
+	 * @param boolean[] $predicates
+	 * @return boolean
+	 */
 	private function _isSatisfiedConjunction($predicates) {
-		foreach ($this->getLiterals('md5') as $key => $literal) {
+		foreach ($this->getLiterals(true) as $key => $literal) {
 			if (!$predicates[$key]) {
 				return false;
 			}
 		}
-		foreach ($this->logicalJunction as $logicalJunction) {
+		foreach ($this->logicalJunctions as $logicalJunction) {
 			if (!$logicalJunction->isSatisfied($predicates)) {
 				return false;
 			}
@@ -219,12 +268,17 @@ class LogicalJunction {
 		return true;
 	}
 	
+	/**
+	 *
+	 * @param boolean[] $predicates
+	 * @return boolean
+	 */
 	private function _isSatisfiedDisjunction($predicates) {
 		$satisfied = false;
-		foreach ($this->getLiterals('md5') as $key => $literal) {
+		foreach ($this->getLiterals(true) as $key => $literal) {
 			$satisfied = $satisfied || $predicates[$key];
 		}
-		foreach ($this->logicalJunction as $logicalJunction) {
+		foreach ($this->logicalJunctions as $logicalJunction) {
 			$satisfied = $satisfied || $logicalJunction->isSatisfied($predicates);
 		}
 		return $satisfied;
@@ -233,7 +287,7 @@ class LogicalJunction {
 	/**
 	 * 
 	 * @param \stdClass $stdObject
-	 * @param Model[] $modelByNodeId
+	 * @param \Comhon\Model\Model[] $modelByNodeId
 	 * @param Literal[] $literalCollection
 	 * @param SelectQuery $selectQuery
 	 * @param boolean $allowPrivateProperties

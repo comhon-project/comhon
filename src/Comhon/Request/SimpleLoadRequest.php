@@ -11,13 +11,19 @@
 
 namespace Comhon\Request;
 
-use Comhon\Object\ComhonObject;
 use Comhon\Model\Model;
 
 class SimpleLoadRequest extends ObjectLoadRequest {
 
+	/** @var string|integer */
 	private $id;
 	
+	/**
+	 * 
+	 * @param string $modelName
+	 * @param boolean $private
+	 * @throws \Exception
+	 */
 	public function __construct($modelName, $private = false) {
 		parent::__construct($modelName, $private);
 		if (!$this->private) {
@@ -38,33 +44,37 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 	}
 	
 	/**
-	 * execute resquest and return resulting object
-	 * @return ComhonObject
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Request\ObjectLoadRequest::execute()
 	 */
 	public function execute() {
 		$object = $this->model->loadObject($this->id, $this->propertiesFilter);
 		if (!is_null($object)) {
-			$this->_updateObjects($object);
+			$this->_completeObject($object);
 		}
 		return $object;
 	}
 	
 	/**
+	 * build load request
 	 *
-	 * @param stdClass $stdObject
-	 * @return SimpleLoadRequest
+	 * @param \stdClass $settings
+	 * @param boolean $private
+	 * @throws \Exception
+	 * @return \Comhon\Request\SimpleLoadRequest
 	 */
-	public static function buildObjectLoadRequest($stdObject, $private = false) {
-		if (!isset($stdObject->model)) {
+	public static function buildObjectLoadRequest(\stdClass $settings, $private = false) {
+		if (!isset($settings->model)) {
 			throw new \Exception('request doesn\'t have model');
 		}
-		if (!isset($stdObject->id)) {
+		if (!isset($settings->id)) {
 			throw new \Exception('request doesn\'t have id');
 		}
-		$request = new SimpleLoadRequest($stdObject->model, $private);
-		$request->setRequestedId($stdObject->id);
-		if (isset($stdObject->properties) && is_array($stdObject->properties)) {
-			$request->setPropertiesFilter($stdObject->properties);
+		$request = new SimpleLoadRequest($settings->model, $private);
+		$request->setRequestedId($settings->id);
+		if (isset($settings->properties) && is_array($settings->properties)) {
+			$request->setPropertiesFilter($settings->properties);
 		}
 		return $request;
 	}

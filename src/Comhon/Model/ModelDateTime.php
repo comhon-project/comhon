@@ -17,18 +17,22 @@ use Comhon\Interfacer\NoScalarTypedInterfacer;
 
 class ModelDateTime extends SimpleModel {
 	
+	/** @var string */
 	const ID = 'dateTime';
 	
-	protected function _init() {
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\SimpleModel::_initializeModelName()
+	 */
+	protected function _initializeModelName() {
 		$this->modelName = self::ID;
 	}
 	
 	/**
-	 *
-	 * @param mixed $value
-	 * @param Interfacer $interfacer
-	 * @throws \Exception
-	 * @return mixed|null
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\SimpleModel::exportSimple()
 	 */
 	public function exportSimple($value, Interfacer $interfacer) {
 		if (is_null($value)) {
@@ -38,10 +42,9 @@ class ModelDateTime extends SimpleModel {
 	}
 	
 	/**
-	 *
-	 * @param mixed $value
-	 * @param Interfacer $interfacer
-	 * @return ComhonDateTime|null
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\SimpleModel::importSimple()
 	 */
 	public function importSimple($value, Interfacer $interfacer) {
 		if (is_null($value)) {
@@ -54,20 +57,28 @@ class ModelDateTime extends SimpleModel {
 	}
 	
 	/**
+	 * instanciate ComhonDateTime object
 	 * 
-	 * @param string $value
+	 * @param string $time
 	 * @param \DateTimeZone $dateTimeZone
-	 * @return ComhonDateTime
+	 * @return \Comhon\Object\ComhonDateTime
 	 */
-	public function fromString($value, \DateTimeZone $dateTimeZone) {
-		$dateTime = new ComhonDateTime($value, $dateTimeZone);
+	public function fromString($time, \DateTimeZone $dateTimeZone) {
+		$dateTime = new ComhonDateTime($time, $dateTimeZone);
 		if ($dateTime->getTimezone()->getName() !== $dateTimeZone->getName()) {
 			$dateTime->setTimezone($dateTimeZone);
 		}
 		return $dateTime;
 	}
 	
-	public function toString(ComhonDateTime $dateTime, $dateTimeZone, $dateFormat = 'c') {
+	/**
+	 * 
+	 * @param \Comhon\Object\ComhonDateTime $dateTime
+	 * @param \DateTimeZone $dateTimeZone
+	 * @param string $dateFormat
+	 * @return string
+	 */
+	public function toString(ComhonDateTime $dateTime, \DateTimeZone $dateTimeZone, $dateFormat = 'c') {
 		if ($dateTimeZone->getName() == $dateTime->getTimezone()->getName()) {
 			return $dateTime->format($dateFormat);
 		}
@@ -80,10 +91,21 @@ class ModelDateTime extends SimpleModel {
 		}
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\SimpleModel::castValue()
+	 */
 	public function castValue($value) {
 		throw new \Exception('cannot cast datetime object');
 	}
 	
+	/**
+	 * verify if value is a ComhonDateTime object
+	 *
+	 * @param mixed $value
+	 * @return boolean
+	 */
 	public function verifValue($value) {
 		if (!($value instanceof ComhonDateTime)) {
 			$nodes = debug_backtrace();

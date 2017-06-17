@@ -13,16 +13,34 @@ namespace Comhon\Model;
 
 class ModelString extends SimpleModel {
 	
+	/** @var string */
 	const ID = 'string';
 	
-	protected function _init() {
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\SimpleModel::_initializeModelName()
+	 */
+	protected function _initializeModelName() {
 		$this->modelName = self::ID;
 	}
 	
+	/**
+	 * cast value to string
+	 *
+	 * @param mixed $value
+	 * @return string
+	 */
 	public function castValue($value) {
 		return (string) $value;
 	}
 	
+	/**
+	 * verify if value is a string
+	 *
+	 * @param mixed $value
+	 * @return boolean
+	 */
 	public function verifValue($value) {
 		if (!is_string($value)) {
 			$nodes = debug_backtrace();

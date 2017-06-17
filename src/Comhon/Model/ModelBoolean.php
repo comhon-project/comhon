@@ -17,18 +17,24 @@ use Comhon\Interfacer\NoScalarTypedInterfacer;
 
 class ModelBoolean extends SimpleModel {
 	
+	/** @var string */
 	const ID = 'boolean';
 	
-	protected function _init() {
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\SimpleModel::_initializeModelName()
+	 */
+	protected function _initializeModelName() {
 		$this->modelName = self::ID;
 	}
 	
 	/**
-	 *
-	 * @param mixed $value
-	 * @param Interfacer $interfacer
-	 * @throws \Exception
-	 * @return mixed|null
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\SimpleModel::exportSimple()
+	 * 
+	 * @return boolean|null
 	 */
 	public function exportSimple($value, Interfacer $interfacer) {
 		if (is_null($value)) {
@@ -41,9 +47,10 @@ class ModelBoolean extends SimpleModel {
 	}
 	
 	/**
-	 *
-	 * @param mixed $value
-	 * @param Interfacer $interfacer
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\SimpleModel::importSimple()
+	 * 
 	 * @return boolean|null
 	 */
 	public function importSimple($value, Interfacer $interfacer) {
@@ -56,10 +63,22 @@ class ModelBoolean extends SimpleModel {
 		return $value;
 	}
 	
+	/**
+	 * cast value to boolean
+	 * 
+	 * @param mixed $value
+	 * @return boolean
+	 */
 	public function castValue($value) {
 		return (boolean) $value;
 	}
 	
+	/**
+	 * verify if value is a boolean
+	 *
+	 * @param mixed $value
+	 * @return boolean
+	 */
 	public function verifValue($value) {
 		if (!is_bool($value)) {
 			$nodes = debug_backtrace();

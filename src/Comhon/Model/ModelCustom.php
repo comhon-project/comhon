@@ -13,6 +13,11 @@ namespace Comhon\Model;
 
 class ModelCustom extends Model {
 
+	/**
+	 * 
+	 * @param string $modelName
+	 * @param \Comhon\Model\Property\Property[] $properties
+	 */
 	public function __construct($modelName, $properties) {
 		$this->modelName = $modelName;
 		$this->isLoaded = true;

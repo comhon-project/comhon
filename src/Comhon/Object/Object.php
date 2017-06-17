@@ -15,9 +15,8 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\Model;
 use Comhon\Model\ModelContainer;
 use Comhon\Model\SimpleModel;
-use Comhon\Object\ComhonObject;
 
-final class Object extends ComhonObject {
+final class Object extends ObjectUnique {
 
 	/**
 	 * 

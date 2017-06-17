@@ -12,34 +12,46 @@
 namespace Comhon\Model\Property;
 
 use Comhon\Object\ObjectArray;
-use Comhon\Object\ComhonObject;
 use Comhon\Model\SimpleModel;
 use Comhon\Model\ModelContainer;
 use Comhon\Model\ModelDateTime;
 use Comhon\Object\ComhonDateTime;
 use Comhon\Model\Model;
+use Comhon\Object\ObjectUnique;
 
 class Property {
 
+	/** @var \Comhon\Model\Model */
 	protected $model;
+	
+	/** @var string */
 	protected $name;
+	
+	/** @var string */
 	protected $serializationName;
 	protected $isId;
+	
+	/** @var boolean */
 	protected $isPrivate;
+	
+	/** @var boolean */
 	protected $isSerializable;
+	
+	/** @var mixed */
 	protected $default;
+	
+	/** @var boolean */
 	protected $interfaceAsNodeXml;
 	
 	/**
 	 * 
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 * @param string $name
 	 * @param string $serializationName
 	 * @param boolean $isId
 	 * @param boolean $isPrivate
 	 * @param boolean $isSerializable
 	 * @param mixed $default
-	 * @param unknown $restriction
 	 * @param boolean $isInterfacedAsNodeXml
 	 * @throws \Exception
 	 */
@@ -69,13 +81,20 @@ class Property {
 	}
 	
 	/**
-	 * @return Model
+	 * get model
+	 * 
+	 * @return \Comhon\Model\Model
 	 */
 	public function getModel() {
 		$this->model->load();
 		return $this->model;
 	}
 	
+	/**
+	 * get model or model inside model container
+	 * 
+	 * @return \Comhon\Model\Model
+	 */
 	public function getUniqueModel() {
 		$uniqueModel = $this->getModel();
 		while ($uniqueModel instanceof ModelContainer) {
@@ -85,30 +104,65 @@ class Property {
 		return $uniqueModel;
 	}
 	
+	/**
+	 * get name
+	 * 
+	 * @return string
+	 */
 	public function getName() {
 		return $this->name;
 	}
 	
+	/**
+	 * get serialization name
+	 *
+	 * @return string
+	 */
 	public function getSerializationName() {
 		return $this->serializationName;
 	}
 	
+	/**
+	 * verify if property is an id
+	 *
+	 * @return boolean
+	 */
 	public function isId() {
 		return $this->isId;
 	}
 	
+	/**
+	 * verify if property private
+	 *
+	 * @return boolean
+	 */
 	public function isPrivate() {
 		return $this->isPrivate;
 	}
 	
+	/**
+	 * verify if property is serializable
+	 *
+	 * @return boolean
+	 */
 	public function isSerializable() {
 		return $this->isSerializable;
 	}
 	
+	/**
+	 * verify if property has default value
+	 *
+	 * @return boolean
+	 */
 	public function hasDefaultValue() {
 		return !is_null($this->default);
 	}
 	
+	/**
+	 * get default value if exists
+	 *
+	 * @return mixed|null null if property doesn't have default value
+	 */
 	public function getDefaultValue() {
 		if ($this->model instanceof ModelDateTime) {
 			return new ComhonDateTime($this->default);
@@ -116,28 +170,45 @@ class Property {
 		return $this->default;
 	}
 	
-	public function getSerialization() {
-		return null;
-	}
-	
+	/**
+	 * verify if property is aggregation
+	 *
+	 * @return boolean
+	 */
 	public function isAggregation() {
 		return false;
 	}
 	
+	/**
+	 * verify if property is foreign
+	 *
+	 * @return boolean
+	 */
 	public function isForeign() {
 		return false;
 	}
 	
+	/**
+	 * verify if model property is complex
+	 *
+	 * @return boolean
+	 */
 	public function isComplex() {
 		return $this->model->isComplex();
 	}
 	
+	/**
+	 * verify if property has model \Comhon\Model\ModelDateTime
+	 *
+	 * @return boolean
+	 */
 	public function hasModelDateTime() {
 		return ($this->model instanceof ModelDateTime);
 	}
 	
 	/**
 	 * verifiy if property has several serialization names
+	 * 
 	 * @return boolean
 	 */
 	public function hasMultipleSerializationNames() {
@@ -156,12 +227,12 @@ class Property {
 	}
 	
 	/**
-	 * verify if property is exportable in public/private/serialization mode
+	 * verify if value is exportable in public/private/serialization mode
 	 * 
 	 * @param boolean $private if true private mode, otherwise public mode
 	 * @param boolean $serialization if true serialization mode, otherwise model mode
 	 * @param mixed $value value that we want to export
-	 * @return boolean true if property is interfaceable
+	 * @return boolean true if value is exportable
 	 */
 	public function isExportable($private, $serialization, $value) {
 		return (is_null($value) || $this->getModel()->verifValue($value)) && $this->isInterfaceable($private, $serialization);
@@ -180,39 +251,50 @@ class Property {
 	
 	/**
 	 * verify if property is exported/imported as node for xml export/import
+	 * 
 	 * @return boolean true if property is interfaceable
 	 */
 	public function isInterfacedAsNodeXml() {
 		return $this->interfaceAsNodeXml;
 	}
 	
+	/**
+	 * get aggregation properties if exists
+	 * 
+	 * @return Property[]|null null if there are no aggregation properties
+	 */
 	public function getAggregationProperties() {
 		return null;
 	}
 	
 	/**
+	 * load specified value
 	 * 
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @param string[] $propertiesFilter
 	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @throws \Exception
 	 */
-	public function loadValue(ComhonObject $object, $propertiesFilter = [], $forceLoad = false) {
+	public function loadValue(ObjectUnique $object, $propertiesFilter = [], $forceLoad = false) {
 		throw new \Exception('cannot load object, property is not foreign property');
 	}
 	
 	/**
+	 * load aggregation ids
 	 * 
-	 * @param ObjectArray $object
-	 * @param ComhonObject $parentObject
+	 * @param \Comhon\Object\ObjectArray $object
+	 * @param \Comhon\Object\ObjectUnique $parentObject
 	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @throws \Exception
 	 */
-	public function loadValueIds(ObjectArray $object, ComhonObject $parentObject, $forceLoad = false) {
+	public function loadAggregationIds(ObjectArray $object, ObjectUnique $parentObject, $forceLoad = false) {
 		throw new \Exception('cannot load aggregation ids, property is not aggregation property');
 	}
 	
 	/**
+	 * verify if specified property is equal to this property
+	 * 
+	 * verify if properties are same instance or if they have same attributes
 	 * 
 	 * @param Property $property
 	 * @return boolean

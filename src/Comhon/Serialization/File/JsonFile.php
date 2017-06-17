@@ -17,8 +17,10 @@ use Comhon\Interfacer\StdObjectInterfacer;
 class JsonFile extends SerializationFile {
 	
 	/**
-	 *
-	 * @return StdObjectInterfacer
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationFile::_getInterfacer()
+	 * 
+	 * @return \Comhon\Interfacer\StdObjectInterfacer
 	 */
 	protected function _getInterfacer() {
 		$interfacer = new StdObjectInterfacer();

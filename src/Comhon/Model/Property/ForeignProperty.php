@@ -11,23 +11,29 @@
 
 namespace Comhon\Model\Property;
 
-use Comhon\Object\ComhonObject;
 use Comhon\Model\Model;
+use Comhon\Object\ObjectUnique;
 
 class ForeignProperty extends Property {
 	
+	/**
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @param string $name
+	 * @param string $serializationName
+	 * @param boolean $isPrivate
+	 * @param boolean $isSerializable
+	 */
 	public function __construct(Model $model, $name, $serializationName = null, $isPrivate = false, $isSerializable = true) {
 		parent::__construct($model, $name, $serializationName, false, $isPrivate, $isSerializable);
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $object
-	 * @param string[] $propertiesFilter
-	 * @param boolean $forceLoad if object is already loaded, force to reload object
-	 * @throws \Exception
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::loadValue()
 	 */
-	public function loadValue(ComhonObject $object, $propertiesFilter = null, $forceLoad = false) {
+	public function loadValue(ObjectUnique $object, $propertiesFilter = null, $forceLoad = false) {
 		$this->getModel()->verifValue($object);
 		if ($object->isLoaded() && !$forceLoad) {
 			return false;
@@ -44,35 +50,38 @@ class ForeignProperty extends Property {
 		return $serializationUnit->loadObject($object, $propertiesFilter);
 	}
 	
-	public function getSerialization() {
-		return $this->getUniqueModel()->getSerialization();
-	}
-	
+	/**
+	 * verify if property has serialization with specified type
+	 * 
+	 * @param string $serializationType
+	 * @return boolean
+	 */
 	public function hasSerializationUnit($serializationType) {
 		return $this->getUniqueModel()->hasSerializationUnit($serializationType);
 	}
 	
-	public function hasSqlTableUnit() {
-		return $this->getUniqueModel()->hasSqlTableUnit();
-	}
-	
-	public function getSqlTableUnit() {
-		return $this->getUniqueModel()->getSqlTableUnit();
-	}
-	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isForeign()
+	 */
 	public function isForeign() {
 		return true;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isComplex()
+	 */
 	public function isComplex() {
 		return true;
 	}
 	
 	/**
-	 * verify if property is interfaceable for export/import in public/private/serialization mode
-	 * @param boolean $private if true private mode, otherwise public mode
-	 * @param boolean $serialization if true serialization mode, otherwise model mode
-	 * @return boolean true if property is interfaceable
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isInterfaceable()
 	 */
 	public function isInterfaceable($private, $serialization) {
 		return parent::isInterfaceable($private, $serialization) && ($private || !$this->getUniqueModel()->hasPrivateIdProperty());

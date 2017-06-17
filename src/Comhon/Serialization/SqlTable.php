@@ -27,26 +27,76 @@ use Comhon\Model\ModelBoolean;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Model\ModelFloat;
 use Comhon\Model\ModelInteger;
+use Comhon\Object\ObjectUnique;
 
 class SqlTable extends SerializationUnit {
 	
+	/**
+	 * @var integer index that store information that permit to know if model has incremantal id
+	 */
 	const HAS_INCR_ID_INDEX          = 0;
+	
+	/**
+	 * @var integer index that store information that permit to know if model has incremantal properties
+	 */
 	const AUTO_INCR_PROPERTIES_INDEX = 1;
+	
+	/**
+	 * @var integer index that store information that permit to know wich columns values need to be casted
+	 */
 	const COLUMS_TO_CAST_INDEX       = 2;
 	
+	/**
+	 * @var integer index that store columns that have to be casted in integer
+	 */
 	const INTEGER_INDEX = 0;
+	
+	/**
+	 * @var integer index that store columns that have to be casted in float
+	 */
 	const FLOAT_INDEX   = 1;
+	
+	/**
+	 * @var integer index that store columns that have to be casted in boolean
+	 */
 	const BOOLEAN_INDEX = 2;
 	
+	/**
+	 * @var DatabaseController
+	 */
 	private $dbController;
+	
+	/**
+	 * @var string
+	 */
 	private $tableId;
 
+	/**
+	 * @var array store all incremental columns names grouped by table
+	 */
 	private static $autoIncrementColumns = [];
+	
+	/**
+	 * @var array store all columns names grouped by table that have to be escaped
+	 */
 	private static $columnsToEscape = [];
+	
+	/**
+	 * @var array store table informations group by model
+	 */
 	private static $modelInfos = [];
 	
+	/**
+	 * @var \Comhon\Interfacer\AssocArrayInterfacer interfacer able to read retrieved rows from database
+	 */
 	private static $interfacer;
 	
+	
+	/**
+	 * initialize interfacing between specified model and sql table
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 */
 	private function _initDatabaseInterfacing(Model $model) {
 		if (is_null($this->dbController)) {
 			$this->settings->loadValue('database');
@@ -57,23 +107,32 @@ class SqlTable extends SerializationUnit {
 		$this->_initColumnsProperties($model);
 	}
 	
+	/**
+	 * retrieve and store columns informations of table (auto incremental columns and columns to escape)
+	 */
 	private function _initColumnsInfos() {
 		if (!array_key_exists($this->tableId, self::$autoIncrementColumns)) {
-			list(self::$autoIncrementColumns[$this->tableId], self::$columnsToEscape[$this->tableId]) = $this->_getSpecifiqueColumns();
+			list(self::$autoIncrementColumns[$this->tableId], self::$columnsToEscape[$this->tableId]) = $this->_getSpecificColumns();
 		}
 	}
 	
+	/**
+	 * get table id
+	 * 
+	 * @return string
+	 */
 	private function _getTableId() {
 		return $this->settings->getValue('name').'_'.$this->settings->getValue('database')->getValue('id');
 	}
 	
 	/**
 	 * get auto incremental columns and columns to escape
+	 * 
 	 * @return [string[],string[]]
 	 */
-	private function _getSpecifiqueColumns() {
+	private function _getSpecificColumns() {
 	switch ($this->settings->getValue('database')->getValue('DBMS')) {
-			case 'mysql': return $this->_getSpecifiqueColumnsMySql();
+			case 'mysql': return $this->_getSpecificColumnsMySql();
 			//case 'pgsql':
 			//case 'cubrid':
 			//case 'dblib':
@@ -91,9 +150,10 @@ class SqlTable extends SerializationUnit {
 	
 	/**
 	 * get auto incremental columns and columns to escape
+	 * 
 	 * @return [string[],string[]]
 	 */
-	private function _getSpecifiqueColumnsMySql() {
+	private function _getSpecificColumnsMySql() {
 		$DBMS = $this->settings->getValue('database')->getValue('DBMS');
 		$autoIncrementColumns = [];
 		$columnsToEscape = [];
@@ -115,9 +175,10 @@ class SqlTable extends SerializationUnit {
 	
 	/**
 	 * get auto incremental columns and columns to escape
+	 * 
 	 * @return [string[],string[]]
 	 */
-	private function _getSpecifiqueColumnsPgSql() {
+	private function _getSpecificColumnsPgSql() {
 		$DBMS = $this->settings->getValue('database')->getValue('DBMS');
 		$autoIncrementColumns = [];
 		$columnsToEscape = [];
@@ -133,6 +194,11 @@ class SqlTable extends SerializationUnit {
 		return [$autoIncrementColumns, $columnsToEscape];
 	}
 	
+	/**
+	 * store properties that are binded to specific columns (incremental columns and columns that have to be casted)
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 */
 	private function _initColumnsProperties(Model $model) {
 		if (array_key_exists($model->getName(), self::$modelInfos)) {
 			return;
@@ -159,6 +225,12 @@ class SqlTable extends SerializationUnit {
 		];
 	}
 	
+	/**
+	 * store columns that have to be casted according specified model
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @return [string[], string[], string[]]
+	 */
 	private static function _initColumnsToCast(Model $model) {
 		if (array_key_exists($model->getName(), self::$modelInfos)) {
 			return self::$modelInfos[$model->getName()][self::COLUMS_TO_CAST_INDEX];
@@ -204,6 +276,12 @@ class SqlTable extends SerializationUnit {
 		return [$castIntegerColumns, $castFloatColumns, $castBooleanColumns];
 	}
 	
+	/**
+	 * get interfacer able to read retrieved rows from database
+	 * 
+	 * @param string $flagObjectAsLoaded if true flag imported comhon object as loaded
+	 * @return \Comhon\Interfacer\AssocArrayInterfacer
+	 */
 	public static function getInterfacer($flagObjectAsLoaded = true) {
 		if (is_null(self::$interfacer)) {
 			self::$interfacer = new AssocArrayInterfacer();
@@ -219,11 +297,11 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
-	 * @param ComhonObject $object
-	 * @param string $operation
-	 * @return integer
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::_saveObject()
 	 */
-	protected function _saveObject(ComhonObject $object, $operation = null) {
+	protected function _saveObject(ObjectUnique $object, $operation = null) {
 		$this->_initDatabaseInterfacing($object->getModel());
 		
 		if (self::$modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
@@ -238,12 +316,13 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
+	 * save object that have model with unique id property binded to incremental column
 	 *
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @throws \Exception
 	 * @return integer
 	 */
-	private function _saveObjectWithIncrementalId(ComhonObject $object) {
+	private function _saveObjectWithIncrementalId(ObjectUnique $object) {
 		if (!self::$modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
 			throw new \Exception('operation not specified');
 		}
@@ -255,12 +334,13 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
+	 * execute insert query to save comhon object
 	 * 
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @throws \Exception
-	 * @return integer
+	 * @return integer number of affected rows
 	 */
-	private function _insertObject(ComhonObject $object) {
+	private function _insertObject(ObjectUnique $object) {
 		$interfacer = self::getInterfacer();
 		$interfacer->setExportOnlyUpdatedValues(false);
 		$mapOfString = $object->export($interfacer);
@@ -294,6 +374,9 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
+	 * get stringified columns
+	 * 
+	 * escape columns if needed
 	 * 
 	 * @param [] $mapOfString
 	 * @return string
@@ -317,12 +400,13 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
+	 * execute update query to save comhon object
 	 * 
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @throws \Exception
-	 * @return integer
+	 * @return integer number of affected rows
 	 */
-	private function _updateObject(ComhonObject $object) {
+	private function _updateObject(ObjectUnique $object) {
 		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
 			throw new \Exception('update operation require complete id');
 		}
@@ -374,11 +458,10 @@ class SqlTable extends SerializationUnit {
 	
 	/**
 	 * 
-	 * @param ComhonObject $object
-	 * @throws \Exception
-	 * @return integer
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::_deleteObject()
 	 */
-	protected function _deleteObject(ComhonObject $object) {
+	protected function _deleteObject(ObjectUnique $object) {
 		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
 			throw new \Exception('delete operation require complete id');
 		}
@@ -404,11 +487,11 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
-	 * @param ComhonObject $object
-	 * @param string[] $propertiesFilter
-	 * @return boolean
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::_loadObject()
 	 */
-	protected function _loadObject(ComhonObject $object, $propertiesFilter = null) {
+	protected function _loadObject(ObjectUnique $object, $propertiesFilter = null) {
 		$model         = $object->getModel();
 		$conjunction   = new LogicalJunction(LogicalJunction::CONJUNCTION);
 		$selectColumns = [];
@@ -425,12 +508,17 @@ class SqlTable extends SerializationUnit {
 		return $return;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::loadAggregation()
+	 */
 	public function loadAggregation(ObjectArray $object, $parentId, $aggregationProperties, $propertiesFilter = null) {
 		$model         = $object->getModel()->getUniqueModel();
 		$disjunction   = $this->getAggregationConditions($model, $parentId, $aggregationProperties);
 		$selectColumns = [];
 		
-		if (count($disjunction->getLiterals()) == 0 && count($disjunction->getLogicalJunction()) == 0) {
+		if (count($disjunction->getLiterals()) == 0 && count($disjunction->getLogicalJunctions()) == 0) {
 			throw new \Exception('error : property is not serialized in database aggregation');
 		}
 		if (is_array($propertiesFilter)) {
@@ -454,13 +542,22 @@ class SqlTable extends SerializationUnit {
 		return $this->_loadObjectFromDatabase($object, $selectColumns, $disjunction, false);
 	}
 	
+	/**
+	 * load aggregation ids from database according parent id
+	 * 
+	 * @param \Comhon\Object\ObjectArray $object
+	 * @param integer|string $parentId
+	 * @param string[] $aggregationProperties
+	 * @throws \Exception
+	 * @return boolean
+	 */
 	public function loadAggregationIds(ObjectArray $object, $parentId, $aggregationProperties) {
 		$model         = $object->getModel()->getUniqueModel();
 		$disjunction   = $this->getAggregationConditions($model, $parentId, $aggregationProperties);
 		$selectColumns = [];
 		$idProperties  = $model->getIdProperties();
 		
-		if (count($disjunction->getLiterals()) == 0 && count($disjunction->getLogicalJunction()) == 0) {
+		if (count($disjunction->getLiterals()) == 0 && count($disjunction->getLogicalJunctions()) == 0) {
 			throw new \Exception('error : property is not serialized in database aggregation');
 		}
 		if (empty($idProperties)) {
@@ -483,10 +580,11 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
+	 * load specified comhon object according logical junction
 	 * 
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ComhonObject $object
 	 * @param string[] $selectColumns
-	 * @param LogicalJunction $logicalJunction
+	 * @param \Comhon\Database\LogicalJunction $logicalJunction
 	 * @param boolean $onlyIds used only for aggregation loading
 	 * @return boolean
 	 */
@@ -520,9 +618,9 @@ class SqlTable extends SerializationUnit {
 		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {
 			if (!is_null($this->getInheritanceKey())) {
 				if ($isModelArray) {
-					$extendsModel = $object->getModel()->getUniqueModel();
+					$baseModel = $object->getModel()->getUniqueModel();
 					foreach ($rows as &$row) {
-						$model = $this->getInheritedModel($row, $extendsModel);
+						$model = $this->getInheritedModel($row, $baseModel);
 						$row[Interfacer::INHERITANCE_KEY] = $model->getName();
 					}
 				} else {
@@ -539,7 +637,15 @@ class SqlTable extends SerializationUnit {
 		return $success;
 	}
 	
-	public function getAggregationConditions($model, $parentId, $aggregationProperties) {
+	/**
+	 * get conditions that have to be added to query to retrieve aggregation
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @param integer|string $parentId
+	 * @param string[] $aggregationProperties
+	 * @return \Comhon\Database\LogicalJunction
+	 */
+	public function getAggregationConditions(Model $model, $parentId, $aggregationProperties) {
 		
 		$disjunction = new LogicalJunction(LogicalJunction::DISJUNCTION);
 		foreach ($aggregationProperties as $aggregationProperty) {
@@ -560,15 +666,21 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
-	 * @param array $value
-	 * @param Model $extendsModel
-	 * @return Model
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::getInheritedModel()
 	 */
-	public function getInheritedModel($value, Model $extendsModel) {
+	public function getInheritedModel($value, Model $baseModel) {
 		return array_key_exists($this->inheritanceKey, $value) && !is_null($value[$this->inheritanceKey]) 
-				? ModelManager::getInstance()->getInstanceModel($value[$this->inheritanceKey]) : $extendsModel;
+				? ModelManager::getInstance()->getInstanceModel($value[$this->inheritanceKey]) : $baseModel;
 	}
 	
+	/**
+	 * cast values retrieved from table in right type
+	 * 
+	 * @param mixed[] $rows
+	 * @param \Comhon\Model\Model $model
+	 */
 	public static function castStringifiedColumns(&$rows, Model $model) {
 		if (empty($rows)) {
 			return;

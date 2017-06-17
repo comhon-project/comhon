@@ -12,15 +12,20 @@
 namespace Comhon\Database;
 
 use Comhon\Object\Config\Config;
-use Comhon\Object\ComhonObject;
+use Comhon\Object\ObjectUnique;
 
 class DatabaseController {
 	
+	/** @var string */
 	const MYSQL = 'mysql';
+	
+	/** @var string */
 	const PGSQL = 'pgsql';
 
+	/** @var string[] */
 	private static $instances = [];
 	
+	/** @var string[] */
 	private static $insertReturns = [
 		//'cubrid' => null,
 		//'dblib' => 'OUTPUT',
@@ -36,6 +41,7 @@ class DatabaseController {
 		//'4D'
 	];
 	
+	/** @var string */
 	private static $supportedLastInsertId = [
 		'mysql',
 		//'cubrid',
@@ -43,18 +49,41 @@ class DatabaseController {
 		//'sqlsrv',
 	];
 	
+	/**
+	 * @var string
+	 */
 	private $id;
+	
+	/**
+	 * @var \PDO 
+	 */
 	private $dbHandle;
+	
+	/**
+	 * @var \PDOStatement[] all prepared queries already built (avoid to rebuild each time same query)
+	 */
 	private $preparedQueries = [];
+	
+	/**
+	 * @var integer permit to known how many values need a prepared query
+	 */
 	private $preparedQueriesParamCount = [];
+	
+	/**
+	 * @var boolean permit to know if \PDO pilote support function \PDO::lastInsertId
+	 */
 	private $isSupportedLastInsertId;
+	
+	/**
+	 * @var string|null keyword used to return value in insert query (null if returning is not supported)
+	 */
 	private $insertReturn;
 	
 	/**
-	 * @param ComhonObject $dbReference
+	 * @param \Comhon\Object\ObjectUnique $dbReference
 	 * @throws \Exception
 	 */
-	private function __construct(ComhonObject $dbReference) {
+	private function __construct(ObjectUnique $dbReference) {
 		if (!array_key_exists($dbReference->getValue('DBMS'), self::$insertReturns)) {
 			throw new \Exception("DBMS '{$dbReference->getValue('DBMS')}' not supported yet");
 		}
@@ -70,14 +99,18 @@ class DatabaseController {
 	}
 	
 	/**
-	 * @return boolean true if \PDO pilote support function \PDO::lastInsertId
+	 * permit to know if \PDO pilote support function \PDO::lastInsertId
+	 * 
+	 * @return boolean
 	 */
 	public function isSupportedLastInsertId() {
 		return $this->isSupportedLastInsertId;
 	}
 	
 	/**
-	 * @return string|null keyword to use for returning value in insert query, null if returning is not supported
+	 * get keyword used to return value in insert query
+	 * 
+	 * @return string|null null if returning is not supported
 	 */
 	public function getInsertReturn() {
 		return $this->insertReturn;
@@ -94,14 +127,16 @@ class DatabaseController {
 		$this->dbHandle->exec('SET NAMES '.Config::getInstance()->getDataBaseCharset().';');
 		$this->dbHandle->exec("SET time_zone = '$offset';");
 
-		// do not transform int to string (doesn't work)
+		// do not transform int to string (I fail to make it works)
 		// $this->dbHandle->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 		// $this->dbHandle->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
 	}
 
 	/**
-	 * @param integer $id
-	 * @return DatabaseController
+	 * get existing instance of DatabaseController according specified id
+	 * 
+	 * @param string $id
+	 * @return DatabaseController|null
 	 */
 	public static function getInstanceWithDataBaseId($id) {
 		$return = null;
@@ -112,10 +147,12 @@ class DatabaseController {
 	}
 	
 	/**
-	 * @param ComhonObject $dbReference
+	 * get existing or new  instance of DatabaseController according specified database reference
+	 * 
+	 * @param \Comhon\Object\ObjectUnique $dbReference
 	 * @return DatabaseController
 	 */
-	public static function getInstanceWithDataBaseObject(ComhonObject $dbReference) {
+	public static function getInstanceWithDataBaseObject(ObjectUnique $dbReference) {
 		$return = null;
 		if (!$dbReference->hasValue('id')) {
 			throw new \Exception('malformed database reference');
@@ -134,10 +171,11 @@ class DatabaseController {
 	
 	/**
 	 * prepare query
+	 * 
 	 * @param string $query
 	 * @param array $values values to replace in the query
 	 * @throws \Exception
-	 * @return PDOStatement
+	 * @return \PDOStatement
 	 */
 	private function _prepareQuery($query, $values = []) {
 		if (!array_key_exists($query, $this->preparedQueries)) {
@@ -165,8 +203,9 @@ class DatabaseController {
 	}
 	
 	/**
-	 * execute the query that match with $queryId
-	 * @param PDOStatement $PDOStatement
+	 * execute the query
+	 * 
+	 * @param \PDOStatement $PDOStatement
 	 * @throws \Exception
 	 */
 	private function _doQuery($PDOStatement) {
@@ -181,7 +220,9 @@ class DatabaseController {
 	}
 	
 	/**
-	 * return the last insert id
+	 * get the last insert id
+	 * 
+	 * @return string
 	 */
 	public function lastInsertId() {
 		return $this->dbHandle->lastInsertId();
@@ -192,7 +233,7 @@ class DatabaseController {
 	 * @param SelectQuery $selectQuery
 	 * @param integer $fetchStyle
 	 * @throws \Exception
-	 * @return array
+	 * @return array all selected rows
 	 */
 	public function executeSelectQuery(SelectQuery $selectQuery, $fetchStyle = \PDO::FETCH_ASSOC) {
 		list($query, $values) = $selectQuery->export();
@@ -203,9 +244,9 @@ class DatabaseController {
 	/**
 	 * prepare, execute and return result of query
 	 * @param string $selectQuery
-	 * @param array $values
+	 * @param array $values values that need to be binded
 	 * @throws \Exception
-	 * @return PDOStatement
+	 * @return \PDOStatement
 	 */
 	public function executeSimpleQuery($query, $values = []) {
 		//var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));

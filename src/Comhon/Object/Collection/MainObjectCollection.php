@@ -11,13 +11,18 @@
 
 namespace Comhon\Object\Collection;
 
-use Comhon\Object\ComhonObject;
 use Comhon\Model\MainModel;
+use Comhon\Object\ObjectUnique;
 
 class MainObjectCollection extends ObjectCollection {
 	
 	private  static $_instance;
 	
+	/**
+	 * get MainObjectCollection instance
+	 * 
+	 * @return \Comhon\Object\Collection\MainObjectCollection
+	 */
 	public static function getInstance() {
 		if (!isset(self::$_instance)) {
 			self::$_instance = new self();
@@ -30,12 +35,13 @@ class MainObjectCollection extends ObjectCollection {
 	
 	/**
 	 * add object with mainModel (if not already added)
-	 * @param ComhonObject $object
+	 * 
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @param boolean $throwException throw exception if object already added
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function addObject(ComhonObject $object, $throwException = true) {
+	public function addObject(ObjectUnique $object, $throwException = true) {
 		if (!($object->getModel() instanceof MainModel)) {
 			throw new \Exception('mdodel must be instance of MainModel');
 		}
@@ -45,12 +51,12 @@ class MainObjectCollection extends ObjectCollection {
 	
 	/**
 	 * add object with mainModel (if not already added)
-	 * @param ComhonObject $object
-	 * @param boolean $throwException throw exception if object can't be added (no complete id or object already added)
+	 * 
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function removeObject(ComhonObject $object) {
+	public function removeObject(ObjectUnique $object) {
 		if (!($object->getModel() instanceof MainModel)) {
 			throw new \Exception('mdodel must be instance of MainModel');
 		}

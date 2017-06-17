@@ -17,22 +17,46 @@ use Comhon\Model\MainModel;
 
 class Literal {
 	
+	/** @var string */
 	const EQUAL      = '=';
+	
+	/** @var string */
 	const SUPP       = '>';
+	
+	/** @var string */
 	const INF        = '<';
+	
+	/** @var string */
 	const SUPP_EQUAL = '>=';
+	
+	/** @var string */
 	const INF_EQUAL  = '<=';
+	
+	/** @var string */
 	const DIFF       = '<>';
 	
 	private static $index = 0;
 
+	/** @var string|integer */
 	protected $id;
+	
+	/** @var string */
+	
+	/** @var TableNode|string */
 	protected $table;
+	
+	/** @var string */
 	protected $column;
+	
+	/** @var string */
 	protected $operator;
+	
+	/** @var string|boolean|number|null|string[]|boolean[]|number[] */
 	protected $value;
 	
-	protected static $acceptedOperators = [
+	
+	/** @var array */
+	protected static $allowedOperators = [
 		self::EQUAL      => null,
 		self::SUPP       => null,
 		self::INF        => null,
@@ -41,6 +65,7 @@ class Literal {
 		self::DIFF       => null
 	];
 	
+	/** @var array */
 	protected static $oppositeOperator = [
 		self::EQUAL      => self::DIFF,
 		self::INF        => self::SUPP_EQUAL,
@@ -52,15 +77,13 @@ class Literal {
 	
 	/**
 	 * construtor
-	 * @param unknown $table
-	 * @param unknown $column 
-	 * @param unknown $operator
-	 * @param unknown $value could be :
-	 * - null
-	 * - a string
-	 * - a number
-	 * - an array with null or string or number values
-	 * @param string $modelName
+	 * @param TableNode|string $table
+	 * @param string $column 
+	 * @param string $operator
+	 * @param string|boolean|number|null|string[]|boolean[]|number[] $value 
+	 *     if $operator is self::EQUAL or self::DIFF you can specify an array of values 
+	 *     operator will be transformed respectively as sql operator IN or NOT IN.
+	 *     array can have null value
 	 * @throws \Exception
 	 */
 	public function __construct($table, $column, $operator, $value) {
@@ -72,7 +95,7 @@ class Literal {
 	}
 	
 	protected function _verifLiteral() {
-		if (!array_key_exists($this->operator, self::$acceptedOperators)) {
+		if (!array_key_exists($this->operator, self::$allowedOperators)) {
 			throw new \Exception('operator \''.$this->operator.'\' doesn\'t exists');
 		}
 		if (is_null($this->value) && ($this->operator != '=') && ($this->operator != '<>')) {
@@ -83,40 +106,72 @@ class Literal {
 		}
 	}
 
+	/**
+	 * @return string|number
+	 */
 	public function getId() {
 		return $this->id;
 	}
 	
+	/**
+	 * @param string|number $id
+	 */
 	public function setId($id) {
 		$this->id = $id;
 	}
 	
+	/**
+	 * @return boolean
+	 */
 	public function hasId() {
 		return !is_null($this->id);
 	}
 	
+	/**
+	 * 
+	 * @return TableNode|string
+	 */
 	public function getTable() {
 		return $this->table;
 	}
 	
+	/**
+	 * @return string
+	 */
 	public function getPropertyName() {
 		return $this->column;
 	}
 	
+	/**
+	 * @return string
+	 */
 	public function getOperator() {
 		return $this->operator;
 	}
 	
+	/**
+	 * reverse operator
+	 * 
+	 * exemple :
+	 * self::EQUAL become self::DIFF
+	 * self::INF become self::SUPP_EQUAL
+	 */
 	public function reverseOperator() {
 		$this->operator = self::$oppositeOperator[$this->operator];
 	}
 	
+	/**
+	 * 
+	 * @return string|boolean|number|null|string[]|boolean[]|number[]
+	 */
 	public function getValue() {
 		return $this->value;
 	}
 	
 	/**
-	 * @param array $values
+	 * export stringified literal to integrate it in sql query
+	 * 
+	 * @param mixed[] $values values to bind
 	 * @return string
 	 */
 	public function export(&$values) {
@@ -155,7 +210,10 @@ class Literal {
 	}
 	
 	/**
-	 * can't be used to populate a database query
+	 * export stringified literal to integrate it in sql query
+	 * DO NOT USE this function to build a query that will be executed (it doesn't prevent from injection)
+	 * USE this function for exemple for debug (it permit to see what query looks like)
+	 *
 	 * @return string
 	 */
 	public function exportWithValue() {
@@ -191,15 +249,15 @@ class Literal {
 	}
 	
 	/**
-	 * @param stdClass $stdObject
-	 * @param Model $mainModel (reference is specified to stay compatible with inherited function, there's probably a better way...)
-	 * @param Literal[] $literalCollection
+	 * @param \stdClass $stdObject
+	 * @param \Comhon\Model\MainModel $mainModel
+	 * @param Literal[] $literalCollection used if $stdObject contain only an id that reference literal in collection
 	 * @param SelectQuery $selectQuery
 	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
 	 * @return Literal
 	 */
-	public static function stdObjectToLiteral($stdObject, &$mainModel, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
+	public static function stdObjectToLiteral($stdObject, $mainModel, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
 		if (isset($stdObject->id) && !is_null($literalCollection)) {
 			if (!array_key_exists($stdObject->id, $literalCollection)) {
 				throw new \Exception("literal id '{$stdObject->id}' is not defined in literal collection");
@@ -242,6 +300,11 @@ class Literal {
 		return $literal;
 	}
 	
+	/**
+	 * 
+	 * @param \stdClass $stdObject
+	 * @throws \Exception
+	 */
 	private static function _verifStdObject($stdObject) {
 		if (!isset($stdObject->node)) {
 			throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
@@ -257,7 +320,7 @@ class Literal {
 	
 	/**
 	 * 
-	 * @param MainModel $model
+	 * @param \Comhon\Model\MainModel $model
 	 * @param \stdClass $queue
 	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
@@ -304,7 +367,8 @@ class Literal {
 				}
 			} else {
 				array_unshift($joinedTables, ['table' => $firstTable, 'model' => $firstModel]);
-				foreach ($model->getSerializationIds() as $column) {
+				foreach ($model->getIdProperties() as $idProperty) {
+					$column = $idProperty->getSerializationName();
 					$on[] = [$column, $column];
 				}
 			}
@@ -312,15 +376,19 @@ class Literal {
 		return [$joinedTables, $on];
 	}
 	
+	/**
+	 * get unique alias
+	 * 
+	 * @return string
+	 */
 	private static function _getAlias() {
 		return 't_'.self::$index++;
 	}
 	
 	/**
 	 * 
-	 * @param TableNode $mainTable
-	 * @param Model $mainModel
-	 * @param [] $joinedTables
+	 * @param array $joinedTables 
+	 * @param array $groupColumns
 	 * @param \stdClass $stdObject
 	 * @param boolean $allowPrivateProperties
 	 * @return SelectQuery
@@ -337,10 +405,10 @@ class Literal {
 		$lastTable = $joinedTables[count($joinedTables) - 1]['table'];
 		$lastModel = $joinedTables[count($joinedTables) - 1]['model'];
 
-		$selectQuery->setMainTableAsCurrentTable();
+		$selectQuery->setFocusOnMainTable();
 		foreach ($groupColumns as $columns) {
 			$mainTable->addSelectedColumn($columns[1]);
-			$selectQuery->addGroupColumn($columns[1]);
+			$selectQuery->addGroup($columns[1]);
 		}
 		
 		if (isset($stdObject->havingLogicalJunction)) {
@@ -355,9 +423,9 @@ class Literal {
 	
 	/**
 	 * 
-	 * @param string $leftTable
-	 * @param string $rightTable
-	 * @param [] $on
+	 * @param TableNode|string $leftTable
+	 * @param TableNode|string $rightTable
+	 * @param array $on
 	 * @return OnLogicalJunction|OnLiteral
 	 */
 	private function _getJoinColumns($leftTable, $rightTable, $on) {

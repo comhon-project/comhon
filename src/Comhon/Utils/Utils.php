@@ -15,8 +15,10 @@ class Utils {
 	
 	/**
 	 * merge arrays
+	 * 
 	 * keep numeric keys even if all keys are numeric 
 	 * (native function array_merge transform them to have a non assoc array (0,1,2,3...))
+	 * 
 	 * @param array $orginalArray
 	 * @param array $arrayToMerge
 	 * @return array
@@ -29,6 +31,7 @@ class Utils {
 	}
 	
 	/**
+	 * delete folder from filesystem
 	 * 
 	 * @param string $dir
 	 * @return boolean true if success

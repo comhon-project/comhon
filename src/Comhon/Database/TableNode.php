@@ -13,16 +13,23 @@ namespace Comhon\Database;
 
 class TableNode {
 
+	/** @var string */
 	private $table;
+	
+	/** @var string */
 	private $alias;
-	private $exportName;
+	
+	/** @var string[] */
 	private $selectedColumns = [];
+	
+	/** @var boolean */
 	private $selectAllColumns = true;
 	
 	/**
 	 * 
 	 * @param string|SelectQuery $table
 	 * @param string $alias
+	 * @param boolean $selectAllColumns
 	 */
 	public function __construct($table, $alias = null, $selectAllColumns = true) {
 		if (($table instanceof SelectQuery) && is_null($alias)) {
@@ -30,42 +37,61 @@ class TableNode {
 		}
 		$this->table = $table;
 		$this->alias = $alias;
-		$this->exportName = is_null($this->alias) ? $this->table : $this->alias;
 		$this->selectAllColumns = $selectAllColumns;
 	}
 	
 	/**
+	 * get table name
 	 * 
-	 * @return string return table name or alias if exists
+	 * @return string
 	 */
 	public function getTable() {
 		return $this->table;
 	}
 	
 	/**
+	 * get alias table if set
 	 *
-	 * @return string return table name or alias if exists
+	 * @return string|null null if alias not set
+	 */
+	public function getAlias() {
+		return $this->alias;
+	}
+	
+	/**
+	 * set alias table
+	 *
+	 * @param string $alias
+	 */
+	public function setAlias($alias) {
+		$this->alias = $alias;
+	}
+	
+	/**
+	 * get table name or alias if exists
+	 * 
+	 * @return string
 	 */
 	public function getExportName() {
-		return $this->exportName;
+		return is_null($this->alias) ? $this->table : $this->alias;
 	}
 	
 	/**
 	 * add selected column
-	 * if export all columns has been set to true, it is automaticaly set to false
+	 * 
 	 * @param string $column
 	 * @param string $alias
 	 * @return TableNode
 	 */
 	public function addSelectedColumn($column, $alias = null) {
 		$this->selectAllColumns = false;
-		$this->selectedColumns[] = is_null($alias) 
-			? $this->exportName . '.' . $column : $this->exportName . '.' . $column . ' AS ' . $alias;
+		$this->selectedColumns[] = is_null($alias) ? $column : $column . ' AS ' . $alias;;
 		return $this;
 	}
 	
 	/**
 	 * all selected columns previously set will be reset
+	 * 
 	 * @return TableNode
 	 */
 	public function resetSelectedColumns() {
@@ -75,6 +101,7 @@ class TableNode {
 	
 	/**
 	 * determine if all columns will be selected or not
+	 * 
 	 * @param boolean $column if true, all selected columns previously set will be reset
 	 * @return TableNode
 	 */
@@ -88,6 +115,7 @@ class TableNode {
 	
 	/**
 	 * verify if all columns will be exported
+	 * 
 	 * @return boolean
 	 */
 	public function areAllColumnsSelected() {
@@ -96,6 +124,7 @@ class TableNode {
 	
 	/**
 	 * verify if all columns will be exported
+	 * 
 	 * @return boolean
 	 */
 	public function hasSelectedColumns() {
@@ -104,17 +133,27 @@ class TableNode {
 	
 	/**
 	 * export selected columns as sql format
+	 * 
 	 * @return string
 	 */
 	public function exportSelectedColumns() {
-		return ($this->selectAllColumns) ? $this->exportName.'.*' : implode(', ', $this->selectedColumns);
+		$exportName = is_null($this->alias) ? $this->table : $this->alias;
+		if ($this->selectAllColumns) {
+			return $exportName.'.*';
+		}
+		$columns = [];
+		foreach ($this->selectedColumns as $selectedColumn) {
+			$columns[] = $exportName . '.' . $selectedColumn;
+		}
+		return implode(', ', $columns);
 	}
 	
 	/**
+	 * export stringified table in sql format with values to bind
 	 *
-	 * @return [string, [values]]
-	 * - first element is the table exported in sql format
-	 * - second emement is an array of exported values that need to be checked and replace in exported table
+	 * @return array
+	 *     - first element : the table exported in sql format
+	 *     - second emement : values to bind
 	 */
 	public function exportTable() {
 		if ($this->table instanceof SelectQuery) {

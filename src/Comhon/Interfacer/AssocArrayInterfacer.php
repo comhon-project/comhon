@@ -14,15 +14,16 @@ namespace Comhon\Interfacer;
 class AssocArrayInterfacer extends Interfacer {
 
 	/**
-	 *
-	 * @param \stdClass $node
-	 * @param string $propertyName
-	 * @param boolean $asNode
-	 * @return mixed|null
+	 * get value in $node with key $name
+	 * 
+	 * @param array $node
+	 * @param string $name
+	 * @param boolean $asNode not used (but needed to stay compatible with interface)
+	 * @return mixed|null null if doesn't exist
 	 */
-	public function &getValue(&$node, $propertyName, $asNode = false) {
-		if (array_key_exists($propertyName, $node)) {
-			return $node[$propertyName];
+	public function &getValue(&$node, $name, $asNode = false) {
+		if (array_key_exists($name, $node)) {
+			return $node[$name];
 		} else {
 			// ugly but we return reference so we have to return a variable
 			$null = null;
@@ -31,17 +32,19 @@ class AssocArrayInterfacer extends Interfacer {
 	}
 	
 	/**
+	 * verify if $node contain value with key $name
 	 *
-	 * @param \stdClass $node
-	 * @param string $propertyName
-	 * @param boolean $asNode
+	 * @param array $node
+	 * @param string $name
+	 * @param boolean $asNode not used (but needed to stay compatible with interface)
 	 * @return boolean
 	 */
-	public function hasValue($node, $propertyName, $asNode = false) {
-		return array_key_exists($propertyName, $node);
+	public function hasValue($node, $name, $asNode = false) {
+		return array_key_exists($name, $node);
 	}
 	
 	/**
+	 * verify if value is null
 	 *
 	 * @param mixed $value
 	 * @return boolean
@@ -51,8 +54,9 @@ class AssocArrayInterfacer extends Interfacer {
 	}
 	
 	/**
+	 * get traversable node (return $node)
 	 *
-	 * @param \stdClass $node
+	 * @param array $node
 	 * @param boolean $getElementName not used
 	 * @return array
 	 */
@@ -65,6 +69,7 @@ class AssocArrayInterfacer extends Interfacer {
 	
 	/**
 	 * verify if value is an array
+	 * 
 	 * @param mixed $value
 	 * @return boolean
 	 */
@@ -74,6 +79,7 @@ class AssocArrayInterfacer extends Interfacer {
 	
 	/**
 	 * verify if value is an array
+	 * 
 	 * @param mixed $value
 	 * @return boolean
 	 */
@@ -83,8 +89,9 @@ class AssocArrayInterfacer extends Interfacer {
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value
+	 * 
 	 * @param mixed $value
-	 * @return mixed
+	 * @return boolean
 	 */
 	public function isComplexInterfacedId($value) {
 		return is_array($value);
@@ -92,14 +99,16 @@ class AssocArrayInterfacer extends Interfacer {
 	
 	/**
 	 * verify if value is a flatten complex id (with inheritance key)
+	 * 
 	 * @param mixed $value
-	 * @return mixed
+	 * @return boolean
 	 */
 	public function isFlattenComplexInterfacedId($value) {
 		return is_string($value) && substr($value, 0, 6) == '{"id":';
 	}
 	
 	/**
+	 * set value in $node with key $name
 	 * 
 	 * @param array $node
 	 * @param mixed $value
@@ -119,22 +128,22 @@ class AssocArrayInterfacer extends Interfacer {
 	}
 	
 	/**
+	 * unset value in $node with key $name
 	 *
 	 * @param array $node
 	 * @param string $name
-	 * @param boolean $asNode
-	 * @return mixed
+	 * @param boolean $asNode not used (but needed to stay compatible with interface)
 	 */
 	public function unsetValue(&$node, $name, $asNode = false) {
 		unset($node[$name]);
 	}
 	
 	/**
+	 * add value to $node
 	 *
 	 * @param array $node
 	 * @param mixed $value
 	 * @param string $name not used (but needed to stay compatible with interface)
-	 * @return mixed
 	 */
 	public function addValue(&$node, $value, $name = null) {
 		if (!is_array($node)) {
@@ -144,23 +153,28 @@ class AssocArrayInterfacer extends Interfacer {
 	}
 	
 	/**
+	 * create array node
+	 * 
 	 * @param string $name not used (but needed to stay compatible with interface)
-	 * return mixed
+	 * @return array
 	 */
 	public function createNode($name = null) {
 		return [];
 	}
 	
 	/**
+	 * create array node
+	 * 
 	 * @param string $name not used (but needed to stay compatible with interface)
-	 * @return mixed
+	 * @return array
 	 */
-	public function createNodeArray($name = null) {
+	public function createArrayNode($name = null) {
 		return [];
 	}
     
 	/**
 	 * transform given node to string
+	 * 
 	 * @param array $node
 	 * @return string
 	 */
@@ -170,7 +184,8 @@ class AssocArrayInterfacer extends Interfacer {
 	
 	/**
 	 * write file with given content
-	 * @param mixed $node
+	 * 
+	 * @param \stdClass $node
 	 * @param string $path
 	 * @return boolean
 	 */
@@ -180,6 +195,7 @@ class AssocArrayInterfacer extends Interfacer {
 	
 	/**
 	 * read file and load node with file content
+	 * 
 	 * @param string $path
 	 * @return array|boolean return false on failure
 	 */
@@ -193,6 +209,7 @@ class AssocArrayInterfacer extends Interfacer {
 	
 	/**
 	 * flatten value (transform object/array to string)
+	 * 
 	 * @param array $node
 	 * @param string $name
 	 */
@@ -204,6 +221,7 @@ class AssocArrayInterfacer extends Interfacer {
 	
 	/**
 	 * unflatten value (transform string to object/array)
+	 * 
 	 * @param array $node
 	 * @param string $name
 	 */
@@ -214,10 +232,11 @@ class AssocArrayInterfacer extends Interfacer {
 	}
 	
 	/**
-	 * replace value
+	 * replace value in key $name by $value (fail if key $name doesn't exist)
+	 * 
 	 * @param array $node
 	 * @param string $name
-	 * @param mixed $value
+	 * @param mixed $value value to place in key $name
 	 */
 	public function replaceValue(&$node, $name, $value) {
 		if (array_key_exists($name, $node)) {

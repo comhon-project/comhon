@@ -16,42 +16,45 @@ use Comhon\Utils\Utils;
 use Comhon\Object\ComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Model\Singleton\ModelManager;
+use Comhon\Object\ObjectUnique;
 
 abstract class SerializationFile extends SerializationUnit {
 
+	/** @var \Comhon\Interfacer\Interfacer */
 	private $interfacer;
 	
 	/**
+	 * get interfacer able to read serialized file content
 	 *
-	 * @return Interfacer
+	 * @return \Comhon\Interfacer\Interfacer
 	 */
 	abstract protected function _getInterfacer();
 	
 	/**
 	 *
-	 * @param ComhonObject $settings
+	 * @param \Comhon\Object\ObjectUnique $settings
 	 * @param string $inheritanceKey
 	 */
-	protected function __construct(ComhonObject $settings, $inheritanceKey = null) {
+	protected function __construct(ObjectUnique $settings, $inheritanceKey = null) {
 		parent::__construct($settings, $inheritanceKey);
 		$this->interfacer = $this->_getInterfacer();
 	}
 	
 	/**
 	 * 
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @return string
 	 */
-	protected function _getPath(ComhonObject $object) {
+	protected function _getPath(ObjectUnique $object) {
 		return $this->settings->getValue('saticPath') . DIRECTORY_SEPARATOR . $object->getId() . DIRECTORY_SEPARATOR . $this->settings->getValue('staticName');
 	}
 
 	/**
-	 * @param ComhonObject $object
-	 * @param string $operation
-	 * @return integer
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::_saveObject()
 	 */
-	protected function _saveObject(ComhonObject $object, $operation = null) {
+	protected function _saveObject(ObjectUnique $object, $operation = null) {
 		if (!$object->getModel()->hasIdProperties()) {
 			throw new \Exception('Cannot save model without id in xml file');
 		}
@@ -85,7 +88,7 @@ abstract class SerializationFile extends SerializationUnit {
 	
 	/**
 	 *
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ComhonObject $object
 	 * @param mixed $InterfacedObject
 	 */
 	protected function _addInheritanceKey(ComhonObject $object, $InterfacedObject) {
@@ -95,11 +98,11 @@ abstract class SerializationFile extends SerializationUnit {
 	}
 	
 	/**
-	 * @param ComhonObject $object
-	 * @param string[] $propertiesFilter
-	 * @return boolean
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::_loadObject()
 	 */
-	protected function _loadObject(ComhonObject $object, $propertiesFilter = null) {
+	protected function _loadObject(ObjectUnique $object, $propertiesFilter = null) {
 		$path = $this->_getPath($object);
 		if (!file_exists($path)) {
 			return false;
@@ -109,9 +112,9 @@ abstract class SerializationFile extends SerializationUnit {
 			throw new \Exception("cannot load file '$path'");
 		}
 		if (!is_null($this->getInheritanceKey())) {
-			$extendsModel = $object->getModel();
-			$model = $this->getInheritedModel($formatedContent, $extendsModel);
-			if ($model !== $extendsModel) {
+			$baseModel = $object->getModel();
+			$model = $this->getInheritedModel($formatedContent, $baseModel);
+			if ($model !== $baseModel) {
 				$object->cast($model);
 			}
 		}
@@ -120,22 +123,22 @@ abstract class SerializationFile extends SerializationUnit {
 	}
 	
 	/**
-	 * @param mixed $value
-	 * @param Model $extendsModel
-	 * @return Model
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::getInheritedModel()
 	 */
-	public function getInheritedModel($value, Model $extendsModel) {
+	public function getInheritedModel($value, Model $baseModel) {
 		return $this->interfacer->hasValue($value, $this->inheritanceKey)
 			? ModelManager::getInstance()->getInstanceModel($this->interfacer->getValue($value, $this->inheritanceKey))
-			: $extendsModel;
+			: $baseModel;
 	}
 	
 	/**
-	 * @param ComhonObject $object
-	 * @throws \Exception
-	 * @return integer
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::_deleteObject()
 	 */
-	protected function _deleteObject(ComhonObject $object) {
+	protected function _deleteObject(ObjectUnique $object) {
 		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
 			throw new \Exception('delete operation require complete id');
 		}

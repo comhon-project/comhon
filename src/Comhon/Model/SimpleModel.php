@@ -19,67 +19,82 @@ use Comhon\Object\Collection\ObjectCollection;
 abstract class SimpleModel extends Model {
 	
 	/**
+	 * initialize model name
+	 */
+	abstract protected function _initializeModelName();
+	
+	/**
 	 * don't instanciate a model by yourself because it take time
 	 * to get a model instance use singleton ModelManager
 	 */
-	public final function __construct() {
+	final public function __construct() {
 		$this->isLoaded = true;
-		$this->_init();
+		$this->_initializeModelName();
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::isComplex()
+	 */
 	public function isComplex() {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::getObjectClass()
+	 */
 	public function getObjectClass() {
 		throw new \Exception('simple models don\'t have associated class');
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::getObjectInstance()
+	 */
 	public function getObjectInstance($isloaded = true) {
 		throw new \Exception('simple models don\'t have associated class');
 	}
 	
 	/**
-	 *
-	 * @param mixed $value
-	 * @param string $nodeName
-	 * @param Interfacer $interfacer
-	 * @param boolean $isFirstLevel
-	 * @throws \Exception
-	 * @return mixed|null
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::_export()
 	 */
 	final protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel) {
 		return $this->exportSimple($value, $interfacer);
 	}
 	
 	/**
-	 *
+	 * export value in specified format
+	 * 
 	 * @param mixed $value
-	 * @param Interfacer $interfacer
-	 * @throws \Exception
-	 * @return mixed|null
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @return mixed
 	 */
 	public function exportSimple($value, Interfacer $interfacer) {
 		return $value;
 	}
 	
 	/**
-	 *
-	 * @param ComhonDateTime $value
-	 * @param Interfacer $interfacer
-	 * @param ObjectCollection $localObjectCollection
-	 * @param MainModel $parentMainModel
-	 * @param boolean $isFirstLevel
-	 * @return NULL|unknown
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::_import()
+	 * 
+	 * @return mixed
 	 */
-	final protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
+	final protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
 		return $this->importSimple($value, $interfacer);
 	}
 	
 	/**
+	 * import interfaced value
 	 *
 	 * @param mixed $value
-	 * @param Interfacer $interfacer
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @return string|null
 	 */
 	public function importSimple($value, Interfacer $interfacer) {
@@ -92,11 +107,22 @@ abstract class SimpleModel extends Model {
 		return $value;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::verifValue()
+	 */
 	public function verifValue($value) {
 		throw new \Exception('should be overrided');
 	}
 	
 
-	public abstract function castValue($value);
+	/**
+	 * cast value in type associeted to current simple model
+	 * 
+	 * @param mixed $value
+	 * @return mixed
+	 */
+	abstract public function castValue($value);
 	
 }

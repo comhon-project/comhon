@@ -14,6 +14,8 @@ namespace Comhon\Database;
 class OnLogicalJunction extends LogicalJunction {
 	
 	/**
+	 * add literal
+	 * 
 	 * @param Literal $literal
 	 */
 	public function addLiteral(Literal $literal) {
@@ -21,6 +23,8 @@ class OnLogicalJunction extends LogicalJunction {
 	}
 	
 	/**
+	 * add on literal
+	 * 
 	 * @param OnLiteral $literal
 	 */
 	private function _addLiteral(OnLiteral $literal) {
@@ -28,6 +32,8 @@ class OnLogicalJunction extends LogicalJunction {
 	}
 	
 	/**
+	 * add logical junction
+	 * 
 	 * @param LogicalJunction $logicalJunction
 	 */
 	public function addLogicalJunction(LogicalJunction $logicalJunction) {
@@ -35,6 +41,8 @@ class OnLogicalJunction extends LogicalJunction {
 	}
 	
 	/**
+	 * add on logical junction
+	 * 
 	 * @param OnLogicalJunction $logicalJunction
 	 */
 	private function _addLogicalJunction(OnLogicalJunction $logicalJunction) {

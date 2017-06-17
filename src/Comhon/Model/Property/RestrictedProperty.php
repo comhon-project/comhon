@@ -17,20 +17,20 @@ use Comhon\Exception\NotSatisfiedRestrictionException;
 
 class RestrictedProperty extends Property {
 	
+	/** @var \Comhon\Model\Restriction\Restriction */
 	private $restriction;
 	
 	/**
 	 *
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 * @param string $name
+	 * @param \Comhon\Model\Restriction\Restriction $restriction
 	 * @param string $serializationName
 	 * @param boolean $isId
 	 * @param boolean $isPrivate
 	 * @param boolean $isSerializable
 	 * @param mixed $default
-	 * @param unknown $restriction
 	 * @param boolean $isInterfacedAsNodeXml
-	 * @param Restriction $restriction
 	 * @throws \Exception
 	 */
 	public function __construct(Model $model, $name, Restriction $restriction, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
@@ -42,12 +42,9 @@ class RestrictedProperty extends Property {
 	}
 	
 	/**
-	 * verify if property is exportable in public/private/serialization mode
-	 *
-	 * @param boolean $private if true private mode, otherwise public mode
-	 * @param boolean $serialization if true serialization mode, otherwise model mode
-	 * @param mixed $value value that we want to export
-	 * @return boolean true if property is interfaceable
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isExportable()
 	 */
 	public function isExportable($private, $serialization, $value) {
 		$this->isSatisfiable($value, true);
@@ -55,11 +52,9 @@ class RestrictedProperty extends Property {
 	}
 	
 	/**
-	 * verify if value is satisfiable regarding restriction property
-	 *
-	 * @param mixed $value
-	 * @param boolean $throwException
-	 * @return boolean true if property is satisfiable
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isSatisfiable()
 	 */
 	public function isSatisfiable($value, $throwException = false) {
 		$isSatisfiable = $this->restriction->satisfy($value);

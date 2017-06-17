@@ -15,6 +15,14 @@ class OnLiteral extends Literal {
 
 	private $columnRight;
 	
+	/**
+	 * 
+	 * @param TableNode|string $tableLeft
+	 * @param string $columnLeft
+	 * @param string $operator
+	 * @param TableNode|string $tableRight
+	 * @param string $columnRight
+	 */
 	public function __construct($tableLeft, $columnLeft, $operator, $tableRight, $columnRight) {
 		$this->columnRight = $columnRight;
 		parent::__construct($tableLeft, $columnLeft, $operator, $tableRight);
@@ -29,14 +37,16 @@ class OnLiteral extends Literal {
 	
 	/**
 	 * 
-	 * @return string|TableNode
+	 * @return TableNode|string
 	 */
 	public function getTableRight() {
 		return $this->value;
 	}
 	
 	/**
-	 * @param array $values
+	 * export stringified literal to integrate it in sql query
+	 * 
+	 * @param mixed[] $values values to bind
 	 * @return string
 	 */
 	public function export(&$values) {
@@ -55,13 +65,15 @@ class OnLiteral extends Literal {
 	}
 	
 	/**
-	 * 
 	 * @param \stdClass $stdObject
-	 * @param [] $leftJoins
-	 * @param [] $literalCollection
+	 * @param \Comhon\Model\MainModel $mainModel
+	 * @param Literal[] $literalCollection used if $stdObject contain only an id that reference literal in collection
+	 * @param SelectQuery $selectQuery
+	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
+	 * @return Literal
 	 */
-	public static function stdObjectToLiteral($stdObject, &$leftJoins, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
+	public static function stdObjectToLiteral($stdObject, $mainModel, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
 		throw new \Exception('cannot build OnLiteral from stdClass object');
 	}
 	

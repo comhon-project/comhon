@@ -20,20 +20,37 @@ use Comhon\Object\Collection\ObjectCollection;
  */
 class ObjectCollectionCreator extends Visitor {
 
+	/** @var ObjectCollection */
 	private $localObjectCollection;
 	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Visitor\Visitor::_getMandatoryParameters()
+	 */
 	protected function _getMandatoryParameters() {
 		return null;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Visitor\Visitor::_isVisitRootObject()
+	 */
 	protected function _isVisitRootObject() {
 		return false;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Visitor\Visitor::_init()
+	 */
 	protected function _init($object) {
 		$this->localObjectCollection = new ObjectCollection();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Visitor\Visitor::_visit()
+	 */
 	protected function _visit($parentObject, $key, $propertyNameStack) {
 		$value = $parentObject->getValue($key);
 		
@@ -47,8 +64,16 @@ class ObjectCollectionCreator extends Visitor {
 		return !($value->getModel() instanceof MainModel);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Visitor\Visitor::_postVisit()
+	 */
 	protected function _postVisit($parentObject, $key, $propertyNameStack) {}
 	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Visitor\Visitor::_finalize()
+	 */
 	protected function _finalize($object) {
 		return $this->localObjectCollection;
 	}

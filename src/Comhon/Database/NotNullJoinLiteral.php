@@ -13,19 +13,27 @@ namespace Comhon\Database;
 
 class NotNullJoinLiteral extends Literal {
 
+	/** @var Conjunction */
 	private $conjunction;
 	
 	public function __construct() {
 		$this->conjunction = new Conjunction();
 	}
 	
+	/**
+	 * 
+	 * @param TableNode|string $table
+	 * @param string $column
+	 */
 	public function addLiteral($table, $column) {
 		$this->conjunction->addLiteral(new Literal($table, $column, Literal::DIFF, null));
 	}
 	
 	
 	/**
-	 * @param array $values
+	 * export stringified literal to integrate it in sql query
+	 * 
+	 * @param mixed[] $values values to bind
 	 * @return string
 	 */
 	public function export(&$values) {
@@ -42,13 +50,15 @@ class NotNullJoinLiteral extends Literal {
 	}
 	
 	/**
-	 * 
 	 * @param \stdClass $stdObject
-	 * @param [] $leftJoins
-	 * @param [] $literalCollection
+	 * @param \Comhon\Model\MainModel $mainModel
+	 * @param Literal[] $literalCollection used if $stdObject contain only an id that reference literal in collection
+	 * @param SelectQuery $selectQuery
+	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
+	 * @return Literal
 	 */
-	public static function stdObjectToLiteral($stdObject, &$leftJoins, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
+	public static function stdObjectToLiteral($stdObject, $mainModel, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
 		throw new \Exception('cannot build NotNullLiteral from stdClass object');
 	}
 	

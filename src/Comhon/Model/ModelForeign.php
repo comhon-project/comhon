@@ -17,29 +17,42 @@ use Comhon\Object\Collection\ObjectCollection;
 
 class ModelForeign extends ModelContainer {
 
-	public function __construct($model) {
+	/**
+	 * 
+	 * @param Model $model
+	 * @throws Exception
+	 */
+	public function __construct(Model $model) {
 		parent::__construct($model);
 		if ($this->model instanceof SimpleModel) {
 			throw new Exception('model of foreign model can\'t be a simple model');
 		}
 	}
 	
+	/**
+	 * get full qualified class name of object associated to contained model
+	 * 
+	 * @return string
+	 */
 	public function getObjectClass() {
 		return $this->getModel()->getObjectClass();
 	}
 	
+	/**
+	 * get instance of object associated to contained model
+	 * 
+	 * @param boolean $isloaded define if instanciated object will be flaged as loaded or not
+	 * @return \Comhon\Object\ComhonObject
+	 */
 	public function getObjectInstance($isloaded = true) {
 		return $this->getModel()->getObjectInstance($isloaded);
 	}
 	
 	/**
-	 *
-	 * @param ComhonObject $object
-	 * @param string $nodeName
-	 * @param Interfacer $interfacer
-	 * @param boolean $isFirstLevel
-	 * @throws \Exception
-	 * @return mixed|null
+	 * export comhon object to interfaced id in specified format
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelContainer::_export()
 	 */
 	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel) {
 		if (is_null($object)) {
@@ -52,21 +65,24 @@ class ModelForeign extends ModelContainer {
 	}
 	
 	/**
-	 *
-	 * @param ComhonDateTime $value
-	 * @param Interfacer $interfacer
-	 * @param ObjectCollection $localObjectCollection
-	 * @param MainModel $parentMainModel
-	 * @param boolean $isFirstLevel
-	 * @return NULL|unknown
+	 * import interfaced id
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelContainer::_import()
 	 */
-	protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
+	protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
 		if (!$this->getUniqueModel()->hasIdProperties()) {
 			throw new \Exception("foreign property must have model with id ({$this->getName()})");
 		}
-		return $this->getModel()->_importId($value, $interfacer, $localObjectCollection, $parentMainModel, $isFirstLevel);
+		return $this->getModel()->_importId($value, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel);
 	}
 	
+	/**
+	 * verify if value is correct according contained model
+	 * 
+	 * @param mixed $value
+	 * @return boolean
+	 */
 	public function verifValue($value) {
 		$this->model->verifValue($value);
 		return true;

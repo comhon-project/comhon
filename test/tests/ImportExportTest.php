@@ -505,7 +505,7 @@ if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicS
 
 $mainTestDb = MainObjectCollection::getInstance()->getObject(2, 'mainTestDb');
 $mainTestDb->initValue('childrenTestDb', false);
-$mainTestDb->loadValueIds('childrenTestDb');
+$mainTestDb->loadAggregationIds('childrenTestDb');
 if (!isset($mainTestDb->export($stdPrivateInterfacer)->childrenTestDb)) {
 	throw new \Exception('compostion must be exported');
 }

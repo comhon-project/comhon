@@ -13,6 +13,9 @@ namespace Comhon\Exception;
 
 class ReservedWordException extends \Exception {
 	
+	/**
+	 * @param string $word
+	 */
 	public function __construct($word) {
 		parent::__construct("reserved word '$word' cannot be used in manifest", ConstantException::RESERVED_WORD_EXCEPTION);
 	}

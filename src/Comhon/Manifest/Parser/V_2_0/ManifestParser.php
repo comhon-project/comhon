@@ -29,6 +29,11 @@ use Comhon\Interfacer\XMLInterfacer;
 
 class ManifestParser extends ParentManifestParser {
 
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::getExtends()
+	 */
 	public function getExtends() {
 		if ($this->focusLocalTypes) {
 			$current = current($this->localTypes);
@@ -38,6 +43,11 @@ class ManifestParser extends ParentManifestParser {
 		}
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::getObjectClass()
+	 */
 	public function getObjectClass() {
 		if ($this->focusLocalTypes) {
 			$current = current($this->localTypes);
@@ -47,17 +57,32 @@ class ManifestParser extends ParentManifestParser {
 		}
 	}
 	
-	public function getCurrentLocalTypeId() {
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::getCurrentLocalModelName()
+	 */
+	public function getCurrentLocalModelName() {
 		$current = current($this->localTypes);
 		return $this->interfacer->getValue($current, self::NAME);
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_getLocalTypes()
+	 */
 	protected function _getLocalTypes() {
 		return $this->interfacer->hasValue($this->manifest, 'types', true)
 			? $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, 'types', true))
 			: []; 
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_getCurrentProperties()
+	 */
 	protected function _getCurrentProperties() {
 		$parentNode = $this->focusLocalTypes ? current($this->localTypes) : $this->manifest;
 		return $this->interfacer->hasValue($parentNode, 'properties', true)
@@ -65,10 +90,20 @@ class ManifestParser extends ParentManifestParser {
 			: [];
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::getCurrentPropertyModelName()
+	 */
 	public function getCurrentPropertyModelName() {
 		return $this->_getPropertyModelName(current($this->currentProperties));
 	}
 	
+	/**
+	 * 
+	 * @param mixed $property
+	 * @return string
+	 */
 	private function _getPropertyModelName($property) {
 		$modelName = $this->interfacer->getValue($property, 'type');
 		if ($modelName == 'array') {
@@ -78,7 +113,9 @@ class ManifestParser extends ParentManifestParser {
 	}
 	
 	/**
-	 * @return string
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_isCurrentPropertyForeign()
 	 */
 	protected function _isCurrentPropertyForeign() {
 		$currentProperty = current($this->currentProperties);
@@ -92,6 +129,11 @@ class ManifestParser extends ParentManifestParser {
 			: false;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_getBaseInfosProperty()
+	 */
 	protected function _getBaseInfosProperty(Model $propertyModel) {
 		$currentProperty = current($this->currentProperties);
 	
@@ -131,9 +173,9 @@ class ManifestParser extends ParentManifestParser {
 	}
 	
 	/**
-	 *
-	 * @param mixed $currentNode
-	 * @param Model $uniqueModel
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_getRestriction()
 	 */
 	protected function _getRestriction($currentNode, Model $uniqueModel) {
 		if ($uniqueModel instanceof ModelContainer) {
@@ -173,9 +215,9 @@ class ManifestParser extends ParentManifestParser {
 	}
 	
 	/**
-	 *
-	 * @param Model $uniqueModel
-	 * @return mixed|null
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_getDefaultValue()
 	 */
 	protected function _getDefaultValue(Model $propertyModel) {
 		$currentProperty = current($this->currentProperties);
@@ -200,9 +242,9 @@ class ManifestParser extends ParentManifestParser {
 	/**
 	 * add model container if needed
 	 * @param mixed $propertyNode
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $uniqueModel
 	 * @throws \Exception
-	 * @return Model
+	 * @return \Comhon\Model\Model
 	 */
 	private function _completePropertyModel($propertyNode, $uniqueModel) {
 		$propertyModel = $uniqueModel;
@@ -229,9 +271,9 @@ class ManifestParser extends ParentManifestParser {
 	}
 	
 	/**
-	 *
-	 * @param array $instanceModels
-	 * @throws \Exception
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::registerComplexLocalModels()
 	 */
 	public function registerComplexLocalModels(&$instanceModels, $manifestPath_ad) {
 		if ($this->interfacer->hasValue($this->manifest, 'manifests', true)) {

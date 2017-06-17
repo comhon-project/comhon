@@ -13,51 +13,62 @@ namespace Comhon\Visitor;
 
 use Comhon\Object\ComhonObject;
 use Comhon\Object\ObjectArray;
-use Comhon\Model\Model;
 use Comhon\Model\SimpleModel;
 use Comhon\Model\ModelCustom;
 use Comhon\Model\Property\ForeignProperty;
-use Comhon\Exception\ControllerParameterException;
+use Comhon\Exception\VisitorParameterException;
 
 abstract class Visitor {
 	
+	/** @var \Comhon\Object\Object main object to visit */
 	protected $mainObject;
+	
+	/** @var array parameters to apply on visitor */
 	protected $params;
+	
+	/** @var array instances of all visisted objects to avoid infinite loop */
 	private   $instanceObjectHash = [];
+	
+	/** @var string[] stack of all properies names  already visited */
 	private   $propertyNameStack;
 	
 	/**
-	 * execute controller
-	 * @param ComhonObject $object
+	 * execute visitor
+	 * 
+	 * @param \Comhon\Object\ComhonObject $object
 	 * @param array $params
-	 * @param array $visitRootObject
-	 * @return unknown|boolean
+	 * @return mixed|boolean
 	 */
-	public final function execute(ComhonObject $object, $params = []) {
+	final public function execute(ComhonObject $object, $params = []) {
 		$this->_verifParameters($params);
-		if ($object->getModel() instanceof Model) {
-			$this->propertyNameStack = [];
-			$this->mainObject        = $object;
-			$this->params            = $params;	
+		$this->propertyNameStack = [];
+		$this->mainObject        = $object;
+		$this->params            = $params;	
 
-			$this->_init($object);
-			
-			if ($this->_isVisitRootObject()) {
-				$modelName   = $object->getModel()->getName();
-				$property    = new ForeignProperty($object->getModel(), $modelName);
-				$customModel = new ModelCustom('modelCustom', [$property]);
-				$rootObject  = $customModel->getObjectInstance();
-				$rootObject->setValue($modelName, $object);
-				$this->_accept($rootObject, $modelName, $modelName);
-			} else {
-				$this->_acceptChildren($object);
-			}
-			
-			return $this->_finalize($object);
+		$this->_init($object);
+		
+		if ($this->_isVisitRootObject()) {
+			$modelName   = $object->getModel()->getName();
+			$property    = new ForeignProperty($object->getModel(), $modelName);
+			$customModel = new ModelCustom('modelCustom', [$property]);
+			$rootObject  = $customModel->getObjectInstance();
+			$rootObject->setValue($modelName, $object);
+			$this->_accept($rootObject, $modelName, $modelName);
+		} else {
+			$this->_acceptChildren($object);
 		}
+		
+		return $this->_finalize($object);
 		return false;
 	}
 	
+	/**
+	 * accept to visit object of specified parent
+	 * 
+	 * @param \Comhon\Object\ComhonObject $parentObject
+	 * @param string $key
+	 * @param string $propertyName
+	 */
 	private function _accept($parentObject, $key, $propertyName) {
 		if (!is_null($parentObject->getValue($key))) {
 			$this->propertyNameStack[] = $propertyName;
@@ -70,6 +81,11 @@ abstract class Visitor {
 		}
 	}
 	
+	/**
+	 * accept to visit children of specified object
+	 * 
+	 * @param \Comhon\Object\ComhonObject $object
+	 */
 	private function _acceptChildren($object) {
 		if (is_null($object)) {
 			return;
@@ -92,35 +108,79 @@ abstract class Visitor {
 	}
 	
 
+	/**
+	 * verify if visitor has to visit root object
+	 * 
+	 * @return boolean
+	 */
 	protected function _isVisitRootObject() {
 		return true;
 	}
 	
+	/**
+	 * verify parameters
+	 * 
+	 * @param array $params
+	 * @throws VisitorParameterException
+	 */
 	private function _verifParameters($params) {
 		$parameters = $this->_getMandatoryParameters();
 		if (is_array($parameters)) {
 			if (!empty($parameters)) {
 				if (!is_array($params)) {
-					throw new ControllerParameterException(implode(', ', $parameters));
+					throw new VisitorParameterException(implode(', ', $parameters));
 				}
 				foreach ($parameters as $parameterName) {
 					if (!array_key_exists($parameterName, $params)) {
-						throw new ControllerParameterException($parameterName);
+						throw new VisitorParameterException($parameterName);
 					}
 				}
 			}
 		} else if (!is_null($parameters)) {
-			throw new ControllerParameterException(null);
+			throw new VisitorParameterException(null);
 		}
 	}
 
-	protected abstract function _getMandatoryParameters();
+	/**
+	 * get mandatory parameters
+	 * 
+	 * permit to define mandatory parameters.
+	 * an exception is thrown if there are missing parameters
+	 */
+	abstract protected function _getMandatoryParameters();
 
-	protected abstract function _init($object);
+	/**
+	 * initialize visit
+	 * 
+	 * permit to initialize some informations before visit
+	 * 
+	 * @param \Comhon\Object\ComhonObject $object
+	 */
+	abstract protected function _init($object);
 	
-	protected abstract function _visit($parentObject, $key, $propertyNameStack);
+	/**
+	 * visit object in $parentObject at $key
+	 * 
+	 * @param \Comhon\Object\ComhonObject $parentObject
+	 * @param string $key
+	 * @param string $propertyNameStack
+	 */
+	abstract protected function _visit($parentObject, $key, $propertyNameStack);
 	
-	protected abstract function _postVisit($parentObject, $key, $propertyNameStack);
+	/**
+	 * called after visting all children of current object
+	 * 
+	 * @param \Comhon\Object\ComhonObject $parentObject
+	 * @param string $key
+	 * @param string $propertyNameStack
+	 */
+	abstract protected function _postVisit($parentObject, $key, $propertyNameStack);
 	
-	protected abstract function _finalize($object);
+	/**
+	 * finalize visit
+	 * 
+	 * @param \Comhon\Object\ComhonObject $object
+	 * @return mixed permit to return all needed information at the end of visit
+	 */
+	abstract protected function _finalize($object);
 }

@@ -13,6 +13,9 @@ namespace Comhon\Exception;
 
 class MalformedIntervalException extends \Exception {
 	
+	/**
+	 * @param string $interval
+	 */
 	public function __construct($interval) {
 		parent::__construct("interval '$interval' not valid", ConstantException::MALFORMED_INTERVAL_EXCEPTION);
 	}

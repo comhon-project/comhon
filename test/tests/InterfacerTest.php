@@ -19,7 +19,7 @@ $interfacer->setValue($createdNode, 'value', 'prop');
 $interfacer->setValue($createdNode, 'value_node', 'prop_node', true);
 $interfacer->setValue($node, 'root_value', 'root_prop');
 
-$nodeArray = $interfacer->createNodeArray('array');
+$nodeArray = $interfacer->createArrayNode('array');
 $interfacer->addValue($nodeArray, 'value1', 'element');
 $interfacer->addValue($nodeArray, 'value2', 'element');
 
@@ -55,7 +55,7 @@ $interfacer->setValue($createdNode, 'value', 'prop');
 $interfacer->setValue($createdNode, 'value_node', 'prop_node', true);
 $interfacer->setValue($node, 'root_value', 'root_prop');
 
-$nodeArray = $interfacer->createNodeArray('array');
+$nodeArray = $interfacer->createArrayNode('array');
 $interfacer->addValue($nodeArray, 'value1', 'element');
 $interfacer->addValue($nodeArray, 'value2', 'element');
 
@@ -91,7 +91,7 @@ $interfacer->setValue($createdNode, 'value_node', 'prop_node', true);
 $interfacer->setValue($node, $createdNode, 'object');
 $interfacer->setValue($node, 'root_value', 'root_prop');
 
-$nodeArray = $interfacer->createNodeArray('array');
+$nodeArray = $interfacer->createArrayNode('array');
 $interfacer->addValue($nodeArray, 'value1', 'element');
 $interfacer->addValue($nodeArray, 'value2', 'element');
 
@@ -127,7 +127,7 @@ $preferences = [
 	Interfacer::ONLY_UPDATED_VALUES    => true,
 	Interfacer::PROPERTIES_FILTERS     => ['person' => ['haha', 'hoho'], 'place' => ['plop1', 'plop2']],
 	Interfacer::FLATTEN_VALUES         => true,
-	Interfacer::MAIN_FOREIGN_OBJECTS   => true,
+	Interfacer::EXPORT_MAIN_FOREIGN_OBJECTS   => true,
 	Interfacer::FLAG_VALUES_AS_UPDATED => false,
 	Interfacer::FLAG_OBJECT_AS_LOADED  => false,
 	Interfacer::MERGE_TYPE             => Interfacer::NO_MERGE

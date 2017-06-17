@@ -17,7 +17,9 @@ abstract class LogicalJunctionOptimizer {
 	
 	/**
 	 * transform logical junctions in $logicalJunction to literals if it's possible
+	 * 
 	 * @param LogicalJunction $logicalJunction
+	 * @return \Comhon\Database\LogicalJunction
 	 */
 	public static function logicalJunctionToLiterals($logicalJunction) {
 		$newLogicalJunction = new LogicalJunction($logicalJunction->getType());
@@ -35,7 +37,7 @@ abstract class LogicalJunctionOptimizer {
 		foreach ($logicalJunction->getLiterals() as $literal) {
 			$newLogicalJunction->addLiteral($literal);
 		}
-		foreach ($logicalJunction->getLogicalJunction() as $subLogicalJunction) {
+		foreach ($logicalJunction->getLogicalJunctions() as $subLogicalJunction) {
 			if ($subLogicalJunction->hasOnlyOneLiteral() || ($subLogicalJunction->getType() == $link)) {
 				self::_logicalJunctionToLiterals($newLogicalJunction, $subLogicalJunction);
 			}else {
@@ -49,9 +51,10 @@ abstract class LogicalJunctionOptimizer {
 	 * @param unknown $logicalJunction
 	 * @param integer $countMax	optimisation will not be executed if there is more literals than $countMax
 	 * 								actually, optimization is exponential and it can take more time than request itself
+	 * @return \Comhon\Database\LogicalJunction
 	 */
 	public static function optimizeLiterals($logicalJunction, $countMax = 10) {
-		$flattenedLiterals = $logicalJunction->getFlattenedLiterals('md5');
+		$flattenedLiterals = $logicalJunction->getFlattenedLiterals(true);
 		$literalKeys = [];
 		foreach ($flattenedLiterals as $key => $literal) {
 			$literalKeys[] = $key;
@@ -69,6 +72,13 @@ abstract class LogicalJunctionOptimizer {
 		return $newLogicalJunction;
 	}
 	
+	/**
+	 * 
+	 * @param unknown $logicalJunction
+	 * @param unknown $flattenedLiterals
+	 * @param unknown $literalKeys
+	 * @return array|boolean[]
+	 */
 	private static function _setLogicalConjunctions($logicalJunction, $flattenedLiterals, $literalKeys) {
 		$literalValues = [];
 		$literals = [];
@@ -103,12 +113,22 @@ abstract class LogicalJunctionOptimizer {
 		return $logicalConjunctions;
 	}
 	
+	/**
+	 * 
+	 * @param unknown $logicalConjunctions
+	 * @return unknown[]
+	 */
 	private static function _execQuineMcCluskeyAlgorithm(&$logicalConjunctions) {
 		$primeImplicants = [];
 		self::_findPrimeImplicants($logicalConjunctions, $primeImplicants);
 		return self::_findEssentialPrimeImplicants($logicalConjunctions, $primeImplicants);
 	}
 	
+	/**
+	 * 
+	 * @param unknown $logicalConjunctions
+	 * @param unknown $primeImplicants
+	 */
 	private static function _findPrimeImplicants($logicalConjunctions, &$primeImplicants) {
 		$i = 0;
 		$nbVisitedConjunctions = 0;
@@ -158,6 +178,12 @@ abstract class LogicalJunctionOptimizer {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param unknown $allLogicalConjunctions
+	 * @param unknown $primeImplicants
+	 * @return unknown[]
+	 */
 	private static function _findEssentialPrimeImplicants($allLogicalConjunctions, $primeImplicants) {
 		$essentialPrimeImplicants = [];
 		$matrix = self::_buildMatrix($allLogicalConjunctions, $primeImplicants);
@@ -193,6 +219,12 @@ abstract class LogicalJunctionOptimizer {
 		return $essentialPrimeImplicants;
 	}
 	
+	/**
+	 * 
+	 * @param unknown $allLogicalConjunctions
+	 * @param unknown $primeImplicants
+	 * @return boolean[][]|number[][]
+	 */
 	private static function _buildMatrix($allLogicalConjunctions, $primeImplicants) {
 		$matrix = [];
 		foreach ($allLogicalConjunctions as $key => $logicalConjunctions) {
@@ -220,6 +252,12 @@ abstract class LogicalJunctionOptimizer {
 		return $matrix;
 	}
 	
+	/**
+	 * 
+	 * @param unknown $array1
+	 * @param unknown $array2
+	 * @return number
+	 */
 	public static function sortByLastValue($array1, $array2) {
 		if ($array1[count($array1) - 1] == $array2[count($array2) - 1]) {
 			return 0;
@@ -258,6 +296,14 @@ abstract class LogicalJunctionOptimizer {
 		return array_keys($literalsToFactoryze);
 	}
 	
+	/**
+	 * 
+	 * @param unknown $essentialPrimeImplicants
+	 * @param unknown $flattenedLiterals
+	 * @param unknown $literalsToFactoryze
+	 * @param unknown $literalKeys
+	 * @return \Comhon\Database\LogicalJunction
+	 */
 	private static function _setFinalLogicalJunction($essentialPrimeImplicants, $flattenedLiterals, $literalsToFactoryze, $literalKeys) {
 		$literalsToFactoryzeByKey = [];
 		$firstConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);

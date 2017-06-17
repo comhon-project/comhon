@@ -17,6 +17,11 @@ use Comhon\Interfacer\XMLInterfacer;
 
 class SerializationManifestParser extends ParentSerializationManifestParser {
 
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getPropertySerializationInfos()
+	 */
 	public function getPropertySerializationInfos($propertyName) {
 		$serializationName  = null;
 		$aggregations       = null;
@@ -64,12 +69,24 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 		return [$serializationName, $aggregations, $isSerializable, $serializationNames];
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::_getSerializationSettings()
+	 */
 	protected function _getSerializationSettings() {
 		return $this->interfacer->hasValue($this->manifest, 'serialization', true)
 			? $this->_buildSerializationSettings($this->interfacer->getValue($this->manifest, 'serialization', true))
 			: null;
 	}
 	
+	/**
+	 * build serialization settings
+	 * 
+	 * @param mixed $serializationNode
+	 * @throws \Exception
+	 * @return \Comhon\Object\ObjectUnique
+	 */
 	private function _buildSerializationSettings($serializationNode) {
 		$type = $this->interfacer->getValue($serializationNode, 'type');
 		if ($this->interfacer->hasValue($serializationNode, 'value', true)) {
@@ -90,6 +107,11 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 		return $serialization;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getInheritanceKey()
+	 */
 	public function getInheritanceKey() {
 		$serializationNode = $this->interfacer->getValue($this->manifest, 'serialization', true);
 		return is_null($serializationNode)

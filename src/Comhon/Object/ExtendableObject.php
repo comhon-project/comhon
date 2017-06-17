@@ -11,13 +11,14 @@
 
 namespace Comhon\Object;
 
-use Comhon\Object\ComhonObject;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\SimpleModel;
 
-abstract class ExtendableObject extends ComhonObject {
+abstract class ExtendableObject extends ObjectUnique {
 
 	/**
+	 * get model name
+	 * 
 	 * return string
 	 */
 	abstract protected function _getModelName();

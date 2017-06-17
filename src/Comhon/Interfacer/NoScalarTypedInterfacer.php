@@ -14,24 +14,28 @@ namespace Comhon\Interfacer;
 interface NoScalarTypedInterfacer{
 	
 	/**
+	 * cast value to string
 	 * 
 	 * @param mixed $value
 	 */
 	public function castValueToString($value);
 	
 	/**
+	 * cast value to integer
 	 *
 	 * @param mixed $value
 	 */
 	public function castValueToInteger($value);
 	
 	/**
+	 * cast value to float
 	 *
 	 * @param mixed $value
 	 */
 	public function castValueToFloat($value);
 	
 	/**
+	 * cast value to boolean
 	 *
 	 * @param mixed $value
 	 */

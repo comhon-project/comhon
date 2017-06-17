@@ -17,17 +17,26 @@ use Comhon\Object\ComhonObject;
 use Comhon\Model\MainModel;
 use Comhon\Serialization\File\XmlFile;
 use Comhon\Serialization\File\JsonFile;
+use Comhon\Object\ObjectUnique;
 
 abstract class SerializationUnit {
 
+	/** @var string update operation */
 	const UPDATE = 'update';
+	
+	/** @var string create operation */
 	const CREATE = 'create';
 	
+	/** @var string sql serialization */
 	const SQL_TABLE = 'sqlTable';
+	
+	/** @var string json file serialization */
 	const JSON_FILE = 'jsonFile';
+	
+	/** @var string xml file serialization */
 	const XML_FILE  = 'xmlFile';
 	
-	/** @var ComhonObject */
+	/** @var \Comhon\Object\ComhonObject */
 	protected $settings;
 	
 	/** @var string */
@@ -35,22 +44,28 @@ abstract class SerializationUnit {
 	
 	/**
 	 * 
-	 * @param ComhonObject $settings
+	 * @param \Comhon\Object\ObjectUnique $settings
 	 * @param string $inheritanceKey
 	 */
-	protected function __construct(ComhonObject $settings, $inheritanceKey = null) {
+	protected function __construct(ObjectUnique $settings, $inheritanceKey = null) {
 		$this->settings = $settings;
 		$this->inheritanceKey = $inheritanceKey;
 	}
 	
 	/**
+	 * get serialization unit instance
 	 *
-	 * @param ComhonObject $settings
+	 * @param \Comhon\Object\ObjectUnique $settings
 	 * @param string $inheritanceKey
+	 * @param string $class
+	 * @return \Comhon\Serialization\SerializationUnit
 	 */
-	public static function getInstance(ComhonObject $settings, $inheritanceKey = null, $class = null) {
+	public static function getInstance(ObjectUnique $settings, $inheritanceKey = null, $class = null) {
 		if (!is_null($class)) {
-			return new $class($settings, $inheritanceKey);
+			$lSerializationUnit = new $class($settings, $inheritanceKey);
+			if (!($lSerializationUnit instanceof SerializationUnit)) {
+				throw new \Exception('customized serialization should inherit from SerializationUnit');
+			}
 		}
 		switch ($settings->getModel()->getName()) {
 			case self::SQL_TABLE: return new SqlTable($settings, $inheritanceKey);
@@ -61,22 +76,25 @@ abstract class SerializationUnit {
 	
 	
 	/**
-	 *
-	 * @return MainModel
+	 * get serialization unit type (through settings)
+	 * 
+	 * @return \Comhon\Model\MainModel
 	 */
 	public function getType() {
 		return $this->settings->getModel()->getName();
 	}
 	
 	/**
+	 * get serialization unit settings
 	 *
-	 * @return ComhonObject
+	 * @return \Comhon\Object\ObjectUnique
 	 */
 	public function getSettings() {
 		return $this->settings;
 	}
 	
 	/**
+	 * get serialization unit inheritance key
 	 * 
 	 * @return string
 	 */
@@ -85,11 +103,14 @@ abstract class SerializationUnit {
 	}
 	
 	/**
+	 * save specified comhon object
 	 * 
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param string $operation
 	 * @throws \Exception
+	 * @return integer number of saved objects
 	 */
-	public function saveObject(ComhonObject $object, $operation = null) {
+	public function saveObject(ObjectUnique $object, $operation = null) {
 		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
 			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
 		}
@@ -102,13 +123,15 @@ abstract class SerializationUnit {
 	}
 	
 	/**
+	 * load specified comhon object from serialization according its id
 	 * 
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @param string[] $propertiesFilter
 	 * @return boolean true if loading is successfull
 	 * @throws \Exception
+	 * @return boolean true if object is successfully load, false otherwise
 	 */
-	public function loadObject(ComhonObject $object, $propertiesFilter = null) {
+	public function loadObject(ObjectUnique $object, $propertiesFilter = null) {
 		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
 			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
 		}
@@ -116,11 +139,13 @@ abstract class SerializationUnit {
 	}
 	
 	/**
+	 * delete specified comhon object from serialization according its id
 	 *
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @throws \Exception
+	 * @return integer number of deleted objects
 	 */
-	public function deleteObject(ComhonObject $object) {
+	public function deleteObject(ObjectUnique $object) {
 		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
 			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
 		}
@@ -128,35 +153,45 @@ abstract class SerializationUnit {
 	}
 	
 	/**
+	 * save specified comhon object
 	 * 
-	 * @param ComhonObject $object
+	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param string $operation
+	 * @return integer number of saved objects
 	 */
-	protected abstract function _saveObject(ComhonObject $object, $operation = null);
+	abstract protected function _saveObject(ObjectUnique $object, $operation = null);
 	
 	/**
-	 * @param ComhonObject $object
+	 * load specified comhon object from serialization according its id
+	 * 
+	 * @param \Comhon\Object\ObjectUnique $object
 	 * @param string[] $propertiesFilter
-	 * @return boolean
+	 * @return boolean true if object is successfully load, false otherwise
 	 */
-	protected abstract function _loadObject(ComhonObject $object, $propertiesFilter = null);
+	abstract protected function _loadObject(ObjectUnique $object, $propertiesFilter = null);
 	
 	/**
+	 * get inherited model from serialized value
 	 *
-	 * @param unknow $value
-	 * @param Model $extendsModel
-	 * @return Model
+	 * @param mixed $value
+	 * @param \Comhon\Model\Model $baseModel
+	 * @return \Comhon\Model\Model
 	 */
-	public abstract function getInheritedModel($value, Model $extendsModel);
+	abstract public function getInheritedModel($value, Model $baseModel);
 	
 	/**
-	 * @param ComhonObject $object
-	 * @throws \Exception
-	 */
-	protected abstract function _deleteObject(ComhonObject $object);
-	
-	/**
+	 * delete specified comhon object from serialization according its id
 	 * 
-	 * @param ObjectArray $object
+	 * @param \Comhon\Object\ObjectUnique $object
+	 * @throws \Exception
+	 * @return integer number of deleted objects
+	 */
+	abstract protected function _deleteObject(ObjectUnique $object);
+	
+	/**
+	 * load aggregation from serialization according parent id
+	 * 
+	 * @param \Comhon\Object\ObjectArray $object
 	 * @param string|integer $parentId
 	 * @param string[] $aggregationProperties
 	 * @param boolean $onlyIds

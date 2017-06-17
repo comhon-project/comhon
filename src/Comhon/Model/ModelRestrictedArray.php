@@ -13,7 +13,6 @@ namespace Comhon\Model;
 
 use Comhon\Object\ObjectArray;
 use Comhon\Model\MainModel;
-use Comhon\Object\ComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Model\Restriction\Restriction;
@@ -24,7 +23,14 @@ class ModelRestrictedArray extends ModelArray {
 	/** @var Restriction */
 	private $restriction;
 	
-	public function __construct($model, Restriction $restriction, $elementName) {
+	/**
+	 * 
+	 * @param Model $model
+	 * @param \Comhon\Model\Restriction\Restriction $restriction
+	 * @param string $elementName
+	 * @throws \Exception
+	 */
+	public function __construct(Model $model, Restriction $restriction, $elementName) {
 		parent::__construct($model, $elementName);
 		$this->restriction = $restriction;
 		
@@ -34,16 +40,12 @@ class ModelRestrictedArray extends ModelArray {
 	}
 	
 	/**
-	 *
-	 * @param mixed $value
-	 * @param Interfacer $interfacer
-	 * @param ObjectCollection $localObjectCollection
-	 * @param MainModel $parentMainModel
-	 * @param boolean $isFirstLevel
-	 * @return ComhonObject
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelArray::_import()
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
-		$objectArray = parent::_import($interfacedObject, $interfacer, $localObjectCollection, $parentMainModel, $isFirstLevel);
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
+		$objectArray = parent::_import($interfacedObject, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel);
 		foreach ($objectArray->getValues() as $value) {
 			if (!$this->restriction->satisfy($value)) {
 				throw new NotSatisfiedRestrictionException($value, $this->restriction);
@@ -52,6 +54,11 @@ class ModelRestrictedArray extends ModelArray {
 		return $objectArray;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelArray::verifValue()
+	 */
 	public function verifValue($value) {
 		if (
 			!($value instanceof ObjectArray) 
@@ -70,9 +77,9 @@ class ModelRestrictedArray extends ModelArray {
 	}
 	
 	/**
-	 *
-	 * @param mixed $value
-	 * @return boolean
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelArray::verifElementValue()
 	 */
 	public function verifElementValue($value) {
 		parent::verifElementValue($value);

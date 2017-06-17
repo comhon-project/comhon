@@ -15,22 +15,40 @@ use Comhon\Model\Model;
 
 class MultipleForeignProperty extends ForeignProperty {
 
+	/** @var Property[] */
 	private $multipleIdProperties = [];
+	
+	/** @var boolean */
 	private $propertiesInitialized = false;
 	
+	/**
+	 * 
+	 * @param \Comhon\Object\Model $model
+	 * @param string $name
+	 * @param string[] $serializationNames
+	 * @param boolean $isPrivate
+	 * @param boolean $isSerializable
+	 */
 	public function __construct(Model $model, $name, $serializationNames, $isPrivate = false, $isSerializable = true) {
 		parent::__construct($model, $name, null, $isPrivate, $isSerializable);
 		$this->multipleIdProperties = $serializationNames;
 	}
 	
 	/**
-	 * verifiy if property has several serialization names
-	 * @return boolean
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::hasMultipleSerializationNames()
 	 */
 	public function hasMultipleSerializationNames() {
 		return true;
 	}
 	
+	/**
+	 * get multiple id properties
+	 * 
+	 * @throws \Exception
+	 * @return \Comhon\Model\Property\Property[]
+	 */
 	public function getMultipleIdProperties() {
 		if (!$this->propertiesInitialized) {
 			$model = $this->getUniqueModel();
@@ -54,10 +72,9 @@ class MultipleForeignProperty extends ForeignProperty {
 	}
 	
 	/**
-	 * verify if property is interfaceable for export/import in public/private/serialization mode
-	 * @param boolean $private if true private mode, otherwise public mode
-	 * @param boolean $serialization if true serialization mode, otherwise model mode
-	 * @return boolean true if property is interfaceable
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\ForeignProperty::isInterfaceable()
 	 */
 	public function isInterfaceable($private, $serialization) {
 		return !$serialization && parent::isInterfaceable($private, $serialization);

@@ -18,46 +18,129 @@ use Comhon\Model\MainModel;
 
 abstract class Interfacer {
 	
+	/**
+	 * @var string preference name that define private context 
+	 *     private properties are interfaced only in private content
+	 */
 	const PRIVATE_CONTEXT        = 'privateContext';
-	const SERIAL_CONTEXT         = 'serialContext';
-	const DATE_TIME_ZONE         = 'dateTimeZone';
-	const DATE_TIME_FORMAT       = 'dateTimeFormat';
-	const ONLY_UPDATED_VALUES    = 'updatedValueOnly';
-	const PROPERTIES_FILTERS     = 'propertiesFilters';
-	const FLATTEN_VALUES         = 'flattenValues';
-	const MAIN_FOREIGN_OBJECTS   = 'mainForeignObjects';
+	
+	/**
+	 * @var string define serial context 
+	 *     interface properies with their serialization name
+	 *     do not interface aggregations
+	 *     simplify foreign values with inherited main model
+	 */
+	const SERIAL_CONTEXT = 'serialContext';
+	
+	/**
+	 * @var string preference name that define date time zone
+	 */
+	const DATE_TIME_ZONE = 'dateTimeZone';
+	
+	/**
+	 * @var string preference name that define exported date format
+	 */
+	const DATE_TIME_FORMAT = 'dateTimeFormat';
+	
+	/**
+	 * @var string preference name that define if only updated value will be exported
+	 */
+	const ONLY_UPDATED_VALUES = 'updatedValueOnly';
+	
+	/**
+	 * @var string preference name that define filter for exported properties 
+	 */
+	const PROPERTIES_FILTERS = 'propertiesFilters';
+	
+	/**
+	 * @var string preference name that define if complexes values have to be flatten
+	 */
+	const FLATTEN_VALUES = 'flattenValues';
+	
+	/**
+	 * @var string preference name that define if foreign object with main model have to be exported
+	 */
+	const EXPORT_MAIN_FOREIGN_OBJECTS = 'exportMainForeignObjects';
+	
+	/**
+	 * @var string preference name that define if imported values have to be flagged has updated
+	 */
 	const FLAG_VALUES_AS_UPDATED = 'flagValuesAsUpdated';
-	const FLAG_OBJECT_AS_LOADED  = 'flagObjectAsUpdated';
-	const MERGE_TYPE             = 'mergeType';
 	
-	const MERGE     = 1;
+	/**
+	 * @var string preference name that define if object created during import have to be flagged as loaded
+	 */
+	const FLAG_OBJECT_AS_LOADED = 'flagObjectAsUpdated';
+	
+	/**
+	 * @var string preference name that define merge type during import
+	 */
+	const MERGE_TYPE = 'mergeType';
+	
+	/** @var integer */
+	const MERGE = 1;
+	
+	/** @var integer */
 	const OVERWRITE = 2;
-	const NO_MERGE  = 3;
 	
+	/** @var integer */
+	const NO_MERGE = 3;
+	
+	
+	/** @var string */
 	const __UNLOAD__ = '__UNLOAD__';
+	
+	/** @var string */
 	const INHERITANCE_KEY = '__inheritance__';
+	
+	/** @var string */
 	const COMPLEX_ID_KEY = 'id';
 	
+	/** @var string[] */
 	private static $allowedMergeTypes = [
 		self::MERGE,
 		self::OVERWRITE,
 		self::NO_MERGE
 	];
 	
-	private $private             = false;
-	private $serialContext       = false;
-	private $dateTimeZone        = null;
-	private $dateTimeFormat      = 'c';
-	private $updatedValueOnly    = false;
-	private $propertiesFilters   = [];
-	private $flattenValues       = false;
-	private $mergeType           = self::MERGE;
-	private $flagValuesAsUpdated      = true;
-	private $flagObjectAsLoaded       = true;
+	/** @var boolean */
+	private $privateContext = false;
+	
+	/** @var boolean */
+	private $serialContext = false;
+	
+	/** @var string */
+	private $dateTimeZone = null;
+		
+	/** @var string */
+	private $dateTimeFormat = 'c';
+	
+	/** @var boolean */
+	private $updatedValueOnly = false;
+	
+	/** @var string[] */
+	private $propertiesFilters = [];
+	
+	/** @var boolean */
+	private $flattenValues = false;
+	
+	/** @var integer */
+	private $mergeType = self::MERGE;
+	
+	/** @var boolean */
+	private $flagValuesAsUpdated = true;
+	
+	/** @var boolean */
+	private $flagObjectAsLoaded = true;
+	
+	/** @var boolean */
 	private $exportMainForeignObjects = false;
 	
-	protected $mainForeignObjects  = null;
-	protected $mainForeignIds      = null;
+	/** @var mixed */
+	protected $mainForeignObjects = null;
+	
+	/** @var array */
+	protected $mainForeignIds = null;
 	
 	final public function __construct() {
 		$this->dateTimeZone = new \DateTimeZone(date_default_timezone_get());
@@ -66,6 +149,7 @@ abstract class Interfacer {
 	
 	/**
 	 * initialize DomDocument that permit to contruct nodes
+	 * 
 	 * @throws \Exception
 	 */
 	protected function _initInstance() {
@@ -75,22 +159,25 @@ abstract class Interfacer {
 	
 	/**
 	 * verify if private properties have to be interfaced
+	 * 
 	 * @return boolean
 	 */
 	public function isPrivateContext() {
-		return $this->private;
+		return $this->privateContext;
 	}
 	
 	/**
 	 * define if private properties have to be interfaced
+	 * 
 	 * @param boolean $boolean
 	 */
 	public function setPrivateContext($boolean) {
-		$this->private = $boolean;
+		$this->privateContext = $boolean;
 	}
 	
 	/**
 	 * verify if interfacer is used in serial context (serialization / deserialization)
+	 * 
 	 * @return boolean
 	 */
 	public function isSerialContext() {
@@ -99,6 +186,7 @@ abstract class Interfacer {
 	
 	/**
 	 * define if interfacer is used in serial context (serialization / deserialization)
+	 * 
 	 * @param boolean $boolean if true, use properties serialization name, and ignore aggregations
 	 */
 	public function setSerialContext($boolean) {
@@ -107,6 +195,7 @@ abstract class Interfacer {
 	
 	/**
 	 * get date time zone
+	 * 
 	 * @return \DateTimeZone
 	 */
 	public function getDateTimeZone() {
@@ -115,6 +204,7 @@ abstract class Interfacer {
 	
 	/**
 	 * set date time zone
+	 * 
 	 * @param string $timeZone
 	 */
 	public function setDateTimeZone($timeZone) {
@@ -123,7 +213,6 @@ abstract class Interfacer {
 	
 	/**
 	 * set default date time zone
-	 * @param string $timeZone
 	 */
 	public function setDefaultDateTimeZone() {
 		$this->dateTimeZone = new \DateTimeZone(date_default_timezone_get());
@@ -131,6 +220,7 @@ abstract class Interfacer {
 	
 	/**
 	 * get date time format
+	 * 
 	 * @return string
 	 */
 	public function getDateTimeFormat() {
@@ -139,6 +229,7 @@ abstract class Interfacer {
 	
 	/**
 	 * set date time format
+	 * 
 	 * @param string $dateTimeFormat
 	 */
 	public function setDateTimeFormat($dateTimeFormat) {
@@ -147,6 +238,7 @@ abstract class Interfacer {
 	
 	/**
 	 * verify if has to export only updated values
+	 * 
 	 * @return boolean
 	 */
 	public function hasToExportOnlyUpdatedValues() {
@@ -155,6 +247,7 @@ abstract class Interfacer {
 	
 	/**
 	 * define if has to export only updated values
+	 * 
 	 * @param boolean $boolean
 	 */
 	public function setExportOnlyUpdatedValues($boolean) {
@@ -163,6 +256,7 @@ abstract class Interfacer {
 	
 	/**
 	 * verify if has properties filter for specified model
+	 * 
 	 * @param string $modelName
 	 * @return boolean $boolean
 	 */
@@ -172,6 +266,7 @@ abstract class Interfacer {
 	
 	/**
 	 * get properties filter for specified model (properties names are stored in array keys)
+	 * 
 	 * @param string $modelName
 	 * @return array|null return null if filter doesn't exist for specified model
 	 */
@@ -190,6 +285,7 @@ abstract class Interfacer {
 	
 	/**
 	 * set properties filter for specified model
+	 * 
 	 * @param string[] $propertiesNames
 	 * @param string $modelName
 	 */
@@ -204,6 +300,7 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * define if complex values have to be flatten
 	 * 
 	 * @param boolean $boolean
 	 */
@@ -212,6 +309,7 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * verify if complex values have to be flatten
 	 * 
 	 * @return boolean
 	 */
@@ -221,6 +319,7 @@ abstract class Interfacer {
 	
 	/**
 	 * verify if has to export main foreign objects
+	 * 
 	 * @return boolean
 	 */
 	public function hasToExportMainForeignObjects() {
@@ -229,6 +328,7 @@ abstract class Interfacer {
 	
 	/**
 	 * define if has to export main foreign objects
+	 * 
 	 * @param boolean $boolean
 	 */
 	public function setExportMainForeignObjects($boolean) {
@@ -245,6 +345,7 @@ abstract class Interfacer {
 	
 	/**
 	 * finalize export
+	 * 
 	 * @param mixed $rootNode
 	 */
 	public function finalizeExport($rootNode) {
@@ -252,10 +353,11 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * add exported main foreign object
 	 * 
 	 * @param mixed $node
 	 * @param string|integer $nodeId
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 */
 	public function addMainForeignObject($node, $nodeId, Model $model) {
 		if (!is_null($this->mainForeignObjects)) {
@@ -268,10 +370,10 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * remove exported main foreign object
 	 *
-	 * @param mixed $node
 	 * @param string|integer $nodeId
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 */
 	public function removeMainForeignObject($nodeId, Model $model) {
 		if (!is_null($this->mainForeignObjects)) {
@@ -283,6 +385,7 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * get exported main foreign objects
 	 *
 	 * @return array
 	 */
@@ -291,8 +394,11 @@ abstract class Interfacer {
 	}
 	
 	/**
-	 *
-	 * @return array
+	 * verify if has main foreign objects with specified $modelName and $id
+	 * 
+	 * @param string $modelName
+	 * @param string|integer $id
+	 * @return boolean
 	 */
 	public function hasMainForeignObject($modelName, $id) {
 		return !is_null($this->mainForeignObjects)
@@ -301,6 +407,7 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * define if imported values have to be flagged has updated
 	 *
 	 * @param boolean $boolean
 	 */
@@ -309,6 +416,7 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * verify if imported values have to be flagged has updated
 	 *
 	 * @return boolean
 	 */
@@ -317,6 +425,7 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * define if object created during import have to be flagged as loaded
 	 *
 	 * @param boolean $boolean
 	 */
@@ -325,6 +434,7 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * verify if object created during import have to be flagged as loaded
 	 *
 	 * @return boolean
 	 */
@@ -333,8 +443,9 @@ abstract class Interfacer {
 	}
 	
 	/**
-	 *
-	 * @param integer $mergeType
+	 * define merge type to apply during import
+	 * 
+	 * @param integer $mergeType possible values are [self::MERGE, self::OVERWRITE, self::NO_MERGE]
 	 */
 	public function setMergeType($mergeType) {
 		if (!in_array($mergeType, self::$allowedMergeTypes)) {
@@ -344,6 +455,7 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * get merge type to apply during import
 	 *
 	 * @return integer
 	 */
@@ -352,24 +464,27 @@ abstract class Interfacer {
 	}
 	
 	/**
+	 * get value in $node with property $name
 	 * 
 	 * @param mixed $node
-	 * @param string $propertyName
+	 * @param string $name
 	 * @param boolean $asNode
-	 * @return mixed
+	 * @return mixed null if doesn't exist
 	 */
-	abstract public function &getValue(&$node, $propertyName, $asNode = false);
+	abstract public function &getValue(&$node, $name, $asNode = false);
 	
 	/**
+	 * verify if $node contain value with property $name
 	 * 
 	 * @param mixed $node
-	 * @param string $propertyName
+	 * @param string $name
 	 * @param boolean $asNode
 	 * @return boolean
 	 */
-	abstract public function hasValue($node, $propertyName, $asNode = false);
+	abstract public function hasValue($node, $name, $asNode = false);
 	
 	/**
+	 * verify if value is null
 	 *
 	 * @param mixed $value
 	 * @return boolean
@@ -377,6 +492,10 @@ abstract class Interfacer {
 	abstract public function isNullValue($value);
 	
 	/**
+	 * get traversable node
+	 * 
+	 * actually this method has interest only for XMLInterfacer that need to retrieve children nodes
+	 * other interfacer only return $node passed in parameter
 	 *
 	 * @param mixed $node
 	 * @param boolean $getElementName only used for XMLInterfacer
@@ -385,14 +504,16 @@ abstract class Interfacer {
 	abstract public function getTraversableNode($node, $getElementName = false);
 	
 	/**
-	 * verify if value is a node
+	 * verify if value is expected node type
+	 * 
 	 * @param mixed $value
 	 * @return boolean
 	 */
 	abstract public function isNodeValue($value);
 	
 	/**
-	 * verify if value is a array node
+	 * verify if value is an array node
+	 * 
 	 * @param mixed $value
 	 * @return boolean
 	 */
@@ -400,19 +521,22 @@ abstract class Interfacer {
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value
+	 * 
 	 * @param mixed $value
-	 * @return mixed
+	 * @return boolean
 	 */
 	abstract public function isComplexInterfacedId($value);
 	
 	/**
 	 * verify if value is a flatten complex id (with inheritance key)
+	 * 
 	 * @param mixed $value
-	 * @return mixed
+	 * @return boolean
 	 */
 	abstract public function isFlattenComplexInterfacedId($value);
 	
 	/**
+	 * set value in $node with property $name
 	 * 
 	 * @param mixed $node
 	 * @param mixed $value
@@ -423,37 +547,42 @@ abstract class Interfacer {
 	abstract public function setValue(&$node, $value, $name = null, $asNode = false);
 	
 	/**
+	 * unset value in $node with property $name
 	 *
 	 * @param mixed $node
 	 * @param string $name
 	 * @param boolean $asNode
-	 * @return mixed
 	 */
 	abstract public function unsetValue(&$node, $name, $asNode = false);
 	
 	/**
+	 * add value to $node
 	 *
 	 * @param mixed $node
 	 * @param mixed $value
 	 * @param string $name
-	 * @return mixed
 	 */
 	abstract public function addValue(&$node, $value, $name = null);
 	
 	/**
+	 * create node
+	 * 
 	 * @param string $name
 	 * return mixed
 	 */
 	abstract public function createNode($name = null);
 	
 	/**
+	 * create array node
+	 * 
 	 * @param string $name
 	 * @return mixed
 	 */
-	abstract public function createNodeArray($name = null);
+	abstract public function createArrayNode($name = null);
 	
 	/**
 	 * transform given node to string
+	 * 
 	 * @param mixed $node
 	 * @return string
 	 */
@@ -461,6 +590,7 @@ abstract class Interfacer {
 	
 	/**
 	 * write file with given content
+	 * 
 	 * @param mixed $node
 	 * @param string $path
 	 * @return boolean
@@ -469,6 +599,7 @@ abstract class Interfacer {
 	
 	/**
 	 * read file and load node with file content
+	 * 
 	 * @param string $path
 	 * @return mixed|boolean return false on failure
 	 */
@@ -476,6 +607,7 @@ abstract class Interfacer {
 	
 	/**
 	 * flatten value (transform object/array to string)
+	 * 
 	 * @param mixed $node
 	 * @param string $name
 	 */
@@ -483,21 +615,24 @@ abstract class Interfacer {
 	
 	/**
 	 * unflatten value (transform string to object/array)
+	 * 
 	 * @param array $node
 	 * @param string $name
 	 */
 	abstract public function unFlattenNode(&$node, $name);
 	
 	/**
-	 * replace value
+	 * replace value in property $name by $value (fail if property $name doesn't exist)
+	 * 
 	 * @param mixed $node
 	 * @param string $name
-	 * @param mixed $value
+	 * @param mixed $value value to place in key $name
 	 */
 	abstract public function replaceValue(&$node, $name, $value);
 	
 	/**
 	 * verify if interfaced object has typed scalar values (int, float, string...).
+	 * 
 	 * @return boolean
 	 */
 	public function hasScalarTypedValues() {
@@ -506,8 +641,10 @@ abstract class Interfacer {
 	
 	/**
 	 * export given comhon object to interfaced object 
-	 * @param ComhonObject $object
+	 * 
+	 * @param \Comhon\Object\ComhonObject $object
 	 * @param array $preferences
+	 * @return mixed
 	 */
 	public function export(ComhonObject $object, $preferences = []) {
 		$this->setPreferences($preferences);
@@ -516,10 +653,11 @@ abstract class Interfacer {
 	
 	/**
 	 * import given node and construct comhon object
+	 * 
 	 * @param mixed $node
-	 * @param MainModel $model
+	 * @param \Comhon\Model\MainModel $model
 	 * @param array $preferences
-	 * @return ComhonObject
+	 * @return \Comhon\Object\ComhonObject
 	 */
 	public function import($node, MainModel $model, array $preferences = []) {
 		$this->setPreferences($preferences);
@@ -529,7 +667,6 @@ abstract class Interfacer {
 	/**
 	 *
 	 * @param mixed $node
-	 * @return boolean
 	 */
 	public function setPreferences(array $preferences) {
 		// private
@@ -592,11 +729,11 @@ abstract class Interfacer {
 		}
 		
 		// main foreign objects
-		if (array_key_exists(self::MAIN_FOREIGN_OBJECTS, $preferences)) {
-			if (!is_bool($preferences[self::MAIN_FOREIGN_OBJECTS])) {
-				throw new \Exception('preference "'.self::MAIN_FOREIGN_OBJECTS.'" should be a boolean');
+		if (array_key_exists(self::EXPORT_MAIN_FOREIGN_OBJECTS, $preferences)) {
+			if (!is_bool($preferences[self::EXPORT_MAIN_FOREIGN_OBJECTS])) {
+				throw new \Exception('preference "'.self::EXPORT_MAIN_FOREIGN_OBJECTS.'" should be a boolean');
 			}
-			$this->setExportMainForeignObjects($preferences[self::MAIN_FOREIGN_OBJECTS]);
+			$this->setExportMainForeignObjects($preferences[self::EXPORT_MAIN_FOREIGN_OBJECTS]);
 		}
 		
 		// flag values as updated

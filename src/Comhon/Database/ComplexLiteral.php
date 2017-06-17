@@ -19,21 +19,31 @@ namespace Comhon\Database;
  */
 class ComplexLiteral extends WhereLiteral {
 
-	const IN     = 'IN';
+	/** @var string */
+	const IN = 'IN';
+	
+	/** @var string */
 	const NOT_IN = 'NOT IN';
 	
-	protected static $acceptedOperators = [
+	/** @var array */
+	protected static $allowedOperators = [
 			self::IN     => null,
 			self::NOT_IN => null
 	];
 	
+	/** @var array */
 	protected static $oppositeOperator = [
 			self::IN     => self::NOT_IN,
 			self::NOT_IN => self::IN
 	];
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Database\Literal::_verifLiteral()
+	 */
 	protected function _verifLiteral() {
-		if (!array_key_exists($this->operator, self::$acceptedOperators)) {
+		if (!array_key_exists($this->operator, self::$allowedOperators)) {
 			throw new \Exception('operator \''.$this->operator.'\' doesn\'t exists');
 		}
 		if (!is_null($this->value) && !($this->value instanceof SelectQuery)) {
@@ -42,8 +52,9 @@ class ComplexLiteral extends WhereLiteral {
 	}
 	
 	/**
-	 * @param array $globalValues
-	 * @return string
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Database\Literal::export()
 	 */
 	public function export(&$globalValues) {
 		list($query, $values) = $this->value->export();
@@ -54,10 +65,11 @@ class ComplexLiteral extends WhereLiteral {
 	}
 	
 	/**
-	 * can't be used to populate a database query
-	 * @return string
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Database\Literal::exportWithValue()
 	 */
 	public function exportWithValue() {
-		return sprintf('%s.%s %s (%s)', $this->table, $this->column, $this->operator, $this->value->exportWithValue());
+		return sprintf('%s.%s %s (%s)', $this->table, $this->column, $this->operator, $this->value->exportDebug());
 	}
 }

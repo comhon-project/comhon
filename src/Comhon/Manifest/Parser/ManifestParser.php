@@ -29,43 +29,141 @@ use Comhon\Exception\ReservedWordException;
 
 abstract class ManifestParser {
 
+	/** @var string */
 	const _EXTENDS   = 'extends';
+	
+	/** @var string */
 	const _OBJECT    = 'object';
 	
+	/** @var string */
 	const NAME          = 'name';
+	
+	/** @var string */
 	const IS_ID         = 'is_id';
+	
+	/** @var string */
 	const IS_PRIVATE    = 'is_private';
+	
+	/** @var string */
 	const IS_FOREIGN    = 'is_foreign';
+	
+	/** @var string */
 	const XML_NODE      = 'node';
+	
+	/** @var string */
 	const XML_ATTRIBUTE = 'attribute';
 
+	/** @var mixed */
 	protected $manifest;
+	
+	/** @var SerializationManifestParser */
 	protected $serializationManifestParser;
+	
+	/** @var \Comhon\Interfacer\Interfacer */
 	protected $interfacer;
+	
+	/** @var boolean */
 	protected $castValues;
 
+	/** @var boolean */
 	protected $focusLocalTypes = false;
+	
+	/** @var array */
 	protected $localTypes;
+	
+	/** @var array */
 	protected $currentProperties;
 
+	/**
+	 * get extends model name
+	 * 
+	 * @return string|null null if no extends model name
+	 */
 	abstract public function getExtends();
+	
+	/**
+	 * get object class
+	 * 
+	 * @return string|null null if no associated class
+	 */
 	abstract public function getObjectClass();
-	abstract public function getCurrentLocalTypeId();
+	
+	/**
+	 * get current local model name
+	 * 
+	 * @return string
+	 */
+	abstract public function getCurrentLocalModelName();
+	
+	/**
+	 * get current property model name
+	 * 
+	 * @return string
+	 */
 	abstract public function getCurrentPropertyModelName();
 
+	/**
+	 * get local types
+	 * 
+	 * @return mixed[]
+	 */
 	abstract protected function _getLocalTypes();
+	
+	/**
+	 * get current properties
+	 * 
+	 * @return mixed[]
+	 */
 	abstract protected function _getCurrentProperties();
+	
+	/**
+	 * get basic informations of property
+	 * 
+	 * @param \Comhon\Model\Model $propertyModel unique model associated to property
+	 * @return [string, \Comhon\Model\Model, boolean, boolean, boolean]
+	 *     0 : property name
+	 *     1 : final model associated to property
+	 *     2 : true if property is id
+	 *     3 : true if property is private
+	 *     4 : true if property is interfaced as node xml
+	 */
 	abstract protected function _getBaseInfosProperty(Model $propertyModel);
+	
+	/**
+	 * get default value if exists
+	 * 
+	 * @param \Comhon\Model\Model $propertyModel
+	 * @return mixed|null null if no default value
+	 */
 	abstract protected function _getDefaultValue(Model $propertyModel);
+	
+	/**
+	 * get property/ObjectArray restriction
+	 * 
+	 * @param mixed $currentNode
+	 * @param \Comhon\Model\Model $propertyModel
+	 */
 	abstract protected function _getRestriction($currentNode, Model $propertyModel);
+	
+	/**
+	 * verify if current property is foreign
+	 */
 	abstract protected function _isCurrentPropertyForeign();
 	
 	/**
-	 * @param Model $model
+	 * register complex local model
+	 * 
+	 * @param \Comhon\Model\Model[] $instanceModels
+	 * @param string $manifestPath_ad
+	 */
+	abstract public function registerComplexLocalModels(&$instanceModels, $manifestPath_ad);
+	
+	/**
+	 * @param \Comhon\Model\Model $model
 	 * @param string $manifestPath_afe
 	 * @param string $serializationManifestPath_afe
 	 */
-	public final function __construct(Model $model, $manifest, $serializationManifestPath_afe = null) {
+	final public function __construct(Model $model, $manifest, $serializationManifestPath_afe = null) {
 		$this->interfacer        = $this->_getInterfacer($manifest);
 		$this->manifest          = $manifest;
 		$this->currentProperties = $this->_getCurrentProperties();
@@ -80,19 +178,39 @@ abstract class ManifestParser {
 		}
 	}
 	
+	/**
+	 * get serialization manifest parser
+	 * 
+	 * @return SerializationManifestParser
+	 */
 	public function getSerializationManifestParser() {
 		return $this->serializationManifestParser;
 	}
 	
-	public function getLocalTypesCount() {
+	/**
+	 * get local model count
+	 * 
+	 * @return integer
+	 */
+	public function getLocalModelCount() {
 		return count($this->localTypes);
 	}
 	
-	public function isFocusOnLocalTypes() {
+	/**
+	 * is currently focus on local model
+	 * 
+	 * @return boolean
+	 */
+	public function isFocusOnLocalModel() {
 		return $this->focusLocalTypes;
 	}
 	
-	public function activateFocusOnLocalTypes() {
+	/**
+	 * activate focus on local models
+	 * 
+	 * @throws \Exception
+	 */
+	public function activateFocusOnLocalModels() {
 		reset($this->localTypes);
 		$this->focusLocalTypes   = true;
 		$this->currentProperties = $this->_getCurrentProperties();
@@ -102,7 +220,12 @@ abstract class ManifestParser {
 		}
 	}
 	
-	public function desactivateFocusOnLocalTypes() {
+	/**
+	 * desactivate focus on local models
+	 *
+	 * @throws \Exception
+	 */
+	public function desactivateFocusOnLocalModels() {
 		reset($this->localTypes);
 		$this->focusLocalTypes   = false;
 		$this->currentProperties = $this->_getCurrentProperties();
@@ -113,10 +236,12 @@ abstract class ManifestParser {
 	}
 	
 	/**
-	 * go to next local type
-	 * @return boolean false if cannot go to next element (typically when current element is the last)
+	 * go to next local model
+	 * 
+	 * @throws \Exception
+	 * @return boolean false if there is no next local model
 	 */
-	public function nextLocalType() {
+	public function nextLocalModel() {
 		if ($this->focusLocalTypes && (next($this->localTypes) !== false)) {
 			$this->currentProperties = $this->_getCurrentProperties();
 			
@@ -130,17 +255,19 @@ abstract class ManifestParser {
 	
 	/**
 	 * go to next property
-	 * @return boolean false if cannot go to next element (typically when current element is the last)
+	 * 
+	 * @return boolean false if there is no next property
 	 */
 	public function nextProperty() {
 		return next($this->currentProperties) !== false;
 	}
 	
 	/**
+	 * get current property
 	 * 
-	 * @param Model $propertyModel
-	 * @throws Exception
-	 * @return Property
+	 * @param \Comhon\Model\Model $propertyModel unique model associated to property
+	 * @throws \Exception
+	 * @return \Comhon\Model\Property\Property
 	 */
 	public function getCurrentProperty(Model $propertyModel) {
 		if ($this->_isCurrentPropertyForeign()) {
@@ -194,6 +321,16 @@ abstract class ManifestParser {
 		return $property;
 	}
 	
+	/**
+	 * get serialization informations of property
+	 * 
+	 * @param unknown $propertyName
+	 * @return [string|null, \Comhon\Model\Property\Property[]|null, boolean, string[]|null]
+	 *     0 : serialization name $serializationNames)
+	 *     1 : aggregations
+	 *     2 : true if property is serializable
+	 *     3 : true if property is serialized in several properties
+	 */
 	private function _getBaseSerializationInfosProperty($propertyName) {
 		if (!$this->focusLocalTypes && !is_null($this->serializationManifestParser)) {
 			return $this->serializationManifestParser->getPropertySerializationInfos($propertyName);
@@ -203,6 +340,7 @@ abstract class ManifestParser {
 	
 	/**
 	 * register path of each manifest
+	 * 
 	 * @param string $manifestListPath_afe
 	 * @param string $serializationListPath_afe
 	 * @param array $modelMap
@@ -214,8 +352,9 @@ abstract class ManifestParser {
 	}
 	
 	/**
+	 * get manifest parser instance
 	 * 
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 * @param string $manifestPath_afe
 	 * @param string $serializationManifestPath_afe
 	 * @throws \Exception
@@ -232,12 +371,14 @@ abstract class ManifestParser {
 			default:
 				throw new \Exception('extension not recognized for manifest file : '.$manifestPath_afe);
 		}
-		return self::getVersionnedInstance($model, $manifestPath_afe, $serializationManifestPath_afe, $interfacer);
+		return self::_getInstanceWithInterfacer($model, $manifestPath_afe, $serializationManifestPath_afe, $interfacer);
 	}
 	
 	/**
 	 * get interfacer able to interpret manifest
-	 * @param [] $manifest
+	 * 
+	 * @param mixed $manifest
+	 * @return \Comhon\Interfacer\Interfacer
 	 */
 	public function _getInterfacer($manifest) {
 		if (is_array($manifest)) {
@@ -254,6 +395,7 @@ abstract class ManifestParser {
 	
 	/**
 	 * register path of each manifest
+	 * 
 	 * @param string $manifestListPath_afe
 	 * @param string[] $serializationMap
 	 * @param array $modelMap
@@ -282,18 +424,19 @@ abstract class ManifestParser {
 		}
 		$version = (string) $interfacer->getValue($manifestList, 'version');
 		switch ($version) {
-			case '2.0': return self::_registerComplexModels_2_0($manifestList, $manifestListFolder_ad, $serializationMap, $modelMap, $interfacer);
+			case '2.0': self::_registerComplexModels_2_0($manifestList, $manifestListFolder_ad, $serializationMap, $modelMap, $interfacer); break;
 			default:    throw new \Exception("version $version not recognized for manifest list $manifestListPath_afe");
 		}
 	}
 	
 	/**
-	 *
-	 * @param [] $manifestList
+	 * register path of each manifest from manifest list version 2.0
+	 * 
+	 * @param mixed $manifestList
 	 * @param string $manifestListFolder_ad
 	 * @param string[] $serializationMap
 	 * @param array $modelMap
-	 * @param Interfacer $interfacer
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 */
 	protected static function _registerComplexModels_2_0($manifestList, $manifestListFolder_ad, $serializationMap, &$modelMap, Interfacer $interfacer) {
 		$list = $interfacer->getTraversableNode($interfacer->getValue($manifestList, 'list', true), true);
@@ -315,6 +458,9 @@ abstract class ManifestParser {
 	}
 	
 	/**
+	 * get serialization map 
+	 * 
+	 * each key is a model name and each value is the associated path to serialization manifest
 	 *
 	 * @param string $serializationListPath_afe
 	 * @throws \Exception
@@ -350,10 +496,13 @@ abstract class ManifestParser {
 	}
 	
 	/**
-	 *
-	 * @param [] $serializationList
+	 * get serialization map from manifest list version 2.0
+	 * 
+	 * each key is a model name and each value is the associated path to serialization manifest
+	 * 
+	 * @param mixed $serializationList
 	 * @param string $serializationListFolrder_ad
-	 * @param Interfacer $interfacer
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @return string[]
 	 */
 	protected static function _getSerializationMap_2_0($serializationList, $serializationListFolrder_ad, Interfacer $interfacer) {
@@ -374,15 +523,16 @@ abstract class ManifestParser {
 	}
 	
 	/**
+	 * get manifest parser instance
 	 *
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 * @param string $manifestPath_afe
 	 * @param string $serializationManifestPath_afe
-	 * @param Interfacer $interfacer
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
 	 * @return ManifestParser
 	 */
-	public static function getVersionnedInstance($model, $manifestPath_afe, $serializationManifestPath_afe, Interfacer $interfacer) {
+	private static function _getInstanceWithInterfacer($model, $manifestPath_afe, $serializationManifestPath_afe, Interfacer $interfacer) {
 		$manifest = $interfacer->read($manifestPath_afe);
 		
 		if ($manifest === false || is_null($manifest)) {

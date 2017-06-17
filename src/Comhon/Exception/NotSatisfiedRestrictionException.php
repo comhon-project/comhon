@@ -15,6 +15,10 @@ use Comhon\Model\Restriction\Restriction;
 
 class NotSatisfiedRestrictionException extends \Exception {
 	
+	/**
+	 * @param mixed $value
+	 * @param \Comhon\Model\Restriction\Restriction $restriction
+	 */
 	public function __construct($value, Restriction $restriction) {
 		$message = $restriction->toString($value);
 		parent::__construct($message, ConstantException::NOT_SATISFIED_RESTRICTION_EXCEPTION);

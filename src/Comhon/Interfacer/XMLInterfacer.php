@@ -15,15 +15,24 @@ use Comhon\Model\Model;
 
 class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
+	/** @var string */
 	const NS_NULL_VALUE = 'xsi:nil';
+	
+	/** @var string */
 	const NULL_VALUE = 'nil';
+	
+	/** @var string */
 	const NIL_URI = 'http://www.w3.org/2001/XMLSchema-instance';
 	
+	/** @var \DOMDocument */
 	private $domDocument;
+	
+	/** @var \DOMElement[] */
 	private $nullElements = [];
 	
 	/**
 	 * initialize DomDocument that permit to contruct nodes
+	 * 
 	 * @throws \Exception
 	 */
 	protected function _initInstance() {
@@ -42,6 +51,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 * finalize export
+	 * 
 	 * @param mixed $rootNode
 	 */
 	public function finalizeExport($rootNode) {
@@ -57,14 +67,15 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 * get child node with name $name
 	 *
 	 * @param \DOMElement $node
-	 * @param string $propertyName
-	 * @return \DOMElement|null
+	 * @param string $name
+	 * @return \DOMElement|null null if doesn't exist
 	 */
-	private function getChildNode($node, $propertyName) {
+	private function getChildNode($node, $name) {
 		foreach ($node->childNodes as $child) {
-			if ($child->nodeName === $propertyName) {
+			if ($child->nodeName === $name) {
 				return $child;
 			}
 		}
@@ -72,21 +83,22 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 * get value in $node with attribute or node $name according $asNode
 	 *
 	 * @param \DOMElement $node
-	 * @param string $propertyName
-	 * @param boolean $asNode
-	 * @return \DOMElement|string|null
+	 * @param string $name
+	 * @param boolean $asNode if true search value in nodes otherwise search in attributes
+	 * @return \DOMElement|string|null null if doesn't exist
 	 */
-	public function &getValue(&$node, $propertyName, $asNode = false) {
+	public function &getValue(&$node, $name, $asNode = false) {
 		if ($asNode) {
-			$childNode = $this->getChildNode($node, $propertyName);
+			$childNode = $this->getChildNode($node, $name);
 			if (!is_null($childNode) && $this->isNodeNull($childNode)) {
 				$childNode = null;
 			}
 			return $childNode;
-		} else if ($node->hasAttribute($propertyName)) {
-			$attribute = $node->getAttribute($propertyName);
+		} else if ($node->hasAttribute($name)) {
+			$attribute = $node->getAttribute($name);
 			if ($attribute == self::NS_NULL_VALUE) {
 				$attribute = null;
 			}
@@ -98,6 +110,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 * verify if node is null (i.e. if has attribute xsi:nil="true")
 	 *
 	 * @param \DOMElement $node
 	 * @return boolean
@@ -107,20 +120,27 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 * verify if $node contain value with attribute or node $name according $asNode
 	 *
 	 * @param \DOMElement $node
-	 * @param string $propertyName
-	 * @param boolean $asNode
+	 * @param string $name
+	 * @param boolean $asNode if true search value in nodes otherwise search in attributes
 	 * @return boolean
 	 */
-	public function hasValue($node, $propertyName, $asNode = false) {
+	public function hasValue($node, $name, $asNode = false) {
 		return $asNode ? 
-			!is_null($this->getChildNode($node, $propertyName)) 
-			: $node->hasAttribute($propertyName);
+			!is_null($this->getChildNode($node, $name)) 
+			: $node->hasAttribute($name);
 	}
 	
 	/**
-	 *
+	 * verify if value is null
+	 * 
+	 * values considered as null are :
+	 *     - null
+	 *     - "xsi:nil"
+	 *     - \DOMElement with attribute xsi:nil="true"
+	 *     
 	 * @param mixed $value
 	 * @return boolean
 	 */
@@ -129,9 +149,12 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 * get traversable node (return children \DOMElement in array)
 	 *
 	 * @param \DOMElement $node
-	 * @param boolean $getElementName if true return nodes names as key other wise return indexes
+	 * @param boolean $getElementName 
+	 *     if true, return array indexed by nodes names
+	 *     in this cases all nodes must have unique name otherwise an exception will be thrown
 	 * @return array|null
 	 */
 	public function getTraversableNode($node, $getElementName = false) {
@@ -160,7 +183,8 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * verify if value is a DOMElement
+	 * verify if value is a \DOMElement
+	 * 
 	 * @param mixed $value
 	 * @return boolean
 	 */
@@ -169,7 +193,8 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * verify if value is a DOMElement
+	 * verify if value is a \DOMElement
+	 * 
 	 * @param mixed $value
 	 * @return boolean
 	 */
@@ -179,8 +204,9 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value
+	 * 
 	 * @param mixed $value
-	 * @return mixed
+	 * @return boolean
 	 */
 	public function isComplexInterfacedId($value) {
 		return ($value instanceof \DOMElement) && $value->hasAttribute(self::COMPLEX_ID_KEY);
@@ -188,19 +214,22 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 * verify if value is a flatten complex id (with inheritance key)
+	 * 
 	 * @param mixed $value
-	 * @return mixed
+	 * @return boolean
 	 */
 	public function isFlattenComplexInterfacedId($value) {
 		return $this->isComplexInterfacedId($value);
 	}
 	
 	/**
+	 * set value in $node with attribute or node $name according $asNode
 	 * 
 	 * @param \DOMElement $node
 	 * @param mixed $value if scalar value, set attribute. else if \DOMElement, append child
 	 * @param string $name used only if $value if scalar value
-	 * @param boolean $asNode used only if $value if scalar value
+	 * @param boolean $asNode if true add node otherwise add attribute
+	 *     used only if $value if scalar value
 	 * @return \DOMNode|null return added node or null if nothing added
 	 */
 	public function setValue(&$node, $value, $name = null, $asNode = false) {
@@ -233,11 +262,11 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 * unset value in $node with attribute or node $name according $asNode
 	 *
 	 * @param \DOMElement $node
 	 * @param string $name
-	 * @param boolean $asNode
-	 * @return mixed
+	 * @param boolean $asNode if true search value in nodes otherwise search in attributes
 	 */
 	public function unsetValue(&$node, $name, $asNode = false) {
 		if ($asNode) {
@@ -251,19 +280,22 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 * add value to $node
 	 *
 	 * @param \DOMElement $node
 	 * @param \DOMNode $value
 	 * @param string $name used only if $value if scalar value
-	 * @return \DOMElement
+	 * @return \DOMNode
 	 */
 	public function addValue(&$node, $value, $name = null) {
 		return $this->setValue($node, $value, $name, true);
 	}
 	
 	/**
+	 * create \DOMElement node
+	 * 
 	 * @param string $name
-	 * return \DOMElement
+	 * @return \DOMElement
 	 */
 	public function createNode($name = null) {
 		if (is_null($name)) {
@@ -273,15 +305,18 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 * create \DOMElement node
+	 * 
 	 * @param string $name
 	 * @return \DOMElement
 	 */
-	public function createNodeArray($name = null) {
+	public function createArrayNode($name = null) {
 		return $this->createNode($name);
 	}
 	
 	/**
 	 * transform given node to string
+	 * 
 	 * @param \DOMElement $node
 	 * @return string
 	 */
@@ -291,6 +326,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 * write file with given content
+	 * 
 	 * @param \DOMElement $node
 	 * @param string $path
 	 * @return boolean
@@ -301,6 +337,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 * read file and load node with file content
+	 * 
 	 * @param string $path
 	 * @return \DOMElement|boolean return false on failure
 	 */
@@ -317,6 +354,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 * flatten value (transform object/array to string)
+	 * 
 	 * @param \DOMElement $node
 	 * @param string $name
 	 */
@@ -338,15 +376,13 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
 	/**
 	 * unflatten value (transform string to object)
+	 * 
 	 * @param array $node
 	 * @param string $name
 	 */
 	public function unFlattenNode(&$node, $name) {
 		$domElement = $this->getChildNode($node, $name);
-		if (!is_null($domElement)) {
-			if ($this->extractNodeText($domElement) === '') {
-				return;
-			}
+		if (!is_null($domElement) && $this->extractNodeText($domElement) !== '') {
 			$tempDoc = new \DOMDocument();
 			$tempDoc->loadXML('<temp>'.$this->extractNodeText($domElement).'</temp>');
 			
@@ -368,7 +404,8 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * replace value
+	 * replace value in node $name by $value (fail if node $name doesn't exist)
+	 * 
 	 * @param \DOMElement $node
 	 * @param string $name
 	 * @param mixed $value
@@ -382,8 +419,9 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * @param string $value
-	 * @return integer
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\NoScalarTypedInterfacer::castValueToString()
 	 */
 	public function castValueToString($value) {
 		if ($value instanceof \DOMElement) {
@@ -393,8 +431,9 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * @param string $value
-	 * @return float
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\NoScalarTypedInterfacer::castValueToInteger()
 	 */
 	public function castValueToInteger($value) {
 		if ($value instanceof \DOMElement) {
@@ -407,8 +446,9 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * @param string $value
-	 * @return boolean
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\NoScalarTypedInterfacer::castValueToFloat()
 	 */
 	public function castValueToFloat($value) {
 		if ($value instanceof \DOMElement) {
@@ -421,8 +461,9 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * @param string $value
-	 * @return boolean
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\NoScalarTypedInterfacer::castValueToBoolean()
 	 */
 	public function castValueToBoolean($value) {
 		if ($value instanceof \DOMElement) {
@@ -435,6 +476,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 * extract text from node
 	 * 
 	 * @param \DOMElement $node
 	 * @return string
@@ -453,7 +495,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 *
 	 * @param mixed $node
 	 * @param string|integer $nodeId
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 */
 	public function addMainForeignObject($node, $nodeId, Model $model) {
 		if (!is_null($this->mainForeignObjects)) {
@@ -472,10 +514,9 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 *
-	 * @param mixed $node
-	 * @param string|integer $nodeId
-	 * @param Model $model
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::removeMainForeignObject()
 	 */
 	public function removeMainForeignObject($nodeId, Model $model) {
 		if (!is_null($this->mainForeignObjects)) {
@@ -488,8 +529,9 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 *
-	 * @return array
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::hasMainForeignObject()
 	 */
 	public function hasMainForeignObject($modelName, $id) {
 		return !is_null($this->mainForeignIds)

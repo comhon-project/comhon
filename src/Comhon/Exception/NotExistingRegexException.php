@@ -13,6 +13,9 @@ namespace Comhon\Exception;
 
 class NotExistingRegexException extends \Exception {
 	
+	/**
+	 * @param string $regexName
+	 */
 	public function __construct($regexName) {
 		parent::__construct("regex with name '$regexName' doesn't exist", ConstantException::NOT_EXISTING_REGEX_EXCEPTION);
 	}

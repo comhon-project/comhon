@@ -254,7 +254,7 @@ foreach ($testDbs as $testDb) {
 if ($mainParentTestDb->hasValue('childrenTestDb')) {
 	throw new Exception('should not be set');
 }
-$mainParentTestDb->loadValueIds('childrenTestDb');
+$mainParentTestDb->loadAggregationIds('childrenTestDb');
 
 if (!$mainParentTestDb->getValue('childrenTestDb')->isLoaded()) {
 	throw new Exception('foreign value must be loaded');

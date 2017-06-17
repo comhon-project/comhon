@@ -11,8 +11,11 @@
 
 namespace Comhon\Exception;
 
-class ControllerParameterException extends \Exception {
+class VisitorParameterException extends \Exception {
 	
+	/**
+	 * @param string $parameterName
+	 */
 	public function __construct($parameterName = null) {
 		$message = is_null($parameterName) ? 'Bad parameters definition : must be an array or null'
 											 : "Missing parameter : '$parameterName' must be specified";

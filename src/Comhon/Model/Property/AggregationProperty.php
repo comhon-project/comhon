@@ -12,13 +12,23 @@
 namespace Comhon\Model\Property;
 
 use Comhon\Object\ObjectArray;
-use Comhon\Object\ComhonObject;
+use Comhon\Object\ObjectUnique;
 use Comhon\Model\Model;
 
 class AggregationProperty extends ForeignProperty {
 	
+	/** @var Property[] */
 	private $aggregationProperties = null;
 	
+	/**
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @param string $name
+	 * @param Property[] $aggregationProperties
+	 * @param string $serializationName
+	 * @param boolean $isPrivate
+	 * @throws \Exception
+	 */
 	public function __construct(Model $model, $name, $aggregationProperties, $serializationName = null, $isPrivate = false) {
 		parent::__construct($model, $name, $serializationName, $isPrivate, false);
 		if (empty($aggregationProperties)) {
@@ -27,34 +37,44 @@ class AggregationProperty extends ForeignProperty {
 		$this->aggregationProperties = $aggregationProperties;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isAggregation()
+	 */
 	public function isAggregation() {
 		return true;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::getAggregationProperties()
+	 */
 	public function getAggregationProperties() {
 		return $this->aggregationProperties;
 	}
 	
 	/**
-	 *
-	 * @param ComhonObject $object
-	 * @param string[] $propertiesFilter
-	 * @param boolean $forceLoad if object is already loaded, force to reload object
-	 * @return boolean true if success
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\ForeignProperty::loadValue()
+	 * @throws \Exception cannot call this function for aggregation
 	 */
-	public function loadValue(ComhonObject $object, $propertiesFilter = null, $forceLoad = false) {
+	public function loadValue(ObjectUnique $object, $propertiesFilter = null, $forceLoad = false) {
 		throw new \Exception('use loadAggregationValue function');
 	}
 	
 	/**
+	 * load aggregation value
 	 *
-	 * @param ObjectArray $objectArray
-	 * @param ComhonObject $parentObject
+	 * @param \Comhon\Object\ObjectArray $objectArray
+	 * @param \Comhon\Object\ObjectUnique $parentObject
 	 * @param string[] $propertiesFilter
 	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @return boolean true if success
 	 */
-	public function loadAggregationValue(ObjectArray $objectArray, ComhonObject $parentObject, $propertiesFilter = null, $forceLoad = false) {
+	public function loadAggregationValue(ObjectArray $objectArray, ObjectUnique $parentObject, $propertiesFilter = null, $forceLoad = false) {
 		$this->getModel()->verifValue($objectArray);
 		if ($objectArray->isLoaded() && !$forceLoad) {
 			return false;
@@ -68,14 +88,12 @@ class AggregationProperty extends ForeignProperty {
 	
 	/**
 	 * 
-	 * @param ObjectArray $objectArray
-	 * @param ComhonObject $parentObject
-	 * @param boolean $forceLoad if object is already loaded, force to reload object
-	 * @return boolean true if success
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::loadAggregationIds()
 	 */
-	public function loadValueIds(ObjectArray $objectArray, ComhonObject $parentObject, $forceLoad = false) {
+	public function loadAggregationIds(ObjectArray $objectArray, ObjectUnique $parentObject, $forceLoad = false) {
 		$this->getModel()->verifValue($objectArray);
-		if (is_null($sqlTableUnit = $this->getSqlTableUnit())) {
+		if (is_null($sqlTableUnit = $this->getUniqueModel()->getSqlTableUnit())) {
 			throw new \Exception('aggregation has not model with sql serialization');
 		}
 		if ($objectArray->isLoaded() && !$forceLoad) {
@@ -85,9 +103,9 @@ class AggregationProperty extends ForeignProperty {
 	}
 	
 	/**
-	 *
-	 * @param Property $property
-	 * @return boolean
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isEqual()
 	 */
 	public function isEqual(Property $property) {
 		if (count($this->aggregationProperties) != count($property->getAggregationProperties())) {
@@ -102,22 +120,18 @@ class AggregationProperty extends ForeignProperty {
 	}
 	
 	/**
-	 * verify if property is interfaceable for export/import in public/private/serialization mode
-	 * @param boolean $private if true private mode, otherwise public mode
-	 * @param boolean $serialization if true serialization mode, otherwise model mode
-	 * @return boolean true if property is interfaceable
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\ForeignProperty::isInterfaceable()
 	 */
 	public function isInterfaceable($private, $serialization) {
 		return !$serialization && parent::isInterfaceable($private, $serialization);
 	}
 	
 	/**
-	 * verify if property is exportable in public/private/serialization mode
-	 *
-	 * @param boolean $private if true private mode, otherwise public mode
-	 * @param boolean $serialization if true serialization mode, otherwise model mode
-	 * @param mixed $value value that we want to export
-	 * @return boolean true if property is interfaceable
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isExportable()
 	 */
 	public function isExportable($private, $serialization, $value) {
 		return parent::isExportable($private, $serialization, $value) && (is_null($value) || $value->isLoaded());

@@ -24,22 +24,61 @@ use Comhon\Model\Property\Property;
 use Comhon\Serialization\SerializationUnit;
 use Comhon\Object\Config\Config;
 use Comhon\Manifest\Parser\ManifestParser;
-use Comhon\Object\ComhonObject;
+use Comhon\Object\ObjectUnique;
 
 class ModelManager {
 
+	/** @var string */
 	const PROPERTIES     = 'properties';
-	const OBJECT_CLASS   = 'objectClass';
-	const SERIALIZATION  = 'serialization';
-	const EXTENDS_MODEL  = 'extendsModel';
 	
+	/** @var string */
+	const OBJECT_CLASS   = 'objectClass';
+	
+	/** @var string */
+	const SERIALIZATION  = 'serialization';
+	
+	/** @var string */
+	const PARENT_MODEL  = 'parentModel';
+	
+	/**
+	 * @var \Comhon\Model\Model[]
+	 *     map that contain all main model and simple model instances
+	 *     an element may be a model if model is loaded
+	 *     an element may be an array that contain a non loaded model (with needed informations to load it)
+	 * 
+	 */
 	private $instanceModels;
-	private $localTypes = [];
+	
+	/**
+	 * @var [string => Comhon\Model\Model[]] 
+	 *     map that contain all local model instances grouped by main model name
+	 *     for each group : 
+	 *     an element may be a model if model is loaded
+	 *     an element may be an array that contain a non loaded model (with needed informations to load it)
+	 *
+	 */
+	private $instanceLocalModels= [];
+	
+	/**
+	 * @var \Comhon\Manifest\Parser\ManifestParser
+	 */
 	private $manifestParser;
+	
+	/**
+	 * @var \Comhon\Manifest\Parser\SerializationManifestParser
+	 */
 	private $serializationManifestParser;
 	
+	/**
+	 * @var ModelManager
+	 */
 	private  static $_instance;
 	
+	/**
+	 * get instance of model manager
+	 * 
+	 * @return ModelManager
+	 */
 	public static function getInstance() {
 		if (!isset(self::$_instance)) {
 			new self();
@@ -64,6 +103,9 @@ class ModelManager {
 		);
 	}	
 	
+	/**
+	 * register al simple model
+	 */
 	private function _registerSimpleModelClasses() {
 		$this->instanceModels = [
 			ModelInteger::ID  => new ModelInteger(),
@@ -74,15 +116,29 @@ class ModelManager {
 		];
 	}
 	
-	
+	/**
+	 * verify if model has been registered
+	 * 
+	 * @param string $modelName name of wanted model
+	 * @param string $mainModelName if not null $modelName is considered as local model name
+	 * @return boolean
+	 */
 	public function hasModel($modelName, $mainModelName = null) {
 		if (is_null($mainModelName)) {
 			return array_key_exists($modelName, $this->instanceModels);
 		} else {
-			return array_key_exists($mainModelName, $this->localTypes) && array_key_exists($modelName, $this->localTypes[$mainModelName]);
+			return array_key_exists($mainModelName, $this->instanceLocalModels) && array_key_exists($modelName, $this->instanceLocalModels[$mainModelName]);
 		}
 	}
 	
+	/**
+	 * verify if has model instance (not necessary loaded)
+	 *
+	 * @param string $modelName name of wanted model
+	 * @param string $mainModelName if not null $modelName is considered as local model name
+	 * @throws \Exception if model has not been registered
+	 * @return boolean
+	 */
 	public function hasInstanceModel($modelName, $mainModelName = null) {
 		if (!$this->hasModel($modelName, $mainModelName)) {
 			throw new \Exception("model $modelName doesn't exists");
@@ -90,11 +146,19 @@ class ModelManager {
 		if (is_null($mainModelName)) {
 			$instanceModels =& $this->instanceModels;
 		} else {
-			$instanceModels =& $this->localTypes[$mainModelName];
+			$instanceModels =& $this->instanceLocalModels[$mainModelName];
 		}
 		return is_object($instanceModels[$modelName]) || array_key_exists(2, $instanceModels[$modelName]);
 	}
 	
+	/**
+	 * verify if model is loaded
+	 *
+	 * @param string $modelName name of wanted model
+	 * @param string $mainModelName if not null $modelName is considered as local model name
+	 * @throws \Exception if model has not been registered
+	 * @return boolean
+	 */
 	public function isModelLoaded($modelName, $mainModelName = null) {
 		if (!$this->hasModel($modelName, $mainModelName)) {
 			throw new \Exception("model $modelName doesn't exists");
@@ -102,7 +166,7 @@ class ModelManager {
 		if (is_null($mainModelName)) {
 			$instanceModels =& $this->instanceModels;
 		} else {
-			$instanceModels =& $this->localTypes[$mainModelName];
+			$instanceModels =& $this->instanceLocalModels[$mainModelName];
 		}
 		if (is_object($instanceModels[$modelName])) {
 			if (!$instanceModels[$modelName]->isLoaded()) {
@@ -120,10 +184,11 @@ class ModelManager {
 	}
 	
 	/**
-	 * get model instance (specify main model name if you request a local model)
-	 * @param string $modelName
-	 * @param string $mainModelName
-	 * @return Model
+	 * get model instance
+	 * 
+	 * @param string $modelName name of wanted model
+	 * @param string $mainModelName if not null $modelName is considered as local model name
+	 * @return \Comhon\Model\LocalModel|\Comhon\Model\MainModel
 	 */
 	public function getInstanceModel($modelName, $mainModelName = null) {
 		$return = $this->_getInstanceModel($modelName, $mainModelName, true);
@@ -132,31 +197,33 @@ class ModelManager {
 	}
 	
 	/**
+	 * get model instance
 	 * 
-	 * @param string $modelName
-	 * @param string $mainModelName null if $modelName is a main model name
-	 * @param boolean $loadModel
+	 * unlike public method, retrieved model is not necessarily loaded
+	 * 
+	 * @param string $modelName name of wanted model
+	 * @param string $mainModelName if not null $modelName is considered as local model name
+	 * @param boolean $loadModel true to load model not already instanciated
 	 * @throws \Exception
-	 * @return NULL|Model
+	 * @return \Comhon\Model\Model
 	 */
 	private function _getInstanceModel($modelName, $mainModelName, $loadModel) {
-		$return = null;
 		if (is_null($mainModelName)) {
 			$instanceModels =& $this->instanceModels;
 		} else {
 			// call getInstanceModel() to be sure to have a loaded main model
 			$mainModel = $this->getInstanceModel($mainModelName);
-			if (!array_key_exists($modelName, $this->localTypes[$mainModelName])) {
+			if (!array_key_exists($modelName, $this->instanceLocalModels[$mainModelName])) {
 				$exists = false;
-				while (!is_null($mainModel->getExtendsModel()) && !$exists) {
-					$exists = array_key_exists($modelName, $this->localTypes[$mainModel->getExtendsModel()->getName()]);
-					$mainModel = $mainModel->getExtendsModel();
+				while (!is_null($mainModel->getParent()) && !$exists) {
+					$exists = array_key_exists($modelName, $this->instanceLocalModels[$mainModel->getParent()->getName()]);
+					$mainModel = $mainModel->getParent();
 				}
 				if ($exists) {
 					$mainModelName = $mainModel->getName();
 				}
 			}
-			$instanceModels =& $this->localTypes[$mainModelName];
+			$instanceModels =& $this->instanceLocalModels[$mainModelName];
 		}
 		if (!array_key_exists($modelName, $instanceModels)) { // model doesn't exists
 			$messageModel = is_null($mainModelName) ? "main model '$modelName'" : "local model '$modelName' in main model '$mainModelName'";
@@ -195,13 +262,14 @@ class ModelManager {
 	}
 	
 	/**
+	 * add loaded instance model
 	 * 
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 */
 	private function _addInstanceModel(Model $model) {
 		if ($model instanceof LocalModel) {
 			$mainModel = $this->getInstanceModel($model->getMainModelName());
-			$instanceModels =& $this->localTypes[$model->getMainModelName()];
+			$instanceModels =& $this->instanceLocalModels[$model->getMainModelName()];
 		} else {
 			$instanceModels =& $this->instanceModels;
 		}
@@ -212,11 +280,22 @@ class ModelManager {
 		$instanceModels[$model->getName()] = $model;
 	}
 	
+	/**
+	 * get properties (and optional parent model, object class and serialization) of specified model
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @return [
+	 *     self::PROPERTIES    => \Comhon\Model\Property\Property[]
+	 *     self::PARENT_MODEL  => \Comhon\Model\Model|null
+	 *     self::OBJECT_CLASS  => string|null
+	 *     self::SERIALIZATION => \Comhon\Serialization\SerializationUnit|null
+	 * ]
+	 */
 	public function getProperties(Model $model) {
 		$return = null;
 		
 		if ($model instanceof LocalModel) {
-			$instanceModels =& $this->localTypes[$model->getMainModel()->getName()];
+			$instanceModels =& $this->instanceLocalModels[$model->getMainModel()->getName()];
 		} else {
 			$instanceModels =& $this->instanceModels;
 		}
@@ -224,7 +303,7 @@ class ModelManager {
 		if (is_null($this->manifestParser) && is_object($instanceModels[$model->getName()]) && $instanceModels[$model->getName()]->isLoaded()) {
 			$return = [
 				self::PROPERTIES     => $model->getProperties(), 
-				self::EXTENDS_MODEL  => $model->getExtendsModel(),
+				self::PARENT_MODEL   => $model->getParent(),
 				self::OBJECT_CLASS   => $model->getObjectClass()
 			];
 			if ($model instanceof MainModel) {
@@ -240,14 +319,14 @@ class ModelManager {
 				$this->manifestParser  = ManifestParser::getInstance($model, $manifestPath_afe, $serializationPath_afe);
 				
 				$this->_addInstanceModel($model);
-				$this->_buildLocalTypes($model, $manifestPath_ad);
+				$this->_buildLocalModels($model, $manifestPath_ad);
 			}
-			$extendsModel = $this->_getExtendsModel($model);
+			$parentModel = $this->_getParentModel($model);
 			
 			$return = [
-				self::EXTENDS_MODEL => $extendsModel,
+				self::PARENT_MODEL  => $parentModel,
 				self::OBJECT_CLASS  => $this->manifestParser->getObjectClass(),
-				self::PROPERTIES    => $this->_buildProperties($model, $extendsModel)
+				self::PROPERTIES    => $this->_buildProperties($model, $parentModel)
 			];
 			
 			if ($unsetManifestParser) {
@@ -259,46 +338,59 @@ class ModelManager {
 		return $return;
 	}
 	
-	private function _buildLocalTypes($model, $manifestPath_ad) {
-		if ($this->manifestParser->isFocusOnLocalTypes()) {
-			throw new \Exception('cannot define local types in local types');
+	/**
+	 * build local models
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @param string $manifestPath_ad
+	 * @throws \Exception
+	 */
+	private function _buildLocalModels(Model $model, $manifestPath_ad) {
+		if ($this->manifestParser->isFocusOnLocalModel()) {
+			throw new \Exception('cannot define local model in local models');
 		}
 		if (!($model instanceof MainModel)) {
-			// perhaps allow local models defined in there own manifest to have local types
+			// perhaps allow local models defined in there own manifest to have local models
 			return;
 		}
-		$this->localTypes[$model->getName()] = [];
-		if ($this->manifestParser->getLocalTypesCount() > 0) {
-			$xmlLocalTypes = [];
+		$this->instanceLocalModels[$model->getName()] = [];
+		if ($this->manifestParser->getLocalModelCount() > 0) {
 			$mainModelName = $model->getName();
 			
-			$this->manifestParser->registerComplexLocalModels($this->localTypes[$mainModelName], $manifestPath_ad);
-			$this->manifestParser->activateFocusOnLocalTypes();
+			$this->manifestParser->registerComplexLocalModels($this->instanceLocalModels[$mainModelName], $manifestPath_ad);
+			$this->manifestParser->activateFocusOnLocalModels();
 			
 			do {
-				$typeId = $this->manifestParser->getCurrentLocalTypeId();
+				$localModelName = $this->manifestParser->getCurrentLocalModelName();
 				
-				if (array_key_exists($typeId, $this->instanceModels)) {
-					throw new \Exception("local model in main model '$mainModelName' has same name than another main model '$typeId' ");
+				if (array_key_exists($localModelName, $this->instanceModels)) {
+					throw new \Exception("local model in main model '$mainModelName' has same name than another main model '$localModelName' ");
 				}
-				if (array_key_exists($typeId, $this->localTypes[$mainModelName])) {
-					throw new \Exception("several local model with same type '$typeId' in main model '$mainModelName'");
+				if (array_key_exists($localModelName, $this->instanceLocalModels[$mainModelName])) {
+					throw new \Exception("several local model with same name '$localModelName' in main model '$mainModelName'");
 				}
-				$this->localTypes[$mainModelName][$typeId] = new LocalModel($typeId, $mainModelName, false);
-			} while ($this->manifestParser->nextLocalType());
+				$this->instanceLocalModels[$mainModelName][$localModelName] = new LocalModel($localModelName, $mainModelName, false);
+			} while ($this->manifestParser->nextLocalModel());
 			
-			$this->manifestParser->activateFocusOnLocalTypes();
+			$this->manifestParser->activateFocusOnLocalModels();
 			do {
-				$typeId = $this->manifestParser->getCurrentLocalTypeId();
-				$this->localTypes[$mainModelName][$typeId]->load();
-			} while ($this->manifestParser->nextLocalType());
+				$localModelName = $this->manifestParser->getCurrentLocalModelName();
+				$this->instanceLocalModels[$mainModelName][$localModelName]->load();
+			} while ($this->manifestParser->nextLocalModel());
 			
-			$this->manifestParser->desactivateFocusOnLocalTypes();
+			$this->manifestParser->desactivateFocusOnLocalModels();
 		}
 	}
 	
-	private function _getExtendsModel(Model $model) {
-		$extendsModel = null;
+	/**
+	 * get parent model if exists
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @throws \Exception
+	 * @return \Comhon\Model\Model|null null if no parent model
+	 */
+	private function _getParentModel(Model $model) {
+		$parentModel = null;
 		$modelName = $this->manifestParser->getExtends();
 		if (!is_null($modelName)) {
 			$mainModelName = $model->getMainModelName();
@@ -306,34 +398,36 @@ class ModelManager {
 				$mainModelName = null;
 			}
 			else if (array_key_exists($modelName, $this->instanceModels)) {
-				if (!is_null($mainModelName) && array_key_exists($modelName, $this->localTypes[$mainModelName])) {
+				if (!is_null($mainModelName) && array_key_exists($modelName, $this->instanceLocalModels[$mainModelName])) {
 					throw new \Exception("cannot determine if property '$modelName' is local or main model");
 				}
 				$mainModelName = null;
 			}
 			$manifestParser = $this->manifestParser;
 			$this->manifestParser = null;
-			$extendsModel = $this->getInstanceModel($modelName, $mainModelName);
+			$parentModel = $this->getInstanceModel($modelName, $mainModelName);
 			$this->manifestParser = $manifestParser;
 		}
-		return $extendsModel;
+		return $parentModel;
 	}
 	
 	/**
-	 * @param Model $currentModel
-	 * @param Model $extendsModel
+	 * build model properties
+	 * 
+	 * @param \Comhon\Model\Model $currentModel
+	 * @param \Comhon\Model\Model|null $parentModel
 	 * @throws \Exception
-	 * @return Property[]
+	 * @return \Comhon\Model\Property\Property[]
 	 */
-	private function _buildProperties(Model $currentModel, Model $extendsModel = null) {
-		$properties = is_null($extendsModel) ? [] : $extendsModel->getProperties();
+	private function _buildProperties(Model $currentModel, Model $parentModel = null) {
+		$properties = is_null($parentModel) ? [] : $parentModel->getProperties();
 	
 		do {
 			$modelName     = $this->manifestParser->getCurrentPropertyModelName();
 			$mainModelName = $currentModel->getMainModelName();
 			
 			if (array_key_exists($modelName, $this->instanceModels)) {
-				if (!is_null($mainModelName) && array_key_exists($modelName, $this->localTypes[$mainModelName])) {
+				if (!is_null($mainModelName) && array_key_exists($modelName, $this->instanceLocalModels[$mainModelName])) {
 					throw new \Exception("cannot determine if property '$modelName' is local or main model");
 				}
 				$mainModelName = null;
@@ -348,6 +442,12 @@ class ModelManager {
 		return $properties;
 	}
 	
+	/**
+	 * get serialization if exists
+	 * 
+	 * @param \Comhon\Model\MainModel $model
+	 * @return \Comhon\Serialization\SerializationUnit|null null if no serialization
+	 */
 	public function getSerializationInstance(MainModel $model) {
 		if (!is_null($this->serializationManifestParser)) {
 			$inheritanceKey        =  $this->serializationManifestParser->getInheritanceKey();
@@ -360,11 +460,22 @@ class ModelManager {
 		return $this->_getUniqueSerialization($model);
 	}
 	
-	private function _getUniqueSerialization(MainModel $model, ComhonObject $serializationSettings = null, $inheritanceKey = null) {
+	/**
+	 * get serialization from parent model if exists and if needed
+	 * 
+	 * if current model has same serialization settings than it parent model, 
+	 * we take parent model serialization to avoid to duplicated serializations
+	 * 
+	 * @param \Comhon\Model\MainModel $model
+	 * @param \Comhon\Object\ObjectUnique $serializationSettings
+	 * @param string $inheritanceKey
+	 * @return \Comhon\Serialization\SerializationUnit|null null if no serialization
+	 */
+	private function _getUniqueSerialization(MainModel $model, ObjectUnique $serializationSettings = null, $inheritanceKey = null) {
 		$serialization = null;
-		if (!is_null($model->getExtendsModel()) && !is_null($model->getExtendsModel()->getSerialization())) {
-			$extendedSerializationSettings = $model->getExtendsModel()->getSerialization()->getSettings();
-			$extendedInheritanceKey = $model->getExtendsModel()->getSerialization()->getInheritanceKey();
+		if (!is_null($model->getParent()) && !is_null($model->getParent()->getSerialization())) {
+			$extendedSerializationSettings = $model->getParent()->getSerialization()->getSettings();
+			$extendedInheritanceKey = $model->getParent()->getSerialization()->getInheritanceKey();
 			$same = false;
 			
 			if (is_null($serializationSettings) || $serializationSettings === $extendedSerializationSettings) {

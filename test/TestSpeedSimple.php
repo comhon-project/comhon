@@ -21,7 +21,7 @@ $Json = '{
 $time_start = microtime(true);
 $result = ObjectService::getObject(json_decode($Json));
 $time_complex = microtime(true) - $time_start;
-if (json_encode($result) !== '{"success":true,"result":{"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"__inheritance__":"man"}}') {
+if (json_encode($result) !== '{"success":true,"result":{"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}}') {
 	throw new \Exception('bad result');
 }
 

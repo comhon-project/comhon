@@ -13,15 +13,26 @@ namespace Comhon\Database;
 
 class HavingLiteral extends Literal {
 
+	/** @var string */
 	private $function;
 
+	/** @var string */
 	const COUNT = 'COUNT';
+	
+	/** @var string */
 	const SUM   = 'SUM';
+	
+	/** @var string */
 	const AVG   = 'AVG';
+	
+	/** @var string */
 	const MIN   = 'MIN';
+	
+	/** @var string */
 	const MAX   = 'MAX';
 	
-	protected static $acceptedFunctions = [
+	/** @var array  all allowed functions */
+	protected static $allowedFunctions = [
 			self::COUNT => null,
 			self::SUM   => null,
 			self::AVG   => null,
@@ -29,16 +40,29 @@ class HavingLiteral extends Literal {
 			self::MAX   => null
 	];
 	
+	/**
+	 * 
+	 * @param string $function [self::COUNT, self::SUM, self::AVG, self::MIN, self::MAX]
+	 * @param TableNode|string $table table name or table object linked to literal
+	 * @param string $column
+	 * @param string $operator
+	 * @param string $value
+	 */
 	public function __construct($function, $table, $column, $operator, $value) {
 		$this->function = $function;
 		parent::__construct($table, $column, $operator, $value);
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Database\Literal::_verifLiteral()
+	 */
 	protected function _verifLiteral() {
-		if (!array_key_exists($this->operator, self::$acceptedOperators)) {
+		if (!array_key_exists($this->operator, self::$allowedOperators)) {
 			throw new \Exception('operator \''.$this->operator.'\' doesn\'t exists');
 		}
-		if (!array_key_exists($this->function, self::$acceptedFunctions)) {
+		if (!array_key_exists($this->function, self::$allowedFunctions)) {
 			throw new \Exception('function \''.$this->function.'\' doesn\'t exists');
 		}
 		if (!is_int($this->value)) {
@@ -47,8 +71,9 @@ class HavingLiteral extends Literal {
 	}
 	
 	/**
-	 * @param array $values
-	 * @return string
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Database\Literal::export()
 	 */
 	public function export(&$values) {
 		$columnTable = is_null($this->column) ? '*'
@@ -56,6 +81,11 @@ class HavingLiteral extends Literal {
 		return sprintf('%s(%s) %s %s', $this->function, $columnTable, $this->operator, $this->value);
 	}
 	
+	/**
+	 * 
+	 * @param \stdClass $stdObject
+	 * @throws \Exception
+	 */
 	private static function _verifStdObject($stdObject) {
 		if (!is_object($stdObject) || !isset($stdObject->function) || !isset($stdObject->operator) ||!isset($stdObject->value)) {
 			throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
@@ -63,17 +93,19 @@ class HavingLiteral extends Literal {
 	}
 	
 	/**
-	 * @param stdClass $stdObject
-	 * @param string|TableNode $table not necessary if proeprty 'node' is specified in $stdObject
-	 * @param Model $model not necessary if function is COUNT
+	 * build HavingLiteral instance
+	 * 
+	 * @param \stdClass $stdObject
+	 * @param TableNode|string $table not necessary if property 'node' is specified in $stdObject
+	 * @param \Comhon\Model\Model $model not necessary if function is self::COUNT
 	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
-	 * @return Literal
+	 * @return HavingLiteral
 	 */
 	public static function stdObjectToHavingLiteral($stdObject, $table = null, $model = null, $allowPrivateProperties = true) {
 		self::_verifStdObject($stdObject);
 		
-		if ($stdObject->function == HavingLiteral::COUNT) {
+		if ($stdObject->function == self::COUNT) {
 			$column = null;
 		} else if (isset($stdObject->property)) {
 			if (is_null($model)) {

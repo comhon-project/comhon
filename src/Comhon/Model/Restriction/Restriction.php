@@ -16,26 +16,34 @@ use Comhon\Model\Model;
 interface Restriction {
 	
 	/**
+	 * verify if specified value satisfy restriction
 	 *
 	 * @param mixed $value
+	 * @return boolean
 	 */
 	public function satisfy($value);
 	
 	/**
 	 * verify if specified restriction is equal to $this
+	 * 
 	 * @param Restriction $restriction
+	 * @return boolean
 	 */
 	public function isEqual(Restriction $restriction);
 	
 	/**
 	 * verify if specified model can use this restriction
-	 * @param Model $model
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @return boolean
 	 */
 	public function isAllowedModel(Model $model);
 	
 	/**
 	 * stringify restriction and value
+	 * 
 	 * @param mixed $value
+	 * @return string
 	 */
 	public function toString($value);
 	

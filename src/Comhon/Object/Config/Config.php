@@ -19,6 +19,12 @@ class Config extends ExtendableObject {
 	
 	private  static $_instance;
 	
+	/**
+	 * get Config instance
+	 * 
+	 * @throws \Exception
+	 * @return \Comhon\Object\Config\Config
+	 */
 	public static function getInstance() {
 		if (!isset(self::$_instance)) {
 			$config_afe = DIRECTORY_SEPARATOR .'etc'.DIRECTORY_SEPARATOR.'comhon'.DIRECTORY_SEPARATOR.'config.json';
@@ -36,19 +42,26 @@ class Config extends ExtendableObject {
 		return self::$_instance;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\ExtendableObject::_getModelName()
+	 */
 	protected function _getModelName() {
 		return 'config';
 	}
 	
 	/**
+	 * get database options
 	 * 
-	 * @return ComhonObject|null
+	 * @return \Comhon\Object\ObjectUnique|null
 	 */
 	public function getDataBaseOptions() {
 		return $this->getValue('database');
 	}
 	
 	/**
+	 * get database charset
 	 *
 	 * @return string
 	 */
@@ -59,6 +72,7 @@ class Config extends ExtendableObject {
 	}
 	
 	/**
+	 * get database timezone
 	 *
 	 * @return string
 	 */
@@ -69,6 +83,7 @@ class Config extends ExtendableObject {
 	}
 	
 	/**
+	 * get path to manifest list file
 	 *
 	 * @return string
 	 */
@@ -77,6 +92,7 @@ class Config extends ExtendableObject {
 	}
 	
 	/**
+	 * get path to serialization list file
 	 *
 	 * @return string
 	 */
@@ -85,6 +101,7 @@ class Config extends ExtendableObject {
 	}
 	
 	/**
+	 * get path to regex list file
 	 *
 	 * @return string
 	 */

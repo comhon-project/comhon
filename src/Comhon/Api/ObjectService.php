@@ -16,36 +16,64 @@ use Comhon\Request\SimpleLoadRequest;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Model\Singleton\ModelManager;
+use Comhon\Object\ComhonObject;
 
 class ObjectService {
 	
-	public static function getObject($params, $private = false) {
+	/**
+	 * retrieve object (if exists) according specified model name and id
+	 * 
+	 * @param \stdClass $params
+	 * @param boolean $private
+	 * @throws \Exception
+	 * @return \stdClass
+	 */
+	public static function getObject(\stdClass $params, $private = false) {
 		try {
 			if (!isset($params->id)) {
 				throw new \Exception('request doesn\'t have id');
 			}
 			$object = SimpleLoadRequest::buildObjectLoadRequest($params, $private)->execute();
-			$model  = ModelManager::getInstance()->getInstanceModel($params->model);
-			$interfacer = new StdObjectInterfacer();
-			$interfacer->setPropertiesFilter(self::_getFilterProperties($params, $object), $object->getModel()->getName());
-			return self::_setSuccessReturn($model->export($object, $interfacer));
+			if (is_null($object)) {
+				$result = null;
+			} else {
+				$model  = ModelManager::getInstance()->getInstanceModel($params->model);
+				$interfacer = new StdObjectInterfacer();
+				$interfacer->setPropertiesFilter(self::_getFilterProperties($params, $object), $object->getModel()->getName());
+				$result = $model->export($object, $interfacer);
+			}
+			return self::_setSuccessResponse($result);
 		} catch (\Exception $e) {
-			return self::_setErrorReturn($e);
+			return self::_setErrorResponse($e);
 		}
 	}
 	
-	public static function getObjects($params, $private = false) {
+	/**
+	 * retrieve requested objects
+	 * 
+	 * @param \stdClass $params
+	 * @param boolean $private
+	 * @return \stdClass
+	 */
+	public static function getObjects(\stdClass $params, $private = false) {
 		try {
 			$objectArray = ComplexLoadRequest::buildObjectLoadRequest($params, $private)->execute();
 			$interfacer = new StdObjectInterfacer();
 			$modelFilter = [$objectArray->getModel()->getName() => self::_getFilterProperties($params, $objectArray)];
-			return self::_setSuccessReturn($interfacer->export($objectArray, [Interfacer::PROPERTIES_FILTERS => $modelFilter]));
+			return self::_setSuccessResponse($interfacer->export($objectArray, [Interfacer::PROPERTIES_FILTERS => $modelFilter]));
 		} catch (\Exception $e) {
-			return self::_setErrorReturn($e);
+			return self::_setErrorResponse($e);
 		}
 	}
 	
-	private static function _getFilterProperties($params, $oject) {
+	/**
+	 * get filter to apply on exported properties
+	 * 
+	 * @param \stdClass $params
+	 * @param \Comhon\Object\ComhonObject $oject
+	 * @return array|null
+	 */
+	private static function _getFilterProperties(\stdClass $params, ComhonObject $oject) {
 		if (!isset($params->properties) || empty($params->properties)) {
 			return null;
 		}
@@ -58,18 +86,31 @@ class ObjectService {
 		return array_unique($filterProperties);
 	}
 	
-	private static function _setSuccessReturn($returnValue) {
+	/**
+	 * build suuccessfull response
+	 * 
+	 * @param mixed $returnValue
+	 * @return \stdClass
+	 */
+	private static function _setSuccessResponse($returnValue) {
 		$return = new \stdClass();
 		$return->success = true;
 		$return->result  = $returnValue;
 		return $return;
 	}
 	
-	private static function _setErrorReturn(\Exception $exception) {
+	/**
+	 * build error response
+	 * 
+	 * @param \Exception $exception
+	 * @return \stdClass
+	 */
+	private static function _setErrorResponse(\Exception $exception) {
 		$return = new \stdClass();
 		$return->success        = false;
 		$return->error          = new \stdClass();
 		$return->error->message = $exception->getMessage();
+		$return->error->code    = $exception->getCode();
 		return $return;
 	}
 	

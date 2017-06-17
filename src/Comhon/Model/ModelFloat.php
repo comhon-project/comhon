@@ -16,17 +16,22 @@ use Comhon\Interfacer\NoScalarTypedInterfacer;
 
 class ModelFloat extends SimpleModel {
 	
+	/** @var string */
 	const ID = 'float';
 	
-	protected function _init() {
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\SimpleModel::_initializeModelName()
+	 */
+	protected function _initializeModelName() {
 		$this->modelName = self::ID;
 	}
 	
 	/**
-	 *
-	 * @param mixed $value
-	 * @param Interfacer $interfacer
-	 * @return float|null
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\SimpleModel::importSimple()
 	 */
 	public function importSimple($value, Interfacer $interfacer) {
 		if (is_null($value)) {
@@ -38,10 +43,22 @@ class ModelFloat extends SimpleModel {
 		return $value;
 	}
 	
+	/**
+	 * cast value to float
+	 *
+	 * @param mixed $value
+	 * @return float
+	 */
 	public function castValue($value) {
 		return (float) $value;
 	}
 	
+	/**
+	 * verify if value is a float (or an integer)
+	 *
+	 * @param mixed $value
+	 * @return boolean
+	 */
 	public function verifValue($value) {
 		if (!(is_float($value) || is_integer($value))) {
 			$nodes = debug_backtrace();

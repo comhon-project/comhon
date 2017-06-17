@@ -21,6 +21,7 @@ class RegexCollection {
 	private $regexs;
 	
 	/**
+	 * get regex collection instance
 	 * 
 	 * @throws \Exception
 	 * @return RegexCollection
@@ -38,6 +39,7 @@ class RegexCollection {
 	
 	
 	/**
+	 * get regex according specified name
 	 * 
 	 * @param string $name
 	 * @throws \Exception

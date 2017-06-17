@@ -23,8 +23,24 @@ class Interval implements Restriction {
 	
 	// following regexs doesn't verify if left endpoint is inferior than right endpoint
 	// there's no verification on date format only interval structure is checked
+	
+	/**
+	 * @var string regex to check date time interval validity
+	 *     regex doesn't verify if left endpoint is inferior than right endpoint
+	 *     there's no verification on date format only interval structure is checked
+	 */
 	const DATETIME_INTERVAL = '/^([\\[\\]])([^,]*),([^,]*)([\\[\\]])$/';
+	
+	/**
+	 * @var string regex to check float interval validity
+	 *     regex doesn't verify if left endpoint is inferior than right endpoint
+	 */
 	const FLOAT_INTERVAL    = '/^([\\[\\]])\\s*((?:-?\\d+(?:\\.\\d+)?)|(?:\\d*))\\s*,\\s*((?:-?\\d+(?:\\.\\d+)?)|(?:\\d*))\\s*([\\[\\]])$/';
+	
+	/**
+	 * @var string regex to check integer interval validity
+	 *     regex doesn't verify if left endpoint is inferior than right endpoint
+	 */
 	const INTEGER_INTERVAL  = '/^([\\[\\]])\\s*((?:-?\\d+)|(?:\\d*))\\s*,\\s*((?:-?\\d+)|(?:\\d*))\\s*([\\[\\]])$/';
 	
 	/** @var mixed */
@@ -39,6 +55,13 @@ class Interval implements Restriction {
 	/** @var boolean */
 	private $isRightClosed = true;
 	
+	/**
+	 * 
+	 * @param string $interval
+	 * @param \Comhon\Model\Model $model
+	 * @throws \Comhon\Exception\MalformedIntervalException
+	 * @throws \Comhon\Exception\NotSupportedModelIntervalException
+	 */
 	public function __construct($interval, Model $model) {
 		$matches = [];
 		if ($model instanceof ModelFloat) {
@@ -78,7 +101,8 @@ class Interval implements Restriction {
 	
 	/**
 	 * 
-	 * @param mixed $value
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::satisfy()
 	 */
 	public function satisfy($value) {
 		if (is_null($value)) {
@@ -107,8 +131,9 @@ class Interval implements Restriction {
 	
 	
 	/**
-	 * verify if specified restriction is equal to $this
-	 * @param Interval $restriction
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::isEqual()
 	 */
 	public function isEqual(Restriction $restriction) {
 		return $this === $restriction
@@ -122,8 +147,9 @@ class Interval implements Restriction {
 	}
 	
 	/**
-	 * verify if specified model can use this restriction
-	 * @param Model $model
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::isAllowedModel()
 	 */
 	public function isAllowedModel(Model $model) {
 		return ($model instanceof ModelInteger)
@@ -132,8 +158,9 @@ class Interval implements Restriction {
 	}
 	
 	/**
-	 * stringify restriction and value
-	 * @param mixed $value
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
 	public function toString($value) {
 		if (!is_float($value) && !is_integer($value) && !($value instanceof ComhonDateTime)) {

@@ -20,33 +20,55 @@ use Comhon\Object\Collection\ObjectCollection;
 class ModelArray extends ModelContainer {
 	
 	/**
-	 * name of each element
-	 * for exemple if we have a ModelArray 'children', each element name would be 'child'
-	 * @var string
+	 * @var string name of each element
+	 *     for exemple if we have a ModelArray 'children', each element name would be 'child'
 	 */
 	private $elementName;
 	
+	/**
+	 * 
+	 * @param Model $model
+	 * @param string $elementName
+	 */
 	public function __construct($model, $elementName) {
 		parent::__construct($model);
 		$this->elementName = $elementName;
 	}
 	
+	/**
+	 * get element name
+	 * 
+	 * element name is used for xml interface
+	 * 
+	 * @return string
+	 */
 	public function getElementName() {
 		return $this->elementName;
 	}
 	
+	/**
+	 * get full qualified class name of object array
+	 * 
+	 * @return string
+	 */
 	public function getObjectClass() {
 		return 'Comhon\Object\ObjectArray';
 	}
 	
+	/**
+	 * get instance of object array
+	 * 
+	 * @param boolean $isloaded define if instanciated object will be flaged as loaded or not
+	 * @return \Comhon\Object\ObjectArray
+	 */
 	public function getObjectInstance($isloaded = true) {
 		return new ObjectArray($this, $isloaded);
 	}
 	
 	/**
-	 *
-	 * @param ObjectArray $objectArray
-	 * @param Interfacer $interfacer
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::_addMainCurrentObject()
 	 */
 	protected function _addMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer) {
 		if (!($objectArray instanceof ObjectArray)) {
@@ -62,9 +84,9 @@ class ModelArray extends ModelContainer {
 	}
 	
 	/**
-	 *
-	 * @param ObjectArray $objectArray
-	 * @param Interfacer $interfacer
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::_removeMainCurrentObject()
 	 */
 	protected function _removeMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer) {
 		if (!($objectArray instanceof ObjectArray)) {
@@ -80,13 +102,9 @@ class ModelArray extends ModelContainer {
 	}
 	
 	/**
-	 *
-	 * @param ComhonObject|null $objectArray
-	 * @param string $nodeName
-	 * @param Interfacer $interfacer
-	 * @param boolean $isFirstLevel
-	 * @throws \Exception
-	 * @return mixed|null
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelContainer::_export()
 	 */
 	protected function _export($objectArray, $nodeName, Interfacer $interfacer, $isFirstLevel) {
 		if (is_null($objectArray)) {
@@ -96,7 +114,7 @@ class ModelArray extends ModelContainer {
 		if (!$objectArray->isLoaded()) {
 			return  Interfacer::__UNLOAD__;
 		}
-		$nodeArray = $interfacer->createNodeArray($nodeName);
+		$nodeArray = $interfacer->createArrayNode($nodeName);
 		
 		foreach ($objectArray->getValues() as $value) {
 			$this->verifElementValue($value);
@@ -106,19 +124,16 @@ class ModelArray extends ModelContainer {
 	}
 	
 	/**
-	 *
-	 * @param ObjectArray $objectArray
-	 * @param string $nodeName
-	 * @param Interfacer $interfacer
-	 * @throws \Exception
-	 * @return mixed|null
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::_exportId()
 	 */
 	protected function _exportId(ComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
 		$this->verifValue($objectArray);
 		if (!$objectArray->isLoaded()) {
 			return  Interfacer::__UNLOAD__;
 		}
-		$nodeArray = $interfacer->createNodeArray($nodeName);
+		$nodeArray = $interfacer->createArrayNode($nodeName);
 		foreach ($objectArray->getValues() as $value) {
 			if (is_null($value)) {
 				$interfacer->addValue($nodeArray, null, $this->elementName);
@@ -132,15 +147,13 @@ class ModelArray extends ModelContainer {
 	
 	
 	/**
-	 *
-	 * @param mixed $value
-	 * @param Interfacer $interfacer
-	 * @param ObjectCollection $localObjectCollection
-	 * @param MainModel $parentMainModel
-	 * @param boolean $isFirstLevel
-	 * @return ComhonObject
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelContainer::_import()
+	 * 
+	 * @return \Comhon\Object\ObjectArray|null
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel, $isFirstLevel = false) {
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
 		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
@@ -149,36 +162,31 @@ class ModelArray extends ModelContainer {
 		}
 		$objectArray = $this->getObjectInstance();
 		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
-			$objectArray->pushValue($this->getModel()->_import($element, $interfacer, $localObjectCollection, $parentMainModel, $isFirstLevel), $interfacer->hasToFlagValuesAsUpdated());
+			$objectArray->pushValue($this->getModel()->_import($element, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel), $interfacer->hasToFlagValuesAsUpdated());
 		}
 		return $objectArray;
 	}
 	
 	/**
-	 *
-	 * @param mixed $interfacedObject
-	 * @param Interfacer $interfacer
-	 * @param ObjectCollection $localObjectCollection
-	 * @param MainModel $parentMainModel
-	 * @return ComhonObject
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::_importId()
 	 */
-	protected function _importId($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $parentMainModel) {
+	protected function _importId($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer) {
 		if (is_null($interfacedObject)) {
 			return null;
 		}
 		$objectArray = $this->getObjectInstance();
 		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
-			$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, $localObjectCollection, $parentMainModel), $interfacer->hasToFlagValuesAsUpdated());
+			$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, $localObjectCollection, $mainModelContainer), $interfacer->hasToFlagValuesAsUpdated());
 		}
 		return $objectArray;
 	}
 	
 	/**
-	 *
-	 * @param mixed $interfacedObject
-	 * @param Interfacer $interfacer
-	 * @throws \Exception
-	 * @return ObjectArray
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::import()
 	 */
 	public function import($interfacedObject, Interfacer $interfacer) {
 		$this->load();
@@ -196,11 +204,9 @@ class ModelArray extends ModelContainer {
 	}
 	
 	/**
-	 *
-	 * @param ObjectArray $objectArray
-	 * @param mixed $interfacedObject
-	 * @param Interfacer $interfacer
-	 * @throws \Exception
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::fillObject()
 	 */
 	public function fillObject(ComhonObject $objectArray, $interfacedObject, Interfacer $interfacer) {
 		$this->load();
@@ -221,6 +227,11 @@ class ModelArray extends ModelContainer {
 		$objectArray->setIsLoaded(true);
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::verifValue()
+	 */
 	public function verifValue($value) {
 		if (!($value instanceof ObjectArray) || ($value->getModel()->getModel() !== $this->getModel() && !$value->getModel()->getModel()->isInheritedFrom($this->getModel()))) {
 			$nodes = debug_backtrace();
@@ -231,6 +242,7 @@ class ModelArray extends ModelContainer {
 	}
 	
 	/**
+	 * verify if value is correct according element model in object array 
 	 * 
 	 * @param mixed $value
 	 * @return boolean

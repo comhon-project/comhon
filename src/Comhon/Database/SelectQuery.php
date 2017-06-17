@@ -13,37 +13,64 @@ namespace Comhon\Database;
 
 class SelectQuery {
 
+	/** @var string */
 	const INNER_JOIN = 'inner join';
+	
+	/** @var string */
 	const LEFT_JOIN  = 'left join';
+	
+	/** @var string */
 	const RIGHT_JOIN = 'right join';
+	
+	/** @var string */
 	const FULL_JOIN  = 'full join';
 	
+	/** @var string */
 	const ASC  = 'ASC';
+	
+	/** @var string */
 	const DESC = 'DESC';
 	
-	private static $acceptedJoins = [
+	/** @var array */
+	private static $allowedJoins = [
 		self::INNER_JOIN => null,
 		self::LEFT_JOIN  => null,
 		self::RIGHT_JOIN => null,
 		self::FULL_JOIN  => null
 	];
 	
-	private static $acceptedOrders = [
+	/** @var array */
+	private static $allowedOrders = [
 			self::ASC  => null,
 			self::DESC => null
 	];
+	
+	/** @var TableNode[] */
+	private $tables = [];
+	
+	/** @var TableNode */
+	private $tableFocus;
+	
+	/** @var array */
+	private $joinedTables = [];
 
-	private $mainTable;
-	private $currentTableName;
+	/** @var WhereLiteral|WhereLogicalJunction */
 	private $where;
+	
+	/** @var HavingLiteral|HavingLogicalJunction */
 	private $having;
+	
+	/** @var integer */
 	private $limit;
+	
+	/** @var integer */
 	private $offset;
 	
-	private $joinedTables = [];
-	private $tableByName  = [];
-	private $order        = [];
-	private $group        = [];
+	/** @var array */
+	private $order = [];
+	
+	/** @var array */
+	private $group = [];
 	
 	/**
 	 * 
@@ -54,92 +81,101 @@ class SelectQuery {
 	}
 	
 	/**
+	 * initialize new select query (reset all previous settings)
 	 *
 	 * @param string|TableNode $table
+	 * @return \Comhon\Database\SelectQuery
 	 */
-	public function init($table) {
-		$this->mainTable        = null;
-		$this->joinedTables     = [];
-		$this->tableByName      = [];
-		$this->currentTableName = null;
-		$this->order            = [];
-		$this->group            = [];
-		$this->limit            = null;
-		$this->offset           = null;
-		$this->where            = null;
-		$this->having           = null;
+	public function initialize($table) {
+		$this->joinedTables = [];
+		$this->order        = [];
+		$this->group        = [];
+		$this->limit        = null;
+		$this->offset       = null;
+		$this->where        = null;
+		$this->having       = null;
 		$this->_setMainTable($table);
 		return $this;
 	}
 	
 	/**
-	 * 
 	 * @param string|TableNode $table
 	 */
 	private function _setMainTable($table) {
 		if (is_string($table)) {
-			$this->mainTable = new TableNode($table);
+			$mainTable = new TableNode($table);
 		} else if ($table instanceof TableNode) {
-			$this->mainTable = $table;
+			$mainTable = $table;
 		} else {
 			throw new \Exception('invalid parameter table, should be string or instance of TableNode');
 		}
-		$this->tableByName[$this->mainTable->getExportName()] = $this->mainTable;
-		$this->currentTableName = $this->mainTable->getExportName();
+		$this->tables = [$mainTable];
+		$this->tableFocus = $mainTable;
 	}
 	
 	/**
+	 * get main requested table
 	 *
-	 * @return TableNode $table
+	 * @return TableNode
 	 */
 	public function getMainTable() {
-		return $this->mainTable;
+		return $this->tables[0];
 	}
 	
 	/**
+	 * set focus on specified table
 	 * 
-	 * @param string $currentTableName export name of a table
-	 * @return boolean true if success i.e. if wanted table has been added
+	 * @param TableNode|string $table
+	 * @return boolean false if specified table not already added in SelectQuery
 	 */
-	public function setCurrentTable($currentTableName) {
-		if (!array_key_exists($currentTableName, $this->tableByName)) {
-			return false;
+	public function setTableFocus($table) {
+		if (is_string($table)) {
+			foreach ($this->tables as $tableInQuery) {
+				if ($tableInQuery->getExportName() === $table) {
+					$this->tableFocus = $tableInQuery;
+					return true;
+				}
+			}
+		} else if ($table instanceof TableNode) {
+			foreach ($this->tables as $tableInQuery) {
+				if ($tableInQuery === $table) {
+					$this->tableFocus = $tableInQuery;
+					return true;
+				}
+			}
+		} else {
+			throw new \Exception('bad first parameter should be string or instance of TabelNode');
 		}
-		$this->currentTableName = $currentTableName;
-		return true;
+		return false;
 	}
 	
 	/**
-	 * get the export name of current table
-	 * @return string
+	 * get table focus
+	 * @return TableNode
 	 */
-	public function getCurrentTableName() {
-		return $this->currentTableName;
+	public function getTableFocus() {
+		return $this->tableFocus;
 	}
 	
 	/**
-	 * get current table
-	 * @return string
-	 */
-	public function getCurrentTable() {
-		return $this->tableByName[$this->currentTableName];
-	}
-	
-	/**
+	 * set focus on main table
 	 * 
 	 * @return SelectQuery
 	 */
-	public function setMainTableAsCurrentTable() {
-		reset($this->tableByName);
-		$this->currentTableName = key($this->tableByName);
+	public function setFocusOnMainTable() {
+		$this->tableFocus = $this->tables[0];
 		return $this;
 	}
 	
 	/**
+	 * join table to query
 	 * 
-	 * @param string $joinType must be in array self::$acceptedJoins
+	 * update focus on new joined table
+	 * 
+	 * @param string $joinType [self::INNER_JOIN, self::LEFT_JOIN, self::RIGHT_JOIN, self::FULL_JOIN]
 	 * @param string|TableNode $table
 	 * @param OnLiteral|OnLogicalJunction $on determine on which colmuns join will be applied
+	 * @return \Comhon\Database\TableNode
 	 */
 	public function join($joinType, $table, $on) {
 		if ($table instanceof TableNode) {
@@ -149,20 +185,17 @@ class SelectQuery {
 			$tableNode = new TableNode($table);
 			$tableName = $table;
 		}
-		
-		if (!array_key_exists($joinType, self::$acceptedJoins)) {
+		if (!array_key_exists($joinType, self::$allowedJoins)) {
 			throw new \Exception("undefined join type '$joinType'");
 		}
-		if (array_key_exists($tableName, $this->tableByName)) {
-			throw new \Exception("table already added '$tableName'");
-		}
-		$this->tableByName[$tableName] = $tableNode;
-		$this->currentTableName = $tableName;
+		$this->tables[] = $tableNode;
+		$this->tableFocus = $tableNode;
 		$this->joinedTables[] = [$tableNode, $joinType, $on];
 		return $tableNode;
 	}
 	
 	/**
+	 * set where conditions
 	 * 
 	 * @param WhereLiteral|WhereLogicalJunction $where
 	 * @return SelectQuery
@@ -173,6 +206,7 @@ class SelectQuery {
 	}
 	
 	/**
+	 * get where conditions
 	 *
 	 * @return WhereLiteral|WhereLogicalJunction
 	 */
@@ -181,6 +215,7 @@ class SelectQuery {
 	}
 	
 	/**
+	 * set having conditions
 	 *
 	 * @param HavingLiteral|HavingLogicalJunction $having
 	 * @return SelectQuery
@@ -191,6 +226,7 @@ class SelectQuery {
 	}
 	
 	/**
+	 * get having conditions
 	 *
 	 * @return HavingLiteral|HavingLogicalJunction
 	 */
@@ -198,42 +234,87 @@ class SelectQuery {
 		return $this->having;
 	}
 	
+	/**
+	 * reset group columns
+	 */
 	public function resetGroupColumns() {
 		$this->group = [];
 	}
 	
-	public function addGroupColumn($column) {
-		$this->group[] = $this->currentTableName.'.'.$column;
+	/**
+	 * add group column on focused table
+	 * 
+	 * @param string $column
+	 * @return \Comhon\Database\SelectQuery
+	 */
+	public function addGroup($column) {
+		$this->group[] = [$this->tableFocus, $column];
 		return $this;
 	}
 	
+	/**
+	 * reset order columns
+	 */
 	public function resetOrderColumns() {
 		$this->order = [];
 	}
 	
-	public function addOrderColumn($column, $type = self::ASC) {
-		if (!array_key_exists($type, self::$acceptedOrders)) {
+	/**
+	 * add order column on focused table
+	 * 
+	 * @param string $column
+	 * @param string $type
+	 * @throws \Exception
+	 * @return \Comhon\Database\SelectQuery
+	 */
+	public function addOrder($column, $type = self::ASC) {
+		if (!array_key_exists($type, self::$allowedOrders)) {
 			throw new \Exception("undefined order type '$type'");
 		}
-		$order = $this->currentTableName.'.'.$column;
-		if ($type == self::DESC) {
-			$order .= " $type";
-		}
-		$this->order[] = $order;
+		$order = $type == self::ASC ? $column : $column . " $type";
+		$this->order[] = [$this->tableFocus, $order];
 		return $this;
 	}
 	
+	/**
+	 * set limit
+	 * 
+	 * @param integer $limit
+	 * @return \Comhon\Database\SelectQuery
+	 */
 	public function limit($limit) {
 		$this->limit = $limit;
 		return $this;
 	}
 	
+	/**
+	 * set offset
+	 * 
+	 * @param integer $offset
+	 * @return \Comhon\Database\SelectQuery
+	 */
 	public function offset($offset) {
 		$this->offset = $offset;
 		return $this;
 	}
 	
+	/**
+	 * export stringified query in sql format with values to bind
+	 * 
+	 * @throws \Exception
+	 * @return array 
+	 *     - first element : the query
+	 *     - second element : values to bind
+	 */
 	public function export() {
+		$tables = [];
+		foreach ($this->tables as $tableInQuery) {
+			if (array_key_exists($tableInQuery->getExportName(), $tables)) {
+				throw new \Exception("duplicate table '{$tableInQuery->getExportName()}'");
+			}
+			$tables[$tableInQuery->getExportName()] = null;
+		}
+		
 		$values = [];
 	
 		$query = 'SELECT '.$this->_getColumnsForQuery().' FROM '.$this->_exportJoinedTables($values);
@@ -242,10 +323,18 @@ class SelectQuery {
 			$query .= ' WHERE '.$clause;
 		}
 		if (!empty($this->group)) {
-			$query .= ' GROUP BY '.implode(',', $this->group);
+			$group = [];
+			foreach ($this->group as $groupPart) {
+				$group[] = $groupPart[0]->getExportName() . '.' . $groupPart[1];
+			}
+			$query .= ' GROUP BY '.implode(',', $group);
 		}
 		if (!empty($this->order)) {
-			$query .= ' ORDER BY '.implode(',', $this->order);
+			$order = [];
+			foreach ($this->order as $orderPart) {
+				$order[] = $orderPart[0]->getExportName() . '.' . $orderPart[1];
+			}
+			$query .= ' ORDER BY '.implode(',', $order);
 		}
 		if (!is_null($clause = $this->_getClauseForQuery($this->having, $values))) {
 			$query .= ' HAVING '.$clause;
@@ -265,14 +354,27 @@ class SelectQuery {
 		return [$query, $values];
 	}
 	
-	public function exportWithValue() {
+	/**
+	 * export stringified query in sql format
+	 * DO NOT USE this function to build a query that will be executed
+	 * USE this function to see what query looks like
+	 *
+	 * @return string
+	 */
+	public function exportDebug() {
 		list($query, $values) = $this->export();
 		return vsprintf(str_replace('?', '%s', $query), $values);
 	}
 	
+	
+	/**
+	 * get stringified selected columns
+	 * 
+	 * @return string
+	 */
 	private function _getColumnsForQuery() {
 		$selectAllColumns = true;
-		foreach ($this->tableByName as $table) {
+		foreach ($this->tables as $table) {
 			if (!$table->areAllColumnsSelected()) {
 				$selectAllColumns = false;
 				break;
@@ -282,7 +384,7 @@ class SelectQuery {
 			return '*';
 		} else {
 			$array = [];
-			foreach ($this->tableByName as $table) {
+			foreach ($this->tables as $table) {
 				if ($table->hasSelectedColumns()) {
 					$array[] = $table->exportSelectedColumns();
 				}
@@ -292,10 +394,11 @@ class SelectQuery {
 	}
 	
 	/**
-	 * construct clause query (WHERE ...), extract values for query and put them in $values
-	 * @param LogicalJunction $logicalJunction
-	 * @param array $values
-	 * @return string
+	 * export strigified clause query (WHERE ...), extract values for query and put them in $values
+	 * 
+	 * @param LogicalJunction|null $logicalJunction
+	 * @param mixed[] $values
+	 * @return string|null
 	 */
 	private function _getClauseForQuery($logicalJunction, &$values) {
 		$clause = null;
@@ -309,11 +412,13 @@ class SelectQuery {
 	}
 	
 	/**
+	 * export strigified joins, extract values for query and put them in $values
+	 * 
 	 * @param array $values
 	 * @return string
 	 */
 	private function _exportJoinedTables(&$values) {
-		list($exportedTable, $subValues) = $this->mainTable->exportTable();
+		list($exportedTable, $subValues) = $this->tables[0]->exportTable();
 		$joinedTables = ' '.$exportedTable;
 		
 		foreach ($this->joinedTables as $joinedTable) {

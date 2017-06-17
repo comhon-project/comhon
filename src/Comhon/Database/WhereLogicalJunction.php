@@ -14,6 +14,8 @@ namespace Comhon\Database;
 class WhereLogicalJunction extends LogicalJunction {
 	
 	/**
+	 * add literal
+	 * 
 	 * @param Literal $literal
 	 */
 	public function addLiteral(Literal $literal) {
@@ -21,6 +23,8 @@ class WhereLogicalJunction extends LogicalJunction {
 	}
 	
 	/**
+	 * add where literal
+	 * 
 	 * @param WhereLiteral $literal
 	 */
 	private function _addLiteral(WhereLiteral $literal) {
@@ -28,6 +32,8 @@ class WhereLogicalJunction extends LogicalJunction {
 	}
 	
 	/**
+	 * add logical junction
+	 * 
 	 * @param LogicalJunction $logicalJunction
 	 */
 	public function addLogicalJunction(LogicalJunction $logicalJunction) {
@@ -35,6 +41,8 @@ class WhereLogicalJunction extends LogicalJunction {
 	}
 	
 	/**
+	 * add where logical junction
+	 * 
 	 * @param WhereLogicalJunction $logicalJunction
 	 */
 	private function _addLogicalJunction(WhereLogicalJunction $logicalJunction) {
