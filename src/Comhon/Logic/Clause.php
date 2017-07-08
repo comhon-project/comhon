@@ -9,14 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace Comhon\Database;
+namespace Comhon\Logic;
+
+use Comhon\Database\DbLiteral;
 
 /**
  * logical junction is actually a disjunction or a conjunction
  * - a disjunction is true if at least one of elements of this disjonction is true
  * - a conjunction is true if all elements of this conjunction are true
  */
-class LogicalJunction {
+class Clause extends Formula {
 
 	/** @var string */
 	const DISJUNCTION = 'disjunction';
@@ -27,11 +29,8 @@ class LogicalJunction {
 	/** @var string */
 	protected $type;
 	
-	/** @var Literal[] */
-	protected $literals = [];
-	
-	/** @var LogicalJunction[] */
-	protected $logicalJunctions = [];
+	/** @var Formula[] */
+	protected $formulas= [];
 	
 	/** @var string[] */
 	private static $allowedTypes = [
@@ -69,58 +68,78 @@ class LogicalJunction {
 	}
 	
 	/**
+	 * add formula element
+	 *
+	 * @param Formula $formula
+	 */
+	public function addElement(Formula $formula) {
+		$this->formulas[] = $formula;
+	}
+	
+	/**
 	 * add literal
 	 * 
 	 * @param Literal $literal
 	 */
 	public function addLiteral(Literal $literal) {
-		$this->literals[] = $literal;
+		$this->formulas[] = $literal;
 	}
 	
 	/**
 	 * add logical junction
 	 * 
-	 * @param LogicalJunction $logicalJunction
+	 * @param Clause $clause
 	 */
-	public function addLogicalJunction(LogicalJunction $logicalJunction) {
-		$this->logicalJunctions[] = $logicalJunction;
+	public function addClause(Clause $clause) {
+		$this->formulas[] = $clause;
 	}
 	
 	/**
-	 * @param Literal[] $literals
+	 * get formula elements
+	 * 
+	 * @return Formula[]
 	 */
-	public function setLiterals($literals) {
-		$this->literals = $literals;
+	public function getElements() {
+		return $this->formulas;
 	}
 	
 	/**
-	 * @param LogicalJunction[] $logicalJunctions
-	 */
-	public function setLogicalJunction($logicalJunctions) {
-		$this->logicalJunctions = $logicalJunctions;
-	}
-	
-	/**
+	 * extract literals from formula direct elements
+	 * 
 	 * @param boolean $indexByMD5 if true index literals by md5 (calcul all md5 for each call)
 	 * @return Literal[]:
 	 */
 	public function getLiterals($indexByMD5 = false) {
-		$return = $this->literals;
+		$literals = [];
 		if ($indexByMD5) {
-			$return = [];
-			foreach ($this->literals as $literal) {
-				$return[md5($literal->exportWithValue())] = $literal;
+			foreach ($this->formulas as $formula) {
+				if ($formula instanceof Literal) {
+					$literals[md5($formula->exportDebug())] = $literal;
+				}
+			}
+		}else {
+			foreach ($this->formulas as $formula) {
+				if ($formula instanceof Literal) {
+					$literals[] = $formula;
+				}
 			}
 		}
-		return $return;
+		return $literals;
 	}
 	
 	/**
+	 * extract clauses from formula direct elements
 	 * 
-	 * @return LogicalJunction[]
+	 * @return Clause[]
 	 */
-	public function getLogicalJunctions() {
-		return $this->logicalJunctions;
+	public function getClauses() {
+		$clauses = [];
+		foreach ($this->formulas as $formula) {
+			if ($formula instanceof Clause) {
+				$clauses[] = $formula;
+			}
+		}
+		return $clauses;
 	}
 	
 	/**
@@ -139,15 +158,15 @@ class LogicalJunction {
 	 * @param boolean $indexByMD5 if true index literals by md5 (calcul all md5 for each call)
 	 */
 	protected function _getFlattenedLiteralsWithRefParam(&$literals, $indexByMD5) {
-		foreach ($this->literals as $literal) {
+		foreach ($this->getLiterals() as $literal) {
 			if ($indexByMD5) {
-				$literals[md5($literal->exportWithValue())] = $literal;
+				$literals[md5($literal->exportDebug())] = $literal;
 			} else {
 				$literals[] = $literal;
 			}
 		}
-		foreach ($this->logicalJunctions as $logicalJunction) {
-			$logicalJunction->_getFlattenedLiteralsWithRefParam($literals, $indexByMD5);
+		foreach ($this->getClauses() as $clause) {
+			$clause->_getFlattenedLiteralsWithRefParam($literals, $indexByMD5);
 		}
 	}
 	
@@ -159,12 +178,9 @@ class LogicalJunction {
 	 */
 	public function export(&$values) {
 		$array = [];
-		foreach ($this->literals as $literal) {
-			$array[] = $literal->export($values);
-		}
-		foreach ($this->logicalJunctions as $logicalJunction) {
-			$result = $logicalJunction->export($values);
-			if ($result != '') {
+		foreach ($this->formulas as $formula) {
+			$result = $formula->export($values);
+			if ($result !== '') {
 				$array[] = $result;
 			}
 		}
@@ -180,35 +196,35 @@ class LogicalJunction {
 	 */
 	public function exportDebug() {
 		$array = [];
-		foreach ($this->literals as $literal) {
-			$array[] = $literal->exportWithValue();
-		}
-		foreach ($this->logicalJunctions as $logicalJunction) {
-			$result = $logicalJunction->exportDebug();
+		foreach ($this->formulas as $formula) {
+			$result = $formula->exportDebug();
 			if ($result != '') {
 				$array[] = $result;
 			}
 		}
-		return (!empty($array)) ? '('.implode(' '.$this->getOperator().' ', $array).')' : '';
+		return !empty($array) ? '('.implode(' '.$this->getOperator().' ', $array).')' : '';
 	}
 	
 	/**
 	 * verify if logical junction contain one and only one literal
 	 * 
+	 * search recursively in clauses
+	 * 
 	 * @return boolean
 	 */
 	public function hasOnlyOneLiteral() {
 		$hasOnlyOneLiteral = false;
-		if (count($this->literals) > 1) {
+		$literals = $this->getLiterals();
+		if (count($literals) > 1) {
 			return false;
-		}elseif (count($this->literals) == 1) {
+		}elseif (count($literals) == 1) {
 			$hasOnlyOneLiteral = true;
 		}
-		foreach ($this->logicalJunctions as $logicalJunction) {
-			if ($logicalJunction->hasLiterals()) {
+		foreach ($this->getClauses() as $clause) {
+			if ($clause->hasLiterals()) {
 				if ($hasOnlyOneLiteral) {
 					return false;
-				}elseif ($logicalJunction->hasOnlyOneLiteral()) {
+				}elseif ($clause->hasOnlyOneLiteral()) {
 					$hasOnlyOneLiteral = true;
 				}else {
 					return false;
@@ -224,10 +240,10 @@ class LogicalJunction {
 	 * @return boolean
 	 */
 	public function hasLiterals() {
-		if (!empty($this->literals)) {
-			return true;
-		}foreach ($this->logicalJunctions as $logicalJunction) {
-			if ($logicalJunction->hasLiterals()) {
+		foreach ($this->formulas as $formula) {
+			if ($formula instanceof Literal) {
+				return true;
+			} elseif ($formula->hasLiterals()) {
 				return true;
 			}
 		}
@@ -260,8 +276,8 @@ class LogicalJunction {
 				return false;
 			}
 		}
-		foreach ($this->logicalJunctions as $logicalJunction) {
-			if (!$logicalJunction->isSatisfied($predicates)) {
+		foreach ($this->getClauses() as $clause) {
+			if (!$clause->isSatisfied($predicates)) {
 				return false;
 			}
 		}
@@ -278,8 +294,8 @@ class LogicalJunction {
 		foreach ($this->getLiterals(true) as $key => $literal) {
 			$satisfied = $satisfied || $predicates[$key];
 		}
-		foreach ($this->logicalJunctions as $logicalJunction) {
-			$satisfied = $satisfied || $logicalJunction->isSatisfied($predicates);
+		foreach ($this->getClauses() as $clause) {
+			$satisfied = $satisfied || $clause->isSatisfied($predicates);
 		}
 		return $satisfied;
 	}
@@ -292,30 +308,29 @@ class LogicalJunction {
 	 * @param SelectQuery $selectQuery
 	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
-	 * @return LogicalJunction
+	 * @return Clause
 	 */
-	public static function stdObjectToLogicalJunction($stdObject, $modelByNodeId, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
-		if (!isset($stdObject->type) || (isset($stdObject->logicalJunctions) && !is_array($stdObject->logicalJunctions)) || (isset($stdObject->literals) && !is_array($stdObject->literals))) {
-			throw new \Exception('malformed stdObject LogicalJunction : '.json_encode($stdObject));
+	public static function stdObjectToClause($stdObject, $modelByNodeId, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
+		if (!isset($stdObject->type) || (isset($stdObject->elements) && !is_array($stdObject->elements))) {
+			throw new \Exception('malformed stdObject Clause : '.json_encode($stdObject));
 		}
-		$logicalJunction = new LogicalJunction($stdObject->type);
-		if (isset($stdObject->logicalJunctions)) {
-			foreach ($stdObject->logicalJunctions as $stdObjectLogicalJunction) {
-				$logicalJunction->addLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($stdObjectLogicalJunction, $modelByNodeId, $literalCollection, $selectQuery, $allowPrivateProperties));
-			}
-		}
-		if (isset($stdObject->literals)) {
-			foreach ($stdObject->literals as $stdObjectLiteral) {
-				if (isset($stdObjectLiteral->id)) {
-					$model = null;
-				} else if (isset($stdObjectLiteral->node) && array_key_exists($stdObjectLiteral->node, $modelByNodeId)) {
-					$model = $modelByNodeId[$stdObjectLiteral->node];
-				} else {
-					throw new \Exception('node doesn\' exists or not recognized'.json_encode($stdObjectLiteral));
+		$clause = new Clause($stdObject->type);
+		if (isset($stdObject->elements)) {
+			foreach ($stdObject->elements as $stdObjectElement) {
+				if (isset($stdObjectElement->type)) { // clause
+					$clause->addClause(Clause::stdObjectToClause($stdObjectElement, $modelByNodeId, $literalCollection, $selectQuery, $allowPrivateProperties));
+				} else { // literal
+					if (isset($stdObjectElement->id)) {
+						$model = null;
+					} else if (isset($stdObjectElement->node) && array_key_exists($stdObjectElement->node, $modelByNodeId)) {
+						$model = $modelByNodeId[$stdObjectElement->node];
+					} else {
+						throw new \Exception('node doesn\' exists or not recognized'.json_encode($stdObjectElement));
+					}
+					$clause->addLiteral(DbLiteral::stdObjectToLiteral($stdObjectElement, $model, $literalCollection, $selectQuery, $allowPrivateProperties));
 				}
-				$logicalJunction->addLiteral(Literal::stdObjectToLiteral($stdObjectLiteral, $model, $literalCollection, $selectQuery, $allowPrivateProperties));
 			}
 		}
-		return $logicalJunction;
+		return $clause;
 	}
 }

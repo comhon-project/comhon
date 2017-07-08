@@ -3,9 +3,10 @@
 use Comhon\Database\SelectQuery;
 use Comhon\Database\TableNode;
 use Comhon\Database\OnLiteral;
-use Comhon\Database\Literal;
+use Comhon\Logic\Literal;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Database\DatabaseController;
+use Comhon\Database\SimpleDbLiteral;
 
 $time_start = microtime(true);
 
@@ -14,9 +15,8 @@ $childTable = new TableNode('person');
 $childTable->addSelectedColumn('id', 'child_id');
 $selectQuery = new SelectQuery($personTable);
 $selectQuery->join(SelectQuery::INNER_JOIN, $childTable, new OnLiteral($personTable, 'id', Literal::EQUAL, $childTable, 'father_id'));
-$selectQuery->where(new Literal($childTable, 'first_name', Literal::EQUAL, ['john', 'Jean']));
-$databaseModel = ModelManager::getInstance()->getInstanceModel('sqlDatabase');
-$database = $databaseModel->loadObject('1');
+$selectQuery->where(new SimpleDbLiteral($childTable, 'first_name', Literal::EQUAL, ['john', 'Jean']));
+$database  = ModelManager::getInstance()->getInstanceModel('person')->getSerialization()->getSettings()->getValue('database');
 $databaseController = DatabaseController::getInstanceWithDataBaseObject($database);
 
 $selectQuery->setFocusOnMainTable();
@@ -45,9 +45,19 @@ if ($params !== ['john', 'Jean']) {
 	throw new Exception('bad params');
 }
 
+// change query due to postgresql that doesn't manage retrieved columns not in group
+$personTable->resetSelectedColumns();
+$personTable->selectAllColumns(false);
+$selectQuery->resetOrderColumns();
+$selectQuery->addOrder('id');
+list($query, $params) = $selectQuery->export();
+
 $row = $databaseController->executeSelectQuery($selectQuery);
 
-if (!compareJson(json_encode($row), '[{"id":"1","first_name":"Bernard","lastName":"Dupond","sex":"man","birth_place":"2","father_id":null,"mother_id":null,"birth_date":"2016-11-13 19:04:05","best_friend":null,"child_id":"5"},{"id":"1","first_name":"Bernard","lastName":"Dupond","sex":"man","birth_place":"2","father_id":null,"mother_id":null,"birth_date":"2016-11-13 19:04:05","best_friend":null,"child_id":"6"}]')) {
+if (
+	(json_encode($row) !== '[{"child_id":5},{"child_id":6}]')
+	&& (json_encode($row) !== '[{"child_id":"5"},{"child_id":"6"}]')
+) {
 	throw new Exception('bad result');
 }
 

@@ -1,0 +1,53 @@
+{
+    "version": "2.0",
+    "serialization": {
+        "type": "sqlTable",
+        "id": "public.test"
+    },
+    "properties": {
+        "id1": {
+            "serializationName": "id_1"
+        },
+        "id2": {
+            "serializationName": "id_2"
+        },
+        "objectWithId": {
+            "serializationName": "object_with_id"
+        },
+        "mainParentTestDb": {
+            "serializationName": "main_test_id"
+        },
+        "objectsWithId": {
+            "serializationName": "objects_with_id"
+        },
+        "foreignObjects": {
+            "serializationName": "foreign_objects"
+        },
+        "lonelyForeignObject": {
+            "serializationName": "lonely_foreign_object"
+        },
+        "lonelyForeignObjectTwo": {
+            "serializationName": "lonely_foreign_object_two"
+        },
+        "defaultValue": {
+            "serializationName": "default_value"
+        },
+        "manBodyJson": {
+            "serializationName": "man_body_json_id"
+        },
+        "womanXml": {
+            "serializationName": "woman_xml_id"
+        },
+        "notSerializedValue": {
+            "is_serializable": false
+        },
+        "notSerializedForeignObject": {
+            "is_serializable": false
+        },
+        "childrenTestDb": {
+            "aggregations": [
+                "parentTestDb"
+            ]
+        }
+    }
+}

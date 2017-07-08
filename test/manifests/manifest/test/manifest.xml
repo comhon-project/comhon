@@ -2,7 +2,7 @@
 <manifest version="2.0">
 
 	<manifests>
-		<personLocal>../personLocal/manifest.xml</personLocal>
+		<personLocal>../personLocal/manifest.json</personLocal>
 	</manifests>
 
 	<types>
@@ -31,7 +31,7 @@
 		</type>
 		<type name="objectRefParent">
 			<properties>
-				<property is_foreign="1" type="test" name="parent"/>
+				<property is_foreign="1" type="\test" name="parent"/>
 				<property type="string" name="name"/>
 			</properties>
 		</type>

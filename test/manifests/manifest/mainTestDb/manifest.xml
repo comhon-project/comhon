@@ -13,7 +13,7 @@
 		<property type="string" name="name"/>
 		<property type="object" name="obj"/>
 		<property is_foreign="1" type="array" name="childrenTestDb">
-			<values type="testDb" name="childTestDb"/>
+			<values type="\testDb" name="childTestDb"/>
 		</property>
 	</properties>
 </manifest>

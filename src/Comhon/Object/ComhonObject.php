@@ -131,7 +131,7 @@ abstract class ComhonObject {
 	 * @param boolean $flagAsUpdated
 	 * @return mixed the last value of array. If array is empty,null will be returned.
 	 */
-	final public function _popValue($flagAsUpdated) {
+	final protected function _popValue($flagAsUpdated) {
 		if ($flagAsUpdated) {
 			$this->isUpdated = true;
 		}
@@ -144,7 +144,7 @@ abstract class ComhonObject {
 	 * @param mixed $value
 	 * @param boolean $flagAsUpdated
 	 */
-	final public function _unshiftValue($value, $flagAsUpdated) {
+	final protected function _unshiftValue($value, $flagAsUpdated) {
 		array_unshift($this->values, $value);
 		if ($flagAsUpdated) {
 			$this->isUpdated = true;
@@ -157,7 +157,7 @@ abstract class ComhonObject {
 	 * @param boolean $flagAsUpdated
 	 * @return mixed the first value of array. If array is empty,null will be returned.
 	 */
-	final public function _shiftValue($flagAsUpdated) {
+	final protected function _shiftValue($flagAsUpdated) {
 		if ($flagAsUpdated) {
 			$this->isUpdated = true;
 		}
@@ -232,7 +232,7 @@ abstract class ComhonObject {
 	/**
 	 * 
 	 * @param string $name
-	 * @return mixed|null null if value doesn't exist in values
+	 * @return mixed|ComhonObject|null null if value doesn't exist in values
 	 */
 	final public function getValue($name) {
 		return ($this->hasValue($name)) ? $this->values[$name] : null;
@@ -245,7 +245,7 @@ abstract class ComhonObject {
 	 * 
 	 * @param string $name
 	 * @param boolean $isLoaded
-	 * @return \Comhon\Object\ComhonObject
+	 * @return ObjectUnique|ObjectArray
 	 */
 	final public function getInstanceValue($name, $isLoaded = true) {
 		return $this->getProperty($name, true)->getModel()->getObjectInstance($isLoaded);

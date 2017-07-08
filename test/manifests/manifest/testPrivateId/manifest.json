@@ -34,12 +34,12 @@
             "type": "string"
         },
         {
+            "name": "objectValues",
+            "type": "array",
             "values": {
                 "type": "object",
                 "name": "objectValue"
-            },
-            "name": "objectValues",
-            "type": "array"
+            }
         },
         {
             "name": "foreignObjectValue",
@@ -47,26 +47,26 @@
             "is_foreign": true
         },
         {
+            "name": "foreignObjectValues",
+            "type": "array",
             "values": {
                 "type": "object",
                 "name": "foreignObjectValue"
             },
-            "name": "foreignObjectValues",
-            "type": "array",
             "is_foreign": true
         },
         {
             "name": "foreignTestPrivateId",
-            "type": "testPrivateId",
+            "type": "\\testPrivateId",
             "is_foreign": true
         },
         {
-            "values": {
-                "type": "testPrivateId",
-                "name": "foreignTestPrivateId"
-            },
             "name": "foreignTestPrivateIds",
             "type": "array",
+            "values": {
+                "type": "\\testPrivateId",
+                "name": "foreignTestPrivateId"
+            },
             "is_foreign": true
         }
     ]

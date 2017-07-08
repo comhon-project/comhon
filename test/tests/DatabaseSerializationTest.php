@@ -15,7 +15,8 @@ if ($person->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 
-$dbHandler = DatabaseController::getInstanceWithDataBaseId(1);
+$databaseId = ModelManager::getInstance()->getInstanceModel('person')->getSerialization()->getSettings()->getValue('database')->getId();
+$dbHandler = DatabaseController::getInstanceWithDataBaseId($databaseId);
 $statement = $dbHandler->executeSimpleQuery('select sex from person where id = '.$person->getId());
 $result = $statement->fetchAll();
 if ($result[0]['sex'] !== 'person') {

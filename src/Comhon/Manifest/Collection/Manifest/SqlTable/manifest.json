@@ -8,7 +8,7 @@
         },
         {
             "name": "database",
-            "type": "sqlDatabase",
+            "type": "\\sqlDatabase",
             "is_foreign": true
         }
     ]

@@ -30,12 +30,12 @@
             "type": "object"
         },
         {
-            "values": {
-                "type": "testDb",
-                "name": "childTestDb"
-            },
             "name": "childrenTestDb",
             "type": "array",
+            "values": {
+                "type": "\\testDb",
+                "name": "childTestDb"
+            },
             "is_foreign": true
         }
     ]

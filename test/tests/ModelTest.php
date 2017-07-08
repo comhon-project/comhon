@@ -37,33 +37,72 @@ if (json_encode($testModel->getPropertiesNames()) !== '["name","stringValue","fl
 }
 
 /** ******************** test local model 'personLocal' load status ******************** **/
-if (!ModelManager::getInstance()->hasInstanceModel('personLocal', 'test')) {
+if (!ModelManager::getInstance()->hasInstanceModel('test\personLocal')) {
 	throw new Exception('model not initialized');
 }
-if (ModelManager::getInstance()->isModelLoaded('personLocal', 'test')) {
+if (ModelManager::getInstance()->isModelLoaded('test\personLocal')) {
 	throw new Exception('model must be not loaded');
 }
 /** ******************** load model 'personLocal' by calling getmodel() ******************** **/
 $localPersonModel = $testModel->getProperty('objectContainer')->getModel()->getProperty('person')->getModel();
 
 /** ******************** test local model 'personLocal' load status ******************** **/
-if (!ModelManager::getInstance()->isModelLoaded('personLocal', 'test')) {
+if (!ModelManager::getInstance()->isModelLoaded('test\personLocal')) {
 	throw new Exception('model must be loaded');
 }
 if (!$localPersonModel->isLoaded()) {
 	throw new Exception('model must be loaded');
 }
 
+/** ******************** test local model defined recursively in distant manifest ******************** **/
+if ($localPersonModel->getProperty('anObjectWithIdAndMore')->getModel()->getName() !== 'test\personLocal\objectWithIdAndMore') {
+	throw new Exception('bad model name');
+}
+if (!ModelManager::getInstance()->hasInstanceModel('test\personLocal\recursive')) {
+	throw new Exception('missing instance model');
+}
+if (ModelManager::getInstance()->isModelLoaded('test\personLocal\recursive')) {
+	throw new Exception('model should not be loaded');
+}
+if ($localPersonModel->getProperty('recursiveLocal')->getModel()->getName() !== 'test\personLocal\recursive') {
+	throw new Exception('bad model name');
+}
+if (!ModelManager::getInstance()->isModelLoaded('test\personLocal\recursive')) {
+	throw new Exception('model should be loaded');
+}
+if (!ModelManager::getInstance()->hasInstanceModel('test\personLocal\recursive\objectWithIdAndMore')) {
+	throw new Exception('missing instance model');
+}
+$recursiveLocalModel = $localPersonModel->getProperty('recursiveLocal')->getModel();
+if ($recursiveLocalModel !== ModelManager::getInstance()->getInstanceModel('test\personLocal\recursive')) {
+	throw new Exception('bad instance model');
+}
+if ($recursiveLocalModel->getProperty('anotherObjectWithIdAndMore')->getModel()->getName() !== 'test\personLocal\recursive\objectWithIdAndMore') {
+	throw new Exception('bad model name');
+}
+
+if (ModelManager::getInstance()->hasModel('testXml\personLocal')) {
+	throw new Exception('missing instance model');
+}
+if (ModelManager::getInstance()->hasModel('testXml\personLocal\recursive')) {
+	throw new Exception('missing instance model');
+}
+$recursiveLocalXmlModel = ModelManager::getInstance()->getInstanceModel('testXml\personLocal\recursive');
+
+if ($recursiveLocalXmlModel === $recursiveLocalModel) {
+	throw new Exception('should be different instances');
+}
+
 /** ****************************** same model instance ****************************** **/
-if ($localPersonModel !== ModelManager::getInstance()->getInstanceModel('personLocal', 'test')) {
+if ($localPersonModel !== ModelManager::getInstance()->getInstanceModel('test\personLocal')) {
 	throw new Exception('models haven\'t same instance');
 }
 
 /** ****************************** basic test for model 'personLocal' ****************************** **/
-if ($localPersonModel->getName() !== 'personLocal') {
+if ($localPersonModel->getName() !== 'test\personLocal') {
 	throw new Exception('model hasn\'t good name');
 }
-if (json_encode($localPersonModel->getPropertiesNames()) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes"]') {
+if (!compareJson(json_encode($localPersonModel->getPropertiesNames()), '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","anObjectWithIdAndMore","recursiveLocal"]')) {
 	throw new Exception("model {$localPersonModel->getName()} hasn't good properties : ".json_encode($localPersonModel->getPropertiesNames()));
 }
 
@@ -134,7 +173,7 @@ if (!$testDbModel->getProperty('string')->isPrivate()) {
 if (!$testDbModel->getProperty('string')->isPrivate()) {
 	throw new Exception('is not private');
 }
-$localModel = ModelManager::getInstance()->getInstanceModel('objectWithIdAndMoreMore', 'testDb');
+$localModel = ModelManager::getInstance()->getInstanceModel('testDb\objectWithIdAndMoreMore');
 if (!$localModel->getProperty('plop3')->isPrivate()) {
 	throw new Exception('is not private');
 }
@@ -154,11 +193,17 @@ if ($testDbModel->getProperty('notSerializedForeignObject')->isSerializable()) {
 $stdPrivateInterfacer = new StdObjectInterfacer();
 $stdPrivateInterfacer->setPrivateContext(true);
 
-if (json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"test","database":"1"}') {
+if (
+	json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"test","database":"1"}'
+	&& json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"public.test","database":"2"}'
+) {
 	throw new Exception("model {$testDbModel->getName()} hasn't good values");
 }
 
-if (json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"1"}') {
+if (
+	json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"1"}'
+	&& json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"2"}'
+) {
 	throw new Exception("model {$testDbModel->getName()} hasn't good values : ".json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)));
 }
 if ($testDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
@@ -169,13 +214,19 @@ if ($testDbModel->getSerialization()->getSettings()->getValue('database')->isLoa
 $testDbModel->getSerialization()->getSettings()->loadValue('database');
 
 /** ****************************** test serialization after load ****************************** **/
-if (json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"test","database":"1"}') {
+if (
+	json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"test","database":"1"}'
+	&& json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"public.test","database":"2"}'
+) {
 	throw new Exception("model {$testDbModel->getName()} hasn't good values");
 }
 $stdPublicInterfacer = new StdObjectInterfacer();
 $objDb = $testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPublicInterfacer);
-if (!compareJson(json_encode($objDb), '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}')) {
-	throw new Exception("model {$testDbModel->getName()} hasn't good values");
+if (
+	(json_encode($objDb) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}')
+	&& (json_encode($objDb) !== '{"id":"2","DBMS":"pgsql","host":"localhost","name":"database","user":"root"}')
+) {
+	throw new Exception("model {$testDbModel->getName()} hasn't good values ".json_encode($objDb));
 }
 if (!$testDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
 	throw new Exception('object must be loaded');

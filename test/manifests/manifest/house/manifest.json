@@ -23,12 +23,12 @@
             "type": "boolean"
         },
         {
-            "values": {
-                "type": "home",
-                "name": "resident"
-            },
             "name": "residents",
             "type": "array",
+            "values": {
+                "type": "\\home",
+                "name": "resident"
+            },
             "is_foreign": true
         }
     ]

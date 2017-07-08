@@ -87,7 +87,7 @@ class ObjectService {
 	}
 	
 	/**
-	 * build suuccessfull response
+	 * build successfull response
 	 * 
 	 * @param mixed $returnValue
 	 * @return \stdClass

@@ -288,6 +288,32 @@ abstract class Model {
 	}
 	
 	/**
+	 * get namespace of model
+	 *
+	 * @return string
+	 */
+	public function getNameSpace() {
+		$name = $this->getName();
+		if (($pos = strrpos($name, '\\')) !== false) {
+			return substr($name, 0, $pos + 1);
+		}
+		return '';
+	}
+	
+	/**
+	 * get short name of model (name without namespace)
+	 *
+	 * @return string
+	 */
+	public function getShortName() {
+		$name = $this->getName();
+		if (($pos = strrpos($name, '\\')) !== false) {
+			return substr($name, $pos + 1);
+		}
+		return $name;
+	}
+	
+	/**
 	 * get model name
 	 * 
 	 * @return string
@@ -690,11 +716,11 @@ abstract class Model {
 						$interfacer->setValue($node, $exportedValue, $propertyName, $property->isInterfacedAsNodeXml());
 					}
 					else if ($property->isForeign() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
-						$property->getModel()->_export($value, $value->getModel()->getName(), $interfacer, false);
+						$property->getModel()->_export($value, $value->getModel()->getShortName(), $interfacer, false);
 					}
 				}
 				else if ($isSerialContext && $property->isAggregation() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
-					$property->getModel()->_export($value, $value->getModel()->getName(), $interfacer, false);
+					$property->getModel()->_export($value, $value->getModel()->getShortName(), $interfacer, false);
 				}
 			}
 		}
@@ -832,6 +858,21 @@ abstract class Model {
 		$id = $model->getIdFromInterfacedObject($interfacedObject, $interfacer);
 		
 		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, $isFirstLevel);
+	}
+	
+	/**
+	 * get inherited model
+	 *
+	 * @param string $inheritanceModelName
+	 * @param MainModel $mainModelContainer
+	 * @return Model;
+	 */
+	protected function _getIneritedModel($inheritanceModelName) {
+		$model = ModelManager::getInstance()->getInstanceModel($inheritanceModelName);
+		if (!$model->isInheritedFrom($this)) {
+			throw new \Exception("model '{$model->getName()}' doesn't inherit from '{$this->getName()}'");
+		}
+		return $model;
 	}
 	
 	/**

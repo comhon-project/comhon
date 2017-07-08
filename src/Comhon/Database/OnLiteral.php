@@ -11,9 +11,10 @@
 
 namespace Comhon\Database;
 
-class OnLiteral extends Literal {
-
+class OnLiteral extends DbLiteral {
+	
 	private $columnRight;
+	private $tableRight;
 	
 	/**
 	 * 
@@ -24,11 +25,14 @@ class OnLiteral extends Literal {
 	 * @param string $columnRight
 	 */
 	public function __construct($tableLeft, $columnLeft, $operator, $tableRight, $columnRight) {
+		parent::__construct($tableLeft, $columnLeft, $operator);
+		$this->tableRight = $tableRight;
 		$this->columnRight = $columnRight;
-		parent::__construct($tableLeft, $columnLeft, $operator, $tableRight);
 	}
 	
 	/**
+	 * get right side column of join
+	 * 
 	 * @return string
 	 */
 	public function getColumnRight() {
@@ -36,11 +40,12 @@ class OnLiteral extends Literal {
 	}
 	
 	/**
+	 * get right side table of join
 	 * 
 	 * @return TableNode|string
 	 */
 	public function getTableRight() {
-		return $this->value;
+		return $this->tableRight;
 	}
 	
 	/**
@@ -51,30 +56,18 @@ class OnLiteral extends Literal {
 	 */
 	public function export(&$values) {
 		$left = (($this->table instanceof TableNode) ? $this->table->getExportName() : $this->table) . '.' . $this->column;
-		$right = (($this->value instanceof TableNode) ? $this->value->getExportName() : $this->value) . '.' . $this->columnRight;
+		$right = (($this->tableRight instanceof TableNode) ? $this->tableRight->getExportName() : $this->tableRight) . '.' . $this->columnRight;
 		return sprintf('%s %s %s', $left, $this->operator, $right);
 	}
 	
 	/**
-	 * 
-	 * @param \stdClass $stdObject
-	 * @throws \Exception
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Logic\Formula::exportDebug()
 	 */
-	private static function _verifStdObject($stdObject) {
-		throw new \Exception('cannot build OnLiteral from stdClass object');
-	}
-	
-	/**
-	 * @param \stdClass $stdObject
-	 * @param \Comhon\Model\MainModel $mainModel
-	 * @param Literal[] $literalCollection used if $stdObject contain only an id that reference literal in collection
-	 * @param SelectQuery $selectQuery
-	 * @param boolean $allowPrivateProperties
-	 * @throws \Exception
-	 * @return Literal
-	 */
-	public static function stdObjectToLiteral($stdObject, $mainModel, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
-		throw new \Exception('cannot build OnLiteral from stdClass object');
+	public function exportDebug() {
+		$array = [];
+		return $this->export($array);
 	}
 	
 }

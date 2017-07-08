@@ -11,6 +11,8 @@
 
 namespace Comhon\Database;
 
+use Comhon\Logic\Formula;
+
 class SelectQuery {
 
 	/** @var string */
@@ -54,10 +56,10 @@ class SelectQuery {
 	/** @var array */
 	private $joinedTables = [];
 
-	/** @var WhereLiteral|WhereLogicalJunction */
+	/** @var \Comhon\Logic\Formula */
 	private $where;
 	
-	/** @var HavingLiteral|HavingLogicalJunction */
+	/** @var \Comhon\Logic\Formula */
 	private $having;
 	
 	/** @var integer */
@@ -150,7 +152,8 @@ class SelectQuery {
 	}
 	
 	/**
-	 * get table focus
+	 * get the focused table
+	 * 
 	 * @return TableNode
 	 */
 	public function getTableFocus() {
@@ -172,9 +175,10 @@ class SelectQuery {
 	 * 
 	 * update focus on new joined table
 	 * 
-	 * @param string $joinType [self::INNER_JOIN, self::LEFT_JOIN, self::RIGHT_JOIN, self::FULL_JOIN]
+	 * @param string $joinType 
+	 *            [self::INNER_JOIN, self::LEFT_JOIN, self::RIGHT_JOIN, self::FULL_JOIN]
 	 * @param string|TableNode $table
-	 * @param OnLiteral|OnLogicalJunction $on determine on which colmuns join will be applied
+	 * @param \Comhon\Logic\Formula $on determine on which colmuns join will be applied
 	 * @return \Comhon\Database\TableNode
 	 */
 	public function join($joinType, $table, $on) {
@@ -197,41 +201,23 @@ class SelectQuery {
 	/**
 	 * set where conditions
 	 * 
-	 * @param WhereLiteral|WhereLogicalJunction $where
+	 * @param \Comhon\Logic\Formula $where
 	 * @return SelectQuery
 	 */
-	public function where($where) {
+	public function where(Formula $where) {
 		$this->where = $where;
 		return $this;
 	}
 	
 	/**
-	 * get where conditions
-	 *
-	 * @return WhereLiteral|WhereLogicalJunction
-	 */
-	public function getWhere() {
-		return $this->where;
-	}
-	
-	/**
 	 * set having conditions
 	 *
-	 * @param HavingLiteral|HavingLogicalJunction $having
+	 * @param \Comhon\Logic\Formula $having
 	 * @return SelectQuery
 	 */
 	public function having($having) {
 		$this->having = $having;
 		return $this;
-	}
-	
-	/**
-	 * get having conditions
-	 *
-	 * @return HavingLiteral|HavingLogicalJunction
-	 */
-	public function getHaving() {
-		return $this->having;
 	}
 	
 	/**
@@ -319,8 +305,8 @@ class SelectQuery {
 	
 		$query = 'SELECT '.$this->_getColumnsForQuery().' FROM '.$this->_exportJoinedTables($values);
 	
-		if (!is_null($clause = $this->_getClauseForQuery($this->where, $values))) {
-			$query .= ' WHERE '.$clause;
+		if (!is_null($this->where) && !is_null($conditions = $this->_getConditions($this->where, $values))) {
+			$query .= ' WHERE '.$conditions;
 		}
 		if (!empty($this->group)) {
 			$group = [];
@@ -336,8 +322,8 @@ class SelectQuery {
 			}
 			$query .= ' ORDER BY '.implode(',', $order);
 		}
-		if (!is_null($clause = $this->_getClauseForQuery($this->having, $values))) {
-			$query .= ' HAVING '.$clause;
+		if (!is_null($this->having) && !is_null($conditions = $this->_getConditions($this->having, $values))) {
+			$query .= ' HAVING '.$conditions;
 		}
 		if (!is_null($this->limit)) {
 			if (empty($this->order)) {
@@ -394,21 +380,19 @@ class SelectQuery {
 	}
 	
 	/**
-	 * export strigified clause query (WHERE ...), extract values for query and put them in $values
+	 * export stringified conditions query, extract values for query and put them in $values
 	 * 
-	 * @param LogicalJunction|null $logicalJunction
+	 * @param \Comhon\Logic\Formula $formula
 	 * @param mixed[] $values
 	 * @return string|null
 	 */
-	private function _getClauseForQuery($logicalJunction, &$values) {
-		$clause = null;
-		if (!is_null($logicalJunction)) {
-			$queryLiterals = $logicalJunction->export($values);
-			if ($queryLiterals != '') {
-				$clause = $queryLiterals;
-			}
+	private function _getConditions(Formula $formula, &$values) {
+		$conditions = null;
+		$result = $formula->export($values);
+		if ($result != '') {
+			$conditions = $result;
 		}
-		return $clause;
+		return $conditions ;
 	}
 	
 	/**

@@ -8,9 +8,9 @@ $Json = '{
 	"model" : "mainTestDb",
 	"requestChildren" : true,
 	"loadForeignProperties" : true,
-	"logicalJunction" : {
+	"filter" : {
 		"type" : "conjunction",
-		"literals" : [
+		"elements" : [
 			{
 				"model"    : "mainTestDb",
 				"property" : "name",
@@ -59,9 +59,9 @@ $Json = '{
 	"model" : "mainTestDb",
 	"requestChildren" : true,
 	"loadForeignProperties" : true,
-	"logicalJunction" : {
+	"filter" : {
 		"type" : "conjunction",
-		"literals" : [
+		"elements" : [
 			{
 				"model"    : "mainTestDb",
 				"property" : "name",
@@ -111,9 +111,10 @@ $Json = '{
 	"model" : "childTestDb",
 	"requestChildren" : true,
 	"loadForeignProperties" : true,
-	"logicalJunction" : {
+	"order" : [{"property":"id", "type":"ASC"}],
+	"filter" : {
 		"type" : "conjunction",
-		"literals" : [
+		"elements" : [
 			{
 				"model"    : "testDb",
 				"property" : "string",
@@ -134,7 +135,7 @@ $Json = '{
 // GROUP  BY child_test.id 
 
 $result = ObjectService::getObjects(json_decode($Json), true);
-if (json_encode($result) !== '{"success":true,"result":[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]}') {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]}')) {
 	throw new \Exception('bad result');
 }
 

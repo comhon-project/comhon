@@ -20,7 +20,7 @@
             "properties": [
                 {
                     "name": "tatooArtist",
-                    "type": "person",
+                    "type": "\\person",
                     "is_foreign": true
                 }
             ]
@@ -31,7 +31,7 @@
             "properties": [
                 {
                     "name": "piercer",
-                    "type": "person",
+                    "type": "\\person",
                     "is_foreign": true
                 }
             ]
@@ -68,43 +68,43 @@
             "type": "string"
         },
         {
+            "name": "physicalAppearance",
+            "type": "string",
             "enum": [
                 "slim",
                 "average",
                 "athletic",
                 "muscular",
                 "fat"
-            ],
-            "name": "physicalAppearance",
-            "type": "string"
+            ]
         },
         {
+            "name": "tatoos",
+            "type": "array",
             "values": {
                 "type": "tatoo",
                 "name": "tatoo"
-            },
-            "name": "tatoos",
-            "type": "array"
+            }
         },
         {
+            "name": "piercings",
+            "type": "array",
             "values": {
                 "type": "piercing",
                 "name": "piercing"
-            },
-            "name": "piercings",
-            "type": "array"
+            }
         },
         {
+            "name": "arts",
+            "type": "array",
             "values": {
                 "type": "art",
                 "name": "art"
-            },
-            "name": "arts",
-            "type": "array"
+            }
         },
         {
             "name": "owner",
-            "type": "person",
+            "type": "\\person",
             "is_foreign": true
         }
     ]

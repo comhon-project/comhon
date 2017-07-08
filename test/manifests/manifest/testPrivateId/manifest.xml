@@ -20,9 +20,9 @@
 		<property is_foreign="1" type="array" name="foreignObjectValues">
 			<values type="object" name="foreignObjectValue"/>
 		</property>
-		<property is_foreign="1" type="testPrivateId" name="foreignTestPrivateId"/>
+		<property is_foreign="1" type="\testPrivateId" name="foreignTestPrivateId"/>
 		<property is_foreign="1" type="array" name="foreignTestPrivateIds">
-			<values type="testPrivateId" name="foreignTestPrivateId"/>
+			<values type="\testPrivateId" name="foreignTestPrivateId"/>
 		</property>
 	</properties>
 </manifest>

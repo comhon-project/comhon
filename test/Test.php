@@ -312,19 +312,17 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Re
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueRestrictionTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'SelectQueryTest.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'FormulaTest.php';
 
-// request local model with namespace mainmodel\localmodel
-// localModel getFullyQualifiedName
 // add percent, index
 // add error code (verifvalue precise model if differents (instead of class that are the same))
-// add Php doc
 
 // composer
 // remove warnings use
 
 // for version > 2.0
 // replace self tests by phpunit tests
-// allow recursively local model and request them with namespace main\local\sub-local\sub-sub-local\...
+// autoloading manifest
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)
 // transaction serialization
 // allow to active only one value among several values (a or b might be set but not a and b)

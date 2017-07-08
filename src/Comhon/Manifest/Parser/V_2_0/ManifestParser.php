@@ -30,17 +30,13 @@ use Comhon\Interfacer\XMLInterfacer;
 class ManifestParser extends ParentManifestParser {
 
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\ManifestParser::getExtends()
 	 */
 	public function getExtends() {
-		if ($this->focusLocalTypes) {
-			$current = current($this->localTypes);
-			return $this->interfacer->getValue($current, self::_EXTENDS);
-		} else {
-			return $this->interfacer->getValue($this->manifest, self::_EXTENDS);
-		}
+		$currentNode = $this->focusLocalTypes ? current($this->localTypes) : $this->manifest;
+		return $this->interfacer->getValue($currentNode, self::_EXTENDS);
 	}
 	
 	/**
@@ -275,7 +271,7 @@ class ManifestParser extends ParentManifestParser {
 	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\ManifestParser::registerComplexLocalModels()
 	 */
-	public function registerComplexLocalModels(&$instanceModels, $manifestPath_ad) {
+	public function registerComplexLocalModels(&$instanceModels, $manifestPath_ad, $namespace) {
 		if ($this->interfacer->hasValue($this->manifest, 'manifests', true)) {
 			$list = $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, 'manifests', true), true);
 			if ($this->interfacer instanceof XMLInterfacer) {
@@ -284,10 +280,11 @@ class ManifestParser extends ParentManifestParser {
 				}
 			}
 			foreach ($list as $type => $manifestPath_rfe) {
-				if (array_key_exists($type, $instanceModels)) {
+				$fullyQualifiedName = $namespace . '\\' . $type;
+				if (array_key_exists($fullyQualifiedName, $instanceModels)) {
 					throw new \Exception("several model with same type : '$type'");
 				}
-				$instanceModels[$type] = [$manifestPath_ad.'/'.$manifestPath_rfe, null];
+				$instanceModels[$fullyQualifiedName] = [$manifestPath_ad.'/'.$manifestPath_rfe, null];
 			}
 		}
 	}

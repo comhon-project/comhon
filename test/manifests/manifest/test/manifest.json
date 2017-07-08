@@ -1,7 +1,7 @@
 {
     "version": "2.0",
     "manifests": {
-        "personLocal": "..\/personLocal\/manifest.xml"
+        "personLocal": "..\/personLocal\/manifest.json"
     },
     "types": [
         {
@@ -73,7 +73,7 @@
             "properties": [
                 {
                     "name": "parent",
-                    "type": "test",
+                    "type": "\\test",
                     "is_foreign": true
                 },
                 {
@@ -114,35 +114,37 @@
             "type": "object"
         },
         {
+            "name": "objectValues",
+            "type": "array",
             "values": {
                 "type": "object",
                 "name": "objectValue"
-            },
-            "name": "objectValues",
-            "type": "array"
+            }
         },
         {
             "name": "objectContainer",
             "type": "objectContainer"
         },
         {
+            "name": "foreignObjectValues",
+            "type": "array",
             "values": {
                 "type": "object",
                 "name": "foreignObjectValue"
             },
-            "name": "foreignObjectValues",
-            "type": "array",
             "is_foreign": true
         },
         {
+            "name": "enumValue",
+            "type": "string",
             "enum": [
                 "plop1",
                 "plop2"
-            ],
-            "name": "enumValue",
-            "type": "string"
+            ]
         },
         {
+            "name": "enumIntArray",
+            "type": "array",
             "values": {
                 "type": "integer",
                 "name": "enumArrayValue",
@@ -150,11 +152,11 @@
                     1,
                     3
                 ]
-            },
-            "name": "enumIntArray",
-            "type": "array"
+            }
         },
         {
+            "name": "enumFloatArray",
+            "type": "array",
             "values": {
                 "type": "float",
                 "name": "enumArrayValue",
@@ -162,9 +164,7 @@
                     1.5,
                     3.5
                 ]
-            },
-            "name": "enumFloatArray",
-            "type": "array"
+            }
         },
         {
             "name": "objectRefParent",

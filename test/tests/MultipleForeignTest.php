@@ -108,7 +108,8 @@ if (json_encode($parentObject->getValue('childrenTestDb')->export($stdPrivateInt
 
 /********************************************** test save *******************************************/
 
-$dbHandler = DatabaseController::getInstanceWithDataBaseId(1);
+$databaseId  = ModelManager::getInstance()->getInstanceModel('person')->getSerialization()->getSettings()->getValue('database')->getId();
+$dbHandler = DatabaseController::getInstanceWithDataBaseId($databaseId);
 $object->unsetValue('id');
 
 if (!is_null($object->getValue('id'))) {
@@ -116,8 +117,9 @@ if (!is_null($object->getValue('id'))) {
 }
 $statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
 $result = $statement->fetchAll();
-if ($result[0][0] !== '2') {
-	throw new Exception('bad count');
+$count = (integer) $result[0][0];
+if ($count !== 2) {
+	throw new Exception('bad count '.$result[0][0]);
 }
 
 if ($object->save() !== 1) {
@@ -129,7 +131,8 @@ if (is_null($object->getValue('id'))) {
 }
 $statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
 $result = $statement->fetchAll();
-if ($result[0][0] !== '3') {
+$count = (integer) $result[0][0];
+if ($count !== 3) {
 	throw new Exception('bad count');
 }
 
@@ -167,7 +170,8 @@ if (count($object->getUpdatedValues()) !== 0) {
 
 $statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
 $result = $statement->fetchAll();
-if ($result[0][0] !== '3') {
+$count = (integer) $result[0][0];
+if ($count !== 3) {
 	throw new Exception('bad count');
 }
 
@@ -177,7 +181,8 @@ if ($object->delete() !== 1) {
 
 $statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
 $result = $statement->fetchAll();
-if ($result[0][0] !== '2') {
+$count = (integer) $result[0][0];
+if ($count !== 2) {
 	throw new Exception('bad count');
 }
 

@@ -22,7 +22,7 @@ class DatabaseController {
 	/** @var string */
 	const PGSQL = 'pgsql';
 
-	/** @var string[] */
+	/** @var DatabaseController[] */
 	private static $instances = [];
 	
 	/** @var string[] */
@@ -36,7 +36,7 @@ class DatabaseController {
 		'mysql' => null,
 		//'oci' => 'RETURNING',
 		//'odbc'
-		//'pgsql' => 'RETURNING',
+		'pgsql' => 'RETURNING',
 		//'sqlite' => 'OUTPUT',
 		//'4D'
 	];
@@ -95,7 +95,7 @@ class DatabaseController {
 		$this->dbHandle = new \PDO($dataSourceName, $dbReference->getValue('user'), $dbReference->getValue('password'));
 		$this->isSupportedLastInsertId = in_array($dbReference->getValue('DBMS'), self::$supportedLastInsertId);
 		$this->insertReturn = self::$insertReturns[$dbReference->getValue('DBMS')];
-		$this->_setDatabaseOptions();
+		$this->_setDatabaseOptions($dbReference);
 	}
 	
 	/**
@@ -116,20 +116,79 @@ class DatabaseController {
 		return $this->insertReturn;
 	}
 	
-	private function  _setDatabaseOptions() {
+	/**
+	 * set database options
+	 * 
+	 * @param ObjectUnique $dbReference
+	 * @throws \Exception
+	 */
+	private function _setDatabaseOptions(ObjectUnique $dbReference) {
+		switch ($dbReference->getValue('DBMS')) {
+			case 'mysql':
+				$this->_setDatabaseOptionsMySql();
+				break;
+			case 'pgsql':
+				$this->_setDatabaseOptionsPgSql();
+				break;
+			//case 'cubrid':
+			//case 'dblib':
+			//case 'firebird':
+			//case 'ibm':
+			//case 'informix':
+			//case 'sqlsrv':
+			//case 'oci':
+			//case 'odbc':
+			//case 'sqlite':
+			//case '4D':
+			default: 
+				throw new \Exception("DBMS '{$this->settings->getValue('database')->getValue('DBMS')}' not managed");
+		}
+	}
+	
+	/**
+	 * get offset from time zone defined in config
+	 * 
+	 * @return string
+	 */
+	private function _getTimeZoneOffset() {
 		$date               = new \DateTime('now', new \DateTimeZone(Config::getInstance()->getDataBaseTimezone()));
 		$totalOffsetSeconds = $date->getOffset();
 		$offsetOperator     = ($totalOffsetSeconds >= 0) ? '+' : '-';
 		$offsetHours        = floor(abs($totalOffsetSeconds) / 3600);
 		$offsetMinutes      = floor((abs($totalOffsetSeconds) % 3600) / 60);
-		$offset             = $offsetOperator . $offsetHours . ':' . $offsetMinutes;
+		return $offsetOperator . $offsetHours . ':' . $offsetMinutes;
+	}
+	
+	/**
+	 * set database options
+	 * 
+	 * @throws \Exception
+	 */
+	private function _setDatabaseOptionsMySql() {
+		if ($this->dbHandle->exec('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';') === false) {
+			throw new \Exception('error set names database');
+		}
+		if ($this->dbHandle->exec("SET time_zone = '{$this->_getTimeZoneOffset()}';") === false) {
+			throw new \Exception('error set timezone database');
+		}
 		
-		$this->dbHandle->exec('SET NAMES '.Config::getInstance()->getDataBaseCharset().';');
-		$this->dbHandle->exec("SET time_zone = '$offset';");
-
 		// do not transform int to string (I fail to make it works)
 		// $this->dbHandle->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
 		// $this->dbHandle->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
+	}
+	
+	/**
+	 * set database options
+	 * 
+	 * @throws \Exception
+	 */
+	private function _setDatabaseOptionsPgSql() {
+		if ($this->dbHandle->exec('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';') === false) {
+			throw new \Exception('error set names database');
+		}
+		if ($this->dbHandle->exec("SET time zone  '{$this->_getTimeZoneOffset()}';") === false) {
+			throw new \Exception('error set timezone database');
+		}
 	}
 
 	/**
@@ -139,11 +198,7 @@ class DatabaseController {
 	 * @return DatabaseController|null
 	 */
 	public static function getInstanceWithDataBaseId($id) {
-		$return = null;
-		if (array_key_exists($id, self::$instances)) {
-			$return = self::$instances[$id];
-		}
-		return $return;
+		return array_key_exists($id, self::$instances) ? self::$instances[$id] : null;
 	}
 	
 	/**
@@ -153,20 +208,20 @@ class DatabaseController {
 	 * @return DatabaseController
 	 */
 	public static function getInstanceWithDataBaseObject(ObjectUnique $dbReference) {
-		$return = null;
+		$databaseController = null;
 		if (!$dbReference->hasValue('id')) {
 			throw new \Exception('malformed database reference');
 		}
 		$id = $dbReference->getValue('id');
 		if (array_key_exists($id, self::$instances)) {
-			$return = self::$instances[$id];
+			$databaseController = self::$instances[$id];
 		}else if ($dbReference->hasValues(['id', 'DBMS', 'host', 'name', 'user', 'password'])) {
-			$return = new DatabaseController($dbReference);
-			self::$instances[$id] = $return;
+			$databaseController = new DatabaseController($dbReference);
+			self::$instances[$id] = $databaseController;
 		}else {
 			throw new \Exception('malformed database reference');
 		}
-		return $return;
+		return $databaseController;
 	}
 	
 	/**

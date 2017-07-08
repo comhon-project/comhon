@@ -81,24 +81,24 @@
             "type": "object"
         },
         {
+            "name": "objectValues",
+            "type": "array",
             "values": {
                 "type": "object",
                 "name": "objectValue"
-            },
-            "name": "objectValues",
-            "type": "array"
+            }
         },
         {
             "name": "objectContainer",
             "type": "objectContainer"
         },
         {
+            "name": "foreignObjectValues",
+            "type": "array",
             "values": {
                 "type": "object",
                 "name": "foreignObjectValue"
             },
-            "name": "foreignObjectValues",
-            "type": "array",
             "is_foreign": true
         }
     ]

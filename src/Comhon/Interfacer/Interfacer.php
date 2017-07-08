@@ -20,15 +20,15 @@ abstract class Interfacer {
 	
 	/**
 	 * @var string preference name that define private context 
-	 *     private properties are interfaced only in private content
+	 *     private properties are interfaced only in private context
 	 */
 	const PRIVATE_CONTEXT        = 'privateContext';
 	
 	/**
 	 * @var string define serial context 
-	 *     interface properies with their serialization name
-	 *     do not interface aggregations
-	 *     simplify foreign values with inherited main model
+	 *     - interface properies with their serialization name
+	 *     - do not interface aggregations
+	 *     - simplify foreign values with inherited main model
 	 */
 	const SERIAL_CONTEXT = 'serialContext';
 	

@@ -4,7 +4,7 @@
 		<property type="integer" is_id="1" name="id"/>
 		<property type="string" name="beginDate"/>
 		<property type="string" name="endDate"/>
-		<property is_foreign="1" type="person" name="person"/>
-		<property is_foreign="1" type="house" name="house"/>
+		<property is_foreign="1" type="\person" name="person"/>
+		<property is_foreign="1" type="\house" name="house"/>
 	</properties>
 </manifest>

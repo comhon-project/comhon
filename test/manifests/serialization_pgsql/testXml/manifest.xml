@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0">
+	<serialization type="xmlFile">
+		<value saticPath="/var/data/test_xml" staticName="test.xml"/>
+	</serialization>
+</manifest>

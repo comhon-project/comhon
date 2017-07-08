@@ -1,0 +1,39 @@
+{
+    "version": "2.0",
+    "serialization": {
+        "type": "sqlTable",
+        "inheritanceKey": "sex",
+        "id": "public.person"
+    },
+    "properties": {
+        "firstName": {
+            "serializationName": "first_name"
+        },
+        "birthDate": {
+            "serializationName": "birth_date"
+        },
+        "birthPlace": {
+            "serializationName": "birth_place"
+        },
+        "bestFriend": {
+            "serializationName": "best_friend"
+        },
+        "father": {
+            "serializationName": "father_id"
+        },
+        "mother": {
+            "serializationName": "mother_id"
+        },
+        "children": {
+            "aggregations": [
+                "mother",
+                "father"
+            ]
+        },
+        "homes": {
+            "aggregations": [
+                "person"
+            ]
+        }
+    }
+}

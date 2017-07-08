@@ -68,9 +68,9 @@ $Json = '{
 			}
 		}
 	],
-	"logicalJunction" : {
+	"filter" : {
 		"type" : "conjunction",
-		"literals" : [
+		"elements" : [
 			{
 				"node"     : "t_1",
 				"property" : "firstName",
@@ -97,9 +97,9 @@ $Json = '{
 						"property" : "house"
 					}
 				},
-				"havingLogicalJunction" : {
+				"havingClause" : {
 					"type" : "conjunction",
-					"literals" : [
+					"elements" : [
 						{
 							"function" : "AVG",
 							"property" : "surface",
@@ -114,12 +114,10 @@ $Json = '{
 					]
 				}
 			},
-			{"id" : "l1"}
-		],
-		"logicalJunctions" : [
+			{"id" : "l1"},
 			{
 				"type" : "conjunction",
-				"literals" : [
+				"elements" : [
 					{
 						"node"    : "house",
 						"property" : "surface",
@@ -143,8 +141,7 @@ $Json = '{
 					},
 					{"id" : "l1"},
 					{"id" : "l2"}
-				],
-				"logicalJunctions" : []
+				]
 			}
 		]
 	}
@@ -215,7 +212,7 @@ $Json = '{
 
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result),  '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
+if (!compareJson(json_encode($result),  '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"man"},{"id":6,"__inheritance__":"man"},{"id":11,"__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -238,7 +235,7 @@ $Json = '{
 			}
 		]
 	},
-	"literal" : {
+	"filter" : {
 		"node"     : "houseux",
 		"property" : "surface",
 		"operator" : "=",
@@ -249,7 +246,7 @@ $Json = '{
 // SELECT p1.* FROM  person AS p1 left join home AS homes on p1.id = homes.person_id left join house AS houseux on homes.house_id = houseux.id_serial  WHERE (houseux.surface = 120) GROUP BY p1.id
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"man"},{"id":6,"__inheritance__":"man"},{"id":11,"__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -261,7 +258,7 @@ $Json = '{
 		"model"   : "person",
 		"id"      : "p1"
 	},
-	"literal" : {
+	"filter" : {
 		"node"     : "p1",
 		"property" : "firstName",
 		"operator" : "=",
@@ -272,7 +269,7 @@ $Json = '{
 // SELECT * FROM  person AS p1  WHERE (p1.first_name = Bernard) GROUP BY p1.id
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"man"},{"id":6,"__inheritance__":"man"},{"id":11,"__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 

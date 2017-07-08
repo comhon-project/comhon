@@ -8,9 +8,9 @@ $Json = '{
 	"model" : "person",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
-	"logicalJunction" : {
+	"filter" : {
 		"type" : "conjunction",
-		"literals" : [
+		"elements" : [
 			{
 				"model"    : "person",
 				"property" : "firstName",
@@ -26,9 +26,9 @@ $Json = '{
 			{
 				"model"     : "person",
 				"queue"     : {"property" : "children"},
-				"havingLogicalJunction" : {
+				"havingClause" : {
 					"type" : "conjunction",
-					"literals" : [
+					"elements" : [
 						{
 							"function" : "COUNT",
 							"operator" : ">",
@@ -56,12 +56,10 @@ $Json = '{
 					"operator" : "=",
 					"value"    : 170
 				}
-			}
-		],
-		"logicalJunctions" : [
+			},
 			{
 				"type" : "conjunction",
-				"literals" : [
+				"elements" : [
 					{
 						"model"    : "house",
 						"property" : "surface",
@@ -71,9 +69,9 @@ $Json = '{
 					{
 						"model"     : "person",
 						"queue"     : {"property" : "homes"},
-						"havingLogicalJunction" : {
+						"havingClause" : {
 							"type" : "disjunction",
-							"literals" : [
+							"elements" : [
 								{
 									"function" : "COUNT",
 									"operator" : ">=",
@@ -83,12 +81,10 @@ $Json = '{
 									"function" : "COUNT",
 									"operator" : ">",
 									"value"    : 2
-								}
-							],
-							"logicalJunctions" : [
+								},
 								{
 									"type" : "conjunction",
-									"literals" : [
+									"elements" : [
 										{
 											"function" : "COUNT",
 											"operator" : ">=",
@@ -110,8 +106,7 @@ $Json = '{
 						"operator" : "=",
 						"value"    : "Montpellier"
 					}
-				],
-				"logicalJunctions" : []
+				]
 			}
 		]
 	}
@@ -120,7 +115,7 @@ $Json = '{
 $time_start_intermediaire = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
 $time_intermediaire = microtime(true) - $time_start_intermediaire;
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"man"},{"id":6,"__inheritance__":"man"},{"id":11,"__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -153,9 +148,9 @@ $Json = '{
 			}
 		]
 	},
-	"logicalJunction" : {
+	"filter" : {
 		"type" : "conjunction",
-		"literals" : [
+		"elements" : [
 			{
 				"node"     : "person",
 				"property" : "firstName",
@@ -171,9 +166,9 @@ $Json = '{
 			{
 				"node"      : "person",
 				"queue"     : {"property" : "children"},
-				"havingLogicalJunction" : {
+				"havingClause" : {
 					"type" : "conjunction",
-					"literals" : [
+					"elements" : [
 						{
 							"function" : "COUNT",
 							"operator" : ">",
@@ -201,12 +196,10 @@ $Json = '{
 					"operator" : "=",
 					"value"    : 170
 				}
-			}
-		],
-		"logicalJunctions" : [
+			},
 			{
 				"type" : "conjunction",
-				"literals" : [
+				"elements" : [
 					{
 						"node"     : "house",
 						"property" : "surface",
@@ -216,9 +209,9 @@ $Json = '{
 					{
 						"node"      : "person",
 						"queue"     : {"property" : "homes"},
-						"havingLogicalJunction" : {
+						"havingClause" : {
 							"type" : "disjunction",
-							"literals" : [
+							"elements" : [
 								{
 									"function" : "COUNT",
 									"operator" : ">=",
@@ -228,12 +221,10 @@ $Json = '{
 									"function" : "COUNT",
 									"operator" : ">",
 									"value"    : 2
-								}
-							],
-							"logicalJunctions" : [
+								},
 								{
 									"type" : "conjunction",
-									"literals" : [
+									"elements" : [
 										{
 											"function" : "COUNT",
 											"operator" : ">=",
@@ -255,8 +246,7 @@ $Json = '{
 						"operator" : "=",
 						"value"    : "Montpellier"
 					}
-				],
-				"logicalJunctions" : []
+				]
 			}
 		]
 	}
@@ -265,7 +255,7 @@ $Json = '{
 $time_start_complex = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
 $time_complex = microtime(true) - $time_start_complex;
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"man"},{"id":6,"__inheritance__":"man"},{"id":11,"__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -279,7 +269,7 @@ $Json = '{
 	"model" : "person",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
-	"literal" : {
+	"filter" : {
 		"model" : "home",
 		"property" : "id",
 		"operator" : "=",
@@ -290,7 +280,7 @@ $Json = '{
 $time_start_intermediaire = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
 $time_intermediaire = microtime(true) - $time_start_intermediaire;
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"man"},{"id":6,"__inheritance__":"man"},{"id":11,"__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -307,7 +297,7 @@ $Json = '{
 			}
 		]
 	},
-	"literal" : {
+	"filter" : {
 		"node"     : "homeux",
 		"property" : "id",
 		"operator" : "=",
@@ -318,7 +308,7 @@ $Json = '{
 $time_start_complex = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
 $time_complex = microtime(true) - $time_start_complex;
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"man"},{"id":6,"__inheritance__":"man"},{"id":11,"__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 

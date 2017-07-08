@@ -1,15 +1,15 @@
 {
     "version": "2.0",
     "object": "Object\\Woman",
-    "extends": "person",
+    "extends": "\\person",
     "properties": [
         {
-            "values": {
-                "type": "womanBody",
-                "name": "body"
-            },
             "name": "bodies",
             "type": "array",
+            "values": {
+                "type": "\\womanBody",
+                "name": "body"
+            },
             "is_foreign": true
         }
     ]

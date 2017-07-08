@@ -11,22 +11,26 @@
 
 namespace Comhon\Database;
 
-class NotNullJoinLiteral extends Literal {
+use Comhon\Logic\Clause;
+use Comhon\Logic\Literal;
+
+class NotNullJoinLiteral extends DbLiteral {
 
 	/** @var Conjunction */
 	private $conjunction;
 	
 	public function __construct() {
-		$this->conjunction = new Conjunction();
+		$this->conjunction = new Clause(Clause::CONJUNCTION);
 	}
 	
 	/**
+	 * add literal
 	 * 
 	 * @param TableNode|string $table
 	 * @param string $column
 	 */
 	public function addLiteral($table, $column) {
-		$this->conjunction->addLiteral(new Literal($table, $column, Literal::DIFF, null));
+		$this->conjunction->addLiteral(new SimpleDbLiteral($table, $column, Literal::DIFF, null));
 	}
 	
 	
@@ -41,25 +45,13 @@ class NotNullJoinLiteral extends Literal {
 	}
 	
 	/**
-	 * 
-	 * @param \stdClass $stdObject
-	 * @throws \Exception
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Logic\Formula::exportDebug()
 	 */
-	private static function _verifStdObject($stdObject) {
-		throw new \Exception('cannot build NotNullLiteral from stdClass object');
-	}
-	
-	/**
-	 * @param \stdClass $stdObject
-	 * @param \Comhon\Model\MainModel $mainModel
-	 * @param Literal[] $literalCollection used if $stdObject contain only an id that reference literal in collection
-	 * @param SelectQuery $selectQuery
-	 * @param boolean $allowPrivateProperties
-	 * @throws \Exception
-	 * @return Literal
-	 */
-	public static function stdObjectToLiteral($stdObject, $mainModel, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
-		throw new \Exception('cannot build NotNullLiteral from stdClass object');
+	public function exportDebug() {
+		$array = [];
+		return $this->export($array);
 	}
 	
 }

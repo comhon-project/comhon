@@ -52,7 +52,7 @@ abstract class ManifestParser {
 	
 	/** @var string */
 	const XML_ATTRIBUTE = 'attribute';
-
+	
 	/** @var mixed */
 	protected $manifest;
 	
@@ -76,7 +76,7 @@ abstract class ManifestParser {
 
 	/**
 	 * get extends model name
-	 * 
+	 *
 	 * @return string|null null if no extends model name
 	 */
 	abstract public function getExtends();
@@ -155,8 +155,9 @@ abstract class ManifestParser {
 	 * 
 	 * @param \Comhon\Model\Model[] $instanceModels
 	 * @param string $manifestPath_ad
+	 * @param string $namespace
 	 */
-	abstract public function registerComplexLocalModels(&$instanceModels, $manifestPath_ad);
+	abstract public function registerComplexLocalModels(&$instanceModels, $manifestPath_ad, $namespace);
 	
 	/**
 	 * @param \Comhon\Model\Model $model

@@ -85,14 +85,14 @@ if ($bodyModel->getProperty('owner') === $womanBodyModel->getProperty('owner')) 
 }
 
 $tatooModel = $womanBodyModel->getProperty('tatoos')->getModel()->getModel();
-if ($tatooModel->getName() !== 'tatoo') {
+if ($tatooModel->getName() !== 'body\\tatoo') {
 	throw new Exception('bad model name');
 }
 if (json_encode(array_keys($tatooModel->getProperties())) !== '["type","location","tatooArtist"]') {
 	throw new Exception('bad model properties');
 }
 $artModel = $tatooModel->getParent();
-$artModelTow = ModelManager::getInstance()->getInstanceModel('art', 'body');
+$artModelTow = ModelManager::getInstance()->getInstanceModel('body\art');
 
 if ($artModel !== $artModelTow) {
 	throw new Exception('not same instance of model');
@@ -106,20 +106,15 @@ if ($tatooModel->getProperty('location') !== $artModel->getProperty('location'))
 
 /** ************** test types defined in extended model ****************** **/
 
-$bodyTatooModel = ModelManager::getInstance()->getInstanceModel('tatoo', 'body');
-$womanBodyTatooModel = ModelManager::getInstance()->getInstanceModel('tatoo', 'womanBody');
+$bodyTatooModel = ModelManager::getInstance()->getInstanceModel('body\tatoo');
 
-if ($bodyTatooModel->getName() !== 'tatoo') {
+if ($bodyTatooModel->getName() !== 'body\tatoo') {
 	throw new Exception('bad model');
-}
-
-if ($bodyTatooModel !== $womanBodyTatooModel) {
-	throw new Exception('not same instance model');
 }
 
 $throw = false;
 try {
-	ModelManager::getInstance()->getInstanceModel('tatouage', 'womanBody');
+	ModelManager::getInstance()->getInstanceModel('womanBody\tatouage');
 	$throw = true;
 } catch (Exception $e) {
 }

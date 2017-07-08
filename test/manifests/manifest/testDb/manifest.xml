@@ -34,7 +34,7 @@
 		<property type="objectWithId" name="objectWithId"/>
 		<property type="string" is_private="1" name="string"/>
 		<property type="integer" name="integer"/>
-		<property is_foreign="1" type="mainTestDb" name="mainParentTestDb"/>
+		<property is_foreign="1" type="\mainTestDb" name="mainParentTestDb"/>
 		<property type="array" name="objectsWithId">
 			<values type="objectWithId" name="objectWithId"/>
 		</property>
@@ -44,14 +44,14 @@
 		<property is_foreign="1" type="objectWithId" name="lonelyForeignObject"/>
 		<property is_foreign="1" type="objectWithIdAndMore" name="lonelyForeignObjectTwo"/>
 		<property type="string" default="default" name="defaultValue"/>
-		<property is_foreign="1" type="manBodyJson" name="manBodyJson"/>
-		<property is_foreign="1" type="womanXml" name="womanXml"/>
+		<property is_foreign="1" type="\manBodyJson" name="manBodyJson"/>
+		<property is_foreign="1" type="\womanXml" name="womanXml"/>
 		<property type="string" name="notSerializedValue"/>
 		<property is_foreign="1" type="objectWithId" name="notSerializedForeignObject"/>
 		<property type="boolean" name="boolean"/>
 		<property type="boolean" name="boolean2"/>
 		<property is_foreign="1" type="array" name="childrenTestDb">
-			<values type="childTestDb" name="childTestDb"/>
+			<values type="\childTestDb" name="childTestDb"/>
 		</property>
 	</properties>
 </manifest>

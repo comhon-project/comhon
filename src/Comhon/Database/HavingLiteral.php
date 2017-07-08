@@ -11,10 +11,7 @@
 
 namespace Comhon\Database;
 
-class HavingLiteral extends Literal {
-
-	/** @var string */
-	private $function;
+class HavingLiteral extends DbLiteral {
 
 	/** @var string */
 	const COUNT = 'COUNT';
@@ -40,40 +37,38 @@ class HavingLiteral extends Literal {
 			self::MAX   => null
 	];
 	
+	/** @var string */
+	private $function;
+	
+	/** @var integer */
+	private $value;
+	
 	/**
 	 * 
 	 * @param string $function [self::COUNT, self::SUM, self::AVG, self::MIN, self::MAX]
 	 * @param TableNode|string $table table name or table object linked to literal
 	 * @param string $column
 	 * @param string $operator
-	 * @param string $value
+	 * @param integer $value
 	 */
 	public function __construct($function, $table, $column, $operator, $value) {
-		$this->function = $function;
-		parent::__construct($table, $column, $operator, $value);
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Database\Literal::_verifLiteral()
-	 */
-	protected function _verifLiteral() {
-		if (!array_key_exists($this->operator, self::$allowedOperators)) {
-			throw new \Exception('operator \''.$this->operator.'\' doesn\'t exists');
+		parent::__construct($table, $column, $operator);
+		
+		if (!array_key_exists($function, self::$allowedFunctions)) {
+			throw new \Exception('function \''.$function.'\' doesn\'t exists');
 		}
-		if (!array_key_exists($this->function, self::$allowedFunctions)) {
-			throw new \Exception('function \''.$this->function.'\' doesn\'t exists');
-		}
-		if (!is_int($this->value)) {
+		if (!is_int($value)) {
 			throw new \Exception('having literal must have an integer value');
 		}
+		
+		$this->function = $function;
+		$this->value = $value;
 	}
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Database\Literal::export()
+	 * @see \Comhon\Logic\Formula::export()
 	 */
 	public function export(&$values) {
 		$columnTable = is_null($this->column) ? '*'
@@ -82,6 +77,17 @@ class HavingLiteral extends Literal {
 	}
 	
 	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Logic\Formula::exportDebug()
+	 */
+	public function exportDebug() {
+		$array = [];
+		return $this->export($array);
+	}
+	
+	/**
+	 * verify if given object has expected format
 	 * 
 	 * @param \stdClass $stdObject
 	 * @throws \Exception

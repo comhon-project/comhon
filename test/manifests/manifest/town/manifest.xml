@@ -4,6 +4,6 @@
 		<property type="integer" is_id="1" name="id"/>
 		<property type="string" name="name"/>
 		<property type="integer" name="surface"/>
-		<property is_foreign="1" type="place" name="cityHall"/>
+		<property is_foreign="1" type="\place" name="cityHall"/>
 	</properties>
 </manifest>

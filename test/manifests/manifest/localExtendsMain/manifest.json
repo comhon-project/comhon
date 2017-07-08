@@ -1,10 +1,10 @@
 {
     "version": "2.0",
-    "extends": "test",
+    "extends": "\\test",
     "types": [
         {
             "name": "localPlace",
-            "extends": "place",
+            "extends": "\\place",
             "properties": [
                 {
                     "name": "stringValue",
@@ -21,11 +21,11 @@
     "properties": [
         {
             "name": "localExtendsMainObj",
-            "type": "place"
+            "type": "\\place"
         },
         {
             "name": "localExtendsMainObjForeign",
-            "type": "place",
+            "type": "\\place",
             "is_foreign": true
         }
     ]

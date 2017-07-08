@@ -12,7 +12,7 @@
         },
         {
             "name": "parentTestDb",
-            "type": "testDb",
+            "type": "\\testDb",
             "is_foreign": true
         }
     ]

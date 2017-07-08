@@ -1,0 +1,17 @@
+{
+    "version": "2.0",
+    "serialization": {
+        "type": "sqlTable",
+        "id": "public.house"
+    },
+    "properties": {
+        "id": {
+            "serializationName": "id_serial"
+        },
+        "residents": {
+            "aggregations": [
+                "house"
+            ]
+        }
+    }
+}

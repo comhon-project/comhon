@@ -7,7 +7,7 @@
 		<property type="boolean" name="garden"/>
 		<property type="boolean" name="garage"/>
 		<property is_foreign="1" type="array" name="residents">
-			<values type="home" name="resident"/>
+			<values type="\home" name="resident"/>
 		</property>
 	</properties>
 </manifest>

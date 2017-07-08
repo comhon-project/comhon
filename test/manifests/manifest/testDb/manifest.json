@@ -88,7 +88,7 @@
         },
         {
             "name": "mainParentTestDb",
-            "type": "mainTestDb",
+            "type": "\\mainTestDb",
             "is_foreign": true
         },
         {
@@ -125,12 +125,12 @@
         },
         {
             "name": "manBodyJson",
-            "type": "manBodyJson",
+            "type": "\\manBodyJson",
             "is_foreign": true
         },
         {
             "name": "womanXml",
-            "type": "womanXml",
+            "type": "\\womanXml",
             "is_foreign": true
         },
         {
@@ -154,7 +154,7 @@
             "name": "childrenTestDb",
             "type": "array",
             "values": {
-                "type": "childTestDb",
+                "type": "\\childTestDb",
                 "name": "childTestDb"
             },
             "is_foreign": true

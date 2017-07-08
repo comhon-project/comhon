@@ -514,5 +514,23 @@ if ($mainTestDb === $array->getValue(0) || $mainTestDb2 === $array->getValue(1))
 	throw new \Exception('bad object instance');
 }
 
+/** ****************************** test values of local model defined in distant manifest *********************************** **/
+
+$testXmlModel = ModelManager::getInstance()->getInstanceModel('testXml');
+$testXml = $testXmlModel->getObjectInstance();
+
+$testXml->initValue('objectContainer')
+		->initValue('person')
+		->initValue('recursiveLocal')
+		->initValue('anotherObjectWithIdAndMore')
+		->setValue('plop3', 'hahahaha');
+
+$interfacer = new StdObjectInterfacer();
+$interfacer->setPrivateContext(true);
+if (!compareJson(json_encode($testXml->export($interfacer)), '{"objectContainer":{"person":{"recursiveLocal":{"anotherObjectWithIdAndMore":{"plop3":"hahahaha"}}}}}')) {
+	throw new \Exception('bad value');
+}
+
+
 $time_end = microtime(true);
 var_dump('value test exec time '.($time_end - $time_start));

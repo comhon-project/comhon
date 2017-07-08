@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0">
+	<serialization type="jsonFile">
+		<value saticPath="/var/data/test" staticName="test.json"/>
+	</serialization>
+</manifest>

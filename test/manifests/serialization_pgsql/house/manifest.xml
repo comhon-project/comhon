@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0">
+	<serialization type="sqlTable" id="public.house"/>
+	<properties>
+		<id serializationName="id_serial"/>
+		<residents>
+			<aggregations>
+				<aggregation>house</aggregation>
+			</aggregations>
+		</residents>
+	</properties>
+</manifest>

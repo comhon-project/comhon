@@ -367,29 +367,6 @@ class MainModel extends Model {
 	}
 	
 	/**
-	 * get inherited model
-	 * 
-	 * @param string $inheritanceModelName
-	 * @param MainModel $mainModelContainer
-	 * @return Model;
-	 */
-	protected function _getIneritedModel($inheritanceModelName, MainModel $mainModelContainer) {
-		if (ModelManager::getInstance()->hasModel($inheritanceModelName)) {
-			$model = ModelManager::getInstance()->getInstanceModel($inheritanceModelName);
-			if (ModelManager::getInstance()->hasModel($inheritanceModelName, $mainModelContainer->getName())) {
-				throw new \Exception("cannot determine if model '$inheritanceModelName' is local or main model");
-			}
-			$model = ModelManager::getInstance()->getInstanceModel($inheritanceModelName);
-		} else {
-			$model = ModelManager::getInstance()->getInstanceModel($inheritanceModelName, $mainModelContainer->getName());
-		}
-		if (!$model->isInheritedFrom($this)) {
-			throw new \Exception("model '{$model->getName()}' doesn't inherit from '{$this->getName()}'");
-		}
-		return $model;
-	}
-	
-	/**
 	 * build object collection
 	 * 
 	 * @param \Comhon\Object\ComhonObject $object

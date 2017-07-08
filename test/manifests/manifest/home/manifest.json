@@ -16,12 +16,12 @@
         },
         {
             "name": "person",
-            "type": "person",
+            "type": "\\person",
             "is_foreign": true
         },
         {
             "name": "house",
-            "type": "house",
+            "type": "\\house",
             "is_foreign": true
         }
     ]

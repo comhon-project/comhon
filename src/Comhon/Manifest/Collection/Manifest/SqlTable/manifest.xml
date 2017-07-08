@@ -2,6 +2,6 @@
 <manifest version="2.0">
 	<properties>
 		<property type="string" is_id="1" name="name"/>
-		<property is_foreign="1" type="sqlDatabase" name="database"/>
+		<property is_foreign="1" type="\sqlDatabase" name="database"/>
 	</properties>
 </manifest>

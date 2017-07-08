@@ -13,9 +13,9 @@ $Json = '{
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
 	"properties" : ["date","timestamp","integer","string"],
-	"logicalJunction" : {
+	"filter" : {
 		"type" : "conjunction",
-		"literals" : [
+		"elements" : [
 			{
 				"model"    : "testDb",
 				"property" : "boolean2",
@@ -40,9 +40,9 @@ $Json = '{
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
-	"logicalJunction" : {
+	"filter" : {
 		"type" : "conjunction",
-		"literals" : [
+		"elements" : [
 			{
 				"model"    : "testDb",
 				"property" : "string",
@@ -67,15 +67,15 @@ $Json = '{
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
-	"logicalJunction" : {
+	"filter" : {
 		"type" : "conjunction",
-		"literals" : [
+		"elements" : [
 			{
 				"model"     : "mainTestDb",
 				"queue"     : {"property" : "childrenTestDb"},
-				"havingLogicalJunction" : {
+				"havingClause" : {
 					"type" : "conjunction",
-					"literals" : [
+					"elements" : [
 						{
 							"function" : "MAX",
 							"property" : "string",

@@ -45,19 +45,18 @@ class ModelManager {
 	 *     map that contain all main model and simple model instances
 	 *     an element may be a model if model is loaded
 	 *     an element may be an array that contain a non loaded model (with needed informations to load it)
-	 * 
 	 */
 	private $instanceModels;
 	
 	/**
-	 * @var [string => Comhon\Model\Model[]] 
-	 *     map that contain all local model instances grouped by main model name
-	 *     for each group : 
-	 *     an element may be a model if model is loaded
-	 *     an element may be an array that contain a non loaded model (with needed informations to load it)
-	 *
+	 * @var \Comhon\Model\SimpleModel[] map that contain all simple model instances
 	 */
-	private $instanceLocalModels= [];
+	private $instanceSimpleModels;
+	
+	/**
+	 * @var string namespace to apply on local models during manifest parsing
+	 */
+	private $currentNamespace;
 	
 	/**
 	 * @var \Comhon\Manifest\Parser\ManifestParser
@@ -107,75 +106,59 @@ class ModelManager {
 	 * register al simple model
 	 */
 	private function _registerSimpleModelClasses() {
-		$this->instanceModels = [
+		$this->instanceSimpleModels = [
 			ModelInteger::ID  => new ModelInteger(),
 			ModelFloat::ID    => new ModelFloat(),
 			ModelBoolean::ID  => new ModelBoolean(),
 			ModelString::ID   => new ModelString(),
 			ModelDateTime::ID => new ModelDateTime()
 		];
+		$this->instanceModels = $this->instanceSimpleModels;
 	}
 	
 	/**
 	 * verify if model has been registered
 	 * 
-	 * @param string $modelName name of wanted model
-	 * @param string $mainModelName if not null $modelName is considered as local model name
+	 * @param string $modelName fully qualified name of wanted model
 	 * @return boolean
 	 */
-	public function hasModel($modelName, $mainModelName = null) {
-		if (is_null($mainModelName)) {
-			return array_key_exists($modelName, $this->instanceModels);
-		} else {
-			return array_key_exists($mainModelName, $this->instanceLocalModels) && array_key_exists($modelName, $this->instanceLocalModels[$mainModelName]);
-		}
+	public function hasModel($modelName) {
+		return array_key_exists($modelName, $this->instanceModels);
 	}
 	
 	/**
 	 * verify if has model instance (not necessary loaded)
 	 *
-	 * @param string $modelName name of wanted model
-	 * @param string $mainModelName if not null $modelName is considered as local model name
+	 * @param string $modelName fully qualified name of wanted model
 	 * @throws \Exception if model has not been registered
 	 * @return boolean
 	 */
-	public function hasInstanceModel($modelName, $mainModelName = null) {
-		if (!$this->hasModel($modelName, $mainModelName)) {
+	public function hasInstanceModel($modelName) {
+		if (!$this->hasModel($modelName)) {
 			throw new \Exception("model $modelName doesn't exists");
 		}
-		if (is_null($mainModelName)) {
-			$instanceModels =& $this->instanceModels;
-		} else {
-			$instanceModels =& $this->instanceLocalModels[$mainModelName];
-		}
-		return is_object($instanceModels[$modelName]) || array_key_exists(2, $instanceModels[$modelName]);
+		return is_object($this->instanceModels[$modelName]) || array_key_exists(2, $this->instanceModels[$modelName]);
 	}
 	
 	/**
 	 * verify if model is loaded
 	 *
-	 * @param string $modelName name of wanted model
-	 * @param string $mainModelName if not null $modelName is considered as local model name
+	 * @param string $modelName fully qualified name of wanted model
 	 * @throws \Exception if model has not been registered
 	 * @return boolean
 	 */
-	public function isModelLoaded($modelName, $mainModelName = null) {
-		if (!$this->hasModel($modelName, $mainModelName)) {
+	public function isModelLoaded($modelName) {
+		if (!$this->hasModel($modelName)) {
 			throw new \Exception("model $modelName doesn't exists");
 		}
-		if (is_null($mainModelName)) {
-			$instanceModels =& $this->instanceModels;
-		} else {
-			$instanceModels =& $this->instanceLocalModels[$mainModelName];
-		}
-		if (is_object($instanceModels[$modelName])) {
-			if (!$instanceModels[$modelName]->isLoaded()) {
+		if (is_object($this->instanceModels[$modelName])) {
+			if (!$this->instanceModels[$modelName]->isLoaded()) {
 				throw new \Exception("$modelName must be loaded");
 			}
 			return true;
 		}
-		if (array_key_exists(2, $instanceModels[$modelName])) {
-			if ($instanceModels[$modelName][2]->isLoaded()) {
+		if (array_key_exists(2, $this->instanceModels[$modelName])) {
+			if ($this->instanceModels[$modelName][2]->isLoaded()) {
 				throw new \Exception("$modelName must be not loaded");
 			}
 			return false;
@@ -186,13 +169,11 @@ class ModelManager {
 	/**
 	 * get model instance
 	 * 
-	 * @param string $modelName name of wanted model
-	 * @param string $mainModelName if not null $modelName is considered as local model name
+	 * @param string $modelName fully qualified name of wanted model
 	 * @return \Comhon\Model\LocalModel|\Comhon\Model\MainModel
 	 */
-	public function getInstanceModel($modelName, $mainModelName = null) {
-		$return = $this->_getInstanceModel($modelName, $mainModelName, true);
-		$return->load();
+	public function getInstanceModel($modelName) {
+		$return = $this->_getInstanceModel($modelName, true);
 		return $return;
 	}
 	
@@ -201,49 +182,36 @@ class ModelManager {
 	 * 
 	 * unlike public method, retrieved model is not necessarily loaded
 	 * 
-	 * @param string $modelName name of wanted model
-	 * @param string $mainModelName if not null $modelName is considered as local model name
+	 * @param string $modelName fully qualified name of wanted model
 	 * @param boolean $loadModel true to load model not already instanciated
 	 * @throws \Exception
 	 * @return \Comhon\Model\Model
 	 */
-	private function _getInstanceModel($modelName, $mainModelName, $loadModel) {
-		if (is_null($mainModelName)) {
-			$instanceModels =& $this->instanceModels;
-		} else {
-			// call getInstanceModel() to be sure to have a loaded main model
-			$mainModel = $this->getInstanceModel($mainModelName);
-			if (!array_key_exists($modelName, $this->instanceLocalModels[$mainModelName])) {
-				$exists = false;
-				while (!is_null($mainModel->getParent()) && !$exists) {
-					$exists = array_key_exists($modelName, $this->instanceLocalModels[$mainModel->getParent()->getName()]);
-					$mainModel = $mainModel->getParent();
-				}
-				if ($exists) {
-					$mainModelName = $mainModel->getName();
-				}
+	private function _getInstanceModel($modelName, $loadModel) {
+		if (!array_key_exists($modelName, $this->instanceModels)) { // model doesn't exists in map
+			$this->loadIntermediateManifest($modelName);
+			if (!array_key_exists($modelName, $this->instanceModels)) {
+				throw new \Exception("model '$modelName' doesn't exists, you must define it");
 			}
-			$instanceModels =& $this->instanceLocalModels[$mainModelName];
 		}
-		if (!array_key_exists($modelName, $instanceModels)) { // model doesn't exists
-			$messageModel = is_null($mainModelName) ? "main model '$modelName'" : "local model '$modelName' in main model '$mainModelName'";
-			throw new \Exception("$messageModel doesn't exists, you must define it");
-		}
-		if (is_object($instanceModels[$modelName])) { // model already initialized
-			$return = $instanceModels[$modelName];
+		if (is_object($this->instanceModels[$modelName])) { // model already initialized
+			$return = $this->instanceModels[$modelName];
 		}else {
-			if (count($instanceModels[$modelName]) == 3) {
-				$return = $instanceModels[$modelName][2];
+			if (count($this->instanceModels[$modelName]) == 3) {
+				$return = $this->instanceModels[$modelName][2];
+				if ($loadModel) {
+					$return->load();
+				}
 			} else {
-				if (is_null($mainModelName)) {
+				if ($this->_isMainModel($modelName)) {
 					$return = new MainModel($modelName, $loadModel);
 				} else {
-					$return = new LocalModel($modelName, $mainModelName, $loadModel);
+					$return = new LocalModel($modelName, $loadModel);
 				}
 				
-				if (is_object($instanceModels[$modelName])) {
-					if ($instanceModels[$modelName] !== $return) {
-						throw new \Exception('already exists '.$modelName.' '.var_export($mainModelName, true));
+				if (is_object($this->instanceModels[$modelName])) {
+					if ($this->instanceModels[$modelName] !== $return) {
+						throw new \Exception('already exists '.$modelName);
 					}
 					if (!$loadModel) {
 						throw new \Exception('model has been loaded');
@@ -251,9 +219,9 @@ class ModelManager {
 				}
 				else { // else add model
 					if ($loadModel) {
-						$instanceModels[$modelName] = $return;
+						$this->instanceModels[$modelName] = $return;
 					} else {
-						$instanceModels[$modelName][] = $return;
+						$this->instanceModels[$modelName][] = $return;
 					}
 				}
 			}
@@ -262,22 +230,44 @@ class ModelManager {
 	}
 	
 	/**
+	 * try to load intermediate manifests
+	 * 
+	 * @param string $modelName
+	 * @throws \Exception
+	 */
+	private function loadIntermediateManifest($modelName) {
+		$explodedModelName = explode('\\', $modelName);
+		array_pop($explodedModelName);
+		
+		$intermediateModelName = $explodedModelName[0];
+		if (!array_key_exists($intermediateModelName, $this->instanceModels)) {
+			throw new \Exception("model '$intermediateModelName' doesn't exists, you must define it");
+		}
+		$this->_getInstanceModel($intermediateModelName, true);
+		
+		for ($i = 1; $i < count($explodedModelName); $i++) {
+			$intermediateModelName .= '\\' . $explodedModelName[$i];
+			if (!array_key_exists($intermediateModelName, $this->instanceModels)) {
+				throw new \Exception("model '$intermediateModelName' doesn't exists, you must define it");
+			}
+			$model = $this->_getInstanceModel($intermediateModelName, true);
+		}
+	}
+	
+	private function _isMainModel($modelName) {
+		return strpos($modelName, '\\') === false;
+	}
+	
+	/**
 	 * add loaded instance model
 	 * 
 	 * @param \Comhon\Model\Model $model
 	 */
 	private function _addInstanceModel(Model $model) {
-		if ($model instanceof LocalModel) {
-			$mainModel = $this->getInstanceModel($model->getMainModelName());
-			$instanceModels =& $this->instanceLocalModels[$model->getMainModelName()];
-		} else {
-			$instanceModels =& $this->instanceModels;
-		}
-		
-		if (is_object($instanceModels[$model->getName()])) {
+		if (is_object($this->instanceModels[$model->getName()])) {
 			throw new \Exception('model already added');
 		}
-		$instanceModels[$model->getName()] = $model;
+		$this->instanceModels[$model->getName()] = $model;
 	}
 	
 	/**
@@ -294,13 +284,7 @@ class ModelManager {
 	public function getProperties(Model $model) {
 		$return = null;
 		
-		if ($model instanceof LocalModel) {
-			$instanceModels =& $this->instanceLocalModels[$model->getMainModel()->getName()];
-		} else {
-			$instanceModels =& $this->instanceModels;
-		}
-		
-		if (is_null($this->manifestParser) && is_object($instanceModels[$model->getName()]) && $instanceModels[$model->getName()]->isLoaded()) {
+		if (is_null($this->manifestParser) && is_object($this->instanceModels[$model->getName()]) && $this->instanceModels[$model->getName()]->isLoaded()) {
 			$return = [
 				self::PROPERTIES     => $model->getProperties(), 
 				self::PARENT_MODEL   => $model->getParent(),
@@ -312,11 +296,12 @@ class ModelManager {
 		}else {
 			$unsetManifestParser = false;
 			if (is_null($this->manifestParser)) {
-				$unsetManifestParser   = true;
-				$manifestPath_afe      = $instanceModels[$model->getName()][0];
-				$manifestPath_ad       = dirname($manifestPath_afe);
-				$serializationPath_afe = !is_null($instanceModels[$model->getName()][1]) ? $instanceModels[$model->getName()][1] : null;
-				$this->manifestParser  = ManifestParser::getInstance($model, $manifestPath_afe, $serializationPath_afe);
+				$unsetManifestParser    = true;
+				$manifestPath_afe       = $this->instanceModels[$model->getName()][0];
+				$manifestPath_ad        = dirname($manifestPath_afe);
+				$serializationPath_afe  = !is_null($this->instanceModels[$model->getName()][1]) ? $this->instanceModels[$model->getName()][1] : null;
+				$this->manifestParser   = ManifestParser::getInstance($model, $manifestPath_afe, $serializationPath_afe);
+				$this->currentNamespace = $model->getName();
 				
 				$this->_addInstanceModel($model);
 				$this->_buildLocalModels($model, $manifestPath_ad);
@@ -326,7 +311,7 @@ class ModelManager {
 			$return = [
 				self::PARENT_MODEL  => $parentModel,
 				self::OBJECT_CLASS  => $this->manifestParser->getObjectClass(),
-				self::PROPERTIES    => $this->_buildProperties($model, $parentModel)
+				self::PROPERTIES    => $this->_buildProperties($parentModel)
 			];
 			
 			if ($unsetManifestParser) {
@@ -349,33 +334,22 @@ class ModelManager {
 		if ($this->manifestParser->isFocusOnLocalModel()) {
 			throw new \Exception('cannot define local model in local models');
 		}
-		if (!($model instanceof MainModel)) {
-			// perhaps allow local models defined in there own manifest to have local models
-			return;
-		}
-		$this->instanceLocalModels[$model->getName()] = [];
 		if ($this->manifestParser->getLocalModelCount() > 0) {
-			$mainModelName = $model->getName();
-			
-			$this->manifestParser->registerComplexLocalModels($this->instanceLocalModels[$mainModelName], $manifestPath_ad);
+			$this->manifestParser->registerComplexLocalModels($this->instanceModels, $manifestPath_ad, $this->currentNamespace);
 			$this->manifestParser->activateFocusOnLocalModels();
 			
 			do {
-				$localModelName = $this->manifestParser->getCurrentLocalModelName();
-				
+				$localModelName = $this->currentNamespace. '\\' . $this->manifestParser->getCurrentLocalModelName();
 				if (array_key_exists($localModelName, $this->instanceModels)) {
-					throw new \Exception("local model in main model '$mainModelName' has same name than another main model '$localModelName' ");
+					throw new \Exception("model fully qualified name already used");
 				}
-				if (array_key_exists($localModelName, $this->instanceLocalModels[$mainModelName])) {
-					throw new \Exception("several local model with same name '$localModelName' in main model '$mainModelName'");
-				}
-				$this->instanceLocalModels[$mainModelName][$localModelName] = new LocalModel($localModelName, $mainModelName, false);
+				$this->instanceModels[$localModelName] = new LocalModel($localModelName, false);
 			} while ($this->manifestParser->nextLocalModel());
 			
 			$this->manifestParser->activateFocusOnLocalModels();
 			do {
-				$localModelName = $this->manifestParser->getCurrentLocalModelName();
-				$this->instanceLocalModels[$mainModelName][$localModelName]->load();
+				$localModelName = $this->currentNamespace. '\\' . $this->manifestParser->getCurrentLocalModelName();
+				$this->instanceModels[$localModelName]->load();
 			} while ($this->manifestParser->nextLocalModel());
 			
 			$this->manifestParser->desactivateFocusOnLocalModels();
@@ -392,20 +366,17 @@ class ModelManager {
 	private function _getParentModel(Model $model) {
 		$parentModel = null;
 		$modelName = $this->manifestParser->getExtends();
+		
+		if (array_key_exists($modelName, $this->instanceSimpleModels)) {
+			throw new \Exception('cannot extends from simple model');
+		}
+		
 		if (!is_null($modelName)) {
-			$mainModelName = $model->getMainModelName();
-			if ($model instanceof MainModel) {
-				$mainModelName = null;
-			}
-			else if (array_key_exists($modelName, $this->instanceModels)) {
-				if (!is_null($mainModelName) && array_key_exists($modelName, $this->instanceLocalModels[$mainModelName])) {
-					throw new \Exception("cannot determine if property '$modelName' is local or main model");
-				}
-				$mainModelName = null;
-			}
+			$modelName = $modelName[0] == '\\' ? substr($modelName, 1) : $this->currentNamespace. '\\' . $modelName;
+			
 			$manifestParser = $this->manifestParser;
 			$this->manifestParser = null;
-			$parentModel = $this->getInstanceModel($modelName, $mainModelName);
+			$parentModel = $this->getInstanceModel($modelName);
 			$this->manifestParser = $manifestParser;
 		}
 		return $parentModel;
@@ -414,26 +385,21 @@ class ModelManager {
 	/**
 	 * build model properties
 	 * 
-	 * @param \Comhon\Model\Model $currentModel
 	 * @param \Comhon\Model\Model|null $parentModel
 	 * @throws \Exception
 	 * @return \Comhon\Model\Property\Property[]
 	 */
-	private function _buildProperties(Model $currentModel, Model $parentModel = null) {
+	private function _buildProperties(Model $parentModel = null) {
 		$properties = is_null($parentModel) ? [] : $parentModel->getProperties();
-	
 		do {
-			$modelName     = $this->manifestParser->getCurrentPropertyModelName();
-			$mainModelName = $currentModel->getMainModelName();
-			
-			if (array_key_exists($modelName, $this->instanceModels)) {
-				if (!is_null($mainModelName) && array_key_exists($modelName, $this->instanceLocalModels[$mainModelName])) {
-					throw new \Exception("cannot determine if property '$modelName' is local or main model");
-				}
-				$mainModelName = null;
+			$modelName = $this->manifestParser->getCurrentPropertyModelName();
+			if (!array_key_exists($modelName, $this->instanceSimpleModels)) {
+				$modelName = ($modelName[0] != '\\') 
+					? $this->currentNamespace. '\\' . $modelName 
+					: substr($modelName, 1) ;
 			}
 			
-			$propertyModel = $this->_getInstanceModel($modelName, $mainModelName, false);
+			$propertyModel = $this->_getInstanceModel($modelName, false);
 			$property      = $this->manifestParser->getCurrentProperty($propertyModel);
 			
 			$properties[$property->getName()] = $property;

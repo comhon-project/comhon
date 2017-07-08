@@ -16,7 +16,7 @@
         },
         {
             "name": "cityHall",
-            "type": "place",
+            "type": "\\place",
             "is_foreign": true
         }
     ]

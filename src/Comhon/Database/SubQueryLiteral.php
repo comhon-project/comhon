@@ -12,18 +12,21 @@
 namespace Comhon\Database;
 
 /**
- * a complex literal is like a literal but it value is a query
+ * a sub-query literal is like a simple literal but it value is a query
  * exemple : 
  * query => SELECT * FROM table WHERE column IN (SELECT column FROM table_2 WHERE column_2 = "a_value") AND column_3 = "a_value_2"
- * complex literal => column IN (SELECT column FROM table WHERE column_2 = "a_value")
+ * complex literal is => column IN (SELECT column FROM table WHERE column_2 = "a_value")
  */
-class ComplexLiteral extends WhereLiteral {
+class SubQueryLiteral extends DbLiteral {
 
 	/** @var string */
 	const IN = 'IN';
 	
 	/** @var string */
 	const NOT_IN = 'NOT IN';
+	
+	/** @var SelectQuery */
+	private $value;
 	
 	/** @var array */
 	protected static $allowedOperators = [
@@ -38,23 +41,21 @@ class ComplexLiteral extends WhereLiteral {
 	];
 	
 	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Database\Literal::_verifLiteral()
+	 * @param TableNode|string $table
+	 * @param string $column
+	 * @param string $operator
+	 * @param SelectQuery $value
+	 * @throws \Exception
 	 */
-	protected function _verifLiteral() {
-		if (!array_key_exists($this->operator, self::$allowedOperators)) {
-			throw new \Exception('operator \''.$this->operator.'\' doesn\'t exists');
-		}
-		if (!is_null($this->value) && !($this->value instanceof SelectQuery)) {
-			throw new \Exception('complex literal must have a query value');
-		}
+	public function __construct($table, $column, $operator, SelectQuery $value) {
+		parent::__construct($table, $column, $operator);
+		$this->value = $value;
 	}
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Database\Literal::export()
+	 * @see \Comhon\Logic\Literal::export()
 	 */
 	public function export(&$globalValues) {
 		list($query, $values) = $this->value->export();
@@ -67,9 +68,9 @@ class ComplexLiteral extends WhereLiteral {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Database\Literal::exportWithValue()
+	 * @see \Comhon\Logic\Literal::exportDebug()
 	 */
-	public function exportWithValue() {
+	public function exportDebug() {
 		return sprintf('%s.%s %s (%s)', $this->table, $this->column, $this->operator, $this->value->exportDebug());
 	}
 }

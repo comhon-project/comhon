@@ -3,7 +3,7 @@
     "properties": [
         {
             "name": "id",
-            "type": "string",
+            "type": "integer",
             "is_id": true
         },
         {

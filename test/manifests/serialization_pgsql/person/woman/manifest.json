@@ -1,0 +1,14 @@
+{
+    "version": "2.0",
+    "serialization": {
+        "type": "sqlTable",
+        "id": "public.person"
+    },
+    "properties": {
+        "bodies": {
+            "aggregations": [
+                "owner"
+            ]
+        }
+    }
+}

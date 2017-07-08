@@ -12,9 +12,9 @@
 namespace Comhon\Request;
 
 use Comhon\Database\DatabaseController;
-use Comhon\Database\LogicalJunction;
-use Comhon\Database\LogicalJunctionOptimizer;
-use Comhon\Database\Literal;
+use Comhon\Logic\Clause;
+use Comhon\Logic\ClauseOptimizer;
+use Comhon\Logic\Literal;
 use Comhon\Database\SelectQuery;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\Model;
@@ -23,10 +23,9 @@ use Comhon\Model\Property\ForeignProperty;
 use Comhon\Serialization\SqlTable;
 use Comhon\Database\TableNode;
 use Comhon\Database\OnLiteral;
-use Comhon\Database\OnLogicalJunction;
-use Comhon\Database\Disjunction;
 use Comhon\Object\ObjectArray;
 use Comhon\Interfacer\Interfacer;
+use Comhon\Database\DbLiteral;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	
@@ -38,11 +37,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	/** @var \Comhon\Model\Model[] models indexed by node id */
 	private $modelByNodeId;
 	
-	/** @var \Comhon\Database\Literal[] reusable literals */
+	/** @var \Comhon\Logic\Literal[] reusable literals */
 	private $literalCollection = [];
 	
-	/** @var \Comhon\Database\LogicalJunction logical junction to apply on query */
-	private $logicalJunction;
+	/** @var \Comhon\Logic\Formula filter to apply on query */
+	private $filter;
 	
 	/** @var array ordering of retrieved serialized comhon objects */
 	private $order = [];
@@ -67,7 +66,6 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (!$this->model->hasSqlTableUnit()) {
 			throw new \Exception('error : resquested model '.$this->model->getName().' must have a database serialization');
 		}
-		$this->logicalJunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
 	}
 	
 	/**
@@ -121,26 +119,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * logical junction permit to filter wanted cohmon object.
 	 * replace logical junction or literal previously set
 	 * 
-	 * @param \Comhon\Database\LogicalJunction $logicalJunction
+	 * @param \Comhon\Logic\Formula $filter
 	 * @return \Comhon\Request\ComplexLoadRequest
 	 */
-	public function setLogicalJunction($logicalJunction) {
-		$this->logicalJunction = $logicalJunction;
-		return $this;
-	}
-	
-	/**
-	 * set literal to apply
-	 * 
-	 * literal permit to filter wanted cohmon object.
-	 * replace logical junction or literal previously set
-	 * 
-	 * @param \Comhon\Database\Literal $literal
-	 * @return \Comhon\Request\ComplexLoadRequest
-	 */
-	public function setLiteral($literal) {
-		$this->logicalJunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
-		$this->logicalJunction->addLiteral($literal);
+	public function setFilter($filter) {
+		$this->filter = $filter;
 		return $this;
 	}
 	
@@ -164,17 +147,15 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		} else {
 			throw new \Exception('request doesn\'t have model');
 		}
-		if (isset($settings->logicalJunction) && isset($settings->literal)) {
-			throw new \Exception('can\'t have logicalJunction and literal properties in same time');
-		}
 		if (isset($settings->literalCollection)) {
 			$objectLoadRequest->importLiteralCollection($settings->literalCollection);
 		}
-		if (isset($settings->logicalJunction)) {
-			$objectLoadRequest->importLogicalJunction($settings->logicalJunction);
-		}
-		else if (isset($settings->literal)) {
-			$objectLoadRequest->importLiteral($settings->literal);
+		if (isset($settings->filter)) {
+			if (isset($settings->filter->type)) { // clause
+				$objectLoadRequest->importClause($settings->filter);
+			} else { // literal
+				$objectLoadRequest->importLiteral($settings->filter);
+			}
 		}
 		if (isset($settings->maxLength)) {
 			$objectLoadRequest->setMaxLength($settings->maxLength);
@@ -265,7 +246,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				if (!isset($stdObjectLiteral->node) || !array_key_exists($stdObjectLiteral->node, $this->modelByNodeId)) {
 					throw new \Exception('node doesn\' exists or not recognized');
 				}
-				$this->addliteralToCollection(Literal::stdObjectToLiteral($stdObjectLiteral, $this->modelByNodeId[$stdObjectLiteral->node], null, $this->selectQuery, $this->private));
+				$this->addliteralToCollection(DbLiteral::stdObjectToLiteral($stdObjectLiteral, $this->modelByNodeId[$stdObjectLiteral->node], null, $this->selectQuery, $this->private));
 			}
 		}
 	}
@@ -273,7 +254,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	/**
 	 * add a literal into literals collection
 	 * 
-	 * @param \Comhon\Database\Literal $literal
+	 * @param \Comhon\Logic\Literal $literal
 	 * @throws \Exception
 	 */
 	public function addliteralToCollection($literal) {
@@ -291,9 +272,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * 
 	 * replace logical junction or literal previously set
 	 * 
-	 * @param \stdClass $stdObjectLogicalJunction
+	 * @param \stdClass $stdObjectClause
 	 */
-	public function importLogicalJunction(\stdClass $stdObjectLogicalJunction) {
+	public function importClause(\stdClass $stdObjectClause) {
 		if (is_null($this->modelByNodeId)) {
 			$mainTableName = $this->model->getSqlTableUnit()->getSettings()->getValue('name');
 			$mainTableNode = new TableNode($mainTableName);
@@ -301,10 +282,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$this->modelByNodeId = [$mainTableName => $this->model];
 
 			$litralsByModelName = [];
-			$this->_getLiteralsByModelName($stdObjectLogicalJunction, $mainTableName, $litralsByModelName);
+			$this->_getLiteralsByModelName($stdObjectClause, $mainTableName, $litralsByModelName);
 			$this->_buildAndAddJoins($litralsByModelName);
 		}
-		$this->setLogicalJunction(LogicalJunction::stdObjectToLogicalJunction($stdObjectLogicalJunction, $this->modelByNodeId, $this->literalCollection, $this->selectQuery, $this->private));
+		$this->setFilter(Clause::stdObjectToClause($stdObjectClause, $this->modelByNodeId, $this->literalCollection, $this->selectQuery, $this->private));
 	}
 	
 	/**
@@ -328,7 +309,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (!isset($stdObjectLiteral->node) || !array_key_exists($stdObjectLiteral->node, $this->modelByNodeId)) {
 			throw new \Exception('node doesn\' exists or not recognized');
 		}
-		$this->setLiteral(Literal::stdObjectToLiteral($stdObjectLiteral, $this->modelByNodeId[$stdObjectLiteral->node], $this->literalCollection, $this->selectQuery, $this->private));
+		$this->setFilter(DbLiteral::stdObjectToLiteral($stdObjectLiteral, $this->modelByNodeId[$stdObjectLiteral->node], $this->literalCollection, $this->selectQuery, $this->private));
 	}
 	
 	/**
@@ -340,10 +321,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (is_null($this->selectQuery)) {
 			throw new \Exception('query not initialized');
 		}
-		if ($this->optimizeLiterals) {
-			$this->logicalJunction = LogicalJunctionOptimizer::optimizeLiterals($this->logicalJunction);
+		if (!is_null($this->filter) && $this->optimizeLiterals) {
+			$this->filter = ClauseOptimizer::optimizeLiterals($this->filter);
 		}
-		$this->selectQuery->where($this->logicalJunction);
+		$this->selectQuery->where($this->filter);
 		$this->selectQuery->limit($this->length)->offset($this->offset);
 		$this->selectQuery->setFocusOnMainTable();
 		$this->_addColumns();
@@ -382,19 +363,18 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * 
 	 * regroup literals by their associated model
 	 * 
-	 * @param \stdClass $stdObjectLogicalJunction
+	 * @param \stdClass $stdObjectClause
 	 * @param string $mainTableName
 	 * @param array $litralsByModelName
 	 */
-	private function _getLiteralsByModelName($stdObjectLogicalJunction, $mainTableName, &$litralsByModelName) {
-		if (isset($stdObjectLogicalJunction->literals)) {
-			foreach ($stdObjectLogicalJunction->literals as $literal) {
-				$this->_getLiteralByModelName($literal, $mainTableName, $litralsByModelName);
-			}
-		}
-		if (isset($stdObjectLogicalJunction->logicalJunctions)) {
-			foreach ($stdObjectLogicalJunction->logicalJunctions as $logicalJunction) {
-				$this->_getLiteralsByModelName($logicalJunction, $mainTableName, $litralsByModelName);
+	private function _getLiteralsByModelName($stdObjectClause, $mainTableName, &$litralsByModelName) {
+		if (isset($stdObjectClause->elements)) {
+			foreach ($stdObjectClause->elements as $stdObjectElement) {
+				if (isset($stdObjectElement->type)) { // clause
+					$this->_getLiteralsByModelName($stdObjectElement, $mainTableName, $litralsByModelName);
+				} else { // literal
+					$this->_getLiteralByModelName($stdObjectElement, $mainTableName, $litralsByModelName);
+				}
 			}
 		}
 	}
@@ -568,7 +548,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				$rightForeignProperty = $rightModel->getProperty($aggregationProperty, true);
 				
 				if ($rightForeignProperty->hasMultipleSerializationNames()) {
-					$on = new OnLogicalJunction(LogicalJunction::CONJUNCTION);
+					$on = new Clause(Clause::CONJUNCTION);
 					foreach ($rightForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
 						$on->addLiteral(new OnLiteral(
 							$leftTable,
@@ -592,18 +572,18 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			if (count($disJunction) == 1) {
 				$on = $disJunction[0];
 			} else {
-				$on = new OnLogicalJunction(LogicalJunction::DISJUNCTION);
+				$on = new Clause(Clause::DISJUNCTION);
 				foreach ($disJunction as $onElement) {
 					if ($onElement instanceof Literal) {
 						$on->addLiteral($onElement);
 					} else {
-						$on->addLogicalJunction($onElement);
+						$on->addClause($onElement);
 					}
 				}
 			}
 		}else {
 			if ($rightProperty->hasMultipleSerializationNames()) {
-				$on = new OnLogicalJunction(LogicalJunction::CONJUNCTION);
+				$on = new Clause(Clause::CONJUNCTION);
 				foreach ($rightProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
 					$on->addLiteral(new OnLiteral(
 						$leftTable,

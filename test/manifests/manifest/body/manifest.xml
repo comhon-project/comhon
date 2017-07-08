@@ -9,12 +9,12 @@
 		</type>
 		<type name="tatoo" extends="art">
 			<properties>
-				<property is_foreign="1" type="person" name="tatooArtist"/>
+				<property is_foreign="1" type="\person" name="tatooArtist"/>
 			</properties>
 		</type>
 		<type name="piercing" extends="art">
 			<properties>
-				<property is_foreign="1" type="person" name="piercer"/>
+				<property is_foreign="1" type="\person" name="piercer"/>
 			</properties>
 		</type>
 	</types>
@@ -44,6 +44,6 @@
 		<property type="array" name="arts">
 			<values type="art" name="art"/>
 		</property>
-		<property is_foreign="1" type="person" name="owner"/>
+		<property is_foreign="1" type="\person" name="owner"/>
 	</properties>
 </manifest>

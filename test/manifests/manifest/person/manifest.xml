@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0" object="Object\Person">
 	<properties>
-		<property type="string" is_id="1" name="id"/>
+		<property type="integer" is_id="1" name="id"/>
 		<property type="string" name="firstName"/>
 		<property type="string" name="lastName"/>
 		<property type="dateTime" name="birthDate"/>
-		<property is_foreign="1" type="place" name="birthPlace"/>
-		<property is_foreign="1" type="person" name="bestFriend"/>
-		<property is_foreign="1" type="man" name="father"/>
-		<property is_foreign="1" type="woman" name="mother"/>
+		<property is_foreign="1" type="\place" name="birthPlace"/>
+		<property is_foreign="1" type="\person" name="bestFriend"/>
+		<property is_foreign="1" type="\man" name="father"/>
+		<property is_foreign="1" type="\woman" name="mother"/>
 		<property is_foreign="1" type="array" name="children">
-			<values type="person" name="child"/>
+			<values type="\person" name="child"/>
 		</property>
 		<property is_foreign="1" type="array" name="homes">
-			<values type="home" name="home"/>
+			<values type="\home" name="home"/>
 		</property>
 		<!--<property is_foreign="1" type="array" name="realEstateProperties">
-			<values type="home"/>
+			<values type="\home"/>
 		</property>-->
 	</properties>
 </manifest>

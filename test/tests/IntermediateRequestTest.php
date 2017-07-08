@@ -8,9 +8,9 @@ $Json = '{
 	"model" : "person",
 	"requestChildren" : true,
 	"loadForeignProperties" : true,
-	"logicalJunction" : {
+	"filter" : {
 		"type" : "conjunction",
-		"literals" : [
+		"elements" : [
 			{
 				"model"    : "person",
 				"property" : "firstName",
@@ -26,9 +26,9 @@ $Json = '{
 			{
 				"model"     : "person",
 				"queue"     : {"property" : "children"},
-				"havingLogicalJunction" : {
+				"havingClause" : {
 					"type" : "conjunction",
-					"literals" : [
+					"elements" : [
 						{
 							"function" : "COUNT",
 							"operator" : ">",
@@ -56,12 +56,10 @@ $Json = '{
 					"operator" : "=",
 					"value"    : 170
 				}
-			}
-		],
-		"logicalJunctions" : [
+			},
 			{
 				"type" : "conjunction",
-				"literals" : [
+				"elements" : [
 					{
 						"model"    : "house",
 						"property" : "surface",
@@ -71,9 +69,9 @@ $Json = '{
 					{
 						"model"     : "person",
 						"queue"     : {"property" : "homes"},
-						"havingLogicalJunction" : {
+						"havingClause" : {
 							"type" : "disjunction",
-							"literals" : [
+							"elements" : [
 								{
 									"function" : "COUNT",
 									"operator" : ">=",
@@ -83,12 +81,10 @@ $Json = '{
 									"function" : "COUNT",
 									"operator" : ">",
 									"value"    : 2
-								}
-							],
-							"logicalJunctions" : [
+								},
 								{
 									"type" : "conjunction",
-									"literals" : [
+									"elements" : [
 										{
 											"function" : "COUNT",
 											"operator" : ">=",
@@ -110,8 +106,7 @@ $Json = '{
 						"operator" : "=",
 						"value"    : "Montpellier"
 					}
-				],
-				"logicalJunctions" : []
+				]
 			}
 		]
 	}
@@ -162,7 +157,7 @@ $Json = '{
 // GROUP  BY person.id 
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"man"},{"id":6,"__inheritance__":"man"},{"id":11,"__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -171,7 +166,7 @@ $Json = '{
 	"model" : "person",
 	"requestChildren" : true,
 	"loadForeignProperties" : true,
-	"literal" : {
+	"filter" : {
 		"model"    : "person",
 		"property" : "firstName",
 		"operator" : "=",
@@ -182,7 +177,7 @@ $Json = '{
 // SELECT * FROM  person  WHERE ((person.first_name  IN  (Paul,Bernardo) or person.first_name is null)) GROUP BY person.id
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"man"},{"id":6,"__inheritance__":"man"},{"id":11,"__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 
@@ -190,7 +185,7 @@ $Json = '{
 	"model" : "person",
 	"requestChildren" : true,
 	"loadForeignProperties" : true,
-	"literal" : {
+	"filter" : {
 		"model"    : "house",
 		"property" : "surface",
 		"operator" : "=",
@@ -201,7 +196,7 @@ $Json = '{
 // SELECT person.* FROM  person left join home on person.id = home.person_id left join house on home.house_id = house.id_serial  WHERE (house.surface = 120) GROUP BY person.id
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":"5","__inheritance__":"man"},{"id":"6","__inheritance__":"man"},{"id":"11","__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":"1","firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"man"},{"id":6,"__inheritance__":"man"},{"id":11,"__inheritance__":"woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"man"}]}')) {
 	throw new \Exception('bad result');
 }
 

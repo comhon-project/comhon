@@ -11,14 +11,14 @@
             "type": "integer"
         },
         {
+            "name": "type",
+            "type": "string",
             "enum": [
                 "street",
                 "avenue",
                 "boulevard",
                 "square"
-            ],
-            "name": "type",
-            "type": "string"
+            ]
         },
         {
             "name": "name",
@@ -34,7 +34,7 @@
         },
         {
             "name": "town",
-            "type": "town",
+            "type": "\\town",
             "is_foreign": true
         }
     ]

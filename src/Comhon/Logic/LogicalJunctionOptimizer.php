@@ -9,77 +9,77 @@
  * file that was distributed with this source code.
  */
 
-namespace Comhon\Database;
+namespace Comhon\Logic;
 
 use Comhon\Utils\Utils;
 
-abstract class LogicalJunctionOptimizer {
+abstract class ClauseOptimizer {
 	
 	/**
-	 * transform logical junctions in $logicalJunction to literals if it's possible
+	 * transform logical junctions in $clause to literals if it's possible
 	 * 
-	 * @param LogicalJunction $logicalJunction
-	 * @return \Comhon\Database\LogicalJunction
+	 * @param Clause $clause
+	 * @return \Comhon\Logic\Clause
 	 */
-	public static function logicalJunctionToLiterals($logicalJunction) {
-		$newLogicalJunction = new LogicalJunction($logicalJunction->getType());
-		self::_logicalJunctionToLiterals($newLogicalJunction, $logicalJunction);
-		return $newLogicalJunction;
+	public static function clauseToLiterals($clause) {
+		$newClause = new Clause($clause->getType());
+		self::_clauseToLiterals($newClause, $clause);
+		return $newClause;
 	}
 	
 	/**
 	 * transform logical junctions to literals if it's possible
-	 * @param LogicalJunction $newLogicalJunction
-	 * @param LogicalJunction $logicalJunction
+	 * @param Clause $newClause
+	 * @param Clause $clause
 	 */
-	private static function _logicalJunctionToLiterals($newLogicalJunction, $logicalJunction) {
-		$link = $logicalJunction->getType();
-		foreach ($logicalJunction->getLiterals() as $literal) {
-			$newLogicalJunction->addLiteral($literal);
+	private static function _clauseToLiterals($newClause, $clause) {
+		$link = $clause->getType();
+		foreach ($clause->getLiterals() as $literal) {
+			$newClause->addLiteral($literal);
 		}
-		foreach ($logicalJunction->getLogicalJunctions() as $subLogicalJunction) {
-			if ($subLogicalJunction->hasOnlyOneLiteral() || ($subLogicalJunction->getType() == $link)) {
-				self::_logicalJunctionToLiterals($newLogicalJunction, $subLogicalJunction);
+		foreach ($clause->getClauses() as $subClause) {
+			if ($subClause->hasOnlyOneLiteral() || ($subClause->getType() == $link)) {
+				self::_clauseToLiterals($newClause, $subClause);
 			}else {
-				$newLogicalJunction->addLogicalJunction(self::logicalJunctionToLiterals($subLogicalJunction));
+				$newClause->addClause(self::clauseToLiterals($subClause));
 			}
 		}
 	}
 	
 	/**
 	 * optimize query literals to optimize execution time of query
-	 * @param unknown $logicalJunction
+	 * @param unknown $clause
 	 * @param integer $countMax	optimisation will not be executed if there is more literals than $countMax
 	 * 								actually, optimization is exponential and it can take more time than request itself
-	 * @return \Comhon\Database\LogicalJunction
+	 * @return \Comhon\Logic\Clause
 	 */
-	public static function optimizeLiterals($logicalJunction, $countMax = 10) {
-		$flattenedLiterals = $logicalJunction->getFlattenedLiterals(true);
+	public static function optimizeLiterals($clause, $countMax = 10) {
+		$flattenedLiterals = $clause->getFlattenedLiterals(true);
 		$literalKeys = [];
 		foreach ($flattenedLiterals as $key => $literal) {
 			$literalKeys[] = $key;
 		
 		}
 		if (count($literalKeys) > $countMax) {
-			return $logicalJunction;
+			return $clause;
 		}
-		$logicalJunction = LogicalJunctionOptimizer::logicalJunctionToLiterals($logicalJunction);
-		$logicalConjunctions = self::_setLogicalConjunctions($logicalJunction, $flattenedLiterals, $literalKeys);
+		$clause = ClauseOptimizer::clauseToLiterals($clause);
+		$logicalConjunctions = self::_setLogicalConjunctions($clause, $flattenedLiterals, $literalKeys);
 		$essentialPrimeImplicants = self::_execQuineMcCluskeyAlgorithm($logicalConjunctions);
 		$literalsToFactoryze = self::_findLiteralsToFactoryze($essentialPrimeImplicants);
-		$newLogicalJunction = self::_setFinalLogicalJunction($essentialPrimeImplicants, $flattenedLiterals, $literalsToFactoryze, $literalKeys);
+		$newClause = self::_setFinalClause($essentialPrimeImplicants, $flattenedLiterals, $literalsToFactoryze, $literalKeys);
 		
-		return $newLogicalJunction;
+		return $newClause;
 	}
 	
 	/**
 	 * 
-	 * @param unknown $logicalJunction
+	 * @param unknown $clause
 	 * @param unknown $flattenedLiterals
 	 * @param unknown $literalKeys
 	 * @return array|boolean[]
 	 */
-	private static function _setLogicalConjunctions($logicalJunction, $flattenedLiterals, $literalKeys) {
+	private static function _setLogicalConjunctions($clause, $flattenedLiterals, $literalKeys) {
 		$literalValues = [];
 		$literals = [];
 		$logicalConjunctions = [];
@@ -101,7 +101,7 @@ abstract class LogicalJunctionOptimizer {
 					$nbTrueValues--;
 				}
 				$i = count($flattenedLiterals) - 1;
-				$satisfied = $logicalJunction->isSatisfied($literals);
+				$satisfied = $clause->isSatisfied($literals);
 		
 				if ($satisfied) {
 					$logicalConjunctions[$nbTrueValues][] = $literalValues;
@@ -248,7 +248,7 @@ abstract class LogicalJunctionOptimizer {
 				$matrix[] = $matches;
 			}
 		}
-		usort($matrix, ['Comhon\Database\LogicalJunctionOptimizer', 'sortByLastValue']);
+		usort($matrix, ['Comhon\Logic\ClauseOptimizer', 'sortByLastValue']);
 		return $matrix;
 	}
 	
@@ -302,11 +302,11 @@ abstract class LogicalJunctionOptimizer {
 	 * @param unknown $flattenedLiterals
 	 * @param unknown $literalsToFactoryze
 	 * @param unknown $literalKeys
-	 * @return \Comhon\Database\LogicalJunction
+	 * @return \Comhon\Logic\Clause
 	 */
-	private static function _setFinalLogicalJunction($essentialPrimeImplicants, $flattenedLiterals, $literalsToFactoryze, $literalKeys) {
+	private static function _setFinalClause($essentialPrimeImplicants, $flattenedLiterals, $literalsToFactoryze, $literalKeys) {
 		$literalsToFactoryzeByKey = [];
-		$firstConjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
+		$firstConjunction = new Clause(Clause::CONJUNCTION);
 		if (!empty($literalsToFactoryze)) {
 			foreach ($literalsToFactoryze as $literalIndex) {
 				$firstConjunction->addLiteral($flattenedLiterals[$literalKeys[$literalIndex]]);
@@ -314,11 +314,11 @@ abstract class LogicalJunctionOptimizer {
 			}
 		}
 
-		$disjunction = new LogicalJunction(LogicalJunction::DISJUNCTION);
-		$firstConjunction->addLogicalJunction($disjunction);
+		$disjunction = new Clause(Clause::DISJUNCTION);
+		$firstConjunction->addClause($disjunction);
 		
 		foreach ($essentialPrimeImplicants as $essentialPrimeImplicantValues) {
-			$conjunction = new LogicalJunction(LogicalJunction::CONJUNCTION);
+			$conjunction = new Clause(Clause::CONJUNCTION);
 			foreach ($essentialPrimeImplicantValues as $index => $value) {
 				// if literal hasn't been factorised
 				if (!array_key_exists($index, $literalsToFactoryzeByKey)) {
@@ -333,7 +333,7 @@ abstract class LogicalJunctionOptimizer {
 				}
 		
 			}
-			$disjunction->addLogicalJunction($conjunction);
+			$disjunction->addClause($conjunction);
 		}
 		return $firstConjunction;
 	}
