@@ -20,7 +20,7 @@ $dbHandler = DatabaseController::getInstanceWithDataBaseId($databaseId);
 $statement = $dbHandler->executeSimpleQuery('select sex from person where id = '.$person->getId());
 $result = $statement->fetchAll();
 if ($result[0]['sex'] !== 'person') {
-	throw new Exception("bad inheritance key '{$result[0]['sex']}'");
+	throw new \Exception("bad inheritance key '{$result[0]['sex']}'");
 }
 
 $person->cast(ModelManager::getInstance()->getInstanceModel('man'));
@@ -30,7 +30,7 @@ if ($person->save(SqlTable::UPDATE) !== 1) {
 $statement = $dbHandler->executeSimpleQuery('select sex from person where id = '.$person->getId());
 $result = $statement->fetchAll();
 if ($result[0]['sex'] !== 'man') {
-	throw new Exception("bad inheritance key '{$result[0]['sex']}'");
+	throw new \Exception("bad inheritance key '{$result[0]['sex']}'");
 }
 
 if ($person->delete() !== 1) {

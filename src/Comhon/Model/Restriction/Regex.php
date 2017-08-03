@@ -59,13 +59,22 @@ class Regex implements Restriction {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
-	public function toString($value) {
+	public function toMessage($value) {
 		if (!is_string($value)) {
 			$class = gettype($value) == 'object' ? get_class($value) : gettype($value);
-			return "Value passed to Regex must be an instance of string, instance of $class given";
+			return "Value passed to Regex must be a string, instance of $class given";
 		}
 		return $value . ($this->satisfy($value) ? ' ' : ' doesn\'t ')
 			. 'satisfy regex ' . $this->regex;
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::toString()
+	 */
+	public function toString() {
+		return $this->regex;
 	}
 	
 }

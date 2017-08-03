@@ -14,6 +14,8 @@ namespace Comhon\Model;
 use Comhon\Object\ComhonDateTime;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\UnexpectedValueTypeException;
 
 class ModelDateTime extends SimpleModel {
 	
@@ -97,7 +99,7 @@ class ModelDateTime extends SimpleModel {
 	 * @see \Comhon\Model\SimpleModel::castValue()
 	 */
 	public function castValue($value) {
-		throw new \Exception('cannot cast datetime object');
+		throw new ComhonException('cannot cast datetime object');
 	}
 	
 	/**
@@ -108,9 +110,7 @@ class ModelDateTime extends SimpleModel {
 	 */
 	public function verifValue($value) {
 		if (!($value instanceof ComhonDateTime)) {
-			$nodes = debug_backtrace();
-			$class = gettype($value) == 'object' ? get_class($value): gettype($value);
-			throw new \Exception("Argument passed to {$nodes[0]['class']}::{$nodes[0]['function']}() must be an instance of dateTime, instance of $class given, called in {$nodes[0]['file']} on line {$nodes[0]['line']} and defined in {$nodes[0]['file']}");
+			throw new UnexpectedValueTypeException($value, ComhonDateTime::class);
 		}
 		return true;
 	}

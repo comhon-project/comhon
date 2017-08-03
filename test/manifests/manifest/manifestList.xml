@@ -24,5 +24,9 @@
 		<testRestricted>testRestricted/manifest.xml</testRestricted>
 		<testPrivateId>testPrivateId/manifest.xml</testPrivateId>
 		<childTestDb>childTestDb/manifest.xml</childTestDb>
+		<notLinkableTestDb>notLinkableTestDb/manifest.xml</notLinkableTestDb>
+		<locatedHouse>locatedHouse/manifest.xml</locatedHouse>
+		<testNoSerialization>testNoSerialization/manifest.xml</testNoSerialization>
+		<testNoId>testNoId/manifest.xml</testNoId>
 	</list>
 </manifests>

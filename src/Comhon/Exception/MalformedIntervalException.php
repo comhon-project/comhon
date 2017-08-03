@@ -11,7 +11,7 @@
 
 namespace Comhon\Exception;
 
-class MalformedIntervalException extends \Exception {
+class MalformedIntervalException extends ComhonException {
 	
 	/**
 	 * @param string $interval

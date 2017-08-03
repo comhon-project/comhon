@@ -18,6 +18,9 @@
 		"womanXml"   : "person/womanXml/manifest.json",
 		"manBodyJson": "body/manJson/manifest.json",
 		"childTestDb": "childTestDb/manifest.json",
-		"testMultiIncremental": "testMultiIncremental/manifest.json"
+		"notLinkableTestDb" : "notLinkableTestDb/manifest.json",
+		"testMultiIncremental": "testMultiIncremental/manifest.json",
+		"locatedHouse" : "house/manifest.json",
+		"testNoId" : "testNoId/manifest.json"
 	}
 }

@@ -14,6 +14,7 @@ namespace Comhon\Model\Property;
 use Comhon\Model\Restriction\Restriction;
 use Comhon\Model\Model;
 use Comhon\Exception\NotSatisfiedRestrictionException;
+use Comhon\Exception\ComhonException;
 
 class RestrictedProperty extends Property {
 	
@@ -36,7 +37,7 @@ class RestrictedProperty extends Property {
 	public function __construct(Model $model, $name, Restriction $restriction, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
 		parent::__construct($model, $name, $serializationName, false, $isPrivate, $isSerializable);
 		if (!$restriction->isAllowedModel($this->model)) {
-			throw new \Exception('restriction doesn\'t allow specified model');
+			throw new ComhonException('restriction doesn\'t allow specified model');
 		}
 		$this->restriction = $restriction;
 	}

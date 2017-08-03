@@ -1,5 +1,7 @@
 <?php
 
+use Comhon\Exception\CastComhonObjectException;
+
 set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/comhon/src/');
 set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/ObjectManagerLib/src/');
 
@@ -36,11 +38,11 @@ function transformValueToString($value) {
 function compareJson($jsonOne, $jsonTwo) {
 	$arrayOne = json_decode($jsonOne, true);
 	if (!is_array($arrayOne)) {
-		throw new Exception('not valid json : '.$jsonOne);
+		throw new \Exception('not valid json : '.$jsonOne);
 	}
 	$arrayTwo = json_decode($jsonTwo, true);
 	if (!is_array($arrayTwo)) {
-		throw new Exception('not valid json : '.$jsonTwo);
+		throw new \Exception('not valid json : '.$jsonTwo);
 	}
 	return compareArray($arrayOne, $arrayTwo);
 }
@@ -177,7 +179,7 @@ function compareXML($XMLOne, $XMLTwo) {
 		|| $DOMDocTwo->childNodes->length !== 1
 		|| !($DOMDocTwo->childNodes->item(0) instanceof \DOMElement)
 	) {
-		throw new Exception('manage only xml with one and only one root node');
+		throw new \Exception('manage only xml with one and only one root node');
 	}
 	return compareDomElement($DOMDocOne->childNodes->item(0), $DOMDocTwo->childNodes->item(0));
 }
@@ -248,7 +250,7 @@ function _compareDomElement(\DOMElement $DOMElementOne, \DOMElement $DOMElementT
 		}
 	}
 	if (!empty($DOMTextOne) && !empty($DOMElementsOne)) {
-		throw new Exception('do not manage comparison with node containing at same level text and element');
+		throw new \Exception('do not manage comparison with node containing at same level text and element');
 	}
 	foreach ($DOMElementTwo->childNodes as $childNode) {
 		if ($childNode->nodeType === XML_TEXT_NODE) {
@@ -262,7 +264,7 @@ function _compareDomElement(\DOMElement $DOMElementOne, \DOMElement $DOMElementT
 		}
 	}
 	if (!empty($DOMTextTwo) && !empty($DOMElementsTwo)) {
-		throw new Exception('do not manage comparison with node containing at same level text and element');
+		throw new \Exception('do not manage comparison with node containing at same level text and element');
 	}
 	if ($DOMTextOne !== $DOMTextTwo) {
 		trigger_error(sprintf('not same node value : .%s -> %s (%s) != %s (%s)', implode('.', $stack), $DOMTextOne, gettype($DOMTextOne), $DOMTextTwo, gettype($DOMTextTwo)));
@@ -290,37 +292,41 @@ function _compareDomElement(\DOMElement $DOMElementOne, \DOMElement $DOMElementT
 	array_pop($stack);
 	return true;
 }
+try {
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ModelTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RequestTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ExtendedModelTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ExtendedValueTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'XmlSerializationTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'JsonSerializationTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ImportExportTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ImportExportExceptionTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'MultipleForeignTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'IntermediateRequestTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ComplexRequestTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'MultipleIdRequestTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RequestFailureTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'IntermediateVsComplexRequestTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'PartialImportExportTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'DatabaseSerializationTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RestrictionTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueRestrictionTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'SelectQueryTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'FormulaTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'SetValueExceptionTest.php';
+} catch (CastComhonObjectException $e) {
+	var_dump("FAILURE !!!"
+		."\ncode : " . $e->getCode()
+		."\nmessage : " . $e->getMessage()
+		."\nclass exception : " . get_class($e)
+		."\ntrace : \n" . json_encode($e->getTrace())
+	);
+}
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ModelTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RequestTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ExtendedModelTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ExtendedValueTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'XmlSerializationTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'JsonSerializationTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ImportExportTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'MultipleForeignTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'IntermediateRequestTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ComplexRequestTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'MultipleIdRequestTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RequestFailureTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'IntermediateVsComplexRequestTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'PartialImportExportTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'DatabaseSerializationTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RestrictionTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueRestrictionTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'SelectQueryTest.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'FormulaTest.php';
-
-// add percent, index
-// add error code (verifvalue precise model if differents (instead of class that are the same))
-
-// composer
-// remove warnings use
-
-// for version > 2.0
+// TODO for version > 2.0
 // replace self tests by phpunit tests
 // autoloading manifest
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)
@@ -332,7 +338,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'Fo
 // mandatory value when serialize
 // common models/values in unique files
 // left/inner join simple/function litteral
-// versionning get instance model 3rd parameter version
+// versionning for manifest (get versionned instance model)
 // inheritage with join table
 // manifest validator
 // request order not only on requested model

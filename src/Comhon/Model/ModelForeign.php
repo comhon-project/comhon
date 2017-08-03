@@ -14,6 +14,7 @@ namespace Comhon\Model;
 use Comhon\Object\ComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
+use Comhon\Exception\ComhonException;
 
 class ModelForeign extends ModelContainer {
 
@@ -25,7 +26,7 @@ class ModelForeign extends ModelContainer {
 	public function __construct(Model $model) {
 		parent::__construct($model);
 		if ($this->model instanceof SimpleModel) {
-			throw new Exception('model of foreign model can\'t be a simple model');
+			throw new ComhonException('ModelForeign can\'t contain SimpleModel');
 		}
 	}
 	
@@ -59,7 +60,7 @@ class ModelForeign extends ModelContainer {
 			return null;
 		}
 		if (!$this->getUniqueModel()->hasIdProperties()) {
-			throw new \Exception('foreign property with local model must have id');
+			throw new ComhonException("foreign property must have model with id, actual model '{$this->getUniqueModel()->getName()}' doesn't");
 		}
 		return $this->getModel()->_exportId($object, $nodeName, $interfacer);
 	}
@@ -72,7 +73,7 @@ class ModelForeign extends ModelContainer {
 	 */
 	protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
 		if (!$this->getUniqueModel()->hasIdProperties()) {
-			throw new \Exception("foreign property must have model with id ({$this->getName()})");
+			throw new ComhonException("foreign property must have model with id, actual model '{$this->getUniqueModel()->getName()}' doesn't");
 		}
 		return $this->getModel()->_importId($value, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel);
 	}

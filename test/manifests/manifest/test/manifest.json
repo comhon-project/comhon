@@ -65,6 +65,14 @@
                 {
                     "name": "propertyTwoTwo",
                     "type": "string"
+                },
+                {
+                    "name": "propertyTwoArray",
+                    "type": "array",
+                    "values": {
+                        "type": "object",
+                        "name": "propertyTwoArrayValue"
+                    }
                 }
             ]
         },
@@ -103,6 +111,16 @@
             "name": "booleanValue",
             "type": "boolean",
             "default": true
+        },
+        {
+            "name": "indexValue",
+            "type": "index",
+            "default": 0
+        },
+        {
+            "name": "percentageValue",
+            "type": "percentage",
+            "default": 1
         },
         {
             "name": "dateValue",

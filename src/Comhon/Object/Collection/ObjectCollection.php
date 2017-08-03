@@ -15,6 +15,7 @@ use Comhon\Model\Model;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\ObjectUnique;
+use Comhon\Exception\ComhonException;
 
 class ObjectCollection {
 	
@@ -119,7 +120,7 @@ class ObjectCollection {
 				$success = true;
 			}
 			else if ($throwException) {
-				throw new \Exception('object already added');
+				throw new ComhonException('object already added');
 			}
 		}
 		
@@ -132,7 +133,7 @@ class ObjectCollection {
 				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
 					if (isset($this->map[$model->getName()][$id])) {
 						if ($this->map[$model->getName()][$id] !== $object) {
-							throw new \Exception('parent model already has different object instance with same id');
+							throw new ComhonException('parent model key has different object instance with same id');
 						}
 						break;
 					}
@@ -166,7 +167,7 @@ class ObjectCollection {
 				$model = $object->getModel()->getParent();
 				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
 					if (!isset($this->map[$model->getName()][$id]) || $this->map[$model->getName()][$id] !== $object) {
-						throw new \Exception('parent model doesn\'t have object or has different object instance with same id');
+						throw new ComhonException('parent model key doesn\'t have object or has different object instance with same id');
 					}
 					unset($this->map[$model->getName()][$id]);
 					$model = $model->getParent();

@@ -26,6 +26,8 @@ use Comhon\Model\ModelContainer;
 use Comhon\Model\ModelRestrictedArray;
 use Comhon\Manifest\Parser\ManifestParser as ParentManifestParser;
 use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Exception\ManifestException;
+use Comhon\Exception\UniqueModelNameException;
 
 class ManifestParser extends ParentManifestParser {
 
@@ -159,7 +161,7 @@ class ManifestParser extends ParentManifestParser {
 			} else if ($type === self::XML_NODE) {
 				$interfaceAsNodeXml = true;
 			} else {
-				throw new \Exception('invalid xml value : '.$type);
+				throw new ManifestException("invalid value '$type' for property 'xml'");
 			}
 		} else {
 			$interfaceAsNodeXml = null;
@@ -191,7 +193,7 @@ class ManifestParser extends ParentManifestParser {
 						$enumValues[$key] = $this->interfacer->extractNodeText($domNode);
 					}
 				} else {
-					throw new \Exception('enum cannot be defined on '.$uniqueModel->getName());
+					throw new ManifestException('enum cannot be defined on '.$uniqueModel->getName());
 				}
 			}
 			$restriction = new Enum($enumValues);
@@ -202,7 +204,7 @@ class ManifestParser extends ParentManifestParser {
 		}
 		elseif ($this->interfacer->hasValue($currentNode, 'pattern')) {
 			if (!($uniqueModel instanceof ModelString)) {
-				throw new \Exception('pattern cannot be defined on '.$uniqueModel->getName());
+				throw new ManifestException('pattern cannot be defined on '.$uniqueModel->getName());
 			}
 			$restriction = new Regex($this->interfacer->getValue($currentNode, 'pattern'));
 		}
@@ -222,12 +224,12 @@ class ManifestParser extends ParentManifestParser {
 			$default = $this->interfacer->getValue($currentProperty, 'default');
 			if ($propertyModel instanceof ModelDateTime) {
 				if (new \DateTime($default) === false) {
-					throw new \Exception('invalid default value time format : '.$default);
+					throw new ManifestException('invalid default value time format : '.$default);
 				}
 			} else if ($propertyModel instanceof SimpleModel) {
 				$default = $propertyModel->importSimple($default, $this->interfacer);
 			} else {
-				throw new \Exception('default value can\'t be applied on complex model');
+				throw new ManifestException('default value can\'t be applied on complex model');
 			}
 		} else {
 			$default = null;
@@ -249,11 +251,11 @@ class ManifestParser extends ParentManifestParser {
 		if ($typeId == 'array') {
 			$valuesNode = $this->interfacer->getValue($propertyNode, 'values', true);
 			if (is_null($valuesNode)) {
-				throw new \Exception('type array must have a values node');
+				throw new ManifestException('type array must have a values node');
 			}
 			$valuesName = $this->interfacer->getValue($valuesNode, 'name');
 			if (is_null($valuesName)) {
-				throw new \Exception('type array must have a values name property');
+				throw new ManifestException('type array must have a values name property');
 			}
 			$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
 			$restriction = $this->_getRestriction($valuesNode, $uniqueModel);
@@ -282,7 +284,7 @@ class ManifestParser extends ParentManifestParser {
 			foreach ($list as $type => $manifestPath_rfe) {
 				$fullyQualifiedName = $namespace . '\\' . $type;
 				if (array_key_exists($fullyQualifiedName, $instanceModels)) {
-					throw new \Exception("several model with same type : '$type'");
+					throw new UniqueModelNameException($type);
 				}
 				$instanceModels[$fullyQualifiedName] = [$manifestPath_ad.'/'.$manifestPath_rfe, null];
 			}

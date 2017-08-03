@@ -26,7 +26,7 @@ $Json = '{
 			{
 				"model"     : "person",
 				"queue"     : {"property" : "children"},
-				"havingClause" : {
+				"having" : {
 					"type" : "conjunction",
 					"elements" : [
 						{
@@ -50,7 +50,7 @@ $Json = '{
 						"property" : "house"
 					}
 				},
-				"havingLiteral" : {
+				"having" : {
 					"function" : "AVG",
 					"property" : "surface",
 					"operator" : "=",
@@ -69,7 +69,7 @@ $Json = '{
 					{
 						"model"     : "person",
 						"queue"     : {"property" : "homes"},
-						"havingClause" : {
+						"having" : {
 							"type" : "disjunction",
 							"elements" : [
 								{
@@ -166,7 +166,7 @@ $Json = '{
 			{
 				"node"      : "person",
 				"queue"     : {"property" : "children"},
-				"havingClause" : {
+				"having" : {
 					"type" : "conjunction",
 					"elements" : [
 						{
@@ -190,7 +190,7 @@ $Json = '{
 						"property" : "house"
 					}
 				},
-				"havingLiteral" : {
+				"having" : {
 					"function" : "AVG",
 					"property" : "surface",
 					"operator" : "=",
@@ -209,7 +209,7 @@ $Json = '{
 					{
 						"node"      : "person",
 						"queue"     : {"property" : "homes"},
-						"havingClause" : {
+						"having" : {
 							"type" : "disjunction",
 							"elements" : [
 								{

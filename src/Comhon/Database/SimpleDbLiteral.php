@@ -12,6 +12,7 @@
 namespace Comhon\Database;
 
 use Comhon\Logic\Literal;
+use Comhon\Exception\ComhonException;
 
 class SimpleDbLiteral extends DbLiteral {
 	
@@ -41,10 +42,10 @@ class SimpleDbLiteral extends DbLiteral {
 	 */
 	protected function _verifLiteral() {
 		if (is_null($this->value) && ($this->operator != '=') && ($this->operator != '<>')) {
-			throw new \Exception('literal with operator \''.$this->operator.'\' can\'t have null value');
+			throw new ComhonException('literal with operator \''.$this->operator.'\' can\'t have null value');
 		}
 		if (is_array($this->value) && ($this->operator != '=') && ($this->operator != '<>')) {
-			throw new \Exception('literal with operator \''.$this->operator.'\' can\'t have array value');
+			throw new ComhonException('literal with operator \''.$this->operator.'\' can\'t have array value');
 		}
 	}
 

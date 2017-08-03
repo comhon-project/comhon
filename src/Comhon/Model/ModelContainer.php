@@ -13,6 +13,7 @@ namespace Comhon\Model;
 
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
+use Comhon\Exception\ComhonException;
 
 abstract class ModelContainer extends Model {
 
@@ -37,7 +38,7 @@ abstract class ModelContainer extends Model {
 	 * @see \Comhon\Model\Model::getObjectClass()
 	 */
 	public function getObjectClass() {
-		throw new \Exception('containers models don\'t have associated class (except array and foreign model)');
+		throw new ComhonException('containers models don\'t have associated class (except array and foreign model)');
 	}
 	
 	/**
@@ -46,7 +47,7 @@ abstract class ModelContainer extends Model {
 	 * @see \Comhon\Model\Model::getObjectInstance()
 	 */
 	public function getObjectInstance($isloaded = true) {
-		throw new \Exception('containers models don\'t have associated class (except array and foreign model)');
+		throw new ComhonException('containers models don\'t have associated class (except array and foreign model)');
 	}
 	
 	/**
@@ -221,7 +222,7 @@ abstract class ModelContainer extends Model {
 	 * @see \Comhon\Model\Model::_export()
 	 */
 	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel) {
-		throw new \Exception('must be overrided');
+		throw new ComhonException('must be overrided');
 	}
 	
 	/**
@@ -230,7 +231,7 @@ abstract class ModelContainer extends Model {
 	 * @see \Comhon\Model\Model::_import()
 	 */
 	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
-		throw new \Exception('must be overrided');
+		throw new ComhonException('must be overrided');
 	}
 	
 }

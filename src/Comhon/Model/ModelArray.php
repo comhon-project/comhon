@@ -16,6 +16,11 @@ use Comhon\Model\MainModel;
 use Comhon\Object\ComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
+use Comhon\Exception\ArgumentException;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\Interfacer\ImportException;
+use Comhon\Exception\Interfacer\ExportException;
 
 class ModelArray extends ModelContainer {
 	
@@ -72,7 +77,7 @@ class ModelArray extends ModelContainer {
 	 */
 	protected function _addMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer) {
 		if (!($objectArray instanceof ObjectArray)) {
-			throw new \Exception('first parameter should be ObjectArray');
+			throw new ArgumentException($objectArray, ObjectArray::class, 1);
 		}
 		if ($interfacer->hasToExportMainForeignObjects()) {
 			foreach ($objectArray->getValues() as $object) {
@@ -90,7 +95,7 @@ class ModelArray extends ModelContainer {
 	 */
 	protected function _removeMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer) {
 		if (!($objectArray instanceof ObjectArray)) {
-			throw new \Exception('first parameter should be ObjectArray');
+			throw new ArgumentException($objectArray, ObjectArray::class, 1);
 		}
 		if ($interfacer->hasToExportMainForeignObjects()) {
 			foreach ($objectArray->getValues() as $object) {
@@ -116,9 +121,13 @@ class ModelArray extends ModelContainer {
 		}
 		$nodeArray = $interfacer->createArrayNode($nodeName);
 		
-		foreach ($objectArray->getValues() as $value) {
-			$this->verifElementValue($value);
-			$interfacer->addValue($nodeArray, $this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel), $this->elementName);
+		foreach ($objectArray->getValues() as $key => $value) {
+			try {
+				$this->verifElementValue($value);
+				$interfacer->addValue($nodeArray, $this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel), $this->elementName);
+			} catch (ComhonException $e) {
+				throw new ExportException($e, $key);
+			}
 		}
 		return $nodeArray;
 	}
@@ -158,11 +167,15 @@ class ModelArray extends ModelContainer {
 			return null;
 		}
 		if (!$interfacer->isArrayNodeValue($interfacedObject)) {
-			throw new \Exception('unexpeted value type');
+			throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getArrayNodeClasses()));
 		}
 		$objectArray = $this->getObjectInstance();
-		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
-			$objectArray->pushValue($this->getModel()->_import($element, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel), $interfacer->hasToFlagValuesAsUpdated());
+		foreach ($interfacer->getTraversableNode($interfacedObject) as $key => $element) {
+			try {
+				$objectArray->pushValue($this->getModel()->_import($element, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel), $interfacer->hasToFlagValuesAsUpdated());
+			} catch (ComhonException $e) {
+				throw new ImportException($e, $key);
+			}
 		}
 		return $objectArray;
 	}
@@ -194,11 +207,23 @@ class ModelArray extends ModelContainer {
 			return null;
 		}
 		if (!($this->getModel() instanceof MainModel)) {
-			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
+			throw new ComhonException('can\'t apply function. Only callable from ModelArray that contain MainModel');
+		}
+		if ($interfacedObject instanceof \SimpleXMLElement) {
+			$interfacedObject = dom_import_simplexml($interfacedObject);
+		}
+		if (!$interfacer->isArrayNodeValue($interfacedObject)) {
+			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
+			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 		}
 		$objectArray = $this->getObjectInstance();
-		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
-			$objectArray->pushValue($this->getModel()->import($element, $interfacer), $interfacer->hasToFlagValuesAsUpdated());
+		foreach ($interfacer->getTraversableNode($interfacedObject) as $key => $element) {
+			try {
+				$value = $interfacer->isNullValue($element) ? null : $this->getModel()->import($element, $interfacer);
+				$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
+			} catch (ComhonException $e) {
+				throw new ImportException($e, $key);
+			}
 		}
 		return $objectArray;
 	}
@@ -212,7 +237,14 @@ class ModelArray extends ModelContainer {
 		$this->load();
 		$this->verifValue($objectArray);
 		if (!($this->getModel() instanceof MainModel)) {
-			throw new \Exception('can\'t apply function. Only callable for array with MainModel');
+			throw new ComhonException('can\'t apply function. Only callable from ModelArray that contain MainModel');
+		}
+		if ($interfacedObject instanceof \SimpleXMLElement) {
+			$interfacedObject = dom_import_simplexml($interfacedObject);
+		}
+		if (!$interfacer->isArrayNodeValue($interfacedObject)) {
+			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
+			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 		}
 		$localObjectCollection = new ObjectCollection();
 		if ($interfacer->getMergeType() !== Interfacer::NO_MERGE) {
@@ -221,8 +253,13 @@ class ModelArray extends ModelContainer {
 			}
 		}
 		$objectArray->reset();
-		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
-			$objectArray->pushValue($this->getModel()->_importMain($element, $interfacer, $localObjectCollection), $interfacer->hasToFlagValuesAsUpdated());
+		foreach ($interfacer->getTraversableNode($interfacedObject) as $key => $element) {
+			try {
+				$value = $interfacer->isNullValue($element) ? null : $this->getModel()->_importMain($element, $interfacer, $localObjectCollection);
+				$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
+			} catch (ComhonException $e) {
+				throw new ImportException($e, $key);
+			}
 		}
 		$objectArray->setIsLoaded(true);
 	}
@@ -234,9 +271,8 @@ class ModelArray extends ModelContainer {
 	 */
 	public function verifValue($value) {
 		if (!($value instanceof ObjectArray) || ($value->getModel()->getModel() !== $this->getModel() && !$value->getModel()->getModel()->isInheritedFrom($this->getModel()))) {
-			$nodes = debug_backtrace();
-			$class = gettype($value) == 'object' ? get_class($value): gettype($value);
-			throw new \Exception("Argument passed to {$nodes[0]['class']}::{$nodes[0]['function']}() must be an instance of {$this->getObjectClass()}, instance of $class given, called in {$nodes[0]['file']} on line {$nodes[0]['line']} and defined in {$nodes[0]['file']}");
+			$Obj = $this->getObjectInstance();
+			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
 		}
 		return true;
 	}

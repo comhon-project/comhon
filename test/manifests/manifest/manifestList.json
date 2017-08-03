@@ -23,6 +23,10 @@
 		"localExtendsMain"    : "localExtendsMain/manifest.json",
 		"testRestricted" : "testRestricted/manifest.json",
 		"testPrivateId"  : "testPrivateId/manifest.json",
-		"childTestDb"    : "childTestDb/manifest.json"
+		"childTestDb"    : "childTestDb/manifest.json",
+		"notLinkableTestDb" : "notLinkableTestDb/manifest.json",
+		"locatedHouse"   : "locatedHouse/manifest.json",
+		"testNoSerialization" : "testNoSerialization/manifest.json",
+		"testNoId" : "testNoId/manifest.json"
 	}
 }

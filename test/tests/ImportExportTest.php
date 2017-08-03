@@ -9,6 +9,7 @@ use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\Interfacer;
+use Comhon\Exception\ComhonException;
 
 $time_start = microtime(true);
 
@@ -100,7 +101,7 @@ $newObject = new FinalObject('testDb');
 try {
 	$dbTestModel->fillObject($newObject, $copiedObject->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 	$throw = true;
-} catch (Exception $e) {
+} catch (ComhonException $e) {
 	$throw = false;
 }
 if ($throw) {
@@ -637,7 +638,7 @@ $testXmlModel = ModelManager::getInstance()->getInstanceModel('testXml');
 $testXml = $testXmlModel->loadObject('plop2');
 
 if (!compareXML($xmlPrivateInterfacer->toString($testXml->export($xmlPrivateInterfacer)), '<testXml textAttribute="attribute"><name>plop2</name><textNode>node</textNode><objectValue id="1" propertyOne="plop1" propertyTwo="plop11"/><objectValues><objectValue id="2" propertyOne="plop2" propertyTwo="plop22"/><objectValue id="3" propertyOne="plop3" propertyTwo="plop33"/></objectValues><objectContainer><foreignObjectValue>3</foreignObjectValue><objectValueTwo id="1" propertyTwoOne="2plop1"/><person id="1" firstName="Bernard" lastName="Dupond"><birthPlace>2</birthPlace><children><child id="5" __inheritance__="man"/><child id="6" __inheritance__="man"/></children></person></objectContainer><foreignObjectValues><foreignObjectValue>1</foreignObjectValue><foreignObjectValue>2</foreignObjectValue></foreignObjectValues></testXml>')) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 $testXml1 = $testXmlModel->getObjectInstance();
@@ -647,20 +648,20 @@ $domNode1 = $testXml1->export($xmlPrivateInterfacer);
 $xml1     = $xmlPrivateInterfacer->toString($domNode1);
 
 if (!compareXML($xml1, '<testXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><name xsi:nil="true"/><textNode></textNode></testXml>')) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 $testXml2 = $testXmlModel->getObjectInstance();
 $testXml2->fill($domNode1, $xmlPrivateInterfacer);
 
 if (!$testXml2->hasValue('name') || $testXml2->getValue('name') !== null) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($testXml2->getValue('textNode') !== '') {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($xmlPrivateInterfacer->toString($testXml2->export($xmlPrivateInterfacer))!== $xml1) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 /** ************************************** test null values ********************************************* **/

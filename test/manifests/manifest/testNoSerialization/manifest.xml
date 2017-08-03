@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0">
+	<properties>
+		<property type="integer" name="id" is_id="1"/>
+		<property type="string" name="name"/>
+	</properties>
+</manifest>

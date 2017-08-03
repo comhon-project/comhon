@@ -11,6 +11,8 @@
 
 namespace Comhon\Database;
 
+use Comhon\Exception\ComhonException;
+
 class TableNode {
 
 	/** @var string */
@@ -33,7 +35,7 @@ class TableNode {
 	 */
 	public function __construct($table, $alias = null, $selectAllColumns = true) {
 		if (($table instanceof SelectQuery) && is_null($alias)) {
-			throw new \Exception('TableNode must have an alias if specified table is an instance of SelectQuery');
+			throw new ComhonException('TableNode must have an alias if specified table is an instance of SelectQuery');
 		}
 		$this->table = $table;
 		$this->alias = $alias;

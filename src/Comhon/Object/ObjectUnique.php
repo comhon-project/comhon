@@ -15,8 +15,10 @@ use Comhon\Model\Model;
 use Comhon\Model\MainModel;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Model\Property\AggregationProperty;
-use Comhon\Exception\CastException;
+use Comhon\Exception\CastComhonObjectException;
 use Comhon\Object\ObjectArray;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\SerializationException;
 
 abstract class ObjectUnique extends ComhonObject {
 	
@@ -272,17 +274,14 @@ abstract class ObjectUnique extends ComhonObject {
 	 *
 	 * @param \Comhon\Model\Model $model
 	 * @throws \Exception
-	 * @throws \Comhon\Exception\CastException
+	 * @throws \Comhon\Exception\CastComhonObjectException
 	 */
 	final public function cast(Model $model) {
-		if ($this instanceof ObjectArray) {
-			throw new \Exception('object array cannot be casted');
-		}
 		if ($this->getModel() === $model) {
 			return;
 		}
 		if (!$model->isInheritedFrom($this->getModel())) {
-			throw new CastException($model, $this->getModel());
+			throw new CastComhonObjectException($model, $this->getModel());
 		}
 		$addObject = false;
 		if ($this->hasCompleteId() && $this->getModel()->hasIdProperties()) {
@@ -290,7 +289,7 @@ abstract class ObjectUnique extends ComhonObject {
 			if ($object === $this) {
 				$addObject = true;
 				if (MainObjectCollection::getInstance()->hasObject($this->getId(), $model->getName(), false)) {
-					throw new \Exception("Cannot cast object to '{$model->getName()}'. Object with id '{$this->getId()}' and model '{$model->getName()}' already exists in MainModelCollection");
+					throw new ComhonException("Cannot cast object to '{$model->getName()}'. Object with id '{$this->getId()}' and model '{$model->getName()}' already exists in MainModelCollection");
 				}
 			}
 		}
@@ -299,6 +298,14 @@ abstract class ObjectUnique extends ComhonObject {
 		if (($this->getModel() instanceof MainModel) && $addObject) {
 			MainObjectCollection::getInstance()->addObject($this);
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\ComhonObject::getComhonClass()
+	 */
+	final public function getComhonClass() {
+		return get_class($this) . "({$this->getModel()->getName()})";
 	}
 	
 	 /***********************************************************************************************\
@@ -320,7 +327,7 @@ abstract class ObjectUnique extends ComhonObject {
 	 */
 	final public function save($operation = null) {
 		if (is_null($this->getModel()->getSerialization())) {
-			throw new \Exception('model doesn\'t have serialization');
+			throw new SerializationException('model doesn\'t have serialization');
 		}
 		return $this->getModel()->getSerialization()->saveObject($this, $operation);
 	}
@@ -335,7 +342,7 @@ abstract class ObjectUnique extends ComhonObject {
 	 */
 	final public function delete() {
 		if (is_null($this->getModel()->getSerialization())) {
-			throw new \Exception('model doesn\'t have serialization');
+			throw new SerializationException('model doesn\'t have serialization');
 		}
 		return $this->getModel()->getSerialization()->deleteObject($this);
 	}

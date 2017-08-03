@@ -11,6 +11,10 @@
 
 namespace Comhon\Database;
 
+use Comhon\Exception\Literal\MalformedLiteralException;
+use Comhon\Exception\PropertyVisibilityException;
+use Comhon\Exception\ComhonException;
+
 class HavingLiteral extends DbLiteral {
 
 	/** @var string */
@@ -55,10 +59,7 @@ class HavingLiteral extends DbLiteral {
 		parent::__construct($table, $column, $operator);
 		
 		if (!array_key_exists($function, self::$allowedFunctions)) {
-			throw new \Exception('function \''.$function.'\' doesn\'t exists');
-		}
-		if (!is_int($value)) {
-			throw new \Exception('having literal must have an integer value');
+			throw new ComhonException("function '$function' not allowed");
 		}
 		
 		$this->function = $function;
@@ -93,8 +94,17 @@ class HavingLiteral extends DbLiteral {
 	 * @throws \Exception
 	 */
 	private static function _verifStdObject($stdObject) {
-		if (!is_object($stdObject) || !isset($stdObject->function) || !isset($stdObject->operator) ||!isset($stdObject->value)) {
-			throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
+		if (
+			!is_object($stdObject) 
+			|| !isset($stdObject->operator)
+			|| !array_key_exists($stdObject->operator, self::$allowedOperators)
+			|| !isset($stdObject->value)
+			|| !is_int($stdObject->value)
+			|| !isset($stdObject->function)
+			|| !array_key_exists($stdObject->function, self::$allowedFunctions)
+			|| (($stdObject->function != self::COUNT) && !isset($stdObject->property))
+		) {
+			throw new MalformedLiteralException($stdObject);
 		}
 	}
 	
@@ -113,23 +123,21 @@ class HavingLiteral extends DbLiteral {
 		
 		if ($stdObject->function == self::COUNT) {
 			$column = null;
-		} else if (isset($stdObject->property)) {
+		} else {
 			if (is_null($model)) {
-				throw new \Exception('model can\'t be null if function is different than COUNT');
+				throw new ComhonException('model can\'t be null if function is different than COUNT');
 			}
 			$property = $model->getProperty($stdObject->property, true);
 			if (!$allowPrivateProperties && $property->isPrivate()) {
-				throw new \Exception("having literal contain private property '{$property->getName()}'");
+				throw new PropertyVisibilityException($property->getName());
 			}
 			$column = $property->getSerializationName();
-		} else {
-			throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
 		}
 		
 		if (isset($stdObject->node)) {
 			$table = $stdObject->node;
 		} else if (is_null($table)) {
-			throw new \Exception('literal dosen\'t have property \'node\' and table is not specified in parameter : '.json_encode($stdObject));
+			throw new ComhonException('literal dosen\'t have property \'node\' and table is not specified in parameter : '.json_encode($stdObject));
 		}
 		
 		$literal  = new HavingLiteral($stdObject->function, $table, $column, $stdObject->operator, $stdObject->value);

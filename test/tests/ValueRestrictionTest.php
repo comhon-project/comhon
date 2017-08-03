@@ -9,6 +9,9 @@ use Comhon\Exception\NotSatisfiedRestrictionException;
 use Comhon\Object\ComhonObject as Object;
 use Comhon\Model\Restriction\Regex;
 use Comhon\Model\Restriction\Enum;
+use Comhon\Exception\Interfacer\ImportException;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\Interfacer\ExportException;
 
 $time_start = microtime(true);
 
@@ -17,11 +20,19 @@ $testRestricted = $testRestrictedModel->getObjectInstance();
 
 /** ******************* test setValue fail ********************** **/
 
+function checkTraceLastFunction(\Exception $e) {
+	$trace = $e->getTrace();
+	if (!in_array($trace[0]['function'], ['setValue', 'pushValue', 'unshiftValue'])) {
+		throw new \Exception("unexpected exception trace, unexpected last function : ".json_encode($e->getTrace()));
+	}
+}
+
 function testSetBadValue(Object $object, $propertyName, $value) {
 	try {
 		$object->setValue($propertyName, $value);
 		$throw = true;
 	} catch (NotSatisfiedRestrictionException $e) {
+		checkTraceLastFunction($e);
 		$throw = false;
 	}
 	if ($throw) {
@@ -33,7 +44,8 @@ function testSetBadArrayValue(Object $object, $propertyName, $value) {
 	try {
 		$object->setValue($propertyName, $value);
 		$throw = true;
-	} catch (Exception $e) {
+	} catch (ComhonException $e) {
+		checkTraceLastFunction($e);
 		$throw = false;
 	}
 	if ($throw) {
@@ -46,6 +58,7 @@ function testPushBadValue(Object $object, $value) {
 		$object->pushValue($value);
 		$throw = true;
 	} catch (NotSatisfiedRestrictionException $e) {
+		checkTraceLastFunction($e);
 		$throw = false;
 	}
 	if ($throw) {
@@ -58,6 +71,7 @@ function testUnshiftBadValue(Object $object, $value) {
 		$object->unshiftValue($value);
 		$throw = true;
 	} catch (NotSatisfiedRestrictionException $e) {
+		checkTraceLastFunction($e);
 		$throw = false;
 	}
 	if ($throw) {
@@ -122,11 +136,11 @@ $testRestricted->setValue('intervalInArray', $intervalInArray);
 $testRestricted->initValue('enumIntArray');
 $testRestricted->initValue('enumFloatArray');
 
-$test->setValue('enumValue', 'plop1');
-$test->getValue('enumIntArray')->setValue(0, 1);
-$test->getValue('enumIntArray')->setValue(1, 3);
-$test->getValue('enumFloatArray')->pushValue(1.5);
-$test->getValue('enumFloatArray')->pushValue(3.5);
+$testRestricted->setValue('enumValue', 'plop1');
+$testRestricted->getValue('enumIntArray')->setValue(0, 1);
+$testRestricted->getValue('enumIntArray')->setValue(1, 3);
+$testRestricted->getValue('enumFloatArray')->pushValue(1.5);
+$testRestricted->getValue('enumFloatArray')->pushValue(3.5);
 
 
 /** ************** test export import with values not in restriction fail *************** **/
@@ -136,11 +150,14 @@ $testRestricted->getValue('enumFloatArray')->pushValue(4.5, true, false);
 try {
 	$testRestricted->export($stdPrivateInterfacer);
 	$throw = true;
-} catch (NotSatisfiedRestrictionException $e) {
+} catch (ExportException $e) {
+	if (!($e->getOriginalException() instanceof NotSatisfiedRestrictionException)) {
+		throw new \Exception('wrong exception');
+	}
 	$throw = false;
 }
 if ($throw) {
-	throw new Exception('export with values not in enum');
+	throw new \Exception('export with values not in enum');
 }
 
 $testRestricted->getValue('enumFloatArray')->popValue();
@@ -150,28 +167,34 @@ $testRestricted->getValue('enumFloatArray')->unshiftValue(4.5, true, false);
 try {
 	$testRestricted->export($stdPrivateInterfacer);
 	$throw = true;
-} catch (NotSatisfiedRestrictionException $e) {
+} catch (ExportException $e) {
+	if (!($e->getOriginalException() instanceof NotSatisfiedRestrictionException)) {
+		throw new \Exception('wrong exception');
+	}
 	$throw = false;
 }
 if ($throw) {
-	throw new Exception('export with values not in enum');
+	throw new \Exception('export with values not in enum');
 }
 $testRestricted->getValue('enumFloatArray')->shiftValue();
 $testRestricted->export($stdPrivateInterfacer);
 
-if (!compareJson(json_encode($testRestricted->export($stdPrivateInterfacer)), '{"enumIntArray":[],"enumFloatArray":[],"emails":["plop@plop.fr","plop.plop@plop.plop"],"intervalInArray":[-1.4,1],"color":"#12abA8","naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00"}')) {
-	throw new Exception('bad value');
+if (!compareJson(json_encode($testRestricted->export($stdPrivateInterfacer)), '{"enumIntArray":[1,3],"enumFloatArray":[1.5,3.5],"emails":["plop@plop.fr","plop.plop@plop.plop"],"intervalInArray":[-1.4,1],"color":"#12abA8","naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00","enumValue":"plop1"}')) {
+	throw new \Exception('bad value');
 }
 $testRestricted->fill(json_decode('{"color":"#12abA8","emails":[],"naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00","intervalInArray":[],"enumIntArray":[],"enumFloatArray":[]}'), $stdPrivateInterfacer);
 
 try {
 	$testRestricted->fill(json_decode('{"color":"#12abA8","emails":[],"naturalNumber":-5,"birthDate":"2000-01-01T00:00:00+01:00","intervalInArray":[],"enumIntArray":[],"enumFloatArray":[]}'), $stdPrivateInterfacer);
 	$throw = true;
-} catch (NotSatisfiedRestrictionException $e) {
+} catch (ImportException $e) {
+	if (!($e->getOriginalException() instanceof NotSatisfiedRestrictionException)) {
+		throw new ComhonException("wrong exception");
+	}
 	$throw = false;
 }
 if ($throw) {
-	throw new Exception('export with values not in enum');
+	throw new \Exception('export with values not in enum');
 }
 
 /** ************** test set value array with good restriction but not same instance *************** **/

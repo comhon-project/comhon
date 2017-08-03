@@ -53,5 +53,10 @@
 		<property is_foreign="1" type="array" name="childrenTestDb">
 			<values type="\childTestDb" name="childTestDb"/>
 		</property>
+		<property is_foreign="1" type="array" name="notLinkableArrayTestDb">
+			<values type="\notLinkableTestDb" name="childTestDb"/>
+		</property>
+		<property is_foreign="1" type="\notLinkableTestDb" name="notLinkableTestDb"/>
+		<property is_foreign="1" type="\test" name="notLinkableTestObjValue"/>
 	</properties>
 </manifest>

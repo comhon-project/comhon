@@ -27,6 +27,9 @@
 				<property type="string" is_id="1" name="id"/>
 				<property type="string" name="propertyTwoOne"/>
 				<property type="string" name="propertyTwoTwo"/>
+				<property type="array" name="propertyTwoArray">
+					<values type="object" name="propertyTwoArrayValue"/>
+				</property>
 			</properties>
 		</type>
 		<type name="objectRefParent">
@@ -42,6 +45,8 @@
 		<property type="string" default="plop" name="stringValue"/>
 		<property type="float" default="1.5" name="floatValue"/>
 		<property type="boolean" default="1" name="booleanValue"/>
+		<property type="index" default="0" name="indexValue"/>
+		<property type="percentage" default="1" name="percentageValue"/>
 		<property type="dateTime" default="2016-11-13 20:04:05" name="dateValue"/>
 		<property type="object" name="objectValue"/>
 		<property type="array" name="objectValues">

@@ -14,6 +14,7 @@ namespace Comhon\Object\Config;
 use Comhon\Object\ExtendableObject;
 use Comhon\Object\ComhonObject;
 use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Exception\ComhonException;
 
 class Config extends ExtendableObject {
 	
@@ -33,7 +34,7 @@ class Config extends ExtendableObject {
 			$stdInterfacer->setPrivateContext(true);
 			$jsonConfig = $stdInterfacer->read($config_afe);
 			if (is_null($jsonConfig) || $jsonConfig === false) {
-				throw new \Exception('failure when try to read comhon config file');
+				throw new ComhonException('failure when try to read comhon config file');
 			}
 			self::$_instance = new self();
 			self::$_instance->fill($jsonConfig, $stdInterfacer);

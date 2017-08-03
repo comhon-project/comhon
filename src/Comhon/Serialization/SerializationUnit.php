@@ -12,12 +12,13 @@
 namespace Comhon\Serialization;
 
 use Comhon\Model\Model;
-use Comhon\Object\ObjectArray;
 use Comhon\Object\ComhonObject;
 use Comhon\Model\MainModel;
 use Comhon\Serialization\File\XmlFile;
 use Comhon\Serialization\File\JsonFile;
 use Comhon\Object\ObjectUnique;
+use Comhon\Exception\SerializationException;
+use Comhon\Exception\ArgumentException;
 
 abstract class SerializationUnit {
 
@@ -64,7 +65,7 @@ abstract class SerializationUnit {
 		if (!is_null($class)) {
 			$lSerializationUnit = new $class($settings, $inheritanceKey);
 			if (!($lSerializationUnit instanceof SerializationUnit)) {
-				throw new \Exception('customized serialization should inherit from SerializationUnit');
+				throw new SerializationException('customized serialization should inherit from SerializationUnit');
 			}
 		}
 		switch ($settings->getModel()->getName()) {
@@ -112,10 +113,10 @@ abstract class SerializationUnit {
 	 */
 	public function saveObject(ObjectUnique $object, $operation = null) {
 		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
-			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
+			throw new SerializationException('class serialization settings mismatch with parameter Object serialization settings');
 		}
 		if (!is_null($operation) && ($operation !== self::CREATE) && ($operation !== self::UPDATE)) {
-			throw new \Exception("operation '$operation' not recognized");
+			throw new ArgumentException($operation, [self::CREATE, self::UPDATE], 2);
 		}
 		$result = $this->_saveObject($object, $operation);
 		$object->resetUpdatedStatus();
@@ -133,7 +134,7 @@ abstract class SerializationUnit {
 	 */
 	public function loadObject(ObjectUnique $object, $propertiesFilter = null) {
 		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
-			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
+			throw new SerializationException('class serialization settings mismatch with parameter Object serialization settings');
 		}
 		return $this->_loadObject($object, $propertiesFilter);
 	}
@@ -147,7 +148,7 @@ abstract class SerializationUnit {
 	 */
 	public function deleteObject(ObjectUnique $object) {
 		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
-			throw new \Exception('class serialization settings mismatch with parameter Object serialization settings');
+			throw new SerializationException('class serialization settings mismatch with parameter Object serialization settings');
 		}
 		return $this->_deleteObject($object);
 	}
@@ -188,16 +189,4 @@ abstract class SerializationUnit {
 	 */
 	abstract protected function _deleteObject(ObjectUnique $object);
 	
-	/**
-	 * load aggregation from serialization according parent id
-	 * 
-	 * @param \Comhon\Object\ObjectArray $object
-	 * @param string|integer $parentId
-	 * @param string[] $aggregationProperties
-	 * @param boolean $onlyIds
-	 * @throws \Exception
-	 */
-	public function loadAggregation(ObjectArray $object, $parentId, $aggregationProperties, $onlyIds) {
-		throw new \Exception('error : property is not serialized in a sql table');
-	}
 }

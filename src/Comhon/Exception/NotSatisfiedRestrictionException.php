@@ -13,15 +13,31 @@ namespace Comhon\Exception;
 
 use Comhon\Model\Restriction\Restriction;
 
-class NotSatisfiedRestrictionException extends \Exception {
+class NotSatisfiedRestrictionException extends UnexpectedValueTypeException {
+	
+	/**
+	 * @var \Comhon\Model\Restriction\Restriction
+	 */
+	private $restriction;
 	
 	/**
 	 * @param mixed $value
 	 * @param \Comhon\Model\Restriction\Restriction $restriction
 	 */
 	public function __construct($value, Restriction $restriction) {
-		$message = $restriction->toString($value);
-		parent::__construct($message, ConstantException::NOT_SATISFIED_RESTRICTION_EXCEPTION);
+		$this->restriction = $restriction;
+		$message = $restriction->toMessage($value);
+		$this->message = $message;
+		$this->code = ConstantException::NOT_SATISFIED_RESTRICTION_EXCEPTION;
+	}
+	
+	/**
+	 * get restriction
+	 * 
+	 * @return \Comhon\Model\Restriction\Restriction
+	 */
+	public function getRestriction() {
+		return $this->restriction;
 	}
 	
 }

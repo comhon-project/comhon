@@ -13,6 +13,7 @@ namespace Comhon\Model\Property;
 
 use Comhon\Model\Model;
 use Comhon\Object\ObjectUnique;
+use Comhon\Object\Object;
 
 class ForeignProperty extends Property {
 	
@@ -37,11 +38,6 @@ class ForeignProperty extends Property {
 		$this->getModel()->verifValue($object);
 		if ($object->isLoaded() && !$forceLoad) {
 			return false;
-		}
-		if ($object->getModel() !== $this->getUniqueModel() && !$object->getModel()->isInheritedFrom($this->getUniqueModel())) {
-			$reflexion1 = new \ReflectionClass(get_class($object->getModel()));
-			$reflexion2 = new \ReflectionClass(get_class($this->getUniqueModel()));
-			throw new \Exception("object not compatible with property : {$object->getModel()->getName()} ({$reflexion1->getShortName()}) | {$this->getUniqueModel()->getName()} ({$reflexion2->getShortName()})");
 		}
 		$serializationUnit = $this->getUniqueModel()->getSerialization();
 		if (is_null($serializationUnit)) {

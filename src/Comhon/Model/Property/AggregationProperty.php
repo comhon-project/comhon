@@ -14,6 +14,8 @@ namespace Comhon\Model\Property;
 use Comhon\Object\ObjectArray;
 use Comhon\Object\ObjectUnique;
 use Comhon\Model\Model;
+use Comhon\Exception\ComhonException;
+use Comhon\Serialization\SqlTable;
 
 class AggregationProperty extends ForeignProperty {
 	
@@ -32,7 +34,7 @@ class AggregationProperty extends ForeignProperty {
 	public function __construct(Model $model, $name, $aggregationProperties, $serializationName = null, $isPrivate = false) {
 		parent::__construct($model, $name, $serializationName, $isPrivate, false);
 		if (empty($aggregationProperties)) {
-			throw new \Exception('aggregation must have at least one aggregation property');
+			throw new ComhonException('aggregation must have at least one aggregation property');
 		}
 		$this->aggregationProperties = $aggregationProperties;
 	}
@@ -62,7 +64,7 @@ class AggregationProperty extends ForeignProperty {
 	 * @throws \Exception cannot call this function for aggregation
 	 */
 	public function loadValue(ObjectUnique $object, $propertiesFilter = null, $forceLoad = false) {
-		throw new \Exception('use loadAggregationValue function');
+		throw new ComhonException('use self::loadAggregationValue() function');
 	}
 	
 	/**
@@ -80,8 +82,8 @@ class AggregationProperty extends ForeignProperty {
 			return false;
 		}
 		$serializationUnit = $this->getUniqueModel()->getSerialization();
-		if (is_null($serializationUnit)) {
-			throw new \Exception('aggregation has not model with sql serialization');
+		if (!($serializationUnit instanceof SqlTable)) {
+			throw new ComhonException('aggregation doesn\'t have model with sql serialization');
 		}
 		return $serializationUnit->loadAggregation($objectArray, $parentObject->getId(), $this->aggregationProperties, $propertiesFilter);
 	}
@@ -94,7 +96,7 @@ class AggregationProperty extends ForeignProperty {
 	public function loadAggregationIds(ObjectArray $objectArray, ObjectUnique $parentObject, $forceLoad = false) {
 		$this->getModel()->verifValue($objectArray);
 		if (is_null($sqlTableUnit = $this->getUniqueModel()->getSqlTableUnit())) {
-			throw new \Exception('aggregation has not model with sql serialization');
+			throw new ComhonException('aggregation doesn\'t have model with sql serialization');
 		}
 		if ($objectArray->isLoaded() && !$forceLoad) {
 			return false;

@@ -12,6 +12,7 @@
 namespace Comhon\Database;
 
 use Comhon\Logic\Formula;
+use Comhon\Exception\ComhonException;
 
 class SelectQuery {
 
@@ -83,6 +84,25 @@ class SelectQuery {
 	}
 	
 	/**
+	 * get allowed order types
+	 * 
+	 * @return string[]
+	 */
+	public static function getAllowedOrderTypes() {
+		return array_keys(self::$allowedOrders);
+	}
+	
+	/**
+	 * verify if order type is allowed
+	 *
+	 * @param string $type
+	 * @return boolean
+	 */
+	public static function isAllowedOrderType($type) {
+		return array_key_exists($type, self::$allowedOrders);
+	}
+	
+	/**
 	 * initialize new select query (reset all previous settings)
 	 *
 	 * @param string|TableNode $table
@@ -109,7 +129,7 @@ class SelectQuery {
 		} else if ($table instanceof TableNode) {
 			$mainTable = $table;
 		} else {
-			throw new \Exception('invalid parameter table, should be string or instance of TableNode');
+			throw new ComhonException('invalid parameter table, should be string or instance of TableNode');
 		}
 		$this->tables = [$mainTable];
 		$this->tableFocus = $mainTable;
@@ -146,7 +166,7 @@ class SelectQuery {
 				}
 			}
 		} else {
-			throw new \Exception('bad first parameter should be string or instance of TabelNode');
+			throw new ComhonException('bad first parameter should be string or instance of TabelNode');
 		}
 		return false;
 	}
@@ -190,7 +210,7 @@ class SelectQuery {
 			$tableName = $table;
 		}
 		if (!array_key_exists($joinType, self::$allowedJoins)) {
-			throw new \Exception("undefined join type '$joinType'");
+			throw new ComhonException("undefined join type '$joinType'");
 		}
 		$this->tables[] = $tableNode;
 		$this->tableFocus = $tableNode;
@@ -249,13 +269,13 @@ class SelectQuery {
 	 * add order column on focused table
 	 * 
 	 * @param string $column
-	 * @param string $type
+	 * @param string $type [self::ASC, self::DESC]
 	 * @throws \Exception
 	 * @return \Comhon\Database\SelectQuery
 	 */
 	public function addOrder($column, $type = self::ASC) {
 		if (!array_key_exists($type, self::$allowedOrders)) {
-			throw new \Exception("undefined order type '$type'");
+			throw new ComhonException("undefined order type '$type'");
 		}
 		$order = $type == self::ASC ? $column : $column . " $type";
 		$this->order[] = [$this->tableFocus, $order];
@@ -296,7 +316,7 @@ class SelectQuery {
 		$tables = [];
 		foreach ($this->tables as $tableInQuery) {
 			if (array_key_exists($tableInQuery->getExportName(), $tables)) {
-				throw new \Exception("duplicate table '{$tableInQuery->getExportName()}'");
+				throw new ComhonException("duplicate table '{$tableInQuery->getExportName()}'");
 			}
 			$tables[$tableInQuery->getExportName()] = null;
 		}

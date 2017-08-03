@@ -32,17 +32,17 @@ $interfacer->setValue($node, $nodeArray, 'array');
 $interfacer->flattenNode($node, 'array');
 
 if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 $interfacer->unflattenNode($node, 'array');
 if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":["value1","value2",{"object_element_prop":123,"object_element_node":123}]}') {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 $interfacer->flattenNode($node, 'array');
 if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 /** ************************* XML **************************** **/
@@ -68,17 +68,17 @@ $interfacer->setValue($node, $nodeArray, 'array');
 $interfacer->flattenNode($node, 'array');
 
 if (!compareXML($interfacer->toString($node), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>')) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 $interfacer->unflattenNode($node, 'array');
 if (!compareXML($interfacer->toString($node), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array><element>value1</element><element>value2</element><element object_element_prop="123"><object_element_node>123</object_element_node></element></array></root>')) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 $interfacer->flattenNode($node, 'array');
 if (!compareXML($interfacer->toString($node), '<root root_prop="root_value"><object prop="value"><prop_node>value_node</prop_node></object><array>&lt;element&gt;value1&lt;/element&gt;&lt;element&gt;value2&lt;/element&gt;&lt;element object_element_prop="123"&gt;&lt;object_element_node&gt;123&lt;/object_element_node&gt;&lt;/element&gt;</array></root>')) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 /** ************************* array **************************** **/
@@ -104,17 +104,17 @@ $interfacer->setValue($node, $nodeArray, 'array');
 $interfacer->flattenNode($node, 'array');
 
 if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 $interfacer->unflattenNode($node, 'array');
 if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":["value1","value2",{"object_element_prop":123,"object_element_node":123}]}') {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 $interfacer->flattenNode($node, 'array');
 if ($interfacer->toString($node) !== '{"object":{"prop":"value","prop_node":"value_node"},"root_prop":"root_value","array":"[\"value1\",\"value2\",{\"object_element_prop\":123,\"object_element_node\":123}]"}') {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 /** ************************* preferences **************************** **/
@@ -136,40 +136,40 @@ $preferences = [
 $interfacer->setPreferences($preferences);
 
 if ($interfacer->isPrivateContext() !== true) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($interfacer->isSerialContext() !== true) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($interfacer->getDateTimeZone()->getName() !== 'Pacific/Tahiti') {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($interfacer->getDateTimeFormat() !== 'Y-m-d H:i:s') {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($interfacer->hasToExportOnlyUpdatedValues() !== true) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($interfacer->getPropertiesFilter('haha') !== null) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if (json_encode($interfacer->getPropertiesFilter('person')) !== '{"haha":0,"hoho":1,"id":null}') {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($interfacer->hasToFlattenValues() !== true) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($interfacer->hasToExportMainForeignObjects() !== true) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($interfacer->hasToFlagValuesAsUpdated() !== false) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($interfacer->hasToFlagObjectAsLoaded() !== false) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 if ($interfacer->getMergeType() !== Interfacer::NO_MERGE) {
-	throw new Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 $time_end = microtime(true);

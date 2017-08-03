@@ -26,6 +26,8 @@ use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Model\Property\RestrictedProperty;
 use Comhon\Exception\NotSatisfiedRestrictionException;
 use Comhon\Exception\ReservedWordException;
+use Comhon\Exception\ManifestException;
+use Comhon\Exception\UniqueModelNameException;
 
 abstract class ManifestParser {
 
@@ -172,7 +174,7 @@ abstract class ManifestParser {
 		$this->castValues        = ($this->interfacer instanceof NoScalarTypedInterfacer);
 		
 		if (empty($this->currentProperties)) {
-			throw new \Exception('manifest must have at least one property');
+			throw new ManifestException('manifest must have at least one property');
 		}
 		if (($model instanceof MainModel) && !is_null($serializationManifestPath_afe)) {
 			$this->serializationManifestParser = SerializationManifestParser::getInstance($model, $serializationManifestPath_afe);
@@ -217,7 +219,7 @@ abstract class ManifestParser {
 		$this->currentProperties = $this->_getCurrentProperties();
 		
 		if (empty($this->currentProperties)) {
-			throw new \Exception('manifest must have at least one property');
+			throw new ManifestException('manifest must have at least one property');
 		}
 	}
 	
@@ -232,7 +234,7 @@ abstract class ManifestParser {
 		$this->currentProperties = $this->_getCurrentProperties();
 		
 		if (empty($this->currentProperties)) {
-			throw new \Exception('manifest must have at least one property');
+			throw new ManifestException('manifest must have at least one property');
 		}
 	}
 	
@@ -247,7 +249,7 @@ abstract class ManifestParser {
 			$this->currentProperties = $this->_getCurrentProperties();
 			
 			if (empty($this->currentProperties)) {
-				throw new \Exception('local type must have at least one property');
+				throw new ManifestException('local type must have at least one property');
 			}
 			return true;
 		}
@@ -281,11 +283,11 @@ abstract class ManifestParser {
 			$modelForeign = new ModelForeign($model);
 			if (!empty($serializationNames)) {
 				if (count($serializationNames) < 2) {
-					throw new \Exception('serializationNames must have at least two elements');
+					throw new ManifestException('serializationNames must have at least two elements');
 				}else if (!is_null($serializationName)) {
-					throw new \Exception('serializationName and serializationNames cannot cohexist');
+					throw new ManifestException('serializationName and serializationNames cannot coexist');
 				} else if (!is_null($aggregations)) {
-					throw new \Exception('aggregation and serializationNames cannot cohexist');
+					throw new ManifestException('aggregation and serializationNames cannot coexist');
 				}
 				$property = new MultipleForeignProperty($modelForeign, $name, $serializationNames, $isPrivate, $isSerializable);
 			}
@@ -306,7 +308,7 @@ abstract class ManifestParser {
 			$restriction = $this->_getRestriction(current($this->currentProperties), $model);
 			
 			if (!empty($serializationNames)) {
-				throw new \Exception('several serialization names only allowed for foreign properties');
+				throw new ManifestException('several serialization names only allowed for foreign properties');
 			}
 			if (is_null($restriction)) {
 				$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isSerializable, $default, $interfaceAsNodeXml);
@@ -370,7 +372,7 @@ abstract class ManifestParser {
 				$interfacer = new AssocArrayInterfacer();
 				break;
 			default:
-				throw new \Exception('extension not recognized for manifest file : '.$manifestPath_afe);
+				throw new ManifestException('extension not recognized for manifest file : '.$manifestPath_afe);
 		}
 		return self::_getInstanceWithInterfacer($model, $manifestPath_afe, $serializationManifestPath_afe, $interfacer);
 	}
@@ -391,7 +393,7 @@ abstract class ManifestParser {
 		if ($manifest instanceof \DOMElement) {
 			return new XMLInterfacer();
 		}
-		throw new \Exception('not recognized manifest format');
+		throw new ManifestException('not recognized manifest format');
 	}
 	
 	/**
@@ -413,20 +415,20 @@ abstract class ManifestParser {
 				$interfacer = new AssocArrayInterfacer();
 				break;
 			default:
-				throw new \Exception('extension not recognized for manifest list file : '.$manifestListPath_afe);
+				throw new ManifestException('extension not recognized for manifest list file : '.$manifestListPath_afe);
 		}
 		
 		$manifestList = $interfacer->read($manifestListPath_afe);
 		if ($manifestList === false || is_null($manifestList)) {
-			throw new \Exception("manifestList file not found or malformed '$manifestListPath_afe'");
+			throw new ManifestException("manifestList file not found or malformed '$manifestListPath_afe'");
 		}
 		if (!$interfacer->hasValue($manifestList, 'version')) {
-			throw new \Exception("manifest list '$manifestListPath_afe' doesn't have version");
+			throw new ManifestException("manifest list '$manifestListPath_afe' doesn't have version");
 		}
 		$version = (string) $interfacer->getValue($manifestList, 'version');
 		switch ($version) {
 			case '2.0': self::_registerComplexModels_2_0($manifestList, $manifestListFolder_ad, $serializationMap, $modelMap, $interfacer); break;
-			default:    throw new \Exception("version $version not recognized for manifest list $manifestListPath_afe");
+			default:    throw new ManifestException("version $version not recognized for manifest list $manifestListPath_afe");
 		}
 	}
 	
@@ -442,7 +444,7 @@ abstract class ManifestParser {
 	protected static function _registerComplexModels_2_0($manifestList, $manifestListFolder_ad, $serializationMap, &$modelMap, Interfacer $interfacer) {
 		$list = $interfacer->getTraversableNode($interfacer->getValue($manifestList, 'list', true), true);
 		if (is_null($list)) {
-			throw new \Exception('malformed manifest list file, property \'list\' is missing');
+			throw new ManifestException('malformed manifest list file, property \'list\' is missing');
 		}
 		if ($interfacer instanceof XMLInterfacer) {
 			foreach ($list as $name => $domNode) {
@@ -451,7 +453,7 @@ abstract class ManifestParser {
 		}
 		foreach ($list as $modelName => $manifestPath_rfe) {
 			if (array_key_exists($modelName, $modelMap)) {
-				throw new Exception("several model with same type : '$modelName'");
+				throw new UniqueModelNameException($modelName);
 			}
 			$serializationPath_afe = array_key_exists($modelName, $serializationMap) ? $serializationMap[$modelName] : null;
 			$modelMap[$modelName] = [$manifestListFolder_ad.'/'.$manifestPath_rfe, $serializationPath_afe];
@@ -479,20 +481,20 @@ abstract class ManifestParser {
 				$interfacer = new AssocArrayInterfacer();
 				break;
 			default:
-				throw new \Exception('extension not recognized for serialization manifest list file : '.$serializationListPath_afe);
+				throw new ManifestException('extension not recognized for serialization manifest list file : '.$serializationListPath_afe);
 		}
 		
 		$serializationList = $interfacer->read($serializationListPath_afe);
 		if ($serializationList=== false || is_null($serializationList)) {
-			throw new \Exception("serializationList file not found or malformed '$serializationListPath_afe'");
+			throw new ManifestException("serializationList file not found or malformed '$serializationListPath_afe'");
 		}
 		if (!$interfacer->hasValue($serializationList, 'version')) {
-			throw new \Exception("serialization list '$serializationListPath_afe' doesn't have version");
+			throw new ManifestException("serialization list '$serializationListPath_afe' doesn't have version");
 		}
 		$version = (string) $interfacer->getValue($serializationList, 'version');
 		switch ($version) {
 			case '2.0': return self::_getSerializationMap_2_0($serializationList, $serializationListFolrder_ad, $interfacer);
-			default:    throw new \Exception("version $version not recognized for serialization list $serializationListPath_afe");
+			default:    throw new ManifestException("version $version not recognized for serialization list $serializationListPath_afe");
 		}
 	}
 	
@@ -510,7 +512,7 @@ abstract class ManifestParser {
 		$serializationMap = [];
 		$list = $interfacer->getTraversableNode($interfacer->getValue($serializationList, 'list', true), true);
 		if (is_null($list)) {
-			throw new \Exception('malformed serialization list file, property \'list\' is missing');
+			throw new ManifestException('malformed serialization list file, property \'list\' is missing');
 		}
 		if ($interfacer instanceof XMLInterfacer) {
 			foreach ($list as $name => $domNode) {
@@ -537,16 +539,16 @@ abstract class ManifestParser {
 		$manifest = $interfacer->read($manifestPath_afe);
 		
 		if ($manifest === false || is_null($manifest)) {
-			throw new \Exception("manifest file not found or malformed '$manifestPath_afe'");
+			throw new ManifestException("manifest file not found or malformed '$manifestPath_afe'");
 		}
 		
 		if (!$interfacer->hasValue($manifest, 'version')) {
-			throw new \Exception("manifest '$manifestPath_afe' doesn't have version");
+			throw new ManifestException("manifest '$manifestPath_afe' doesn't have version");
 		}
 		$version = (string) $interfacer->getValue($manifest, 'version');
 		switch ($version) {
 			case '2.0': return new V_2_0\ManifestParser($model, $manifest, $serializationManifestPath_afe, $interfacer);
-			default:    throw new \Exception("version $version not recognized for manifest $manifestPath_afe");
+			default:    throw new ManifestException("version $version not recognized for manifest $manifestPath_afe");
 		}
 	}
 	

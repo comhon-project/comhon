@@ -162,16 +162,29 @@ class Interval implements Restriction {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
-	public function toString($value) {
+	public function toMessage($value) {
 		if (!is_float($value) && !is_integer($value) && !($value instanceof ComhonDateTime)) {
 			$class = gettype($value) == 'object' ? get_class($value) : gettype($value);
-			return "Value passed to Interval must be an instance of integer, float or ComhonDateTime, instance of $class given";
+			return "Value passed to Interval must be an integer, float or instance of ComhonDateTime, instance of $class given";
 		}
 		
 		return (($value instanceof ComhonDateTime) ? $value->format('c') : $value) 
 			. ' is' . ($this->satisfy($value) ? ' ' : ' not ')
 			. 'in interval '
 			. ($this->isLeftClosed ? '[' : ']')
+			. (($this->leftEndPoint instanceof \DateTime)	? $this->leftEndPoint->format('c')	: $this->leftEndPoint)
+			. ','
+			. (($this->rightEndPoint instanceof \DateTime) ? $this->rightEndPoint->format('c') : $this->rightEndPoint)
+			. ($this->isRightClosed ? ']' : '[');
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::toString()
+	 */
+	public function toString() {
+		return ($this->isLeftClosed ? '[' : ']')
 			. (($this->leftEndPoint instanceof \DateTime)	? $this->leftEndPoint->format('c')	: $this->leftEndPoint)
 			. ','
 			. (($this->rightEndPoint instanceof \DateTime) ? $this->rightEndPoint->format('c') : $this->rightEndPoint)

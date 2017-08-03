@@ -13,15 +13,15 @@ namespace Comhon\Exception;
 
 use Comhon\Model\Model;
 
-class PropertyException extends \Exception {
+class UndefinedPropertyException extends ComhonException {
 	
 	/**
 	 * @param \Comhon\Model\Model $model
 	 * @param string $propertyName
 	 */
 	public function __construct(Model $model, $propertyName) {
-		$message = "Unknown property '$propertyName' for model '{$model->getName()}'";
-		parent::__construct($message, ConstantException::PROPERTY_EXCEPTION);
+		$message = "Undefined property '$propertyName' for model '{$model->getName()}'";
+		parent::__construct($message, ConstantException::UNDEFINED_PROPERTY_EXCEPTION);
 	}
 	
 }

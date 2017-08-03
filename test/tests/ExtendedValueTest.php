@@ -12,6 +12,7 @@ use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\Interfacer;
+use Comhon\Exception\ComhonException;
 
 $time_start = microtime(true);
 
@@ -56,16 +57,16 @@ $woman  = MainObjectCollection::getInstance()->getObject(2, 'woman');
 $person = MainObjectCollection::getInstance()->getObject(2, 'person');
 
 if (!is_null($person) || !is_null($woman)) {
-	throw new Exception('object already initialized');
+	throw new \Exception('object already initialized');
 }
 if ($personModel->getSerializationSettings() !== $womanModel->getSerializationSettings()) {
-	throw new Exception('not same serialization instance');
+	throw new \Exception('not same serialization instance');
 }
 if ($personModel->getSerializationSettings() !== $manModel->getSerializationSettings()) {
-	throw new Exception('not same serialization instance');
+	throw new \Exception('not same serialization instance');
 }
 if ($personModel->getSerialization()->getInheritanceKey() != 'sex') {
-	throw new Exception('bad inheritance key');
+	throw new \Exception('bad inheritance key');
 }
 
 $person = $personModel->getObjectInstance(false);
@@ -73,16 +74,16 @@ $person->setId(2);
 $woman = $personModel->loadObject(2);
 
 if ($woman->getModel() !== $womanModel) {
-	throw new Exception('not good model');
+	throw new \Exception('not good model');
 }
 if ($woman !== $person) {
-	throw new Exception('not same instance object');
+	throw new \Exception('not same instance object');
 }
 if ($woman !== MainObjectCollection::getInstance()->getObject(2, 'woman')) {
-	throw new Exception('object not in objectcollection');
+	throw new \Exception('object not in objectcollection');
 }
 if ($woman !== MainObjectCollection::getInstance()->getObject(2, 'person')) {
-	throw new Exception('object not in objectcollection');
+	throw new \Exception('object not in objectcollection');
 }
 
 MainObjectCollection::getInstance()->removeObject($woman);
@@ -91,7 +92,7 @@ $woman2  = MainObjectCollection::getInstance()->getObject(2, 'woman');
 $person2 = MainObjectCollection::getInstance()->getObject(2, 'person');
 
 if (!is_null($person2) || !is_null($woman2)) {
-	throw new Exception('object not removed');
+	throw new \Exception('object not removed');
 }
 
 MainObjectCollection::getInstance()->addObject($woman);
@@ -100,14 +101,14 @@ $woman  = MainObjectCollection::getInstance()->getObject(2, 'woman');
 $person = MainObjectCollection::getInstance()->getObject(2, 'person');
 
 if (is_null($person) || is_null($woman)) {
-	throw new Exception('object not added');
+	throw new \Exception('object not added');
 }
 
 
 try {
 	$woman = $manModel->loadObject(7);
 	$throw = true;
-} catch (Exception $e) {
+} catch (ComhonException $e) {
 	$throw = false;
 }
 if ($throw) {
@@ -134,14 +135,14 @@ foreach ($man->getValue('children') as $child) {
 foreach (MainObjectCollection::getInstance()->getModelObjects('person') as $testPerson) {
 	if ($testPerson->getId() === 1 ) {
 		if (!($testPerson instanceof \Comhon\Object\Object)) {
-			throw new Exception('wrong class');
+			throw new \Exception('wrong class');
 		}
 	} else if ($testPerson->getId() === 11) {
 		if (!($testPerson instanceof Woman)) {
-			throw new Exception('wrong class');
+			throw new \Exception('wrong class');
 		}
 	} else if (!($testPerson instanceof Person)) {
-		throw new Exception('wrong class');
+		throw new \Exception('wrong class');
 	}
 }
 
@@ -579,7 +580,7 @@ $object->fill($object->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 if ($object->getValue('localExtendsMainObj') !== $object->getValue('localExtendsMainObjForeign')) {
 	throw new \Exception('not same instance model');
 }
-if (!compareJson(json_encode($object->export($stdPrivateInterfacer)), '{"stringValue":"plop","floatValue":1.5,"booleanValue":true,"dateValue":"2016-11-13T20:04:05+01:00","localExtendsMainObj":{"id":12,"stringValue":"aze","__inheritance__":"localExtendsMain\\\\localPlace"},"localExtendsMainObjForeign":{"id":12,"__inheritance__":"localExtendsMain\\\\localPlace"}}')) {
+if (!compareJson(json_encode($object->export($stdPrivateInterfacer)), '{"stringValue":"plop","floatValue":1.5,"booleanValue":true,"indexValue":0,"percentageValue":1,"dateValue":"2016-11-13T20:04:05+01:00","localExtendsMainObj":{"id":12,"stringValue":"aze","__inheritance__":"localExtendsMain\\\\localPlace"},"localExtendsMainObjForeign":{"id":12,"__inheritance__":"localExtendsMain\\\\localPlace"}}')) {
 	throw new \Exception('bad value');
 }
 

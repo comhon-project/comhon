@@ -13,7 +13,7 @@ namespace Comhon\Exception;
 
 use Comhon\Model\Model;
 
-class NotSupportedModelIntervalException extends \Exception {
+class NotSupportedModelIntervalException extends ComhonException {
 	
 	/**
 	 * @param \Comhon\Model\Model $model

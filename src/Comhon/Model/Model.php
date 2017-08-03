@@ -16,7 +16,7 @@ use Comhon\Serialization\SqlTable;
 use Comhon\Object\ComhonObject;
 use Comhon\Object\Object;
 use Comhon\Object\ObjectArray;
-use Comhon\Exception\PropertyException;
+use Comhon\Exception\UndefinedPropertyException;
 use Comhon\Model\Property\Property;
 use Comhon\Model\Property\ForeignProperty;
 use Comhon\Model\Property\AggregationProperty;
@@ -26,6 +26,12 @@ use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Serialization\SerializationUnit;
 use Comhon\Object\ObjectUnique;
+use Comhon\Exception\UnexpectedModelException;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\ArgumentException;
+use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\Interfacer\ImportException;
+use Comhon\Exception\Interfacer\ExportException;
 
 abstract class Model {
 
@@ -47,7 +53,7 @@ abstract class Model {
 	private $parent;
 	
 	/** @var string */
-	private $objectClass = 'Comhon\Object\Object';
+	private $objectClass = Object::class;
 	
 	/** @var boolean */
 	private $isExtended = false;
@@ -220,7 +226,7 @@ abstract class Model {
 			$object = new $this->objectClass($isloaded);
 
 			if ($object->getModel() !== $this) {
-				throw new \Exception("object doesn't have good model. {$this->getName()} expected, {$object->getModel()->getName()} given");
+				throw new UnexpectedModelException($this, $object->getModel());
 			}
 			return $object;
 		} else {
@@ -275,7 +281,7 @@ abstract class Model {
 	 * @return \Comhon\Object\ComhonObject
 	 */
 	protected function _getOrCreateObjectInstance($id, Interfacer $interfacer, $localObjectCollection, $isFirstLevel, $isForeign = false) {
-		throw new \Exception('can\'t apply function. Only callable for MainModel or LocalModel');
+		throw new ComhonException('can\'t apply function. Only callable for MainModel or LocalModel');
 	}
 	
 	/**
@@ -382,7 +388,7 @@ abstract class Model {
 	 * 
 	 * @param string $propertyName
 	 * @param boolean $throwException if true, throw an exception if property doesn't exist
-	 * @throws \Comhon\Exception\PropertyException
+	 * @throws \Comhon\Exception\UndefinedPropertyException
 	 * @return \Comhon\Model\Property\Property|null 
 	 *     null if property with specified name doesn't exist
 	 */
@@ -391,7 +397,7 @@ abstract class Model {
 			return $this->properties[$propertyName];
 		}
 		else if ($throwException) {
-			throw new PropertyException($this, $propertyName);
+			throw new UndefinedPropertyException($this, $propertyName);
 		}
 		return null;
 	}
@@ -401,7 +407,7 @@ abstract class Model {
 	 *
 	 * @param string $propertyName
 	 * @param boolean $throwException
-	 * @throws \Comhon\Exception\PropertyException
+	 * @throws \Comhon\Exception\UndefinedPropertyException
 	 * @return \Comhon\Model\Property\Property|null 
 	 *     null if property with specified name doesn't exist
 	 */
@@ -410,7 +416,7 @@ abstract class Model {
 			return $this->idProperties[$propertyName];
 		}
 		else if ($throwException) {
-			throw new PropertyException($this, $propertyName);
+			throw new UndefinedPropertyException($this, $propertyName);
 		}
 		return null;
 	}
@@ -564,7 +570,16 @@ abstract class Model {
 	}
 	
 	/**
-	 * verify if model has linked serialization with specified type
+	 * verify if model has serialization
+	 *
+	 * @return boolean
+	 */
+	public function hasSerialization() {
+		return false;
+	}
+	
+	/**
+	 * verify if model has serialization with specified type
 	 * 
 	 * @param string $serializationType
 	 * @return boolean
@@ -619,7 +634,7 @@ abstract class Model {
 	public function decodeId($id) {
 		$decodedId = json_decode($id);
 		if (!is_array($decodedId) || (count($this->getIdProperties()) !== count($decodedId))) {
-			throw new \Exception("id invalid : $id");
+			throw new ComhonException("id invalid : $id");
 		}
 		return $decodedId;
 	}
@@ -635,7 +650,7 @@ abstract class Model {
 	 */
 	protected function _addMainCurrentObject(ComhonObject $object, Interfacer $interfacer) {
 		if (!($object instanceof ObjectUnique)) {
-			throw new \Exception('first parameter should be ObjectUnique');
+			throw new ArgumentException($object, ObjectUnique::class, 1);
 		}
 		if ($interfacer->hasToExportMainForeignObjects() && ($object->getModel() instanceof MainModel) && !is_null($object->getId()) && $object->hasCompleteId()) {
 			$interfacer->addMainForeignObject($interfacer->createNode('empty'), $object->getId(), $object->getModel());
@@ -650,7 +665,7 @@ abstract class Model {
 	 */
 	protected function _removeMainCurrentObject(ComhonObject $object, Interfacer $interfacer) {
 		if (!($object instanceof ObjectUnique)) {
-			throw new \Exception('first parameter should be ObjectUnique');
+			throw new ArgumentException($object, ObjectUnique::class, 1);
 		}
 		if ($interfacer->hasToExportMainForeignObjects() && ($object->getModel() instanceof MainModel) && !is_null($object->getId()) && $object->hasCompleteId()) {
 			$interfacer->removeMainForeignObject($object->getId(), $object->getModel());
@@ -668,7 +683,11 @@ abstract class Model {
 		$interfacer->initializeExport();
 		self::$instanceObjectHash = [];
 		$this->_addMainCurrentObject($object, $interfacer);
-		$node = $this->_export($object, $this->getName(), $interfacer, true);
+		try {
+			$node = $this->_export($object, $this->getName(), $interfacer, true);
+		} catch (ComhonException $e) {
+			throw new ExportException($e);
+		}
 		$this->_removeMainCurrentObject($object, $interfacer);
 		self::$instanceObjectHash = [];
 		$interfacer->finalizeExport($node);
@@ -697,7 +716,7 @@ abstract class Model {
 		
 		if (array_key_exists(spl_object_hash($object), self::$instanceObjectHash)) {
 			if (self::$instanceObjectHash[spl_object_hash($object)] > 0) {
-				throw new \Exception("Loop detected. Object '{$object->getModel()->getName()}' can't be exported");
+				throw new ComhonException("Loop detected. Object '{$object->getModel()->getName()}' can't be exported");
 			}
 		} else {
 			self::$instanceObjectHash[spl_object_hash($object)] = 0;
@@ -705,40 +724,48 @@ abstract class Model {
 		self::$instanceObjectHash[spl_object_hash($object)]++;
 		$properties = $object->getModel()->_getContextProperties($private);
 		foreach ($object->getValues() as $propertyName => $value) {
-			if (array_key_exists($propertyName, $properties)) {
-				$property = $properties[$propertyName];
-				
-				if ($property->isExportable($private, $isSerialContext, $value)) {
-					if ((!$onlyUpdatedValues || $property->isId() || $object->isUpdatedValue($propertyName))
-						&& (is_null($propertiesFilter) || array_key_exists($propertyName, $propertiesFilter))) {
-						$propertyName  = $isSerialContext ? $property->getSerializationName() : $propertyName;
-						$exportedValue = $property->getModel()->_export($value, $propertyName, $interfacer, false);
-						$interfacer->setValue($node, $exportedValue, $propertyName, $property->isInterfacedAsNodeXml());
+			try {
+				if (array_key_exists($propertyName, $properties)) {
+					$property = $properties[$propertyName];
+					
+					if ($property->isExportable($private, $isSerialContext, $value)) {
+						if ((!$onlyUpdatedValues || $property->isId() || $object->isUpdatedValue($propertyName))
+							&& (is_null($propertiesFilter) || array_key_exists($propertyName, $propertiesFilter))) {
+							$propertyName  = $isSerialContext ? $property->getSerializationName() : $propertyName;
+							$exportedValue = $property->getModel()->_export($value, $propertyName, $interfacer, false);
+							$interfacer->setValue($node, $exportedValue, $propertyName, $property->isInterfacedAsNodeXml());
+						}
+						else if ($property->isForeign() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
+							$property->getModel()->_export($value, $value->getModel()->getShortName(), $interfacer, false);
+						}
 					}
-					else if ($property->isForeign() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
+					else if ($isSerialContext && $property->isAggregation() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
 						$property->getModel()->_export($value, $value->getModel()->getShortName(), $interfacer, false);
 					}
 				}
-				else if ($isSerialContext && $property->isAggregation() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
-					$property->getModel()->_export($value, $value->getModel()->getShortName(), $interfacer, false);
-				}
+			} catch (ComhonException $e) {
+				throw new ExportException($e, $propertyName);
 			}
 		}
 		if ($isSerialContext) {
 			foreach ($object->getModel()->multipleForeignProperties as $propertyName => $multipleForeignProperty) {
-				$foreignObject = $object->getValue($propertyName);
-				if (!is_null($foreignObject) && $multipleForeignProperty->getModel()->verifValue($foreignObject)) {
-					if (!$foreignObject->hasCompleteId()) {
-						throw new \Exception("Warning cannot export id of foreign property with model '{$this->modelName}' because object doesn't have complete id");
-					}
-					foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
-						if (!$onlyUpdatedValues || $foreignObject->isUpdatedValue($idProperty->getName())) {
-							$idValue = $foreignObject->getValue($idProperty->getName());
-							$idProperty->getModel()->verifValue($idValue);
-							$idValue = $idProperty->getModel()->_export($idValue, $serializationName, $interfacer, false);
-							$interfacer->setValue($node, $idValue, $serializationName);
+				try {
+					$foreignObject = $object->getValue($propertyName);
+					if (!is_null($foreignObject) && $multipleForeignProperty->getModel()->verifValue($foreignObject)) {
+						if (!$foreignObject->hasCompleteId()) {
+							throw new ComhonException("cannot export id of foreign property with model '{$this->modelName}' because object doesn't have complete id");
+						}
+						foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
+							if (!$onlyUpdatedValues || $foreignObject->isUpdatedValue($idProperty->getName())) {
+								$idValue = $foreignObject->getValue($idProperty->getName());
+								$idProperty->getModel()->verifValue($idValue);
+								$idValue = $idProperty->getModel()->_export($idValue, $serializationName, $interfacer, false);
+								$interfacer->setValue($node, $idValue, $serializationName);
+							}
 						}
 					}
+				} catch (ComhonException $e) {
+					throw new ExportException($e, $propertyName);
 				}
 			}
 		}
@@ -747,7 +774,7 @@ abstract class Model {
 		}
 		if ($object->getModel() !== $this) {
 			if (!$object->getModel()->isInheritedFrom($this)) {
-				throw new \Exception('object doesn\'t have good model');
+				throw new UnexpectedModelException($this, $object->getModel());
 			}
 			$interfacer->setValue($node, $object->getModel()->getName(), Interfacer::INHERITANCE_KEY);
 		}
@@ -792,7 +819,7 @@ abstract class Model {
 	protected function _exportId(ComhonObject $object, $nodeName, Interfacer $interfacer) {
 		if ($object->getModel() !== $this) {
 			if (!$object->getModel()->isInheritedFrom($this)) {
-				throw new \Exception('object doesn\'t have good model');
+				throw new UnexpectedModelException($this, $object->getModel());
 			}
 			$objectId = $interfacer->createNode($nodeName);
 			$interfacer->setValue($objectId, $object->getModel()->_toInterfacedId($object, $interfacer), Interfacer::COMPLEX_ID_KEY);
@@ -811,7 +838,7 @@ abstract class Model {
 	 * @throws \Exception
 	 */
 	public function fillObject(ComhonObject $object, $interfacedObject, Interfacer $interfacer) {
-		throw new \Exception('can\'t apply function fillObject(). Only callable for MainModel');
+		throw new ComhonException('can\'t apply function fillObject(). Only callable for MainModel');
 	}
 	
 	/**
@@ -826,7 +853,7 @@ abstract class Model {
 	 * @return \Comhon\Object\ComhonObject
 	 */
 	public function import($interfacedObject, Interfacer $interfacer) {
-		throw new \Exception('can\'t apply function import(). Only callable for MainModel');
+		throw new ComhonException('can\'t apply function import(). Only callable for MainModel');
 	}
 	
 	/**
@@ -839,7 +866,7 @@ abstract class Model {
 	 * @return \Comhon\Object\ObjectUnique
 	 */
 	protected function _importMain($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection) {
-		throw new \Exception('can\'t apply function _importMain(). Only callable for MainModel');
+		throw new ComhonException('can\'t apply function _importMain(). Only callable for MainModel');
 	}
 	
 	/**
@@ -870,7 +897,7 @@ abstract class Model {
 	protected function _getIneritedModel($inheritanceModelName) {
 		$model = ModelManager::getInstance()->getInstanceModel($inheritanceModelName);
 		if (!$model->isInheritedFrom($this)) {
-			throw new \Exception("model '{$model->getName()}' doesn't inherit from '{$this->getName()}'");
+			throw new UnexpectedModelException($this, $model);
 		}
 		return $model;
 	}
@@ -924,7 +951,7 @@ abstract class Model {
 			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
 				$interfacedObject = new \stdClass();
 			} else {
-				throw new \Exception('unexpeted value type');
+				throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getNodeClasses()));
 			}
 		}
 		$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel);
@@ -946,7 +973,7 @@ abstract class Model {
 	protected function _fillObject(ObjectUnique $object, $interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
 		$model = $object->getModel();
 		if ($model !== $this && !$model->isInheritedFrom($this)) {
-			throw new \Exception('object doesn\'t have good model');
+			throw new UnexpectedModelException($this, $model);
 		}
 		if ($isFirstLevel && $interfacer->hasToFlattenValues()) {
 			$this->_unFlattenValues($interfacedObject, $object, $interfacer);
@@ -961,34 +988,43 @@ abstract class Model {
 		$properties        = $model->_getContextProperties($private);
 		
 		foreach ($properties as $propertyName => $property) {
-			if ($property->isInterfaceable($private, $isSerialContext)) {
-				$interfacedPropertyName = $isSerialContext ? $property->getSerializationName() : $propertyName;
-				if ($interfacer->hasValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml())) {
-					$value = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
-					$value = $interfacer->isNullValue($value) ? null
-						: $property->getModel()->_import($value, $interfacer, $localObjectCollection, $mainModelContainer);
-					$object->setValue($propertyName, $value, $flagAsUpdated);
+			try {
+				if ($property->isInterfaceable($private, $isSerialContext)) {
+					$interfacedPropertyName = $isSerialContext ? $property->getSerializationName() : $propertyName;
+					if ($interfacer->hasValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml())) {
+						$value = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
+						$value = $interfacer->isNullValue($value) ? null
+							: $property->getModel()->_import($value, $interfacer, $localObjectCollection, $mainModelContainer);
+						$object->setValue($propertyName, $value, $flagAsUpdated);
+					}
 				}
+			} catch (ComhonException $e) {
+				throw new ImportException($e, $propertyName);
 			}
 		}
 		if ($isSerialContext) {
 			foreach ($model->multipleForeignProperties as $propertyName => $multipleForeignProperty) {
-				$id = [];
-				foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
-					if ($interfacer->hasValue($interfacedObject, $serializationName)) {
-						$idPart = $interfacer->getValue($interfacedObject, $serializationName);
-						if ($interfacer instanceof NoScalarTypedInterfacer) {
-							$idPart = $interfacer->isNullValue($value) ? null
-								: $idProperty->getModel()->importSimple($idPart, $interfacer);
+				try {
+					$id = [];
+					foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
+						if ($interfacer->hasValue($interfacedObject, $serializationName)) {
+							$idPart = $interfacer->getValue($interfacedObject, $serializationName);
+							if ($interfacer instanceof NoScalarTypedInterfacer) {
+								$idPart = $interfacer->isNullValue($value) ? null
+									: $idProperty->getModel()->importSimple($idPart, $interfacer);
+							}
+							$id[] = $idPart;
 						}
-						$id[] = $idPart;
 					}
+					if (count($id) !== count($multipleForeignProperty->getMultipleIdProperties())) {
+						throw new ComhonException('not complete multiple id foreign value');
+					}
+					$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, $localObjectCollection, $mainModelContainer);
+					$object->setValue($propertyName, $value, $flagAsUpdated);
 				}
-				if (count($id) !== count($multipleForeignProperty->getMultipleIdProperties())) {
-					throw new \Exception('not complete multiple id foreign value');
+				catch (ComhonException $e) {
+					throw new ImportException($e, $propertyName);
 				}
-				$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, $localObjectCollection, $mainModelContainer);
-				$object->setValue($propertyName, $value, $flagAsUpdated);
 			}
 		}
 	}
@@ -1028,7 +1064,7 @@ abstract class Model {
 		}
 		if ($interfacer->isComplexInterfacedId($interfacedId)) {
 			if (!$interfacer->hasValue($interfacedId, Interfacer::COMPLEX_ID_KEY) || !$interfacer->hasValue($interfacedId, Interfacer::INHERITANCE_KEY)) {
-				throw new \Exception('object id must have property \''.Interfacer::COMPLEX_ID_KEY.'\' and \''.Interfacer::INHERITANCE_KEY.'\'');
+				throw new ComhonException('object id must have property \''.Interfacer::COMPLEX_ID_KEY.'\' and \''.Interfacer::INHERITANCE_KEY.'\'');
 			}
 			$id = $interfacer->getValue($interfacedId, Interfacer::COMPLEX_ID_KEY);
 			$inheritance = $interfacer->getValue($interfacedId, Interfacer::INHERITANCE_KEY);
@@ -1051,7 +1087,7 @@ abstract class Model {
 		}
 		if (is_object($id) || is_array($id) || $id === '') {
 			$id = is_object($id) || is_array($id) ? json_encode($id) : $id;
-			throw new \Exception("malformed id '$id' for model '{$this->modelName}'");
+			throw new ComhonException("malformed id '$id' for model '{$this->modelName}'");
 		}
 		
 		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, false, true);
@@ -1067,7 +1103,7 @@ abstract class Model {
 	 */
 	public function _toInterfacedId(ObjectUnique $object, Interfacer $interfacer) {
 		if (!$object->hasCompleteId()) {
-			throw new \Exception("Warning cannot export id of foreign property with model '{$this->modelName}' because object doesn't have complete id");
+			throw new ComhonException("cannot export id of foreign property with model '{$this->modelName}' because object doesn't have complete id");
 		}
 		return $object->getId();
 	}
@@ -1095,7 +1131,7 @@ abstract class Model {
 	 */
 	protected function _fillObjectwithId(ObjectUnique $object, $id, $flagAsUpdated) {
 		if ($object->getModel() !== $this) {
-			throw new \Exception("object doesn't have good model. {$this->getName()} expected, {$object->getModel()->getName()} given");
+			throw new UnexpectedModelException($this, $object->getModel());
 		}
 		if (!is_null($id)) {
 			$object->setId($id, $flagAsUpdated);
@@ -1111,9 +1147,8 @@ abstract class Model {
 	 */
 	public function verifValue($value) {
 		if (!($value instanceof ObjectUnique) || ($value->getModel() !== $this && !$value->getModel()->isInheritedFrom($this))) {
-			$nodes = debug_backtrace();
-			$class = gettype($value) == 'object' ? get_class($value): gettype($value);
-			throw new \Exception("Argument passed to {$nodes[0]['class']}::{$nodes[0]['function']}() must be an instance of $this->objectClass, instance of $class given, called in {$nodes[0]['file']} on line {$nodes[0]['line']} and defined in {$nodes[0]['file']}");
+			$Obj = $this->getObjectInstance();
+			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
 		}
 		return true;
 	}

@@ -11,7 +11,7 @@
 
 namespace Comhon\Exception;
 
-class ReservedWordException extends \Exception {
+class ReservedWordException extends ComhonException {
 	
 	/**
 	 * @param string $word

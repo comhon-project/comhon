@@ -14,6 +14,9 @@ namespace Comhon\Request;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\ComhonObject;
 use Comhon\Object\ObjectArray;
+use Comhon\Exception\MalformedRequestException;
+use Comhon\Exception\PropertyVisibilityException;
+use Comhon\Exception\NotAllowedRequestException;
 
 abstract class ObjectLoadRequest {
 
@@ -45,6 +48,9 @@ abstract class ObjectLoadRequest {
 	 */
 	public function __construct($modelName, $private = false) {
 		$this->model = ModelManager::getInstance()->getInstanceModel($modelName);
+		if (!$this->model->hasSerialization()) {
+			throw new NotAllowedRequestException($this->model);
+		}
 		$this->private = $private;
 	}
 	
@@ -82,9 +88,9 @@ abstract class ObjectLoadRequest {
 		foreach ($propertiesFilter as $propertyName) {
 			$property = $this->model->getProperty($propertyName, true);
 			if ($property->isAggregation()) {
-				throw new \Exception("aggregation property '$propertyName' can't be a filter property");
+				throw new MalformedRequestException("aggregation property '$propertyName' can't be a filter property");
 			} else if (!$this->private && $property->isPrivate()) {
-				throw new \Exception("private property '$propertyName' can't be a filter property for public request");
+				throw new PropertyVisibilityException($propertyName);
 			}
 			else {
 				$this->propertiesFilter[] = $propertyName;

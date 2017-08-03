@@ -17,6 +17,8 @@ use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Exception\ManifestException;
+use Comhon\Exception\ComhonException;
 
 abstract class SerializationManifestParser {
 	
@@ -80,7 +82,7 @@ abstract class SerializationManifestParser {
 				$interfacer = new AssocArrayInterfacer();
 				break;
 			default:
-				throw new \Exception('extension not recognized for manifest file : '.$serializationManifestPath_afe);
+				throw new ManifestException('extension not recognized for manifest file : '.$serializationManifestPath_afe);
 		}
 		return self::_getInstanceWithInterfacer($model, $serializationManifestPath_afe, $interfacer);
 		
@@ -95,7 +97,7 @@ abstract class SerializationManifestParser {
 	 */
 	final public function getSerializationSettings(MainModel $model) {
 		if ($this->model !== $model) {
-			throw new \Exception('not same models');
+			throw new ComhonException('not same models');
 		}
 		return $this->model->hasLoadedSerialization()
 			? $this->model->getSerialization()->getSettings() : $this->_getSerializationSettings();
@@ -117,7 +119,7 @@ abstract class SerializationManifestParser {
 		if ($manifest instanceof \DOMElement) {
 			return new XMLInterfacer();
 		}
-		throw new \Exception('not recognized manifest format');
+		throw new ManifestException('not recognized manifest format');
 	}
 	
 	/**
@@ -133,16 +135,16 @@ abstract class SerializationManifestParser {
 		$manifest = $interfacer->read($serializationManifestPath_afe);
 		
 		if ($manifest === false || is_null($manifest)) {
-			throw new \Exception("serialization manifest file not found or malformed '$serializationManifestPath_afe'");
+			throw new ManifestException("serialization manifest file not found or malformed '$serializationManifestPath_afe'");
 		}
 		
 		if (!$interfacer->hasValue($manifest, 'version')) {
-			throw new \Exception("serialization manifest '$serializationManifestPath_afe' doesn't have version");
+			throw new ManifestException("serialization manifest '$serializationManifestPath_afe' doesn't have version");
 		}
 		$version = (string) $interfacer->getValue($manifest, 'version');
 		switch ($version) {
 			case '2.0': return new V_2_0\SerializationManifestParser($model, $manifest);
-			default:    throw new \Exception("version $version not recognized for manifest $serializationManifestPath_afe");
+			default:    throw new ManifestException("version $version not recognized for manifest $serializationManifestPath_afe");
 		}
 	}
 }

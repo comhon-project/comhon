@@ -12,6 +12,9 @@
 namespace Comhon\Interfacer;
 
 use Comhon\Model\Model;
+use Comhon\Exception\ArgumentException;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\CastStringException;
 
 class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	
@@ -159,14 +162,14 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 */
 	public function getTraversableNode($node, $getElementName = false) {
 		if (!($node instanceof \DOMElement)) {
-			throw new \Exception('bad node type');
+			throw new ArgumentException($node, '\DOMElement', 1);
 		}
 		$array = [];
 		if ($getElementName) {
 			foreach ($node->childNodes as $domNode) {
 				if ($domNode->nodeType === XML_ELEMENT_NODE) {
 					if (array_key_exists($domNode->nodeName, $array)) {
-						throw new \Exception("duplicated name '$domNode->nodeName'");
+						throw new ComhonException("duplicated name '$domNode->nodeName'");
 					}
 					$array[$domNode->nodeName] = $domNode;
 				}
@@ -234,7 +237,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 */
 	public function setValue(&$node, $value, $name = null, $asNode = false) {
 		if (!($node instanceof \DOMElement)) {
-			throw new \Exception('first parameter should be an instance of \DOMElement');
+			throw new ArgumentException($node, '\DOMElement', 1);
 		}
 		if ($value instanceof \DOMNode) {
 			return $node->appendChild($value);
@@ -299,9 +302,17 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 */
 	public function createNode($name = null) {
 		if (is_null($name)) {
-			throw new \Exception('first parameter can not be null');
+			throw new ArgumentException($name, 'string', 1);
 		}
 		return $this->domDocument->createElement($name);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::getNodeClasses()
+	 */
+	public function getNodeClasses() {
+		return [\SimpleXMLElement::class, \DOMNode::class];
 	}
 	
 	/**
@@ -312,6 +323,14 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 */
 	public function createArrayNode($name = null) {
 		return $this->createNode($name);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::getArrayNodeClasses()
+	 */
+	public function getArrayNodeClasses() {
+		return [\SimpleXMLElement::class, \DOMNode::class];
 	}
 	
 	/**
@@ -387,7 +406,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 			$tempDoc->loadXML('<temp>'.$this->extractNodeText($domElement).'</temp>');
 			
 			if ($tempDoc->childNodes->length !== 1 || !($tempDoc->childNodes->item(0) instanceof \DOMElement)) {
-				throw new \Exception('wrong xml, XMLInterfacer manage only xml with one and only one root node');
+				throw new ComhonException('wrong xml, XMLInterfacer manage xml with one and only one root node');
 			}
 			$toRemove = [];
 			foreach ($domElement->childNodes as $child) {
@@ -440,7 +459,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 			$value = $this->extractNodeText($value);
 		}
 		if (!is_numeric($value)) {
-			throw new \Exception('value has to be numeric');
+			throw new CastStringException($value, 'numeric');
 		}
 		return (integer) $value;
 	}
@@ -455,7 +474,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 			$value = $this->extractNodeText($value);
 		}
 		if (!is_numeric($value)) {
-			throw new \Exception('value has to be numeric');
+			throw new CastStringException($value, 'numeric');
 		}
 		return (float) $value;
 	}
@@ -470,7 +489,7 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 			$value = $this->extractNodeText($value);
 		}
 		if ($value !== '0' && $value !== '1') {
-			throw new \Exception('value has to be "0" or "1"');
+			throw new CastStringException($value, ['0', '1']);
 		}
 		return $value === '1';
 	}
@@ -483,10 +502,10 @@ class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
 	 */
 	public function extractNodeText(\DOMElement $node) {
 		if ($node->childNodes->length != 1) {
-			throw new \Exception('malformed node, should only contain one text');
+			throw new ComhonException('malformed node, should only contain one text');
 		}
 		if ($node->childNodes->item(0)->nodeType != XML_TEXT_NODE) {
-			throw new \Exception('malformed node, should only contain one text');
+			throw new ComhonException('malformed node, should only contain one text');
 		}
 		return $node->childNodes->item(0)->nodeValue;
 	}

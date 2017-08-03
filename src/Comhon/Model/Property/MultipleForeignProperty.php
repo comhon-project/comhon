@@ -12,6 +12,7 @@
 namespace Comhon\Model\Property;
 
 use Comhon\Model\Model;
+use Comhon\Exception\ComhonException;
 
 class MultipleForeignProperty extends ForeignProperty {
 
@@ -54,13 +55,13 @@ class MultipleForeignProperty extends ForeignProperty {
 			$model = $this->getUniqueModel();
 			$idProperties = $model->getIdProperties();
 			if (count($idProperties) != count($this->multipleIdProperties)) {
-				throw new \Exception('ids properties and serialization names doesn\t match : '
+				throw new ComhonException('ids properties and serialization names doesn\t match : '
 					.json_encode(array_keys($idProperties)).' != '. json_encode(array_values($this->multipleIdProperties)));
 			}
 			$multipleIdProperties = [];
 			foreach ($idProperties as $idPropertyName => $idProperty) {
 				if (!array_key_exists($idProperty->getName(), $this->multipleIdProperties)) {
-					throw new \Exception('ids properties and serialization names doesn\t match : '
+					throw new ComhonException('ids properties and serialization names doesn\t match : '
 						.json_encode(array_keys($idProperties)).' != '. json_encode($this->multipleIdProperties));
 				}
 				$multipleIdProperties[$this->multipleIdProperties[$idProperty->getName()]] = $idProperty;

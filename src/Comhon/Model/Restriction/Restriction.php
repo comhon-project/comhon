@@ -45,6 +45,13 @@ interface Restriction {
 	 * @param mixed $value
 	 * @return string
 	 */
-	public function toString($value);
+	public function toMessage($value);
+	
+	/**
+	 * stringify restriction
+	 *
+	 * @return string
+	 */
+	public function toString();
 	
 }

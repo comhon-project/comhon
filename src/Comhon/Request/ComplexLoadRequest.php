@@ -26,6 +26,16 @@ use Comhon\Database\OnLiteral;
 use Comhon\Object\ObjectArray;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Database\DbLiteral;
+use Comhon\Exception\SerializationException;
+use Comhon\Exception\ArgumentException;
+use Comhon\Exception\MalformedRequestException;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\Literal\MalformedLiteralException;
+use Comhon\Exception\Literal\UnresolvableLiteralException;
+use Comhon\Object\ObjectUnique;
+use Comhon\Exception\Literal\NotLinkableLiteralException;
+use Comhon\Exception\Literal\IncompatibleLiteralSerializationException;
+use Comhon\Exception\NotAllowedRequestException;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	
@@ -52,8 +62,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	/** @var integer number of serialized comhon objects that will be skiped */
 	private $offset;
 	
-	/** @var boolean  define if literals have to opimized */
+	/** @var boolean define if literals have to opimized */
 	private $optimizeLiterals = false;
+	
+	/** @var string database id of requested model */
+	private $databaseId;
 	
 	/**
 	 * 
@@ -64,8 +77,14 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	public function __construct($modelName, $private = false) {
 		parent::__construct($modelName, $private);
 		if (!$this->model->hasSqlTableUnit()) {
-			throw new \Exception('error : resquested model '.$this->model->getName().' must have a database serialization');
+			$types = [NotAllowedRequestException::INTERMEDIATE_REQUEST, NotAllowedRequestException::COMPLEXE_REQUEST];
+			throw new NotAllowedRequestException($this->model, $types);
 		}
+		$database = $this->model->getSqlTableUnit()->getSettings()->getValue('database');
+		if (!($database instanceof ObjectUnique)) {
+			throw new SerializationException('not valid serialization settings, database information is missing');
+		}
+		$this->databaseId = $database->getId();
 	}
 	
 	/**
@@ -88,8 +107,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public function addOrder($propertyName, $type = SelectQuery::ASC) {
 		$type = strtoupper($type);
-		if ($type !== SelectQuery::ASC && $type !== SelectQuery::DESC) {
-			throw new \Exception("invalid order type '$type'");
+		if (!SelectQuery::isAllowedOrderType($type)) {
+			throw new ArgumentException($type, SelectQuery::getAllowedOrderTypes(), 2);
 		}
 		$this->order[] = [$propertyName, $type];
 		return $this;
@@ -138,14 +157,14 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	public static function buildObjectLoadRequest(\stdClass $settings, $private = false) {
 		if (isset($settings->model)) {
 			if (isset($settings->tree)) {
-				throw new \Exception('request cannot have model property and tree property in same time');
+				throw new MalformedRequestException('request cannot have model property and tree property in same time');
 			}
 			$objectLoadRequest = new ComplexLoadRequest($settings->model, $private);
 		} else if (isset($settings->tree) && isset($settings->tree->model)) {
 			$objectLoadRequest = new ComplexLoadRequest($settings->tree->model, $private);
 			$objectLoadRequest->importModelTree($settings->tree);
 		} else {
-			throw new \Exception('request doesn\'t have model');
+			throw new MalformedRequestException('request doesn\'t have model');
 		}
 		if (isset($settings->literalCollection)) {
 			$objectLoadRequest->importLiteralCollection($settings->literalCollection);
@@ -168,11 +187,14 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		}
 		if (isset($settings->order)) {
 			if (!is_array($settings->order)) {
-				throw new \Exception('order parameter must be an array');
+				throw new MalformedRequestException('order parameter must be an array');
 			}
 			foreach ($settings->order as $order) {
 				if (!isset($order->property)) {
-					throw new \Exception('an order element doesn\'t have property');
+					throw new MalformedRequestException('request order doesn\'t have property');
+				}
+				if (isset($order->type) && !SelectQuery::isAllowedOrderType($order->type)) {
+					throw new MalformedRequestException("request order type '{$order->type}' is not allowed");
 				}
 				$objectLoadRequest->addOrder($order->property, isset($order->type) ? $order->type : SelectQuery::ASC);
 			}
@@ -197,10 +219,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public function importModelTree(\stdClass $modelTree) {
 		if (!isset($modelTree->model)) {
-			throw new \Exception('model tree doesn\'t have model');
+			throw new MalformedRequestException('model tree doesn\'t have model');
 		}
 		if ($modelTree->model != $this->model->getName()) {
-			throw new \Exception('root model in model tree is not the same as model specified in constructor');
+			throw new ComhonException('root model in model tree is not the same as model specified in constructor');
 		}
 		
 		$tableNode = new TableNode($this->model->getSqlTableUnit()->getSettings()->getValue('name'), isset($modelTree->id) ? $modelTree->id : null);
@@ -218,7 +240,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				foreach ($lastElement[2]->children as $childNode) {
 					$rightTableAlias = isset($childNode->id) ? $childNode->id : null;
 					$property        = $leftModel->getProperty($childNode->property, true);
-					$joinedTable     = self::prepareJoinedTable($leftTable, $property, $rightTableAlias);
+					$joinedTable     = self::prepareJoinedTable($leftTable, $property, $this->databaseId, $rightTableAlias);
 					
 					$this->selectQuery->join(SelectQuery::LEFT_JOIN, $joinedTable['table'], $joinedTable['join_on']);
 					$this->modelByNodeId[$joinedTable['table']->getExportName()] = $joinedTable['model'];
@@ -239,12 +261,15 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public function importLiteralCollection($stdObjectLiteralCollection) {
 		if (is_null($this->modelByNodeId)) {
-			throw new \Exception('model tree must be set');
+			throw new ComhonException('model tree must be set');
 		}
 		if (is_array($stdObjectLiteralCollection)) {
 			foreach ($stdObjectLiteralCollection as $stdObjectLiteral) {
-				if (!isset($stdObjectLiteral->node) || !array_key_exists($stdObjectLiteral->node, $this->modelByNodeId)) {
-					throw new \Exception('node doesn\' exists or not recognized');
+				if (!isset($stdObjectLiteral->node)) {
+					throw new MalformedLiteralException($stdObjectLiteral);
+				}
+				if (!array_key_exists($stdObjectLiteral->node, $this->modelByNodeId)) {
+					throw new MalformedRequestException('value of property \'node\' not defined in model tree : '.json_encode($stdObjectLiteral));
 				}
 				$this->addliteralToCollection(DbLiteral::stdObjectToLiteral($stdObjectLiteral, $this->modelByNodeId[$stdObjectLiteral->node], null, $this->selectQuery, $this->private));
 			}
@@ -259,10 +284,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public function addliteralToCollection($literal) {
 		if (!$literal->hasId()) {
-			throw new \Exception('literal must have id');
+			throw new MalformedRequestException('literal defined in collection must have an id');
 		}
 		if (array_key_exists($literal->getId(), $this->literalCollection)) {
-			throw new \Exception("literal with id '{$literal->getId()}' already added in collection");
+			throw new MalformedRequestException("duplicated literal id '{$literal->getId()}' in literal collection");
 		}
 		$this->literalCollection[$literal->getId()] = $literal;
 	}
@@ -306,8 +331,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$this->_getLiteralByModelName($stdObjectLiteral, $mainTableName, $litralsByModelName);
 			$this->_buildAndAddJoins($litralsByModelName);
 		}
-		if (!isset($stdObjectLiteral->node) || !array_key_exists($stdObjectLiteral->node, $this->modelByNodeId)) {
-			throw new \Exception('node doesn\' exists or not recognized');
+		if (!isset($stdObjectLiteral->node)) {
+			throw new MalformedLiteralException($stdObjectLiteral);
+		}
+		if (!array_key_exists($stdObjectLiteral->node, $this->modelByNodeId)) {
+			throw new MalformedRequestException('value of property \'node\' not defined in model tree : '.json_encode($stdObjectLiteral));
 		}
 		$this->setFilter(DbLiteral::stdObjectToLiteral($stdObjectLiteral, $this->modelByNodeId[$stdObjectLiteral->node], $this->literalCollection, $this->selectQuery, $this->private));
 	}
@@ -319,12 +347,14 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	private function _finalize() {
 		if (is_null($this->selectQuery)) {
-			throw new \Exception('query not initialized');
+			throw new ComhonException('query not initialized');
 		}
-		if (!is_null($this->filter) && $this->optimizeLiterals) {
-			$this->filter = ClauseOptimizer::optimizeLiterals($this->filter);
+		if (!is_null($this->filter)) {
+			if ($this->optimizeLiterals) {
+				$this->filter = ClauseOptimizer::optimizeLiterals($this->filter);
+			}
+			$this->selectQuery->where($this->filter);
 		}
-		$this->selectQuery->where($this->filter);
 		$this->selectQuery->limit($this->length)->offset($this->offset);
 		$this->selectQuery->setFocusOnMainTable();
 		$this->_addColumns();
@@ -391,7 +421,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	private function _getLiteralByModelName($literal, $mainTableName, &$litralsByModelName) {
 		if (!isset($literal->model)) {
-			throw new \Exception('malformed stdObject literal : '.json_encode($literal));
+			throw new MalformedLiteralException($literal);
 		}
 		ModelManager::getInstance()->getInstanceModel($literal->model); // verify if model exists
 		if (!array_key_exists($literal->model, $litralsByModelName)) {
@@ -455,7 +485,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				// add temporary leftJoin
 				// add leftjoin if model $rightModel is in literals ($litralsByModelName)
 				$leftModel = $stack[$stackIndex]['left_model'];
-				$temporaryLeftJoins[] = self::prepareJoinedTable($leftModel->getSqlTableUnit()->getSettings()->getValue('name'), $rightProperty);
+				$temporaryLeftJoins[] = self::prepareJoinedTable($leftModel->getSqlTableUnit()->getSettings()->getValue('name'), $rightProperty, $this->databaseId);
 				if (array_key_exists($rightModelName, $litralsByModelName)) {
 					$this->_joinTables($temporaryLeftJoins, $litralsByModelName[$rightModelName]);
 					$temporaryLeftJoins = [];
@@ -471,6 +501,13 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			else {
 				array_pop($stack);
 				array_pop($temporaryLeftJoins);
+			}
+		}
+		foreach ($litralsByModelName as $literals) {
+			foreach ($literals as $literal) {
+				if (!isset($literal->node)) {
+					throw new NotLinkableLiteralException($this->model, $literal);
+				}
 			}
 		}
 	}
@@ -506,12 +543,24 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	private function _extendsStacks(Model $model, $literalsByModelName, &$stack, &$stackVisitedModels, &$arrayVisitedModels) {
 		if (array_key_exists($model->getName(), $arrayVisitedModels) && array_key_exists($model->getName(), $literalsByModelName)) {
-			throw new \Exception('Cannot resolve literal. Literal with model \''.$model->getName().'\' can be applied on several properties');
+			throw new UnresolvableLiteralException($model);
 		}
+		
+		$extendablesProperties = [];
+		foreach ($model->getForeignSerializableProperties('sqlTable') as $property) {
+			$database = $property->getUniqueModel()->getSerialization()->getSettings()->getValue('database');
+			if (!($database instanceof ObjectUnique)) {
+				throw new SerializationException('not valid serialization settings, database information is missing');
+			}
+			if ($database->getId() === $this->databaseId) {
+				$extendablesProperties[] = $property;
+			}
+		}
+		
 		$stack[] = [
-				'left_model' => $model,
-				'properties' => $model->getForeignSerializableProperties('sqlTable'),
-				'current'    => -1
+			'left_model' => $model,
+			'properties' => $extendablesProperties,
+			'current'    => -1
 		];
 		
 		$higherRightModelName = $model->getName();
@@ -530,14 +579,22 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * 
 	 * @param string|TableNode $leftTable
 	 * @param \Comhon\Model\Property\Property $rightProperty
+	 * @param string $databaseId
 	 * @param string $rightAliasTable
 	 * @param boolean $selectAllColumns
 	 * @throws \Exception
 	 * @return ['model' => \Comhon\Model\Model, 'table' => \Comhon\Database\TableNode, 'join_on' => \Comhon\Database\OnLiteral]
 	 */
-	public static function prepareJoinedTable($leftTable, $rightProperty, $rightAliasTable = null, $selectAllColumns = false) {
+	public static function prepareJoinedTable($leftTable, $rightProperty, $databaseId, $rightAliasTable = null, $selectAllColumns = false) {
 		if (!($rightProperty instanceof ForeignProperty) || !$rightProperty->getUniqueModel()->hasSqlTableUnit()) {
-			throw new \Exception("property '{$rightProperty->getName()}' hasn't sql serialization");
+			throw new IncompatibleLiteralSerializationException($rightProperty);
+		}
+		$database = $rightProperty->getUniqueModel()->getSerialization()->getSettings()->getValue('database');
+		if (!($database instanceof ObjectUnique)) {
+			throw new SerializationException('not valid serialization settings, database information is missing');
+		}
+		if ($database->getId() !== $databaseId) {
+			throw new IncompatibleLiteralSerializationException($rightProperty);
 		}
 		$rightModel = $rightProperty->getUniqueModel();
 		$rightTable = new TableNode($rightModel->getSqlTableUnit()->getSettings()->getValue('name'), $rightAliasTable, $selectAllColumns);

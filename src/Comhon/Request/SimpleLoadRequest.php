@@ -12,6 +12,8 @@
 namespace Comhon\Request;
 
 use Comhon\Model\Model;
+use Comhon\Exception\MalformedRequestException;
+use Comhon\Exception\NotAllowedRequestException;
 
 class SimpleLoadRequest extends ObjectLoadRequest {
 
@@ -26,10 +28,13 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 	 */
 	public function __construct($modelName, $private = false) {
 		parent::__construct($modelName, $private);
+		if (!$this->model->hasIdProperties()) {
+			throw new NotAllowedRequestException($this->model, [NotAllowedRequestException::SIMPLE_REQUEST]);
+		}
 		if (!$this->private) {
 			foreach ($this->model->getIdProperties() as $property) {
 				if ($property->isPrivate()) {
-					throw new \Exception('id is private, cannot retrieve object for public request');
+					throw new MalformedRequestException("id of model '$modelName' is private, cannot retrieve object for public request");
 				}
 			}
 		}
@@ -66,10 +71,10 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 	 */
 	public static function buildObjectLoadRequest(\stdClass $settings, $private = false) {
 		if (!isset($settings->model)) {
-			throw new \Exception('request doesn\'t have model');
+			throw new MalformedRequestException('request doesn\'t have model');
 		}
 		if (!isset($settings->id)) {
-			throw new \Exception('request doesn\'t have id');
+			throw new MalformedRequestException('request doesn\'t have id');
 		}
 		$request = new SimpleLoadRequest($settings->model, $private);
 		$request->setRequestedId($settings->id);

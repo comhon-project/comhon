@@ -13,7 +13,7 @@ namespace Comhon\Exception;
 
 use Comhon\Model\Model;
 
-class CastException extends \Exception {
+class CastComhonObjectException extends ComhonException {
 	
 	/**
 	 * @param \Comhon\Model\Model $sourceModel

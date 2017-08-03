@@ -153,9 +153,9 @@ function getProperties($xml) {
 			if (isset($child->values->enum)) {
 				$json->values->enum = [];
 				foreach ($child->values->enum->value as $value) {
-					if ($json->values->type == 'integer') {
+					if ($json->values->type == 'integer' || $json->values->type == 'index') {
 						$json->values->enum[] = (integer) $value;
-					} else if ($json->values->type == 'float') {
+					} else if ($json->values->type == 'float' || $json->values->type == 'percentage') {
 						$json->values->enum[] = (float) $value;
 					} else {
 						$json->values->enum[] = (string) $value;
@@ -173,10 +173,10 @@ function getProperties($xml) {
 			if (isset($child->enum)) {
 				$json->enum = [];
 				foreach ($child->enum->value as $value) {
-				if ($typeId == 'integer') {
+					if ($typeId == 'integer' || $typeId == 'index') {
 						$json->enum[] = (integer) $value;
-					}else if ($typeId == 'float') {
-						$json->enum[] = (integer) $value;
+					}else if ($typeId == 'float' || $typeId == 'percentage') {
+						$json->enum[] = (float) $value;
 					} else {
 						$json->enum[] = (string) $value;
 					}
@@ -204,9 +204,9 @@ function getProperties($xml) {
 		if (isset($child['default'])) {
 			if ($typeId == 'boolean') {
 				$json->default = (string) $child['default'] === "1";
-			} else if ($typeId == 'integer') {
+			} else if ($typeId == 'integer' || $typeId == 'index') {
 				$json->default = (integer) $child['default'];
-			} else if ($typeId == 'float') {
+			} else if ($typeId == 'float' || $typeId == 'percentage') {
 				$json->default = (float) $child['default'];
 			} else {
 				$json->default = (string) $child['default'];

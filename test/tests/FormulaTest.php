@@ -19,14 +19,14 @@ $clause->addElement($subClause2);
 $subClause2->addLiteral(new SimpleDbLiteral('table', 'first_name', Literal::DIFF, 'Jean'));
 
 if ($clause->exportDebug()!== '(table.first_name = Jean and table.first_name = John and (table.first_name <> Jean))') {
-	throw new Exception('bad export');
+	throw new \Exception('bad export');
 }
 $values = [];
 if ($clause->export($values)!== '(table.first_name = ? and table.first_name = ? and (table.first_name <> ?))') {
-	throw new Exception('bad export');
+	throw new \Exception('bad export');
 }
 if ($values !== ["Jean","John","Jean"]) {
-	throw new Exception('bad values');
+	throw new \Exception('bad values');
 }
 
 $time_end = microtime(true);

@@ -17,11 +17,15 @@ use Comhon\Object\ComhonObject;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Visitor\ObjectCollectionCreator;
 use Comhon\Serialization\SerializationUnit;
-use Comhon\Exception\CastException;
+use Comhon\Exception\CastComhonObjectException;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Object\ObjectUnique;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\UnexpectedModelException;
+use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\Interfacer\ImportException;
 
 class MainModel extends Model {
 	
@@ -43,11 +47,11 @@ class MainModel extends Model {
 		}
 		if ($this->hasParent()) {
 			if (count($this->getIdProperties()) != count($this->getParent()->getIdProperties())) {
-				throw new \Exception('extended model with same serialization doesn\'t have same id(s)');
+				throw new ComhonException("model {$this->getName()} extended from model {$this->getParent()->getName()} and with same serialization must have same id(s)");
 			}
 			foreach ($this->getParent()->getIdProperties() as $propertyName => $property) {
 				if (!$this->hasIdProperty($propertyName) || !$property->isEqual($this->getIdProperty($propertyName))) {
-					throw new \Exception('extended model with same serialization doesn\'t have same id(s)');
+					throw new ComhonException("model {$this->getName()} extended from model {$this->getParent()->getName()} and with same serialization must have same id(s)");
 				}
 			}
 		}
@@ -63,18 +67,18 @@ class MainModel extends Model {
 	}
 	
 	/**
-	 * get serialization
 	 * 
-	 * @return \Comhon\Serialization\SerializationUnit
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::getSerialization()
 	 */
 	public function getSerialization() {
 		return $this->serialization;
 	}
 	
 	/**
-	 * verify if model has serialization
 	 * 
-	 * @return boolean
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::hasSerialization()
 	 */
 	public function hasSerialization() {
 		return !is_null($this->serialization);
@@ -108,9 +112,9 @@ class MainModel extends Model {
 	}
 	
 	/**
-	 * get serialization settings if model has serialization
 	 * 
-	 * @return \Comhon\Object\ObjectUnique|null null if no serialization
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::getSerializationSettings()
 	 */
 	public function getSerializationSettings() {
 		return is_null($this->serialization) ? null : $this->serialization->getSettings();
@@ -122,7 +126,19 @@ class MainModel extends Model {
 	 * @see \Comhon\Model\Model::import()
 	 */
 	public function import($interfacedObject, Interfacer $interfacer) {
-		return $this->_importMain($interfacedObject, $interfacer, new ObjectCollection());
+		if ($interfacedObject instanceof \SimpleXMLElement) {
+			$interfacedObject = dom_import_simplexml($interfacedObject);
+		}
+		if (!$interfacer->isNodeValue($interfacedObject)) {
+			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
+			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
+		}
+		try {
+			return $this->_importMain($interfacedObject, $interfacer, new ObjectCollection());
+		}
+		catch (ComhonException $e) {
+			throw new ImportException($e);
+		}
 	}
 	
 	/**
@@ -132,14 +148,11 @@ class MainModel extends Model {
 	 */
 	protected function _importMain($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection) {
 		$this->load();
-		if ($interfacedObject instanceof \SimpleXMLElement) {
-			$interfacedObject= dom_import_simplexml($interfacedObject);
-		}
 		if (!$interfacer->isNodeValue($interfacedObject)) {
 			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
 				$interfacedObject = new \stdClass();
 			} else {
-				throw new \Exception('interfaced object doesn\'t match with interfacer');
+				throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getNodeClasses()));
 			}
 		}
 		
@@ -166,7 +179,7 @@ class MainModel extends Model {
 				}
 				break;
 			default:
-				throw new \Exception('undefined merge type '.$mergeType);
+				throw new ComhonException('undefined merge type '.$interfacer->getMergeType());
 		}
 		return $object;
 	}
@@ -179,23 +192,31 @@ class MainModel extends Model {
 	public function fillObject(ComhonObject $object, $interfacedObject, Interfacer $interfacer) {
 		$this->load();
 		$this->verifValue($object);
+		
 		if ($interfacedObject instanceof \SimpleXMLElement) {
-			$interfacedObject= dom_import_simplexml($interfacedObject);
+			$interfacedObject = dom_import_simplexml($interfacedObject);
 		}
 		if (!$interfacer->isNodeValue($interfacedObject)) {
 			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
 				$interfacedObject = new \stdClass();
 			} else {
-				throw new \Exception('interfaced object doesn\'t match with interfacer');
+				$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
+				throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 			}
 		}
-		
-		$this->_verifIdBeforeFillObject($object, $this->getIdFromInterfacedObject($interfacedObject, $interfacer), $interfacer->hasToFlagValuesAsUpdated());
-		
-		MainObjectCollection::getInstance()->addObject($object, false);
-		$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), $this, true);
-		if ($interfacer->hasToFlagObjectAsLoaded()) {
-			$object->setIsLoaded(true);
+			
+		try {
+			$this->_verifIdBeforeFillObject($object, $this->getIdFromInterfacedObject($interfacedObject, $interfacer), $interfacer->hasToFlagValuesAsUpdated());
+			
+			MainObjectCollection::getInstance()->addObject($object, false);
+			$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), $this, true);
+			
+			if ($interfacer->hasToFlagObjectAsLoaded()) {
+				$object->setIsLoaded(true);
+			}
+		}
+		catch (ComhonException $e) {
+			throw new ImportException($e);
 		}
 	}
 	
@@ -211,7 +232,7 @@ class MainModel extends Model {
 	 */
 	private function _verifIdBeforeFillObject(ObjectUnique $object, $id, $flagAsUpdated) {
 		if ($object->getModel() !== $this) {
-			throw new \Exception('current model instance must be same instance of object model');
+			throw new UnexpectedModelException($this, $object->getModel());
 		}
 		if (!$this->hasIdProperties()) {
 			return ;
@@ -226,21 +247,21 @@ class MainModel extends Model {
 		if ($id === 0) {
 			if ($objectId !== 0 && $objectId !== '0') {
 				$messageId = is_null($id) ? 'null' : $id;
-				throw new \Exception("id must be the same as imported value id : {$object->getId()} !== $messageId");
+				throw new ComhonException("id must be the same as imported value id : {$object->getId()} !== $messageId");
 			}
 		} else if ($objectId === 0) {
 			if ($id !== 0 && $id !== '0') {
 				$messageId = is_null($id) ? 'null' : $id;
-				throw new \Exception("id must be the same as imported value id : {$object->getId()} !== $messageId");
+				throw new ComhonException("id must be the same as imported value id : {$object->getId()} !== $messageId");
 			}
 		}
 		else if ($object->getId() != $id) {
 			$messageId = is_null($id) ? 'null' : $id;
-			throw new \Exception("id must be the same as imported value id : {$object->getId()} !== $messageId");
+			throw new ComhonException("id must be the same as imported value id : {$object->getId()} !== $messageId");
 		}
 		$storedObject = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
 		if (!is_null($storedObject) && $storedObject!== $object) {
-		 	throw new \Exception("A different instance object with same id '$id' already exists in MainObjectCollection.\n"
+		 	throw new ComhonException("A different instance object with same id '$id' already exists in MainObjectCollection.\n"
 		 						.'If you want to build a new instance with this id, you must go through Model and specify merge type as '.Interfacer::NO_MERGE.' (no merge)');
 		}
 	}
@@ -260,7 +281,7 @@ class MainModel extends Model {
 				$model = $this;
 			} else {
 				if (!$object->getModel()->isInheritedFrom($this)) {
-					throw new \Exception('object doesn\'t have good model');
+					throw new UnexpectedModelException($this, $object->getModel());
 				}
 				$model = $object->getModel();
 			}
@@ -287,7 +308,7 @@ class MainModel extends Model {
 	public function loadObject($id, $propertiesFilter = null, $forceLoad = false) {
 		$this->load();
 		if (!$this->hasIdProperties()) {
-			throw new \Exception("model '$this->modelName' must have at least one id property to load object");
+			throw new ComhonException("model '$this->modelName' must have at least one id property to load object");
 		}
 		$mainObject = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
 		
@@ -302,8 +323,7 @@ class MainModel extends Model {
 		
 		try {
 			return $this->loadAndFillObject($mainObject, $propertiesFilter, $forceLoad) ? $mainObject : null;
-		} catch (CastException $e) {
-			// replace by finally block for php 5.5+
+		} catch (CastComhonObjectException $e) {
 			if ($newObject) {
 				$mainObject->reset();
 				throw $e;
@@ -324,7 +344,7 @@ class MainModel extends Model {
 		$success = false;
 		$this->load();
 		if (is_null($serializationUnit = $this->getSerialization())) {
-			throw new \Exception('model doesn\'t have serialization');
+			throw new ComhonException("model {$this->getName()} doesn't have serialization");
 		}
 		if (!$object->isLoaded() || $forceLoad) {
 			$success = $serializationUnit->loadObject($object, $propertiesFilter);

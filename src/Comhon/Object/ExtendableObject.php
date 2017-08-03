@@ -13,6 +13,7 @@ namespace Comhon\Object;
 
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\SimpleModel;
+use Comhon\Exception\ComhonException;
 
 abstract class ExtendableObject extends ObjectUnique {
 
@@ -31,7 +32,7 @@ abstract class ExtendableObject extends ObjectUnique {
 		$model = ModelManager::getInstance()->getInstanceModel($this->_getModelName());
 		
 		if ($model instanceof SimpleModel) {
-			throw new \Exception('Extendable object cannot have SimpleModel');
+			throw new ComhonException('Extendable object cannot have SimpleModel');
 		}
 		$this->_affectModel($model);
 		

@@ -13,6 +13,7 @@ namespace Comhon\Model;
 
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
+use Comhon\Exception\UnexpectedValueTypeException;
 
 class ModelInteger extends SimpleModel {
 	
@@ -61,9 +62,7 @@ class ModelInteger extends SimpleModel {
 	 */
 	public function verifValue($value) {
 		if (!is_integer($value)) {
-			$nodes = debug_backtrace();
-			$class = gettype($value) == 'object' ? get_class($value): gettype($value);
-			throw new \Exception("Argument passed to {$nodes[0]['class']}::{$nodes[0]['function']}() must be an integer, instance of $class given, called in {$nodes[0]['file']} on line {$nodes[0]['line']} and defined in {$nodes[0]['file']}");
+			throw new UnexpectedValueTypeException($value, 'integer');
 		}
 		return true;
 	}

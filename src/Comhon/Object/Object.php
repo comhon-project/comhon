@@ -15,6 +15,7 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\Model;
 use Comhon\Model\ModelContainer;
 use Comhon\Model\SimpleModel;
+use Comhon\Exception\ComhonException;
 
 final class Object extends ObjectUnique {
 
@@ -27,7 +28,7 @@ final class Object extends ObjectUnique {
 		$objectModel = ($model instanceof Model) ? $model : ModelManager::getInstance()->getInstanceModel($model);
 		
 		if (($objectModel instanceof ModelContainer) || ($objectModel instanceof SimpleModel)) {
-			throw new \Exception('Object cannot have ModelContainer or SimpleModel');
+			throw new ComhonException('Object cannot have ModelContainer or SimpleModel');
 		}
 		$this->_affectModel($objectModel);
 		

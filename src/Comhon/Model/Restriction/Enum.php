@@ -86,13 +86,22 @@ class Enum implements Restriction {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
-	public function toString($value) {
+	public function toMessage($value) {
 		if (!is_float($value) && !is_integer($value) && !is_string($value)) {
 			$class = gettype($value) == 'object' ? get_class($value) : gettype($value);
-			return "Value passed to Enum must be an instance of integer, float or string, instance of $class given";
+			return "Value passed to Enum must be an integer, float or string, instance of $class given";
 		}
 		return $value . ' is' . ($this->satisfy($value) ? ' ' : ' not ')
 			. 'in enumeration ' . json_encode(array_keys($this->enum));
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Restriction\Restriction::toString()
+	 */
+	public function toString() {
+		return json_encode(array_keys($this->enum));
 	}
 	
 }

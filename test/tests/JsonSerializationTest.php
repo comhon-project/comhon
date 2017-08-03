@@ -2,6 +2,7 @@
 
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Serialization\File\XmlFile;
+use Comhon\Exception\ComhonException;
 
 $time_start = microtime(true);
 
@@ -19,7 +20,7 @@ if ($testJson->save(XmlFile::UPDATE) !== 1) {
 try {
 	$testJson->save(XmlFile::CREATE);
 	$throw = true;
-} catch (Exception $e) {
+} catch (ComhonException $e) {
 	$throw = false;
 }
 if ($throw) {

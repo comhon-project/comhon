@@ -15,6 +15,12 @@ use Comhon\Object\ComhonObject;
 use Comhon\Model\Model;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\MainModel;
+use Comhon\Exception\ArgumentException;
+use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\EnumerationException;
+use Comhon\Exception\Interfacer\ImportException;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\Interfacer\ExportException;
 
 abstract class Interfacer {
 	
@@ -448,8 +454,8 @@ abstract class Interfacer {
 	 * @param integer $mergeType possible values are [self::MERGE, self::OVERWRITE, self::NO_MERGE]
 	 */
 	public function setMergeType($mergeType) {
-		if (!in_array($mergeType, self::$allowedMergeTypes)) {
-			throw new \Exception("merge type '$mergeType' not allowed");
+		if (!in_array($mergeType, self::$allowedMergeTypes, true)) {
+			throw new ArgumentException($mergeType, self::$allowedMergeTypes, 1);
 		}
 		$this->mergeType = $mergeType;
 	}
@@ -573,12 +579,26 @@ abstract class Interfacer {
 	abstract public function createNode($name = null);
 	
 	/**
+	 * get node classes
+	 *
+	 * return string[]
+	 */
+	abstract public function getNodeClasses();
+	
+	/**
 	 * create array node
 	 * 
 	 * @param string $name
 	 * @return mixed
 	 */
 	abstract public function createArrayNode($name = null);
+	
+	/**
+	 * get array node classes
+	 *
+	 * return string[]
+	 */
+	abstract public function getArrayNodeClasses();
 	
 	/**
 	 * transform given node to string
@@ -648,7 +668,11 @@ abstract class Interfacer {
 	 */
 	public function export(ComhonObject $object, $preferences = []) {
 		$this->setPreferences($preferences);
-		return $object->export($this);
+		try {
+			return $object->export($this);
+		} catch (ComhonException $e) {
+			throw new ExportException($e);
+		}
 	}
 	
 	/**
@@ -661,7 +685,11 @@ abstract class Interfacer {
 	 */
 	public function import($node, MainModel $model, array $preferences = []) {
 		$this->setPreferences($preferences);
-		return $model->import($node, $this);
+		try {
+			return $model->import($node, $this);
+		} catch (ComhonException $e) {
+			throw new ImportException($e);
+		}
 	}
 	
 	/**
@@ -672,7 +700,7 @@ abstract class Interfacer {
 		// private
 		if (array_key_exists(self::PRIVATE_CONTEXT, $preferences)) {
 			if (!is_bool($preferences[self::PRIVATE_CONTEXT])) {
-				throw new \Exception('preference "'.self::PRIVATE_CONTEXT.'" should be a boolean');
+				throw new UnexpectedValueTypeException($preferences[self::PRIVATE_CONTEXT], 'boolean', self::PRIVATE_CONTEXT);
 			}
 			$this->setPrivateContext($preferences[self::PRIVATE_CONTEXT]);
 		}
@@ -680,7 +708,7 @@ abstract class Interfacer {
 		// serial context
 		if (array_key_exists(self::SERIAL_CONTEXT, $preferences)) {
 			if (!is_bool($preferences[self::SERIAL_CONTEXT])) {
-				throw new \Exception('preference "'.self::SERIAL_CONTEXT.'" should be a boolean');
+				throw new UnexpectedValueTypeException($preferences[self::SERIAL_CONTEXT], 'boolean', self::SERIAL_CONTEXT);
 			}
 			$this->setSerialContext($preferences[self::SERIAL_CONTEXT]);
 		}
@@ -688,7 +716,7 @@ abstract class Interfacer {
 		// date time zone
 		if (array_key_exists(self::DATE_TIME_ZONE, $preferences)) {
 			if (!is_string($preferences[self::DATE_TIME_ZONE])) {
-				throw new \Exception('preference "'.self::DATE_TIME_ZONE.'" should be a string');
+				throw new UnexpectedValueTypeException($preferences[self::DATE_TIME_ZONE], 'string', self::DATE_TIME_ZONE);
 			}
 			$this->setDateTimeZone($preferences[self::DATE_TIME_ZONE]);
 		}
@@ -696,7 +724,7 @@ abstract class Interfacer {
 		// date time format
 		if (array_key_exists(self::DATE_TIME_FORMAT, $preferences)) {
 			if (!is_string($preferences[self::DATE_TIME_FORMAT])) {
-				throw new \Exception('preference "'.self::DATE_TIME_FORMAT.'" should be a string');
+				throw new UnexpectedValueTypeException($preferences[self::DATE_TIME_FORMAT], 'string', self::DATE_TIME_FORMAT);
 			}
 			$this->setDateTimeFormat($preferences[self::DATE_TIME_FORMAT]);
 		}
@@ -704,7 +732,7 @@ abstract class Interfacer {
 		// only updated values
 		if (array_key_exists(self::ONLY_UPDATED_VALUES, $preferences)) {
 			if (!is_bool($preferences[self::ONLY_UPDATED_VALUES])) {
-				throw new \Exception('preference "'.self::ONLY_UPDATED_VALUES.'" should be a boolean');
+				throw new UnexpectedValueTypeException($preferences[self::ONLY_UPDATED_VALUES], 'boolean', self::ONLY_UPDATED_VALUES);
 			}
 			$this->setExportOnlyUpdatedValues($preferences[self::ONLY_UPDATED_VALUES]);
 		}
@@ -712,7 +740,7 @@ abstract class Interfacer {
 		// preoperties filters
 		if (array_key_exists(self::PROPERTIES_FILTERS, $preferences)) {
 			if (!is_array($preferences[self::PROPERTIES_FILTERS])) {
-				throw new \Exception('preference "'.self::PROPERTIES_FILTERS.'" should be an array');
+				throw new UnexpectedValueTypeException($preferences[self::PROPERTIES_FILTERS], 'array', self::PROPERTIES_FILTERS);
 			}
 			$this->resetPropertiesFilters();
 			foreach ($preferences[self::PROPERTIES_FILTERS] as $modelName => $properties) {
@@ -723,7 +751,7 @@ abstract class Interfacer {
 		// flatten values
 		if (array_key_exists(self::FLATTEN_VALUES, $preferences)) {
 			if (!is_bool($preferences[self::FLATTEN_VALUES])) {
-				throw new \Exception('preference "'.self::FLATTEN_VALUES.'" should be a boolean');
+				throw new UnexpectedValueTypeException($preferences[self::FLATTEN_VALUES], 'boolean', self::FLATTEN_VALUES);
 			}
 			$this->setFlattenValues($preferences[self::FLATTEN_VALUES]);
 		}
@@ -731,7 +759,7 @@ abstract class Interfacer {
 		// main foreign objects
 		if (array_key_exists(self::EXPORT_MAIN_FOREIGN_OBJECTS, $preferences)) {
 			if (!is_bool($preferences[self::EXPORT_MAIN_FOREIGN_OBJECTS])) {
-				throw new \Exception('preference "'.self::EXPORT_MAIN_FOREIGN_OBJECTS.'" should be a boolean');
+				throw new UnexpectedValueTypeException($preferences[self::EXPORT_MAIN_FOREIGN_OBJECTS], 'boolean', self::EXPORT_MAIN_FOREIGN_OBJECTS);
 			}
 			$this->setExportMainForeignObjects($preferences[self::EXPORT_MAIN_FOREIGN_OBJECTS]);
 		}
@@ -739,7 +767,7 @@ abstract class Interfacer {
 		// flag values as updated
 		if (array_key_exists(self::FLAG_VALUES_AS_UPDATED, $preferences)) {
 			if (!is_bool($preferences[self::FLAG_VALUES_AS_UPDATED])) {
-				throw new \Exception('preference "'.self::FLAG_VALUES_AS_UPDATED.'" should be a boolean');
+				throw new UnexpectedValueTypeException($preferences[self::FLAG_VALUES_AS_UPDATED], 'boolean', self::FLAG_VALUES_AS_UPDATED);
 			}
 			$this->setFlagValuesAsUpdated($preferences[self::FLAG_VALUES_AS_UPDATED]);
 		}
@@ -747,13 +775,16 @@ abstract class Interfacer {
 		// flag Object as updated
 		if (array_key_exists(self::FLAG_OBJECT_AS_LOADED, $preferences)) {
 			if (!is_bool($preferences[self::FLAG_OBJECT_AS_LOADED])) {
-				throw new \Exception('preference "'.self::FLAG_OBJECT_AS_LOADED.'" should be a boolean');
+				throw new UnexpectedValueTypeException($preferences[self::FLAG_OBJECT_AS_LOADED], 'boolean', self::FLAG_OBJECT_AS_LOADED);
 			}
 			$this->setFlagObjectAsLoaded($preferences[self::FLAG_OBJECT_AS_LOADED]);
 		}
 		
 		// merge type
 		if (array_key_exists(self::MERGE_TYPE, $preferences)) {
+			if (!in_array($preferences[self::MERGE_TYPE], self::$allowedMergeTypes, true)) {
+				throw new EnumerationException($preferences[self::MERGE_TYPE], self::$allowedMergeTypes, self::MERGE_TYPE);
+			}
 			$this->setMergeType($preferences[self::MERGE_TYPE]);
 		}
 	}

@@ -11,7 +11,7 @@
 
 namespace Comhon\Exception;
 
-class NotExistingRegexException extends \Exception {
+class NotExistingRegexException extends ComhonException {
 	
 	/**
 	 * @param string $regexName

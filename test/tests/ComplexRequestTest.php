@@ -51,7 +51,7 @@ $Json = '{
 			"id"       : "l1",
 			"node"     : "p1",
 			"queue"    : {"property" : "children"},
-			"havingLiteral" : {
+			"having" : {
 				"function" : "COUNT",
 				"operator" : "=",
 				"value"    : 3
@@ -61,7 +61,7 @@ $Json = '{
 			"id"       : "l2",
 			"node"     : "p1",
 			"queue"    : {"property" : "children"},
-			"havingLiteral" : {
+			"having" : {
 				"function" : "COUNT",
 				"operator" : ">=",
 				"value"    : 3
@@ -97,7 +97,7 @@ $Json = '{
 						"property" : "house"
 					}
 				},
-				"havingClause" : {
+				"having" : {
 					"type" : "conjunction",
 					"elements" : [
 						{
@@ -127,7 +127,7 @@ $Json = '{
 					{
 						"node"     : "p1",
 						"queue"    : {"property" : "homes"},
-						"havingLiteral" : {
+						"having" : {
 							"function" : "COUNT",
 							"operator" : ">=",
 							"value"    : 3

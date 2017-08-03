@@ -19,5 +19,8 @@
 		<manBodyJson>body/manJson/manifest.xml</manBodyJson>
 		<testMultiIncremental>testMultiIncremental/manifest.xml</testMultiIncremental>
 		<childTestDb>childTestDb/manifest.xml</childTestDb>
+		<notLinkableTestDb>notLinkableTestDb/manifest.xml</notLinkableTestDb>
+		<locatedHouse>house/manifest.xml</locatedHouse>
+		<testNoId>testNoId/manifest.xml</testNoId>
 	</list>
 </serialization>

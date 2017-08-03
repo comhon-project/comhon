@@ -18,6 +18,7 @@ use Comhon\Model\ModelDateTime;
 use Comhon\Object\ComhonDateTime;
 use Comhon\Model\Model;
 use Comhon\Object\ObjectUnique;
+use Comhon\Exception\ComhonException;
 
 class Property {
 
@@ -76,7 +77,7 @@ class Property {
 		}
 		
 		if ($this->isId && !($this->model instanceof SimpleModel)) {
-			throw new \Exception("id property with name '$name' must be a simple model");
+			throw new ComhonException("property is defined as id, so argument 1 must be an instance of SimpleModel");
 		}
 	}
 	
@@ -276,7 +277,7 @@ class Property {
 	 * @throws \Exception
 	 */
 	public function loadValue(ObjectUnique $object, $propertiesFilter = [], $forceLoad = false) {
-		throw new \Exception('cannot load object, property is not foreign property');
+		throw new ComhonException('cannot load object, property is not foreign property');
 	}
 	
 	/**
@@ -288,7 +289,7 @@ class Property {
 	 * @throws \Exception
 	 */
 	public function loadAggregationIds(ObjectArray $object, ObjectUnique $parentObject, $forceLoad = false) {
-		throw new \Exception('cannot load aggregation ids, property is not aggregation property');
+		throw new ComhonException('cannot load aggregation ids, property is not aggregation property');
 	}
 	
 	/**

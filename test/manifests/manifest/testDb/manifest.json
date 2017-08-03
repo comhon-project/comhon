@@ -158,6 +158,25 @@
                 "name": "childTestDb"
             },
             "is_foreign": true
+        },
+        {
+            "name": "notLinkableArrayTestDb",
+            "type": "array",
+            "values": {
+                "type": "\\notLinkableTestDb",
+                "name": "childTestDb"
+            },
+            "is_foreign": true
+        },
+        {
+            "name": "notLinkableTestDb",
+            "type": "\\notLinkableTestDb",
+            "is_foreign": true
+        },
+        {
+            "name": "notLinkableTestObjValue",
+            "type": "\\test",
+            "is_foreign": true
         }
     ]
 }

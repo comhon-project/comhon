@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0">
+	<properties>
+		<property type="integer" is_id="1" name="id"/>
+		<property type="string" name="name"/>
+		<property is_foreign="1" type="\testDb" name="notLinkableParentTestDb"/>
+	</properties>
+</manifest>

@@ -8,6 +8,7 @@ use Comhon\Serialization\SqlTable;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Exception\ComhonException;
 
 $time_start = microtime(true);
 
@@ -42,11 +43,11 @@ $Json = '{
 $result = ObjectService::getObjects(json_decode($Json), true);
 
 if (!is_object($result) || !isset($result->success) || !$result->success || !isset($result->result) || !is_array($result->result)) {
-	throw new Exception('bad ObjectService::getObjects return '.json_encode($result));
+	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
 }
 
 if (!compareJson(json_encode($result->result), '[{"date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"id1":1,"id2":"23"},{"date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"id1":1,"id2":"101"}]')) {
-	throw new Exception('bad objects');
+	throw new \Exception('bad objects');
 }
 
 $Json = '{
@@ -76,11 +77,11 @@ $Json = '{
 $result = ObjectService::getObjects(json_decode($Json), true);
 
 if (!is_object($result) || !isset($result->success) || !$result->success || !isset($result->result) || !is_array($result->result)) {
-	throw new Exception('bad ObjectService::getObjects return '.json_encode($result));
+	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
 }
 
 if (!compareJson(json_encode($result->result), '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"object":null,"objectWithId":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean":false,"boolean2":true}]')) {
-	throw new Exception('bad objects : '.json_encode($result->result));
+	throw new \Exception('bad objects : '.json_encode($result->result));
 }
 
 MainObjectCollection::getInstance()->getObject('[1,"23"]', 'testDb')->reorderValues();
@@ -108,11 +109,11 @@ foreach ($result->result as $index => $stdObject) {
 	try {
 		$object->fill($stdObject, $stdPrivateInterfacer);
 		$throw = true;
-	} catch (Exception $e) {
+	} catch (ComhonException $e) {
 		$throw = false;
 	}
 	if ($throw) {
-		throw new Exception('import should works other instance already exists');
+		throw new \Exception('import should works other instance already exists');
 	}
 	$id1 = $stdObject->id1;
 	$id2 = $stdObject->id2;
@@ -128,7 +129,7 @@ foreach ($result->result as $index => $stdObject) {
 	$object2->setValue('id2', $id2);
 	
 	if (!compareJson(json_encode($object2->export($stdPrivateInterfacer)), json_encode($basedObjects[$index]))) {
-		throw new Exception('bad object');
+		throw new \Exception('bad object');
 	}
 }
 
@@ -143,13 +144,13 @@ $objectJson = $object->export($stdPrivateInterfacer);
 $publicObjectJson = $object->export($stdPublicInterfacer);
 
 if ($object->isUpdated()) {
-	throw new Exception('should not be updated');
+	throw new \Exception('should not be updated');
 }
 if ($object->isUpdatedValue('timestamp')) {
-	throw new Exception('should not be updated');
+	throw new \Exception('should not be updated');
 }
 if ($object->getValue('timestamp')->isUpdated()) {
-	throw new Exception('should not be updated');
+	throw new \Exception('should not be updated');
 }
 if ($object->save(SqlTable::UPDATE) !== 0) {
 	throw new \Exception('serialization should return 0 because there is no update');
@@ -157,26 +158,26 @@ if ($object->save(SqlTable::UPDATE) !== 0) {
 // update dateTime
 $object->getValue('timestamp')->sub(new DateInterval('P0Y0M0DT5H0M0S'));
 if (!$object->isUpdated()) {
-	throw new Exception('should be updated');
+	throw new \Exception('should be updated');
 }
 if (!$object->isUpdatedValue('timestamp')) {
-	throw new Exception('should be updated');
+	throw new \Exception('should be updated');
 }
 if (!$object->getValue('timestamp')->isUpdated()) {
-	throw new Exception('should be updated');
+	throw new \Exception('should be updated');
 }
 
 if ($object->save(SqlTable::UPDATE) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 if ($object->isUpdated()) {
-	throw new Exception('should not be updated');
+	throw new \Exception('should not be updated');
 }
 if ($object->isUpdatedValue('timestamp')) {
-	throw new Exception('should not be updated');
+	throw new \Exception('should not be updated');
 }
 if ($object->getValue('timestamp')->isUpdated()) {
-	throw new Exception('should not be updated');
+	throw new \Exception('should not be updated');
 }
 
 foreach ($object->getValues() as $name => $value) {
@@ -193,10 +194,10 @@ if ($object->save(SqlTable::UPDATE) !== $updateResultByDBSM[$DBSM]) {
 	throw new \Exception('serialization should return 0 because there is no update IN database');
 }
 if ($object->isUpdated()) {
-	throw new Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flaged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
-	throw new Exception('should not have updated values after save');
+	throw new \Exception('should not have updated values after save');
 }
 
 $object = $dbTestModel->loadObject('[1,"1501774389"]', null, true);
@@ -210,10 +211,10 @@ if ($object->save(SqlTable::UPDATE) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 if ($object->isUpdated()) {
-	throw new Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flaged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
-	throw new Exception('should not have updated values after save');
+	throw new \Exception('should not have updated values after save');
 }
 
 $object->unsetValue('notSerializedValue');
@@ -223,7 +224,7 @@ $object->resetUpdatedStatus();
 $object = $dbTestModel->loadObject('[1,"1501774389"]', [], true);
 
 if (!compareJson(json_encode($object->export($stdPrivateInterfacer)), json_encode($objectJson))) {
-	throw new Exception('bad object');
+	throw new \Exception('bad object');
 }
 
 /** ************************* test deleted values with database serialization ************************ **/
@@ -233,25 +234,25 @@ $object->unsetValue('integer');
 
 $object->save(SqlTable::UPDATE);
 if ($object->isUpdated()) {
-	throw new Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flaged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
-	throw new Exception('should not have updated values after save');
+	throw new \Exception('should not have updated values after save');
 }
 
 $object = $dbTestModel->loadObject('[1,"1501774389"]', null, true);
 if (!$object->hasValue('integer') || !is_null($object->getValue('integer'))) {
-	throw new Exception('should not have integer value');
+	throw new \Exception('should not have integer value');
 }
 $object->setValue('integer', $value);
 $object->reorderValues();
 
 $object->save(SqlTable::UPDATE);
 if ($object->isUpdated()) {
-	throw new Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flaged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
-	throw new Exception('should not have updated values after save');
+	throw new \Exception('should not have updated values after save');
 }
 
 /** ****************************** test simple load request api ****************************** **/
@@ -267,10 +268,10 @@ $params->properties = ['date','timestamp','integer','string'];
 $result = ObjectService::getObject($params, true);
 
 if (!is_object($result) || !isset($result->success) || !$result->success) {
-	throw new Exception('simple load request failed : '.json_encode($result));
+	throw new \Exception('simple load request failed : '.json_encode($result));
 }
 if (!compareJson(json_encode($result->result), '{"date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2,"id1":1,"id2":"1501774389"}')) {
-	throw new Exception('bad object : '.json_encode($result->result));
+	throw new \Exception('bad object : '.json_encode($result->result));
 }
 
 /** ************* existing object partial object ************** **/
@@ -281,10 +282,10 @@ $params->id = '[1,"1501774389"]';
 $result = ObjectService::getObject($params);
 
 if (!is_object($result) || !isset($result->success) || !$result->success) {
-	throw new Exception('simple load request failed');
+	throw new \Exception('simple load request failed'.json_encode($result));
 }
 if (!compareJson(json_encode($result->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2}')) {
-	throw new Exception('bad object : '.json_encode($result->result));
+	throw new \Exception('bad object : '.json_encode($result->result));
 }
 
 /** ************* new object full object ************** **/
@@ -296,10 +297,10 @@ $params->id = '[1,"1501774389"]';
 $result = ObjectService::getObject($params);
 
 if (!is_object($result) || !isset($result->success) || !$result->success) {
-	throw new Exception('simple load request failed');
+	throw new \Exception('simple load request failed');
 }
 if (!compareJson(json_encode($result->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"testDb\\\\objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"testDb\\\\objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"testDb\\\\objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"testDb\\\\objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"testDb\\\\objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"testDb\\\\objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"testDb\\\\objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
-	throw new Exception('bad object : '.json_encode($result->result));
+	throw new \Exception('bad object : '.json_encode($result->result));
 }
 
 /** ************* existing full object with filter ************** **/
@@ -311,10 +312,10 @@ $params->properties = ['date','timestamp','integer','string'];
 $result = ObjectService::getObject($params, true);
 
 if (!is_object($result) || !isset($result->success) || !$result->success) {
-	throw new Exception('simple load request failed');
+	throw new \Exception('simple load request failed');
 }
 if (!compareJson(json_encode($result->result), '{"date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","integer":2,"id1":1,"id2":"1501774389"}')) {
-	throw new Exception('bad object : '.json_encode($result->result));
+	throw new \Exception('bad object : '.json_encode($result->result));
 }
 
 /** ************* existing full object reodered ************** **/
@@ -326,21 +327,21 @@ $params->id = '[1,"1501774389"]';
 $result = ObjectService::getObject($params);
 
 if (!is_object($result) || !isset($result->success) || !$result->success) {
-	throw new Exception('simple load request failed');
+	throw new \Exception('simple load request failed');
 }
 if (!compareJson(json_encode($result->result), json_encode($publicObjectJson))) {
-	throw new Exception('bad object : '.json_encode($result->result));
+	throw new \Exception('bad object : '.json_encode($result->result));
 }
 
 $testDb = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
 $testDb->loadValue('childrenTestDb', ['id']);
 
 if (!compareJson(json_encode($testDb->getValue('childrenTestDb')->export($stdPrivateInterfacer)), '[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2,"parentTestDb":"[1,\"1501774389\"]"}]')) {
-	throw new Exception('bad object : '.json_encode($testDb->getValue('childrenTestDb')->export($stdPrivateInterfacer)));
+	throw new \Exception('bad object : '.json_encode($testDb->getValue('childrenTestDb')->export($stdPrivateInterfacer)));
 }
 foreach ($testDb->getValue('childrenTestDb') as $child) {
 	if ($testDb !== $child->getValue('parentTestDb')) {
-		throw new Exception('should be same instance');
+		throw new \Exception('should be same instance');
 	}
 }
 
@@ -353,21 +354,21 @@ $testDb->setId('[1,"1501774389"]', false);
 $testDb3 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
 
 if (!is_null($testDb2)) {
-	throw new Exception('should be null');
+	throw new \Exception('should be null');
 }
 if (is_null($testDb3)) {
-	throw new Exception('should be not null');
+	throw new \Exception('should be not null');
 }
 if ($testDb !== $testDb1 || $testDb1 !== $testDb3) {
-	throw new Exception('should be same instance');
+	throw new \Exception('should be same instance');
 }
 $testDb->unsetValue('id2');
 if (!is_null(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb'))) {
-	throw new Exception('should be null');
+	throw new \Exception('should be null');
 }
 $testDb->setValue('id2', '1501774389');
 if ($testDb !== MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb')) {
-	throw new Exception('should be same instance');
+	throw new \Exception('should be same instance');
 }
 
 $testDb->setValue('childrenTestDb', $children, false);
@@ -376,10 +377,10 @@ $testDb->getValue('childrenTestDb')->getValue(0)->loadValue('parentTestDb', ['in
 $testDb->getValue('childrenTestDb')->getValue(1)->unsetValue('parentTestDb');
 
 if (!compareJson(json_encode($testDb->getValue('childrenTestDb')->export($stdPrivateInterfacer)),'[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2}]')) {
-	throw new Exception('bad object : '.json_encode($testDb->getValue('childrenTestDb')->export($stdPrivateInterfacer)));
+	throw new \Exception('bad object : '.json_encode($testDb->getValue('childrenTestDb')->export($stdPrivateInterfacer)));
 }
 if (!compareJson(json_encode($testDb->export($stdPrivateInterfacer)), '{"defaultValue":"default","id1":1,"id2":"1501774389","childrenTestDb":[1,2],"integer":2}')) {
-	throw new Exception('bad object : '.json_encode($testDb->export($stdPrivateInterfacer)));
+	throw new \Exception('bad object : '.json_encode($testDb->export($stdPrivateInterfacer)));
 }
 
 

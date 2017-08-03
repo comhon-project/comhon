@@ -12,6 +12,7 @@
 namespace Comhon\Database;
 
 use Comhon\Logic\Clause;
+use Comhon\Exception\Literal\MalformedLiteralException;
 
 class HavingClause extends Clause {
 	
@@ -28,7 +29,7 @@ class HavingClause extends Clause {
 	 */
 	public static function stdObjectToHavingClause($stdObject, $firstTable, $lastTable, $lastModel, $allowPrivateProperties) {
 		if (!is_object($stdObject) || !isset($stdObject->type) || (isset($stdObject->elements) && !is_array($stdObject->elements))) {
-			throw new \Exception('malformed stdObject Clause : '.json_encode($stdObject));
+			throw new MalformedLiteralException($stdObject);
 		}
 		$clause = new HavingClause($stdObject->type);
 		if (isset($stdObject->elements)) {
@@ -36,7 +37,9 @@ class HavingClause extends Clause {
 				if (isset($stdObjectElement->type)) { // clause
 					$clause->addClause(self::stdObjectToHavingClause($stdObjectElement, $firstTable, $lastTable, $lastModel, $allowPrivateProperties));
 				} else { // literal
-					$table = isset($stdObjectElement->havingLiteral->function) && ($stdObject->havingLiteral->function == HavingLiteral::COUNT) ? $firstTable : $lastTable;
+					// table is not used anymore for function "COUNT" because we now use COUNT(*) instead of COUNT(table.column)
+					// but we keep condition just in case
+					$table = isset($stdObjectElement->function) && ($stdObjectElement->function == HavingLiteral::COUNT) ? $firstTable : $lastTable;
 					$clause->addLiteral(HavingLiteral::stdObjectToHavingLiteral($stdObjectElement, $table, $lastModel, $allowPrivateProperties));
 				}
 			}

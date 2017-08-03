@@ -12,6 +12,9 @@
 namespace Comhon\Logic;
 
 use Comhon\Database\DbLiteral;
+use Comhon\Exception\ArgumentException;
+use Comhon\Exception\Literal\MalformedLiteralException;
+use Comhon\Exception\Literal\MalformedClauseException;
 
 /**
  * logical junction is actually a disjunction or a conjunction
@@ -44,7 +47,7 @@ class Clause extends Formula {
 	 */
 	public function __construct($type) {
 		if (!array_key_exists($type, self::$allowedTypes)) {
-			throw new \Exception("type '$type' doesn't exists");
+			throw new ArgumentException($type, self::$allowedTypes, 1);
 		}
 		$this->type = $type;
 	}
@@ -312,7 +315,7 @@ class Clause extends Formula {
 	 */
 	public static function stdObjectToClause($stdObject, $modelByNodeId, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
 		if (!isset($stdObject->type) || (isset($stdObject->elements) && !is_array($stdObject->elements))) {
-			throw new \Exception('malformed stdObject Clause : '.json_encode($stdObject));
+			throw new MalformedClauseException($stdObject);
 		}
 		$clause = new Clause($stdObject->type);
 		if (isset($stdObject->elements)) {
@@ -325,7 +328,7 @@ class Clause extends Formula {
 					} else if (isset($stdObjectElement->node) && array_key_exists($stdObjectElement->node, $modelByNodeId)) {
 						$model = $modelByNodeId[$stdObjectElement->node];
 					} else {
-						throw new \Exception('node doesn\' exists or not recognized'.json_encode($stdObjectElement));
+						throw new MalformedLiteralException($stdObjectElement);
 					}
 					$clause->addLiteral(DbLiteral::stdObjectToLiteral($stdObjectElement, $model, $literalCollection, $selectQuery, $allowPrivateProperties));
 				}

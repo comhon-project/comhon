@@ -11,6 +11,8 @@
 
 namespace Comhon\Utils;
 
+use Comhon\Exception\Database\NotSupportedDBMSException;
+
 class SqlUtils {
 
 	/** @var array reserved words for mySQL DBSM */
@@ -69,7 +71,7 @@ class SqlUtils {
 			//case 'odbc':
 			//case 'sqlite':
 			//case '4D':
-			default: throw new \Exception("DBMS '$DBMS' not managed");
+			default: throw new NotSupportedDBMSException($DBMS);
 		}
 	}
 	

@@ -14,6 +14,7 @@ namespace Comhon\Manifest\Parser\V_2_0;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Manifest\Parser\SerializationManifestParser as ParentSerializationManifestParser;
 use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Exception\ManifestException;
 
 class SerializationManifestParser extends ParentSerializationManifestParser {
 
@@ -34,7 +35,7 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 			if ($this->interfacer->hasValue($serializationNode, 'serializationName')) {
 				$serializationName = $this->interfacer->getValue($serializationNode, 'serializationName');
 				if ($this->interfacer->hasValue($serializationNode, 'serializationNames')) {
-					throw new \Exception('serializationName and serializationNames cannot cohexist');
+					throw new ManifestException('serializationName and serializationNames cannot cohexist');
 				}
 			}
 			else if ($this->interfacer->hasValue($serializationNode, 'serializationNames', true)) {
@@ -56,6 +57,9 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 					foreach ($aggregations as $key => $serializationNameNode) {
 						$aggregations[$key] = $this->interfacer->extractNodeText($serializationNameNode);
 					}
+				}
+				if (empty($aggregations)) {
+					throw new ManifestException('aggregation must have at least one aggregation property');
 				}
 			}
 			if ($this->interfacer->hasValue($serializationNode, 'is_serializable')) {
@@ -95,14 +99,14 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 		} else if ($this->interfacer->hasValue($serializationNode, 'id')) {
 			$id = $this->interfacer->getValue($serializationNode, 'id');
 			if (empty($id)) {
-				throw new \Exception('malformed serialization, must have description or id');
+				throw new ManifestException('malformed serialization, must have description or id');
 			}
 			$serialization =  ModelManager::getInstance()->getInstanceModel($type)->loadObject($id);
 			if (is_null($serialization)) {
-				throw new \Exception("impossible to load $type serialization with id '$id'");
+				throw new ManifestException("impossible to load $type serialization with id '$id'");
 			}
 		} else {
-			throw new \Exception('malformed serialization');
+			throw new ManifestException('malformed serialization');
 		}
 		return $serialization;
 	}

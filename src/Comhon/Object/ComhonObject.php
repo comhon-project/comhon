@@ -17,6 +17,11 @@ use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Object\ObjectArray;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\NotSatisfiedRestrictionException;
+use Comhon\Exception\Interfacer\ImportException;
+use Comhon\Exception\Interfacer\ExportException;
 
 abstract class ComhonObject {
 
@@ -57,7 +62,7 @@ abstract class ComhonObject {
 	 */
 	final protected function _affectModel(Model $model) {
 		if (!is_null($this->model)) {
-			throw new \Exception('object already initialized');
+			throw new ComhonException('object already initialized');
 		}
 		$this->model = $model;
 	}
@@ -79,17 +84,23 @@ abstract class ComhonObject {
 	 */
 	final public function setValue($name, $value, $flagAsUpdated = true, $strict = true) {
 		if ($strict) {
-			if ($this instanceof ObjectArray) {
-				$this->model->verifElementValue($value);
-			} else {
-				$property = $this->model->getProperty($name, true);
-				$property->isSatisfiable($value, true);
-				if (!is_null($value)) {
-					$property->getModel()->verifValue($value);
+			try {
+				if ($this instanceof ObjectArray) {
+					$this->model->verifElementValue($value);
+				} else {
+					$property = $this->model->getProperty($name, true);
+					$property->isSatisfiable($value, true);
+					if (!is_null($value)) {
+						$property->getModel()->verifValue($value);
+					}
+					if ($property->isAggregation()) {
+						$flagAsUpdated = false;
+					}
 				}
-				if ($property->isAggregation()) {
-					$flagAsUpdated = false;
-				}
+			} catch (NotSatisfiedRestrictionException $e) {
+				throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
+			} catch (UnexpectedValueTypeException $e) {
+				throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 			}
 		}
 		if ($this->model->hasIdProperty($name) && ($this->model instanceof MainModel)) {
@@ -512,6 +523,13 @@ abstract class ComhonObject {
 		return $this->model->getProperty($propertyName, $throwException);
 	}
 	
+	/**
+	 * get current comhon object class and its model name
+	 * 
+	 * @return string
+	 */
+	abstract public function getComhonClass();
+	
 	/***********************************************************************************************\
 	|                                                                                               |
 	|                                Serialization / Deserialization                                |
@@ -543,7 +561,11 @@ abstract class ComhonObject {
 	 * @return mixed
 	 */
 	final public function export(Interfacer $interfacer) {
-		return $this->model->export($this, $interfacer);
+		try {
+			return $this->model->export($this, $interfacer);
+		} catch (ComhonException $e) {
+			throw new ExportException($e);
+		}
 	}
 	
 	/**
@@ -553,7 +575,11 @@ abstract class ComhonObject {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 */
 	final public function fill($interfacedObject, Interfacer $interfacer) {
-		$this->model->fillObject($this, $interfacedObject, $interfacer);
+		try {
+			$this->model->fillObject($this, $interfacedObject, $interfacer);
+		} catch (ComhonException $e) {
+			throw new ImportException($e);
+		}
 	}
 	
 	 /***********************************************************************************************\
@@ -572,7 +598,7 @@ abstract class ComhonObject {
 			$interfacer = new StdObjectInterfacer();
 			$interfacer->setPrivateContext(true);
 			return json_encode($interfacer->export($this), JSON_PRETTY_PRINT)."\n";
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			trigger_error($e->getMessage());
 		}
 		return '';
@@ -586,7 +612,7 @@ abstract class ComhonObject {
 	public function __debugInfo() {
 		$debugObject = get_object_vars($this);
 		if (!array_key_exists('model', $debugObject)) {
-			throw new \Exception('model attribut doesn\'t exist anymore');
+			throw new ComhonException('model attribut doesn\'t exist anymore');
 		}
 		$debugObject['model'] = $this->model->getName();
 		return $debugObject;

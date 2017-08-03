@@ -11,6 +11,8 @@
 
 namespace Comhon\Interfacer;
 
+use Comhon\Exception\ArgumentException;
+
 class AssocArrayInterfacer extends Interfacer {
 
 	/**
@@ -62,7 +64,7 @@ class AssocArrayInterfacer extends Interfacer {
 	 */
 	public function getTraversableNode($node, $getElementName = false) {
 		if (!is_array($node)) {
-			throw new \Exception('bad node type');
+			throw new ArgumentException($node, 'array', 1);
 		}
 		return $node;
 	}
@@ -118,10 +120,10 @@ class AssocArrayInterfacer extends Interfacer {
 	 */
 	public function setValue(&$node, $value, $name = null, $asNode = false) {
 		if (!is_array($node)) {
-			throw new \Exception('first parameter should be an instance of array');
+			throw new ArgumentException($node, 'array', 1);
 		}
 		if (is_null($name)) {
-			throw new \Exception('third parameter must be specified and not null');
+			throw new ArgumentException($name, 'string', 3);
 		}
 		$node[$name] = $value;
 		return $value;
@@ -147,7 +149,7 @@ class AssocArrayInterfacer extends Interfacer {
 	 */
 	public function addValue(&$node, $value, $name = null) {
 		if (!is_array($node)) {
-			throw new \Exception('first parameter should be an array');
+			throw new ArgumentException($node, 'array', 1);
 		}
 		$node[] = $value;
 	}
@@ -163,6 +165,14 @@ class AssocArrayInterfacer extends Interfacer {
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::getNodeClasses()
+	 */
+	public function getNodeClasses() {
+		return ['array'];
+	}
+	
+	/**
 	 * create array node
 	 * 
 	 * @param string $name not used (but needed to stay compatible with interface)
@@ -170,6 +180,14 @@ class AssocArrayInterfacer extends Interfacer {
 	 */
 	public function createArrayNode($name = null) {
 		return [];
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::getArrayNodeClasses()
+	 */
+	public function getArrayNodeClasses() {
+		return ['array'];
 	}
     
 	/**

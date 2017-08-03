@@ -7,6 +7,7 @@ use Comhon\Logic\Literal;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Database\DatabaseController;
 use Comhon\Database\SimpleDbLiteral;
+use Comhon\Exception\ComhonException;
 
 $time_start = microtime(true);
 
@@ -27,11 +28,11 @@ $selectQuery->addGroup('id');
 $throw = true;
 try {
 	$row = $databaseController->executeSelectQuery($selectQuery);
-} catch (Exception $e) {
+} catch (ComhonException $e) {
 	$throw = false;
 }
 if ($throw) {
-	throw new Exception('expression should be thrown due to duplicated table names');
+	throw new \Exception('expression should be thrown due to duplicated table names');
 }
 
 $childTable->setAlias('child');
@@ -39,10 +40,10 @@ $childTable->setAlias('child');
 list($query, $params) = $selectQuery->export();
 
 if ($query !== 'SELECT person.*,child.id AS child_id FROM  person inner join person AS child on person.id = child.father_id  WHERE child.first_name  IN  (?,?) GROUP BY child.id ORDER BY person.id') {
-	throw new Exception('bad query');
+	throw new \Exception('bad query');
 }
 if ($params !== ['john', 'Jean']) {
-	throw new Exception('bad params');
+	throw new \Exception('bad params');
 }
 
 // change query due to postgresql that doesn't manage retrieved columns not in group
@@ -58,7 +59,7 @@ if (
 	(json_encode($row) !== '[{"child_id":5},{"child_id":6}]')
 	&& (json_encode($row) !== '[{"child_id":"5"},{"child_id":"6"}]')
 ) {
-	throw new Exception('bad result');
+	throw new \Exception('bad result');
 }
 
 $time_end = microtime(true);

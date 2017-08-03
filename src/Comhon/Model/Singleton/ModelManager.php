@@ -16,6 +16,8 @@ use Comhon\Model\ModelInteger;
 use Comhon\Model\ModelFloat;
 use Comhon\Model\ModelBoolean;
 use Comhon\Model\ModelString;
+use Comhon\Model\ModelPercentage;
+use Comhon\Model\ModelIndex;
 use Comhon\Model\ModelDateTime;
 use Comhon\Model\Model;
 use Comhon\Model\MainModel;
@@ -25,6 +27,9 @@ use Comhon\Serialization\SerializationUnit;
 use Comhon\Object\Config\Config;
 use Comhon\Manifest\Parser\ManifestParser;
 use Comhon\Object\ObjectUnique;
+use Comhon\Exception\NotDefinedModelException;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\AlreadyUsedModelNameException;
 
 class ModelManager {
 
@@ -107,11 +112,13 @@ class ModelManager {
 	 */
 	private function _registerSimpleModelClasses() {
 		$this->instanceSimpleModels = [
-			ModelInteger::ID  => new ModelInteger(),
-			ModelFloat::ID    => new ModelFloat(),
-			ModelBoolean::ID  => new ModelBoolean(),
-			ModelString::ID   => new ModelString(),
-			ModelDateTime::ID => new ModelDateTime()
+			ModelInteger::ID    => new ModelInteger(),
+			ModelFloat::ID      => new ModelFloat(),
+			ModelBoolean::ID    => new ModelBoolean(),
+			ModelString::ID     => new ModelString(),
+			ModelIndex::ID      => new ModelIndex(),
+			ModelPercentage::ID => new ModelPercentage(),
+			ModelDateTime::ID   => new ModelDateTime()
 		];
 		$this->instanceModels = $this->instanceSimpleModels;
 	}
@@ -135,7 +142,7 @@ class ModelManager {
 	 */
 	public function hasInstanceModel($modelName) {
 		if (!$this->hasModel($modelName)) {
-			throw new \Exception("model $modelName doesn't exists");
+			throw new NotDefinedModelException($modelName);
 		}
 		return is_object($this->instanceModels[$modelName]) || array_key_exists(2, $this->instanceModels[$modelName]);
 	}
@@ -149,17 +156,17 @@ class ModelManager {
 	 */
 	public function isModelLoaded($modelName) {
 		if (!$this->hasModel($modelName)) {
-			throw new \Exception("model $modelName doesn't exists");
+			throw new NotDefinedModelException($modelName);
 		}
 		if (is_object($this->instanceModels[$modelName])) {
 			if (!$this->instanceModels[$modelName]->isLoaded()) {
-				throw new \Exception("$modelName must be loaded");
+				throw new ComhonException("$modelName must be loaded");
 			}
 			return true;
 		}
 		if (array_key_exists(2, $this->instanceModels[$modelName])) {
 			if ($this->instanceModels[$modelName][2]->isLoaded()) {
-				throw new \Exception("$modelName must be not loaded");
+				throw new ComhonException("$modelName must be not loaded");
 			}
 			return false;
 		}
@@ -191,7 +198,7 @@ class ModelManager {
 		if (!array_key_exists($modelName, $this->instanceModels)) { // model doesn't exists in map
 			$this->loadIntermediateManifest($modelName);
 			if (!array_key_exists($modelName, $this->instanceModels)) {
-				throw new \Exception("model '$modelName' doesn't exists, you must define it");
+				throw new NotDefinedModelException($modelName);
 			}
 		}
 		if (is_object($this->instanceModels[$modelName])) { // model already initialized
@@ -211,10 +218,10 @@ class ModelManager {
 				
 				if (is_object($this->instanceModels[$modelName])) {
 					if ($this->instanceModels[$modelName] !== $return) {
-						throw new \Exception('already exists '.$modelName);
+						throw new ComhonException('already exists '.$modelName);
 					}
 					if (!$loadModel) {
-						throw new \Exception('model has been loaded');
+						throw new ComhonException('model has been loaded');
 					}
 				}
 				else { // else add model
@@ -237,20 +244,22 @@ class ModelManager {
 	 */
 	private function loadIntermediateManifest($modelName) {
 		$explodedModelName = explode('\\', $modelName);
-		array_pop($explodedModelName);
 		
-		$intermediateModelName = $explodedModelName[0];
-		if (!array_key_exists($intermediateModelName, $this->instanceModels)) {
-			throw new \Exception("model '$intermediateModelName' doesn't exists, you must define it");
-		}
-		$this->_getInstanceModel($intermediateModelName, true);
-		
-		for ($i = 1; $i < count($explodedModelName); $i++) {
-			$intermediateModelName .= '\\' . $explodedModelName[$i];
+		if (count($explodedModelName) > 1) {
+			array_pop($explodedModelName);
+			$intermediateModelName = $explodedModelName[0];
 			if (!array_key_exists($intermediateModelName, $this->instanceModels)) {
-				throw new \Exception("model '$intermediateModelName' doesn't exists, you must define it");
+				throw new NotDefinedModelException($intermediateModelName);
 			}
-			$model = $this->_getInstanceModel($intermediateModelName, true);
+			$this->_getInstanceModel($intermediateModelName, true);
+			
+			for ($i = 1; $i < count($explodedModelName); $i++) {
+				$intermediateModelName .= '\\' . $explodedModelName[$i];
+				if (!array_key_exists($intermediateModelName, $this->instanceModels)) {
+					throw new NotDefinedModelException($intermediateModelName);
+				}
+				$model = $this->_getInstanceModel($intermediateModelName, true);
+			}
 		}
 	}
 	
@@ -265,7 +274,7 @@ class ModelManager {
 	 */
 	private function _addInstanceModel(Model $model) {
 		if (is_object($this->instanceModels[$model->getName()])) {
-			throw new \Exception('model already added');
+			throw new ComhonException('model already added');
 		}
 		$this->instanceModels[$model->getName()] = $model;
 	}
@@ -332,7 +341,7 @@ class ModelManager {
 	 */
 	private function _buildLocalModels(Model $model, $manifestPath_ad) {
 		if ($this->manifestParser->isFocusOnLocalModel()) {
-			throw new \Exception('cannot define local model in local models');
+			throw new ComhonException('cannot define local model inside local model');
 		}
 		if ($this->manifestParser->getLocalModelCount() > 0) {
 			$this->manifestParser->registerComplexLocalModels($this->instanceModels, $manifestPath_ad, $this->currentNamespace);
@@ -341,7 +350,7 @@ class ModelManager {
 			do {
 				$localModelName = $this->currentNamespace. '\\' . $this->manifestParser->getCurrentLocalModelName();
 				if (array_key_exists($localModelName, $this->instanceModels)) {
-					throw new \Exception("model fully qualified name already used");
+					throw new AlreadyUsedModelNameException($localModelName);
 				}
 				$this->instanceModels[$localModelName] = new LocalModel($localModelName, false);
 			} while ($this->manifestParser->nextLocalModel());
@@ -368,7 +377,7 @@ class ModelManager {
 		$modelName = $this->manifestParser->getExtends();
 		
 		if (array_key_exists($modelName, $this->instanceSimpleModels)) {
-			throw new \Exception('cannot extends from simple model');
+			throw new ComhonException("{$model->getName()} cannot extends from $modelName");
 		}
 		
 		if (!is_null($modelName)) {

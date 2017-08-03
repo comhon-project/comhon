@@ -13,6 +13,13 @@ namespace Comhon\Database;
 
 use Comhon\Object\Config\Config;
 use Comhon\Object\ObjectUnique;
+use Comhon\Exception\Database\NotSupportedDBMSException;
+use Comhon\Exception\Database\QueryExecutionFailureException;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Exception\UnexpectedModelException;
+use Comhon\Exception\Database\IncompleteSqlDbInfosException;
+use Comhon\Exception\Database\UnexpectedCountValuesQueryException;
+use Comhon\Exception\Database\QueryBindingValueException;
 
 class DatabaseController {
 	
@@ -85,7 +92,7 @@ class DatabaseController {
 	 */
 	private function __construct(ObjectUnique $dbReference) {
 		if (!array_key_exists($dbReference->getValue('DBMS'), self::$insertReturns)) {
-			throw new \Exception("DBMS '{$dbReference->getValue('DBMS')}' not supported yet");
+			throw new NotSupportedDBMSException($dbReference->getValue('DBMS'));
 		}
 		$this->id = $dbReference->getValue('id');
 		$dataSourceName = sprintf('%s:dbname=%s;host=%s', $dbReference->getValue('DBMS'), $dbReference->getValue('name'), $dbReference->getValue('host'));
@@ -140,8 +147,8 @@ class DatabaseController {
 			//case 'odbc':
 			//case 'sqlite':
 			//case '4D':
-			default: 
-				throw new \Exception("DBMS '{$this->settings->getValue('database')->getValue('DBMS')}' not managed");
+			default:
+				throw new NotSupportedDBMSException($dbReference->getValue('DBMS'));
 		}
 	}
 	
@@ -166,10 +173,10 @@ class DatabaseController {
 	 */
 	private function _setDatabaseOptionsMySql() {
 		if ($this->dbHandle->exec('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';') === false) {
-			throw new \Exception('error set names database');
+			throw new QueryExecutionFailureException('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';');
 		}
 		if ($this->dbHandle->exec("SET time_zone = '{$this->_getTimeZoneOffset()}';") === false) {
-			throw new \Exception('error set timezone database');
+			throw new QueryExecutionFailureException("SET time_zone = '{$this->_getTimeZoneOffset()}';");
 		}
 		
 		// do not transform int to string (I fail to make it works)
@@ -184,10 +191,10 @@ class DatabaseController {
 	 */
 	private function _setDatabaseOptionsPgSql() {
 		if ($this->dbHandle->exec('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';') === false) {
-			throw new \Exception('error set names database');
+			throw new QueryExecutionFailureException('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';');
 		}
 		if ($this->dbHandle->exec("SET time zone  '{$this->_getTimeZoneOffset()}';") === false) {
-			throw new \Exception('error set timezone database');
+			throw new QueryExecutionFailureException("SET time zone  '{$this->_getTimeZoneOffset()}';");
 		}
 	}
 
@@ -209,17 +216,20 @@ class DatabaseController {
 	 */
 	public static function getInstanceWithDataBaseObject(ObjectUnique $dbReference) {
 		$databaseController = null;
+		if ($dbReference->getModel() !== ModelManager::getInstance()->getInstanceModel('sqlDatabase')) {
+			throw new UnexpectedModelException(ModelManager::getInstance()->getInstanceModel('sqlDatabase'), $dbReference->getModel());
+		}
 		if (!$dbReference->hasValue('id')) {
-			throw new \Exception('malformed database reference');
+			throw new IncompleteSqlDbInfosException();
 		}
 		$id = $dbReference->getValue('id');
 		if (array_key_exists($id, self::$instances)) {
 			$databaseController = self::$instances[$id];
-		}else if ($dbReference->hasValues(['id', 'DBMS', 'host', 'name', 'user', 'password'])) {
+		}else if ($dbReference->hasValues(['DBMS', 'host', 'name', 'user', 'password'])) {
 			$databaseController = new DatabaseController($dbReference);
 			self::$instances[$id] = $databaseController;
 		}else {
-			throw new \Exception('malformed database reference');
+			throw new IncompleteSqlDbInfosException();
 		}
 		return $databaseController;
 	}
@@ -238,7 +248,7 @@ class DatabaseController {
 			$this->preparedQueriesParamCount[$query] = count($values);
 		}
 		else if (count($values) !== $this->preparedQueriesParamCount[$query]) {
-			throw new \Exception("prepareQuery query failed : query should have {$this->preparedQueriesParamCount[$query]} values, ".count($values).' given.');
+			throw new UnexpectedCountValuesQueryException($query, $this->preparedQueriesParamCount[$query], count($values));
 		}
 		$preparedQuery = $this->preparedQueries[$query];
 		for ($i = 0; $i < count($values); $i++) {
@@ -250,8 +260,7 @@ class DatabaseController {
 				$result = $preparedQuery->bindValue($i+1, $values[$i]);
 			}
 			if ($result === false) {
-				trigger_error("\nbindValue query failed :\n'".$preparedQuery->queryString."'\n");
-				throw new \Exception("\nbindValue query failed :\n'".$preparedQuery->queryString."'\n");
+				throw new QueryBindingValueException($preparedQuery);
 			}
 		}
 		return $preparedQuery;
@@ -265,12 +274,7 @@ class DatabaseController {
 	 */
 	private function _doQuery($PDOStatement) {
 		if (!$PDOStatement->execute()) {
-			$message = "\n\nexecution query failed :\n'"
-					.$PDOStatement->queryString
-					."'\n\nPDO errorInfo : \n"
-							.var_export($PDOStatement->errorInfo(), true)
-							."'\n";
-			throw new \Exception($message);
+			throw new QueryExecutionFailureException($PDOStatement);
 		}
 	}
 	

@@ -16,6 +16,12 @@ use Comhon\Model\Model;
 use Comhon\Model\MainModel;
 use Comhon\Logic\Clause;
 use Comhon\Logic\Literal;
+use Comhon\Exception\Literal\LiteralNotFoundException;
+use Comhon\Exception\Literal\LiteralPropertyAggregationException;
+use Comhon\Exception\PropertyVisibilityException;
+use Comhon\Exception\Literal\MalformedLiteralException;
+use Comhon\Object\ObjectUnique;
+use Comhon\Exception\SerializationException;
 
 abstract class DbLiteral extends Literal {
 	
@@ -75,7 +81,7 @@ abstract class DbLiteral extends Literal {
 	public static function stdObjectToLiteral($stdObject, $mainModel, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
 		if (isset($stdObject->id) && !is_null($literalCollection)) {
 			if (!array_key_exists($stdObject->id, $literalCollection)) {
-				throw new \Exception("literal id '{$stdObject->id}' is not defined in literal collection");
+				throw new LiteralNotFoundException($stdObject->id);
 			}
 			return $literalCollection[$stdObject->id];
 		}
@@ -102,10 +108,10 @@ abstract class DbLiteral extends Literal {
 		else {
 			$property =  $mainModel->getProperty($stdObject->property, true);
 			if ($property->isAggregation()) {
-				throw new \Exception("literal cannot contain aggregation porperty '{$stdObject->property}'");
+				throw new LiteralPropertyAggregationException($property->getName());
 			}
 			if (!$allowPrivateProperties && $property->isPrivate()) {
-				throw new \Exception("literal contain private property '{$property->getName()}'");
+				throw new PropertyVisibilityException($property->getName());
 			}
 			$literal  = new SimpleDbLiteral($table, $property->getSerializationName(), $stdObject->operator, $stdObject->value);
 		}
@@ -122,15 +128,24 @@ abstract class DbLiteral extends Literal {
 	 * @throws \Exception
 	 */
 	private static function _verifStdObject($stdObject) {
-		if (!isset($stdObject->node)) {
-			throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
+		if (!is_object($stdObject) || !isset($stdObject->node)) {
+			throw new MalformedLiteralException($stdObject);
 		}
 		if (isset($stdObject->queue)) {
-			if (!(isset($stdObject->havingLiteral) xor isset($stdObject->havingClause)) || !is_object($stdObject->queue)) {
-				throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
+			if (!isset($stdObject->having) || !is_object($stdObject->queue)) {
+				throw new MalformedLiteralException($stdObject);
 			}
-		} else if (!isset($stdObject->property) || !isset($stdObject->operator) || !isset($stdObject->value) || !isset($stdObject->node)) {
-			throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
+		} elseif (
+			!isset($stdObject->operator)
+			|| !array_key_exists($stdObject->operator, self::$allowedOperators)
+			|| !property_exists($stdObject, 'value')
+			|| is_object($stdObject->value)
+			|| !isset($stdObject->property)
+			|| !is_string($stdObject->property)
+			|| (is_null($stdObject->value) && ($stdObject->operator != self::EQUAL) && ($stdObject->operator != self::DIFF))
+			|| (is_array($stdObject->value) && ($stdObject->operator != self::EQUAL) && ($stdObject->operator != self::DIFF))
+		) {
+			throw new MalformedLiteralException($stdObject);
 		}
 	}
 	
@@ -154,15 +169,24 @@ abstract class DbLiteral extends Literal {
 		$joinedTables  = [];
 		$on            = null;
 		
+		if (!$firstModel->hasSqlTableUnit()) {
+			throw new SerializationException('resquested model '.$firstModel->getName().' must have a database serialization');
+		}
+		$database = $firstModel->getSqlTableUnit()->getSettings()->getValue('database');
+		if (!($database instanceof ObjectUnique)) {
+			throw new SerializationException('not valid serialization settings, database information is missing');
+		}
+		$databaseId = $database->getId();
+		
 		while (!is_null($currentNode)) {
 			if (!is_object($currentNode) || !isset($currentNode->property)) {
-				throw new \Exception('malformed stdObject literal : '.json_encode($stdObject));
+				throw new MalformedLiteralException($queue);
 			}
 			$property = $leftModel->getProperty($currentNode->property, true);
 			if (!$allowPrivateProperties && $property->isPrivate()) {
-				throw new \Exception("literal contain private property '{$property->getName()}'");
+				throw new PropertyVisibilityException($property->getName());
 			}
-			$leftJoin       = ComplexLoadRequest::prepareJoinedTable($leftTable, $property, self::_getAlias());
+			$leftJoin       = ComplexLoadRequest::prepareJoinedTable($leftTable, $property, $databaseId, self::_getAlias());
 			$joinedTables[] = $leftJoin;
 			
 			
@@ -218,11 +242,11 @@ abstract class DbLiteral extends Literal {
 			$selectQuery->addGroup($columns[1]);
 		}
 		
-		if (isset($stdObject->havingClause)) {
-			$having = HavingClause::stdObjectToHavingClause($stdObject->havingClause, $mainTable, $lastTable, $lastModel, $allowPrivateProperties);
+		if (isset($stdObject->having->type)) {
+			$having = HavingClause::stdObjectToHavingClause($stdObject->having, $mainTable, $lastTable, $lastModel, $allowPrivateProperties);
 		} else {
-			$table  = isset($stdObject->havingLiteral->function) && ($stdObject->havingLiteral->function == HavingLiteral::COUNT) ? $mainTable : $lastTable;
-			$having = HavingLiteral::stdObjectToHavingLiteral($stdObject->havingLiteral, $table, $lastModel, $allowPrivateProperties);
+			$table  = isset($stdObject->having->function) && ($stdObject->having->function == HavingLiteral::COUNT) ? $mainTable : $lastTable;
+			$having = HavingLiteral::stdObjectToHavingLiteral($stdObject->having, $table, $lastModel, $allowPrivateProperties);
 		}
 		$selectQuery->having($having);
 		return $selectQuery;

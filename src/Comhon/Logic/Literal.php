@@ -11,6 +11,8 @@
 
 namespace Comhon\Logic;
 
+use Comhon\Exception\ArgumentException;
+
 abstract class Literal extends Formula {
 	
 	/** @var string */
@@ -63,7 +65,7 @@ abstract class Literal extends Formula {
 	 */
 	public function __construct($operator) {
 		if (!array_key_exists($operator, static::$allowedOperators)) {
-			throw new \Exception("operator '$operator' not allowed");
+			throw new ArgumentException($operator, static::$allowedOperators, 1);
 		}
 		$this->operator  = $operator;
 	}

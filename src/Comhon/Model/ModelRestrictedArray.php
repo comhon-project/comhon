@@ -17,6 +17,9 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Model\Restriction\Restriction;
 use Comhon\Exception\NotSatisfiedRestrictionException;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\UnexpectedRestrictedArrayException;
 
 class ModelRestrictedArray extends ModelArray {
 	
@@ -35,8 +38,17 @@ class ModelRestrictedArray extends ModelArray {
 		$this->restriction = $restriction;
 		
 		if (!($this->model instanceof SimpleModel)) {
-			throw new \Exception('ModelRestrictedArray can only contain SimpleModel, '.get_class($this->model).' given');
+			throw new ComhonException('ModelRestrictedArray can only contain SimpleModel, '.get_class($this->model).' given');
 		}
+	}
+	
+	/**
+	 * get stringified restriction
+	 * 
+	 * @return string
+	 */
+	public function getStringifiedRestriction() {
+		return $this->restriction->toString();
 	}
 	
 	/**
@@ -66,12 +78,17 @@ class ModelRestrictedArray extends ModelArray {
 				$value->getModel() !== $this 
 				&& $value->getModel()->getModel() !== $this->getModel() 
 			)
-			|| !($value->getModel() instanceof ModelRestrictedArray)
-			|| !$this->restriction->isEqual($value->getModel()->restriction)
+		){
+			$Obj = $this->getObjectInstance();
+			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
+		}
+		if ($value->getModel() !== $this 
+			&& (
+				!($value->getModel() instanceof ModelRestrictedArray) 
+				|| !$this->restriction->isEqual($value->getModel()->restriction)
+			)
 		) {
-			$nodes = debug_backtrace();
-			$class = gettype($value) == 'object' ? get_class($value): gettype($value);
-			throw new \Exception("Argument passed to {$nodes[0]['class']}::{$nodes[0]['function']}() must be an instance of {$this->getObjectClass()}, instance of $class given, called in {$nodes[0]['file']} on line {$nodes[0]['line']} and defined in {$nodes[0]['file']}");
+			throw new UnexpectedRestrictedArrayException($value, $this);
 		}
 		return true;
 	}

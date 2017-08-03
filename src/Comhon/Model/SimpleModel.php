@@ -15,6 +15,7 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Object\Collection\ObjectCollection;
+use Comhon\Exception\ComhonException;
 
 abstract class SimpleModel extends Model {
 	
@@ -47,7 +48,7 @@ abstract class SimpleModel extends Model {
 	 * @see \Comhon\Model\Model::getObjectClass()
 	 */
 	public function getObjectClass() {
-		throw new \Exception('simple models don\'t have associated class');
+		throw new ComhonException('simple models doesn\'t have associated class');
 	}
 	
 	/**
@@ -56,7 +57,7 @@ abstract class SimpleModel extends Model {
 	 * @see \Comhon\Model\Model::getObjectInstance()
 	 */
 	public function getObjectInstance($isloaded = true) {
-		throw new \Exception('simple models don\'t have associated class');
+		throw new ComhonException('simple models doesn\'t have associated class');
 	}
 	
 	/**
@@ -113,7 +114,7 @@ abstract class SimpleModel extends Model {
 	 * @see \Comhon\Model\Model::verifValue()
 	 */
 	public function verifValue($value) {
-		throw new \Exception('should be overrided');
+		throw new ComhonException('must be overrided');
 	}
 	
 

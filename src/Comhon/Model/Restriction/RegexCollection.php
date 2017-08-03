@@ -13,6 +13,7 @@ namespace Comhon\Model\Restriction;
 
 use Comhon\Object\Config\Config;
 use Comhon\Exception\NotExistingRegexException;
+use Comhon\Exception\ComhonException;
 
 class RegexCollection {
 	
@@ -31,7 +32,7 @@ class RegexCollection {
 			self::$_instance = new self();
 			self::$_instance->regexs = json_decode(file_get_contents(Config::getInstance()->getRegexListPath()), true);
 			if (!is_array(self::$_instance->regexs)) {
-				throw new \Exception('failure when try to load regex list');
+				throw new ComhonException("failure when trying to load regex list '".Config::getInstance()->getRegexListPath()."'");
 			}
 		}
 		return self::$_instance;

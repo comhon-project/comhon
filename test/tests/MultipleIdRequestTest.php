@@ -25,7 +25,7 @@ $Json = '{
 						"property" : "childrenTestDb"
 					}
 				},
-				"havingLiteral" : {
+				"having" : {
 					"function" : "COUNT",
 					"operator" : "=",
 					"value"    : 2
@@ -73,7 +73,7 @@ $Json = '{
 				"queue"     : {
 					"property" : "childrenTestDb"
 				},
-				"havingLiteral" : {
+				"having" : {
 					"function" : "COUNT",
 					"operator" : "=",
 					"value"    : 2

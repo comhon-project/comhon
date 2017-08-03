@@ -277,14 +277,14 @@ foreach ($groupedRegexTests as $pattern => $regexTests) {
 	if (substr($pattern, 0, 1) == '/') { // pattern
 		foreach ($regexTests as $regexTest) {
 			if (preg_match($pattern, $regexTest) !== 1) {
-				throw new Exception("$pattern '$regexTest' should be valid");
+				throw new \Exception("$pattern '$regexTest' should be valid");
 			}
 		}
 	} else { // name of a pattern
 		$regex = new Regex($pattern);
 		foreach ($regexTests as $regexTest) {
 			if ($regex->satisfy($regexTest) !== true) {
-				throw new Exception("$pattern '$regexTest' should be valid");
+				throw new \Exception("$pattern '$regexTest' should be valid");
 			}
 		}
 	}
@@ -294,14 +294,14 @@ foreach ($groupedMalformedRegexTests as $pattern => $regexTests) {
 	if (substr($pattern, 0, 1) == '/') { // pattern
 		foreach ($regexTests as $regexTest) {
 			if (preg_match($pattern, $regexTest) !== 0) {
-				throw new Exception("$pattern '$regexTest' should be not valid");
+				throw new \Exception("$pattern '$regexTest' should be not valid");
 			}
 		}
 	} else { // name of a pattern
 		$regex = new Regex($pattern);
 		foreach ($regexTests as $regexTest) {
 			if ($regex->satisfy($regexTest) !== false) {
-				throw new Exception("$pattern '$regexTest' should be not valid");
+				throw new \Exception("$pattern '$regexTest' should be not valid");
 			}
 		}
 	}
@@ -317,7 +317,7 @@ try {
 	$throw = false;
 }
 if ($throw) {
-	throw new Exception('should throw exception (left > right)');
+	throw new \Exception('should throw exception (left > right)');
 }
 $interval = new Interval('] -2 ,15 [', $modelInteger);
 if (
@@ -328,7 +328,7 @@ if (
 	|| $interval->satisfy(-101)
 	|| $interval->satisfy(101)
 ) {
-	throw new Exception('unexpected statisfaction');
+	throw new \Exception('unexpected statisfaction');
 }
 
 /** ********************** float interval *********************** **/
@@ -341,7 +341,7 @@ try {
 	$throw = false;
 }
 if ($throw) {
-	throw new Exception('should throw exception (left > right)');
+	throw new \Exception('should throw exception (left > right)');
 }
 $interval = new Interval('[ -2.12 ,15 ]', $modelFloat);
 if (
@@ -352,7 +352,7 @@ if (
 	|| $interval->satisfy(-101)
 	|| $interval->satisfy(101.24)
 ) {
-	throw new Exception('unexpected statisfaction');
+	throw new \Exception('unexpected statisfaction');
 }
 
 /** ********************** datetime interval *********************** **/
@@ -365,7 +365,7 @@ try {
 	$throw = false;
 }
 if ($throw) {
-	throw new Exception('should throw exception (left > right)');
+	throw new \Exception('should throw exception (left > right)');
 }
 $interval = new Interval('[ 2016-05-01 12:53:54 ,2017-05-01 12:53:54 [', $modelDateTime);
 if (
@@ -375,7 +375,7 @@ if (
 	|| $interval->satisfy(new ComhonDateTime('2010-05-01 12:53:54'))
 	|| $interval->satisfy(new ComhonDateTime('2020-05-01 12:53:54'))
 ) {
-	throw new Exception('unexpected statisfaction');
+	throw new \Exception('unexpected statisfaction');
 }
 
 /** ********************** enum *********************** **/
@@ -393,7 +393,7 @@ if (
 	|| $enum->satisfy(789)
 	|| $enum->satisfy(0.78)
 ) {
-	throw new Exception('unexpected statisfaction');
+	throw new \Exception('unexpected statisfaction');
 }
 
 /** *********************** other malformed restriction ***************************** **/
@@ -406,7 +406,7 @@ try {
 	$throw = false;
 }
 if ($throw) {
-	throw new Exception('should throw exception (left > right)');
+	throw new \Exception('should throw exception (left > right)');
 }
 
 $throw = true;
@@ -416,7 +416,7 @@ try {
 	$throw = false;
 }
 if ($throw) {
-	throw new Exception('should throw exception (left > right)');
+	throw new \Exception('should throw exception (left > right)');
 }
 
 $time_end = microtime(true);

@@ -1,0 +1,40 @@
+{
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "surface",
+            "type": "float"
+        },
+        {
+            "name": "type",
+            "type": "string"
+        },
+        {
+            "name": "garden",
+            "type": "boolean"
+        },
+        {
+            "name": "garage",
+            "type": "boolean"
+        },
+        {
+            "name": "residents",
+            "type": "array",
+            "values": {
+                "type": "\\home",
+                "name": "resident"
+            },
+            "is_foreign": true
+        },
+        {
+            "name": "address",
+            "type": "\\place",
+            "is_foreign": true
+        }
+    ]
+}

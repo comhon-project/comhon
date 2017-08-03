@@ -29,6 +29,9 @@ use Comhon\Model\ModelFloat;
 use Comhon\Model\ModelInteger;
 use Comhon\Object\ObjectUnique;
 use Comhon\Database\SimpleDbLiteral;
+use Comhon\Exception\Database\NotSupportedDBMSException;
+use Comhon\Exception\SerializationException;
+use Comhon\Exception\ArgumentException;
 
 class SqlTable extends SerializationUnit {
 	
@@ -145,7 +148,7 @@ class SqlTable extends SerializationUnit {
 			//case 'odbc':
 			//case 'sqlite':
 			//case '4D':
-			default: throw new \Exception("DBMS '{$this->settings->getValue('database')->getValue('DBMS')}' not managed");
+			default: throw new NotSupportedDBMSException($this->settings->getValue('database')->getValue('DBMS'));
 		}
 	}
 	
@@ -191,7 +194,7 @@ class SqlTable extends SerializationUnit {
 			$schema = $explodedTable[0];
 			$table  = $explodedTable[1];
 		} else {
-			throw new \Exception('doesn\'t manage table names that contain \'.\' character');
+			throw new SerializationException('doesn\'t manage table names that contain \'.\' character');
 		}
 	
 		$query = "SELECT column_name, column_default FROM information_schema.columns 
@@ -327,7 +330,7 @@ class SqlTable extends SerializationUnit {
 		} else if ($operation == self::UPDATE) {
 			return $this->_updateObject($object);
 		} else {
-			throw new \Exception('unknown operation '.$operation);
+			throw new ArgumentException($operation, [self::CREATE, self::UPDATE], 2);
 		}
 	}
 	
@@ -340,7 +343,7 @@ class SqlTable extends SerializationUnit {
 	 */
 	private function _saveObjectWithIncrementalId(ObjectUnique $object) {
 		if (!self::$modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
-			throw new \Exception('operation not specified');
+			throw new SerializationException('operation not specified');
 		}
 		if ($object->hasCompleteId()) {
 			return $this->_updateObject($object);
@@ -383,7 +386,7 @@ class SqlTable extends SerializationUnit {
 			}
 		}else if ($this->dbController->getInsertReturn() == 'OUTPUT') {
 			// TODO
-			throw new \Exception('not supported yet');
+			throw new SerializationException('not supported yet');
 		}
 		$query .= $queryEnding;
 		$statement = $this->dbController->executeSimpleQuery($query, array_values($mapOfString));
@@ -398,7 +401,7 @@ class SqlTable extends SerializationUnit {
 				$rows = $statement->fetchAll();
 				foreach ($autoIncrementProperties as $column => $autoIncrementProperty) {
 					if (!array_key_exists($column, $rows[0])) {
-						throw new \Exception('error return query');
+						throw new SerializationException("error insert return, should contain column '$column'");
 					}
 					$object->setValue($autoIncrementProperty->getName(), $rows[0][$column], false);
 				}
@@ -442,7 +445,7 @@ class SqlTable extends SerializationUnit {
 	 */
 	private function _updateObject(ObjectUnique $object) {
 		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
-			throw new \Exception('update operation require complete id');
+			throw new SerializationException('update operation require complete id');
 		}
 		$model            = $object->getModel();
 		$conditions       = [];
@@ -464,7 +467,7 @@ class SqlTable extends SerializationUnit {
 			$column = $idProperty->getSerializationName();
 			$value  = $object->getValue($idPropertyName);
 			if (is_null($value)) {
-				throw new \Exception('update failed, id is not set');
+				throw new SerializationException('update failed, id is not set');
 			}
 			unset($mapOfString[$column]);
 			$conditions[]       = "$column = ?";
@@ -497,7 +500,7 @@ class SqlTable extends SerializationUnit {
 	 */
 	protected function _deleteObject(ObjectUnique $object) {
 		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
-			throw new \Exception('delete operation require complete id');
+			throw new SerializationException('delete operation require complete id');
 		}
 		$this->_initDatabaseInterfacing($object->getModel());
 		
@@ -509,7 +512,7 @@ class SqlTable extends SerializationUnit {
 			$column = $idProperty->getSerializationName();
 			$value  = $object->getValue($idPropertyName);
 			if (is_null($value)) {
-				throw new \Exception('delete failed, id is not set');
+				throw new SerializationException('delete failed, id is not set');
 			}
 			$conditions[]       = "$column = ?";
 			$conditionsValues[] = $value;
@@ -553,7 +556,7 @@ class SqlTable extends SerializationUnit {
 		$selectColumns = [];
 		
 		if (count($disjunction->getElements()) == 0) {
-			throw new \Exception('error : property is not serialized in database aggregation');
+			throw new SerializationException('property is not serialized as database aggregation');
 		}
 		if (is_array($propertiesFilter)) {
 			foreach ($propertiesFilter as $propertyName) {
@@ -592,10 +595,10 @@ class SqlTable extends SerializationUnit {
 		$idProperties  = $model->getIdProperties();
 		
 		if (count($disjunction->getElements()) == 0) {
-			throw new \Exception('error : property is not serialized in database aggregation');
+			throw new SerializationException('property is not serialized as database aggregation');
 		}
 		if (empty($idProperties)) {
-			throw new \Exception("cannot load aggregation ids, model '{$model->getName()}' doesn't have property id");
+			throw new SerializationException("cannot load aggregation ids, model '{$model->getName()}' doesn't have property id");
 		}
 		foreach ($idProperties as $property) {
 			$selectColumns[] = $property->getSerializationName();

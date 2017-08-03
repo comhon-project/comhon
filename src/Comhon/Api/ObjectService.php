@@ -25,14 +25,10 @@ class ObjectService {
 	 * 
 	 * @param \stdClass $params
 	 * @param boolean $private
-	 * @throws \Exception
 	 * @return \stdClass
 	 */
 	public static function getObject(\stdClass $params, $private = false) {
 		try {
-			if (!isset($params->id)) {
-				throw new \Exception('request doesn\'t have id');
-			}
 			$object = SimpleLoadRequest::buildObjectLoadRequest($params, $private)->execute();
 			if (is_null($object)) {
 				$result = null;

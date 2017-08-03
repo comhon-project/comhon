@@ -16,6 +16,9 @@ use Comhon\Model\ModelDateTime;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\ModelArray;
 use Comhon\Model\ModelContainer;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\NotSatisfiedRestrictionException;
+use Comhon\Exception\UnexpectedValueTypeException;
 
 final class ObjectArray extends ComhonObject implements \Iterator {
 
@@ -32,7 +35,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 			$elementModel = ($model instanceof Model) ? $model : ModelManager::getInstance()->getInstanceModel($model);
 		
 			if ($elementModel instanceof ModelContainer) {
-				throw new \Exception('Object cannot have ModelContainer except ModelArray');
+				throw new ComhonException('Object cannot have ModelContainer except ModelArray');
 			}
 			$objectModel = new ModelArray($elementModel, is_null($elementName) ? $model->getName() : $elementName);
 		}
@@ -68,7 +71,15 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	final public function setValues($values, $flagAsUpdated = true, $strict = true) {
 		if ($strict) {
 			foreach ($values as $value) {
-				$this->getModel()->verifElementValue($value);
+				try {
+					$this->getModel()->verifElementValue($value);
+				}
+				catch (NotSatisfiedRestrictionException $e) {
+					throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
+				}
+				catch (UnexpectedValueTypeException $e) {
+					throw new UnexpectedValueTypeException($value, $e->getExpectedType());
+				}
 			}
 		}
 		$this->_setValues($values, $flagAsUpdated);
@@ -83,7 +94,15 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	 */
 	final public function pushValue($value, $flagAsUpdated = true, $strict = true) {
 		if ($strict) {
-			$this->getModel()->verifElementValue($value);
+			try {
+				$this->getModel()->verifElementValue($value);
+			}
+			catch (NotSatisfiedRestrictionException $e) {
+				throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
+			}
+			catch (UnexpectedValueTypeException $e) {
+				throw new UnexpectedValueTypeException($value, $e->getExpectedType());
+			}
 		}
 		$this->_pushValue($value, $flagAsUpdated);
 	}
@@ -107,7 +126,15 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	 */
 	final public function unshiftValue($value, $flagAsUpdated = true, $strict = true) {
 		if ($strict) {
-			$this->getModel()->verifElementValue($value);
+			try {
+				$this->getModel()->verifElementValue($value);
+			}
+			catch (NotSatisfiedRestrictionException $e) {
+				throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
+			}
+			catch (UnexpectedValueTypeException $e) {
+				throw new UnexpectedValueTypeException($value, $e->getExpectedType());
+			}
 		}
 		$this->_unshiftValue($value, $flagAsUpdated);
 	}
@@ -238,6 +265,14 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	 */
 	final public function count() {
 		return count($this->getValues());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\ComhonObject::getComhonClass()
+	 */
+	final public function getComhonClass() {
+		return get_class($this) . "({$this->getModel()->getUniqueModel()->getName()})";
 	}
 	
 	 /***********************************************************************************************\
