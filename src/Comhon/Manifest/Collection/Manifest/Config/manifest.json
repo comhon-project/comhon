@@ -35,6 +35,14 @@
         {
             "name": "regexList",
             "type": "string"
+        },
+        {
+            "name": "sqlTable",
+            "type": "string"
+        },
+        {
+            "name": "sqlDatabase",
+            "type": "string"
         }
     ]
 }

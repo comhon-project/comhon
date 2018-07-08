@@ -28,6 +28,9 @@ class Property {
 	/** @var string */
 	protected $name;
 	
+	/** @var boolean */
+	protected $hasDefinedSerializationName;
+	
 	/** @var string */
 	protected $serializationName;
 	protected $isId;
@@ -59,7 +62,8 @@ class Property {
 	public function __construct(Model $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
 		$this->model = $model;
 		$this->name = $name;
-		$this->serializationName = is_null($serializationName) ? $this->name : $serializationName;
+		$this->hasDefinedSerializationName = !is_null($serializationName);
+		$this->serializationName = $this->hasDefinedSerializationName ? $serializationName : $this->name;
 		$this->isId = $isId;
 		$this->isPrivate = $isPrivate;
 		$this->isSerializable = $isSerializable;
@@ -121,6 +125,15 @@ class Property {
 	 */
 	public function getSerializationName() {
 		return $this->serializationName;
+	}
+	
+	/**
+	 * verify if serialization has been defined in serialization manifest
+	 *
+	 * @return boolean
+	 */
+	public function hasDefinedSerializationName() {
+		return $this->hasDefinedSerializationName;
 	}
 	
 	/**

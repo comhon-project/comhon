@@ -727,7 +727,7 @@ class SqlTable extends SerializationUnit {
 		$castFloatColumns   = [];
 		$castBooleanColumns = [];
 		foreach ($columnsToCast[self::INTEGER_INDEX] as $column) {
-			if (isset($rows[0][$column])) {
+			if (array_key_exists($column, $rows[0])) {
 				foreach ($rows as $row) {
 					if (is_null($row[$column])) {
 						continue;
@@ -740,7 +740,7 @@ class SqlTable extends SerializationUnit {
 			}
 		}
 		foreach ($columnsToCast[self::FLOAT_INDEX] as $column) {
-			if (isset($rows[0][$column])) {
+			if (array_key_exists($column, $rows[0])) {
 				foreach ($rows as $row) {
 					if (is_null($row[$column])) {
 						continue;
@@ -753,7 +753,7 @@ class SqlTable extends SerializationUnit {
 			}
 		}
 		foreach ($columnsToCast[self::BOOLEAN_INDEX] as $column) {
-			if (isset($rows[0][$column])) {
+			if (array_key_exists($column, $rows[0])) {
 				foreach ($rows as $row) {
 					if (is_null($row[$column])) {
 						continue;

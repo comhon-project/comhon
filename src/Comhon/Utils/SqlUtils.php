@@ -15,7 +15,7 @@ use Comhon\Exception\Database\NotSupportedDBMSException;
 
 class SqlUtils {
 
-	/** @var array reserved words for mySQL DBSM */
+	/** @var array reserved words for mySQL DBMS */
 	private static $mySQL_ReservedWords = [
 		'ACCESSIBLE'=>null,'ADD'=>null,'ALL'=>null,'ALTER'=>null,'ANALYZE'=>null,'AND'=>null,'AS'=>null,'ASC'=>null,'ASENSITIVE'=>null,'BEFORE'=>null,'BETWEEN'=>null,'BIGINT'=>null,'BINARY'=>null,'BLOB'=>null,'BOTH'=>null,'BY'=>null,'CALL'=>null,'CASCADE'=>null,'CASE'=>null,
 		'CHANGE'=>null,'CHAR'=>null,'CHARACTER'=>null,'CHECK'=>null,'COLLATE'=>null,'COLUMN'=>null,'CONDITION'=>null,'CONSTRAINT'=>null,'CONTINUE'=>null,'CONVERT'=>null,'CREATE'=>null,'CROSS'=>null,'CURRENT_DATE'=>null,
@@ -35,7 +35,7 @@ class SqlUtils {
 		'USING'=>null,'UTC_DATE'=>null,'UTC_TIME'=>null,'UTC_TIMESTAMP'=>null,'VALUES'=>null,'VARBINARY'=>null,'VARCHAR'=>null,'VARCHARACTER'=>null,'VARYING'=>null,'VIRTUAL'=>null,'WHEN'=>null,'WHERE'=>null,'WHILE'=>null,'WITH'=>null,'WRITE'=>null,'XOR'=>null,'YEAR_MONTH'=>null
 	];
 	
-	/** @var array reserved words for postgreSQL DBSM */
+	/** @var array reserved words for postgreSQL DBMS */
 	private static $postgreSQL_ReservedWords = [
 		'ALL'=>null,'ANALYSE'=>null,'ANALYZE'=>null,'AND'=>null,'ANY'=>null,'ARRAY'=>null,'AS'=>null,'ASC'=>null,'ASYMMETRIC'=>null,'BOTH'=>null,
 		'CASE'=>null,'CAST'=>null,'CHECK'=>null,'COLLATE'=>null,'COLUMN'=>null,'CONSTRAINT'=>null,'CREATE'=>null,'CURRENT_CATALOG'=>null,'CURRENT_DATE'=>null,

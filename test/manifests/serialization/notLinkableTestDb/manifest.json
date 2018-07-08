@@ -5,7 +5,7 @@
         "id": "public.child_test"
     },
     "properties": {
-        "parentTestDb": {
+        "notLinkableParentTestDb": {
             "serializationNames": {
                 "id1": "parent_id_1",
                 "id2": "parent_id_2"

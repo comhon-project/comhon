@@ -205,7 +205,9 @@ class DatabaseController {
 	 * @return DatabaseController|null
 	 */
 	public static function getInstanceWithDataBaseId($id) {
-		return array_key_exists($id, self::$instances) ? self::$instances[$id] : null;
+		return array_key_exists($id, self::$instances)
+			? self::$instances[$id]
+			: self::getInstanceWithDataBaseObject(ModelManager::getInstance()->getInstanceModel('sqlDatabase')->loadObject($id));
 	}
 	
 	/**

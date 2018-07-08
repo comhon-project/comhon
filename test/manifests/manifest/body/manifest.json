@@ -82,7 +82,7 @@
             "name": "tatoos",
             "type": "array",
             "values": {
-                "type": "tatoo",
+                "type": "\\body\\tatoo",
                 "name": "tatoo"
             }
         },

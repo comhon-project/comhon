@@ -19,7 +19,7 @@ class ArgumentException extends ComhonException {
 	 * 
 	 * @param mixed $argument
 	 * @param string|array $expected
-	 * @param integer $index
+	 * @param integer $index start from 1
 	 */
 	public function __construct($argument, $expected, $index) {
 		if (is_object($argument)) {

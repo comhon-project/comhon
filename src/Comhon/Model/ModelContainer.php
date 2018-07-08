@@ -207,6 +207,16 @@ abstract class ModelContainer extends Model {
 	}
 	
 	/**
+	 * get serialization linked to contained model
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::getSerialization()
+	 */
+	public function hasSerialization() {
+		return $this->getModel()->hasSerialization();
+	}
+	
+	/**
 	 * get serialization settings of contained model
 	 * 
 	 * {@inheritDoc}

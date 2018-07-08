@@ -2,10 +2,13 @@
 
 use Comhon\Api\ObjectService;
 use Comhon\Model\Model;
+use Comhon\Object\Config\Config;
 
 set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/comhon/src/');
 
 require_once 'Comhon.php';
+
+Config::setLoadPath(__DIR__.'/config/config.json');
 
 spl_autoload_register(function ($class) {
 	include_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';

@@ -1,10 +1,13 @@
 <?php
 
 use Comhon\Api\ObjectService;
+use Comhon\Object\Config\Config;
 
 set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/comhon/src/');
 
 require_once 'Comhon.php';
+
+Config::setLoadPath(__DIR__.'/config/config.json');
 
 $Json = '{
 	"requestChildren" : false,

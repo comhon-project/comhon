@@ -1,0 +1,1 @@
+{"database":"2","name":"public.person","compositions":[{"column":"mother_id","parent":"person"},{"column":"father_id","parent":"person"}]}

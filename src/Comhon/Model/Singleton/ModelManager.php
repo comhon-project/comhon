@@ -105,6 +105,17 @@ class ModelManager {
 			Config::getInstance()->getSerializationListPath(),
 			$this->instanceModels
 		);
+		
+		if (Config::getInstance()->hasValue('sqlTable')) {
+			$this->getInstanceModel('sqlTable')
+				->getSerializationSettings()
+				->setValue('saticPath', Config::getInstance()->getSerializationSqlTablePath());
+		}
+		if (Config::getInstance()->hasValue('sqlDatabase')) {
+			$this->getInstanceModel('sqlDatabase')
+				->getSerializationSettings()
+				->setValue('saticPath', Config::getInstance()->getSerializationSqlDatabasePath());
+		}
 	}	
 	
 	/**
@@ -206,30 +217,48 @@ class ModelManager {
 		}else {
 			if (count($this->instanceModels[$modelName]) == 3) {
 				$return = $this->instanceModels[$modelName][2];
+				$temp = $this->instanceModels[$modelName];
 				if ($loadModel) {
-					$return->load();
+					try {
+						$return->load();
+					} catch (\Exception $e) {
+						// restore array if any exception during model loading
+						if (is_object($this->instanceModels[$modelName])) {
+							$this->instanceModels[$modelName] = $temp;
+						}
+						throw $e;
+					}
 				}
 			} else {
-				if ($this->_isMainModel($modelName)) {
-					$return = new MainModel($modelName, $loadModel);
-				} else {
-					$return = new LocalModel($modelName, $loadModel);
-				}
-				
-				if (is_object($this->instanceModels[$modelName])) {
-					if ($this->instanceModels[$modelName] !== $return) {
-						throw new ComhonException('already exists '.$modelName);
-					}
-					if (!$loadModel) {
-						throw new ComhonException('model has been loaded');
-					}
-				}
-				else { // else add model
-					if ($loadModel) {
-						$this->instanceModels[$modelName] = $return;
+				$temp = $this->instanceModels[$modelName];
+				try {
+					if ($this->_isMainModel($modelName)) {
+						$return = new MainModel($modelName, $loadModel);
 					} else {
-						$this->instanceModels[$modelName][] = $return;
+						$return = new LocalModel($modelName, $loadModel);
 					}
+					
+					if (is_object($this->instanceModels[$modelName])) {
+						if ($this->instanceModels[$modelName] !== $return) {
+							throw new ComhonException('already exists '.$modelName);
+						}
+						if (!$loadModel) {
+							throw new ComhonException('model has been loaded');
+						}
+					}
+					else { // else add model
+						if ($loadModel) {
+							$this->instanceModels[$modelName] = $return;
+						} else {
+							$this->instanceModels[$modelName][] = $return;
+						}
+					}
+				} catch (\Exception $e) {
+					// restore array if any exception during model loading
+					if (is_object($this->instanceModels[$modelName])) {
+						$this->instanceModels[$modelName] = $temp;
+					}
+					throw $e;
 				}
 			}
 		}

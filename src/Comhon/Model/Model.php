@@ -89,7 +89,7 @@ abstract class Model {
 	private $uniqueIdProperty;
 	
 	/** @var boolean */
-	private $hasPrivateIdProperty;
+	private $hasPrivateIdProperty = false;
 	
 	/**
 	 * don't instanciate a model by yourself because it take time.
@@ -112,21 +112,43 @@ abstract class Model {
 	 */
 	final public function load() {
 		if (!$this->isLoaded && !$this->isLoading) {
-			$this->isLoading = true;
-			$result = ModelManager::getInstance()->getProperties($this);
-			$this->parent = $result[ModelManager::PARENT_MODEL];
-			$this->_setProperties($result[ModelManager::PROPERTIES]);
-
-			if (!is_null($result[ModelManager::OBJECT_CLASS])) {
-				if ($this->objectClass !== $result[ModelManager::OBJECT_CLASS]) {
-					$this->objectClass = $result[ModelManager::OBJECT_CLASS];
-					$this->isExtended = true;
+			try {
+				$this->isLoading = true;
+				$result = ModelManager::getInstance()->getProperties($this);
+				$this->parent = $result[ModelManager::PARENT_MODEL];
+				$this->_setProperties($result[ModelManager::PROPERTIES]);
+				
+				if (!is_null($result[ModelManager::OBJECT_CLASS])) {
+					if ($this->objectClass !== $result[ModelManager::OBJECT_CLASS]) {
+						$this->objectClass = $result[ModelManager::OBJECT_CLASS];
+						$this->isExtended = true;
+					}
 				}
+				$this->_setSerialization();
+				$this->_init();
+				$this->isLoaded  = true;
+				$this->isLoading = false;
+				
+			} catch (\Exception $e) {
+				// reinitialize attributes if any excpetion
+				$this->isLoading = false;
+				$this->parent = null;
+				$this->objectClass = Object::class;
+				$this->isExtended = false;
+				$this->properties   = [];
+				$this->idProperties = [];
+				$this->aggregations = [];
+				$this->publicProperties  = [];
+				$this->serializableProperties = [];
+				$this->propertiesWithDefaultValues = [];
+				$this->multipleForeignProperties = [];
+				$this->complexProperties = [];
+				$this->dateTimeProperties = [];
+				$this->uniqueIdProperty = null;
+				$this->hasPrivateIdProperty = false;
+				
+				throw $e;
 			}
-			$this->_setSerialization();
-			$this->_init();
-			$this->isLoaded  = true;
-			$this->isLoading = false;
 		}
 	}
 	
@@ -1006,6 +1028,7 @@ abstract class Model {
 			foreach ($model->multipleForeignProperties as $propertyName => $multipleForeignProperty) {
 				try {
 					$id = [];
+					$allNull = true;
 					foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
 						if ($interfacer->hasValue($interfacedObject, $serializationName)) {
 							$idPart = $interfacer->getValue($interfacedObject, $serializationName);
@@ -1013,14 +1036,19 @@ abstract class Model {
 								$idPart = $interfacer->isNullValue($value) ? null
 									: $idProperty->getModel()->importSimple($idPart, $interfacer);
 							}
+							if (!is_null($idPart)) {
+								$allNull = false;
+							}
 							$id[] = $idPart;
 						}
 					}
-					if (count($id) !== count($multipleForeignProperty->getMultipleIdProperties())) {
+					if (count($id) !== 0 && count($id) !== count($multipleForeignProperty->getMultipleIdProperties())) {
 						throw new ComhonException('not complete multiple id foreign value');
 					}
-					$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, $localObjectCollection, $mainModelContainer);
-					$object->setValue($propertyName, $value, $flagAsUpdated);
+					if (!$allNull) {
+						$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, $localObjectCollection, $mainModelContainer);
+						$object->setValue($propertyName, $value, $flagAsUpdated);
+					}
 				}
 				catch (ComhonException $e) {
 					throw new ImportException($e, $propertyName);
