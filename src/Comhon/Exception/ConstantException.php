@@ -56,5 +56,6 @@ abstract class ConstantException {
 	const UNRESOLVABLE_LITERAL_EXCEPTION               = 705;
 	const NOT_LINKABLE_LITERAL_EXCEPTION               = 706;
 	const NOT_ALLOWED_REQUEST_EXCEPTION                = 707;
+	const MULTIPLE_PROPERTY_LITERAL_EXCEPTION          = 708;
 	
 }

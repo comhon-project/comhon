@@ -200,5 +200,68 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{
 	throw new \Exception('bad result');
 }
 
+$Json = '{
+	"model" : "town",
+	"filter" : {
+		"model"    : "town",
+		"property" : "surface",
+		"operator" : "<>",
+		"value"    : 120
+	}
+}';
+
+
+// SELECT * FROM  public.town  WHERE (public.town.surface <> 120 or public.town.surface is null) GROUP BY public.town.id
+
+$result = ObjectService::getObjects(json_decode($Json));
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"name":"Montpellier","surface":null,"cityHall":1}]}')) {
+	throw new \Exception('bad result');
+}
+
+$Json = '{
+	"model" : "testDb",
+	"filter" : {
+		"model"     : "testDb",
+		"queue"     : {
+			"property" : "childrenTestDb"
+		},
+		"having" : {
+			"function" : "AVG",
+			"property" : "parentTestDb",
+			"operator" : "=",
+			"value"    : 170
+		}
+	}
+}';
+
+$result = ObjectService::getObjects(json_decode($Json));
+
+if (!compareJson(json_encode($result), '{"success":false,"error":{"message":"property \'parentTestDb\'not allowed, having-literal cannot reference multiple foreign property.","code":708}}')) {
+	throw new \Exception('bad result');
+}
+
+$Json = '{
+	"model" : "childTestDb",
+	"filter" : {
+		"model"    : "childTestDb",
+		"property" : "parentTestDb",
+		"operator" : "<>",
+		"value"    : ["[123, \"123\"]","[124, \"124\"]"]
+	}
+}';
+
+
+// SELECT * FROM  public.child_test  WHERE (
+// ((public.child_test.parent_id_1 <> 123 or public.child_test.parent_id_1 is null) 
+//   or (public.child_test.parent_id_2 <> 123 or public.child_test.parent_id_2 is null)) 
+// and ((public.child_test.parent_id_1 <> 124 or public.child_test.parent_id_1 is null) 
+//   or (public.child_test.parent_id_2 <> 124 or public.child_test.parent_id_2 is null))) GROUP BY public.child_test.id
+
+$result = ObjectService::getObjects(json_decode($Json));
+
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]}')) {
+	throw new \Exception('bad result');
+}
+
 $time_end = microtime(true);
 var_dump('intermediate request test exec time '.($time_end - $time_start));

@@ -126,7 +126,7 @@ class SimpleDbLiteral extends DbLiteral {
 			while ($i < count($this->value)) {
 				if (is_null($this->value[$i])) {
 					$hasNullValue = true;
-				}else {
+				} else {
 					$values[] = $this->value[$i];
 					$toReplaceValues[] = '?';
 				}
@@ -139,14 +139,19 @@ class SimpleDbLiteral extends DbLiteral {
 				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
 				$connector = ($this->operator == '=') ? 'or' : 'and';
 				$stringValue = sprintf('(%s %s %s %s)', $stringValue, $connector, $columnTable, $operator);
+			} elseif ($this->operator == '<>') {
+				$stringValue = sprintf('(%s or %s is null)', $stringValue, $columnTable);
 			}
-		}else {
+		} else {
 			if (is_null($this->value)) {
 				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
 				$stringValue = sprintf('%s %s', $columnTable, $operator);
-			}else {
+			} else {
 				$values[] = $this->value;
 				$stringValue = sprintf('%s %s ?', $columnTable, $this->operator);
+				if ($this->operator == '<>') {
+					$stringValue = sprintf('(%s or %s is null)', $stringValue, $columnTable);
+				}
 			}
 		}
 		return $stringValue;
@@ -160,6 +165,7 @@ class SimpleDbLiteral extends DbLiteral {
 	 * @return string
 	 */
 	public function exportDebug() {
+		$columnTable = (($this->table instanceof TableNode) ? $this->table->getExportName() : $this->table) . '.' . $this->column;
 		if ((($this->operator == '=') || ($this->operator == '<>')) && is_array($this->value)) {
 			$i = 0;
 			$toReplaceValues = [];
@@ -174,18 +180,23 @@ class SimpleDbLiteral extends DbLiteral {
 			}
 			$operator = ($this->operator == '=') ? ' IN ' : ' NOT IN ';
 			$toReplaceValues = '('.implode(',', $toReplaceValues).')';
-			$stringValue = sprintf('%s.%s %s %s', $this->table, $this->column, $operator, $toReplaceValues);
+			$stringValue = sprintf('%s %s %s', $columnTable, $operator, $toReplaceValues);
 			if ($hasNullValue) {
 				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
 				$connector = ($this->operator == '=') ? 'or' : 'and';
-				$stringValue = sprintf('(%s %s %s.%s %s)', $stringValue, $connector, $this->table, $this->column, $operator);
+				$stringValue = sprintf('(%s %s %s %s)', $stringValue, $connector,  $columnTable, $operator);
+			} elseif ($this->operator == '<>') {
+				$stringValue = sprintf('(%s or %s is null)', $stringValue, $columnTable);
 			}
-		}else {
+		} else {
 			if (is_null($this->value)) {
 				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
-				$stringValue = sprintf('%s.%s %s', $this->table, $this->column, $operator);
-			}else {
-				$stringValue = sprintf('%s.%s %s %s', $this->table, $this->column, $this->operator, $this->value);
+				$stringValue = sprintf('%s %s', $columnTable, $operator);
+			} else {
+				$stringValue = sprintf('%s %s %s', $columnTable, $this->operator, $this->value);
+				if ($this->operator == '<>') {
+					$stringValue = sprintf('(%s or %s is null)', $stringValue, $columnTable);
+				}
 			}
 		}
 		return $stringValue;

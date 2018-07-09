@@ -298,7 +298,7 @@ class DatabaseController {
 	 */
 	public function executeSelectQuery(SelectQuery $selectQuery, $fetchStyle = \PDO::FETCH_ASSOC) {
 		list($query, $values) = $selectQuery->export();
-		//var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
+		// var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
 		return $this->executeSimpleQuery($query, $values)->fetchAll($fetchStyle);
 	}
 	
@@ -310,7 +310,7 @@ class DatabaseController {
 	 * @return \PDOStatement
 	 */
 	public function executeSimpleQuery($query, $values = []) {
-		//var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
+		// var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
 		$PDOStatement = $this->_prepareQuery($query, $values);
 		$this->_doQuery($PDOStatement);
 		

@@ -16,7 +16,7 @@ use Comhon\Logic\Literal;
 
 class NotNullJoinLiteral extends DbLiteral {
 
-	/** @var Conjunction */
+	/** @var \Comhon\Logic\Clause */
 	private $conjunction;
 	
 	public function __construct() {

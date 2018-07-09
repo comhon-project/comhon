@@ -14,6 +14,7 @@ namespace Comhon\Database;
 use Comhon\Exception\Literal\MalformedLiteralException;
 use Comhon\Exception\PropertyVisibilityException;
 use Comhon\Exception\ComhonException;
+use Comhon\Exception\Literal\MultiplePropertyLiteralException;
 
 class HavingLiteral extends DbLiteral {
 
@@ -128,6 +129,9 @@ class HavingLiteral extends DbLiteral {
 				throw new ComhonException('model can\'t be null if function is different than COUNT');
 			}
 			$property = $model->getProperty($stdObject->property, true);
+			if ($property->hasMultipleSerializationNames()) {
+				throw new MultiplePropertyLiteralException($property);
+			}
 			if (!$allowPrivateProperties && $property->isPrivate()) {
 				throw new PropertyVisibilityException($property->getName());
 			}

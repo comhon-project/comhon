@@ -273,5 +273,45 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{
 	throw new \Exception('bad result');
 }
 
+$Json = '{
+	"tree" : {
+		"model"   : "childTestDb",
+		"id"      : "p1"
+	},
+	"filter" : {
+		"node"     : "p1",
+		"property" : "parentTestDb",
+		"operator" : "=",
+		"value"    : "[1,\"1501774389\"]"
+	}
+}';
+
+// SELECT * FROM  public.child_test AS p1  WHERE (p1.parent_id_1 = 1 and p1.parent_id_2 = 1501774389) GROUP BY p1.id
+
+$result = ObjectService::getObjects(json_decode($Json));
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]}')) {
+	throw new \Exception('bad result');
+}
+
+$Json = '{
+	"tree" : {
+		"model"   : "childTestDb",
+		"id"      : "p1"
+	},
+	"filter" : {
+		"node"     : "p1",
+		"property" : "parentTestDb",
+		"operator" : "=",
+		"value"    : ["[1,\"1501774389\"]","[11,\"1501774389\"]"]
+	}
+}';
+
+// SELECT * FROM  public.child_test AS p1  WHERE ((p1.parent_id_1 = 1 and p1.parent_id_2 = 1501774389) or (p1.parent_id_1 = 1 and p1.parent_id_2 = 1501774389)) GROUP BY p1.id
+
+$result = ObjectService::getObjects(json_decode($Json));
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]}')) {
+	throw new \Exception('bad result');
+}
+
 $time_end = microtime(true);
 var_dump('complex request test exec time '.($time_end - $time_start));

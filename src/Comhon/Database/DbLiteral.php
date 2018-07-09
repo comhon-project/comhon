@@ -113,7 +113,9 @@ abstract class DbLiteral extends Literal {
 			if (!$allowPrivateProperties && $property->isPrivate()) {
 				throw new PropertyVisibilityException($property->getName());
 			}
-			$literal  = new SimpleDbLiteral($table, $property->getSerializationName(), $stdObject->operator, $stdObject->value);
+			$literal = $property->hasMultipleSerializationNames()
+				? new MultiplePropertyDbLiteral($table, $property, $stdObject->operator, $stdObject->value)
+				: new SimpleDbLiteral($table, $property->getSerializationName(), $stdObject->operator, $stdObject->value);
 		}
 		if (isset($stdObject->id)) {
 			$literal->setId($stdObject->id);

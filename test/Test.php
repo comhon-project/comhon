@@ -331,7 +331,6 @@ try {
 }
 
 // TODO for version > 2.0
-// manage mysql (perhaps others) that do not return null values when SELECT column <> 'astring'
 // test AssocArrayNoScalarTypedInterfacer
 // refactor sqlTable::castStringifiedColumns() using AssocArrayNoScalarTypedInterfacer 
 // do not use sqlTable::castStringifiedColumns() before import but use AssocArrayNoScalarTypedInterfacer
