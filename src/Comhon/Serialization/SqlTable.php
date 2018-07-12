@@ -23,10 +23,7 @@ use Comhon\Utils\SqlUtils;
 use Comhon\Object\ComhonObject;
 use Comhon\Object\Config\Config;
 use Comhon\Interfacer\AssocArrayInterfacer;
-use Comhon\Model\ModelBoolean;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Model\ModelFloat;
-use Comhon\Model\ModelInteger;
 use Comhon\Object\ObjectUnique;
 use Comhon\Database\SimpleDbLiteral;
 use Comhon\Exception\Database\NotSupportedDBMSException;
@@ -44,11 +41,6 @@ class SqlTable extends SerializationUnit {
 	 * @var integer index that store information that permit to know if model has incremantal properties
 	 */
 	const AUTO_INCR_PROPERTIES_INDEX = 1;
-	
-	/**
-	 * @var integer index that store information that permit to know wich columns values need to be casted
-	 */
-	const COLUMS_TO_CAST_INDEX       = 2;
 	
 	/**
 	 * @var integer index that store columns that have to be casted in integer
@@ -239,60 +231,8 @@ class SqlTable extends SerializationUnit {
 		
 		self::$modelInfos[$model->getName()] = [
 			self::HAS_INCR_ID_INDEX          => $hasIncrementalId,
-			self::AUTO_INCR_PROPERTIES_INDEX => $autoIncrementProperties,
-			self::COLUMS_TO_CAST_INDEX       => self::_initColumnsToCast($model),
+			self::AUTO_INCR_PROPERTIES_INDEX => $autoIncrementProperties
 		];
-	}
-	
-	/**
-	 * store columns that have to be casted according specified model
-	 * 
-	 * @param \Comhon\Model\Model $model
-	 * @return [string[], string[], string[]]
-	 */
-	private static function _initColumnsToCast(Model $model) {
-		if (array_key_exists($model->getName(), self::$modelInfos)) {
-			return self::$modelInfos[$model->getName()][self::COLUMS_TO_CAST_INDEX];
-		}
-		$castIntegerColumns = [];
-		$castFloatColumns   = [];
-		$castBooleanColumns = [];
-		foreach ($model->getSerializableProperties() as $property) {
-			if ($property->isSerializable()) {
-				if (!$property->isForeign()) {
-					if ($property->getModel() instanceof ModelInteger) {
-						$castIntegerColumns[] = $property->getSerializationName();
-					} else if ($property->getModel() instanceof ModelFloat) {
-						$castFloatColumns[] = $property->getSerializationName();
-					} else if (($property->getModel() instanceof ModelBoolean)) {
-						$castBooleanColumns[] = $property->getSerializationName();
-					}
-				}
-				else if (!$property->isAggregation()) {
-					if ($property->hasMultipleSerializationNames()) {
-						foreach ($property->getMultipleIdProperties() as $serializationName => $property) {
-							if ($property->getModel() instanceof ModelInteger) {
-								$castIntegerColumns[] = $serializationName;
-							} else if ($property->getModel() instanceof ModelFloat) {
-								$castFloatColumns[] = $serializationName;
-							} else if (($property->getModel() instanceof ModelBoolean)) {
-								$castBooleanColumns[] = $serializationName;
-							}
-						}
-					}
-					else if ($property->getModel()->hasUniqueIdProperty()) {
-						if ($property->getModel()->getFirstIdProperty()->getModel() instanceof ModelInteger) {
-							$castIntegerColumns[] = $property->getSerializationName();
-						} else if ($property->getModel()->getFirstIdProperty()->getModel() instanceof ModelFloat) {
-							$castFloatColumns[] = $property->getSerializationName();
-						} else if (($property->getModel() instanceof ModelBoolean)) {
-							$castBooleanColumns[] = $property->getSerializationName();
-						}
-					}
-				}
-			}
-		}
-		return [$castIntegerColumns, $castFloatColumns, $castBooleanColumns];
 	}
 	
 	/**
@@ -645,14 +585,7 @@ class SqlTable extends SerializationUnit {
 		}
 		$rows = $this->dbController->executeSelectQuery($selectQuery);
 		
-		if ($object->getModel() instanceof ModelArray) {
-			$isModelArray = true;
-			self::castStringifiedColumns($rows, $object->getModel()->getUniqueModel());
-		} else {
-			$isModelArray = false;
-			self::castStringifiedColumns($rows, $object->getModel());
-		}
-		
+		$isModelArray = $object->getModel() instanceof ModelArray;
 		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {
 			if (!is_null($this->getInheritanceKey())) {
 				if ($isModelArray) {
@@ -711,83 +644,6 @@ class SqlTable extends SerializationUnit {
 	public function getInheritedModel($value, Model $baseModel) {
 		return array_key_exists($this->inheritanceKey, $value) && !is_null($value[$this->inheritanceKey]) 
 				? ModelManager::getInstance()->getInstanceModel($value[$this->inheritanceKey]) : $baseModel;
-	}
-	
-	/**
-	 * cast values retrieved from table in right type
-	 * 
-	 * @param mixed[] $rows
-	 * @param \Comhon\Model\Model $model
-	 */
-	public static function castStringifiedColumns(&$rows, Model $model) {
-		/*if (empty($rows)) {
-			return;
-		}
-		$columnsToCast = self::_initColumnsToCast($model);
-		$castIntegerColumns = [];
-		$castFloatColumns   = [];
-		$castBooleanColumns = [];
-		foreach ($columnsToCast[self::INTEGER_INDEX] as $column) {
-			if (array_key_exists($column, $rows[0])) {
-				foreach ($rows as $row) {
-					if (is_null($row[$column])) {
-						continue;
-					}
-					if (is_string($row[$column])) {
-						$castIntegerColumns[] = $column;
-					}
-					break;
-				}
-			}
-		}
-		foreach ($columnsToCast[self::FLOAT_INDEX] as $column) {
-			if (array_key_exists($column, $rows[0])) {
-				foreach ($rows as $row) {
-					if (is_null($row[$column])) {
-						continue;
-					}
-					if (is_string($row[$column])) {
-						$castFloatColumns[] = $column;
-					}
-					break;
-				}
-			}
-		}
-		foreach ($columnsToCast[self::BOOLEAN_INDEX] as $column) {
-			if (array_key_exists($column, $rows[0])) {
-				foreach ($rows as $row) {
-					if (is_null($row[$column])) {
-						continue;
-					}
-					if (is_string($row[$column])) {
-						$castBooleanColumns[] = $column;
-					}
-					break;
-				}
-			}
-		}
-		if (!empty($castIntegerColumns) || !empty($castFloatColumns) || !empty($castBooleanColumns)) {
-			for ($i = 0; $i < count($rows); $i++) {
-				foreach ($castIntegerColumns as $column) {
-					if (is_numeric($rows[$i][$column])) {
-						$rows[$i][$column] = (integer) $rows[$i][$column];
-					}
-				}
-				foreach ($castFloatColumns as $column) {
-					if (is_numeric($rows[$i][$column])) {
-						$rows[$i][$column] = (float) $rows[$i][$column];
-					}
-				}
-				foreach ($castBooleanColumns as $column) {
-					$value = $rows[$i][$column];
-					if ($value === '1' || $value === 't') {
-						$rows[$i][$column]= true;
-					} else if ($value === '0' || $value === 'f') {
-						$rows[$i][$column]= false;
-					}
-				}
-			}
-		}*/
 	}
 	
 }

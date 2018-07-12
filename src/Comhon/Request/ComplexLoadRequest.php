@@ -373,7 +373,6 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$sqlTable->loadValue('database');
 		$dbInstance = DatabaseController::getInstanceWithDataBaseObject($sqlTable->getValue('database'));
 		$rows = $dbInstance->executeSelectQuery($this->selectQuery);
-		SqlTable::castStringifiedColumns($rows, $this->model);
 		
 		return $this->_buildObjectsWithRows($rows);
 	}

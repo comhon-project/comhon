@@ -319,7 +319,7 @@ try {
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RestrictionTest.php';
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueRestrictionTest.php';
-	//require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
+	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'SelectQueryTest.php';
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'FormulaTest.php';
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'SetValueExceptionTest.php';
@@ -335,9 +335,6 @@ try {
 }
 
 // TODO for version > 2.0
-// test AssocArrayNoScalarTypedInterfacer
-// refactor sqlTable::castStringifiedColumns() using AssocArrayNoScalarTypedInterfacer 
-// do not use sqlTable::castStringifiedColumns() before import but use AssocArrayNoScalarTypedInterfacer
 // _fillObject in "is_serial" block verify if all multiples ids are not null in sqltable context (do not create object in this condition)
 // remove parameter mainmodelcontainer from_getOrCreateObjectInstanceFromInterfacedObject
 // test regex on null value failed but should not

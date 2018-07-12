@@ -85,9 +85,6 @@ abstract class Model {
 	/** @var \Comhon\Model\Property\Property[] */
 	private $dateTimeProperties = [];
 	
-	/** @var \Comhon\Model\Property\Property[] */
-	private $stringCastableProperties = [];
-	
 	/** @var Property */
 	private $uniqueIdProperty;
 	
