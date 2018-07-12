@@ -64,6 +64,12 @@ abstract class Interfacer {
 	const FLATTEN_VALUES = 'flattenValues';
 	
 	/**
+	 * @var string preference name that define if simple values are string
+	 *     available only during import for scalar interfacers
+	 */
+	const STRINGIFIED_VALUES = 'stringifiedValues';
+	
+	/**
 	 * @var string preference name that define if foreign object with main model have to be exported
 	 */
 	const EXPORT_MAIN_FOREIGN_OBJECTS = 'exportMainForeignObjects';
@@ -129,6 +135,9 @@ abstract class Interfacer {
 	
 	/** @var boolean */
 	private $flattenValues = false;
+	
+	/** @var boolean */
+	private $StringifiedValues = false;
 	
 	/** @var integer */
 	private $mergeType = self::MERGE;
@@ -321,6 +330,22 @@ abstract class Interfacer {
 	 */
 	public function hasToFlattenValues() {
 		return $this->flattenValues;
+	}
+	
+	/**
+	 * define if interfaced simple values are stringified and must be casted during import
+	 *
+	 * @param boolean $boolean
+	 */
+	public function setStringifiedValues($boolean) {
+		$this->StringifiedValues = $boolean;
+	}
+	
+	/**
+	 * verify if interfaced simple values are stringified and must be casted during import
+	 */
+	public function isStringifiedValues() {
+		return $this->StringifiedValues;
 	}
 	
 	/**
@@ -656,7 +681,7 @@ abstract class Interfacer {
 	 * @return boolean
 	 */
 	public function hasScalarTypedValues() {
-		return !($this instanceof NoScalarTypedInterfacer);
+		return true;
 	}
 	
 	/**
@@ -754,6 +779,14 @@ abstract class Interfacer {
 				throw new UnexpectedValueTypeException($preferences[self::FLATTEN_VALUES], 'boolean', self::FLATTEN_VALUES);
 			}
 			$this->setFlattenValues($preferences[self::FLATTEN_VALUES]);
+		}
+		
+		// stringified values
+		if (array_key_exists(self::STRINGIFIED_VALUES, $preferences)) {
+			if (!is_bool($preferences[self::STRINGIFIED_VALUES])) {
+				throw new UnexpectedValueTypeException($preferences[self::STRINGIFIED_VALUES], 'boolean', self::FLATTEN_VALUES);
+			}
+			$this->setFlattenValues($preferences[self::STRINGIFIED_VALUES]);
 		}
 		
 		// main foreign objects

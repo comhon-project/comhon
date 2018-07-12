@@ -48,7 +48,7 @@ class ModelDateTime extends SimpleModel {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\SimpleModel::importSimple()
 	 */
-	public function importSimple($value, Interfacer $interfacer) {
+	public function importSimple($value, Interfacer $interfacer, $applyCast = true) {
 		if (is_null($value)) {
 			return $value;
 		}
@@ -91,15 +91,6 @@ class ModelDateTime extends SimpleModel {
 			$dateTime->setTimezone($OriginDateTimeZone);
 			return $dateTimeString;
 		}
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\SimpleModel::castValue()
-	 */
-	public function castValue($value) {
-		throw new ComhonException('cannot cast datetime object');
 	}
 	
 	/**

@@ -15,7 +15,7 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Exception\UnexpectedValueTypeException;
 
-class ModelFloat extends SimpleModel {
+class ModelFloat extends SimpleModel implements StringCastableModelInterface {
 	
 	/** @var string */
 	const ID = 'float';
@@ -34,12 +34,14 @@ class ModelFloat extends SimpleModel {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\SimpleModel::importSimple()
 	 */
-	public function importSimple($value, Interfacer $interfacer) {
+	public function importSimple($value, Interfacer $interfacer, $applyCast = true) {
 		if (is_null($value)) {
 			return $value;
 		}
 		if ($interfacer instanceof NoScalarTypedInterfacer) {
 			$value = $interfacer->castValueToFloat($value);
+		} elseif ($applyCast && $interfacer->isStringifiedValues()) {
+			$value = $this->castValue($value);
 		}
 		return $value;
 	}
@@ -47,7 +49,7 @@ class ModelFloat extends SimpleModel {
 	/**
 	 * cast value to float
 	 *
-	 * @param mixed $value
+	 * @param string $value
 	 * @return float
 	 */
 	public function castValue($value) {

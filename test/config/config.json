@@ -1,6 +1,6 @@
 {
   "manifestList": "../manifests/manifest/manifestList.json",
-  "serializationList": "../manifests/serialization_pgsql/serializationList.json",
+  "serializationList": "../manifests/serialization/serializationList.json",
   "regexList":"./regex.json",
   "sqlTable": "./table",
   "sqlDatabase": "./database",

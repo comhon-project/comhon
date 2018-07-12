@@ -56,7 +56,7 @@ class ModelRestrictedArray extends ModelArray {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelArray::_import()
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
 		$objectArray = parent::_import($interfacedObject, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel);
 		foreach ($objectArray->getValues() as $value) {
 			if (!$this->restriction->satisfy($value)) {

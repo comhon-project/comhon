@@ -162,7 +162,7 @@ class ModelArray extends ModelContainer {
 	 * 
 	 * @return \Comhon\Object\ObjectArray|null
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
 		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
@@ -172,7 +172,7 @@ class ModelArray extends ModelContainer {
 		$objectArray = $this->getObjectInstance();
 		foreach ($interfacer->getTraversableNode($interfacedObject) as $key => $element) {
 			try {
-				$objectArray->pushValue($this->getModel()->_import($element, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel), $interfacer->hasToFlagValuesAsUpdated());
+				$objectArray->pushValue($this->getModel()->_import($element, $interfacer, $localObjectCollection, $mainModelContainer, false), $interfacer->hasToFlagValuesAsUpdated());
 			} catch (ComhonException $e) {
 				throw new ImportException($e, $key);
 			}
@@ -185,13 +185,13 @@ class ModelArray extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Model::_importId()
 	 */
-	protected function _importId($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer) {
+	protected function _importId($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
 		if (is_null($interfacedObject)) {
 			return null;
 		}
 		$objectArray = $this->getObjectInstance();
 		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
-			$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, $localObjectCollection, $mainModelContainer), $interfacer->hasToFlagValuesAsUpdated());
+			$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, $localObjectCollection, $mainModelContainer, false), $interfacer->hasToFlagValuesAsUpdated());
 		}
 		return $objectArray;
 	}

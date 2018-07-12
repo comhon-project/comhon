@@ -31,6 +31,15 @@ class ModelForeign extends ModelContainer {
 	}
 	
 	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::isNextLevelFirstLevel()
+	 */
+	protected function isNextLevelFirstLevel($isCurrentLevelFirstLevel) {
+		return $isCurrentLevelFirstLevel;
+	}
+	
+	/**
 	 * get full qualified class name of object associated to contained model
 	 * 
 	 * @return string
@@ -71,7 +80,7 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelContainer::_import()
 	 */
-	protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
+	protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
 		if (!$this->getUniqueModel()->hasIdProperties()) {
 			throw new ComhonException("foreign property must have model with id, actual model '{$this->getUniqueModel()->getName()}' doesn't");
 		}

@@ -28,16 +28,6 @@ class ModelString extends SimpleModel {
 	}
 	
 	/**
-	 * cast value to string
-	 *
-	 * @param mixed $value
-	 * @return string
-	 */
-	public function castValue($value) {
-		return (string) $value;
-	}
-	
-	/**
 	 * verify if value is a string
 	 *
 	 * @param mixed $value

@@ -85,6 +85,9 @@ abstract class Model {
 	/** @var \Comhon\Model\Property\Property[] */
 	private $dateTimeProperties = [];
 	
+	/** @var \Comhon\Model\Property\Property[] */
+	private $stringCastableProperties = [];
+	
 	/** @var Property */
 	private $uniqueIdProperty;
 	
@@ -662,6 +665,16 @@ abstract class Model {
 	}
 	
 	/**
+	 * verify if during import we stay in first level object or not
+	 * 
+	 * @param boolean $isCurrentLevelFirstLevel
+	 * @return boolean
+	 */
+	protected function isNextLevelFirstLevel($isCurrentLevelFirstLevel) {
+		return false;
+	}
+	
+	/**
 	 * add main current object to main foreign objects list in interfacer
 	 * 
 	 * object is added only if it has a main model associated
@@ -904,7 +917,7 @@ abstract class Model {
 	protected function _getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
 		$inheritance = $interfacer->getValue($interfacedObject, Interfacer::INHERITANCE_KEY);
 		$model = is_null($inheritance) ? $this : $this->_getIneritedModel($inheritance, $mainModelContainer);
-		$id = $model->getIdFromInterfacedObject($interfacedObject, $interfacer);
+		$id = $model->getIdFromInterfacedObject($interfacedObject, $interfacer, $isFirstLevel);
 		
 		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, $isFirstLevel);
 	}
@@ -929,9 +942,10 @@ abstract class Model {
 	 * 
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @param boolean $isFirstLevel
 	 * @return mixed
 	 */
-	public function getIdFromInterfacedObject($interfacedObject, Interfacer $interfacer) {
+	public function getIdFromInterfacedObject($interfacedObject, Interfacer $interfacer, $isFirstLevel) {
 		$isSerialContext = $interfacer->isSerialContext();
 		$private = $interfacer->isPrivateContext();
 		if (!is_null($this->uniqueIdProperty)) {
@@ -940,14 +954,14 @@ abstract class Model {
 			}
 			$propertyName = $isSerialContext ? $this->uniqueIdProperty->getSerializationName() : $this->uniqueIdProperty->getName();
 			$id = $interfacer->getValue($interfacedObject, $propertyName, $this->uniqueIdProperty->isInterfacedAsNodeXml());
-			return $this->uniqueIdProperty->getModel()->importSimple($id, $interfacer);
+			return $this->uniqueIdProperty->getModel()->importSimple($id, $interfacer, $isFirstLevel);
 		}
 		$idValues = [];
 		foreach ($this->getIdProperties() as $idProperty) {
 			if ($idProperty->isInterfaceable($private, $isSerialContext)) {
 				$propertyName = $isSerialContext ? $idProperty->getSerializationName() : $idProperty->getName();
 				$idValue = $interfacer->getValue($interfacedObject, $propertyName, $idProperty->isInterfacedAsNodeXml());
-				$idValues[] = $idProperty->getModel()->importSimple($idValue, $interfacer);
+				$idValues[] = $idProperty->getModel()->importSimple($idValue, $interfacer, $isFirstLevel);
 			} else {
 				$idValues[] = null;
 			}
@@ -965,7 +979,7 @@ abstract class Model {
 	 * @param boolean $isFirstLevel
 	 * @return \Comhon\Object\ObjectUnique|null
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
 		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
@@ -992,7 +1006,7 @@ abstract class Model {
 	 * @param boolean $isFirstLevel
 	 * @throws \Exception
 	 */
-	protected function _fillObject(ObjectUnique $object, $interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
+	protected function _fillObject(ObjectUnique $object, $interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
 		$model = $object->getModel();
 		if ($model !== $this && !$model->isInheritedFrom($this)) {
 			throw new UnexpectedModelException($this, $model);
@@ -1016,7 +1030,7 @@ abstract class Model {
 					if ($interfacer->hasValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml())) {
 						$value = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
 						$value = $interfacer->isNullValue($value) ? null
-							: $property->getModel()->_import($value, $interfacer, $localObjectCollection, $mainModelContainer);
+							: $property->getModel()->_import($value, $interfacer, $localObjectCollection, $mainModelContainer, $property->getModel()->isNextLevelFirstLevel($isFirstLevel));
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 					}
 				}
@@ -1034,7 +1048,7 @@ abstract class Model {
 							$idPart = $interfacer->getValue($interfacedObject, $serializationName);
 							if ($interfacer instanceof NoScalarTypedInterfacer) {
 								$idPart = $interfacer->isNullValue($value) ? null
-									: $idProperty->getModel()->importSimple($idPart, $interfacer);
+									: $idProperty->getModel()->importSimple($idPart, $interfacer, $isFirstLevel);
 							}
 							if (!is_null($idPart)) {
 								$allNull = false;
@@ -1046,7 +1060,7 @@ abstract class Model {
 						throw new ComhonException('not complete multiple id foreign value');
 					}
 					if (!$allNull) {
-						$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, $localObjectCollection, $mainModelContainer);
+						$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, $localObjectCollection, $mainModelContainer, false);
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 					}
 				}
@@ -1084,9 +1098,10 @@ abstract class Model {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param MainModel $mainModelContainer
+	 * @param boolean $isFirstLevel
 	 * @return \Comhon\Object\ObjectUnique
 	 */
-	protected function _importId($interfacedId, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer) {
+	protected function _importId($interfacedId, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
 		if ($interfacer->isNullValue($interfacedId)) {
 			return null;
 		}
@@ -1101,11 +1116,15 @@ abstract class Model {
 		else {
 			$id = $interfacedId;
 			$model = $this;
+			
+			if ($model->hasUniqueIdProperty()) {
+				$id = $model->getUniqueIdProperty()->getModel()->importSimple($id, $interfacer, $isFirstLevel);
+			}
 		}
 		if ($interfacer instanceof NoScalarTypedInterfacer) {
 			/** @var SimpleModel $model */
 			if ($model->hasUniqueIdProperty()) {
-				$id = $model->getUniqueIdProperty()->getModel()->importSimple($id, $interfacer);
+				$id = $model->getUniqueIdProperty()->getModel()->importSimple($id, $interfacer, $isFirstLevel);
 			} else if (!is_string($id)) {
 				$id = $interfacer->castValueToString($id);
 			}

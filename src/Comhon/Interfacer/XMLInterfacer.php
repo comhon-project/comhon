@@ -16,7 +16,7 @@ use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\CastStringException;
 
-class XMLInterfacer extends Interfacer implements NoScalarTypedInterfacer {
+class XMLInterfacer extends NoScalarTypedInterfacer {
 	
 	/** @var string */
 	const NS_NULL_VALUE = 'xsi:nil';

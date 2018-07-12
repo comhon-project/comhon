@@ -310,6 +310,7 @@ class SqlTable extends SerializationUnit {
 			self::$interfacer->setDateTimeFormat('Y-m-d H:i:s');
 			self::$interfacer->setDateTimeZone(Config::getInstance()->getDataBaseTimezone());
 			self::$interfacer->setFlattenValues(true);
+			self::$interfacer->setStringifiedValues(true);
 		}
 		self::$interfacer->setFlagObjectAsLoaded($flagObjectAsLoaded);
 		return self::$interfacer;
@@ -719,7 +720,7 @@ class SqlTable extends SerializationUnit {
 	 * @param \Comhon\Model\Model $model
 	 */
 	public static function castStringifiedColumns(&$rows, Model $model) {
-		if (empty($rows)) {
+		/*if (empty($rows)) {
 			return;
 		}
 		$columnsToCast = self::_initColumnsToCast($model);
@@ -786,7 +787,7 @@ class SqlTable extends SerializationUnit {
 					}
 				}
 			}
-		}
+		}*/
 	}
 	
 }

@@ -167,7 +167,7 @@ class MainModel extends Model {
 				$this->_fillObject($object, $interfacedObject, $interfacer, new ObjectCollection(), $this, true);
 				break;
 			case Interfacer::NO_MERGE:
-				$existingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($interfacedObject, $interfacer), $this->modelName);
+				$existingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $this->modelName);
 				if (!is_null($existingObject)) {
 					MainObjectCollection::getInstance()->removeObject($existingObject);
 				}
@@ -206,7 +206,7 @@ class MainModel extends Model {
 		}
 			
 		try {
-			$this->_verifIdBeforeFillObject($object, $this->getIdFromInterfacedObject($interfacedObject, $interfacer), $interfacer->hasToFlagValuesAsUpdated());
+			$this->_verifIdBeforeFillObject($object, $this->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $interfacer->hasToFlagValuesAsUpdated());
 			
 			MainObjectCollection::getInstance()->addObject($object, false);
 			$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), $this, true);

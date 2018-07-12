@@ -16,7 +16,7 @@ use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Exception\UnexpectedValueTypeException;
 
-class ModelBoolean extends SimpleModel {
+class ModelBoolean extends SimpleModel implements StringCastableModelInterface {
 	
 	/** @var string */
 	const ID = 'boolean';
@@ -41,8 +41,8 @@ class ModelBoolean extends SimpleModel {
 		if (is_null($value)) {
 			return $value;
 		}
-		if ($interfacer instanceof XMLInterfacer) {
-			return $value ? 1 : 0;
+		if ($interfacer instanceof NoScalarTypedInterfacer) {
+			return $value ? '1' : '0';
 		}
 		return $value;
 	}
@@ -54,12 +54,14 @@ class ModelBoolean extends SimpleModel {
 	 * 
 	 * @return boolean|null
 	 */
-	public function importSimple($value, Interfacer $interfacer) {
+	public function importSimple($value, Interfacer $interfacer, $applyCast = true) {
 		if (is_null($value)) {
 			return $value;
 		}
 		if ($interfacer instanceof NoScalarTypedInterfacer) {
 			$value = $interfacer->castValueToBoolean($value);
+		} elseif ($applyCast && $interfacer->isStringifiedValues()) {
+			$value = $this->castValue($value);
 		}
 		return $value;
 	}
@@ -67,7 +69,7 @@ class ModelBoolean extends SimpleModel {
 	/**
 	 * cast value to boolean
 	 * 
-	 * @param mixed $value
+	 * @param string $value
 	 * @return boolean
 	 */
 	public function castValue($value) {

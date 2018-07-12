@@ -11,34 +11,52 @@
 
 namespace Comhon\Interfacer;
 
-interface NoScalarTypedInterfacer{
+abstract class NoScalarTypedInterfacer extends Interfacer {
+	
+	/**
+	 * verify if interfaced simple values are stringified and must be casted during import
+	 *
+	 * @param boolean $boolean
+	 */
+	public function isStringifiedValues() {
+		return false;
+	}
+	
+	/**
+	 * verify if interfaced object has typed scalar values (int, float, string...).
+	 *
+	 * @return boolean
+	 */
+	public function hasScalarTypedValues() {
+		return false;
+	}
 	
 	/**
 	 * cast value to string
 	 * 
 	 * @param mixed $value
 	 */
-	public function castValueToString($value);
+	abstract public function castValueToString($value);
 	
 	/**
 	 * cast value to integer
 	 *
 	 * @param mixed $value
 	 */
-	public function castValueToInteger($value);
+	abstract public function castValueToInteger($value);
 	
 	/**
 	 * cast value to float
 	 *
 	 * @param mixed $value
 	 */
-	public function castValueToFloat($value);
+	abstract public function castValueToFloat($value);
 	
 	/**
 	 * cast value to boolean
 	 *
 	 * @param mixed $value
 	 */
-	public function castValueToBoolean($value);
+	abstract public function castValueToBoolean($value);
 	
 }

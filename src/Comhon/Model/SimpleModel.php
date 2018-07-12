@@ -45,6 +45,15 @@ abstract class SimpleModel extends Model {
 	/**
 	 * 
 	 * {@inheritDoc}
+	 * @see \Comhon\Model\Model::isNextLevelFirstLevel()
+	 */
+	protected function isNextLevelFirstLevel($isCurrentLevelFirstLevel) {
+		return $isCurrentLevelFirstLevel;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \Comhon\Model\Model::getObjectClass()
 	 */
 	public function getObjectClass() {
@@ -87,8 +96,8 @@ abstract class SimpleModel extends Model {
 	 * 
 	 * @return mixed
 	 */
-	final protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
-		return $this->importSimple($value, $interfacer);
+	final protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
+		return $this->importSimple($value, $interfacer, $isFirstLevel);
 	}
 	
 	/**
@@ -96,9 +105,10 @@ abstract class SimpleModel extends Model {
 	 *
 	 * @param mixed $value
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @param boolean $applyCast if true and if interfacer setting Interfacer::STRINGIFIED_VALUES is set to true, value will be casted during import
 	 * @return string|null
 	 */
-	public function importSimple($value, Interfacer $interfacer) {
+	public function importSimple($value, Interfacer $interfacer, $applyCast = true) {
 		if (is_null($value)) {
 			return $value;
 		}
@@ -116,14 +126,5 @@ abstract class SimpleModel extends Model {
 	public function verifValue($value) {
 		throw new ComhonException('must be overrided');
 	}
-	
-
-	/**
-	 * cast value in type associeted to current simple model
-	 * 
-	 * @param mixed $value
-	 * @return mixed
-	 */
-	abstract public function castValue($value);
 	
 }
