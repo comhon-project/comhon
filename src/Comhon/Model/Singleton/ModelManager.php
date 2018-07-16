@@ -30,6 +30,7 @@ use Comhon\Object\ObjectUnique;
 use Comhon\Exception\NotDefinedModelException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\AlreadyUsedModelNameException;
+use Comhon\Exception\ConfigFileNotFoundException;
 
 class ModelManager {
 
@@ -107,14 +108,18 @@ class ModelManager {
 		);
 		
 		if (Config::getInstance()->hasValue('sqlTable')) {
-			$this->getInstanceModel('sqlTable')
-				->getSerializationSettings()
-				->setValue('saticPath', Config::getInstance()->getSerializationSqlTablePath());
+			$path = Config::getInstance()->getSerializationSqlTablePath();
+			if (!is_dir($path)) {
+				throw new ConfigFileNotFoundException('sqlTable', 'directory', Config::getInstance()->getSerializationSqlTablePath(false));
+			}
+			$this->getInstanceModel('sqlTable')->getSerializationSettings()->setValue('saticPath', $path);
 		}
 		if (Config::getInstance()->hasValue('sqlDatabase')) {
-			$this->getInstanceModel('sqlDatabase')
-				->getSerializationSettings()
-				->setValue('saticPath', Config::getInstance()->getSerializationSqlDatabasePath());
+			$path = Config::getInstance()->getSerializationSqlDatabasePath();
+			if (!is_dir($path)) {
+				throw new ConfigFileNotFoundException('sqlDatabase', 'directory', Config::getInstance()->getSerializationSqlDatabasePath(false));
+			}
+			$this->getInstanceModel('sqlDatabase')->getSerializationSettings()->setValue('saticPath', $path);
 		}
 	}	
 	
@@ -300,12 +305,16 @@ class ModelManager {
 	 * add loaded instance model
 	 * 
 	 * @param \Comhon\Model\Model $model
+	 * @return array
 	 */
 	private function _addInstanceModel(Model $model) {
 		if (is_object($this->instanceModels[$model->getName()])) {
 			throw new ComhonException('model already added');
 		}
+		$restore = $this->instanceModels[$model->getName()];
 		$this->instanceModels[$model->getName()] = $model;
+		
+		return $restore;
 	}
 	
 	/**
@@ -322,41 +331,47 @@ class ModelManager {
 	public function getProperties(Model $model) {
 		$return = null;
 		
-		if (is_null($this->manifestParser) && is_object($this->instanceModels[$model->getName()]) && $this->instanceModels[$model->getName()]->isLoaded()) {
-			$return = [
-				self::PROPERTIES     => $model->getProperties(), 
-				self::PARENT_MODEL   => $model->getParent(),
-				self::OBJECT_CLASS   => $model->getObjectClass()
-			];
-			if ($model instanceof MainModel) {
-				$return[self::SERIALIZATION] = $model->getSerialization();
-			}
-		}else {
-			$unsetManifestParser = false;
-			if (is_null($this->manifestParser)) {
-				$unsetManifestParser    = true;
-				$manifestPath_afe       = $this->instanceModels[$model->getName()][0];
-				$manifestPath_ad        = dirname($manifestPath_afe);
-				$serializationPath_afe  = !is_null($this->instanceModels[$model->getName()][1]) ? $this->instanceModels[$model->getName()][1] : null;
-				$this->manifestParser   = ManifestParser::getInstance($model, $manifestPath_afe, $serializationPath_afe);
-				$this->currentNamespace = $model->getName();
+		try {
+			if (is_null($this->manifestParser) && is_object($this->instanceModels[$model->getName()]) && $this->instanceModels[$model->getName()]->isLoaded()) {
+				$return = [
+					self::PROPERTIES     => $model->getProperties(), 
+					self::PARENT_MODEL   => $model->getParent(),
+					self::OBJECT_CLASS   => $model->getObjectClass()
+				];
+				if ($model instanceof MainModel) {
+					$return[self::SERIALIZATION] = $model->getSerialization();
+				}
+			}else {
+				$unsetManifestParser = false;
+				if (is_null($this->manifestParser)) {
+					$unsetManifestParser    = true;
+					$manifestPath_afe       = $this->instanceModels[$model->getName()][0];
+					$manifestPath_ad        = dirname($manifestPath_afe);
+					$serializationPath_afe  = !is_null($this->instanceModels[$model->getName()][1]) ? $this->instanceModels[$model->getName()][1] : null;
+					$this->manifestParser   = ManifestParser::getInstance($model, $manifestPath_afe, $serializationPath_afe);
+					$this->currentNamespace = $model->getName();
+					
+					$restore = $this->_addInstanceModel($model);
+					$this->_buildLocalModels($model, $manifestPath_ad);
+				}
+				$parentModel = $this->_getParentModel($model);
 				
-				$this->_addInstanceModel($model);
-				$this->_buildLocalModels($model, $manifestPath_ad);
+				$return = [
+					self::PARENT_MODEL  => $parentModel,
+					self::OBJECT_CLASS  => $this->manifestParser->getObjectClass(),
+					self::PROPERTIES    => $this->_buildProperties($parentModel)
+				];
+				
+				if ($unsetManifestParser) {
+					$this->serializationManifestParser = $this->manifestParser->getSerializationManifestParser();
+					unset($this->manifestParser);
+					$this->manifestParser = null;
+				}
 			}
-			$parentModel = $this->_getParentModel($model);
-			
-			$return = [
-				self::PARENT_MODEL  => $parentModel,
-				self::OBJECT_CLASS  => $this->manifestParser->getObjectClass(),
-				self::PROPERTIES    => $this->_buildProperties($parentModel)
-			];
-			
-			if ($unsetManifestParser) {
-				$this->serializationManifestParser = $this->manifestParser->getSerializationManifestParser();
-				unset($this->manifestParser);
-				$this->manifestParser = null;
-			}
+		} catch (\Exception $e) {
+			$this->manifestParser = null;
+			$this->instanceModels[$model->getName()] = $restore;
+			throw $e;
 		}
 		return $return;
 	}

@@ -14,7 +14,8 @@ namespace Comhon\Object\Config;
 use Comhon\Object\ExtendableObject;
 use Comhon\Object\ComhonObject;
 use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Exception\ComhonException;
+use Comhon\Exception\ConfigMalformedException;
+use Comhon\Exception\ConfigFileNotFoundException;
 
 class Config extends ExtendableObject {
 	
@@ -42,7 +43,7 @@ class Config extends ExtendableObject {
 	public static function getInstance() {
 		if (!isset(self::$instance)) {
 			if (!file_exists(self::$loadPath)) {
-				throw new \Exception('config file doesn\'t exist or have wrong permissions : ' . self::$loadPath);
+				throw new ConfigFileNotFoundException('configuration', 'file', self::$loadPath);
 			}
 			if (substr(self::$loadPath, 0, 1) == '.') {
 				self::$loadPath = getcwd() . DIRECTORY_SEPARATOR. self::$loadPath;
@@ -53,7 +54,7 @@ class Config extends ExtendableObject {
 			$stdInterfacer->setPrivateContext(true);
 			$jsonConfig = $stdInterfacer->read($config_af);
 			if (is_null($jsonConfig) || $jsonConfig === false) {
-				throw new ComhonException('failure when try to read comhon config file : ' . self::$loadPath);
+				throw new ConfigMalformedException(self::$loadPath);
 			}
 			self::$instance = new self();
 			self::$instance->fill($jsonConfig, $stdInterfacer);
@@ -61,6 +62,13 @@ class Config extends ExtendableObject {
 		}
 		
 		return self::$instance;
+	}
+	
+	/**
+	 * reset singleton
+	 */
+	public static function resetSingleton() {
+		self::$instance = null;
 	}
 	
 	/**
@@ -73,7 +81,20 @@ class Config extends ExtendableObject {
 	 *        path is considered as relative only if path begin by "."
 	 */
 	public static function setLoadPath($path) {
-		self::$loadPath = $path;
+		$realPath = realpath($path);
+		if ($realPath === false) {
+			throw new ConfigFileNotFoundException('configuration', 'file', $path);
+		}
+		self::$loadPath = $realPath;
+	}
+	
+	/**
+	 * get path to config file
+	 * 
+	 * @return string
+	 */
+	public static function getLoadPath() {
+		return self::$loadPath;
 	}
 
 	

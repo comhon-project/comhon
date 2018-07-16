@@ -1,5 +1,5 @@
 <?php
-namespace Object;
+namespace Test\Comhon\Object;
 
 class Woman extends Person {
 	

@@ -80,11 +80,11 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelContainer::_import()
 	 */
-	protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
+	protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		if (!$this->getUniqueModel()->hasIdProperties()) {
 			throw new ComhonException("foreign property must have model with id, actual model '{$this->getUniqueModel()->getName()}' doesn't");
 		}
-		return $this->getModel()->_importId($value, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel);
+		return $this->getModel()->_importId($value, $interfacer, $localObjectCollection, $isFirstLevel);
 	}
 	
 	/**

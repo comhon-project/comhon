@@ -28,5 +28,7 @@
 		<locatedHouse>locatedHouse/manifest.xml</locatedHouse>
 		<testNoSerialization>testNoSerialization/manifest.xml</testNoSerialization>
 		<testNoId>testNoId/manifest.xml</testNoId>
+		<fatherMalformed>fatherMalformed/manifest.xml</fatherMalformed>
+		<childMalformed>childMalformed/manifest.xml</childMalformed>
 	</list>
 </manifests>

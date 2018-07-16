@@ -1,5 +1,5 @@
 <?php
-namespace Object;
+namespace Test\Comhon\Object;
 
 use Comhon\Object\ExtendableObject;
 use Comhon\Object\ComhonDateTime;

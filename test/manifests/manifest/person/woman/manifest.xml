@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest extends="\person" version="2.0" object="Object\Woman">
+<manifest extends="\person" version="2.0" object="Test\Comhon\Object\Woman">
 	<properties>
 		<property is_foreign="1" type="array" name="bodies">
 			<values type="\womanBody" name="body"/>

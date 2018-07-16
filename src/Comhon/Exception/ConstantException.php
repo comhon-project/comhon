@@ -58,4 +58,8 @@ abstract class ConstantException {
 	const NOT_ALLOWED_REQUEST_EXCEPTION                = 707;
 	const MULTIPLE_PROPERTY_LITERAL_EXCEPTION          = 708;
 	
+	// config
+	const CONFIG_NOT_FOUND_EXCEPTION = 900;
+	const CONFIG_MALFORMED_EXCEPTION = 901;
+	
 }

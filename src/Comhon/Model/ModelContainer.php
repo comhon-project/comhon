@@ -240,7 +240,7 @@ abstract class ModelContainer extends Model {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Model::_import()
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		throw new ComhonException('must be overrided');
 	}
 	

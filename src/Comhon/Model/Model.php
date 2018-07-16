@@ -907,13 +907,12 @@ abstract class Model {
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
-	 * @param MainModel $mainModelContainer
 	 * @param boolean $isFirstLevel
 	 * @return \Comhon\Object\ObjectUnique
 	 */
-	protected function _getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel = false) {
+	protected function _getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel = false) {
 		$inheritance = $interfacer->getValue($interfacedObject, Interfacer::INHERITANCE_KEY);
-		$model = is_null($inheritance) ? $this : $this->_getIneritedModel($inheritance, $mainModelContainer);
+		$model = is_null($inheritance) ? $this : $this->_getIneritedModel($inheritance);
 		$id = $model->getIdFromInterfacedObject($interfacedObject, $interfacer, $isFirstLevel);
 		
 		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, $isFirstLevel);
@@ -923,7 +922,6 @@ abstract class Model {
 	 * get inherited model
 	 *
 	 * @param string $inheritanceModelName
-	 * @param MainModel $mainModelContainer
 	 * @return Model;
 	 */
 	protected function _getIneritedModel($inheritanceModelName) {
@@ -972,11 +970,10 @@ abstract class Model {
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
-	 * @param MainModel $mainModelContainer
 	 * @param boolean $isFirstLevel
 	 * @return \Comhon\Object\ObjectUnique|null
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
+	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
@@ -987,8 +984,8 @@ abstract class Model {
 				throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getNodeClasses()));
 			}
 		}
-		$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel);
-		$this->_fillObject($object, $interfacedObject, $interfacer, $localObjectCollection, $mainModelContainer, $isFirstLevel);
+		$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, $isFirstLevel);
+		$this->_fillObject($object, $interfacedObject, $interfacer, $localObjectCollection, $isFirstLevel);
 		return $object;
 	}
 	
@@ -999,20 +996,16 @@ abstract class Model {
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
-	 * @param MainModel $mainModelContainer
 	 * @param boolean $isFirstLevel
 	 * @throws \Exception
 	 */
-	protected function _fillObject(ObjectUnique $object, $interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
+	protected function _fillObject(ObjectUnique $object, $interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		$model = $object->getModel();
 		if ($model !== $this && !$model->isInheritedFrom($this)) {
 			throw new UnexpectedModelException($this, $model);
 		}
 		if ($isFirstLevel && $interfacer->hasToFlattenValues()) {
 			$this->_unFlattenValues($interfacedObject, $object, $interfacer);
-		}
-		if ($this instanceof MainModel) {
-			$mainModelContainer = $this;
 		}
 		
 		$private           = $interfacer->isPrivateContext();
@@ -1027,7 +1020,7 @@ abstract class Model {
 					if ($interfacer->hasValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml())) {
 						$value = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
 						$value = $interfacer->isNullValue($value) ? null
-							: $property->getModel()->_import($value, $interfacer, $localObjectCollection, $mainModelContainer, $property->getModel()->isNextLevelFirstLevel($isFirstLevel));
+							: $property->getModel()->_import($value, $interfacer, $localObjectCollection, $property->getModel()->isNextLevelFirstLevel($isFirstLevel));
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 					}
 				}
@@ -1057,7 +1050,7 @@ abstract class Model {
 						throw new ComhonException('not complete multiple id foreign value');
 					}
 					if (!$allNull) {
-						$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, $localObjectCollection, $mainModelContainer, false);
+						$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, $localObjectCollection, false);
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 					}
 				}
@@ -1094,11 +1087,10 @@ abstract class Model {
 	 * @param mixed $interfacedId
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
-	 * @param MainModel $mainModelContainer
 	 * @param boolean $isFirstLevel
 	 * @return \Comhon\Object\ObjectUnique
 	 */
-	protected function _importId($interfacedId, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
+	protected function _importId($interfacedId, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		if ($interfacer->isNullValue($interfacedId)) {
 			return null;
 		}
@@ -1108,7 +1100,7 @@ abstract class Model {
 			}
 			$id = $interfacer->getValue($interfacedId, Interfacer::COMPLEX_ID_KEY);
 			$inheritance = $interfacer->getValue($interfacedId, Interfacer::INHERITANCE_KEY);
-			$model = $this->_getIneritedModel($inheritance, $mainModelContainer);
+			$model = $this->_getIneritedModel($inheritance);
 		}
 		else {
 			$id = $interfacedId;

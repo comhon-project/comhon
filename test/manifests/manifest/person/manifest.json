@@ -1,6 +1,6 @@
 {
     "version": "2.0",
-    "object": "Object\\Person",
+    "object": "Test\\Comhon\\Object\\Person",
     "properties": [
         {
             "name": "id",

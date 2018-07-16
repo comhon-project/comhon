@@ -27,6 +27,8 @@
 		"notLinkableTestDb" : "notLinkableTestDb/manifest.json",
 		"locatedHouse"   : "locatedHouse/manifest.json",
 		"testNoSerialization" : "testNoSerialization/manifest.json",
-		"testNoId" : "testNoId/manifest.json"
+		"testNoId" : "testNoId/manifest.json",
+		"fatherMalformed" : "fatherMalformed/manifest.json",
+		"childMalformed" : "childMalformed/manifest.json"
 	}
 }

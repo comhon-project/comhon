@@ -3,17 +3,11 @@
 use Comhon\Exception\CastComhonObjectException;
 use Comhon\Object\Config\Config;
 
-set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/comhon/src/');
-set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/ObjectManagerLib/src/');
-
-require_once 'Comhon.php';
+$loader = require_once __DIR__ . '/../vendor/autoload.php';
+$loader->addPsr4('Test\\Comhon\\', __DIR__);
 
 // by change this setting we load some model and but some test expect them to be unload 
 // Config::setLoadPath(__DIR__.'/config/config.json');
-
-spl_autoload_register(function ($class) {
-	include_once __DIR__ . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $class) . '.php';
-});
 
 /**
  * 
@@ -335,15 +329,10 @@ try {
 }
 
 // TODO for version > 2.0
-// _fillObject in "is_serial" block verify if all multiples ids are not null in sqltable context (do not create object in this condition)
-// remove parameter mainmodelcontainer from_getOrCreateObjectInstanceFromInterfacedObject
-// test regex on null value failed but should not
-// test cumstom path config itslef, sqlTable and sqlDatabase configs path
-// test successive fails on same model by catching exceptions
-// abstract model (instanciable and requestable but not serializable)
 // replace self tests by phpunit tests
 // extends xml, json manifest from file
 // autoloading manifest
+// setvalue strict mandatory
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)
 // transaction serialization
 // allow to active only one value among several values (a or b might be set but not a and b)

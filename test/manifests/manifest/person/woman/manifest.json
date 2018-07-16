@@ -1,6 +1,6 @@
 {
     "version": "2.0",
-    "object": "Object\\Woman",
+    "object": "Test\\Comhon\\Object\\Woman",
     "extends": "\\person",
     "properties": [
         {

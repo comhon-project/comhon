@@ -81,13 +81,11 @@ function testUnshiftBadValue(Object $object, $value) {
 
 testSetBadValue($testRestricted, 'enumValue', 'a_string');
 testSetBadValue($testRestricted, 'enumValue', true);
-testSetBadValue($testRestricted, 'enumValue', null);
 
 $objectArray = $testRestricted->initValue('enumIntArray');
 testPushBadValue($objectArray, 10);
 testUnshiftBadValue($objectArray, 12);
 testSetBadValue($objectArray, 0, 8);
-testSetBadValue($objectArray, 0, null);
 
 $objectArray = $testRestricted->initValue('enumFloatArray');
 testSetBadValue($objectArray, 0, 1.6);
@@ -96,19 +94,15 @@ testPushBadValue($objectArray, 3.55);
 testPushBadValue($objectArray, null);
 
 testSetBadValue($testRestricted, 'color', 'rgb(aze,)');
-testSetBadValue($testRestricted, 'color', null);
 
 $objectArray = $testRestricted->initValue('emails');
 testPushBadValue($objectArray, 'azeaze1');
 testUnshiftBadValue($objectArray, 'azeaze2');
 testSetBadValue($objectArray, 0, 'azeaze3');
-testSetBadValue($objectArray, 0, null);
 
 testSetBadValue($testRestricted, 'naturalNumber', -4);
-testSetBadValue($testRestricted, 'naturalNumber', null);
 
 testSetBadValue($testRestricted, 'birthDate', new ComhonDateTime('now'));
-testSetBadValue($testRestricted, 'birthDate', null);
 
 $objectArray = $testRestricted->initValue('intervalInArray');
 testSetBadValue($objectArray, 0, 11.6);
@@ -118,6 +112,7 @@ testPushBadValue($objectArray, null);
 
 /** ********************** test set success *********************** **/
 
+$testRestricted->setValue('color', null);
 $testRestricted->setValue('color', '#12abA8');
 
 $regexInArray = $testRestricted->getProperty('emails')->getModel()->getObjectInstance();

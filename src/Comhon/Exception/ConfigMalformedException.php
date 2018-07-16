@@ -11,14 +11,14 @@
 
 namespace Comhon\Exception;
 
-class ManifestException extends ComhonException {
+class ConfigMalformedException extends ComhonException {
 	
 	/**
 	 * 
-	 * @param string $value
+	 * @param string $path
 	 */
-	public function __construct($message) {
-		parent::__construct("manifest malformed :\n" . $message, ConstantException::MANIFEST_EXCEPTION);
+	public function __construct($path) {
+		parent::__construct("config file '$path' is malformed", ConstantException::CONFIG_MALFORMED_EXCEPTION);
 	}
 	
 }

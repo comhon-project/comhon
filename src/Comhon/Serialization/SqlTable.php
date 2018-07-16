@@ -43,21 +43,6 @@ class SqlTable extends SerializationUnit {
 	const AUTO_INCR_PROPERTIES_INDEX = 1;
 	
 	/**
-	 * @var integer index that store columns that have to be casted in integer
-	 */
-	const INTEGER_INDEX = 0;
-	
-	/**
-	 * @var integer index that store columns that have to be casted in float
-	 */
-	const FLOAT_INDEX   = 1;
-	
-	/**
-	 * @var integer index that store columns that have to be casted in boolean
-	 */
-	const BOOLEAN_INDEX = 2;
-	
-	/**
 	 * @var DatabaseController
 	 */
 	private $dbController;

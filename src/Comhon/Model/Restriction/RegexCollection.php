@@ -14,6 +14,7 @@ namespace Comhon\Model\Restriction;
 use Comhon\Object\Config\Config;
 use Comhon\Exception\NotExistingRegexException;
 use Comhon\Exception\ComhonException;
+use Comhon\Exception\ConfigFileNotFoundException;
 
 class RegexCollection {
 	
@@ -29,10 +30,14 @@ class RegexCollection {
 	 */
 	public static function getInstance() {
 		if (!isset(self::$_instance)) {
+			$path = Config::getInstance()->getRegexListPath();
+			if (!file_exists($path)) {
+				throw new ConfigFileNotFoundException('regex', 'file', Config::getInstance()->getRegexListPath(false));
+			}
 			self::$_instance = new self();
-			self::$_instance->regexs = json_decode(file_get_contents(Config::getInstance()->getRegexListPath()), true);
+			self::$_instance->regexs = json_decode(file_get_contents($path), true);
 			if (!is_array(self::$_instance->regexs)) {
-				throw new ComhonException("failure when trying to load regex list '".Config::getInstance()->getRegexListPath()."'");
+				throw new ComhonException("failure when trying to load regex list '".Config::getInstance()->getRegexListPath(false)."'");
 			}
 		}
 		return self::$_instance;

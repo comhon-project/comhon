@@ -16,5 +16,8 @@
 		"psr-4" : {
 			"Comhon\\" : "src/Comhon"
 		}
+	},
+	"require-dev" : {
+		"phpunit/phpunit" : "^6"
 	}
 }

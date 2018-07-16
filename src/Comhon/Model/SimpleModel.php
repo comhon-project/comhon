@@ -96,7 +96,7 @@ abstract class SimpleModel extends Model {
 	 * 
 	 * @return mixed
 	 */
-	final protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, MainModel $mainModelContainer, $isFirstLevel) {
+	final protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		return $this->importSimple($value, $interfacer, $isFirstLevel);
 	}
 	

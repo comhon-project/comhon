@@ -158,20 +158,20 @@ class MainModel extends Model {
 		
 		switch ($interfacer->getMergeType()) {
 			case Interfacer::MERGE:
-				$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, $this, true);
-				$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), $this, true);
+				$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, true);
+				$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), true);
 				break;
 			case Interfacer::OVERWRITE:
-				$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, $this, true);
+				$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, true);
 				$object->reset();
-				$this->_fillObject($object, $interfacedObject, $interfacer, new ObjectCollection(), $this, true);
+				$this->_fillObject($object, $interfacedObject, $interfacer, new ObjectCollection(), true);
 				break;
 			case Interfacer::NO_MERGE:
 				$existingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $this->modelName);
 				if (!is_null($existingObject)) {
 					MainObjectCollection::getInstance()->removeObject($existingObject);
 				}
-				$object = $this->_import($interfacedObject, $interfacer, new ObjectCollection(), $this, true);
+				$object = $this->_import($interfacedObject, $interfacer, new ObjectCollection(), true);
 				
 				if (!is_null($existingObject)) {
 					MainObjectCollection::getInstance()->removeObject($object);
@@ -209,7 +209,7 @@ class MainModel extends Model {
 			$this->_verifIdBeforeFillObject($object, $this->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $interfacer->hasToFlagValuesAsUpdated());
 			
 			MainObjectCollection::getInstance()->addObject($object, false);
-			$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), $this, true);
+			$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), true);
 			
 			if ($interfacer->hasToFlagObjectAsLoaded()) {
 				$object->setIsLoaded(true);

@@ -89,8 +89,8 @@ abstract class ComhonObject {
 					$this->model->verifElementValue($value);
 				} else {
 					$property = $this->model->getProperty($name, true);
-					$property->isSatisfiable($value, true);
 					if (!is_null($value)) {
+						$property->isSatisfiable($value, true);
 						$property->getModel()->verifValue($value);
 					}
 					if ($property->isAggregation()) {
