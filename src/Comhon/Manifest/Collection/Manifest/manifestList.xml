@@ -4,6 +4,7 @@
 		<config>Config/manifest.xml</config>
 		<sqlDatabase>SqlDatabase/manifest.xml</sqlDatabase>
 		<sqlTable>SqlTable/manifest.xml</sqlTable>
+		<file>File/manifest.xml</file>
 		<jsonFile>JsonFile/manifest.xml</jsonFile>
 		<xmlFile>XmlFile/manifest.xml</xmlFile>
 	</list>

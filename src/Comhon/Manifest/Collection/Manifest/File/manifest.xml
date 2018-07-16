@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0">
+	<properties>
+		<property type="string" name="saticPath"/>
+		<property type="string" name="staticName"/>
+	</properties>
+</manifest>

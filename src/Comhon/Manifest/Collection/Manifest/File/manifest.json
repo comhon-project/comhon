@@ -1,0 +1,13 @@
+{
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "saticPath",
+            "type": "string"
+        },
+        {
+            "name": "staticName",
+            "type": "string"
+        }
+    ]
+}

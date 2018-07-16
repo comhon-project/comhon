@@ -4,6 +4,7 @@
 		"config"     :"Config/manifest.json",
 		"sqlDatabase":"SqlDatabase/manifest.json",
 		"sqlTable"   :"SqlTable/manifest.json",
+		"file"       :"File/manifest.json",
 		"jsonFile"   :"JsonFile/manifest.json",
 		"xmlFile"    :"XmlFile/manifest.json"
 	}

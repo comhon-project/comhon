@@ -28,6 +28,7 @@ use Comhon\Exception\NotSatisfiedRestrictionException;
 use Comhon\Exception\ReservedWordException;
 use Comhon\Exception\ManifestException;
 use Comhon\Exception\UniqueModelNameException;
+use Comhon\Exception\ComhonException;
 
 abstract class ManifestParser {
 
@@ -74,7 +75,7 @@ abstract class ManifestParser {
 	protected $localTypes;
 	
 	/** @var array */
-	protected $currentProperties;
+	private $currentProperties;
 
 	/**
 	 * get extends model name
@@ -173,9 +174,6 @@ abstract class ManifestParser {
 		$this->localTypes        = $this->_getLocalTypes();
 		$this->castValues        = ($this->interfacer instanceof NoScalarTypedInterfacer);
 		
-		if (empty($this->currentProperties)) {
-			throw new ManifestException('manifest must have at least one property');
-		}
 		if (($model instanceof MainModel) && !is_null($serializationManifestPath_afe)) {
 			$this->serializationManifestParser = SerializationManifestParser::getInstance($model, $serializationManifestPath_afe);
 		}
@@ -217,10 +215,6 @@ abstract class ManifestParser {
 		reset($this->localTypes);
 		$this->focusLocalTypes   = true;
 		$this->currentProperties = $this->_getCurrentProperties();
-		
-		if (empty($this->currentProperties)) {
-			throw new ManifestException('manifest must have at least one property');
-		}
 	}
 	
 	/**
@@ -232,10 +226,6 @@ abstract class ManifestParser {
 		reset($this->localTypes);
 		$this->focusLocalTypes   = false;
 		$this->currentProperties = $this->_getCurrentProperties();
-		
-		if (empty($this->currentProperties)) {
-			throw new ManifestException('manifest must have at least one property');
-		}
 	}
 	
 	/**
@@ -248,9 +238,6 @@ abstract class ManifestParser {
 		if ($this->focusLocalTypes && (next($this->localTypes) !== false)) {
 			$this->currentProperties = $this->_getCurrentProperties();
 			
-			if (empty($this->currentProperties)) {
-				throw new ManifestException('local type must have at least one property');
-			}
 			return true;
 		}
 		return false;
@@ -263,6 +250,27 @@ abstract class ManifestParser {
 	 */
 	public function nextProperty() {
 		return next($this->currentProperties) !== false;
+	}
+	
+	/**
+	 * get manifest current property node
+	 *
+	 * @return mixed
+	 */
+	protected function _getCurrentPropertyNode() {
+		if (!current($this->currentProperties)) {
+			throw new ComhonException('current property is out of range');
+		}
+		return current($this->currentProperties);
+	}
+	
+	/**
+	 * get manifest current properties count
+	 *
+	 * @return integer
+	 */
+	public function getCurrentPropertiesCount() {
+		return count($this->currentProperties);
 	}
 	
 	/**
@@ -305,7 +313,7 @@ abstract class ManifestParser {
 				throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
 			}
 			$default = $this->_getDefaultValue($model);
-			$restriction = $this->_getRestriction(current($this->currentProperties), $model);
+			$restriction = $this->_getRestriction($this->_getCurrentPropertyNode(), $model);
 			
 			if (!empty($serializationNames)) {
 				throw new ManifestException('several serialization names only allowed for foreign properties');

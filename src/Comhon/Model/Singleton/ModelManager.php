@@ -444,19 +444,21 @@ class ModelManager {
 	 */
 	private function _buildProperties(Model $parentModel = null) {
 		$properties = is_null($parentModel) ? [] : $parentModel->getProperties();
-		do {
-			$modelName = $this->manifestParser->getCurrentPropertyModelName();
-			if (!array_key_exists($modelName, $this->instanceSimpleModels)) {
-				$modelName = ($modelName[0] != '\\') 
-					? $this->currentNamespace. '\\' . $modelName 
-					: substr($modelName, 1) ;
-			}
-			
-			$propertyModel = $this->_getInstanceModel($modelName, false);
-			$property      = $this->manifestParser->getCurrentProperty($propertyModel);
-			
-			$properties[$property->getName()] = $property;
-		} while ($this->manifestParser->nextProperty());
+		if ($this->manifestParser->getCurrentPropertiesCount() > 0) {
+			do {
+				$modelName = $this->manifestParser->getCurrentPropertyModelName();
+				if (!array_key_exists($modelName, $this->instanceSimpleModels)) {
+					$modelName = ($modelName[0] != '\\') 
+						? $this->currentNamespace. '\\' . $modelName 
+						: substr($modelName, 1) ;
+				}
+				
+				$propertyModel = $this->_getInstanceModel($modelName, false);
+				$property      = $this->manifestParser->getCurrentProperty($propertyModel);
+				
+				$properties[$property->getName()] = $property;
+			} while ($this->manifestParser->nextProperty());
+		}
 	
 		return $properties;
 	}

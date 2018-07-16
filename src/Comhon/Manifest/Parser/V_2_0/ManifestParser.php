@@ -94,7 +94,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::getCurrentPropertyModelName()
 	 */
 	public function getCurrentPropertyModelName() {
-		return $this->_getPropertyModelName(current($this->currentProperties));
+		return $this->_getPropertyModelName($this->_getCurrentPropertyNode());
 	}
 	
 	/**
@@ -116,7 +116,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_isCurrentPropertyForeign()
 	 */
 	protected function _isCurrentPropertyForeign() {
-		$currentProperty = current($this->currentProperties);
+		$currentProperty = $this->_getCurrentPropertyNode();
 		
 		return $this->interfacer->hasValue($currentProperty, self::IS_FOREIGN)
 			? (
@@ -133,7 +133,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_getBaseInfosProperty()
 	 */
 	protected function _getBaseInfosProperty(Model $propertyModel) {
-		$currentProperty = current($this->currentProperties);
+		$currentProperty = $this->_getCurrentPropertyNode();
 	
 		$isId = $this->interfacer->hasValue($currentProperty, self::IS_ID)
 			? (
@@ -218,7 +218,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_getDefaultValue()
 	 */
 	protected function _getDefaultValue(Model $propertyModel) {
-		$currentProperty = current($this->currentProperties);
+		$currentProperty = $this->_getCurrentPropertyNode();
 		
 		if ($this->interfacer->hasValue($currentProperty, 'default')) {
 			$default = $this->interfacer->getValue($currentProperty, 'default');
