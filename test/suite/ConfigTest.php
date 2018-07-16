@@ -4,12 +4,15 @@ use Comhon\Object\Config\Config;
 use Comhon\Exception\ConfigFileNotFoundException;
 use Comhon\Exception\ConfigMalformedException;
 use Comhon\Model\Restriction\RegexCollection;
+use Test\Comhon\Data;
 
 class ConfigTest extends TestCase
 {
 	
 	public function testNotFoundConfig()
 	{
+		global $plop;
+		echo $plop;
 		$this->expectException(ConfigFileNotFoundException::class);
 		Config::setLoadPath('./config/not-existing-config.json');
 	}
@@ -54,9 +57,9 @@ class ConfigTest extends TestCase
 	public function testSuccessConfig()
 	{
 		Config::resetSingleton();
-		Config::setLoadPath('./config/config.json');
+		Config::setLoadPath(Data::$config);
 		$config = Config::getInstance();
-		$this->assertTrue(strpos(Config::getLoadPath(), 'test/config/config.json') !== false);
+		$this->assertTrue(strpos(Config::getLoadPath(), realpath(Data::$config)) !== false);
 		
 		RegexCollection::getInstance();
 	}

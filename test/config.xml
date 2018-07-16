@@ -1,4 +1,4 @@
-<phpunit bootstrap="bootstrap.php">
+<phpunit>
 	<testsuites>
 	  <testsuite name="My Test Suite">
 	    <file>suite/ConfigTest.php</file>

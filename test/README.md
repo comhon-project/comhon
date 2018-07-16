@@ -3,5 +3,8 @@
 ## Command
 to launch phpunit tests go to `test` directory and launch following command
 ```
-phpunit ../vendor/bin/phpunit -c config.xml
+../vendor/bin/phpunit -c config.xml --bootstrap bootstrap-xml-mysql.php
+```
+```
+../vendor/bin/phpunit -c config.xml --bootstrap bootstrap-json-pgsql.php
 ```
