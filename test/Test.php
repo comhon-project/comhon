@@ -330,7 +330,6 @@ try {
 
 // TODO for version > 2.0
 // replace self tests by phpunit tests
-// extends xml, json manifest from file
 // autoloading manifest
 // setvalue strict mandatory
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)

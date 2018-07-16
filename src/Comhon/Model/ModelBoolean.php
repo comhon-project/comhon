@@ -55,8 +55,8 @@ class ModelBoolean extends SimpleModel implements StringCastableModelInterface {
 	 * @return boolean|null
 	 */
 	public function importSimple($value, Interfacer $interfacer, $applyCast = true) {
-		if (is_null($value)) {
-			return $value;
+		if ($interfacer->isNullValue($value)) {
+			return null;
 		}
 		if ($interfacer instanceof NoScalarTypedInterfacer) {
 			$value = $interfacer->castValueToBoolean($value);

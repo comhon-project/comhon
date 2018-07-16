@@ -58,9 +58,11 @@ class ModelRestrictedArray extends ModelArray {
 	 */
 	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		$objectArray = parent::_import($interfacedObject, $interfacer, $localObjectCollection, $isFirstLevel);
-		foreach ($objectArray->getValues() as $value) {
-			if (!$this->restriction->satisfy($value)) {
-				throw new NotSatisfiedRestrictionException($value, $this->restriction);
+		if (!is_null($objectArray)) {
+			foreach ($objectArray->getValues() as $value) {
+				if (!$this->restriction->satisfy($value)) {
+					throw new NotSatisfiedRestrictionException($value, $this->restriction);
+				}
 			}
 		}
 		return $objectArray;

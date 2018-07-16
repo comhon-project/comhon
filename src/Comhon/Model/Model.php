@@ -1019,8 +1019,7 @@ abstract class Model {
 					$interfacedPropertyName = $isSerialContext ? $property->getSerializationName() : $propertyName;
 					if ($interfacer->hasValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml())) {
 						$value = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
-						$value = $interfacer->isNullValue($value) ? null
-							: $property->getModel()->_import($value, $interfacer, $localObjectCollection, $property->getModel()->isNextLevelFirstLevel($isFirstLevel));
+						$value = $property->getModel()->_import($value, $interfacer, $localObjectCollection, $property->getModel()->isNextLevelFirstLevel($isFirstLevel));
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 					}
 				}
@@ -1036,10 +1035,7 @@ abstract class Model {
 					foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
 						if ($interfacer->hasValue($interfacedObject, $serializationName)) {
 							$idPart = $interfacer->getValue($interfacedObject, $serializationName);
-							if ($interfacer instanceof NoScalarTypedInterfacer) {
-								$idPart = $interfacer->isNullValue($value) ? null
-									: $idProperty->getModel()->importSimple($idPart, $interfacer, $isFirstLevel);
-							}
+							$idPart = $idProperty->getModel()->importSimple($idPart, $interfacer, $isFirstLevel);
 							if (!is_null($idPart)) {
 								$allNull = false;
 							}

@@ -3,7 +3,7 @@ use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Exception\NotDefinedModelException;
 
-class MalformedManifestTest extends TestCase
+class LoadingModelTest extends TestCase
 {
 	
 	public function testPropertyWithMalformedModel()

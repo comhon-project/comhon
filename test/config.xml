@@ -1,7 +1,13 @@
 <phpunit bootstrap="bootstrap.php">
 	<testsuites>
 	  <testsuite name="My Test Suite">
-	    <directory suffix="Test.php">suite</directory>
+	    <file>suite/ConfigTest.php</file>
+	  </testsuite>
+	  <testsuite name="My Test Suite 2">
+	    <file>suite/LoadingModelTest.php</file>
+	  </testsuite>
+	  <testsuite name="My Test Suite 3">
+	    <directory>suite</directory>
 	  </testsuite>
 	</testsuites>
 </phpunit>

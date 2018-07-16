@@ -49,8 +49,8 @@ class ModelDateTime extends SimpleModel {
 	 * @see \Comhon\Model\SimpleModel::importSimple()
 	 */
 	public function importSimple($value, Interfacer $interfacer, $applyCast = true) {
-		if (is_null($value)) {
-			return $value;
+		if ($interfacer->isNullValue($value)) {
+			return null;
 		}
 		if ($interfacer instanceof NoScalarTypedInterfacer) {
 			$value = $interfacer->castValueToString($value);
