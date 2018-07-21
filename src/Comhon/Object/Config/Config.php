@@ -42,19 +42,16 @@ class Config extends ExtendableObject {
 	 */
 	public static function getInstance() {
 		if (!isset(self::$instance)) {
-			if (!file_exists(self::$loadPath)) {
+			$config_af = realpath(self::$loadPath);
+			if ($config_af === false) {
 				throw new ConfigFileNotFoundException('configuration', 'file', self::$loadPath);
 			}
-			if (substr(self::$loadPath, 0, 1) == '.') {
-				self::$loadPath = getcwd() . DIRECTORY_SEPARATOR. self::$loadPath;
-			}
-			$config_af = self::$loadPath;
 			$stdInterfacer = new StdObjectInterfacer();
 			$stdInterfacer->setSerialContext(true);
 			$stdInterfacer->setPrivateContext(true);
 			$jsonConfig = $stdInterfacer->read($config_af);
 			if (is_null($jsonConfig) || $jsonConfig === false) {
-				throw new ConfigMalformedException(self::$loadPath);
+				throw new ConfigMalformedException($config_af);
 			}
 			self::$instance = new self();
 			self::$instance->fill($jsonConfig, $stdInterfacer);
@@ -78,14 +75,12 @@ class Config extends ExtendableObject {
 	 * otherwise it will not be taken into account
 	 *
 	 * @param string $path path to config file. might be absolute or relative.
-	 *        path is considered as relative only if path begin by "."
 	 */
 	public static function setLoadPath($path) {
-		$realPath = realpath($path);
-		if ($realPath === false) {
+		if (!file_exists($path)) {
 			throw new ConfigFileNotFoundException('configuration', 'file', $path);
 		}
-		self::$loadPath = $realPath;
+		self::$loadPath = $path;
 	}
 	
 	/**
@@ -104,7 +99,7 @@ class Config extends ExtendableObject {
 	 * @see \Comhon\Object\ExtendableObject::_getModelName()
 	 */
 	protected function _getModelName() {
-		return 'config';
+		return 'Comhon\Config';
 	}
 	
 	/**
@@ -114,6 +109,13 @@ class Config extends ExtendableObject {
 	 */
 	public function setDirectory($path_ad) {
 		$this->config_ad = $path_ad;
+	}
+	
+	/**
+	 * get path to config directory
+	 */
+	public function getDirectory() {
+		return $this->config_ad;
 	}
 	
 	/**
@@ -143,36 +145,39 @@ class Config extends ExtendableObject {
 	 */
 	public function getDataBaseTimezone() {
 		return ($this->getValue('database') instanceof ComhonObject) && $this->getValue('database')->hasValue('timezone')
-		? $this->getValue('database')->getValue('timezone')
-		: 'UTC';
+			? $this->getValue('database')->getValue('timezone')
+			: 'UTC';
 	}
 	
 	/**
-	 * get path to manifest list file
+	 * get map namespace prefix to directory to allow manifest autoloading
 	 *
-	 * @params boolean $transform if true and config path is relative, 
-	 *         path is transformed to absolute path.
-	 *         (path is considered as relative only if path begin by ".")
-	 * @return string
+	 * @return string[]
 	 */
-	public function getManifestListPath($transform = true) {
-		return $transform && substr($this->getValue('manifestList'), 0, 1) == '.'
-			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('manifestList')
-			: $this->getValue('manifestList');
+	public function getManifestFormat() {
+		return $this->getValue('manifestFormat');
 	}
 	
 	/**
-	 * get path to serialization list file
+	 * get map namespace prefix to directory to allow manifest autoloading
 	 *
-	 * @params boolean $transform if true and config path is relative, 
-	 *         path is transformed to absolute path.
-	 *         (path is considered as relative only if path begin by ".")
-	 * @return string
+	 * @return string[]
 	 */
-	public function getSerializationListPath($transform = true) {
-		return $transform && substr($this->getValue('serializationList'), 0, 1) == '.'
-			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('serializationList')
-			: $this->getValue('serializationList');
+	public function getManifestAutoloadList() {
+		return ($this->getValue('autoload') instanceof ComhonObject) && $this->getValue('autoload')->hasValue('manifest')
+			? $this->getValue('autoload')->getValue('manifest')
+			: [];
+	}
+	
+	/**
+	 * get map namespace prefix to directory to allow serialization manifest autoloading
+	 *
+	 * @return string[]
+	 */
+	public function getSerializationAutoloadList() {
+		return ($this->getValue('autoload') instanceof ComhonObject) && $this->getValue('autoload')->hasValue('serialization')
+			? $this->getValue('autoload')->getValue('serialization')
+			: [];
 	}
 	
 	/**

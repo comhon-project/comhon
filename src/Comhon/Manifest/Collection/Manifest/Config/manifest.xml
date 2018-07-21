@@ -7,13 +7,24 @@
 				<property type="string" name="timezone"/>
 			</properties>
 		</type>
+		<type name="autoload">
+			<properties>
+				<!-- TODO define assoc array -->
+				<property type="array" name="manifest">
+		            <values type="string" name="manifest"/>
+		        </property>
+				<property type="array" name="serialization">
+		            <values type="string" name="serialization"/>
+		        </property>
+			</properties>
+		</type>
 	</types>
 	
 	<properties>
 		<property type="dbOpt" name="database"/>
 		<property type="string" name="dateTimeFormat"/>
-		<property type="string" name="manifestList"/>
-		<property type="string" name="serializationList"/>
+		<property type="string" name="manifestFormat" default="json"/>
+		<property type="autoload" name="autoload"/>
 		<property type="string" name="regexList"/>
 		<property type="string" name="sqlTable"/>
 		<property type="string" name="sqlDatabase"/>

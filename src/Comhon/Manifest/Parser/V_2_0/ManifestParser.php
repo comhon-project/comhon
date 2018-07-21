@@ -27,7 +27,6 @@ use Comhon\Model\ModelRestrictedArray;
 use Comhon\Manifest\Parser\ManifestParser as ParentManifestParser;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\ManifestException;
-use Comhon\Exception\UniqueModelNameException;
 
 class ManifestParser extends ParentManifestParser {
 
@@ -275,29 +274,6 @@ class ManifestParser extends ParentManifestParser {
 			}
 		}
 		return $propertyModel;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\ManifestParser::registerComplexLocalModels()
-	 */
-	public function registerComplexLocalModels(&$instanceModels, $manifestPath_ad, $namespace) {
-		if ($this->interfacer->hasValue($this->manifest, 'manifests', true)) {
-			$list = $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, 'manifests', true), true);
-			if ($this->interfacer instanceof XMLInterfacer) {
-				foreach ($list as $name => $domNode) {
-					$list[$name] = $this->interfacer->extractNodeText($domNode);
-				}
-			}
-			foreach ($list as $type => $manifestPath_rfe) {
-				$fullyQualifiedName = $namespace . '\\' . $type;
-				if (array_key_exists($fullyQualifiedName, $instanceModels)) {
-					throw new UniqueModelNameException($type);
-				}
-				$instanceModels[$fullyQualifiedName] = [$manifestPath_ad.'/'.$manifestPath_rfe, null];
-			}
-		}
 	}
 	
 }

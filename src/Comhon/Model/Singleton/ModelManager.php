@@ -75,6 +75,20 @@ class ModelManager {
 	private $serializationManifestParser;
 	
 	/**
+	 * @var string[] map namespace prefix to directory to allow manifest autoloading
+	 */
+	private $autoloadManifest = [
+		'Comhon' => __DIR__ . '/../../Manifest/Collection/Manifest'
+	];
+	
+	/**
+	 * @var string[] map namespace prefix to directory to allow serialization manifest autoloading
+	 */
+	private $autoloadSerializationManifest = [
+		'Comhon' => __DIR__ . '/../../Manifest/Collection/Serialization'
+	];
+	
+	/**
 	 * @var ModelManager
 	 */
 	private  static $_instance;
@@ -95,17 +109,6 @@ class ModelManager {
 	private function __construct() {
 		self::$_instance = $this;
 		$this->_registerSimpleModelClasses();
-		ManifestParser::registerComplexModels(
-			__DIR__ . DIRECTORY_SEPARATOR .'..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Manifest' . DIRECTORY_SEPARATOR . 'Collection' . DIRECTORY_SEPARATOR . 'Manifest'. DIRECTORY_SEPARATOR .'manifestList.json', 
-			__DIR__ . DIRECTORY_SEPARATOR .'..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'Manifest' . DIRECTORY_SEPARATOR . 'Collection' . DIRECTORY_SEPARATOR . 'Serialization' . DIRECTORY_SEPARATOR . 'serializationList.json',
-			$this->instanceModels
-		);
-		
-		ManifestParser::registerComplexModels(
-			Config::getInstance()->getManifestListPath(),
-			Config::getInstance()->getSerializationListPath(),
-			$this->instanceModels
-		);
 		
 		if (Config::getInstance()->hasValue('sqlTable')) {
 			$path = Config::getInstance()->getSerializationSqlTablePath();
@@ -140,53 +143,44 @@ class ModelManager {
 	}
 	
 	/**
-	 * verify if model has been registered
+	 * verify if model exists (i.e. is defined by an manifest or is a simple model)
 	 * 
 	 * @param string $modelName fully qualified name of wanted model
 	 * @return boolean
 	 */
-	public function hasModel($modelName) {
+	public function modelExists($modelName) {
+		return array_key_exists($modelName, $this->instanceModels) || $this->manifestExists($modelName);
+	}
+	
+	/**
+	 * verify if manifest exists
+	 *
+	 * @param string $modelName model fully qualified name
+	 * @return boolean
+	 */
+	public function manifestExists($modelName) {
 		return array_key_exists($modelName, $this->instanceModels);
 	}
 	
 	/**
-	 * verify if has model instance (not necessary loaded)
+	 * verify if specified model is instanciated (not necessary loaded)
 	 *
 	 * @param string $modelName fully qualified name of wanted model
-	 * @throws \Exception if model has not been registered
 	 * @return boolean
 	 */
 	public function hasInstanceModel($modelName) {
-		if (!$this->hasModel($modelName)) {
-			throw new NotDefinedModelException($modelName);
-		}
-		return is_object($this->instanceModels[$modelName]) || array_key_exists(2, $this->instanceModels[$modelName]);
+		return array_key_exists($modelName, $this->instanceModels);
 	}
 	
 	/**
-	 * verify if model is loaded
+	 * verify if specified model is instanciated and loaded
 	 *
 	 * @param string $modelName fully qualified name of wanted model
 	 * @throws \Exception if model has not been registered
 	 * @return boolean
 	 */
-	public function isModelLoaded($modelName) {
-		if (!$this->hasModel($modelName)) {
-			throw new NotDefinedModelException($modelName);
-		}
-		if (is_object($this->instanceModels[$modelName])) {
-			if (!$this->instanceModels[$modelName]->isLoaded()) {
-				throw new ComhonException("$modelName must be loaded");
-			}
-			return true;
-		}
-		if (array_key_exists(2, $this->instanceModels[$modelName])) {
-			if ($this->instanceModels[$modelName][2]->isLoaded()) {
-				throw new ComhonException("$modelName must be not loaded");
-			}
-			return false;
-		}
-		return false;
+	public function hasInstanceModelLoaded($modelName) {
+		return array_key_exists($modelName, $this->instanceModels) && $this->instanceModels[$modelName]->isLoaded();
 	}
 	
 	/**
@@ -211,63 +205,45 @@ class ModelManager {
 	 * @return \Comhon\Model\Model
 	 */
 	private function _getInstanceModel($modelName, $loadModel) {
-		if (!array_key_exists($modelName, $this->instanceModels)) { // model doesn't exists in map
-			$this->loadIntermediateManifest($modelName);
-			if (!array_key_exists($modelName, $this->instanceModels)) {
-				throw new NotDefinedModelException($modelName);
-			}
-		}
-		if (is_object($this->instanceModels[$modelName])) { // model already initialized
-			$return = $this->instanceModels[$modelName];
-		}else {
-			if (count($this->instanceModels[$modelName]) == 3) {
-				$return = $this->instanceModels[$modelName][2];
-				$temp = $this->instanceModels[$modelName];
-				if ($loadModel) {
-					try {
-						$return->load();
-					} catch (\Exception $e) {
-						// restore array if any exception during model loading
-						if (is_object($this->instanceModels[$modelName])) {
-							$this->instanceModels[$modelName] = $temp;
-						}
-						throw $e;
-					}
-				}
+		if (!array_key_exists($modelName, $this->instanceModels)) {
+			list($prefix, $suffix) = $this->_splitModelName($modelName);
+			var_dump('***********');
+			var_dump($prefix);
+			var_dump($suffix);
+			var_dump($this->_getManifestPath($prefix, $suffix));
+			if (file_exists($this->_getManifestPath($prefix, $suffix))) {
+				$model = $this->_isMainModel($suffix) ? new MainModel($modelName) : new LocalModel($modelName);
+				$this->_addInstanceModel($model);
 			} else {
-				$temp = $this->instanceModels[$modelName];
-				try {
-					if ($this->_isMainModel($modelName)) {
-						$return = new MainModel($modelName, $loadModel);
-					} else {
-						$return = new LocalModel($modelName, $loadModel);
-					}
-					
-					if (is_object($this->instanceModels[$modelName])) {
-						if ($this->instanceModels[$modelName] !== $return) {
-							throw new ComhonException('already exists '.$modelName);
-						}
-						if (!$loadModel) {
-							throw new ComhonException('model has been loaded');
-						}
-					}
-					else { // else add model
-						if ($loadModel) {
-							$this->instanceModels[$modelName] = $return;
-						} else {
-							$this->instanceModels[$modelName][] = $return;
-						}
-					}
-				} catch (\Exception $e) {
-					// restore array if any exception during model loading
-					if (is_object($this->instanceModels[$modelName])) {
-						$this->instanceModels[$modelName] = $temp;
-					}
-					throw $e;
+				$this->loadIntermediateManifest($prefix, $suffix);
+				if (!array_key_exists($modelName, $this->instanceModels)) {
+					throw new NotDefinedModelException($modelName);
 				}
 			}
 		}
-		return $return;
+		if ($loadModel) {
+			$this->instanceModels[$modelName]->load();
+		}
+		return $this->instanceModels[$modelName];
+	}
+	
+	private function _getManifestPath($nameSpacePrefix, $nameSpaceSuffix) {
+		$prefix_ad = substr($this->autoloadManifest[$nameSpacePrefix], 0, 1) == '.'
+			? Config::getLoadPath() . DIRECTORY_SEPARATOR . $this->autoloadManifest[$nameSpacePrefix]
+			: $this->autoloadManifest[$nameSpacePrefix];
+		return $prefix_ad . '/' . str_replace('\\', '/', $nameSpaceSuffix) . '/manifest';
+	}
+		
+	private function _getSerializationManifestPath($manifest_af, $nameSpacePrefix, $nameSpaceSuffix) {
+		if (array_key_exists($nameSpacePrefix, $this->autoloadSerializationManifest)) {
+			$prefix_ad = substr($this->autoloadSerializationManifest[$nameSpacePrefix], 0, 1) == '.'
+				? Config::getLoadPath() . DIRECTORY_SEPARATOR . $this->autoloadSerializationManifest[$nameSpacePrefix]
+				: $this->autoloadSerializationManifest[$nameSpacePrefix];
+			$manifest_af = $prefix_ad . '/' . str_replace('\\', '/', $nameSpaceSuffix) . '/serialization';
+		} else {
+			$manifest_af = dirname($manifest_af) . '/serialization';
+		}
+		return file_exists($manifest_af) ? $manifest_af : null;
 	}
 	
 	/**
@@ -276,29 +252,46 @@ class ModelManager {
 	 * @param string $modelName
 	 * @throws \Exception
 	 */
-	private function loadIntermediateManifest($modelName) {
-		$explodedModelName = explode('\\', $modelName);
+	private function loadIntermediateManifest($nameSpacePrefix, $nameSpaceSuffix) {
+		$parentNameSpaceSuffix = $nameSpaceSuffix;
 		
-		if (count($explodedModelName) > 1) {
-			array_pop($explodedModelName);
-			$intermediateModelName = $explodedModelName[0];
-			if (!array_key_exists($intermediateModelName, $this->instanceModels)) {
-				throw new NotDefinedModelException($intermediateModelName);
-			}
-			$this->_getInstanceModel($intermediateModelName, true);
+		while ($separatorOffset = strrpos($parentNameSpaceSuffix, '\\') !== false) {
+			$parentNameSpaceSuffix.= substr($parentNameSpaceSuffix, 0, $separatorOffset);
+			$parentNameSpace = $nameSpacePrefix . '\\' . $parentNameSpaceSuffix;
 			
-			for ($i = 1; $i < count($explodedModelName); $i++) {
-				$intermediateModelName .= '\\' . $explodedModelName[$i];
-				if (!array_key_exists($intermediateModelName, $this->instanceModels)) {
-					throw new NotDefinedModelException($intermediateModelName);
-				}
-				$model = $this->_getInstanceModel($intermediateModelName, true);
+			if (array_key_exists($parentNameSpace, $this->instanceModels)) {
+				$this->instanceModels[$parentNameSpace]->load();
+				$parentNameSpaceSuffix = '';
+			} elseif (file_exists($this->_getManifestPath($nameSpacePrefix, $parentNameSpaceSuffix))) {
+				$this->getInstanceModel($parentNameSpace);
+				$parentNameSpaceSuffix = '';
 			}
 		}
 	}
 	
-	private function _isMainModel($modelName) {
-		return strpos($modelName, '\\') === false;
+	private function _isMainModel($suffixModelName) {
+		return strpos($suffixModelName, '\\') === false;
+	}
+	
+	/**
+	 * 
+	 * @param string $modelName
+	 * @throws ComhonException
+	 * @return string[]
+	 */
+	private function _splitModelName($modelName) {
+		$prefix = '';
+		$suffix = $modelName;
+		do {
+			$separatorOffset = strpos($suffix, '\\');
+			if ($separatorOffset === false) {
+				throw new NotDefinedModelException($modelName);
+			}
+			$prefix .= substr($suffix, 0, $separatorOffset);
+			$suffix = substr($suffix, $separatorOffset + 1);
+		} while (!array_key_exists($prefix, $this->autoloadManifest));
+		
+		return [$prefix, $suffix];
 	}
 	
 	/**
@@ -308,13 +301,10 @@ class ModelManager {
 	 * @return array
 	 */
 	private function _addInstanceModel(Model $model) {
-		if (is_object($this->instanceModels[$model->getName()])) {
-			throw new ComhonException('model already added');
+		if (array_key_exists($model->getName(), $this->instanceModels)) {
+			throw new AlreadyUsedModelNameException($model->getName());
 		}
-		$restore = $this->instanceModels[$model->getName()];
 		$this->instanceModels[$model->getName()] = $model;
-		
-		return $restore;
 	}
 	
 	/**
@@ -345,14 +335,13 @@ class ModelManager {
 				$unsetManifestParser = false;
 				if (is_null($this->manifestParser)) {
 					$unsetManifestParser    = true;
-					$manifestPath_afe       = $this->instanceModels[$model->getName()][0];
-					$manifestPath_ad        = dirname($manifestPath_afe);
-					$serializationPath_afe  = !is_null($this->instanceModels[$model->getName()][1]) ? $this->instanceModels[$model->getName()][1] : null;
+					list($prefix, $suffix)  = $this->_splitModelName($model->getName());
+					$manifestPath_afe       = $this->_getManifestPath($nameSpacePrefix, $nameSpaceSuffix);
+					$serializationPath_afe  = $this->_getSerializationManifestPath($manifestPath_afe, $nameSpacePrefix, $nameSpaceSuffix);
 					$this->manifestParser   = ManifestParser::getInstance($model, $manifestPath_afe, $serializationPath_afe);
 					$this->currentNamespace = $model->getName();
 					
-					$restore = $this->_addInstanceModel($model);
-					$this->_buildLocalModels($model, $manifestPath_ad);
+					$this->_buildLocalModels($model);
 				}
 				$parentModel = $this->_getParentModel($model);
 				
@@ -370,7 +359,6 @@ class ModelManager {
 			}
 		} catch (\Exception $e) {
 			$this->manifestParser = null;
-			$this->instanceModels[$model->getName()] = $restore;
 			throw $e;
 		}
 		return $return;
@@ -383,20 +371,16 @@ class ModelManager {
 	 * @param string $manifestPath_ad
 	 * @throws \Exception
 	 */
-	private function _buildLocalModels(Model $model, $manifestPath_ad) {
+	private function _buildLocalModels(Model $model) {
 		if ($this->manifestParser->isFocusOnLocalModel()) {
 			throw new ComhonException('cannot define local model inside local model');
 		}
 		if ($this->manifestParser->getLocalModelCount() > 0) {
-			$this->manifestParser->registerComplexLocalModels($this->instanceModels, $manifestPath_ad, $this->currentNamespace);
 			$this->manifestParser->activateFocusOnLocalModels();
 			
 			do {
 				$localModelName = $this->currentNamespace. '\\' . $this->manifestParser->getCurrentLocalModelName();
-				if (array_key_exists($localModelName, $this->instanceModels)) {
-					throw new AlreadyUsedModelNameException($localModelName);
-				}
-				$this->instanceModels[$localModelName] = new LocalModel($localModelName, false);
+				$this->_addInstanceModel(new LocalModel($localModelName));
 			} while ($this->manifestParser->nextLocalModel());
 			
 			$this->manifestParser->activateFocusOnLocalModels();

@@ -27,7 +27,6 @@ use Comhon\Model\Property\RestrictedProperty;
 use Comhon\Exception\NotSatisfiedRestrictionException;
 use Comhon\Exception\ReservedWordException;
 use Comhon\Exception\ManifestException;
-use Comhon\Exception\UniqueModelNameException;
 use Comhon\Exception\ComhonException;
 
 abstract class ManifestParser {
@@ -155,15 +154,6 @@ abstract class ManifestParser {
 	 * verify if current property is foreign
 	 */
 	abstract protected function _isCurrentPropertyForeign();
-	
-	/**
-	 * register complex local model
-	 * 
-	 * @param \Comhon\Model\Model[] $instanceModels
-	 * @param string $manifestPath_ad
-	 * @param string $namespace
-	 */
-	abstract public function registerComplexLocalModels(&$instanceModels, $manifestPath_ad, $namespace);
 	
 	/**
 	 * @param \Comhon\Model\Model $model
@@ -353,19 +343,6 @@ abstract class ManifestParser {
 	}
 	
 	/**
-	 * register path of each manifest
-	 * 
-	 * @param string $manifestListPath_afe
-	 * @param string $serializationListPath_afe
-	 * @param array $modelMap
-	 * @throws \Exception
-	 */
-	public static function registerComplexModels($manifestListPath_afe, $serializationListPath_afe, &$modelMap) {
-		$serializationMap = self::_getSerializationMap($serializationListPath_afe);
-		self::_registerComplexModels($manifestListPath_afe, $serializationMap, $modelMap);
-	}
-	
-	/**
 	 * get manifest parser instance
 	 * 
 	 * @param \Comhon\Model\Model $model
@@ -405,135 +382,6 @@ abstract class ManifestParser {
 			return new XMLInterfacer();
 		}
 		throw new ManifestException('not recognized manifest format');
-	}
-	
-	/**
-	 * register path of each manifest
-	 * 
-	 * @param string $manifestListPath_afe
-	 * @param string[] $serializationMap
-	 * @param array $modelMap
-	 * @throws \Exception
-	 */
-	protected static function _registerComplexModels($manifestListPath_afe, $serializationMap, &$modelMap) {
-		$manifestListFolder_ad = dirname($manifestListPath_afe);
-		
-		switch (mb_strtolower(pathinfo($manifestListPath_afe, PATHINFO_EXTENSION))) {
-			case 'xml':
-				$interfacer = new XMLInterfacer();
-				break;
-			case 'json':
-				$interfacer = new AssocArrayInterfacer();
-				break;
-			default:
-				throw new ManifestException('extension not recognized for manifest list file : '.$manifestListPath_afe);
-		}
-		
-		$manifestList = $interfacer->read($manifestListPath_afe);
-		if ($manifestList === false || is_null($manifestList)) {
-			throw new ManifestException("manifestList file not found or malformed '$manifestListPath_afe'");
-		}
-		if (!$interfacer->hasValue($manifestList, 'version')) {
-			throw new ManifestException("manifest list '$manifestListPath_afe' doesn't have version");
-		}
-		$version = (string) $interfacer->getValue($manifestList, 'version');
-		switch ($version) {
-			case '2.0': self::_registerComplexModels_2_0($manifestList, $manifestListFolder_ad, $serializationMap, $modelMap, $interfacer); break;
-			default:    throw new ManifestException("version $version not recognized for manifest list $manifestListPath_afe");
-		}
-	}
-	
-	/**
-	 * register path of each manifest from manifest list version 2.0
-	 * 
-	 * @param mixed $manifestList
-	 * @param string $manifestListFolder_ad
-	 * @param string[] $serializationMap
-	 * @param array $modelMap
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 */
-	protected static function _registerComplexModels_2_0($manifestList, $manifestListFolder_ad, $serializationMap, &$modelMap, Interfacer $interfacer) {
-		$list = $interfacer->getTraversableNode($interfacer->getValue($manifestList, 'list', true), true);
-		if (is_null($list)) {
-			throw new ManifestException('malformed manifest list file, property \'list\' is missing');
-		}
-		if ($interfacer instanceof XMLInterfacer) {
-			foreach ($list as $name => $domNode) {
-				$list[$name] = $interfacer->extractNodeText($domNode);
-			}
-		}
-		foreach ($list as $modelName => $manifestPath_rfe) {
-			if (array_key_exists($modelName, $modelMap)) {
-				throw new UniqueModelNameException($modelName);
-			}
-			$serializationPath_afe = array_key_exists($modelName, $serializationMap) ? $serializationMap[$modelName] : null;
-			$modelMap[$modelName] = [$manifestListFolder_ad.'/'.$manifestPath_rfe, $serializationPath_afe];
-		}
-	}
-	
-	/**
-	 * get serialization map 
-	 * 
-	 * each key is a model name and each value is the associated path to serialization manifest
-	 *
-	 * @param string $serializationListPath_afe
-	 * @throws \Exception
-	 * @return string[]
-	 */
-	protected static function _getSerializationMap($serializationListPath_afe) {
-		$serializationMap = [];
-		$serializationListFolrder_ad = dirname($serializationListPath_afe);
-		
-		switch (mb_strtolower(pathinfo($serializationListPath_afe, PATHINFO_EXTENSION))) {
-			case 'xml':
-				$interfacer = new XMLInterfacer();
-				break;
-			case 'json':
-				$interfacer = new AssocArrayInterfacer();
-				break;
-			default:
-				throw new ManifestException('extension not recognized for serialization manifest list file : '.$serializationListPath_afe);
-		}
-		
-		$serializationList = $interfacer->read($serializationListPath_afe);
-		if ($serializationList=== false || is_null($serializationList)) {
-			throw new ManifestException("serializationList file not found or malformed '$serializationListPath_afe'");
-		}
-		if (!$interfacer->hasValue($serializationList, 'version')) {
-			throw new ManifestException("serialization list '$serializationListPath_afe' doesn't have version");
-		}
-		$version = (string) $interfacer->getValue($serializationList, 'version');
-		switch ($version) {
-			case '2.0': return self::_getSerializationMap_2_0($serializationList, $serializationListFolrder_ad, $interfacer);
-			default:    throw new ManifestException("version $version not recognized for serialization list $serializationListPath_afe");
-		}
-	}
-	
-	/**
-	 * get serialization map from manifest list version 2.0
-	 * 
-	 * each key is a model name and each value is the associated path to serialization manifest
-	 * 
-	 * @param mixed $serializationList
-	 * @param string $serializationListFolrder_ad
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @return string[]
-	 */
-	protected static function _getSerializationMap_2_0($serializationList, $serializationListFolrder_ad, Interfacer $interfacer) {
-		$serializationMap = [];
-		$list = $interfacer->getTraversableNode($interfacer->getValue($serializationList, 'list', true), true);
-		if (is_null($list)) {
-			throw new ManifestException('malformed serialization list file, property \'list\' is missing');
-		}
-		if ($interfacer instanceof XMLInterfacer) {
-			foreach ($list as $name => $domNode) {
-				$list[$name] = $interfacer->extractNodeText($domNode);
-			}
-		}
-		foreach ($list as $modelName => $serializationPath_rfe) {
-			$serializationMap[$modelName] = $serializationListFolrder_ad.'/'.$serializationPath_rfe;
-		}
-		return $serializationMap;
 	}
 	
 	/**

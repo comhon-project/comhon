@@ -11,8 +11,6 @@ class ConfigTest extends TestCase
 	
 	public function testNotFoundConfig()
 	{
-		global $plop;
-		echo $plop;
 		$this->expectException(ConfigFileNotFoundException::class);
 		Config::setLoadPath('./config/not-existing-config.json');
 	}
@@ -62,6 +60,14 @@ class ConfigTest extends TestCase
 		$this->assertTrue(strpos(Config::getLoadPath(), realpath(Data::$config)) !== false);
 		
 		RegexCollection::getInstance();
+		
+		$plop = new stdClass();
+		$plop->plop = 'plop';
+		
+		$plop2 = new stdClass();
+		$plop2->plop = 'plop';
+		$plop2 = $plop;
+		$this->assertSame($plop2, $plop);
 	}
 
 }

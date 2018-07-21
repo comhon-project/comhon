@@ -330,6 +330,8 @@ try {
 
 // TODO for version > 2.0
 // replace self tests by phpunit tests
+// replace getFirstIdProperty by getUniqueIdProperty
+// refactor model structure
 // autoloading manifest
 // setvalue strict mandatory
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)

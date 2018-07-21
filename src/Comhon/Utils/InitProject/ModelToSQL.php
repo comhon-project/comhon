@@ -489,6 +489,7 @@ class ModelToSQL {
 		$sqlTables = [];
 		$foreignConstraints = [];
 		
+		// TODO manage autoload
 		$manifest_ad = realpath(dirname(Config::getInstance()->getManifestListPath()));
 		$objects = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($manifest_ad), \RecursiveIteratorIterator::SELF_FIRST);
 		

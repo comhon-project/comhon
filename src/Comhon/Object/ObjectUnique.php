@@ -293,10 +293,16 @@ abstract class ObjectUnique extends ComhonObject {
 				}
 			}
 		}
+		$originalModel = $this->getModel();
 		$this->_setModel($model);
 		$this->isCasted = true;
 		if (($this->getModel() instanceof MainModel) && $addObject) {
-			MainObjectCollection::getInstance()->addObject($this);
+			try {
+				MainObjectCollection::getInstance()->addObject($this);
+			} catch (\Exception $e) {
+				$this->_setModel($originalModel);
+				throw $e;
+			}
 		}
 	}
 	

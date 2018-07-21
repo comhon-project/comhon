@@ -10,10 +10,10 @@ use Comhon\Interfacer\StdObjectInterfacer;
 
 $time_start = microtime(true);
 
-if (!ModelManager::getInstance()->hasInstanceModel('config')) {
+if (!ModelManager::getInstance()->hasInstanceModel('Comhon\Config')) {
 	throw new \Exception('model not initialized');
 }
-if (!ModelManager::getInstance()->isModelLoaded('config')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('Comhon\Config')) {
 	throw new \Exception('model must be loaded');
 }
 if (ModelManager::getInstance()->hasInstanceModel('sqlTable')) {
@@ -40,14 +40,14 @@ if (json_encode($testModel->getPropertiesNames()) !== '["name","stringValue","fl
 if (!ModelManager::getInstance()->hasInstanceModel('test\personLocal')) {
 	throw new \Exception('model not initialized');
 }
-if (ModelManager::getInstance()->isModelLoaded('test\personLocal')) {
+if (ModelManager::getInstance()->hasInstanceModelLoaded('test\personLocal')) {
 	throw new \Exception('model must be not loaded');
 }
 /** ******************** load model 'personLocal' by calling getmodel() ******************** **/
 $localPersonModel = $testModel->getProperty('objectContainer')->getModel()->getProperty('person')->getModel();
 
 /** ******************** test local model 'personLocal' load status ******************** **/
-if (!ModelManager::getInstance()->isModelLoaded('test\personLocal')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('test\personLocal')) {
 	throw new \Exception('model must be loaded');
 }
 if (!$localPersonModel->isLoaded()) {
@@ -61,13 +61,13 @@ if ($localPersonModel->getProperty('anObjectWithIdAndMore')->getModel()->getName
 if (!ModelManager::getInstance()->hasInstanceModel('test\personLocal\recursive')) {
 	throw new \Exception('missing instance model');
 }
-if (ModelManager::getInstance()->isModelLoaded('test\personLocal\recursive')) {
+if (ModelManager::getInstance()->hasInstanceModelLoaded('test\personLocal\recursive')) {
 	throw new \Exception('model should not be loaded');
 }
 if ($localPersonModel->getProperty('recursiveLocal')->getModel()->getName() !== 'test\personLocal\recursive') {
 	throw new \Exception('bad model name');
 }
-if (!ModelManager::getInstance()->isModelLoaded('test\personLocal\recursive')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('test\personLocal\recursive')) {
 	throw new \Exception('model should be loaded');
 }
 if (!ModelManager::getInstance()->hasInstanceModel('test\personLocal\recursive\objectWithIdAndMore')) {
@@ -111,7 +111,7 @@ if (!compareJson(json_encode($localPersonModel->getPropertiesNames()), '["id","f
 if (!ModelManager::getInstance()->hasInstanceModel('place')) {
 	throw new \Exception('model \'place\' not initialized');
 }
-if (ModelManager::getInstance()->isModelLoaded('place')) {
+if (ModelManager::getInstance()->hasInstanceModelLoaded('place')) {
 	throw new \Exception('model must be not loaded');
 }
 
@@ -129,7 +129,7 @@ if (!($placeModel instanceof MainModel)) {
 if (!ModelManager::getInstance()->hasInstanceModel('place')) {
 	throw new \Exception('model \'place\' not initialized');
 }
-if (!ModelManager::getInstance()->isModelLoaded('place')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('place')) {
 	throw new \Exception('model must be loaded');
 }
 
@@ -147,7 +147,7 @@ if ($placeModel !== $placeModelTow) {
  if (ModelManager::getInstance()->hasInstanceModel('sqlDatabase')) {
 throw new \Exception("model must be not initialized");
 }
-if (ModelManager::getInstance()->isModelLoaded('sqlDatabase')) {
+if (ModelManager::getInstance()->hasInstanceModelLoaded('sqlDatabase')) {
 throw new \Exception("model must be not loaded");
 }
 */
@@ -236,7 +236,7 @@ if (!$testDbModel->getSerialization()->getSettings()->getValue('database')->isLo
 if (!ModelManager::getInstance()->hasInstanceModel('sqlDatabase')) {
 	throw new \Exception('model \'sqlDatabase\' not initialized');
 }
-if (!ModelManager::getInstance()->isModelLoaded('sqlDatabase')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('sqlDatabase')) {
 	throw new \Exception('model must be loaded');
 }
 

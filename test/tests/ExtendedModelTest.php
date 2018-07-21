@@ -15,21 +15,21 @@ if (ModelManager::getInstance()->hasInstanceModel('womanBody')) {
 if (!ModelManager::getInstance()->hasInstanceModel('person')) {
 	throw new \Exception('model not initialized');
 }
-if (ModelManager::getInstance()->isModelLoaded('person')) {
+if (ModelManager::getInstance()->hasInstanceModelLoaded('person')) {
 	throw new \Exception('model already loaded');
 }
 $personModel = ModelManager::getInstance()->getInstanceModel('person');
 
-if (!ModelManager::getInstance()->isModelLoaded('person')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('person')) {
 	throw new \Exception('model not initialized');
 }
-if (ModelManager::getInstance()->isModelLoaded('woman')) {
+if (ModelManager::getInstance()->hasInstanceModelLoaded('woman')) {
 	throw new \Exception('model already initialized');
 }
 
 $womanModel = ModelManager::getInstance()->getInstanceModel('woman');
 
-if (!ModelManager::getInstance()->isModelLoaded('woman')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('woman')) {
 	throw new \Exception('model not initialized');
 }
 if (json_encode(array_keys($womanModel->getProperties())) !== '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","bodies"]') {
@@ -52,11 +52,11 @@ if (ModelManager::getInstance()->hasInstanceModel('body')) {
 if (!ModelManager::getInstance()->hasInstanceModel('womanBody')) {
 	throw new \Exception('model not initialized');
 }
-if (ModelManager::getInstance()->isModelLoaded('womanBody')) {
+if (ModelManager::getInstance()->hasInstanceModelLoaded('womanBody')) {
 	throw new \Exception('model already loaded');
 }
 $womanBodyModel = $womanModel->getProperty('bodies')->getModel()->getModel()->getModel();
-if (!ModelManager::getInstance()->isModelLoaded('womanBody')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('womanBody')) {
 	throw new \Exception('model not loaded');
 }
 if ($womanBodyModel->getName() !== 'womanBody') {
@@ -68,7 +68,7 @@ if (!$womanBodyModel->isLoaded()) {
 if (!ModelManager::getInstance()->hasInstanceModel('body')) {
 	throw new \Exception('model not initialized');
 }
-if (!ModelManager::getInstance()->isModelLoaded('body')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('body')) {
 	throw new \Exception('model not loaded');
 }
 if (json_encode(array_keys($womanBodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner","chestSize"]') {

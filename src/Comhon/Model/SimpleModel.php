@@ -45,9 +45,9 @@ abstract class SimpleModel extends Model {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::isNextLevelFirstLevel()
+	 * @see \Comhon\Model\Model::_isNextLevelFirstLevel()
 	 */
-	protected function isNextLevelFirstLevel($isCurrentLevelFirstLevel) {
+	protected function _isNextLevelFirstLevel($isCurrentLevelFirstLevel) {
 		return $isCurrentLevelFirstLevel;
 	}
 	

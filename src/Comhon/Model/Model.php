@@ -96,13 +96,9 @@ abstract class Model {
 	 * to get a model instance use singleton ModelManager.
 	 * 
 	 * @param string $modelName
-	 * @param boolean $loadModel
 	 */
-	public function __construct($modelName, $loadModel) {
+	public function __construct($modelName) {
 		$this->modelName = $modelName;
-		if ($loadModel) {
-			$this->load();
-		}
 	}
 	
 	/**
@@ -339,15 +335,6 @@ abstract class Model {
 			return substr($name, $pos + 1);
 		}
 		return $name;
-	}
-	
-	/**
-	 * get model name
-	 * 
-	 * @return string
-	 */
-	public function getMainModelName() {
-		return $this->modelName;
 	}
 	
 	/**
@@ -667,7 +654,7 @@ abstract class Model {
 	 * @param boolean $isCurrentLevelFirstLevel
 	 * @return boolean
 	 */
-	protected function isNextLevelFirstLevel($isCurrentLevelFirstLevel) {
+	protected function _isNextLevelFirstLevel($isCurrentLevelFirstLevel) {
 		return false;
 	}
 	
@@ -1019,7 +1006,7 @@ abstract class Model {
 					$interfacedPropertyName = $isSerialContext ? $property->getSerializationName() : $propertyName;
 					if ($interfacer->hasValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml())) {
 						$value = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
-						$value = $property->getModel()->_import($value, $interfacer, $localObjectCollection, $property->getModel()->isNextLevelFirstLevel($isFirstLevel));
+						$value = $property->getModel()->_import($value, $interfacer, $localObjectCollection, $property->getModel()->_isNextLevelFirstLevel($isFirstLevel));
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 					}
 				}
