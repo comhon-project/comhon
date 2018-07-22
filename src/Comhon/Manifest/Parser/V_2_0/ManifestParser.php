@@ -257,12 +257,21 @@ class ManifestParser extends ParentManifestParser {
 			if (is_null($valuesName)) {
 				throw new ManifestException('type array must have a values name property');
 			}
+			
+			$isAssociative = $this->interfacer->hasValue($propertyNode, self::IS_ASSOCIATIVE)
+				? (
+					$this->castValues
+						? $this->interfacer->castValueToBoolean($this->interfacer->getValue($propertyNode, self::IS_ASSOCIATIVE))
+						: $this->interfacer->getValue($propertyNode, self::IS_ASSOCIATIVE)
+				)
+				: false;
+			
 			$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
 			$restriction = $this->_getRestriction($valuesNode, $uniqueModel);
 			if (is_null($restriction)) {
-				$propertyModel = new ModelArray($subModel, $valuesName);
+				$propertyModel = new ModelArray($subModel, $isAssociative, $valuesName);
 			} else {
-				$propertyModel = new ModelRestrictedArray($subModel, $restriction, $valuesName);
+				$propertyModel = new ModelRestrictedArray($subModel, $restriction, $isAssociative, $valuesName);
 			}
 		}
 		return $propertyModel;

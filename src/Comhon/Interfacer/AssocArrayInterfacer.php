@@ -83,9 +83,10 @@ class AssocArrayInterfacer extends Interfacer {
 	 * verify if value is an array
 	 * 
 	 * @param mixed $value
+	 * @param boolean $isAssociative
 	 * @return boolean
 	 */
-	public function isArrayNodeValue($value) {
+	public function isArrayNodeValue($value, $isAssociative) {
 		return is_array($value);
 	}
 	
@@ -152,6 +153,23 @@ class AssocArrayInterfacer extends Interfacer {
 			throw new ArgumentException($node, 'array', 1);
 		}
 		$node[] = $value;
+	}
+	
+	/**
+	 * add value to $node
+	 *
+	 * @param array $node
+	 * @param mixed $value
+	 * @param string $name must be specified and not null (there is a default value to stay compatible with interface)
+	 */
+	public function addAssociativeValue(&$node, $value, $name = null) {
+		if (!is_array($node)) {
+			throw new ArgumentException($node, 'array', 1);
+		}
+		if (is_null($name)) {
+			throw new ArgumentException($name, 'string', 3);
+		}
+		$node[$name] = $value;
 	}
 	
 	/**

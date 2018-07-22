@@ -144,6 +144,9 @@ function getProperties($xml) {
 		$typeId = (string) $child['type'];
 		$json->name = (string) $child['name'];
 		$json->type = $typeId;
+		if (isset($child['is_associative'])) {
+			$json->is_associative = (boolean) ((string) $child['is_associative']);
+		}
 		
 		if ($typeId == 'array') {
 			$json->values = new stdClass();

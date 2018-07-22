@@ -199,9 +199,10 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * verify if value is a \DOMElement
 	 * 
 	 * @param mixed $value
+	 * @param boolean $isAssociative
 	 * @return boolean
 	 */
-	public function isArrayNodeValue($value) {
+	public function isArrayNodeValue($value, $isAssociative) {
 		return ($value instanceof \DOMElement);
 	}
 	
@@ -291,6 +292,18 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * @return \DOMNode
 	 */
 	public function addValue(&$node, $value, $name = null) {
+		return $this->setValue($node, $value, $name, true);
+	}
+	
+	/**
+	 * add value to $node
+	 *
+	 * @param \DOMElement $node
+	 * @param \DOMNode $value
+	 * @param string $name used only if $value if scalar value
+	 * @return \DOMNode
+	 */
+	public function addAssociativeValue(&$node, $value, $name = null) {
 		return $this->setValue($node, $value, $name, true);
 	}
 	

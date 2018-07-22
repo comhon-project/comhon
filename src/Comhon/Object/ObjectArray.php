@@ -27,8 +27,9 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	 * @param string|Model $model can be a model name or an instance of model
 	 * @param boolean $isLoaded
 	 * @param string $elementName
+	 * @param boolean $isAssociative not used if first parameter is instance of ModelArray
 	 */
-	final public function __construct($model, $isLoaded = true, $elementName = null) {
+	final public function __construct($model, $isLoaded = true, $elementName = null, $isAssociative = false) {
 		if ($model instanceof ModelArray) {
 			$objectModel = $model;
 		} else {
@@ -37,7 +38,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 			if ($elementModel instanceof ModelContainer) {
 				throw new ComhonException('Object cannot have ModelContainer except ModelArray');
 			}
-			$objectModel = new ModelArray($elementModel, is_null($elementName) ? $elementModel->getName() : $elementName);
+			$objectModel = new ModelArray($elementModel, $isAssociative, is_null($elementName) ? $elementModel->getName() : $elementName);
 		}
 		$this->setIsLoaded($isLoaded);
 		$this->_affectModel($objectModel);

@@ -30,11 +30,12 @@ class ModelRestrictedArray extends ModelArray {
 	 * 
 	 * @param Model $model
 	 * @param \Comhon\Model\Restriction\Restriction $restriction
+	 * @param boolean $isAssociative
 	 * @param string $elementName
 	 * @throws \Exception
 	 */
-	public function __construct(Model $model, Restriction $restriction, $elementName) {
-		parent::__construct($model, $elementName);
+	public function __construct(Model $model, Restriction $restriction, $isAssociative, $elementName) {
+		parent::__construct($model, $isAssociative, $elementName);
 		$this->restriction = $restriction;
 		
 		if (!($this->model instanceof SimpleModel)) {

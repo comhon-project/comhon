@@ -30,5 +30,6 @@
 		<testNoId>testNoId/manifest.xml</testNoId>
 		<fatherMalformed>fatherMalformed/manifest.xml</fatherMalformed>
 		<childMalformed>childMalformed/manifest.xml</childMalformed>
+		<testAssociativeArray>testAssociativeArray/manifest.xml</testAssociativeArray>
 	</list>
 </manifests>

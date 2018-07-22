@@ -98,10 +98,6 @@ abstract class Interfacer {
 	/** @var integer */
 	const NO_MERGE = 3;
 	
-	
-	/** @var string */
-	const __UNLOAD__ = '__UNLOAD__';
-	
 	/** @var string */
 	const INHERITANCE_KEY = '__inheritance__';
 	
@@ -546,9 +542,10 @@ abstract class Interfacer {
 	 * verify if value is an array node
 	 * 
 	 * @param mixed $value
+	 * @param boolean $isAssociative
 	 * @return boolean
 	 */
-	abstract public function isArrayNodeValue($value);
+	abstract public function isArrayNodeValue($value, $isAssociative);
 	
 	/**
 	 * verify if value is a complex id (with inheritance key) or a simple value
@@ -594,6 +591,15 @@ abstract class Interfacer {
 	 * @param string $name
 	 */
 	abstract public function addValue(&$node, $value, $name = null);
+	
+	/**
+	 * add value to $node
+	 *
+	 * @param mixed $node
+	 * @param mixed $value
+	 * @param string $name
+	 */
+	abstract public function addAssociativeValue(&$node, $value, $name = null);
 	
 	/**
 	 * create node

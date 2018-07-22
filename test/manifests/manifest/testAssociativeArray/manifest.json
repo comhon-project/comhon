@@ -1,0 +1,24 @@
+{
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "names",
+            "type": "array",
+            "is_associative": true,
+            "values": {
+                "type": "string",
+                "name": "name"
+            }
+        },
+        {
+            "name": "emails",
+            "type": "array",
+            "is_associative": false,
+            "values": {
+                "type": "string",
+                "name": "email",
+                "pattern": "email"
+            }
+        }
+    ]
+}

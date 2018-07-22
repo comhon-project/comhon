@@ -31,12 +31,19 @@ class ModelArray extends ModelContainer {
 	private $elementName;
 	
 	/**
+	 * @var boolean
+	 */
+	private $isAssociative;
+	
+	/**
 	 * 
 	 * @param Model $model
+	 * @param boolean $isAssociative
 	 * @param string $elementName
 	 */
-	public function __construct($model, $elementName) {
+	public function __construct($model, $isAssociative, $elementName) {
 		parent::__construct($model);
+		$this->isAssociative = $isAssociative;
 		$this->elementName = $elementName;
 	}
 	
@@ -49,6 +56,15 @@ class ModelArray extends ModelContainer {
 	 */
 	public function getElementName() {
 		return $this->elementName;
+	}
+	
+	/**
+	 * verify if array is associative
+	 *
+	 * @return boolean
+	 */
+	public function isAssociative() {
+		return $this->isAssociative;
 	}
 	
 	/**
@@ -116,15 +132,16 @@ class ModelArray extends ModelContainer {
 			return null;
 		}
 		$this->verifValue($objectArray);
-		if (!$objectArray->isLoaded()) {
-			return  Interfacer::__UNLOAD__;
-		}
 		$nodeArray = $interfacer->createArrayNode($nodeName);
 		
 		foreach ($objectArray->getValues() as $key => $value) {
 			try {
 				$this->verifElementValue($value);
-				$interfacer->addValue($nodeArray, $this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel), $this->elementName);
+				if ($this->isAssociative) {
+					$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_export($value, $key, $interfacer, $isFirstLevel), $key);
+				} else {
+					$interfacer->addValue($nodeArray, $this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel), $this->elementName);
+				}
 			} catch (ComhonException $e) {
 				throw new ExportException($e, $key);
 			}
@@ -139,16 +156,18 @@ class ModelArray extends ModelContainer {
 	 */
 	protected function _exportId(ComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
 		$this->verifValue($objectArray);
-		if (!$objectArray->isLoaded()) {
-			return  Interfacer::__UNLOAD__;
-		}
 		$nodeArray = $interfacer->createArrayNode($nodeName);
-		foreach ($objectArray->getValues() as $value) {
+		foreach ($objectArray->getValues() as $key => $value) {
 			if (is_null($value)) {
 				$interfacer->addValue($nodeArray, null, $this->elementName);
 			} else {
 				$this->verifElementValue($value);
-				$interfacer->addValue($nodeArray, $this->getModel()->_exportId($value, $this->elementName, $interfacer), $this->elementName);
+				
+				if ($this->isAssociative) {
+					$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_exportId($value, $key, $interfacer), $key);
+				} else {
+					$interfacer->addValue($nodeArray, $this->getModel()->_exportId($value, $this->elementName, $interfacer), $this->elementName);
+				}
 			}
 		}
 		return $nodeArray;
@@ -166,13 +185,17 @@ class ModelArray extends ModelContainer {
 		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
-		if (!$interfacer->isArrayNodeValue($interfacedObject)) {
+		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
 			throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getArrayNodeClasses()));
 		}
 		$objectArray = $this->getObjectInstance();
-		foreach ($interfacer->getTraversableNode($interfacedObject) as $key => $element) {
+		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			try {
-				$objectArray->pushValue($this->getModel()->_import($element, $interfacer, $localObjectCollection, false), $interfacer->hasToFlagValuesAsUpdated());
+				if ($this->isAssociative) {
+					$objectArray->setValue($key, $this->getModel()->_import($element, $interfacer, $localObjectCollection, false), $interfacer->hasToFlagValuesAsUpdated());
+				} else {
+					$objectArray->pushValue($this->getModel()->_import($element, $interfacer, $localObjectCollection, false), $interfacer->hasToFlagValuesAsUpdated());
+				}
 			} catch (ComhonException $e) {
 				throw new ImportException($e, $key);
 			}
@@ -190,8 +213,12 @@ class ModelArray extends ModelContainer {
 			return null;
 		}
 		$objectArray = $this->getObjectInstance();
-		foreach ($interfacer->getTraversableNode($interfacedObject) as $element) {
-			$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, $localObjectCollection, false), $interfacer->hasToFlagValuesAsUpdated());
+		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
+			if ($this->isAssociative) {
+				$objectArray->setValue($key, $this->getModel()->_importId($element, $interfacer, $localObjectCollection, false), $interfacer->hasToFlagValuesAsUpdated());
+			} else {
+				$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, $localObjectCollection, false), $interfacer->hasToFlagValuesAsUpdated());
+			}
 		}
 		return $objectArray;
 	}
@@ -212,15 +239,20 @@ class ModelArray extends ModelContainer {
 		if ($interfacedObject instanceof \SimpleXMLElement) {
 			$interfacedObject = dom_import_simplexml($interfacedObject);
 		}
-		if (!$interfacer->isArrayNodeValue($interfacedObject)) {
+		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
 			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
 			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 		}
 		$objectArray = $this->getObjectInstance();
-		foreach ($interfacer->getTraversableNode($interfacedObject) as $key => $element) {
+		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			try {
 				$value = $interfacer->isNullValue($element) ? null : $this->getModel()->import($element, $interfacer);
-				$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
+				
+				if ($this->isAssociative) {
+					$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
+				} else {
+					$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
+				}
 			} catch (ComhonException $e) {
 				throw new ImportException($e, $key);
 			}
@@ -242,7 +274,7 @@ class ModelArray extends ModelContainer {
 		if ($interfacedObject instanceof \SimpleXMLElement) {
 			$interfacedObject = dom_import_simplexml($interfacedObject);
 		}
-		if (!$interfacer->isArrayNodeValue($interfacedObject)) {
+		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
 			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
 			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 		}
@@ -253,10 +285,15 @@ class ModelArray extends ModelContainer {
 			}
 		}
 		$objectArray->reset();
-		foreach ($interfacer->getTraversableNode($interfacedObject) as $key => $element) {
+		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			try {
 				$value = $interfacer->isNullValue($element) ? null : $this->getModel()->_importMain($element, $interfacer, $localObjectCollection);
-				$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
+				
+				if ($this->isAssociative) {
+					$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
+				} else {
+					$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
+				}
 			} catch (ComhonException $e) {
 				throw new ImportException($e, $key);
 			}

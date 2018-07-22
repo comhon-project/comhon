@@ -159,7 +159,7 @@ if ($throw) {
 
 /*************************** test import array from model **************************/
 
-$testModelArray = new ModelArray($testModel, 'child');
+$testModelArray = new ModelArray($testModel, false, 'child');
 $stdTestArray = [null, $stdTest];
 
 $throw = true;
@@ -182,7 +182,7 @@ if ($throw) {
 
 /*************************** test fill array from model **************************/
 
-$testModelArray = new ModelArray($testModel, 'child');
+$testModelArray = new ModelArray($testModel, false, 'child');
 $testArray = $testModelArray->getObjectInstance();
 $stdTestArray = [null, $stdTest];
 
@@ -206,7 +206,7 @@ if ($throw) {
 
 /*************************** test fill from objectArray **************************/
 
-$testModelArray = new ModelArray($testModel, 'child');
+$testModelArray = new ModelArray($testModel, false, 'child');
 $testArray = $testModelArray->getObjectInstance();
 $stdTestArray = [null, $stdTest];
 
@@ -310,7 +310,7 @@ if ($throw) {
 
 /*************************** test export array from model **************************/
 
-$testModelArray = new ModelArray($testModel, 'child');
+$testModelArray = new ModelArray($testModel, false, 'child');
 $testArray = $testModelArray->getObjectInstance();
 $testArray->pushValue(null);
 $testArray->pushValue($test);

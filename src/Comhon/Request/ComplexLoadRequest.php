@@ -723,7 +723,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				}
 			}
 		}
-		$modelArray = new ModelArray($this->model, $this->model->getName());
+		$modelArray = new ModelArray($this->model, false, $this->model->getName());
 		$objectArray = $modelArray->import($rows, SqlTable::getInterfacer());
 		
 		return $this->_completeObject($objectArray);

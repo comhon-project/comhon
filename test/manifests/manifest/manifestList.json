@@ -29,6 +29,7 @@
 		"testNoSerialization" : "testNoSerialization/manifest.json",
 		"testNoId" : "testNoId/manifest.json",
 		"fatherMalformed" : "fatherMalformed/manifest.json",
-		"childMalformed" : "childMalformed/manifest.json"
+		"childMalformed" : "childMalformed/manifest.json",
+		"testAssociativeArray" : "testAssociativeArray/manifest.json"
 	}
 }

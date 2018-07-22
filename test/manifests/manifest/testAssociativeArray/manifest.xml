@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0">
+	<properties>
+		<property type="array" name="names" is_associative="1">
+			<values  type="string" name="name"/>
+		</property>
+		<property type="array" name="emails" is_associative="0">
+			<values  type="string" name="email" pattern="email"/>
+		</property>
+	</properties>
+</manifest>

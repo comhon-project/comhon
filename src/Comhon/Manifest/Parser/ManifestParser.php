@@ -39,22 +39,25 @@ abstract class ManifestParser {
 	const _OBJECT    = 'object';
 	
 	/** @var string */
-	const NAME          = 'name';
+	const NAME           = 'name';
 	
 	/** @var string */
-	const IS_ID         = 'is_id';
+	const IS_ID          = 'is_id';
 	
 	/** @var string */
-	const IS_PRIVATE    = 'is_private';
+	const IS_PRIVATE     = 'is_private';
 	
 	/** @var string */
-	const IS_FOREIGN    = 'is_foreign';
+	const IS_FOREIGN     = 'is_foreign';
 	
 	/** @var string */
-	const XML_NODE      = 'node';
+	const IS_ASSOCIATIVE = 'is_associative';
 	
 	/** @var string */
-	const XML_ATTRIBUTE = 'attribute';
+	const XML_NODE       = 'node';
+	
+	/** @var string */
+	const XML_ATTRIBUTE  = 'attribute';
 	
 	/** @var mixed */
 	protected $manifest;
