@@ -1,7 +1,7 @@
 {
     "version": "2.0",
     "serialization": {
-        "type": "jsonFile",
+        "type": "Comhon\\JsonFile",
         "value": {
             "saticPath": "\/var\/data\/table",
             "staticName": "table.json"

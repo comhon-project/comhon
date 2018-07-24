@@ -19,7 +19,7 @@ class IncompleteSqlDbInfosException extends ComhonException {
 	
 	public function __construct() {
 		$message = "missing required values for database connection. required values : "
-				.json_encode(ModelManager::getInstance()->getInstanceModel('sqlDatabase')->getPropertiesNames());
+				.json_encode(ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getPropertiesNames());
 		parent::__construct($message, ConstantException::INCOMPLETE_SQL_DB_INFOS_EXCEPTION);
 	}
 	

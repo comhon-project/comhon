@@ -55,7 +55,7 @@ class Config extends ExtendableObject {
 			}
 			self::$instance = new self();
 			self::$instance->fill($jsonConfig, $stdInterfacer);
-			self::$instance->setDirectory(dirname($config_af));
+			self::$instance->_setDirectory(dirname($config_af));
 		}
 		
 		return self::$instance;
@@ -107,7 +107,7 @@ class Config extends ExtendableObject {
 	 * 
 	 * @param unknown $path_ad
 	 */
-	public function setDirectory($path_ad) {
+	private function _setDirectory($path_ad) {
 		$this->config_ad = $path_ad;
 	}
 	

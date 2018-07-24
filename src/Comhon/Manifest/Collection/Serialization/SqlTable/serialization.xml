@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="jsonFile">
+	<serialization type="Comhon\JsonFile">
 		<value saticPath="/var/data/table" staticName="table.json"/>
 	</serialization>
 	<properties/>

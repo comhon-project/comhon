@@ -29,13 +29,13 @@ abstract class SerializationUnit {
 	const CREATE = 'create';
 	
 	/** @var string sql serialization */
-	const SQL_TABLE = 'sqlTable';
+	const SQL_TABLE = 'Comhon\SqlTable';
 	
 	/** @var string json file serialization */
-	const JSON_FILE = 'jsonFile';
+	const JSON_FILE = 'Comhon\JsonFile';
 	
 	/** @var string xml file serialization */
-	const XML_FILE  = 'xmlFile';
+	const XML_FILE  = 'Comhon\XmlFile';
 	
 	/** @var \Comhon\Object\ComhonObject */
 	protected $settings;

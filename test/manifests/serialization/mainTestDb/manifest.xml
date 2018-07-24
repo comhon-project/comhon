@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="sqlTable" id="main_test"/>
+	<serialization type="Comhon\SqlTable" id="main_test"/>
 	<properties>
 		<childrenTestDb>
 			<aggregations>

@@ -546,7 +546,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		}
 		
 		$extendablesProperties = [];
-		foreach ($model->getForeignSerializableProperties('sqlTable') as $property) {
+		foreach ($model->getForeignSerializableProperties('Comhon\SqlTable') as $property) {
 			$database = $property->getUniqueModel()->getSerialization()->getSettings()->getValue('database');
 			if (!($database instanceof ObjectUnique)) {
 				throw new SerializationException('not valid serialization settings, database information is missing');

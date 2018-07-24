@@ -13,6 +13,29 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "autoload",
+            "properties": [
+                {
+                    "name": "manifest",
+                    "type": "array",
+                    "is_associative": true,
+                    "values": {
+                        "type": "string",
+                        "name": "manifest"
+                    }
+                },
+                {
+                    "name": "serialization",
+                    "type": "array",
+                    "is_associative": true,
+                    "values": {
+                        "type": "string",
+                        "name": "serialization"
+                    }
+                }
+            ]
         }
     ],
     "properties": [
@@ -25,12 +48,17 @@
             "type": "string"
         },
         {
-            "name": "manifestList",
-            "type": "string"
+            "name": "manifestFormat",
+            "type": "string",
+            "enum": [
+                "json",
+                "xml"
+            ],
+            "default": "json"
         },
         {
-            "name": "serializationList",
-            "type": "string"
+            "name": "autoload",
+            "type": "autoload"
         },
         {
             "name": "regexList",

@@ -79,7 +79,7 @@ class ModelToSQL {
 		$databasePath = $output . '/database/';
 		mkdir($databasePath);
 		
-		$settings = ModelManager::getInstance()->getInstanceModel('sqlDatabase')->getSerializationSettings();
+		$settings = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings();
 		$origin_table_ad = $settings->getValue('saticPath');
 		$settings->setValue('saticPath', $databasePath);
 		
@@ -348,12 +348,12 @@ class ModelToSQL {
 		try {
 			$model = ModelManager::getInstance()->getInstanceModel($modelName);
 		} catch(SerializationManifestIdException $e) {
-			if ($e->getType() == 'sqlTable') {
-				$settings = ModelManager::getInstance()->getInstanceModel('sqlTable')->getSerializationSettings();
+			if ($e->getType() == 'Comhon\SqlTable') {
+				$settings = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getSerializationSettings();
 				$origin_table_ad = $settings->getValue('saticPath');
 				$settings->setValue('saticPath', $this->table_ad);
 				
-				$sqlTable = ModelManager::getInstance()->getInstanceModel('sqlTable')->getObjectInstance();
+				$sqlTable = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getObjectInstance();
 				$sqlTable->setId($e->getId());
 				$sqlTable->setValue('database', $this->defaultSqlDatabase);
 				$sqlTable->save(SerializationUnit::CREATE);
@@ -401,11 +401,11 @@ class ModelToSQL {
 			$response = trim(fgets(STDIN));
 			$table = empty($response) ? $modelName : $response;
 			
-			$settings = ModelManager::getInstance()->getInstanceModel('sqlTable')->getSerializationSettings();
+			$settings = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getSerializationSettings();
 			$origin_table_ad = $settings->getValue('saticPath');
 			$settings->setValue('saticPath', $this->table_ad);
 			
-			$sqlTable = ModelManager::getInstance()->getInstanceModel('sqlTable')->getObjectInstance();
+			$sqlTable = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getObjectInstance();
 			$sqlTable->setId($table);
 			$sqlTable->setValue('database', $this->defaultSqlDatabase);
 			$sqlTable->save(SerializationUnit::CREATE);
@@ -475,11 +475,11 @@ class ModelToSQL {
 		
 		$this->case = $case;
 		if (is_null($sqlDatabase)) {
-			$sqlDatabase = ModelManager::getInstance()->getInstanceModel('sqlDatabase')->getObjectInstance();
+			$sqlDatabase = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getObjectInstance();
 			$sqlDatabase->setId('generated');
 		}
-		if ($sqlDatabase->getModel()->getName() !== 'sqlDatabase') {
-			$databaseModel = ModelManager::getInstance()->getInstanceModel('sqlDatabase');
+		if ($sqlDatabase->getModel()->getName() !== 'Comhon\SqlDatabase') {
+			$databaseModel = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase');
 			$expected = $databaseModel->getObjectInstance()->getComhonClass();
 			throw new ArgumentException($database, $expected, 3);
 		}
@@ -511,7 +511,7 @@ class ModelToSQL {
 						'model' => $model
 					];
 				} elseif (!is_null($table = $this->defineTable($modelName))) {
-					$serializationSettings = new Object('sqlTable');
+					$serializationSettings = new Object('Comhon\SqlTable');
 					$serializationSettings->setId($table);
 					$serializationSettings->setValue('database', $this->defaultSqlDatabase);
 					
@@ -605,7 +605,7 @@ class ModelToSQL {
 		if (isset($options['database'])) {
 			$infos = explode(':', $options['database']);
 			
-			$sqlDatabase = ModelManager::getInstance()->getInstanceModel('sqlDatabase')->getObjectInstance();
+			$sqlDatabase = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getObjectInstance();
 			$sqlDatabase->setId($infos[0]);
 			$sqlDatabase->setValue('DBMS', $infos[1]);
 			$sqlDatabase->setValue('host', $infos[2]);

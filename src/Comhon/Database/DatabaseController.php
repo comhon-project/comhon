@@ -207,7 +207,7 @@ class DatabaseController {
 	public static function getInstanceWithDataBaseId($id) {
 		return array_key_exists($id, self::$instances)
 			? self::$instances[$id]
-			: self::getInstanceWithDataBaseObject(ModelManager::getInstance()->getInstanceModel('sqlDatabase')->loadObject($id));
+			: self::getInstanceWithDataBaseObject(ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->loadObject($id));
 	}
 	
 	/**
@@ -218,8 +218,8 @@ class DatabaseController {
 	 */
 	public static function getInstanceWithDataBaseObject(ObjectUnique $dbReference) {
 		$databaseController = null;
-		if ($dbReference->getModel() !== ModelManager::getInstance()->getInstanceModel('sqlDatabase')) {
-			throw new UnexpectedModelException(ModelManager::getInstance()->getInstanceModel('sqlDatabase'), $dbReference->getModel());
+		if ($dbReference->getModel() !== ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')) {
+			throw new UnexpectedModelException(ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase'), $dbReference->getModel());
 		}
 		if (!$dbReference->hasValue('id')) {
 			throw new IncompleteSqlDbInfosException();

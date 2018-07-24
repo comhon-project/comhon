@@ -1,7 +1,7 @@
 {
     "version": "2.0",
     "serialization": {
-        "type": "jsonFile",
+        "type": "Comhon\\JsonFile",
         "inheritanceKey": "key",
         "value": {
             "saticPath": "\/var\/data\/man_body_json",

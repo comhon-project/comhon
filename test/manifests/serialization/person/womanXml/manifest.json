@@ -1,7 +1,7 @@
 {
     "version": "2.0",
     "serialization": {
-        "type": "xmlFile",
+        "type": "Comhon\\XmlFile",
         "inheritanceKey": "attribute",
         "value": {
             "saticPath": "\/var\/data\/woman_xml",

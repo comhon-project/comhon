@@ -75,6 +75,11 @@ class ModelManager {
 	private $serializationManifestParser;
 	
 	/**
+	 * @var string
+	 */
+	private $manifestExtension = 'json';
+	
+	/**
 	 * @var string[] map namespace prefix to directory to allow manifest autoloading
 	 */
 	private $autoloadManifest = [
@@ -115,16 +120,29 @@ class ModelManager {
 			if (!is_dir($path)) {
 				throw new ConfigFileNotFoundException('sqlTable', 'directory', Config::getInstance()->getSerializationSqlTablePath(false));
 			}
-			$this->getInstanceModel('sqlTable')->getSerializationSettings()->setValue('saticPath', $path);
+			$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('saticPath', $path);
 		}
 		if (Config::getInstance()->hasValue('sqlDatabase')) {
 			$path = Config::getInstance()->getSerializationSqlDatabasePath();
 			if (!is_dir($path)) {
 				throw new ConfigFileNotFoundException('sqlDatabase', 'directory', Config::getInstance()->getSerializationSqlDatabasePath(false));
 			}
-			$this->getInstanceModel('sqlDatabase')->getSerializationSettings()->setValue('saticPath', $path);
+			$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('saticPath', $path);
 		}
-	}	
+		if (!is_null(Config::getInstance()->getValue('manifestFormat'))) {
+			$this->manifestExtension = Config::getInstance()->getValue('manifestFormat');
+		}
+		$lManifestAutoloadList = Config::getInstance()->getManifestAutoloadList();
+		if (!is_null($lManifestAutoloadList)) {
+			$this->autoloadManifest = $lManifestAutoloadList->getValues();
+			$this->autoloadManifest['Comhon'] = __DIR__ . '/../../Manifest/Collection/Manifest';
+		}
+		$lSerializationManifestAutoloadList = Config::getInstance()->getSerializationAutoloadList();
+		if (!is_null($lSerializationManifestAutoloadList)) {
+			$this->autoloadSerializationManifest = $lSerializationManifestAutoloadList->getValues();
+			$this->autoloadSerializationManifest['Comhon'] = __DIR__ . '/../../Manifest/Collection/Serialization';
+		}
+	}
 	
 	/**
 	 * register al simple model
@@ -229,19 +247,19 @@ class ModelManager {
 	
 	private function _getManifestPath($nameSpacePrefix, $nameSpaceSuffix) {
 		$prefix_ad = substr($this->autoloadManifest[$nameSpacePrefix], 0, 1) == '.'
-			? Config::getLoadPath() . DIRECTORY_SEPARATOR . $this->autoloadManifest[$nameSpacePrefix]
+			? Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $this->autoloadManifest[$nameSpacePrefix]
 			: $this->autoloadManifest[$nameSpacePrefix];
-		return $prefix_ad . '/' . str_replace('\\', '/', $nameSpaceSuffix) . '/manifest';
+		return $prefix_ad . '/' . str_replace('\\', '/', $nameSpaceSuffix) . '/manifest.' . $this->manifestExtension;
 	}
 		
 	private function _getSerializationManifestPath($manifest_af, $nameSpacePrefix, $nameSpaceSuffix) {
 		if (array_key_exists($nameSpacePrefix, $this->autoloadSerializationManifest)) {
 			$prefix_ad = substr($this->autoloadSerializationManifest[$nameSpacePrefix], 0, 1) == '.'
-				? Config::getLoadPath() . DIRECTORY_SEPARATOR . $this->autoloadSerializationManifest[$nameSpacePrefix]
+				? Config::getInstance()->getDirectory(). DIRECTORY_SEPARATOR . $this->autoloadSerializationManifest[$nameSpacePrefix]
 				: $this->autoloadSerializationManifest[$nameSpacePrefix];
-			$manifest_af = $prefix_ad . '/' . str_replace('\\', '/', $nameSpaceSuffix) . '/serialization';
+			$manifest_af = $prefix_ad . '/' . str_replace('\\', '/', $nameSpaceSuffix) . '/serialization.' . $this->manifestExtension;
 		} else {
-			$manifest_af = dirname($manifest_af) . '/serialization';
+			$manifest_af = dirname($manifest_af) . '/serialization.' . $this->manifestExtension;
 		}
 		return file_exists($manifest_af) ? $manifest_af : null;
 	}
@@ -336,8 +354,8 @@ class ModelManager {
 				if (is_null($this->manifestParser)) {
 					$unsetManifestParser    = true;
 					list($prefix, $suffix)  = $this->_splitModelName($model->getName());
-					$manifestPath_afe       = $this->_getManifestPath($nameSpacePrefix, $nameSpaceSuffix);
-					$serializationPath_afe  = $this->_getSerializationManifestPath($manifestPath_afe, $nameSpacePrefix, $nameSpaceSuffix);
+					$manifestPath_afe       = $this->_getManifestPath($prefix, $suffix);
+					$serializationPath_afe  = $this->_getSerializationManifestPath($manifestPath_afe, $prefix, $suffix);
 					$this->manifestParser   = ManifestParser::getInstance($model, $manifestPath_afe, $serializationPath_afe);
 					$this->currentNamespace = $model->getName();
 					

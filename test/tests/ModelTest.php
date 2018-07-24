@@ -16,7 +16,7 @@ if (!ModelManager::getInstance()->hasInstanceModel('Comhon\Config')) {
 if (!ModelManager::getInstance()->hasInstanceModelLoaded('Comhon\Config')) {
 	throw new \Exception('model must be loaded');
 }
-if (ModelManager::getInstance()->hasInstanceModel('sqlTable')) {
+if (ModelManager::getInstance()->hasInstanceModel('Comhon\SqlTable')) {
 	throw new \Exception('model already initialized');
 }
 
@@ -144,10 +144,10 @@ if ($placeModel !== $placeModelTow) {
 /** ****************************** basic test for model 'testDb' ****************************** **/
 
 /*
- if (ModelManager::getInstance()->hasInstanceModel('sqlDatabase')) {
+ if (ModelManager::getInstance()->hasInstanceModel('Comhon\SqlDatabase')) {
 throw new \Exception("model must be not initialized");
 }
-if (ModelManager::getInstance()->hasInstanceModelLoaded('sqlDatabase')) {
+if (ModelManager::getInstance()->hasInstanceModelLoaded('Comhon\SqlDatabase')) {
 throw new \Exception("model must be not loaded");
 }
 */
@@ -161,7 +161,7 @@ if (json_encode($testDbModel->getPropertiesNames()) !== '["id1","id2","date","ti
 	throw new \Exception("model {$testDbModel->getName()} hasn't good properties : ".json_encode($testDbModel->getPropertiesNames()));
 }
 $dbModel = $testDbModel->getSerialization()->getSettings()->getProperty('database')->getModel();
-if ($dbModel->getName() !== 'sqlDatabase') {
+if ($dbModel->getName() !== 'Comhon\SqlDatabase') {
 	throw new \Exception('model hasn\'t good name');
 }
 if ($testDbModel->getProperty('integer')->isPrivate()) {
@@ -232,11 +232,11 @@ if (!$testDbModel->getSerialization()->getSettings()->getValue('database')->isLo
 	throw new \Exception('object must be loaded');
 }
 
-/** ****************************** test load status of model 'sqlDatabase' ****************************** **/
-if (!ModelManager::getInstance()->hasInstanceModel('sqlDatabase')) {
+/** ****************************** test load status of model 'Comhon\SqlDatabase' ****************************** **/
+if (!ModelManager::getInstance()->hasInstanceModel('Comhon\SqlDatabase')) {
 	throw new \Exception('model \'sqlDatabase\' not initialized');
 }
-if (!ModelManager::getInstance()->hasInstanceModelLoaded('sqlDatabase')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('Comhon\SqlDatabase')) {
 	throw new \Exception('model must be loaded');
 }
 
@@ -249,11 +249,11 @@ if ($placeModel->getSerialization()->getSettings()->getModel() !== $testDbModel-
 	throw new \Exception('models haven\'t same instance');
 }
 
-if (ModelManager::getInstance()->getInstanceModel('sqlDatabase') !== $testDbModel->getSerialization()->getSettings()->getValue('database')->getModel()) {
+if (ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase') !== $testDbModel->getSerialization()->getSettings()->getValue('database')->getModel()) {
 	throw new \Exception('models haven\'t same instance');
 }
 
-if (ModelManager::getInstance()->getInstanceModel('sqlTable') !== $testDbModel->getSerialization()->getSettings()->getModel()) {
+if (ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable') !== $testDbModel->getSerialization()->getSettings()->getModel()) {
 	throw new \Exception('models haven\'t same instance');
 }
 
@@ -267,7 +267,7 @@ $obj->setValue('objectValue', $objValue);
 $obj->setValue('objectValues', $objArray);
 $obj->setValue('foreignObjectValues', $objArray);
 
-if (!ModelManager::getInstance()->hasInstanceModel('sqlTable')) {
+if (!ModelManager::getInstance()->hasInstanceModel('Comhon\SqlTable')) {
 	throw new \Exception('model already initialized');
 }
 

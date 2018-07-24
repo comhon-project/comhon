@@ -1,6 +1,13 @@
 {
-  "manifestList": "../manifests/manifest/manifestList.json",
-  "serializationList": "../manifests/serialization_pgsql/serializationList.json",
+  "manifestFormat": "json",
+  "autoload": {
+    "manifest":{
+      "Test":"../manifests/manifest"
+    },
+    "serialization":{
+      "Test":"../manifests/serialization_pgsql"
+    }
+  },
   "regexList":"./regex.json",
   "sqlTable": "./table",
   "sqlDatabase": "./database",

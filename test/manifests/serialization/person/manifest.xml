@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="sqlTable" inheritanceKey="sex" id="person"/>
+	<serialization type="Comhon\SqlTable" inheritanceKey="sex" id="person"/>
 	<properties>
 		<firstName serializationName="first_name"/>
 		<birthDate serializationName="birth_date"/>

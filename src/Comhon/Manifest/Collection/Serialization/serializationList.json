@@ -1,7 +1,0 @@
-{
-	"version" : "2.0",
-	"list" : {
-		"sqlDatabase":"SqlDatabase/manifest.json",
-		"sqlTable"   :"SqlTable/manifest.json"
-	}
-}

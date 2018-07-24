@@ -9,11 +9,10 @@
 		</type>
 		<type name="autoload">
 			<properties>
-				<!-- TODO define assoc array -->
-				<property type="array" name="manifest">
+				<property type="array" name="manifest" is_associative="1">
 		            <values type="string" name="manifest"/>
 		        </property>
-				<property type="array" name="serialization">
+				<property type="array" name="serialization" is_associative="1">
 		            <values type="string" name="serialization"/>
 		        </property>
 			</properties>
@@ -23,7 +22,12 @@
 	<properties>
 		<property type="dbOpt" name="database"/>
 		<property type="string" name="dateTimeFormat"/>
-		<property type="string" name="manifestFormat" default="json"/>
+		<property type="string" name="manifestFormat" default="json">
+			<enum>
+				<value>json</value>
+				<value>xml</value>
+			</enum>
+		</property>
 		<property type="autoload" name="autoload"/>
 		<property type="string" name="regexList"/>
 		<property type="string" name="sqlTable"/>

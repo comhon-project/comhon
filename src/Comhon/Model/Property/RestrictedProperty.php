@@ -35,7 +35,7 @@ class RestrictedProperty extends Property {
 	 * @throws \Exception
 	 */
 	public function __construct(Model $model, $name, Restriction $restriction, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
-		parent::__construct($model, $name, $serializationName, false, $isPrivate, $isSerializable);
+		parent::__construct($model, $name, $serializationName, $isId, $isPrivate, $isSerializable, $default, $isInterfacedAsNodeXml);
 		if (!$restriction->isAllowedModel($this->model)) {
 			throw new ComhonException('restriction doesn\'t allow specified model');
 		}

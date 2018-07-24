@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="sqlTable" id="woman_body"/>
+	<serialization type="Comhon\SqlTable" id="woman_body"/>
 	<properties>
 		<chestSize serializationName="chest_size"/>
 		<owner serializationName="owner_id"/>

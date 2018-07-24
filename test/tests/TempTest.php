@@ -6,6 +6,9 @@ use Comhon\Exception\NotDefinedModelException;
 
 Config::setLoadPath(__DIR__ . '/../config/config-json-pgsql.json');
 
-echo ModelManager::getInstance()->getInstanceModel('Comhon\Config');
+var_dump(ModelManager::getInstance()->getInstanceModel('Comhon\Config')->getName());
+var_dump('---------------');
+ModelManager::getInstance()->getInstanceModel('Comhon\XmlFile');
+ModelManager::getInstance()->getInstanceModel('Test\Person');
 
 die();
