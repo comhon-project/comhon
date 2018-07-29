@@ -1,11 +1,11 @@
 {
-  "manifestFormat": "json",
+  "manifestFormat": "xml",
   "autoload": {
     "manifest":{
       "Test":"./manifests/manifest"
     },
     "serialization":{
-      "Test":"./manifests/serialization_pgsql"
+      "Test":"./manifests/serialization"
     }
   },
   "regexList":"./config/regex.json",

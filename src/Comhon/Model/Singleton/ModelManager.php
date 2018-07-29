@@ -225,15 +225,11 @@ class ModelManager {
 	private function _getInstanceModel($modelName, $loadModel) {
 		if (!array_key_exists($modelName, $this->instanceModels)) {
 			list($prefix, $suffix) = $this->_splitModelName($modelName);
-			var_dump('***********');
-			var_dump($prefix);
-			var_dump($suffix);
-			var_dump($this->_getManifestPath($prefix, $suffix));
 			if (file_exists($this->_getManifestPath($prefix, $suffix))) {
 				$model = $this->_isMainModel($suffix) ? new MainModel($modelName) : new LocalModel($modelName);
 				$this->_addInstanceModel($model);
 			} else {
-				$this->loadIntermediateManifest($prefix, $suffix);
+				$this->loadIntermediateManifest($modelName, $prefix, $suffix);
 				if (!array_key_exists($modelName, $this->instanceModels)) {
 					throw new NotDefinedModelException($modelName);
 				}
@@ -270,11 +266,11 @@ class ModelManager {
 	 * @param string $modelName
 	 * @throws \Exception
 	 */
-	private function loadIntermediateManifest($nameSpacePrefix, $nameSpaceSuffix) {
+	private function loadIntermediateManifest($modelName, $nameSpacePrefix, $nameSpaceSuffix) {
 		$parentNameSpaceSuffix = $nameSpaceSuffix;
 		
-		while ($separatorOffset = strrpos($parentNameSpaceSuffix, '\\') !== false) {
-			$parentNameSpaceSuffix.= substr($parentNameSpaceSuffix, 0, $separatorOffset);
+		while (($separatorOffset = strrpos($parentNameSpaceSuffix, '\\')) !== false) {
+			$parentNameSpaceSuffix = substr($parentNameSpaceSuffix, 0, $separatorOffset);
 			$parentNameSpace = $nameSpacePrefix . '\\' . $parentNameSpaceSuffix;
 			
 			if (array_key_exists($parentNameSpace, $this->instanceModels)) {

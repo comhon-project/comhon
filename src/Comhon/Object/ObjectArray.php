@@ -38,7 +38,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 			if ($elementModel instanceof ModelContainer) {
 				throw new ComhonException('Object cannot have ModelContainer except ModelArray');
 			}
-			$objectModel = new ModelArray($elementModel, $isAssociative, is_null($elementName) ? $elementModel->getName() : $elementName);
+			$objectModel = new ModelArray($elementModel, $isAssociative, is_null($elementName) ? $elementModel->getShortName() : $elementName);
 		}
 		$this->setIsLoaded($isLoaded);
 		$this->_affectModel($objectModel);

@@ -34,7 +34,7 @@ class ObjectCollection {
 			? $this->map[$modelName][$id]
 			: null;
 		
-		if (is_null($object) && $inlcudeInheritance && ModelManager::getInstance()->hasModel($modelName)) {
+		if (is_null($object) && $inlcudeInheritance) {
 			$currentModel = ModelManager::getInstance()->getInstanceModel($modelName);
 			$serialization = $currentModel->getSerializationSettings();
 			
@@ -67,7 +67,7 @@ class ObjectCollection {
 	public function hasObject($id, $modelName, $inlcudeInheritance = true) {
 		$hasObject = array_key_exists($modelName, $this->map) && array_key_exists($id, $this->map[$modelName]);
 		
-		if (!$hasObject && $inlcudeInheritance && ModelManager::getInstance()->hasModel($modelName)) {
+		if (!$hasObject && $inlcudeInheritance) {
 			$currentModel = ModelManager::getInstance()->getInstanceModel($modelName);
 			$serialization = $currentModel->getSerializationSettings();
 			

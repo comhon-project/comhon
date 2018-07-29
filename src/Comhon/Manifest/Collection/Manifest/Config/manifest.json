@@ -2,7 +2,7 @@
     "version": "2.0",
     "types": [
         {
-            "name": "dbOpt",
+            "name": "DbOpt",
             "properties": [
                 {
                     "name": "charset",
@@ -15,7 +15,7 @@
             ]
         },
         {
-            "name": "autoload",
+            "name": "Autoload",
             "properties": [
                 {
                     "name": "manifest",
@@ -41,7 +41,7 @@
     "properties": [
         {
             "name": "database",
-            "type": "dbOpt"
+            "type": "DbOpt"
         },
         {
             "name": "dateTimeFormat",
@@ -58,7 +58,7 @@
         },
         {
             "name": "autoload",
-            "type": "autoload"
+            "type": "Autoload"
         },
         {
             "name": "regexList",

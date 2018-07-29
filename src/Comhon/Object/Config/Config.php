@@ -27,7 +27,7 @@ class Config extends ExtendableObject {
 	/**
 	 * @var string
 	 */
-	private static $loadPath = DIRECTORY_SEPARATOR . 'etc' . DIRECTORY_SEPARATOR . 'comhon' . DIRECTORY_SEPARATOR . 'config.json';
+	private static $loadPath = './config.json';
 	
 	/**
 	 * @var string
@@ -158,9 +158,9 @@ class Config extends ExtendableObject {
 	}
 	
 	/**
-	 * get map namespace prefix to directory to allow manifest autoloading
+	 * get manifest format
 	 *
-	 * @return string[]
+	 * @return string
 	 */
 	public function getManifestFormat() {
 		return $this->getValue('manifestFormat');
@@ -172,9 +172,9 @@ class Config extends ExtendableObject {
 	 * @return string[]
 	 */
 	public function getManifestAutoloadList() {
-		return ($this->getValue('autoload') instanceof ComhonObject) && $this->getValue('autoload')->hasValue('manifest')
+		return ($this->getValue('autoload') instanceof ComhonObject)
 			? $this->getValue('autoload')->getValue('manifest')
-			: [];
+			: null;
 	}
 	
 	/**
@@ -183,9 +183,9 @@ class Config extends ExtendableObject {
 	 * @return string[]
 	 */
 	public function getSerializationAutoloadList() {
-		return ($this->getValue('autoload') instanceof ComhonObject) && $this->getValue('autoload')->hasValue('serialization')
+		return ($this->getValue('autoload') instanceof ComhonObject)
 			? $this->getValue('autoload')->getValue('serialization')
-			: [];
+			: null;
 	}
 	
 	/**

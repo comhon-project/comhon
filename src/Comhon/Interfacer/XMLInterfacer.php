@@ -27,6 +27,12 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	/** @var string */
 	const NIL_URI = 'http://www.w3.org/2001/XMLSchema-instance';
 	
+	/** @var integer */
+	const INDEX_NODE_CONTAINER = 0;
+	
+	/** @var integer */
+	const INDEX_NODES = 1;
+	
 	/** @var \DOMDocument */
 	private $domDocument;
 	
@@ -532,16 +538,22 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	public function addMainForeignObject($node, $nodeId, Model $model) {
 		if (!is_null($this->mainForeignObjects)) {
 			$modelName = $model->getName();
-			if (!$this->hasValue($this->mainForeignObjects, $modelName, true)) {
-				$this->setValue($this->mainForeignObjects, $this->createNode($modelName));
-				$this->mainForeignIds[$modelName] = [];
+			if (!array_key_exists($modelName, $this->mainForeignIds)) {
+				$container = $this->createNode($model->getShortName());
+				$this->setValue($container, $model->getNameSpace(), 'namespace');
+				$this->setValue($this->mainForeignObjects, $container);
+				$this->mainForeignIds[$modelName] = [
+						$container,
+						[]
+				];
 			}
-			if (isset($this->mainForeignIds[$modelName][$nodeId])) {
-				$this->getValue($this->mainForeignObjects, $modelName, true)->removeChild($this->mainForeignIds[$modelName][$nodeId]);
+			if (isset($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId])) {
+				$this->mainForeignIds[$modelName][self::INDEX_NODE_CONTAINER]->removeChild($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId]);
 			}
-			$this->unsetValue($this->getValue($this->mainForeignObjects, $modelName, true), $nodeId, true);
-			$this->setValue($this->getValue($this->mainForeignObjects, $modelName, true), $node);
-			$this->mainForeignIds[$modelName][$nodeId] = $node;
+			// TODO remove following line, it is probably old line not used anymore
+			//$this->unsetValue($this->getValue($this->mainForeignObjects, $modelName, true), $nodeId, true);
+			$this->setValue($this->mainForeignIds[$modelName][self::INDEX_NODE_CONTAINER], $node);
+			$this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId] = $node;
 		}
 	}
 	
@@ -553,9 +565,9 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	public function removeMainForeignObject($nodeId, Model $model) {
 		if (!is_null($this->mainForeignObjects)) {
 			$modelName = $model->getName();
-			if ($this->hasValue($this->mainForeignObjects, $modelName, true)) {
-				$this->getValue($this->mainForeignObjects, $modelName, true)->removeChild($this->mainForeignIds[$modelName][$nodeId]);
-				unset($this->mainForeignIds[$modelName][$nodeId]);
+			if (isset($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId])) {
+				$this->mainForeignIds[$modelName][self::INDEX_NODE_CONTAINER]->removeChild($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId]);
+				unset($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId]);
 			}
 		}
 	}
@@ -568,6 +580,6 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	public function hasMainForeignObject($modelName, $id) {
 		return !is_null($this->mainForeignIds)
 			&& array_key_exists($modelName, $this->mainForeignIds)
-			&& array_key_exists($id, $this->mainForeignIds[$modelName]);
+			&& array_key_exists($id, $this->mainForeignIds[$modelName][self::INDEX_NODES]);
 	}
 }

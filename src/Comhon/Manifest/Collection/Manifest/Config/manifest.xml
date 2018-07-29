@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<types>
-		<type name="dbOpt">
+		<type name="DbOpt">
 			<properties>
 				<property type="string" name="charset"/>
 				<property type="string" name="timezone"/>
 			</properties>
 		</type>
-		<type name="autoload">
+		<type name="Autoload">
 			<properties>
 				<property type="array" name="manifest" is_associative="1">
 		            <values type="string" name="manifest"/>
@@ -20,7 +20,7 @@
 	</types>
 	
 	<properties>
-		<property type="dbOpt" name="database"/>
+		<property type="DbOpt" name="database"/>
 		<property type="string" name="dateTimeFormat"/>
 		<property type="string" name="manifestFormat" default="json">
 			<enum>
@@ -28,7 +28,7 @@
 				<value>xml</value>
 			</enum>
 		</property>
-		<property type="autoload" name="autoload"/>
+		<property type="Autoload" name="autoload"/>
 		<property type="string" name="regexList"/>
 		<property type="string" name="sqlTable"/>
 		<property type="string" name="sqlDatabase"/>

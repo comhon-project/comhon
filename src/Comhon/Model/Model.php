@@ -703,7 +703,7 @@ abstract class Model {
 		self::$instanceObjectHash = [];
 		$this->_addMainCurrentObject($object, $interfacer);
 		try {
-			$node = $this->_export($object, $this->getName(), $interfacer, true);
+			$node = $this->_export($object, 'root', $interfacer, true);
 		} catch (ComhonException $e) {
 			throw new ExportException($e);
 		}

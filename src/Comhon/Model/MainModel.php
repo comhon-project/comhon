@@ -290,7 +290,7 @@ class MainModel extends Model {
 			
 			if (!$interfacer->hasMainForeignObject($modelName, $valueId)) {
 				$interfacer->addMainForeignObject($interfacer->createNode('empty'), $valueId, $object->getModel());
-				$interfacer->addMainForeignObject($model->_export($object, $model->getName(), $interfacer, true), $valueId, $object->getModel());
+				$interfacer->addMainForeignObject($model->_export($object, 'root', $interfacer, true), $valueId, $object->getModel());
 			}
 		}
 		return $nodeId;
