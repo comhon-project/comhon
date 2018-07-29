@@ -17,7 +17,7 @@ $childTable->addSelectedColumn('id', 'child_id');
 $selectQuery = new SelectQuery($personTable);
 $selectQuery->join(SelectQuery::INNER_JOIN, $childTable, new OnLiteral($personTable, 'id', Literal::EQUAL, $childTable, 'father_id'));
 $selectQuery->where(new SimpleDbLiteral($childTable, 'first_name', Literal::EQUAL, ['john', 'Jean']));
-$database  = ModelManager::getInstance()->getInstanceModel('person')->getSerialization()->getSettings()->getValue('database');
+$database  = ModelManager::getInstance()->getInstanceModel('Test\Person')->getSerialization()->getSettings()->getValue('database');
 $databaseController = DatabaseController::getInstanceWithDataBaseObject($database);
 
 $selectQuery->setFocusOnMainTable();

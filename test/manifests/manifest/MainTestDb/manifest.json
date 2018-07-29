@@ -1,0 +1,42 @@
+{
+    "version": "2.0",
+    "types": [
+        {
+            "name": "Object",
+            "properties": [
+                {
+                    "name": "plop",
+                    "type": "string"
+                },
+                {
+                    "name": "plop2",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "name",
+            "type": "string"
+        },
+        {
+            "name": "obj",
+            "type": "Object"
+        },
+        {
+            "name": "childrenTestDb",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\TestDb",
+                "name": "childTestDb"
+            },
+            "is_foreign": true
+        }
+    ]
+}

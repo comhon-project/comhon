@@ -1,0 +1,111 @@
+{
+    "version": "2.0",
+    "types": [
+        {
+            "name": "Art",
+            "properties": [
+                {
+                    "name": "type",
+                    "type": "string"
+                },
+                {
+                    "name": "location",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Tatoo",
+            "extends": "Art",
+            "properties": [
+                {
+                    "name": "tatooArtist",
+                    "type": "\\Test\\Person",
+                    "is_foreign": true
+                }
+            ]
+        },
+        {
+            "name": "Piercing",
+            "extends": "Art",
+            "properties": [
+                {
+                    "name": "piercer",
+                    "type": "\\Test\\Person",
+                    "is_foreign": true
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "date",
+            "type": "dateTime"
+        },
+        {
+            "name": "height",
+            "type": "float"
+        },
+        {
+            "name": "weight",
+            "type": "float"
+        },
+        {
+            "name": "hairColor",
+            "type": "string"
+        },
+        {
+            "name": "hairCut",
+            "type": "string"
+        },
+        {
+            "name": "eyesColor",
+            "type": "string"
+        },
+        {
+            "name": "physicalAppearance",
+            "type": "string",
+            "enum": [
+                "slim",
+                "average",
+                "athletic",
+                "muscular",
+                "fat"
+            ]
+        },
+        {
+            "name": "tatoos",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\Body\\Tatoo",
+                "name": "tatoo"
+            }
+        },
+        {
+            "name": "piercings",
+            "type": "array",
+            "values": {
+                "type": "Piercing",
+                "name": "piercing"
+            }
+        },
+        {
+            "name": "arts",
+            "type": "array",
+            "values": {
+                "type": "Art",
+                "name": "art"
+            }
+        },
+        {
+            "name": "owner",
+            "type": "\\Test\\Person",
+            "is_foreign": true
+        }
+    ]
+}

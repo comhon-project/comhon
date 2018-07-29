@@ -125,7 +125,7 @@ $preferences = [
 	Interfacer::DATE_TIME_ZONE         => 'Pacific/Tahiti',
 	Interfacer::DATE_TIME_FORMAT       => 'Y-m-d H:i:s',
 	Interfacer::ONLY_UPDATED_VALUES    => true,
-	Interfacer::PROPERTIES_FILTERS     => ['person' => ['haha', 'hoho'], 'place' => ['plop1', 'plop2']],
+	Interfacer::PROPERTIES_FILTERS     => ['Test\Person' => ['haha', 'hoho'], 'Test\Place' => ['plop1', 'plop2']],
 	Interfacer::FLATTEN_VALUES         => true,
 	Interfacer::EXPORT_MAIN_FOREIGN_OBJECTS   => true,
 	Interfacer::FLAG_VALUES_AS_UPDATED => false,
@@ -153,7 +153,7 @@ if ($interfacer->hasToExportOnlyUpdatedValues() !== true) {
 if ($interfacer->getPropertiesFilter('haha') !== null) {
 	throw new \Exception('bad value');
 }
-if (json_encode($interfacer->getPropertiesFilter('person')) !== '{"haha":0,"hoho":1,"id":null}') {
+if (json_encode($interfacer->getPropertiesFilter('Test\Person')) !== '{"haha":0,"hoho":1,"id":null}') {
 	throw new \Exception('bad value');
 }
 if ($interfacer->hasToFlattenValues() !== true) {

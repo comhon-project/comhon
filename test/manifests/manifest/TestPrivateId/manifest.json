@@ -1,0 +1,73 @@
+{
+    "version": "2.0",
+    "types": [
+        {
+            "name": "Object",
+            "properties": [
+                {
+                    "name": "id1",
+                    "type": "integer",
+                    "is_id": true,
+                    "is_private": true
+                },
+                {
+                    "name": "id2",
+                    "type": "integer",
+                    "is_id": true
+                },
+                {
+                    "name": "propertyOne",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "string",
+            "is_id": true,
+            "is_private": true
+        },
+        {
+            "name": "name",
+            "type": "string"
+        },
+        {
+            "name": "objectValues",
+            "type": "array",
+            "values": {
+                "type": "Object",
+                "name": "objectValue"
+            }
+        },
+        {
+            "name": "foreignObjectValue",
+            "type": "Object",
+            "is_foreign": true
+        },
+        {
+            "name": "foreignObjectValues",
+            "type": "array",
+            "values": {
+                "type": "Object",
+                "name": "foreignObjectValue"
+            },
+            "is_foreign": true
+        },
+        {
+            "name": "foreignTestPrivateId",
+            "type": "\\Test\\TestPrivateId",
+            "is_foreign": true
+        },
+        {
+            "name": "foreignTestPrivateIds",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\TestPrivateId",
+                "name": "foreignTestPrivateId"
+            },
+            "is_foreign": true
+        }
+    ]
+}

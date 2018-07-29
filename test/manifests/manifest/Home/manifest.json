@@ -1,0 +1,28 @@
+{
+    "version": "2.0",
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "beginDate",
+            "type": "string"
+        },
+        {
+            "name": "endDate",
+            "type": "string"
+        },
+        {
+            "name": "person",
+            "type": "\\Test\\Person",
+            "is_foreign": true
+        },
+        {
+            "name": "house",
+            "type": "\\Test\\House",
+            "is_foreign": true
+        }
+    ]
+}

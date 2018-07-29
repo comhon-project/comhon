@@ -1,0 +1,17 @@
+{
+  "manifestFormat": "json",
+  "autoload": {
+    "manifest":{
+      "Test":"./manifests/manifest"
+    },
+    "serialization":{
+      "Test":"./manifests/serialization_pgsql"
+    }
+  },
+  "regexList":"./config/regex.json",
+  "dateTimeFormat": "c",
+  "database": {
+    "charset": "utf8",
+    "timezone": "UTC"
+  }
+}

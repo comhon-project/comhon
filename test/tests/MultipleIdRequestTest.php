@@ -5,20 +5,20 @@ use Comhon\Api\ObjectService;
 $time_start = microtime(true);
 
 $Json = '{
-	"model" : "mainTestDb",
+	"model" : "Test\\\\MainTestDb",
 	"requestChildren" : true,
 	"loadForeignProperties" : true,
 	"filter" : {
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "mainTestDb",
+				"model"    : "Test\\\\MainTestDb",
 				"property" : "name",
 				"operator" : "=",
 				"value"    : ["azeaze", "Bernard", null]
 			},
 			{
-				"model"     : "mainTestDb",
+				"model"     : "Test\\\\MainTestDb",
 				"queue"     : {
 					"property" : "childrenTestDb", 
 					"child" : {
@@ -56,20 +56,20 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"name":"azeaz
 }
 
 $Json = '{
-	"model" : "mainTestDb",
+	"model" : "Test\\\\MainTestDb",
 	"requestChildren" : true,
 	"loadForeignProperties" : true,
 	"filter" : {
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "mainTestDb",
+				"model"    : "Test\\\\MainTestDb",
 				"property" : "name",
 				"operator" : "=",
 				"value"    : ["azeaze", "Bernard", null]
 			},
 			{
-				"model"     : "testDb",
+				"model"     : "Test\\\\TestDb",
 				"queue"     : {
 					"property" : "childrenTestDb"
 				},
@@ -108,7 +108,7 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"name":"azeaz
 }
 
 $Json = '{
-	"model" : "childTestDb",
+	"model" : "Test\\\\ChildTestDb",
 	"requestChildren" : true,
 	"loadForeignProperties" : true,
 	"order" : [{"property":"id", "type":"ASC"}],
@@ -116,7 +116,7 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "testDb",
+				"model"    : "Test\\\\TestDb",
 				"property" : "string",
 				"operator" : "=",
 				"value"    : ["nnnn", "bbbb", null]

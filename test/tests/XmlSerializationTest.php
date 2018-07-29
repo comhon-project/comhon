@@ -6,7 +6,7 @@ use Comhon\Exception\SerializationException;
 
 $time_start = microtime(true);
 
-$testXmlModel = ModelManager::getInstance()->getInstanceModel('testXml');
+$testXmlModel = ModelManager::getInstance()->getInstanceModel('Test\TestXml');
 $testXml = $testXmlModel->loadObject('plop2');
 
 $testXml->setId('plop4');

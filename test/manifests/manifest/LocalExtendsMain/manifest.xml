@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest extends="\Test\Test" version="2.0">
+	<types>
+		<type name="LocalPlace" extends="\Test\Place">
+			<properties>
+				<property type="string" name="stringValue"/>
+				<property type="boolean" default="0" name="booleanValue"/>
+			</properties>
+		</type>
+	</types>
+	
+	<properties>
+		<property type="\Test\Place" name="localExtendsMainObj"/>
+		<property is_foreign="1" type="\Test\Place" name="localExtendsMainObjForeign"/>
+	</properties>
+</manifest>

@@ -1,0 +1,102 @@
+{
+    "version": "2.0",
+    "types": [
+        {
+            "name": "ObjectContainer",
+            "properties": [
+                {
+                    "name": "foreignObjectValue",
+                    "type": "Object",
+                    "is_foreign": true
+                },
+                {
+                    "name": "objectValueTwo",
+                    "type": "ObjectTwo"
+                },
+                {
+                    "name": "person",
+                    "type": "PersonLocal"
+                }
+            ]
+        },
+        {
+            "name": "Object",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "is_id": true
+                },
+                {
+                    "name": "propertyOne",
+                    "type": "string"
+                },
+                {
+                    "name": "propertyTwo",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "ObjectTwo",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "is_id": true
+                },
+                {
+                    "name": "propertyTwoOne",
+                    "type": "string"
+                },
+                {
+                    "name": "propertyTwoTwo",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "name",
+            "type": "string",
+            "is_id": true,
+            "xml": "node"
+        },
+        {
+            "name": "textNode",
+            "type": "string",
+            "xml": "node"
+        },
+        {
+            "name": "textAttribute",
+            "type": "string",
+            "xml": "attribute"
+        },
+        {
+            "name": "objectValue",
+            "type": "Object"
+        },
+        {
+            "name": "objectValues",
+            "type": "array",
+            "values": {
+                "type": "Object",
+                "name": "objectValue"
+            }
+        },
+        {
+            "name": "objectContainer",
+            "type": "ObjectContainer"
+        },
+        {
+            "name": "foreignObjectValues",
+            "type": "array",
+            "values": {
+                "type": "Object",
+                "name": "foreignObjectValue"
+            },
+            "is_foreign": true
+        }
+    ]
+}

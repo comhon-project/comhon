@@ -17,7 +17,7 @@ spl_autoload_register(function ($class) {
 $Json = '{
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
-	"model" : "person",
+	"model" : "Test\\\\Person",
 	"id" : 1
 }';
 

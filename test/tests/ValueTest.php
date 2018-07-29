@@ -22,14 +22,14 @@ $arrayPrivateInterfacer = new AssocArrayInterfacer();
 $arrayPrivateInterfacer->setPrivateContext(true);
 $arrayPrivateInterfacer->setFlattenValues(true);
 
-$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
+$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'Test\TestDb');
 if (!is_null($testDbFromCollection)) {
 	throw new \Exception('must be null');
 }
 
 /** ****************************** test load new value ****************************** **/
 
-$dbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
+$dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 /** @var Object $testDb */
 $testDb = $dbTestModel->loadObject('[1,"50"]');
 $mainParentTestDb = $testDb->getValue('mainParentTestDb');
@@ -73,7 +73,7 @@ foreach ($testDb->getProperties() as $property) {
 	}
 }
 
-$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
+$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'Test\TestDb');
 if (is_null($testDbFromCollection) || $testDbFromCollection !== $testDb) {
 	throw new \Exception('null or not same instance');
 }
@@ -85,7 +85,7 @@ $mainParentTestDb2 = $testDb2->getValue('mainParentTestDb');
 $object2 = $testDb2->getValue('object');
 $objectId2 = $testDb2->getValue('objectWithId');
 
-$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
+$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'Test\TestDb');
 if (is_null($testDbFromCollection) || $testDbFromCollection !== $testDb) {
 	throw new \Exception('object loaded different than object in ObjectCollection');
 }
@@ -122,7 +122,7 @@ $mainParentTestDb3 = $testDb3->getValue('mainParentTestDb');
 $object3 = $testDb3->getValue('object');
 $objectId3 = $testDb3->getValue('objectWithId');
 
-$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'testDb');
+$testDbFromCollection = MainObjectCollection::getInstance()->getObject('[1,"50"]', 'Test\TestDb');
 if (is_null($testDbFromCollection) || $testDbFromCollection !== $testDb) {
 	throw new \Exception('object loaded different than object in ObjectCollection');
 }
@@ -244,7 +244,7 @@ if ($testDb->isUpdated()) {
 
 /** ****************************** test load ids aggregation value ****************************** **/
 
-$testDbs = MainObjectCollection::getInstance()->getModelObjects('testDb');
+$testDbs = MainObjectCollection::getInstance()->getModelObjects('Test\TestDb');
 $testDbById = [];
 foreach ($testDbs as $testDb) {
 	$testDbById[$testDb->getId()] = $testDb;
@@ -293,7 +293,7 @@ foreach ($mainParentTestDb->getValue('childrenTestDb') as $value) {
 
 /** ****************************** test load ids aggregation value ****************************** **/
 
-$testDbs = MainObjectCollection::getInstance()->getModelObjects('testDb');
+$testDbs = MainObjectCollection::getInstance()->getModelObjects('Test\TestDb');
 $testDbById = [];
 
 foreach ($testDbs as $testDb) {
@@ -332,7 +332,7 @@ foreach ($mainParentTestDb->getValue('childrenTestDb') as $value) {
 
 /** ****************************** test default values ****************************** **/
 
-$testModel = ModelManager::getInstance()->getInstanceModel('test');
+$testModel = ModelManager::getInstance()->getInstanceModel('Test\Test');
 $test = $testModel->getObjectInstance();
 $test->initValue('objectValue');
 
@@ -456,12 +456,12 @@ if (!is_null(MainObjectCollection::getInstance()->getObject($newId, $test->getMo
 
 /** ********* test import main foreign value not in singleton MainObjectCollection ********** **/
 
-$mainTestModel = ModelManager::getInstance()->getInstanceModel('mainTestDb');
+$mainTestModel = ModelManager::getInstance()->getInstanceModel('Test\MainTestDb');
 $mainTestDb = $mainTestModel->getObjectInstance();
 $mainTestDb->setId(4287);
 MainObjectCollection::getInstance()->removeObject($mainTestDb);
 
-$testModel = ModelManager::getInstance()->getInstanceModel('testDb');
+$testModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 $testDb = $testModel->getObjectInstance();
 $testDb->setId('[4567,"74107"]');
 $testDb->setValue('mainParentTestDb', $mainTestDb);
@@ -494,7 +494,7 @@ if ($mainTestDb !== $array->getValue(0) || $mainTestDb2 !== $array->getValue(1))
 MainObjectCollection::getInstance()->removeObject($mainTestDb2);
 $mainTestDb3 = $mainTestModel->getObjectInstance();
 $mainTestDb3->setId(8541);
-if (MainObjectCollection::getInstance()->getObject(8541, 'mainTestDb') !== $mainTestDb3) {
+if (MainObjectCollection::getInstance()->getObject(8541, 'Test\MainTestDb') !== $mainTestDb3) {
 	throw new \Exception('bad object instance');
 }
 
@@ -517,7 +517,7 @@ if ($mainTestDb === $array->getValue(0) || $mainTestDb2 === $array->getValue(1))
 
 /** ****************************** test values of local model defined in distant manifest *********************************** **/
 
-$testXmlModel = ModelManager::getInstance()->getInstanceModel('testXml');
+$testXmlModel = ModelManager::getInstance()->getInstanceModel('Test\TestXml');
 $testXml = $testXmlModel->getObjectInstance();
 
 $testXml->initValue('objectContainer')

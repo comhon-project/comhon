@@ -13,7 +13,7 @@ $Json = '{
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"tree" : {
-		"model"   : "person",
+		"model"   : "Test\\\\Person",
 		"id"      : "p1"
 	},
 	"filter" : {

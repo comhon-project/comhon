@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0" object="Test\Comhon\Object\Person">
+    <properties>
+        <property type="integer" is_id="1" name="id"/>
+        <property type="string" name="firstName"/>
+        <property type="string" name="lastName"/>
+        <property type="dateTime" name="birthDate"/>
+        <property is_foreign="1" type="\Test\Place" name="birthPlace"/>
+        <property is_foreign="1" type="\Test\Person" name="bestFriend"/>
+        <property is_foreign="1" type="\Test\Person\Man" name="father"/>
+        <property is_foreign="1" type="\Test\Person\Woman" name="mother"/>
+        <property is_foreign="1" type="array" name="children">
+            <values type="\Test\Person" name="child"/>
+        </property>
+        <property is_foreign="1" type="array" name="homes">
+            <values type="\Test\Home" name="home"/>
+        </property>
+        <!--<property is_foreign="1" type="array" name="realEstateProperties">
+            <values type="\Test\Home"/>
+        </property>-->
+    </properties>
+</manifest>

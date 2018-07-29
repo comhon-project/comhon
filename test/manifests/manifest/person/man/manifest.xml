@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest extends="\person" version="2.0">
-	<properties>
-		<property is_foreign="1" type="array" name="bodies">
-			<values type="\manBody" name="body"/>
-		</property>
-	</properties>
-</manifest>

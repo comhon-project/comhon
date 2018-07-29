@@ -15,7 +15,7 @@ use Comhon\Exception\Interfacer\ExportException;
 
 $time_start = microtime(true);
 
-$testRestrictedModel = ModelManager::getInstance()->getInstanceModel('testRestricted');
+$testRestrictedModel = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
 $testRestricted = $testRestrictedModel->getObjectInstance();
 
 /** ******************* test setValue fail ********************** **/

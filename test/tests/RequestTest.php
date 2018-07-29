@@ -16,7 +16,7 @@ $time_start = microtime(true);
 /** ****************************** test request objects ****************************** **/
 
 $Json = '{
-	"model" : "testDb",
+	"model" : "Test\\\\TestDb",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"integer", "type":"ASC"}],
@@ -25,13 +25,13 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "testDb",
+				"model"    : "Test\\\\TestDb",
 				"property" : "string",
 				"operator" : "=",
 				"value"    : ["aaaa","cccc","bbbbsdfsdfsdf"]
 			},
 			{
-				"model"    : "testDb",
+				"model"    : "Test\\\\TestDb",
 				"property" : "boolean2",
 				"operator" : "=",
 				"value"    : true
@@ -51,7 +51,7 @@ if (!compareJson(json_encode($result->result), '[{"date":"2016-05-01T14:53:54+02
 }
 
 $Json = '{
-	"model" : "testDb",
+	"model" : "Test\\\\TestDb",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"integer", "type":"ASC"}],
@@ -59,13 +59,13 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "testDb",
+				"model"    : "Test\\\\TestDb",
 				"property" : "string",
 				"operator" : "=",
 				"value"    : ["aaaa","cccc","bbbbsdfsdfsdf"]
 			},
 			{
-				"model"    : "testDb",
+				"model"    : "Test\\\\TestDb",
 				"property" : "boolean2",
 				"operator" : "=",
 				"value"    : true
@@ -84,8 +84,8 @@ if (!compareJson(json_encode($result->result), '[{"defaultValue":"default","id1"
 	throw new \Exception('bad objects : '.json_encode($result->result));
 }
 
-MainObjectCollection::getInstance()->getObject('[1,"23"]', 'testDb')->reorderValues();
-MainObjectCollection::getInstance()->getObject('[1,"101"]', 'testDb')->reorderValues();
+MainObjectCollection::getInstance()->getObject('[1,"23"]', 'Test\TestDb')->reorderValues();
+MainObjectCollection::getInstance()->getObject('[1,"101"]', 'Test\TestDb')->reorderValues();
 
 /** ****************************** test following export import objects ****************************** **/
 
@@ -105,7 +105,7 @@ $xmlSerialInterfacer->setSerialContext(true);
 
 $object = null;
 foreach ($result->result as $index => $stdObject) {
-	$object = new FinalObject('testDb');
+	$object = new FinalObject('Test\TestDb');
 	try {
 		$object->fill($stdObject, $stdPrivateInterfacer);
 		$throw = true;
@@ -120,10 +120,10 @@ foreach ($result->result as $index => $stdObject) {
 	unset($stdObject->id1);
 	unset($stdObject->id2);
 	
-	$object = new FinalObject('testDb');
+	$object = new FinalObject('Test\TestDb');
 	$object->fill($stdObject, $stdPrivateInterfacer);
 
-	$object2 = new FinalObject('testDb');
+	$object2 = new FinalObject('Test\TestDb');
 	$object2->fill($object->export($xmlSerialInterfacer), $xmlSerialInterfacer);
 	$object2->setValue('id1', $id1);
 	$object2->setValue('id2', $id2);
@@ -135,7 +135,7 @@ foreach ($result->result as $index => $stdObject) {
 
 /** *************** test DateTime/DateTimeZone and unserializable value with database serialization ****************** **/
 
-$dbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
+$dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 
 /** @var Object $object */
 $object = $dbTestModel->loadObject('[1,"1501774389"]');
@@ -259,10 +259,10 @@ if (count($object->getUpdatedValues()) !== 0) {
 
 /** ************* new object with filter ************** **/
 
-MainObjectCollection::getInstance()->removeObject(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb'));
+MainObjectCollection::getInstance()->removeObject(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb'));
 
 $params = new stdClass();
-$params->model = 'testDb';
+$params->model = 'Test\TestDb';
 $params->id = '[1,"1501774389"]';
 $params->properties = ['date','timestamp','integer','string'];
 $result = ObjectService::getObject($params, true);
@@ -277,7 +277,7 @@ if (!compareJson(json_encode($result->result), '{"date":"2016-04-12T05:14:33+02:
 /** ************* existing object partial object ************** **/
 
 $params = new stdClass();
-$params->model = 'testDb';
+$params->model = 'Test\TestDb';
 $params->id = '[1,"1501774389"]';
 $result = ObjectService::getObject($params);
 
@@ -290,23 +290,23 @@ if (!compareJson(json_encode($result->result), '{"defaultValue":"default","id1":
 
 /** ************* new object full object ************** **/
 
-MainObjectCollection::getInstance()->removeObject(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb'));
+MainObjectCollection::getInstance()->removeObject(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb'));
 $params = new stdClass();
-$params->model = 'testDb';
+$params->model = 'Test\TestDb';
 $params->id = '[1,"1501774389"]';
 $result = ObjectService::getObject($params);
 
 if (!is_object($result) || !isset($result->success) || !$result->success) {
 	throw new \Exception('simple load request failed');
 }
-if (!compareJson(json_encode($result->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"testDb\\\\objectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"testDb\\\\objectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"testDb\\\\objectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"testDb\\\\objectWithIdAndMoreMore"},{"id":"1","__inheritance__":"testDb\\\\objectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"testDb\\\\objectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"testDb\\\\objectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
+if (!compareJson(json_encode($result->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
 	throw new \Exception('bad object : '.json_encode($result->result));
 }
 
 /** ************* existing full object with filter ************** **/
 
 $params = new stdClass();
-$params->model = 'testDb';
+$params->model = 'Test\TestDb';
 $params->id = '[1,"1501774389"]';
 $params->properties = ['date','timestamp','integer','string'];
 $result = ObjectService::getObject($params, true);
@@ -320,9 +320,9 @@ if (!compareJson(json_encode($result->result), '{"date":"2016-04-12T05:14:33+02:
 
 /** ************* existing full object reodered ************** **/
 
-MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb')->reorderValues();
+MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb')->reorderValues();
 $params = new stdClass();
-$params->model = 'testDb';
+$params->model = 'Test\TestDb';
 $params->id = '[1,"1501774389"]';
 $result = ObjectService::getObject($params);
 
@@ -333,7 +333,7 @@ if (!compareJson(json_encode($result->result), json_encode($publicObjectJson))) 
 	throw new \Exception('bad object : '.json_encode($result->result));
 }
 
-$testDb = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
+$testDb = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb');
 $testDb->loadValue('childrenTestDb', ['id']);
 
 if (!compareJson(json_encode($testDb->getValue('childrenTestDb')->export($stdPrivateInterfacer)), '[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2,"parentTestDb":"[1,\"1501774389\"]"}]')) {
@@ -346,12 +346,12 @@ foreach ($testDb->getValue('childrenTestDb') as $child) {
 }
 
 $children = $testDb->getValue('childrenTestDb');
-$testDb1 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
+$testDb1 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb');
 $testDb->reset();
-$testDb2 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
+$testDb2 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb');
 $testDb->setIsLoaded(false);
 $testDb->setId('[1,"1501774389"]', false);
-$testDb3 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb');
+$testDb3 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb');
 
 if (!is_null($testDb2)) {
 	throw new \Exception('should be null');
@@ -363,11 +363,11 @@ if ($testDb !== $testDb1 || $testDb1 !== $testDb3) {
 	throw new \Exception('should be same instance');
 }
 $testDb->unsetValue('id2');
-if (!is_null(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb'))) {
+if (!is_null(MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb'))) {
 	throw new \Exception('should be null');
 }
 $testDb->setValue('id2', '1501774389');
-if ($testDb !== MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'testDb')) {
+if ($testDb !== MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb')) {
 	throw new \Exception('should be same instance');
 }
 

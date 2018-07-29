@@ -5,7 +5,7 @@ use Comhon\Object\ComhonDateTime;
 
 $time_start = microtime(true);
 
-$dbTestModel = ModelManager::getInstance()->getInstanceModel('testDb');
+$dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 $testDb = $dbTestModel->getObjectInstance();
 
 $testDb->setValue('id1', 789201, false);

@@ -1,0 +1,45 @@
+{
+    "version": "2.0",
+    "types": [
+        {
+            "name": "ObjectWithId",
+            "properties": [
+                {
+                    "name": "plop",
+                    "type": "string",
+                    "is_id": true
+                },
+                {
+                    "name": "plop2",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "ObjectWithIdAndMore",
+            "extends": "ObjectWithId",
+            "properties": [
+                {
+                    "name": "plop3",
+                    "type": "string",
+                    "is_private": true
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "firstName",
+            "type": "string"
+        },
+        {
+            "name": "anotherObjectWithIdAndMore",
+            "type": "ObjectWithIdAndMore"
+        }
+    ]
+}

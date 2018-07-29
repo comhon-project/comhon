@@ -53,7 +53,7 @@ function verifException(InterfaceException $e, $code, $message, $stringifiedProp
 	}
 }
 
-$testModel = ModelManager::getInstance()->getInstanceModel('test');
+$testModel = ModelManager::getInstance()->getInstanceModel('Test\Test');
 $test = $testModel->getObjectInstance();
 
 $stdPrivateInterfacer = new StdObjectInterfacer();
@@ -233,14 +233,14 @@ if ($throw) {
 /**                            export                            **/
 /******************************************************************/
 
-$testModel = ModelManager::getInstance()->getInstanceModel('test');
+$testModel = ModelManager::getInstance()->getInstanceModel('Test\Test');
 $test = $testModel->getObjectInstance();
 
 $objectContainer  = $test->initValue('objectContainer');
 $objectValueTwo   = $objectContainer->initValue('objectValueTwo');
 $propertyTwoArray = $objectValueTwo->initValue('propertyTwoArray');
 
-$testObjModel = ModelManager::getInstance()->getInstanceModel('test\object');
+$testObjModel = ModelManager::getInstance()->getInstanceModel('Test\Test\Object');
 $objInArray = $testObjModel->getObjectInstance();
 $objInArray->setValue('propertyOne', 12, true, false);
 

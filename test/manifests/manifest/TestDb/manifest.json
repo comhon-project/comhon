@@ -1,0 +1,182 @@
+{
+    "version": "2.0",
+    "types": [
+        {
+            "name": "Object",
+            "properties": [
+                {
+                    "name": "plop",
+                    "type": "string"
+                },
+                {
+                    "name": "plop2",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "ObjectWithId",
+            "properties": [
+                {
+                    "name": "plop",
+                    "type": "string",
+                    "is_id": true
+                },
+                {
+                    "name": "plop2",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "ObjectWithIdAndMore",
+            "extends": "ObjectWithId",
+            "properties": [
+                {
+                    "name": "plop3",
+                    "type": "string",
+                    "is_private": true
+                }
+            ]
+        },
+        {
+            "name": "ObjectWithIdAndMoreMore",
+            "extends": "ObjectWithIdAndMore",
+            "properties": [
+                {
+                    "name": "plop4",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id1",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "id2",
+            "type": "string",
+            "is_id": true
+        },
+        {
+            "name": "date",
+            "type": "dateTime"
+        },
+        {
+            "name": "timestamp",
+            "type": "dateTime"
+        },
+        {
+            "name": "object",
+            "type": "Object"
+        },
+        {
+            "name": "objectWithId",
+            "type": "ObjectWithId"
+        },
+        {
+            "name": "string",
+            "type": "string",
+            "is_private": true
+        },
+        {
+            "name": "integer",
+            "type": "integer"
+        },
+        {
+            "name": "mainParentTestDb",
+            "type": "\\Test\\MainTestDb",
+            "is_foreign": true
+        },
+        {
+            "name": "objectsWithId",
+            "type": "array",
+            "values": {
+                "type": "ObjectWithId",
+                "name": "objectWithId"
+            }
+        },
+        {
+            "name": "foreignObjects",
+            "type": "array",
+            "values": {
+                "type": "ObjectWithId",
+                "name": "foreignObject"
+            },
+            "is_foreign": true
+        },
+        {
+            "name": "lonelyForeignObject",
+            "type": "ObjectWithId",
+            "is_foreign": true
+        },
+        {
+            "name": "lonelyForeignObjectTwo",
+            "type": "ObjectWithIdAndMore",
+            "is_foreign": true
+        },
+        {
+            "name": "defaultValue",
+            "type": "string",
+            "default": "default"
+        },
+        {
+            "name": "manBodyJson",
+            "type": "\\Test\\Body\\ManJson",
+            "is_foreign": true
+        },
+        {
+            "name": "womanXml",
+            "type": "\\Test\\Person\\WomanXml",
+            "is_foreign": true
+        },
+        {
+            "name": "notSerializedValue",
+            "type": "string"
+        },
+        {
+            "name": "notSerializedForeignObject",
+            "type": "ObjectWithId",
+            "is_foreign": true
+        },
+        {
+            "name": "boolean",
+            "type": "boolean"
+        },
+        {
+            "name": "boolean2",
+            "type": "boolean"
+        },
+        {
+            "name": "childrenTestDb",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\ChildTestDb",
+                "name": "childTestDb"
+            },
+            "is_foreign": true
+        },
+        {
+            "name": "notLinkableArrayTestDb",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\NotLinkableTestDb",
+                "name": "childTestDb"
+            },
+            "is_foreign": true
+        },
+        {
+            "name": "notLinkableTestDb",
+            "type": "\\Test\\NotLinkableTestDb",
+            "is_foreign": true
+        },
+        {
+            "name": "notLinkableTestObjValue",
+            "type": "\\Test\\Test",
+            "is_foreign": true
+        }
+    ]
+}

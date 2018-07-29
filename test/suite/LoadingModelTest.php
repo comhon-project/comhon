@@ -9,7 +9,7 @@ class LoadingModelTest extends TestCase
 	public function testPropertyWithMalformedModel()
 	{
 		$hasThrownEx = false;
-		$model = ModelManager::getInstance()->getInstanceModel('fatherMalformed');
+		$model = ModelManager::getInstance()->getInstanceModel('FatherMalformed');
 		try {
 			// model 'childMalformed' is not loaded yet and must failed when loading
 			$model->getProperty('child')->getModel()->getModel();
@@ -34,14 +34,14 @@ class LoadingModelTest extends TestCase
 		$hasThrownEx = false;
 		try {
 			// model 'childMalformed' must failed when loading
-			$model = ModelManager::getInstance()->getInstanceModel('childMalformed');
+			$model = ModelManager::getInstance()->getInstanceModel('ChildMalformed');
 		} catch (NotDefinedModelException $e) {
 			$hasThrownEx = true;
 			$this->assertEquals('model childMalformed\wrong-type doesn\'t exist', $e->getMessage());
 			
 			// model 'childMalformed' shouldn't be tagged as loaded and must failed again when loading
 			$this->expectException(NotDefinedModelException::class);
-			$model = ModelManager::getInstance()->getInstanceModel('childMalformed');
+			$model = ModelManager::getInstance()->getInstanceModel('ChildMalformed');
 		}
 		
 		// should failed before

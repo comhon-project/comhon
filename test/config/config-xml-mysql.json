@@ -1,6 +1,13 @@
 {
-  "manifestList": "../manifests/manifest/manifestList.xml",
-  "serializationList": "../manifests/serialization/serializationList.xml",
+  "manifestFormat": "xml",
+  "autoload": {
+    "manifest":{
+      "Test":"../manifests/manifest"
+    },
+    "serialization":{
+      "Test":"../manifests/serialization"
+    }
+  },
   "regexList":"./regex.json",
   "sqlTable": "./table",
   "sqlDatabase": "./database",

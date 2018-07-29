@@ -6,7 +6,7 @@ use Comhon\Exception\ComhonException;
 
 $time_start = microtime(true);
 
-$manModelJson = ModelManager::getInstance()->getInstanceModel('manBodyJson');
+$manModelJson = ModelManager::getInstance()->getInstanceModel('Test\Body\ManJson');
 $testJson = $manModelJson->loadObject(156);
 
 $testJson->setId(200);

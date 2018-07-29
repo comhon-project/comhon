@@ -20,8 +20,8 @@ if (ModelManager::getInstance()->hasInstanceModel('Comhon\SqlTable')) {
 	throw new \Exception('model already initialized');
 }
 
-$testModel    = ModelManager::getInstance()->getInstanceModel('test');
-$testModelTow = ModelManager::getInstance()->getInstanceModel('test');
+$testModel    = ModelManager::getInstance()->getInstanceModel('Test\Test');
+$testModelTow = ModelManager::getInstance()->getInstanceModel('Test\Test');
 
 /** ****************************** same test model instance ****************************** **/
 if ($testModel !== $testModelTow) {
@@ -29,7 +29,7 @@ if ($testModel !== $testModelTow) {
 }
 
 /** ****************************** basic test for model 'test' ****************************** **/
-if ($testModel->getName() !== 'test') {
+if ($testModel->getName() !== 'Test\Test') {
 	throw new \Exception('model hasn\'t good name');
 }
 if (json_encode($testModel->getPropertiesNames()) !== '["name","stringValue","floatValue","booleanValue","indexValue","percentageValue","dateValue","objectValue","objectValues","objectContainer","foreignObjectValues","enumValue","enumIntArray","enumFloatArray","objectRefParent"]') {
@@ -37,17 +37,17 @@ if (json_encode($testModel->getPropertiesNames()) !== '["name","stringValue","fl
 }
 
 /** ******************** test local model 'personLocal' load status ******************** **/
-if (!ModelManager::getInstance()->hasInstanceModel('test\personLocal')) {
+if (!ModelManager::getInstance()->hasInstanceModel('Test\Test\PersonLocal')) {
 	throw new \Exception('model not initialized');
 }
-if (ModelManager::getInstance()->hasInstanceModelLoaded('test\personLocal')) {
+if (ModelManager::getInstance()->hasInstanceModelLoaded('Test\Test\PersonLocal')) {
 	throw new \Exception('model must be not loaded');
 }
 /** ******************** load model 'personLocal' by calling getmodel() ******************** **/
 $localPersonModel = $testModel->getProperty('objectContainer')->getModel()->getProperty('person')->getModel();
 
 /** ******************** test local model 'personLocal' load status ******************** **/
-if (!ModelManager::getInstance()->hasInstanceModelLoaded('test\personLocal')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('Test\Test\PersonLocal')) {
 	throw new \Exception('model must be loaded');
 }
 if (!$localPersonModel->isLoaded()) {
@@ -55,51 +55,51 @@ if (!$localPersonModel->isLoaded()) {
 }
 
 /** ******************** test local model defined recursively in distant manifest ******************** **/
-if ($localPersonModel->getProperty('anObjectWithIdAndMore')->getModel()->getName() !== 'test\personLocal\objectWithIdAndMore') {
+if ($localPersonModel->getProperty('anObjectWithIdAndMore')->getModel()->getName() !== 'Test\Test\PersonLocal\ObjectWithIdAndMore') {
 	throw new \Exception('bad model name');
 }
-if (!ModelManager::getInstance()->hasInstanceModel('test\personLocal\recursive')) {
+if (!ModelManager::getInstance()->hasInstanceModel('Test\Test\PersonLocal\Recursive')) {
 	throw new \Exception('missing instance model');
 }
-if (ModelManager::getInstance()->hasInstanceModelLoaded('test\personLocal\recursive')) {
+if (ModelManager::getInstance()->hasInstanceModelLoaded('Test\Test\PersonLocal\Recursive')) {
 	throw new \Exception('model should not be loaded');
 }
-if ($localPersonModel->getProperty('recursiveLocal')->getModel()->getName() !== 'test\personLocal\recursive') {
+if ($localPersonModel->getProperty('recursiveLocal')->getModel()->getName() !== 'Test\Test\PersonLocal\Recursive') {
 	throw new \Exception('bad model name');
 }
-if (!ModelManager::getInstance()->hasInstanceModelLoaded('test\personLocal\recursive')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('Test\Test\PersonLocal\Recursive')) {
 	throw new \Exception('model should be loaded');
 }
-if (!ModelManager::getInstance()->hasInstanceModel('test\personLocal\recursive\objectWithIdAndMore')) {
+if (!ModelManager::getInstance()->hasInstanceModel('Test\Test\PersonLocal\Recursive\ObjectWithIdAndMore')) {
 	throw new \Exception('missing instance model');
 }
 $recursiveLocalModel = $localPersonModel->getProperty('recursiveLocal')->getModel();
-if ($recursiveLocalModel !== ModelManager::getInstance()->getInstanceModel('test\personLocal\recursive')) {
+if ($recursiveLocalModel !== ModelManager::getInstance()->getInstanceModel('Test\Test\PersonLocal\Recursive')) {
 	throw new \Exception('bad instance model');
 }
-if ($recursiveLocalModel->getProperty('anotherObjectWithIdAndMore')->getModel()->getName() !== 'test\personLocal\recursive\objectWithIdAndMore') {
+if ($recursiveLocalModel->getProperty('anotherObjectWithIdAndMore')->getModel()->getName() !== 'Test\Test\PersonLocal\Recursive\ObjectWithIdAndMore') {
 	throw new \Exception('bad model name');
 }
 
-if (ModelManager::getInstance()->hasModel('testXml\personLocal')) {
+if (ModelManager::getInstance()->hasInstanceModel('Test\TestXml\PersonLocal')) {
 	throw new \Exception('missing instance model');
 }
-if (ModelManager::getInstance()->hasModel('testXml\personLocal\recursive')) {
+if (ModelManager::getInstance()->hasInstanceModel('Test\TestXml\PersonLocal\Recursive')) {
 	throw new \Exception('missing instance model');
 }
-$recursiveLocalXmlModel = ModelManager::getInstance()->getInstanceModel('testXml\personLocal\recursive');
+$recursiveLocalXmlModel = ModelManager::getInstance()->getInstanceModel('Test\TestXml\PersonLocal\Recursive');
 
 if ($recursiveLocalXmlModel === $recursiveLocalModel) {
 	throw new \Exception('should be different instances');
 }
 
 /** ****************************** same model instance ****************************** **/
-if ($localPersonModel !== ModelManager::getInstance()->getInstanceModel('test\personLocal')) {
+if ($localPersonModel !== ModelManager::getInstance()->getInstanceModel('Test\Test\PersonLocal')) {
 	throw new \Exception('models haven\'t same instance');
 }
 
 /** ****************************** basic test for model 'personLocal' ****************************** **/
-if ($localPersonModel->getName() !== 'test\personLocal') {
+if ($localPersonModel->getName() !== 'Test\Test\PersonLocal') {
 	throw new \Exception('model hasn\'t good name');
 }
 if (!compareJson(json_encode($localPersonModel->getPropertiesNames()), '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","anObjectWithIdAndMore","recursiveLocal"]')) {
@@ -108,7 +108,7 @@ if (!compareJson(json_encode($localPersonModel->getPropertiesNames()), '["id","f
 
 /** ****************************** test load status of model 'place' ****************************** **/
 
-if (!ModelManager::getInstance()->hasInstanceModel('place')) {
+if (!ModelManager::getInstance()->hasInstanceModel('Test\Place')) {
 	throw new \Exception('model \'place\' not initialized');
 }
 if (ModelManager::getInstance()->hasInstanceModelLoaded('place')) {
@@ -126,14 +126,14 @@ if (!($placeModel instanceof MainModel)) {
 }
 
 
-if (!ModelManager::getInstance()->hasInstanceModel('place')) {
+if (!ModelManager::getInstance()->hasInstanceModel('Test\Place')) {
 	throw new \Exception('model \'place\' not initialized');
 }
-if (!ModelManager::getInstance()->hasInstanceModelLoaded('place')) {
+if (!ModelManager::getInstance()->hasInstanceModelLoaded('Test\Place')) {
 	throw new \Exception('model must be loaded');
 }
 
-$placeModelTow = ModelManager::getInstance()->getInstanceModel('place');
+$placeModelTow = ModelManager::getInstance()->getInstanceModel('Test\Place');
 
 /** ****************************** same place model instance ****************************** **/
 if ($placeModel !== $placeModelTow) {
@@ -141,7 +141,7 @@ if ($placeModel !== $placeModelTow) {
 }
 
 
-/** ****************************** basic test for model 'testDb' ****************************** **/
+/** ****************************** basic test for model 'Test\TestDb' ****************************** **/
 
 /*
  if (ModelManager::getInstance()->hasInstanceModel('Comhon\SqlDatabase')) {
@@ -152,14 +152,15 @@ throw new \Exception("model must be not loaded");
 }
 */
 
-$testDbModel = ModelManager::getInstance()->getInstanceModel('testDb');
+$testDbModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 
-if ($testDbModel->getName() !== 'testDb') {
+if ($testDbModel->getName() !== 'Test\TestDb') {
 	throw new \Exception('model hasn\'t good name');
 }
 if (json_encode($testDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb","objectsWithId","foreignObjects","lonelyForeignObject","lonelyForeignObjectTwo","defaultValue","manBodyJson","womanXml","notSerializedValue","notSerializedForeignObject","boolean","boolean2","childrenTestDb","notLinkableArrayTestDb","notLinkableTestDb","notLinkableTestObjValue"]') {
 	throw new \Exception("model {$testDbModel->getName()} hasn't good properties : ".json_encode($testDbModel->getPropertiesNames()));
 }
+var_dump(get_class($testDbModel));
 $dbModel = $testDbModel->getSerialization()->getSettings()->getProperty('database')->getModel();
 if ($dbModel->getName() !== 'Comhon\SqlDatabase') {
 	throw new \Exception('model hasn\'t good name');
@@ -173,7 +174,7 @@ if (!$testDbModel->getProperty('string')->isPrivate()) {
 if (!$testDbModel->getProperty('string')->isPrivate()) {
 	throw new \Exception('is not private');
 }
-$localModel = ModelManager::getInstance()->getInstanceModel('testDb\objectWithIdAndMoreMore');
+$localModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb\ObjectWithIdAndMoreMore');
 if (!$localModel->getProperty('plop3')->isPrivate()) {
 	throw new \Exception('is not private');
 }

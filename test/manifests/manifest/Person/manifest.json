@@ -1,0 +1,61 @@
+{
+    "version": "2.0",
+    "object": "Test\\Comhon\\Object\\Person",
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "firstName",
+            "type": "string"
+        },
+        {
+            "name": "lastName",
+            "type": "string"
+        },
+        {
+            "name": "birthDate",
+            "type": "dateTime"
+        },
+        {
+            "name": "birthPlace",
+            "type": "\\Test\\Place",
+            "is_foreign": true
+        },
+        {
+            "name": "bestFriend",
+            "type": "\\Test\\Person",
+            "is_foreign": true
+        },
+        {
+            "name": "father",
+            "type": "\\Test\\Person\\Man",
+            "is_foreign": true
+        },
+        {
+            "name": "mother",
+            "type": "\\Test\\Person\\Woman",
+            "is_foreign": true
+        },
+        {
+            "name": "children",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\Person",
+                "name": "child"
+            },
+            "is_foreign": true
+        },
+        {
+            "name": "homes",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\Home",
+                "name": "home"
+            },
+            "is_foreign": true
+        }
+    ]
+}

@@ -7,7 +7,7 @@ use Comhon\Object\ComhonDateTime;
 class Person extends ExtendableObject {
 	
 	protected function _getModelName() {
-		return 'person';
+		return 'Test\Person';
 	}
 	
 	public function setFirstName($firstName) {

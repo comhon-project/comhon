@@ -8,7 +8,7 @@ $time_start = microtime(true);
 /** ****************************** test private property in selected properties request ****************************** **/
 
 $Json = '{
-	"model" : "testDb",
+	"model" : "Test\\\\TestDb",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
@@ -17,7 +17,7 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "testDb",
+				"model"    : "Test\\\\TestDb",
 				"property" : "boolean2",
 				"operator" : "=",
 				"value"    : true
@@ -38,7 +38,7 @@ if (!is_object($result) || !isset($result->success) || $result->success
 /** ****************************** test literal private request ****************************** **/
 
 $Json = '{
-	"model" : "testDb",
+	"model" : "Test\\\\TestDb",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
@@ -46,7 +46,7 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "testDb",
+				"model"    : "Test\\\\TestDb",
 				"property" : "string",
 				"operator" : "=",
 				"value"    : "plop"
@@ -67,7 +67,7 @@ if (!is_object($result) || !isset($result->success) || $result->success
 /** ****************************** test having literal private request ****************************** **/
 
 $Json = '{
-	"model" : "mainTestDb",
+	"model" : "Test\\\\MainTestDb",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
@@ -75,7 +75,7 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"     : "mainTestDb",
+				"model"     : "Test\\\\MainTestDb",
 				"queue"     : {"property" : "childrenTestDb"},
 				"having" : {
 					"type" : "conjunction",
@@ -105,7 +105,7 @@ if (!is_object($result) || !isset($result->success) || $result->success
 /** ****************************** test literal aggregation request ****************************** **/
 
 $Json = '{
-	"model" : "testDb",
+	"model" : "Test\\\\TestDb",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
@@ -113,7 +113,7 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "testDb",
+				"model"    : "Test\\\\TestDb",
 				"property" : "childrenTestDb",
 				"operator" : "=",
 				"value"    : "plop"
@@ -138,7 +138,7 @@ $Json = '{
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
 	"tree" : {
-		"model"   : "testDb",
+		"model"   : "Test\\\\TestDb",
 		"id"      : "p1"
 	},
 	"filter" : {
@@ -163,12 +163,12 @@ if (!is_object($result) || !isset($result->success) || $result->success
 $Json = '{
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
-	"model" : "locatedHouse",
+	"model" : "Test\\\\LocatedHouse",
 	"filter" : {
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "town",
+				"model"    : "Test\\\\Town",
 				"property" : "name",
 				"operator" : "=",
 				"value"    : "plop"
@@ -180,7 +180,7 @@ $Json = '{
 $result = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
-	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "Cannot resolve literal with model 'town', it might be applied on several properties"
+	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "Cannot resolve literal with model 'Test\Town', it might be applied on several properties"
 	|| !isset($result->error->code) || $result->error->code !== 705
 ) {
 	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
@@ -189,7 +189,7 @@ if (!is_object($result) || !isset($result->success) || $result->success
 /** **************** test literal with not linked model inter request **************** **/
 
 $Json = '{
-	"model" : "testDb",
+	"model" : "Test\\\\TestDb",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
@@ -197,7 +197,7 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "person",
+				"model"    : "Test\\\\Person",
 				"property" : "name",
 				"operator" : "=",
 				"value"    : "plop"
@@ -209,7 +209,7 @@ $Json = '{
 $result = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
-	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "model 'person' from literal {\"model\":\"person\",\"property\":\"name\",\"operator\":\"=\",\"value\":\"plop\"} is not linked to requested model 'testDb' or doesn't have compatible serialization"
+	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "model 'Test\Person' from literal {\"model\":\"Test\\\\Person\",\"property\":\"name\",\"operator\":\"=\",\"value\":\"plop\"} is not linked to requested model 'Test\TestDb' or doesn't have compatible serialization"
 	|| !isset($result->error->code) || $result->error->code !== 706
 ) {
 	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
@@ -218,7 +218,7 @@ if (!is_object($result) || !isset($result->success) || $result->success
 /** ****** test literal with not linked model (diff db connection) inter request ****** **/
 
 $Json = '{
-	"model" : "testDb",
+	"model" : "Test\\\\TestDb",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
@@ -226,7 +226,7 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "notLinkableTestDb",
+				"model"    : "Test\\\\NotLinkableTestDb",
 				"property" : "name",
 				"operator" : "=",
 				"value"    : "plop"
@@ -238,7 +238,7 @@ $Json = '{
 $result = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
-	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "model 'notLinkableTestDb' from literal {\"model\":\"notLinkableTestDb\",\"property\":\"name\",\"operator\":\"=\",\"value\":\"plop\"} is not linked to requested model 'testDb' or doesn't have compatible serialization"
+	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "model 'Test\NotLinkableTestDb' from literal {\"model\":\"Test\\\\NotLinkableTestDb\",\"property\":\"name\",\"operator\":\"=\",\"value\":\"plop\"} is not linked to requested model 'Test\TestDb' or doesn't have compatible serialization"
 	|| !isset($result->error->code) || $result->error->code !== 706
 ) {
 	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
@@ -247,7 +247,7 @@ if (!is_object($result) || !isset($result->success) || $result->success
 /** ******* test literal with not linked model (db/file system) inter request ****** **/
 
 $Json = '{
-	"model" : "testDb",
+	"model" : "Test\\\\TestDb",
 	"requestChildren" : false,
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
@@ -255,7 +255,7 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"model"    : "test",
+				"model"    : "Test\\\\Test",
 				"property" : "name",
 				"operator" : "=",
 				"value"    : "plop"
@@ -267,7 +267,7 @@ $Json = '{
 $result = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
-		|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "model 'test' from literal {\"model\":\"test\",\"property\":\"name\",\"operator\":\"=\",\"value\":\"plop\"} is not linked to requested model 'testDb' or doesn't have compatible serialization"
+		|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "model 'Test\Test' from literal {\"model\":\"Test\\\\Test\",\"property\":\"name\",\"operator\":\"=\",\"value\":\"plop\"} is not linked to requested model 'Test\TestDb' or doesn't have compatible serialization"
 		|| !isset($result->error->code) || $result->error->code !== 706
 		) {
 			throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
@@ -280,7 +280,7 @@ $Json = '{
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
 	"tree" : {
-		"model"   : "testDb",
+		"model"   : "Test\\\\TestDb",
 		"id"      : "p1",
 		"children" : [
 			{
@@ -318,7 +318,7 @@ $Json = '{
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
 	"tree" : {
-		"model"   : "testDb",
+		"model"   : "Test\\\\TestDb",
 		"id"      : "p1",
 		"children" : [
 			{
@@ -356,7 +356,7 @@ $Json = '{
 	"loadForeignProperties" : false,
 	"order" : [{"property":"id1", "type":"DESC"}],
 	"tree" : {
-		"model"   : "testDb",
+		"model"   : "Test\\\\TestDb",
 		"id"      : "p1"
 	},
 	"filter" : {
@@ -395,7 +395,7 @@ if (!is_object($result) || !isset($result->success) || $result->success
 
 $Json = '{
 	"tree" : {
-		"model"   : "test",
+		"model"   : "Test\\\\Test",
 		"id"      : "p1"
 	}
 }';
@@ -403,7 +403,7 @@ $Json = '{
 $result = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
-	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "intermediate or complex request not allowed for model 'test'"
+	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "intermediate or complex request not allowed for model 'Test\Test'"
 	|| !isset($result->error->code) || $result->error->code !== 707
 ) {
 	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
@@ -412,7 +412,7 @@ if (!is_object($result) || !isset($result->success) || $result->success
 /** *************** test simple request model without id request *************** **/
 
 $Json = '{
-	"model"   : "test"
+	"model"   : "Test\\\\Test"
 }';
 
 $result = ObjectService::getObject(json_decode($Json));
@@ -427,14 +427,14 @@ if (!is_object($result) || !isset($result->success) || $result->success
 /** *************** test simple request model without id property *************** **/
 
 $Json = '{
-	"model"   : "testNoId",
+	"model"   : "Test\\\\TestNoId",
 	"id"      : "an_id"
 }';
 
 $result = ObjectService::getObject(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
-	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "simple request not allowed for model 'testNoId'"
+	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "simple request not allowed for model 'Test\TestNoId'"
 	|| !isset($result->error->code) || $result->error->code !== 707
 ) {
 	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
@@ -443,14 +443,14 @@ if (!is_object($result) || !isset($result->success) || $result->success
 /** *************** test simple request model without serialization *************** **/
 
 $Json = '{
-	"model"   : "testNoSerialization",
+	"model"   : "Test\\\\TestNoSerialization",
 	"id"      : 12
 }';
 
 $result = ObjectService::getObject(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
-	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "request not allowed for model 'testNoSerialization'"
+	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "request not allowed for model 'Test\TestNoSerialization'"
 	|| !isset($result->error->code) || $result->error->code !== 707
 ) {
 	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
