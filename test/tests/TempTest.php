@@ -4,16 +4,11 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\Config\Config;
 use Comhon\Exception\NotDefinedModelException;
 use Comhon\Object\Collection\MainObjectCollection;
+use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Interfacer\AssocArrayInterfacer;
 
 //Config::setLoadPath('./config/config-json-pgsql.json');
 
-// $testDbModel = ModelManager::getInstance()->getInstanceModel('Test\Person\Man');
-
-/*
-ModelManager::getInstance()->getInstanceModel('Test\MainTestDb')->loadObject(2);
-$mainTestDb = MainObjectCollection::getInstance()->getObject(2, 'Test\MainTestDb');
-$mainTestDb->initValue('childrenTestDb', false);
-*/
 
 /*foreach (scandir(__DIR__) as $resource) {
 	if ($resource !== '.' && $resource !== '..') {

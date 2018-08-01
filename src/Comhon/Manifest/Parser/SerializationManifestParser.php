@@ -99,8 +99,7 @@ abstract class SerializationManifestParser {
 		if ($this->model !== $model) {
 			throw new ComhonException('not same models');
 		}
-		return $this->model->hasLoadedSerialization()
-			? $this->model->getSerialization()->getSettings() : $this->_getSerializationSettings();
+		return $this->_getSerializationSettings();
 	}
 	
 	/**

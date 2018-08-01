@@ -32,19 +32,13 @@ class MainModel extends Model {
 	/** @var SerializationUnit */
 	private $serialization = null;
 	
-	/** @var boolean */
-	private $serializationInitialised = false;
-	
 	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Model::_setSerialization()
 	 */
 	final protected function _setSerialization() {
-		if (!$this->serializationInitialised) {
-			$this->serialization = ModelManager::getInstance()->getSerializationInstance($this);
-			$this->serializationInitialised = true;
-		}
+		$this->serialization = ModelManager::getInstance()->getSerializationInstance($this);
 		if ($this->hasParent()) {
 			if (count($this->getIdProperties()) != count($this->getParent()->getIdProperties())) {
 				throw new ComhonException("model {$this->getName()} extended from model {$this->getParent()->getName()} and with same serialization must have same id(s)");
@@ -55,15 +49,6 @@ class MainModel extends Model {
 				}
 			}
 		}
-	}
-	
-	/**
-	 * verify if serialization is loaded
-	 * 
-	 * @return boolean
-	 */
-	public function hasLoadedSerialization() {
-		return $this->serializationInitialised;
 	}
 	
 	/**
@@ -360,7 +345,7 @@ class MainModel extends Model {
 	protected function _getOrCreateObjectInstance($id, Interfacer $interfacer, $localObjectCollection, $isFirstLevel, $isForeign = false) {
 		$isloaded = !$isForeign && (!$isFirstLevel || $interfacer->hasToFlagObjectAsLoaded());
 		
-		if (!$this->hasIdProperties()) {
+		if (is_null($id) || !$this->hasIdProperties()) {
 			$mainObject = $this->getObjectInstance($isloaded);
 		}
 		else {
