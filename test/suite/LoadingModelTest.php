@@ -6,6 +6,22 @@ use Comhon\Exception\NotDefinedModelException;
 class LoadingModelTest extends TestCase
 {
 	
+	protected function setUp()
+	{
+		ModelManager::resetSingleton();
+	}
+	
+	
+	
+	public function testResetSingleton()
+	{
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModel('Test\Test'));
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Test');
+		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Test\Test'));
+		ModelManager::resetSingleton();
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModel('Test\Test'));
+	}
+	
 	public function testPropertyWithMalformedModel()
 	{
 		$hasThrownEx = false;
@@ -26,9 +42,6 @@ class LoadingModelTest extends TestCase
 		$this->assertTrue($hasThrownEx);
 	}
 	
-	/**
-	 * @depends testPropertyWithMalformedModel
-	 */
 	public function testMalformedModel()
 	{
 		$hasThrownEx = false;
@@ -48,5 +61,24 @@ class LoadingModelTest extends TestCase
 		$this->assertTrue($hasThrownEx);
 	}
 	
+	/**
+	 * load model on sub directory (not contained in autoloading root directory)
+	 */
+	public function testLoadModelNotRoot()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Test\PersonLocal\Recursive');
+		$this->assertEquals('Test\Test\PersonLocal\Recursive', $model->getName());
+		$this->assertEquals(['id', 'firstName', 'anotherObjectWithIdAndMore'], $model->getPropertiesNames());
+	}
+	
+	/**
+	 * load model discribed inside a manifest in local types
+	 */
+	public function testLoadLocalModel()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Test\PersonLocal\Recursive\ObjectWithIdAndMore');
+		$this->assertEquals('Test\Test\PersonLocal\Recursive\ObjectWithIdAndMore', $model->getName());
+		$this->assertEquals(['plop', 'plop2', 'plop3'], $model->getPropertiesNames());
+	}
 
 }

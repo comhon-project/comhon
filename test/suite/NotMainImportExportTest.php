@@ -10,7 +10,8 @@ use Comhon\Object\Collection\MainObjectCollection;
 
 class NotMainImportExportTest extends TestCase
 {
-	public static function setUpBeforeClass() {
+	public static function setUpBeforeClass()
+	{
 		ModelManager::resetSingleton();
 	}
 	
