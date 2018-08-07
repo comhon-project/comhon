@@ -12,6 +12,7 @@
 namespace Comhon\Model\Restriction;
 
 use Comhon\Model\Model;
+use Comhon\Model\AbstractModel;
 
 interface Restriction {
 	
@@ -34,10 +35,10 @@ interface Restriction {
 	/**
 	 * verify if specified model can use this restriction
 	 * 
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\AbstractModel $model
 	 * @return boolean
 	 */
-	public function isAllowedModel(Model $model);
+	public function isAllowedModel(AbstractModel $model);
 	
 	/**
 	 * stringify restriction and value

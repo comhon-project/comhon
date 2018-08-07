@@ -1,6 +1,7 @@
 {
     "version": "2.0",
     "object": "Test\\Comhon\\Object\\Person",
+    "is_serializable": true,
     "properties": [
         {
             "name": "id",

@@ -32,24 +32,16 @@ use Comhon\Exception\ArgumentException;
 use Comhon\Exception\UnexpectedValueTypeException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
+use Comhon\Object\Collection\MainObjectCollection;
+use Comhon\Visitor\ObjectCollectionCreator;
+use Comhon\Exception\CastComhonObjectException;
 
-abstract class Model {
+class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
-	/**
-	 * @var integer[] array used to avoid infinite loop when objects are visited
-	 */
-	private static $instanceObjectHash = [];
-	
-	/** @var string */
-	protected $modelName;
-	
-	/** @var boolean */
-	protected $isLoaded = false;
-	
 	/** @var boolean */
 	protected $isLoading = false;
 	
-	/** @var Model */
+	/** @var ModelUnique */
 	private $parent;
 	
 	/** @var string */
@@ -57,6 +49,12 @@ abstract class Model {
 	
 	/** @var boolean */
 	private $isExtended = false;
+	
+	/** @var boolean */
+	private $isMain;
+	
+	/** @var SerializationUnit */
+	private $serialization = null;
 	
 	/** @var \Comhon\Model\Property\Property[] */
 	private $properties   = [];
@@ -111,6 +109,7 @@ abstract class Model {
 			try {
 				$this->isLoading = true;
 				$result = ModelManager::getInstance()->getProperties($this);
+				$this->isMain = $result[ModelManager::IS_MAIN_MODEL];
 				$this->parent = $result[ModelManager::PARENT_MODEL];
 				$this->_setProperties($result[ModelManager::PROPERTIES]);
 				
@@ -215,7 +214,19 @@ abstract class Model {
 	/**
 	 * load, build and affect serializaton to model
 	 */
-	protected function _setSerialization() {}
+	final protected function _setSerialization() {
+		$this->serialization = ModelManager::getInstance()->getSerializationInstance($this);
+		if ($this->hasParent()) {
+			if (count($this->getIdProperties()) != count($this->getParent()->getIdProperties())) {
+				throw new ComhonException("model {$this->getName()} extended from model {$this->getParent()->getName()} and with same serialization must have same id(s)");
+			}
+			foreach ($this->getParent()->getIdProperties() as $propertyName => $property) {
+				if (!$this->hasIdProperty($propertyName) || !$property->isEqual($this->getIdProperty($propertyName))) {
+					throw new ComhonException("model {$this->getName()} extended from model {$this->getParent()->getName()} and with same serialization must have same id(s)");
+				}
+			}
+		}
+	}
 	
 	/**
 	 * initialize some informations not managed by generic load
@@ -256,7 +267,7 @@ abstract class Model {
 	/**
 	 * get parent model if current model extends from another one
 	 * 
-	 * @return Model|null null if no parent model
+	 * @return ModelUnique|null null if no parent model
 	 */
 	public function getParent() {
 		return $this->parent;
@@ -285,21 +296,6 @@ abstract class Model {
 			$currentModel = $currentModel->parent;
 		}
 		return $isInherited;
-	}
-	
-	/**
-	 * get or create an instance of ComhonObject
-	 * 
-	 * @param integer|string $id
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
-	 * @param boolean $isFirstLevel
-	 * @param boolean $isForeign
-	 * @throws \Exception
-	 * @return \Comhon\Object\ComhonObject
-	 */
-	protected function _getOrCreateObjectInstance($id, Interfacer $interfacer, $localObjectCollection, $isFirstLevel, $isForeign = false) {
-		throw new ComhonException('can\'t apply function. Only callable for MainModel or LocalModel');
 	}
 	
 	/**
@@ -540,30 +536,18 @@ abstract class Model {
 	}
 	
 	/**
-	 * get first id property if model has at least one id property
-	 * 
-	 * @return \Comhon\Model\Property\Property|null
+	 * verify if model is a main model
+	 *
+	 * @return boolean
 	 */
-	public function getFirstIdProperty() {
-		reset($this->idProperties);
-		return empty($this->idProperties) ? null : current($this->idProperties);
+	public function isMain() {
+		return $this->isMain;
 	}
 	
 	/**
-	 * verify if model is loaded or not
 	 * 
-	 * @return boolean
-	 */
-	public function isLoaded() {
-		return $this->isLoaded;
-	}
-	
-	/**
-	 * verify if model is complex or not
-	 * 
-	 * model is complex if model is not instance of SimpleModel
-	 * 
-	 * @return boolean
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\AbstractModel::isComplex()
 	 */
 	public function isComplex() {
 		return true;
@@ -575,7 +559,7 @@ abstract class Model {
 	 * @return \Comhon\Serialization\SerializationUnit|null
 	 */
 	public function getSerialization() {
-		return null;
+		return $this->serialization;
 	}
 	
 	/**
@@ -584,7 +568,7 @@ abstract class Model {
 	 * @return boolean
 	 */
 	public function hasSerialization() {
-		return false;
+		return !is_null($this->serialization);
 	}
 	
 	/**
@@ -594,7 +578,7 @@ abstract class Model {
 	 * @return boolean
 	 */
 	public function hasSerializationUnit($serializationType) {
-		return false;
+		return !is_null($this->serialization) && ($this->serialization->getType() == $serializationType);
 	}
 	
 	/**
@@ -603,7 +587,7 @@ abstract class Model {
 	 * @return \Comhon\Object\ObjectUnique|null null if no serialization settings
 	 */
 	public function getSerializationSettings() {
-		return null;
+		return is_null($this->serialization) ? null : $this->serialization->getSettings();
 	}
 	
 	/**
@@ -612,7 +596,7 @@ abstract class Model {
 	 * @return boolean
 	 */
 	public function hasSqlTableUnit() {
-		return false;
+		return !is_null($this->serialization) && ($this->serialization instanceof SqlTable);
 	}
 	
 	/**
@@ -621,7 +605,7 @@ abstract class Model {
 	 * @return \Comhon\Serialization\SqlTable|null null if no sql serialization
 	 */
 	public function getSqlTableUnit() {
-		return null;
+		return !is_null($this->serialization) && ($this->serialization instanceof SqlTable) ? $this->serialization : null;
 	}
 	
 	/**
@@ -659,58 +643,90 @@ abstract class Model {
 	}
 	
 	/**
-	 * add main current object to main foreign objects list in interfacer
 	 * 
-	 * object is added only if it has a main model associated
-	 * avoid to re-export current object via export of main foreign object
-	 * 
-	 * @param \Comhon\Object\ComhonObject $object
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::_addMainCurrentObject()
 	 */
 	protected function _addMainCurrentObject(ComhonObject $object, Interfacer $interfacer) {
 		if (!($object instanceof ObjectUnique)) {
 			throw new ArgumentException($object, ObjectUnique::class, 1);
 		}
-		if ($interfacer->hasToExportMainForeignObjects() && ($object->getModel() instanceof MainModel) && !is_null($object->getId()) && $object->hasCompleteId()) {
+		if ($interfacer->hasToExportMainForeignObjects() && $object->getModel()->isMain() && !is_null($object->getId()) && $object->hasCompleteId()) {
 			$interfacer->addMainForeignObject($interfacer->createNode('empty'), $object->getId(), $object->getModel());
 		}
 	}
 	
 	/**
-	 * remove main current object from main foreign objects list in interfacer previously added
 	 * 
-	 * @param \Comhon\Object\ComhonObject $object
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::_removeMainCurrentObject()
 	 */
 	protected function _removeMainCurrentObject(ComhonObject $object, Interfacer $interfacer) {
 		if (!($object instanceof ObjectUnique)) {
 			throw new ArgumentException($object, ObjectUnique::class, 1);
 		}
-		if ($interfacer->hasToExportMainForeignObjects() && ($object->getModel() instanceof MainModel) && !is_null($object->getId()) && $object->hasCompleteId()) {
+		if ($interfacer->hasToExportMainForeignObjects() && $object->getModel()->isMain() && !is_null($object->getId()) && $object->hasCompleteId()) {
 			$interfacer->removeMainForeignObject($object->getId(), $object->getModel());
 		}
 	}
 	
 	/**
-	 * export comhon object in specified format
-	 * 
-	 * @param \Comhon\Object\ComhonObject $object
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @return mixed
+	 * load comhon object
+	 *
+	 * @param string|integer $id
+	 * @param string[] $propertiesFilter
+	 * @param boolean $forceLoad if object already exists and is already loaded, force to reload object
+	 * @throws \Exception
+	 * @return \Comhon\Object\ObjectUnique|null null if load is unsuccessfull
 	 */
-	final public function export(ComhonObject $object, Interfacer $interfacer) {
-		$interfacer->initializeExport();
-		self::$instanceObjectHash = [];
-		$this->_addMainCurrentObject($object, $interfacer);
-		try {
-			$node = $this->_export($object, 'root', $interfacer, true);
-		} catch (ComhonException $e) {
-			throw new ExportException($e);
+	public function loadObject($id, $propertiesFilter = null, $forceLoad = false) {
+		if (is_null($this->getSerialization())) {
+			throw new ComhonException("model {$this->getName()} doesn't have serialization");
 		}
-		$this->_removeMainCurrentObject($object, $interfacer);
-		self::$instanceObjectHash = [];
-		$interfacer->finalizeExport($node);
-		return $node;
+		$this->load();
+		if (!$this->hasIdProperties()) {
+			throw new ComhonException("model '$this->modelName' must have at least one id property to load object");
+		}
+		$mainObject = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
+		
+		if (is_null($mainObject)) {
+			$mainObject = $this->_buildObjectFromId($id, false, false);
+			$newObject = true;
+		} else if ($mainObject->isLoaded() && !$forceLoad) {
+			return $mainObject;
+		} else {
+			$newObject = false;
+		}
+		
+		try {
+			return $this->loadAndFillObject($mainObject, $propertiesFilter, $forceLoad) ? $mainObject : null;
+		} catch (CastComhonObjectException $e) {
+			if ($newObject) {
+				$mainObject->reset();
+				throw $e;
+			}
+		}
+	}
+	
+	/**
+	 * load instancied comhon object with serialized object
+	 *
+	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param string[] $propertiesFilter
+	 * @param boolean $forceLoad if object already exists and is already loaded, force to reload object
+	 * @throws \Exception
+	 * @return \Comhon\Object\ObjectUnique|null null if load is unsuccessfull
+	 */
+	public function loadAndFillObject(ObjectUnique $object, $propertiesFilter = null, $forceLoad = false) {
+		$success = false;
+		$this->load();
+		if (is_null($serializationUnit = $this->getSerialization())) {
+			throw new ComhonException("model {$this->getName()} doesn't have serialization");
+		}
+		if (!$object->isLoaded() || $forceLoad) {
+			$success = $serializationUnit->loadObject($object, $propertiesFilter);
+		}
+		return $success;
 	}
 	
 	/**
@@ -755,11 +771,11 @@ abstract class Model {
 							$interfacer->setValue($node, $exportedValue, $propertyName, $property->isInterfacedAsNodeXml());
 						}
 						else if ($property->isForeign() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
-							$property->getModel()->_export($value, $value->getModel()->getShortName(), $interfacer, false);
+							$property->getModel()->_export($value, $value->getUniqueModel()->getShortName(), $interfacer, false);
 						}
 					}
 					else if ($isSerialContext && $property->isAggregation() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
-						$property->getModel()->_export($value, $value->getModel()->getShortName(), $interfacer, false);
+						$property->getModel()->_export($value, $value->getUniqueModel()->getShortName(), $interfacer, false);
 					}
 				}
 			} catch (ComhonException $e) {
@@ -817,7 +833,7 @@ abstract class Model {
 			}
 			else if ($interfacer->isComplexInterfacedId($interfacer->getValue($node, $interfacedPropertyName, true))) {
 				$foreignObject = $object->getValue($propertyName);
-				if ($foreignObject->getModel() instanceof MainModel) {
+				if ($foreignObject->getModel()->isMain()) {
 					$interfacer->replaceValue($node, $interfacedPropertyName, $foreignObject->getId());
 				} else {
 					$interfacer->flattenNode($node, $interfacedPropertyName);
@@ -827,82 +843,40 @@ abstract class Model {
 	}
 	
 	/**
-	 * export comhon object id
-	 *
-	 * @param \Comhon\Object\ComhonObject $object
-	 * @param string $nodeName
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @throws \Exception
-	 * @return mixed|null
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
 	protected function _exportId(ComhonObject $object, $nodeName, Interfacer $interfacer) {
 		if ($object->getModel() !== $this) {
 			if (!$object->getModel()->isInheritedFrom($this)) {
 				throw new UnexpectedModelException($this, $object->getModel());
 			}
-			$objectId = $interfacer->createNode($nodeName);
-			$interfacer->setValue($objectId, $object->getModel()->_toInterfacedId($object, $interfacer), Interfacer::COMPLEX_ID_KEY);
-			$interfacer->setValue($objectId, $object->getModel()->getName(), Interfacer::INHERITANCE_KEY);
-			return $objectId;
+			$exportedId = $interfacer->createNode($nodeName);
+			$interfacer->setValue($exportedId, $object->getModel()->_toInterfacedId($object, $interfacer), Interfacer::COMPLEX_ID_KEY);
+			$interfacer->setValue($exportedId, $object->getModel()->getName(), Interfacer::INHERITANCE_KEY);
+		} else {
+			$exportedId = $this->_toInterfacedId($object, $interfacer);
 		}
-		return $this->_toInterfacedId($object, $interfacer);
-	}
-	
-	/**
-	 * fill comhon object with values from interfaced object
-	 * 
-	 * @param \Comhon\Object\ComhonObject $object
-	 * @param mixed $interfacedObject
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @throws \Exception
-	 */
-	public function fillObject(ComhonObject $object, $interfacedObject, Interfacer $interfacer) {
-		throw new ComhonException('can\'t apply function fillObject(). Only callable for MainModel');
-	}
-	
-	/**
-	 * import interfaced object 
-	 * 
-	 * build comhon object with values from interfaced object
-	 * import may create an object or update an existing object
-	 *
-	 * @param mixed $interfacedObject
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @throws \Exception
-	 * @return \Comhon\Object\ComhonObject
-	 */
-	public function import($interfacedObject, Interfacer $interfacer) {
-		throw new ComhonException('can\'t apply function import(). Only callable for MainModel');
-	}
-	
-	/**
-	 * import interfaced object related to a main model
-	 *
-	 * @param mixed $interfacedObject
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
-	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique
-	 */
-	protected function _importMain($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection) {
-		throw new ComhonException('can\'t apply function _importMain(). Only callable for MainModel');
-	}
-	
-	/**
-	 * get comhon object instance according model and interfaced object
-	 * 
-	 * @param mixed $interfacedObject
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
-	 * @param boolean $isFirstLevel
-	 * @return \Comhon\Object\ObjectUnique
-	 */
-	protected function _getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel = false) {
-		$inheritance = $interfacer->getValue($interfacedObject, Interfacer::INHERITANCE_KEY);
-		$model = is_null($inheritance) ? $this : $this->_getIneritedModel($inheritance);
-		$id = $model->getIdFromInterfacedObject($interfacedObject, $interfacer, $isFirstLevel);
 		
-		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, $isFirstLevel);
+		if ($this->isMain && $interfacer->hasToExportMainForeignObjects()) {
+			if ($object->getModel() === $this) {
+				$model = $this;
+			} else {
+				if (!$object->getModel()->isInheritedFrom($this)) {
+					throw new UnexpectedModelException($this, $object->getModel());
+				}
+				$model = $object->getModel();
+			}
+			$valueId   = $this->_toInterfacedId($object, $interfacer);
+			$modelName = $model->getName();
+			
+			if (!$interfacer->hasMainForeignObject($modelName, $valueId)) {
+				$interfacer->addMainForeignObject($interfacer->createNode('empty'), $valueId, $object->getModel());
+				$interfacer->addMainForeignObject($model->_export($object, 'root', $interfacer, true), $valueId, $object->getModel());
+			}
+		}
+		return $exportedId;
 	}
 	
 	/**
@@ -952,6 +926,152 @@ abstract class Model {
 	}
 	
 	/**
+	 * build object collection
+	 *
+	 * @param \Comhon\Object\ComhonObject $object
+	 * @return \Comhon\Object\Collection\ObjectCollection
+	 */
+	private function _loadLocalObjectCollection($object) {
+		$objectCollectionCreator = new ObjectCollectionCreator();
+		return $objectCollectionCreator->execute($object);
+	}
+	
+	/**
+	 * get comhon object instance according model and interfaced object
+	 *
+	 * @param mixed $interfacedObject
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
+	 * @param boolean $isFirstLevel
+	 * @return \Comhon\Object\ObjectUnique
+	 */
+	protected function _getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel = false) {
+		$inheritance = $interfacer->getValue($interfacedObject, Interfacer::INHERITANCE_KEY);
+		$model = is_null($inheritance) ? $this : $this->_getIneritedModel($inheritance);
+		$id = $model->getIdFromInterfacedObject($interfacedObject, $interfacer, $isFirstLevel);
+		
+		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, $isFirstLevel);
+	}
+	
+	/**
+	 * get or create an instance of ComhonObject
+	 *
+	 * @param integer|string $id
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
+	 * @param boolean $isFirstLevel
+	 * @param boolean $isForeign
+	 * @throws \Exception
+	 * @return \Comhon\Object\ComhonObject
+	 */
+	protected function _getOrCreateObjectInstance($id, Interfacer $interfacer, $localObjectCollection, $isFirstLevel, $isForeign = false) {
+		$isloaded = !$isForeign && (!$isFirstLevel || $interfacer->hasToFlagObjectAsLoaded());
+		
+		if (is_null($id) || !$this->hasIdProperties()) {
+			$object = $this->getObjectInstance($isloaded);
+		}
+		else {
+			$object = $localObjectCollection->getObject($id, $this->modelName);
+			if ($this->isMain && is_null($object)) {
+				$object = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
+			}
+			if (is_null($object)) {
+				$object = $this->_buildObjectFromId($id, $isloaded, $interfacer->hasToFlagValuesAsUpdated());
+				$localObjectCollection->addObject($object);
+			}
+			else {
+				if ($this->isMain) {
+					$localObjectCollection->addObject($object, false);
+					if (!$localObjectCollection->hasObject($id, $this->modelName, false)) {
+						$object->cast($this);
+						$localObjectCollection->addObject($object, false);
+					}
+				}
+				if ($isloaded || ($isFirstLevel && $interfacer->getMergeType() !== Interfacer::MERGE)) {
+					$object->setIsLoaded($isloaded);
+				}
+			}
+		}
+		return $object;
+	}
+	
+	/**
+	 * import interfaced object 
+	 * 
+	 * build comhon object with values from interfaced object
+	 * import may create an object or update an existing object
+	 *
+	 * @param mixed $interfacedObject
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @throws \Exception
+	 * @return \Comhon\Object\ComhonObject
+	 */
+	public function import($interfacedObject, Interfacer $interfacer) {
+		if ($interfacedObject instanceof \SimpleXMLElement) {
+			$interfacedObject = dom_import_simplexml($interfacedObject);
+		}
+		if (!$interfacer->isNodeValue($interfacedObject)) {
+			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
+			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
+		}
+		try {
+			return $this->_importRoot($interfacedObject, $interfacer, new ObjectCollection());
+		}
+		catch (ComhonException $e) {
+			throw new ImportException($e);
+		}
+	}
+	
+	/**
+	 * import interfaced object related to a main model
+	 *
+	 * @param mixed $interfacedObject
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
+	 * @throws \Exception
+	 * @return \Comhon\Object\ObjectUnique
+	 */
+	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection) {
+		$this->load();
+		if (!$interfacer->isNodeValue($interfacedObject)) {
+			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
+				$interfacedObject = new \stdClass();
+			} else {
+				throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getNodeClasses()));
+			}
+		}
+		
+		switch ($interfacer->getMergeType()) {
+			case Interfacer::MERGE:
+				$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, true);
+				$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), true);
+				break;
+			case Interfacer::OVERWRITE:
+				$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, true);
+				$object->reset();
+				$this->_fillObject($object, $interfacedObject, $interfacer, new ObjectCollection(), true);
+				break;
+			case Interfacer::NO_MERGE:
+				if ($this->isMain) {
+					$existingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $this->modelName);
+					if (!is_null($existingObject)) {
+						MainObjectCollection::getInstance()->removeObject($existingObject);
+					}
+				}
+				$object = $this->_import($interfacedObject, $interfacer, new ObjectCollection(), true);
+				
+				if (!is_null($existingObject)) {
+					MainObjectCollection::getInstance()->removeObject($object);
+					MainObjectCollection::getInstance()->addObject($existingObject);
+				}
+				break;
+			default:
+				throw new ComhonException('undefined merge type '.$interfacer->getMergeType());
+		}
+		return $object;
+	}
+	
+	/**
 	 * import interfaced object
 	 * 
 	 * @param mixed $interfacedObject
@@ -974,6 +1094,96 @@ abstract class Model {
 		$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, $isFirstLevel);
 		$this->_fillObject($object, $interfacedObject, $interfacer, $localObjectCollection, $isFirstLevel);
 		return $object;
+	}
+	
+	/**
+	 * fill comhon object with values from interfaced object
+	 *
+	 * @param \Comhon\Object\ComhonObject $object
+	 * @param mixed $interfacedObject
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @throws \Exception
+	 */
+	public function fillObject(ComhonObject $object, $interfacedObject, Interfacer $interfacer) {
+		$this->load();
+		$this->verifValue($object);
+		
+		if ($interfacedObject instanceof \SimpleXMLElement) {
+			$interfacedObject = dom_import_simplexml($interfacedObject);
+		}
+		if (!$interfacer->isNodeValue($interfacedObject)) {
+			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
+				$interfacedObject = new \stdClass();
+			} else {
+				$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
+				throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
+			}
+		}
+		
+		try {
+			$this->_verifIdBeforeFillObject($object, $this->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $interfacer->hasToFlagValuesAsUpdated());
+			
+			if ($this->isMain) {
+				MainObjectCollection::getInstance()->addObject($object, false);
+			}
+			$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), true);
+			
+			if ($interfacer->hasToFlagObjectAsLoaded()) {
+				$object->setIsLoaded(true);
+			}
+		}
+		catch (ComhonException $e) {
+			throw new ImportException($e);
+		}
+	}
+	
+	/**
+	 * verify comhon object to fill
+	 *
+	 * check if has right model and right id
+	 *
+	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param mixed $id
+	 * @param boolean $flagAsUpdated
+	 * @throws \Exception
+	 */
+	private function _verifIdBeforeFillObject(ObjectUnique $object, $id, $flagAsUpdated) {
+		if ($object->getModel() !== $this) {
+			throw new UnexpectedModelException($this, $object->getModel());
+		}
+		if (!$this->hasIdProperties()) {
+			return ;
+		}
+		if (!$object->hasCompleteId()) {
+			$this->_fillObjectwithId($object, $id, $flagAsUpdated);
+		}
+		if (!$object->hasCompleteId()) {
+			return ;
+		}
+		$objectId = $object->getId();
+		if ($id === 0) {
+			if ($objectId !== 0 && $objectId !== '0') {
+				$messageId = is_null($id) ? 'null' : $id;
+				throw new ComhonException("id must be the same as imported value id : {$object->getId()} !== $messageId");
+			}
+		} else if ($objectId === 0) {
+			if ($id !== 0 && $id !== '0') {
+				$messageId = is_null($id) ? 'null' : $id;
+				throw new ComhonException("id must be the same as imported value id : {$object->getId()} !== $messageId");
+			}
+		}
+		else if ($object->getId() != $id) {
+			$messageId = is_null($id) ? 'null' : $id;
+			throw new ComhonException("id must be the same as imported value id : {$object->getId()} !== $messageId");
+		}
+		
+		if ($this->isMain) {
+			$storedObject = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
+			if (!is_null($storedObject) && $storedObject!== $object) {
+				throw new ComhonException("A different instance object with same id '$id' already exists in MainObjectCollection.\n"
+						.'If you want to build a new instance with this id, you must go through Model and specify merge type as '.Interfacer::NO_MERGE.' (no merge)');
+			}
+		}
 	}
 	
 	/**

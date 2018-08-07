@@ -13,6 +13,7 @@ namespace Comhon\Model\Property;
 
 use Comhon\Model\Model;
 use Comhon\Exception\ComhonException;
+use Comhon\Model\ModelForeign;
 
 class MultipleForeignProperty extends ForeignProperty {
 
@@ -24,13 +25,13 @@ class MultipleForeignProperty extends ForeignProperty {
 	
 	/**
 	 * 
-	 * @param \Comhon\Object\Model $model
+	 * @param \Comhon\Object\ModelForeign $model
 	 * @param string $name
 	 * @param string[] $serializationNames
 	 * @param boolean $isPrivate
 	 * @param boolean $isSerializable
 	 */
-	public function __construct(Model $model, $name, $serializationNames, $isPrivate = false, $isSerializable = true) {
+	public function __construct(ModelForeign $model, $name, $serializationNames, $isPrivate = false, $isSerializable = true) {
 		parent::__construct($model, $name, null, $isPrivate, $isSerializable);
 		$this->multipleIdProperties = $serializationNames;
 	}

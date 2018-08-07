@@ -13,7 +13,6 @@ namespace Comhon\Database;
 
 use Comhon\Request\ComplexLoadRequest;
 use Comhon\Model\Model;
-use Comhon\Model\MainModel;
 use Comhon\Logic\Clause;
 use Comhon\Logic\Literal;
 use Comhon\Exception\Literal\LiteralNotFoundException;
@@ -71,7 +70,7 @@ abstract class DbLiteral extends Literal {
 	 * build instance of Literal 
 	 * 
 	 * @param \stdClass $stdObject
-	 * @param \Comhon\Model\MainModel $mainModel
+	 * @param \Comhon\Model\Model $mainModel
 	 * @param DbLiteral[] $literalCollection used if $stdObject contain only an id that reference literal in collection
 	 * @param SelectQuery $selectQuery
 	 * @param boolean $allowPrivateProperties
@@ -153,7 +152,7 @@ abstract class DbLiteral extends Literal {
 	
 	/**
 	 * 
-	 * @param \Comhon\Model\MainModel $model
+	 * @param \Comhon\Model\Model $model
 	 * @param \stdClass $queue
 	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
@@ -161,7 +160,7 @@ abstract class DbLiteral extends Literal {
 	 * - first element is array of joined tables
 	 * - second element is array of columns that will be use for group, select and joins with principale query
 	 */
-	private static function _getJoinedTablesFromQueue(MainModel $model, $queue, $allowPrivateProperties) {
+	private static function _getJoinedTablesFromQueue(Model $model, $queue, $allowPrivateProperties) {
 		$firstTable    = new TableNode($model->getSqlTableUnit()->getSettings()->getValue('name'), null, false);
 		$leftTable     = $firstTable;
 		$firstModel    = $model;

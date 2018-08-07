@@ -1,6 +1,7 @@
 {
     "version": "2.0",
     "extends": "\\Test\\Test",
+    "is_main": true,
     "types": [
         {
             "name": "LocalPlace",

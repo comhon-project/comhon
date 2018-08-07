@@ -37,7 +37,7 @@ $childDbTestModel = ModelManager::getInstance()->getInstanceModel('Test\ChildTes
 $object = $childDbTestModel->getObjectInstance();
 $object->setValue('id', 1);
 $object->setValue('name', 'plop');
-$property = $object->getProperty('parentTestDb', true);
+$property = $object->getModel()->getProperty('parentTestDb', true);
 if (!($property instanceof MultipleForeignProperty)) {
 	throw new \Exception('bad property class : '.get_class($property));
 }
@@ -102,9 +102,9 @@ if ($object->getValue('parentTestDb') !== $parentObject) {
 $parentObject->initValue('childrenTestDb', false, false);
 $parentObject->loadValue('childrenTestDb');
 
-if (json_encode($parentObject->getValue('childrenTestDb')->export($stdPrivateInterfacer)) !== '[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]') {
-	// TODO restore after model refactoring
-	// throw new \Exception('bad value');
+if (json_encode($parentObject->getValue('childrenTestDb')->export($stdPrivateInterfacer)) !== '[{"id":1,"parentTestDb":"[1,\"1501774389\"]","name":"plop"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]') {
+	var_dump(json_encode($parentObject->getValue('childrenTestDb')->export($stdPrivateInterfacer)));
+	throw new \Exception('bad value');
 }
 
 /********************************************** test save *******************************************/

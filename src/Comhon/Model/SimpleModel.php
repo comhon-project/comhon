@@ -17,7 +17,7 @@ use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ComhonException;
 
-abstract class SimpleModel extends Model {
+abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	
 	/**
 	 * initialize model name
@@ -29,14 +29,31 @@ abstract class SimpleModel extends Model {
 	 * to get a model instance use singleton ModelManager
 	 */
 	final public function __construct() {
-		$this->isLoaded = true;
 		$this->_initializeModelName();
+	}
+	
+	/**
+	 * get model name
+	 *
+	 * @return string
+	 */
+	public function getName() {
+		return $this->modelName;
 	}
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::isComplex()
+	 * @see \Comhon\Model\AbstractModel::isLoaded()
+	 */
+	public function isLoaded() {
+		return true;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\AbstractModel::isComplex()
 	 */
 	public function isComplex() {
 		return false;
@@ -45,7 +62,7 @@ abstract class SimpleModel extends Model {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::_isNextLevelFirstLevel()
+	 * @see \Comhon\Model\AbstractModel::_isNextLevelFirstLevel()
 	 */
 	protected function _isNextLevelFirstLevel($isCurrentLevelFirstLevel) {
 		return $isCurrentLevelFirstLevel;
@@ -54,25 +71,7 @@ abstract class SimpleModel extends Model {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getObjectClass()
-	 */
-	public function getObjectClass() {
-		throw new ComhonException('simple models doesn\'t have associated class');
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getObjectInstance()
-	 */
-	public function getObjectInstance($isloaded = true) {
-		throw new ComhonException('simple models doesn\'t have associated class');
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::_export()
+	 * @see \Comhon\Model\AbstractModel::_export()
 	 */
 	final protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel) {
 		return $this->exportSimple($value, $interfacer);
@@ -92,9 +91,7 @@ abstract class SimpleModel extends Model {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::_import()
-	 * 
-	 * @return mixed
+	 * @see \Comhon\Model\AbstractModel::_import()
 	 */
 	final protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		return $this->importSimple($value, $interfacer, $isFirstLevel);
@@ -121,7 +118,7 @@ abstract class SimpleModel extends Model {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::verifValue()
+	 * @see \Comhon\Model\AbstractModel::verifValue()
 	 */
 	public function verifValue($value) {
 		throw new ComhonException('must be overrided');

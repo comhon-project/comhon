@@ -36,12 +36,10 @@ if (json_encode(array_keys($womanModel->getProperties())) !== '["id","firstName"
 	throw new \Exception('bad model properties');
 }
 if ($womanModel->getSerializationSettings() !== $personModel->getSerializationSettings()) {
-	// TODO restore after model refactoring
-	// throw new \Exception('not same serialization');
+	throw new \Exception('not same serialization');
 }
 if (ModelManager::getInstance()->getInstanceModel('Test\Person\Man')->getSerializationSettings() !== $personModel->getSerializationSettings()) {
-	// TODO restore after model refactoring
-	// throw new \Exception('not same serialization');
+	throw new \Exception('not same serialization');
 }
 
 if ($womanModel->getProperty('id') !== $personModel->getProperty('id')) {

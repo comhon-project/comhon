@@ -16,6 +16,7 @@ use Comhon\Object\ObjectUnique;
 use Comhon\Model\Model;
 use Comhon\Exception\ComhonException;
 use Comhon\Serialization\SqlTable;
+use Comhon\Model\ModelForeign;
 
 class AggregationProperty extends ForeignProperty {
 	
@@ -24,14 +25,14 @@ class AggregationProperty extends ForeignProperty {
 	
 	/**
 	 * 
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\ModelForeign $model
 	 * @param string $name
 	 * @param Property[] $aggregationProperties
 	 * @param string $serializationName
 	 * @param boolean $isPrivate
 	 * @throws \Exception
 	 */
-	public function __construct(Model $model, $name, $aggregationProperties, $serializationName = null, $isPrivate = false) {
+	public function __construct(ModelForeign $model, $name, $aggregationProperties, $serializationName = null, $isPrivate = false) {
 		parent::__construct($model, $name, $serializationName, $isPrivate, false);
 		if (empty($aggregationProperties)) {
 			throw new ComhonException('aggregation must have at least one aggregation property');

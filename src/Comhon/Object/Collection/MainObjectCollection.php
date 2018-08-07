@@ -11,7 +11,7 @@
 
 namespace Comhon\Object\Collection;
 
-use Comhon\Model\MainModel;
+use Comhon\Model\Model;
 use Comhon\Object\ObjectUnique;
 use Comhon\Exception\ComhonException;
 
@@ -43,8 +43,8 @@ class MainObjectCollection extends ObjectCollection {
 	 * @return boolean true if object is added
 	 */
 	public function addObject(ObjectUnique $object, $throwException = true) {
-		if (!($object->getModel() instanceof MainModel)) {
-			throw new ComhonException('model of given ObjectUnique must be instance of MainModel');
+		if (!$object->getModel()->isMain()) {
+			throw new ComhonException('model of given ObjectUnique must be a main Model');
 		}
 		return parent::addObject($object, $throwException);
 	}
@@ -58,8 +58,8 @@ class MainObjectCollection extends ObjectCollection {
 	 * @return boolean true if object is added
 	 */
 	public function removeObject(ObjectUnique $object) {
-		if (!($object->getModel() instanceof MainModel)) {
-			throw new ComhonException('model of given ObjectUnique must be instance of MainModel');
+		if (!$object->getModel()->isMain()) {
+			throw new ComhonException('model of given ObjectUnique must be a main Model');
 		}
 		return parent::removeObject($object);
 	}

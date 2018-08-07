@@ -16,7 +16,6 @@ use Comhon\Model\ModelForeign;
 use Comhon\Model\Property\ForeignProperty;
 use Comhon\Model\Property\AggregationProperty;
 use Comhon\Model\Property\Property;
-use Comhon\Model\MainModel;
 use Comhon\Model\Property\MultipleForeignProperty;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\Interfacer;
@@ -28,35 +27,42 @@ use Comhon\Exception\NotSatisfiedRestrictionException;
 use Comhon\Exception\ReservedWordException;
 use Comhon\Exception\ManifestException;
 use Comhon\Exception\ComhonException;
+use Comhon\Model\AbstractModel;
 
 abstract class ManifestParser {
 
 	/** @var string */
-	const _EXTENDS   = 'extends';
+	const _EXTENDS        = 'extends';
 	
 	/** @var string */
-	const _OBJECT    = 'object';
+	const _OBJECT         = 'object';
 	
 	/** @var string */
-	const NAME           = 'name';
+	const IS_MAIN         = 'is_main';
 	
 	/** @var string */
-	const IS_ID          = 'is_id';
+	const IS_SERIALIZABLE = 'is_serializable';
 	
 	/** @var string */
-	const IS_PRIVATE     = 'is_private';
+	const NAME            = 'name';
 	
 	/** @var string */
-	const IS_FOREIGN     = 'is_foreign';
+	const IS_ID           = 'is_id';
 	
 	/** @var string */
-	const IS_ASSOCIATIVE = 'is_associative';
+	const IS_PRIVATE      = 'is_private';
 	
 	/** @var string */
-	const XML_NODE       = 'node';
+	const IS_FOREIGN      = 'is_foreign';
 	
 	/** @var string */
-	const XML_ATTRIBUTE  = 'attribute';
+	const IS_ASSOCIATIVE  = 'is_associative';
+	
+	/** @var string */
+	const XML_NODE        = 'node';
+	
+	/** @var string */
+	const XML_ATTRIBUTE   = 'attribute';
 	
 	/** @var mixed */
 	protected $manifest;
@@ -79,6 +85,20 @@ abstract class ManifestParser {
 	/** @var array */
 	private $currentProperties;
 
+	/**
+	 * verify if manifest describe a main model
+	 *
+	 * @return boolean
+	 */
+	abstract public function isMain();
+	
+	/**
+	 * verify if manifest describe a serializable model
+	 *
+	 * @return boolean
+	 */
+	abstract public function isSerializable();
+	
 	/**
 	 * get extends model name
 	 *
@@ -124,31 +144,31 @@ abstract class ManifestParser {
 	/**
 	 * get basic informations of property
 	 * 
-	 * @param \Comhon\Model\Model $propertyModel unique model associated to property
-	 * @return [string, \Comhon\Model\Model, boolean, boolean, boolean]
+	 * @param \Comhon\Model\AbstractModel $propertyModel unique model associated to property
+	 * @return [string, \Comhon\Model\AbstractModel, boolean, boolean, boolean]
 	 *     0 : property name
 	 *     1 : final model associated to property
 	 *     2 : true if property is id
 	 *     3 : true if property is private
 	 *     4 : true if property is interfaced as node xml
 	 */
-	abstract protected function _getBaseInfosProperty(Model $propertyModel);
+	abstract protected function _getBaseInfosProperty(AbstractModel $propertyModel);
 	
 	/**
 	 * get default value if exists
 	 * 
-	 * @param \Comhon\Model\Model $propertyModel
+	 * @param \Comhon\Model\AbstractModel $propertyModel
 	 * @return mixed|null null if no default value
 	 */
-	abstract protected function _getDefaultValue(Model $propertyModel);
+	abstract protected function _getDefaultValue(AbstractModel $propertyModel);
 	
 	/**
 	 * get property/ObjectArray restriction
 	 * 
 	 * @param mixed $currentNode
-	 * @param \Comhon\Model\Model $propertyModel
+	 * @param \Comhon\Model\AbstractModel $propertyModel
 	 */
-	abstract protected function _getRestriction($currentNode, Model $propertyModel);
+	abstract protected function _getRestriction($currentNode, AbstractModel $propertyModel);
 	
 	/**
 	 * verify if current property is foreign
@@ -167,7 +187,7 @@ abstract class ManifestParser {
 		$this->localTypes        = $this->_getLocalTypes();
 		$this->castValues        = ($this->interfacer instanceof NoScalarTypedInterfacer);
 		
-		if (($model instanceof MainModel) && !is_null($serializationManifestPath_afe)) {
+		if ($this->isSerializable() && !is_null($serializationManifestPath_afe)) {
 			$this->serializationManifestParser = SerializationManifestParser::getInstance($model, $serializationManifestPath_afe);
 		}
 	}
@@ -269,11 +289,11 @@ abstract class ManifestParser {
 	/**
 	 * get current property
 	 * 
-	 * @param \Comhon\Model\Model $propertyModel unique model associated to property
+	 * @param \Comhon\Model\AbstractModel $propertyModel unique model associated to property
 	 * @throws \Exception
 	 * @return \Comhon\Model\Property\Property
 	 */
-	public function getCurrentProperty(Model $propertyModel) {
+	public function getCurrentProperty(AbstractModel $propertyModel) {
 		if ($this->_isCurrentPropertyForeign()) {
 			list($name, $model, $isId, $isPrivate, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
 			list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);

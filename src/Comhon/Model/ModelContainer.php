@@ -11,92 +11,29 @@
 
 namespace Comhon\Model;
 
-use Comhon\Interfacer\Interfacer;
-use Comhon\Object\Collection\ObjectCollection;
-use Comhon\Exception\ComhonException;
-
-abstract class ModelContainer extends Model {
+abstract class ModelContainer extends ModelComplex {
 
 	/**
-	 * @var Model model of object array elements
+	 * @var AbstractModel model of object array elements
 	 */
 	protected $model;
 	
-	/** @var boolean */
-	protected $isLoaded = true;
-	
 	/**
-	 * @param Model $model contained model
+	 * @param AbstractModel $model contained model
 	 */
-	public function __construct(Model $model) {
+	public function __construct(AbstractModel $model) {
 		$this->model = $model;
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getObjectClass()
+	 * verify if contained model is complex or not
+	 *
+	 * model is complex if model is not instance of SimpleModel
+	 *
+	 * @return boolean
 	 */
-	public function getObjectClass() {
-		throw new ComhonException('containers models don\'t have associated class (except array and foreign model)');
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getObjectInstance()
-	 */
-	public function getObjectInstance($isloaded = true) {
-		throw new ComhonException('containers models don\'t have associated class (except array and foreign model)');
-	}
-	
-	/**
-	 * get model name of contained model
-	 * 
-	 * @return string
-	 */
-	public function getName() {
-		return $this->getModel()->getName();
-	}
-	
-	/**
-	 * get property in contained model according specified name
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getProperty()
-	 */
-	public function getProperty($propertyName, $throwException = false) {
-		return $this->getModel()->getProperty($propertyName);
-	}
-	
-	/**
-	 * get properties of contained model
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getProperties()
-	 */
-	public function getProperties() {
-		return $this->getModel()->getProperties();
-	}
-	
-	/**
-	 * get properties names of contained model
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getPropertiesNames()
-	 */
-	public function getPropertiesNames() {
-		return $this->getModel()->getPropertiesNames();
-	}
-	
-	/**
-	 * get serializable properties of contained model
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getSerializableProperties()
-	 */
-	public function getSerializableProperties() {
-		return $this->getModel()->getSerializableProperties();
+	public function isComplex() {
+		return true;
 	}
 	
 	/**
@@ -115,7 +52,7 @@ abstract class ModelContainer extends Model {
 	 * a model container may contain another container so this function permit to 
 	 * get the final unique model that is not a container
 	 * 
-	 * @return \Comhon\Model\Model
+	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
 	 */
 	public function getUniqueModel() {
 		$uniqueModel = $this->model;
@@ -127,121 +64,19 @@ abstract class ModelContainer extends Model {
 	}
 	
 	/**
-	 * verify if contained model has property with specified name
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::hasProperty()
-	 */
-	public function hasProperty($propertyName) {
-		return $this->getModel()->hasProperty($propertyName);
-	}
-	
-	/**
-	 * get id properties of contained model
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getIdProperties()
-	 */
-	public function getIdProperties() {
-		return $this->getModel()->getIdProperties();
-	}
-	
-	/**
-	 * verify if contained model has at least one id property
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::hasIdProperties()
-	 */
-	public function hasIdProperties() {
-		return $this->getModel()->hasIdProperties();
-	}
-	
-	/**
-	 * verify if contained model has one and only one id property
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::hasUniqueIdProperty()
-	 */
-	public function hasUniqueIdProperty() {
-		return $this->getModel()->hasUniqueIdProperty();
-	}
-	
-	/**
-	 * get id property of contained model if there is one and only one id property
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getUniqueIdProperty()
-	 */
-	public function getUniqueIdProperty() {
-		return $this->getModel()->getUniqueIdProperty();
-	}
-	
-	/**
-	 * get first id property of contained model if model has at least one id property
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getFirstIdProperty()
-	 */
-	public function getFirstIdProperty() {
-		return $this->getModel()->getFirstIdProperty();
-	}
-	
-	/**
-	 * verify if contained model is loaded or not
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::isLoaded()
-	 */
-	public function isLoaded() {
-		return $this->model->isLoaded();
-	}
-	
-	/**
-	 * get serialization linked to contained model
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getSerialization()
-	 */
-	public function getSerialization() {
-		return $this->getModel()->getSerialization();
-	}
-	
-	/**
-	 * get serialization linked to contained model
+	 * get unique contained model
 	 *
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getSerialization()
+	 * a model container may contain another container so this function permit to
+	 * get the final unique model that is not a container
+	 *
+	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
 	 */
-	public function hasSerialization() {
-		return $this->getModel()->hasSerialization();
-	}
-	
-	/**
-	 * get serialization settings of contained model
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::getSerializationSettings()
-	 */
-	public function getSerializationSettings() {
-		return $this->getModel()->getSerializationSettings();
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::_export()
-	 */
-	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel) {
-		throw new ComhonException('must be overrided');
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Model::_import()
-	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
-		throw new ComhonException('must be overrided');
+	protected function _getUniqueModel() {
+		$uniqueModel = $this->model;
+		while ($uniqueModel instanceof ModelContainer) {
+			$uniqueModel = $uniqueModel->model;
+		}
+		return $uniqueModel;
 	}
 	
 }

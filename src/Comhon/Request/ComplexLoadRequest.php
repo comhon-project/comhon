@@ -618,7 +618,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				} else {
 					$disJunction[] = new OnLiteral(
 						$leftTable,
-						$rightForeignProperty->getUniqueModel()->getFirstIdProperty()->getSerializationName(),
+						$rightForeignProperty->getUniqueModel()->getUniqueIdProperty()->getSerializationName(),
 						Literal::EQUAL,
 						$rightTable,
 						$rightForeignProperty->getSerializationName()
@@ -655,7 +655,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 					$rightProperty->getSerializationName(), 
 					Literal::EQUAL, 
 					$rightTable, 
-					$rightModel->getFirstIdProperty()->getSerializationName()
+					$rightModel->getUniqueIdProperty()->getSerializationName()
 				);
 			}
 		}

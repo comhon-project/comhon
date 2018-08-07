@@ -102,7 +102,6 @@ class ModelToSQL {
 	
 	/**
 	 * 
-	 * @param \Comhon\Model\Model $model
 	 * @param \Comhon\Object\Object $table
 	 * @param \Comhon\Model\Property\ForeignProperty $property
 	 * @param array $foreignConstraints

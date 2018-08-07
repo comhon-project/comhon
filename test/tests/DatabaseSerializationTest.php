@@ -24,20 +24,19 @@ if ($result[0]['sex'] !== 'Test\Person') {
 }
 
 $person->cast(ModelManager::getInstance()->getInstanceModel('Test\Person\Man'));
-// TODO restore after model refactoring
-/*if ($person->save(SqlTable::UPDATE) !== 1) {
+if ($person->save(SqlTable::UPDATE) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 $statement = $dbHandler->executeSimpleQuery('select sex from person where id = '.$person->getId());
 $result = $statement->fetchAll();
 
-if ($result[0]['sex'] !== 'Test\Man') {
+if ($result[0]['sex'] !== 'Test\Person\Man') {
 	throw new \Exception("bad inheritance key '{$result[0]['sex']}'");
 }
 
 if ($person->delete() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
-}*/
+}
 
 $time_end = microtime(true);
 var_dump('database serialization test exec time '.($time_end - $time_start));

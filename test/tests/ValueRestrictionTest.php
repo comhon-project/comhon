@@ -115,7 +115,7 @@ testPushBadValue($objectArray, null);
 $testRestricted->setValue('color', null);
 $testRestricted->setValue('color', '#12abA8');
 
-$regexInArray = $testRestricted->getProperty('emails')->getModel()->getObjectInstance();
+$regexInArray = $testRestricted->getModel()->getProperty('emails')->getModel()->getObjectInstance();
 $regexInArray->pushValue('plop.plop@plop.plop');
 $regexInArray->unshiftValue('plop@plop.fr');
 $testRestricted->setValue('emails', $regexInArray);

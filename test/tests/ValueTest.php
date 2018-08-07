@@ -45,7 +45,7 @@ if ($testDb->isIdUpdated()) {
 if (json_encode($testDb->getUpdatedValues()) !== '[]') {
 	throw new \Exception('should not have updated value');
 }
-foreach ($testDb->getProperties() as $property) {
+foreach ($testDb->getModel()->getProperties() as $property) {
 	if ($testDb->isUpdatedValue($property->getName())) {
 		throw new \Exception('should not have updated value');
 	}
@@ -62,7 +62,7 @@ if ($testDb->isIdUpdated()) {
 if (json_encode($testDb->getUpdatedValues()) !== '{"mainParentTestDb":true}') {
 	throw new \Exception('should have updated value');
 }
-foreach ($testDb->getProperties() as $property) {
+foreach ($testDb->getModel()->getProperties() as $property) {
 	if ($property->getName() == 'mainParentTestDb') {
 		if (!$testDb->isUpdatedValue($property->getName())) {
 			throw new \Exception('should be updated value');
@@ -104,7 +104,7 @@ if ($testDb->isIdUpdated()) {
 if (json_encode($testDb->getUpdatedValues()) !== '{"mainParentTestDb":true}') {
 	throw new \Exception('should have updated value');
 }
-foreach ($testDb->getProperties() as $property) {
+foreach ($testDb->getModel()->getProperties() as $property) {
 	if ($property->getName() == 'mainParentTestDb') {
 		if (!$testDb->isUpdatedValue($property->getName())) {
 			throw new \Exception('should be updated value');
@@ -141,7 +141,7 @@ if ($testDb->isIdUpdated()) {
 if (json_encode($testDb->getUpdatedValues()) !== '[]') {
 	throw new \Exception('should not have updated value');
 }
-foreach ($testDb->getProperties() as $property) {
+foreach ($testDb->getModel()->getProperties() as $property) {
 	if ($testDb->isUpdatedValue($property->getName())) {
 		throw new \Exception('should not be updated value');
 	}
@@ -172,7 +172,7 @@ if ($mainParentTestDb->isIdUpdated()) {
 if (json_encode($mainParentTestDb->getUpdatedValues()) !== '[]') {
 	throw new \Exception('should not have updated value');
 }
-foreach ($mainParentTestDb->getProperties() as $property) {
+foreach ($mainParentTestDb->getModel()->getProperties() as $property) {
 	if ($mainParentTestDb->isUpdatedValue($property->getName())) {
 		throw new \Exception('should not be updated value');
 	}
@@ -222,7 +222,7 @@ if (!$mainParentTestDb->isIdUpdated()) {
 if (json_encode($mainParentTestDb->getUpdatedValues()) !== '{"id":false}') {
 	throw new \Exception('should have id updated value');
 }
-foreach ($mainParentTestDb->getProperties() as $property) {
+foreach ($mainParentTestDb->getModel()->getProperties() as $property) {
 	if ($property->getName() == 'id') {
 		if (!$mainParentTestDb->isUpdatedValue($property->getName())) {
 			throw new \Exception('should be updated value');

@@ -12,7 +12,6 @@
 namespace Comhon\Manifest\Parser;
 
 use Comhon\Model\Model;
-use Comhon\Model\MainModel;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
@@ -25,7 +24,7 @@ abstract class SerializationManifestParser {
 	/** @var mixed */
 	protected $manifest;
 	
-	/** @var \Comhon\Model\MainModel */
+	/** @var \Comhon\Model\Model */
 	protected $model;
 	
 	/** @var \Comhon\Interfacer\Interfacer */
@@ -53,10 +52,10 @@ abstract class SerializationManifestParser {
 	abstract public function getInheritanceKey();
 	
 	/**
-	 * @param \Comhon\Model\MainModel $model
+	 * @param \Comhon\Model\Model $model
 	 * @param mixed $manifest
 	 */
-	final public function __construct(MainModel $model, $manifest) {
+	final public function __construct(Model $model, $manifest) {
 		$this->interfacer = $this->_getInterfacer($manifest);
 		$this->model      = $model;
 		$this->manifest   = $manifest;
@@ -68,12 +67,12 @@ abstract class SerializationManifestParser {
 	/**
 	 * get serialization manifest parser instance
 	 * 
-	 * @param \Comhon\Model\MainModel $model
+	 * @param \Comhon\Model\Model $model
 	 * @param string $serializationManifestPath_afe
 	 * @throws \Exception
 	 * @return \Comhon\Manifest\Parser\SerializationManifestParser
 	 */
-	public static function getInstance(MainModel $model, $serializationManifestPath_afe) {
+	public static function getInstance(Model $model, $serializationManifestPath_afe) {
 		switch (mb_strtolower(pathinfo($serializationManifestPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
 				$interfacer = new XMLInterfacer();
@@ -91,11 +90,11 @@ abstract class SerializationManifestParser {
 	/**
 	 * get serialization settings
 	 * 
-	 * @param \Comhon\Model\MainModel $model
+	 * @param \Comhon\Model\Model $model
 	 * @throws \Exception
 	 * @return \Comhon\Object\ObjectUnique
 	 */
-	final public function getSerializationSettings(MainModel $model) {
+	final public function getSerializationSettings(Model $model) {
 		if ($this->model !== $model) {
 			throw new ComhonException('not same models');
 		}
@@ -124,13 +123,13 @@ abstract class SerializationManifestParser {
 	/**
 	 * get manifest parser instance
 	 *
-	 * @param \Comhon\Model\MainModel $model
+	 * @param \Comhon\Model\Model $model
 	 * @param string $serializationManifestPath_afe
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
 	 * @return SerializationManifestParser
 	 */
-	private static function _getInstanceWithInterfacer(MainModel $model, $serializationManifestPath_afe, Interfacer $interfacer) {
+	private static function _getInstanceWithInterfacer(Model $model, $serializationManifestPath_afe, Interfacer $interfacer) {
 		$manifest = $interfacer->read($serializationManifestPath_afe);
 		
 		if ($manifest === false || is_null($manifest)) {

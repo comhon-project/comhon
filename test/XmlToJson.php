@@ -13,11 +13,11 @@ foreach ($folders as $folder) {
 		$dir = dirname($file);
 		if (basename($file) == 'manifest.xml' && !file_exists($dir.'/manifest.json')) {
 			$xml = simplexml_load_file($file);
-			if (isset($xml->serialization) || !isset($xml->properties->property)) {
-				transformSerialization($xml, $dir);
-			} else {
-				transformManifest($xml, $dir);
-			}
+			transformManifest($xml, $dir);
+		}
+		elseif (basename($file) == 'serialization.xml' && !file_exists($dir.'/serialization.json')) {
+			$xml = simplexml_load_file($file);
+			transformSerialization($xml, $dir);
 		}
 	}
 }
@@ -76,7 +76,7 @@ function transformSerialization($xml, $dir) {
 		}
 	}
 	
-	file_put_contents($dir.'/manifest.json', json_encode($json, JSON_PRETTY_PRINT));
+	file_put_contents($dir.'/serialization.json', json_encode($json, JSON_PRETTY_PRINT));
 }
 
 function transformManifest($xml, $dir) {
@@ -89,6 +89,14 @@ function transformManifest($xml, $dir) {
 	
 	if (isset($xml['extends'])) {
 		$json->extends = (string) $xml['extends'];
+	}
+	
+	if (isset($xml['is_main'])) {
+		$json->is_main = (boolean) ((string) $xml['is_main']);
+	}
+	
+	if (isset($xml['is_serializable'])) {
+		$json->is_serializable = (boolean) ((string) $xml['is_serializable']);
 	}
 	
 	if (isset($xml->manifests)) {
@@ -114,8 +122,10 @@ function transformManifest($xml, $dir) {
 			$json->types[] = $typeObj;
 		}
 	}
-	$json->properties = new stdClass();
-	$json->properties = getProperties($xml->properties);
+	if (isset($xml->properties)) {
+		$json->properties = new stdClass();
+		$json->properties = getProperties($xml->properties);
+	}
 	
 	file_put_contents($dir.'/manifest.json', json_encode($json, JSON_PRETTY_PRINT));
 }

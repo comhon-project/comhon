@@ -5,6 +5,7 @@ use Comhon\Exception\ConfigFileNotFoundException;
 use Comhon\Exception\ConfigMalformedException;
 use Comhon\Model\Restriction\RegexCollection;
 use Test\Comhon\Data;
+use Comhon\Model\Singleton\ModelManager;
 
 class ConfigTest extends TestCase
 {
@@ -40,10 +41,10 @@ class ConfigTest extends TestCase
 	 */
 	public function testRegexFileNotFoundConfig()
 	{
-		Config::resetSingleton();
 		Config::setLoadPath('./config/inconsistent-2-config.json');
 		$config = Config::getInstance();
-		$this->assertTrue(strpos(Config::getLoadPath(), 'test/config/inconsistent-2-config.json') !== false);
+		$configPath = Config::getInstance()->getDirectory() . '/' . basename(Config::getLoadPath());
+		$this->assertTrue(strpos($configPath, 'test/config/inconsistent-2-config.json') !== false);
 		
 		$this->expectException(ConfigFileNotFoundException::class);
 		RegexCollection::getInstance();
@@ -54,10 +55,12 @@ class ConfigTest extends TestCase
 	 */
 	public function testSuccessConfig()
 	{
+		ModelManager::resetSingleton();
 		Config::resetSingleton();
 		Config::setLoadPath(Data::$config);
 		$config = Config::getInstance();
-		$this->assertTrue(strpos(Config::getLoadPath(), realpath(Data::$config)) !== false);
+		$configPath = Config::getInstance()->getDirectory() . '/' . basename(Config::getLoadPath());
+		$this->assertTrue(strpos($configPath, realpath(Data::$config)) !== false);
 		
 		RegexCollection::getInstance();
 		

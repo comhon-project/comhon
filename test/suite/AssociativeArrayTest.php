@@ -12,7 +12,7 @@ class AssociativeArrayTest extends TestCase
 	public function testAssociativeArray()
 	{
 		$hasThrownEx = false;
-		$model = ModelManager::getInstance()->getInstanceModel('TestAssociativeArray');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\TestAssociativeArray');
 		$testAssociativeArray = $model->getObjectInstance();
 		
 		$names = $testAssociativeArray->initValue('names');
@@ -46,9 +46,9 @@ class AssociativeArrayTest extends TestCase
 		
 		$testAssociativeArray2 = $model->import($xmlValue, $XmlInterfacer);
 		$xmlValue = $testAssociativeArray->export($XmlInterfacer);
-		$this->assertEquals('<testAssociativeArray><names><first>john</first><last>doe</last><middle>john</middle></names><emails><email>john@doe.fr</email><email>john@doe.com</email></emails></testAssociativeArray>', $XmlInterfacer->toString($xmlValue));
+		$this->assertEquals('<root><names><first>john</first><last>doe</last><middle>john</middle></names><emails><email>john@doe.fr</email><email>john@doe.com</email></emails></root>', $XmlInterfacer->toString($xmlValue));
 		$xmlValue = $testAssociativeArray2->export($XmlInterfacer);
-		$this->assertEquals('<testAssociativeArray><names><first>john</first><last>doe</last></names><emails><email>john@doe.fr</email><email>john@doe.com</email></emails></testAssociativeArray>', $XmlInterfacer->toString($xmlValue));
+		$this->assertEquals('<root><names><first>john</first><last>doe</last></names><emails><email>john@doe.fr</email><email>john@doe.com</email></emails></root>', $XmlInterfacer->toString($xmlValue));
 		
 	}
 	

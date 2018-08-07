@@ -518,9 +518,6 @@ if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicS
 
 /********************************** test aggregation export *************************************/
 
-// TODO restore after model refactoring
-ModelManager::getInstance()->getInstanceModel('Test\MainTestDb')->loadObject(2);
-/////////////
 $mainTestDb = MainObjectCollection::getInstance()->getObject(2, 'Test\MainTestDb');
 $mainTestDb->initValue('childrenTestDb', false);
 $mainTestDb->loadAggregationIds('childrenTestDb');
@@ -641,8 +638,7 @@ $testXmlModel = ModelManager::getInstance()->getInstanceModel('Test\TestXml');
 $testXml = $testXmlModel->loadObject('plop2');
 
 if (!compareXML($xmlPrivateInterfacer->toString($testXml->export($xmlPrivateInterfacer)), '<root textAttribute="attribute"><name>plop2</name><textNode>node</textNode><objectValue id="1" propertyOne="plop1" propertyTwo="plop11"/><objectValues><objectValue id="2" propertyOne="plop2" propertyTwo="plop22"/><objectValue id="3" propertyOne="plop3" propertyTwo="plop33"/></objectValues><objectContainer><foreignObjectValue>3</foreignObjectValue><objectValueTwo id="1" propertyTwoOne="2plop1"/><person id="1" firstName="Bernard" lastName="Dupond"><birthPlace>2</birthPlace><children><child id="5" __inheritance__="Test\Person\Man"/><child id="6" __inheritance__="Test\Person\Man"/></children></person></objectContainer><foreignObjectValues><foreignObjectValue>1</foreignObjectValue><foreignObjectValue>2</foreignObjectValue></foreignObjectValues></root>')) {
-	// TODO restore after model refactoring
-	//throw new \Exception('bad value');
+	throw new \Exception('bad value');
 }
 
 $testXml1 = $testXmlModel->getObjectInstance();
@@ -705,13 +701,13 @@ if (!compareJson($flattenArrayPrivateInterfacer->toString($flattenArrayPrivateIn
 
 
 $objectsWithId = $objectTestDb->initValue('objectsWithId');
-$objectWithId = $objectTestDb->getProperty('objectWithId')->getModel()->getObjectInstance();
+$objectWithId = $objectTestDb->getModel()->getProperty('objectWithId')->getModel()->getObjectInstance();
 $objectsWithId->pushValue($objectWithId);
 $objectsWithId->pushValue(null);
 $objectsWithId->pushValue($objectWithId);
 
 $foreignObjects = $objectTestDb->initValue('foreignObjects');
-$objectWithId = $objectTestDb->getProperty('objectWithId')->getModel()->getObjectInstance();
+$objectWithId = $objectTestDb->getModel()->getProperty('objectWithId')->getModel()->getObjectInstance();
 $objectWithId->setId('12');
 $foreignObjects->pushValue(null);
 $foreignObjects->pushValue($objectWithId);

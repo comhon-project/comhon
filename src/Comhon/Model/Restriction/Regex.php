@@ -13,6 +13,7 @@ namespace Comhon\Model\Restriction;
 
 use Comhon\Model\ModelString;
 use Comhon\Model\Model;
+use Comhon\Model\AbstractModel;
 
 class Regex implements Restriction {
 	
@@ -50,7 +51,7 @@ class Regex implements Restriction {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::isAllowedModel()
 	 */
-	public function isAllowedModel(Model $model) {
+	public function isAllowedModel(AbstractModel $model) {
 		return $model instanceof ModelString;
 	}
 	

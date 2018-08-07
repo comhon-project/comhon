@@ -2,6 +2,7 @@
     "version": "2.0",
     "object": "Test\\Comhon\\Object\\Woman",
     "extends": "\\Test\\Person",
+    "is_serializable": true,
     "properties": [
         {
             "name": "bodies",

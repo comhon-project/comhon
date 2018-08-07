@@ -1,6 +1,7 @@
 {
     "version": "2.0",
     "extends": "\\Test\\Person\\WomanXml",
+    "is_serializable": true,
     "properties": [
         {
             "name": "value",

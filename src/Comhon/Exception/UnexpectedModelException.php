@@ -11,15 +11,15 @@
 
 namespace Comhon\Exception;
 
-use Comhon\Model\Model;
+use Comhon\Model\AbstractModel;
 
 class UnexpectedModelException extends ComhonException {
 	
 	/**
-	 * @param \Comhon\Model\Model $expectedModel
-	 * @param \Comhon\Model\Model $actualModel
+	 * @param \Comhon\Model\AbstractModel $expectedModel
+	 * @param \Comhon\Model\AbstractModel $actualModel
 	 */
-	public function __construct(Model $expectedModel, Model $actualModel) {
+	public function __construct(AbstractModel $expectedModel, AbstractModel $actualModel) {
 		$message = "model must be a '{$expectedModel->getName()}', model '{$actualModel->getName()}' given";
 		parent::__construct($message, ConstantException::UNEXPECTED_MODEL_EXCEPTION);
 	}

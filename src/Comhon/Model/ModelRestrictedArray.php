@@ -12,7 +12,6 @@
 namespace Comhon\Model;
 
 use Comhon\Object\ObjectArray;
-use Comhon\Model\MainModel;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Model\Restriction\Restriction;
@@ -28,13 +27,13 @@ class ModelRestrictedArray extends ModelArray {
 	
 	/**
 	 * 
-	 * @param Model $model
+	 * @param ModelUnique $model
 	 * @param \Comhon\Model\Restriction\Restriction $restriction
 	 * @param boolean $isAssociative
 	 * @param string $elementName
 	 * @throws \Exception
 	 */
-	public function __construct(Model $model, Restriction $restriction, $isAssociative, $elementName) {
+	public function __construct(ModelUnique $model, Restriction $restriction, $isAssociative, $elementName) {
 		parent::__construct($model, $isAssociative, $elementName);
 		$this->restriction = $restriction;
 		

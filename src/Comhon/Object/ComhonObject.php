@@ -12,7 +12,6 @@
 namespace Comhon\Object;
 
 use Comhon\Model\Model;
-use Comhon\Model\MainModel;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Object\ObjectArray;
 use Comhon\Interfacer\Interfacer;
@@ -22,11 +21,12 @@ use Comhon\Exception\UnexpectedValueTypeException;
 use Comhon\Exception\NotSatisfiedRestrictionException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
+use Comhon\Model\ModelComhonObject;
 
 abstract class ComhonObject {
 
 	/**
-	 * @var  \Comhon\Model\Model model associated to comhon object
+	 * @var  \Comhon\Model\ModelComhonObject model associated to comhon object
 	 */
 	private $model;
 	
@@ -57,10 +57,10 @@ abstract class ComhonObject {
 	/**
 	 * affect model to comhon object
 	 * 
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\ModelComhonObject $model
 	 * @throws \Exception
 	 */
-	final protected function _affectModel(Model $model) {
+	final protected function _affectModel(ModelComhonObject $model) {
 		if (!is_null($this->model)) {
 			throw new ComhonException('object already initialized');
 		}
@@ -103,7 +103,7 @@ abstract class ComhonObject {
 				throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 			}
 		}
-		if ($this->model->hasIdProperty($name) && ($this->model instanceof MainModel)) {
+		if ($this->_hasIdProperty($name) && $this->model->isMain()) {
 			if ($this->hasCompleteId() && MainObjectCollection::getInstance()->getObject($this->getId(), $this->model->getName()) === $this) {
 				MainObjectCollection::getInstance()->removeObject($this);
 			}
@@ -183,7 +183,7 @@ abstract class ComhonObject {
 	 */
 	final public function unsetValue($name, $flagAsUpdated = true) {
 		if ($this->hasValue($name)) {
-			if ($this->model->hasIdProperty($name) && ($this->model instanceof MainModel)) {
+			if ($this->_hasIdProperty($name) && $this->model->isMain()) {
 				MainObjectCollection::getInstance()->removeObject($this);
 			}
 			unset($this->values[$name]);
@@ -259,7 +259,7 @@ abstract class ComhonObject {
 	 * @return ObjectUnique|ObjectArray
 	 */
 	final public function getInstanceValue($name, $isLoaded = true) {
-		return $this->getProperty($name, true)->getModel()->getObjectInstance($isLoaded);
+		return $this->getModel()->getProperty($name, true)->getModel()->getObjectInstance($isLoaded);
 	}
 	
 	/**
@@ -471,56 +471,38 @@ abstract class ComhonObject {
 	/**
 	 * do not use this function, it's only used for cast
 	 * 
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\ModelComhonObject $model
 	 */
-	final protected function _setModel(Model $model) {
+	final protected function _setModel(ModelComhonObject $model) {
 		$this->model = $model;
 	}
 	
 	/**
 	 * get model associated to comhon object
 	 *
-	 * @return \Comhon\Model\Model
+	 * @return \Comhon\Model\Model|\Comhon\Model\ModelArray
 	 */
 	final public function getModel() {
 		return $this->model;
 	}
 	
 	/**
-	 * verify if model associated to comhon object has specified property
-	 * 
+	 * verify if model associated to comhon object has specified id property
+	 *
 	 * @param string $propertyName
 	 * @return boolean
 	 */
-	final public function hasProperty($propertyName) {
-		return $this->model->hasProperty($propertyName);
-	}
-	/**
-	 * get properties of model associated to comhon object
-	 * 
-	 * @return \Comhon\Model\Property\Property[]
-	 */
-	final public function getProperties() {
-		return $this->model->getProperties();
+	protected function _hasIdProperty($propertyName) {
+		return $this->model->hasIdProperty($propertyName);
 	}
 	
 	/**
-	 * get properties names of model associated to comhon object
-	 * 
-	 * @return string[]
+	 * get unique contained model
+	 *
+	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
 	 */
-	final public function getPropertiesNames() {
-		return $this->model->getPropertiesNames();
-	}
-	
-	/**
-	 * get specified property of model associated to comhon object
-	 * @param string $propertyName
-	 * @param boolean $throwException if true, throw exception if model doesn't specified property
-	 * @return \Comhon\Model\Property\Property|null null if model doesn't specified property
-	 */
-	final public function getProperty($propertyName, $throwException = false) {
-		return $this->model->getProperty($propertyName, $throwException);
+	public function getUniqueModel() {
+		return $this->getModel();
 	}
 	
 	/**

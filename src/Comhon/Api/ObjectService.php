@@ -16,7 +16,7 @@ use Comhon\Request\SimpleLoadRequest;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\ComhonObject;
+use Comhon\Model\ModelComhonObject;
 
 class ObjectService {
 	
@@ -35,7 +35,7 @@ class ObjectService {
 			} else {
 				$model  = ModelManager::getInstance()->getInstanceModel($params->model);
 				$interfacer = new StdObjectInterfacer();
-				$interfacer->setPropertiesFilter(self::_getFilterProperties($params, $object), $object->getModel()->getName());
+				$interfacer->setPropertiesFilter(self::_getFilterProperties($params, $object->getModel()), $object->getModel()->getName());
 				$result = $model->export($object, $interfacer);
 			}
 			return self::_setSuccessResponse($result);
@@ -55,7 +55,7 @@ class ObjectService {
 		try {
 			$objectArray = ComplexLoadRequest::buildObjectLoadRequest($params, $private)->execute();
 			$interfacer = new StdObjectInterfacer();
-			$modelFilter = [$objectArray->getModel()->getName() => self::_getFilterProperties($params, $objectArray)];
+			$modelFilter = [$objectArray->getUniqueModel()->getName() => self::_getFilterProperties($params, $objectArray->getUniqueModel())];
 			return self::_setSuccessResponse($interfacer->export($objectArray, [Interfacer::PROPERTIES_FILTERS => $modelFilter]));
 		} catch (\Exception $e) {
 			return self::_setErrorResponse($e);
@@ -66,16 +66,16 @@ class ObjectService {
 	 * get filter to apply on exported properties
 	 * 
 	 * @param \stdClass $params
-	 * @param \Comhon\Object\ComhonObject $oject
+	 * @param \Comhon\Model\ModelComhonObject $model
 	 * @return array|null
 	 */
-	private static function _getFilterProperties(\stdClass $params, ComhonObject $oject) {
+	private static function _getFilterProperties(\stdClass $params, ModelComhonObject $model) {
 		if (!isset($params->properties) || empty($params->properties)) {
 			return null;
 		}
 		$filterProperties = $params->properties;
-		if ($oject->getModel()->hasIdProperties()) {
-			foreach ($oject->getModel()->getIdProperties() as $property) {
+		if ($model->hasIdProperties()) {
+			foreach ($model->getIdProperties() as $property) {
 				$filterProperties[] = $property->getName();
 			}
 		}

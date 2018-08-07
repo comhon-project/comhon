@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<manifest extends="\Test\Body" version="2.0">
+<manifest extends="\Test\Body" version="2.0" is_serializable="1">
 	<properties>
 		<property type="string" name="chestSize"/>
 		<property is_foreign="1" type="\Test\Person\Woman" name="owner"/>

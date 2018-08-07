@@ -15,6 +15,7 @@ use Comhon\Model\Restriction\Restriction;
 use Comhon\Model\Model;
 use Comhon\Exception\NotSatisfiedRestrictionException;
 use Comhon\Exception\ComhonException;
+use Comhon\Model\AbstractModel;
 
 class RestrictedProperty extends Property {
 	
@@ -23,7 +24,7 @@ class RestrictedProperty extends Property {
 	
 	/**
 	 *
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\AbstractModel $model
 	 * @param string $name
 	 * @param \Comhon\Model\Restriction\Restriction $restriction
 	 * @param string $serializationName
@@ -34,7 +35,7 @@ class RestrictedProperty extends Property {
 	 * @param boolean $isInterfacedAsNodeXml
 	 * @throws \Exception
 	 */
-	public function __construct(Model $model, $name, Restriction $restriction, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
+	public function __construct(AbstractModel $model, $name, Restriction $restriction, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
 		parent::__construct($model, $name, $serializationName, $isId, $isPrivate, $isSerializable, $default, $isInterfacedAsNodeXml);
 		if (!$restriction->isAllowedModel($this->model)) {
 			throw new ComhonException('restriction doesn\'t allow specified model');

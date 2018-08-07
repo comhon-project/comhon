@@ -11,7 +11,7 @@
 
 namespace Comhon\Exception;
 
-use Comhon\Model\Model;
+use Comhon\Model\AbstractModel;
 
 class NotAllowedRequestException extends ComhonException {
 	
@@ -20,10 +20,10 @@ class NotAllowedRequestException extends ComhonException {
 	const COMPLEXE_REQUEST = 'complex';
 	
 	/**
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\AbstractModel $model
 	 * @param string[] $requestTypes types not allowed
 	 */
-	public function __construct(Model $model, $requestTypes = []) {
+	public function __construct(AbstractModel $model, $requestTypes = []) {
 		$messagePart = empty($requestTypes) ? '' : implode(' or ', $requestTypes) . ' ';
 		$message = "{$messagePart}request not allowed for model '{$model->getName()}'";
 		parent::__construct($message, ConstantException::NOT_ALLOWED_REQUEST_EXCEPTION);

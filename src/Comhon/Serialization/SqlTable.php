@@ -553,13 +553,14 @@ class SqlTable extends SerializationUnit {
 	 */
 	private function _loadObjectFromDatabase(ComhonObject $object, $selectColumns, Clause $clause, $onlyIds) {
 		$success = false;
-		$this->_initDatabaseInterfacing($object->getModel());
+		$uniqueModel = ($object->getModel() instanceof ModelArray) ? $object->getUniqueModel() : $object->getModel();
+		$this->_initDatabaseInterfacing($uniqueModel);
 		
 		$selectQuery = new SelectQuery($this->settings->getValue('name'));
 		$selectQuery->where($clause);
 		
-		if (!empty($selectColumns) && $object->getModel()->hasIdProperties()) {
-			foreach ($object->getModel()->getIdProperties() as $property) {
+		if (!empty($selectColumns) && $uniqueModel->hasIdProperties()) {
+			foreach ($uniqueModel->getIdProperties() as $property) {
 				if (!in_array($property->getSerializationName(), $selectColumns)) {
 					$selectQuery->getMainTable()->addSelectedColumn($property->getSerializationName());
 				}
@@ -574,14 +575,13 @@ class SqlTable extends SerializationUnit {
 		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {
 			if (!is_null($this->getInheritanceKey())) {
 				if ($isModelArray) {
-					$baseModel = $object->getModel()->getUniqueModel();
 					foreach ($rows as &$row) {
-						$model = $this->getInheritedModel($row, $baseModel);
+						$model = $this->getInheritedModel($row, $uniqueModel);
 						$row[Interfacer::INHERITANCE_KEY] = $model->getName();
 					}
 				} else {
-					$model = $this->getInheritedModel($rows[0], $object->getModel());
-					if ($model !== $object->getModel()) {
+					$model = $this->getInheritedModel($rows[0], $uniqueModel);
+					if ($model !== $uniqueModel) {
 						$object->cast($model);
 					}
 				}

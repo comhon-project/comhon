@@ -3,7 +3,6 @@
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\ComhonObject as Object;
 use Comhon\Model\Model;
-use Comhon\Model\MainModel;
 use Comhon\Model\ModelForeign;
 use Comhon\Object\ComhonDateTime;
 use Comhon\Interfacer\StdObjectInterfacer;
@@ -121,7 +120,7 @@ if (!($placeForeignModel instanceof ModelForeign)) {
 	throw new \Exception('model of property \'birthPlace\' is not a foreign model');
 }
 $placeModel = $placeForeignModel->getModel();
-if (!($placeModel instanceof MainModel)) {
+if (!$placeModel->isMain()) {
 	throw new \Exception('foreign model of property \'birthPlace\' is not a main model');
 }
 
@@ -161,8 +160,8 @@ if (json_encode($testDbModel->getPropertiesNames()) !== '["id1","id2","date","ti
 	throw new \Exception("model {$testDbModel->getName()} hasn't good properties : ".json_encode($testDbModel->getPropertiesNames()));
 }
 var_dump(get_class($testDbModel));
-$dbModel = $testDbModel->getSerialization()->getSettings()->getProperty('database')->getModel();
-if ($dbModel->getName() !== 'Comhon\SqlDatabase') {
+$dbModel = $testDbModel->getSerialization()->getSettings()->getModel()->getProperty('database')->getModel();
+if ($dbModel->getModel()->getName() !== 'Comhon\SqlDatabase') {
 	throw new \Exception('model hasn\'t good name');
 }
 if ($testDbModel->getProperty('integer')->isPrivate()) {
@@ -259,9 +258,9 @@ if (ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable') !== $testDb
 }
 
 $obj        = $testModel->getObjectInstance();
-$modelArray = $obj->getProperty('objectValues')->getModel();
+$modelArray = $obj->getModel()->getProperty('objectValues')->getModel();
 $objArray   = $modelArray->getObjectInstance();
-$objValue   = $obj->getproperty('objectValue')->getModel()->getObjectInstance();
+$objValue   = $obj->getModel()->getproperty('objectValue')->getModel()->getObjectInstance();
 
 $obj->setId('sddsdfffff');
 $obj->setValue('objectValue', $objValue);

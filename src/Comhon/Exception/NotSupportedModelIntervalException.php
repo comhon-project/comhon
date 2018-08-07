@@ -12,13 +12,14 @@
 namespace Comhon\Exception;
 
 use Comhon\Model\Model;
+use Comhon\Model\AbstractModel;
 
 class NotSupportedModelIntervalException extends ComhonException {
 	
 	/**
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\AbstractModel $model
 	 */
-	public function __construct(Model $model) {
+	public function __construct(AbstractModel $model) {
 		parent::__construct(
 			"interval cannot be defined on model '{$model->getName()}'", 
 			ConstantException::NOT_SUPPORTED_MODEL_INTERVAL_EXCEPTION

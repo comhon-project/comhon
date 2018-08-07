@@ -151,7 +151,7 @@ $body = $woman->getValue('bodies')->getValue(0);
 if (json_encode($body->getValue('tatoos')->export($stdPrivateInterfacer)) !== '[{"type":"sentence","location":"shoulder","tatooArtist":{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"}},{"type":"sentence","location":"arm","tatooArtist":{"id":6,"__inheritance__":"Test\\\\Person\\\\Man"}},{"type":"sentence","location":"leg","tatooArtist":{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"}}]') {
 	throw new \Exception('not same object values');
 }
-$body->setValue('arts', $body->getProperty('arts')->getModel()->getObjectInstance());
+$body->setValue('arts', $body->getModel()->getProperty('arts')->getModel()->getObjectInstance());
 $body->getValue('arts')->pushValue($body->getValue('tatoos')->getValue(0));
 $body->getValue('arts')->pushValue($body->getValue('piercings')->getValue(0));
 
@@ -176,7 +176,7 @@ $woman->reorderValues();
 if (!compareJson(json_encode($woman->export($stdPrivateInterfacer)), '{"id":2,"firstName":"Marie","lastName":"Smith","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":null,"bestFriend":{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"},"father":null,"mother":null,"bodies":[1]}')) {
 	throw new \Exception('not same object values : '.json_encode($woman->export($stdPrivateInterfacer)));
 }
-if (!compareXML($xmlPrivateInterfacer->toString($woman->export($xmlPrivateInterfacer)), '<woman xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="2" firstName="Marie" lastName="Smith" birthDate="2016-11-13T20:04:05+01:00"><birthPlace xsi:nil="true"/><bestFriend id="5" __inheritance__="Test\Person\Man"/><father xsi:nil="true"/><mother xsi:nil="true"/><bodies><body>1</body></bodies></woman>')) {
+if (!compareXML($xmlPrivateInterfacer->toString($woman->export($xmlPrivateInterfacer)), '<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="2" firstName="Marie" lastName="Smith" birthDate="2016-11-13T20:04:05+01:00"><birthPlace xsi:nil="true"/><bestFriend id="5" __inheritance__="Test\Person\Man"/><father xsi:nil="true"/><mother xsi:nil="true"/><bodies><body>1</body></bodies></root>')) {
 	throw new \Exception('not same object values');
 }
 if (!compareJson(json_encode($woman->export($flattenArraySerialInterfacer)), '{"id":2,"first_name":"Marie","lastName":"Smith","birth_date":"2016-11-13T20:04:05+01:00","birth_place":null,"best_friend":5,"father_id":null,"mother_id":null}')) {
@@ -454,21 +454,21 @@ $object->loadValue('mainParentTestDb');
 $stdPrivateInterfacer->setExportMainForeignObjects(true);
 $object->export($stdPrivateInterfacer);
 $array = $stdPrivateInterfacer->getMainForeignObjects();
-if (!compareJson(json_encode($array), '{"testDb":[],"mainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
+if (!compareJson(json_encode($array), '{"Test\\\\TestDb":[],"Test\\\\MainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"Test\\\\Body\\\\ManJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"Test\\\\Person\\\\WomanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
 	throw new \Exception('not same foreign objects');
 }
 
 $flattenArrayPrivateInterfacer->setExportMainForeignObjects(true);
 $object->export($flattenArrayPrivateInterfacer);
 $array = $flattenArrayPrivateInterfacer->getMainForeignObjects();
-if (!compareJson(json_encode($array), '{"testDb":[],"mainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
+if (!compareJson(json_encode($array), '{"Test\\\\TestDb":[],"Test\\\\MainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"Test\\\\Body\\\\ManJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"Test\\\\Person\\\\WomanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
 	throw new \Exception('not same foreign objects');
 }
 
 $xmlPrivateInterfacer->setExportMainForeignObjects(true);
 $object->export($xmlPrivateInterfacer);
 $XML = $xmlPrivateInterfacer->getMainForeignObjects();
-if (!compareXML($xmlPrivateInterfacer->toString($XML), '<objects><testDb/><mainTestDb><mainTestDb id="2" name="qsdqsd"><obj plop="ploooop" plop2="ploooop2"/></mainTestDb></mainTestDb><manBodyJsonExtended><manBodyJsonExtended id="1567" date="2010-12-24T00:00:00+01:00" height="1.8" weight="80" baldness="0"/></manBodyJsonExtended><womanXmlExtended><womanXmlExtended id="3" lastName="Smith"/></womanXmlExtended></objects>')) {
+if (!compareXML($xmlPrivateInterfacer->toString($XML), '<objects><TestDb namespace="Test\"/><MainTestDb namespace="Test\"><root id="2" name="qsdqsd"><obj plop="ploooop" plop2="ploooop2"/></root></MainTestDb><ManJsonExtended namespace="Test\Body\"><root id="1567" date="2010-12-24T00:00:00+01:00" height="1.8" weight="80" baldness="0"/></ManJsonExtended><WomanXmlExtended namespace="Test\Person\"><root id="3" lastName="Smith"/></WomanXmlExtended></objects>')) {
 	throw new \Exception('not same foreign objects');
 }
 
@@ -481,21 +481,21 @@ $array = [];
 $stdPublicInterfacer->setExportMainForeignObjects(true);
 $object->export($stdPublicInterfacer);
 $array = $stdPublicInterfacer->getMainForeignObjects();
-if (!compareJson(json_encode($array), '{"testDb":[],"mainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
+if (!compareJson(json_encode($array), '{"Test\\\\TestDb":[],"Test\\\\MainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"Test\\\\Body\\\\ManJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"Test\\\\Person\\\\WomanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
 	throw new \Exception('not same foreign objects');
 }
 $array = [];
 $flattenArrayPublicInterfacer->setExportMainForeignObjects(true);
 $object->export($flattenArrayPublicInterfacer);
 $array = $flattenArrayPublicInterfacer->getMainForeignObjects();
-if (!compareJson(json_encode($array), '{"testDb":[],"mainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
+if (!compareJson(json_encode($array), '{"Test\\\\TestDb":[],"Test\\\\MainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"Test\\\\Body\\\\ManJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"Test\\\\Person\\\\WomanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
 	throw new \Exception('not same foreign objects');
 }
 $array = [];
 $xmlPublicInterfacer->setExportMainForeignObjects(true);
 $object->export($xmlPublicInterfacer);
 $XML = $xmlPublicInterfacer->getMainForeignObjects();
-if (!compareXML($xmlPublicInterfacer->toString($XML), '<objects><testDb/><mainTestDb><mainTestDb id="2" name="qsdqsd"><obj plop="ploooop" plop2="ploooop2"/></mainTestDb></mainTestDb><manBodyJsonExtended><manBodyJsonExtended id="1567" date="2010-12-24T00:00:00+01:00" height="1.8" weight="80" baldness="0"/></manBodyJsonExtended><womanXmlExtended><womanXmlExtended id="3" lastName="Smith"/></womanXmlExtended></objects>')) {
+if (!compareXML($xmlPublicInterfacer->toString($XML), '<objects><TestDb namespace="Test\"/><MainTestDb namespace="Test\"><root id="2" name="qsdqsd"><obj plop="ploooop" plop2="ploooop2"/></root></MainTestDb><ManJsonExtended namespace="Test\Body\"><root id="1567" date="2010-12-24T00:00:00+01:00" height="1.8" weight="80" baldness="0"/></ManJsonExtended><WomanXmlExtended namespace="Test\Person\"><root id="3" lastName="Smith"/></WomanXmlExtended></objects>')) {
 	throw new \Exception('not same foreign objects');
 }
 
@@ -508,21 +508,21 @@ $array = [];
 $stdSerialInterfacer->setExportMainForeignObjects(true);
 $object->export($stdSerialInterfacer);
 $array = $stdSerialInterfacer->getMainForeignObjects();
-if (!compareJson(json_encode($array), '{"testDb":[],"mainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
+if (!compareJson(json_encode($array), '{"Test\\\\TestDb":[],"Test\\\\MainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":{"plop":"ploooop","plop2":"ploooop2"}}},"Test\\\\Body\\\\ManJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"Test\\\\Person\\\\WomanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
 	throw new \Exception('not same foreign objects');
 }
 $array = [];
 $flattenArraySerialInterfacer->setExportMainForeignObjects(true);
 $object->export($flattenArraySerialInterfacer);
 $array = $flattenArraySerialInterfacer->getMainForeignObjects();
-if (!compareJson(json_encode($array), '{"testDb":[],"mainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"manBodyJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"womanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
+if (!compareJson(json_encode($array), '{"Test\\\\TestDb":[],"Test\\\\MainTestDb":{"2":{"id":2,"name":"qsdqsd","obj":"{\"plop\":\"ploooop\",\"plop2\":\"ploooop2\"}"}},"Test\\\\Body\\\\ManJsonExtended":{"1567":{"id":1567,"date":"2010-12-24T00:00:00+01:00","height":1.8,"weight":80,"baldness":false}},"Test\\\\Person\\\\WomanXmlExtended":{"3":{"id":3,"lastName":"Smith"}}}')) {
 	throw new \Exception('not same foreign objects');
 }
 $array = [];
 $xmlSerialInterfacer->setExportMainForeignObjects(true);
 $object->export($xmlSerialInterfacer);
 $XML = $xmlSerialInterfacer->getMainForeignObjects();
-if (!compareXML($xmlSerialInterfacer->toString($XML), '<objects><testDb/><mainTestDb><mainTestDb id="2" name="qsdqsd"><obj plop="ploooop" plop2="ploooop2"/></mainTestDb></mainTestDb><manBodyJsonExtended><manBodyJsonExtended id="1567" date="2010-12-24T00:00:00+01:00" height="1.8" weight="80" baldness="0"/></manBodyJsonExtended><womanXmlExtended><womanXmlExtended id="3" lastName="Smith"/></womanXmlExtended></objects>')) {
+if (!compareXML($xmlSerialInterfacer->toString($XML), '<objects><TestDb namespace="Test\"/><MainTestDb namespace="Test\"><root id="2" name="qsdqsd"><obj plop="ploooop" plop2="ploooop2"/></root></MainTestDb><ManJsonExtended namespace="Test\Body\"><root id="1567" date="2010-12-24T00:00:00+01:00" height="1.8" weight="80" baldness="0"/></ManJsonExtended><WomanXmlExtended namespace="Test\Person\"><root id="3" lastName="Smith"/></WomanXmlExtended></objects>')) {
 	throw new \Exception('not same foreign objects');
 }
 

@@ -11,7 +11,6 @@
 
 namespace Comhon\Visitor;
 
-use Comhon\Model\MainModel;
 use Comhon\Model\ModelArray;
 use Comhon\Object\Collection\ObjectCollection;
 
@@ -61,7 +60,7 @@ class ObjectCollectionCreator extends Visitor {
 		$success = $this->localObjectCollection->addObject($value, false);
 		
 		// we don't want to visit child object with main model because they can't share LocalObjectCollection
-		return !($value->getModel() instanceof MainModel);
+		return !$value->getModel()->isMain();
 	}
 	
 	/**

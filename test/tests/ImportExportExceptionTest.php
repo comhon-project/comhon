@@ -7,11 +7,11 @@ use Comhon\Exception\ComhonException;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Exception\ConstantException;
 use Comhon\Exception\Interfacer\InterfaceException;
-use Comhon\Model\MainModel;
+use Comhon\Model\Model;
 use Comhon\Model\ModelArray;
 use Comhon\Object\ComhonObject;
 use Comhon\Exception\Interfacer\ExportException;
-use Comhon\Model\Model;
+use Comhon\Model\ModelComplex;
 
 $time_start = microtime(true);
 
@@ -104,7 +104,7 @@ try {
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
 			"value must be a string, integer '12' given",
 			'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
-			MainModel::class,
+			Model::class,
 			'import'
 			);
 	$throw = false;
@@ -126,7 +126,7 @@ try {
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
 			"value must be a string, integer '12' given",
 			'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
-			MainModel::class,
+			Model::class,
 			'fillObject'
 			);
 	$throw = false;
@@ -278,7 +278,7 @@ try {
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
 			"value must be a string, integer '12' given",
 			'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
-			Model::class,
+			ModelComplex::class,
 			'export'
 			);
 	$throw = false;
@@ -324,7 +324,7 @@ try {
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
 			"value must be a string, integer '12' given",
 			'.1.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
-			Model::class,
+			ModelComplex::class,
 			'export'
 			);
 	$throw = false;

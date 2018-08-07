@@ -20,8 +20,6 @@ use Comhon\Model\ModelPercentage;
 use Comhon\Model\ModelIndex;
 use Comhon\Model\ModelDateTime;
 use Comhon\Model\Model;
-use Comhon\Model\MainModel;
-use Comhon\Model\LocalModel;
 use Comhon\Model\Property\Property;
 use Comhon\Serialization\SerializationUnit;
 use Comhon\Object\Config\Config;
@@ -31,6 +29,7 @@ use Comhon\Exception\NotDefinedModelException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\AlreadyUsedModelNameException;
 use Comhon\Exception\ConfigFileNotFoundException;
+use Comhon\Model\ModelUnique;
 
 class ModelManager {
 
@@ -44,10 +43,14 @@ class ModelManager {
 	const SERIALIZATION  = 'serialization';
 	
 	/** @var string */
-	const PARENT_MODEL  = 'parentModel';
+	const PARENT_MODEL   = 'parentModel';
+	
+	/** @var string */
+	const IS_MAIN_MODEL  = 'isMainModel';
+	
 	
 	/**
-	 * @var \Comhon\Model\Model[]
+	 * @var \Comhon\Model\AbstractModel[]
 	 *     map that contain all main model and simple model instances
 	 *     an element may be a model if model is loaded
 	 *     an element may be an array that contain a non loaded model (with needed informations to load it)
@@ -113,35 +116,48 @@ class ModelManager {
 	
 	private function __construct() {
 		self::$_instance = $this;
-		$this->_registerSimpleModelClasses();
 		
-		if (Config::getInstance()->hasValue('sqlTable')) {
-			$path = Config::getInstance()->getSerializationSqlTablePath();
-			if (!is_dir($path)) {
-				throw new ConfigFileNotFoundException('sqlTable', 'directory', Config::getInstance()->getSerializationSqlTablePath(false));
+		try {
+			$this->_registerSimpleModelClasses();
+			
+			if (Config::getInstance()->hasValue('sqlTable')) {
+				$path = Config::getInstance()->getSerializationSqlTablePath();
+				if (!is_dir($path)) {
+					throw new ConfigFileNotFoundException('sqlTable', 'directory', Config::getInstance()->getSerializationSqlTablePath(false));
+				}
+				$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('saticPath', $path);
 			}
-			$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('saticPath', $path);
-		}
-		if (Config::getInstance()->hasValue('sqlDatabase')) {
-			$path = Config::getInstance()->getSerializationSqlDatabasePath();
-			if (!is_dir($path)) {
-				throw new ConfigFileNotFoundException('sqlDatabase', 'directory', Config::getInstance()->getSerializationSqlDatabasePath(false));
+			if (Config::getInstance()->hasValue('sqlDatabase')) {
+				$path = Config::getInstance()->getSerializationSqlDatabasePath();
+				if (!is_dir($path)) {
+					throw new ConfigFileNotFoundException('sqlDatabase', 'directory', Config::getInstance()->getSerializationSqlDatabasePath(false));
+				}
+				$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('saticPath', $path);
 			}
-			$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('saticPath', $path);
+			if (!is_null(Config::getInstance()->getValue('manifestFormat'))) {
+				$this->manifestExtension = Config::getInstance()->getValue('manifestFormat');
+			}
+			$lManifestAutoloadList = Config::getInstance()->getManifestAutoloadList();
+			if (!is_null($lManifestAutoloadList)) {
+				$this->autoloadManifest = $lManifestAutoloadList->getValues();
+				$this->autoloadManifest['Comhon'] = __DIR__ . '/../../Manifest/Collection/Manifest';
+			}
+			$lSerializationManifestAutoloadList = Config::getInstance()->getSerializationAutoloadList();
+			if (!is_null($lSerializationManifestAutoloadList)) {
+				$this->autoloadSerializationManifest = $lSerializationManifestAutoloadList->getValues();
+				$this->autoloadSerializationManifest['Comhon'] = __DIR__ . '/../../Manifest/Collection/Serialization';
+			}
+		} catch (\Exception $e) {
+			self::$_instance = null;
+			throw $e;
 		}
-		if (!is_null(Config::getInstance()->getValue('manifestFormat'))) {
-			$this->manifestExtension = Config::getInstance()->getValue('manifestFormat');
-		}
-		$lManifestAutoloadList = Config::getInstance()->getManifestAutoloadList();
-		if (!is_null($lManifestAutoloadList)) {
-			$this->autoloadManifest = $lManifestAutoloadList->getValues();
-			$this->autoloadManifest['Comhon'] = __DIR__ . '/../../Manifest/Collection/Manifest';
-		}
-		$lSerializationManifestAutoloadList = Config::getInstance()->getSerializationAutoloadList();
-		if (!is_null($lSerializationManifestAutoloadList)) {
-			$this->autoloadSerializationManifest = $lSerializationManifestAutoloadList->getValues();
-			$this->autoloadSerializationManifest['Comhon'] = __DIR__ . '/../../Manifest/Collection/Serialization';
-		}
+	}
+	
+	/**
+	 * reset singleton - should be called only for testing
+	 */
+	public static function resetSingleton() {
+		self::$_instance = null;
 	}
 	
 	/**
@@ -205,7 +221,7 @@ class ModelManager {
 	 * get model instance
 	 * 
 	 * @param string $modelName fully qualified name of wanted model
-	 * @return \Comhon\Model\LocalModel|\Comhon\Model\MainModel
+	 * @return \Comhon\Model\ModelUnique
 	 */
 	public function getInstanceModel($modelName) {
 		$return = $this->_getInstanceModel($modelName, true);
@@ -220,13 +236,13 @@ class ModelManager {
 	 * @param string $modelName fully qualified name of wanted model
 	 * @param boolean $loadModel true to load model not already instanciated
 	 * @throws \Exception
-	 * @return \Comhon\Model\Model
+	 * @return \Comhon\Model\ModelUnique
 	 */
 	private function _getInstanceModel($modelName, $loadModel) {
 		if (!array_key_exists($modelName, $this->instanceModels)) {
 			list($prefix, $suffix) = $this->_splitModelName($modelName);
 			if (file_exists($this->_getManifestPath($prefix, $suffix))) {
-				$model = $this->_isMainModel($suffix) ? new MainModel($modelName) : new LocalModel($modelName);
+				$model = new Model($modelName);
 				$this->_addInstanceModel($model);
 			} else {
 				$this->loadIntermediateManifest($modelName, $prefix, $suffix);
@@ -283,10 +299,6 @@ class ModelManager {
 		}
 	}
 	
-	private function _isMainModel($suffixModelName) {
-		return strpos($suffixModelName, '\\') === false;
-	}
-	
 	/**
 	 * 
 	 * @param string $modelName
@@ -311,10 +323,10 @@ class ModelManager {
 	/**
 	 * add loaded instance model
 	 * 
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\ModelUnique $model
 	 * @return array
 	 */
-	private function _addInstanceModel(Model $model) {
+	private function _addInstanceModel(ModelUnique $model) {
 		if (array_key_exists($model->getName(), $this->instanceModels)) {
 			throw new AlreadyUsedModelNameException($model->getName());
 		}
@@ -342,7 +354,7 @@ class ModelManager {
 					self::PARENT_MODEL   => $model->getParent(),
 					self::OBJECT_CLASS   => $model->getObjectClass()
 				];
-				if ($model instanceof MainModel) {
+				if ($model->isMain()) {
 					$return[self::SERIALIZATION] = $model->getSerialization();
 				}
 			}else {
@@ -354,12 +366,16 @@ class ModelManager {
 					$serializationPath_afe  = $this->_getSerializationManifestPath($manifestPath_afe, $prefix, $suffix);
 					$this->manifestParser   = ManifestParser::getInstance($model, $manifestPath_afe, $serializationPath_afe);
 					$this->currentNamespace = $model->getName();
+					$isMain                 = $this->manifestParser->isMain();
 					
-					$this->_buildLocalModels($model);
+					$this->_buildLocalModels();
+				} else {
+					$isMain = false;
 				}
 				$parentModel = $this->_getParentModel($model);
 				
 				$return = [
+					self::IS_MAIN_MODEL => $isMain,
 					self::PARENT_MODEL  => $parentModel,
 					self::OBJECT_CLASS  => $this->manifestParser->getObjectClass(),
 					self::PROPERTIES    => $this->_buildProperties($parentModel)
@@ -381,11 +397,10 @@ class ModelManager {
 	/**
 	 * build local models
 	 * 
-	 * @param \Comhon\Model\Model $model
 	 * @param string $manifestPath_ad
 	 * @throws \Exception
 	 */
-	private function _buildLocalModels(Model $model) {
+	private function _buildLocalModels() {
 		if ($this->manifestParser->isFocusOnLocalModel()) {
 			throw new ComhonException('cannot define local model inside local model');
 		}
@@ -394,7 +409,7 @@ class ModelManager {
 			
 			do {
 				$localModelName = $this->currentNamespace. '\\' . $this->manifestParser->getCurrentLocalModelName();
-				$this->_addInstanceModel(new LocalModel($localModelName));
+				$this->_addInstanceModel(new Model($localModelName));
 			} while ($this->manifestParser->nextLocalModel());
 			
 			$this->manifestParser->activateFocusOnLocalModels();
@@ -464,10 +479,10 @@ class ModelManager {
 	/**
 	 * get serialization if exists
 	 * 
-	 * @param \Comhon\Model\MainModel $model
+	 * @param \Comhon\Model\Model $model
 	 * @return \Comhon\Serialization\SerializationUnit|null null if no serialization
 	 */
-	public function getSerializationInstance(MainModel $model) {
+	public function getSerializationInstance(Model $model) {
 		if (!is_null($this->serializationManifestParser)) {
 			$inheritanceKey        =  $this->serializationManifestParser->getInheritanceKey();
 			$serializationSettings = $this->serializationManifestParser->getSerializationSettings($model);
@@ -485,12 +500,12 @@ class ModelManager {
 	 * if current model has same serialization settings than it parent model, 
 	 * we take parent model serialization to avoid to duplicated serializations
 	 * 
-	 * @param \Comhon\Model\MainModel $model
+	 * @param \Comhon\Model\Model $model
 	 * @param \Comhon\Object\ObjectUnique $serializationSettings
 	 * @param string $inheritanceKey
 	 * @return \Comhon\Serialization\SerializationUnit|null null if no serialization
 	 */
-	private function _getUniqueSerialization(MainModel $model, ObjectUnique $serializationSettings = null, $inheritanceKey = null) {
+	private function _getUniqueSerialization(Model $model, ObjectUnique $serializationSettings = null, $inheritanceKey = null) {
 		$serialization = null;
 		if (!is_null($model->getParent()) && !is_null($model->getParent()->getSerialization())) {
 			$extendedSerializationSettings = $model->getParent()->getSerialization()->getSettings();

@@ -12,13 +12,13 @@
 namespace Comhon\Object;
 
 use Comhon\Model\Model;
-use Comhon\Model\MainModel;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Model\Property\AggregationProperty;
 use Comhon\Exception\CastComhonObjectException;
 use Comhon\Object\ObjectArray;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\SerializationException;
+use Comhon\Model\ModelComhonObject;
 
 abstract class ObjectUnique extends ComhonObject {
 	
@@ -40,7 +40,7 @@ abstract class ObjectUnique extends ComhonObject {
 	 * @see \Comhon\Object\ComhonObject::reset()
 	 */
 	final public function reset() {
-		if ($this->getModel()->hasIdProperties() && ($this->getModel() instanceof MainModel)) {
+		if ($this->getModel()->hasIdProperties() && $this->getModel()->isMain()) {
 			MainObjectCollection::getInstance()->removeObject($this);
 		}
 		$this->_reset();
@@ -182,12 +182,12 @@ abstract class ObjectUnique extends ComhonObject {
 	 * @see \Comhon\Object\ComhonObject::isUpdatedValue()
 	 */
 	final public function isUpdatedValue($name) {
-		if ($this->hasProperty($name)) {
+		if ($this->getModel()->hasProperty($name)) {
 			if (array_key_exists($name, $this->getUpdatedValues())) {
 				return true;
 			} else if ($this->hasValue($name)) {
 				if ($this->getValue($name) instanceof ComhonObject) {
-					return $this->getProperty($name)->isForeign()
+					return $this->getModel()->getProperty($name)->isForeign()
 					? $this->getValue($name)->isIdUpdated()
 					: $this->getValue($name)->isUpdated();
 				}
@@ -272,11 +272,11 @@ abstract class ObjectUnique extends ComhonObject {
 	 * update current model to specified model.
 	 * new model must inherit from current model otherwise an exception is thrown
 	 *
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\ModelComhonObject $model
 	 * @throws \Exception
 	 * @throws \Comhon\Exception\CastComhonObjectException
 	 */
-	final public function cast(Model $model) {
+	final public function cast(ModelComhonObject $model) {
 		if ($this->getModel() === $model) {
 			return;
 		}
@@ -289,14 +289,14 @@ abstract class ObjectUnique extends ComhonObject {
 			if ($object === $this) {
 				$addObject = true;
 				if (MainObjectCollection::getInstance()->hasObject($this->getId(), $model->getName(), false)) {
-					throw new ComhonException("Cannot cast object to '{$model->getName()}'. Object with id '{$this->getId()}' and model '{$model->getName()}' already exists in MainModelCollection");
+					throw new ComhonException("Cannot cast object to '{$model->getName()}'. Object with id '{$this->getId()}' and model '{$model->getName()}' already exists in MainObjectCollection");
 				}
 			}
 		}
 		$originalModel = $this->getModel();
 		$this->_setModel($model);
 		$this->isCasted = true;
-		if (($this->getModel() instanceof MainModel) && $addObject) {
+		if ($this->getModel()->isMain() && $addObject) {
 			try {
 				MainObjectCollection::getInstance()->addObject($this);
 			} catch (\Exception $e) {
@@ -359,7 +359,7 @@ abstract class ObjectUnique extends ComhonObject {
 	 * @see \Comhon\Object\ComhonObject::loadValue()
 	 */
 	final public function loadValue($name, $propertiesFilter = null, $forceLoad = false) {
-		$property = $this->getProperty($name, true);
+		$property = $this->getModel()->getProperty($name, true);
 		if ($property instanceof AggregationProperty) {
 			if (!$this->hasValue($name)) {
 				$this->initValue($name, false);
@@ -381,7 +381,7 @@ abstract class ObjectUnique extends ComhonObject {
 		if (!$this->hasValue($name)) {
 			$this->initValue($name, false);
 		}
-		return $this->getProperty($name, true)->loadAggregationIds($this->getValue($name), $this, $forceLoad);
+		return $this->getModel()->getProperty($name, true)->loadAggregationIds($this->getValue($name), $this, $forceLoad);
 	}
 	
 }

@@ -30,5 +30,34 @@ use Comhon\Interfacer\AssocArrayInterfacer;
 		//file_put_contents(__DIR__ . '/' . $resource, $newContent);
 	}
 }*/
+/*
+abstract class A {
+	abstract protected function plop();
+	abstract public function ploppub();
+}
 
+class B extends A {
+	protected function plop() {
+		$c = new C();
+		$c->plop();
+	}
+	
+	public function ploppub() {
+		$this->plop();
+	}
+}
 
+class C extends A {
+	protected function plop() {
+		echo "c\n";
+	}
+	
+	public function ploppub() {
+		$this->plop();
+	}
+}
+
+$b = new B();
+$b->ploppub();
+
+die();*/

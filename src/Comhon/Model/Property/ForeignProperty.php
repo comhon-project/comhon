@@ -14,18 +14,19 @@ namespace Comhon\Model\Property;
 use Comhon\Model\Model;
 use Comhon\Object\ObjectUnique;
 use Comhon\Object\Object;
+use Comhon\Model\ModelForeign;
 
 class ForeignProperty extends Property {
 	
 	/**
 	 * 
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\ModelForeign $model
 	 * @param string $name
 	 * @param string $serializationName
 	 * @param boolean $isPrivate
 	 * @param boolean $isSerializable
 	 */
-	public function __construct(Model $model, $name, $serializationName = null, $isPrivate = false, $isSerializable = true) {
+	public function __construct(ModelForeign $model, $name, $serializationName = null, $isPrivate = false, $isSerializable = true) {
 		parent::__construct($model, $name, $serializationName, false, $isPrivate, $isSerializable);
 	}
 	

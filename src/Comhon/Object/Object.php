@@ -16,16 +16,17 @@ use Comhon\Model\Model;
 use Comhon\Model\ModelContainer;
 use Comhon\Model\SimpleModel;
 use Comhon\Exception\ComhonException;
+use Comhon\Model\ModelComhonObject;
 
 final class Object extends ObjectUnique {
 
 	/**
 	 * 
-	 * @param string|Model $model can be a model name or an instance of model
+	 * @param string|\Comhon\Model\ModelComhonObject $model can be a model name or an instance of model
 	 * @param boolean $isLoaded
 	 */
 	final public function __construct($model, $isLoaded = true) {
-		$objectModel = ($model instanceof Model) ? $model : ModelManager::getInstance()->getInstanceModel($model);
+		$objectModel = ($model instanceof ModelComhonObject) ? $model : ModelManager::getInstance()->getInstanceModel($model);
 		
 		if (($objectModel instanceof ModelContainer) || ($objectModel instanceof SimpleModel)) {
 			throw new ComhonException('Object cannot have ModelContainer or SimpleModel');

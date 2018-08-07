@@ -42,35 +42,40 @@ class Config extends ExtendableObject {
 	 */
 	public static function getInstance() {
 		if (!isset(self::$instance)) {
-			$instance = new self();
+			try {
+				$instance = new self();
 			
-			// during new config instanciation, ModelManager singleton might be instanciated for the first time
-			// in this case ModelManager instanciation need config singleton but it is currently instanciating 
-			// (at this step self::$instance is empty)
-			// so config singleton might be instanciated two times, so we have to verify a second time
-			// if self::$instance is set to avoid to affect self::$instance a second time
-			if (!isset(self::$instance)) {
-				self::$instance = $instance;
-				$config_af = realpath(self::$loadPath);
-				if ($config_af === false) {
-					throw new ConfigFileNotFoundException('configuration', 'file', self::$loadPath);
+				// during new config instanciation, ModelManager singleton might be instanciated for the first time
+				// in this case ModelManager instanciation need config singleton but it is currently instanciating 
+				// (at this step self::$instance is empty)
+				// so config singleton might be instanciated two times, so we have to verify a second time
+				// if self::$instance is set to avoid to affect self::$instance a second time
+				if (!isset(self::$instance)) {
+					self::$instance = $instance;
+					$config_af = realpath(self::$loadPath);
+					if ($config_af === false) {
+						throw new ConfigFileNotFoundException('configuration', 'file', self::$loadPath);
+					}
+					$stdInterfacer = new StdObjectInterfacer();
+					$stdInterfacer->setSerialContext(true);
+					$stdInterfacer->setPrivateContext(true);
+					$jsonConfig = $stdInterfacer->read($config_af);
+					if (is_null($jsonConfig) || $jsonConfig === false) {
+						throw new ConfigMalformedException($config_af);
+					}
+					self::$instance->fill($jsonConfig, $stdInterfacer);
+					self::$instance->_setDirectory(dirname($config_af));
 				}
-				$stdInterfacer = new StdObjectInterfacer();
-				$stdInterfacer->setSerialContext(true);
-				$stdInterfacer->setPrivateContext(true);
-				$jsonConfig = $stdInterfacer->read($config_af);
-				if (is_null($jsonConfig) || $jsonConfig === false) {
-					throw new ConfigMalformedException($config_af);
-				}
-				self::$instance->fill($jsonConfig, $stdInterfacer);
-				self::$instance->_setDirectory(dirname($config_af));
+			} catch (\Exception $e) {
+				self::$instance = null;
+				throw $e;
 			}
 		}
 		return self::$instance;
 	}
 	
 	/**
-	 * reset singleton
+	 * reset singleton - should be called only for testing
 	 */
 	public static function resetSingleton() {
 		self::$instance = null;

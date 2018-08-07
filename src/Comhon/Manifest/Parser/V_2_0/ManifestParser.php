@@ -27,6 +27,7 @@ use Comhon\Model\ModelRestrictedArray;
 use Comhon\Manifest\Parser\ManifestParser as ParentManifestParser;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\ManifestException;
+use Comhon\Model\AbstractModel;
 
 class ManifestParser extends ParentManifestParser {
 
@@ -38,6 +39,37 @@ class ManifestParser extends ParentManifestParser {
 	public function getExtends() {
 		$currentNode = $this->focusLocalTypes ? current($this->localTypes) : $this->manifest;
 		return $this->interfacer->getValue($currentNode, self::_EXTENDS);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::isMain()
+	 */
+	public function isMain() {
+		$isMain = $this->interfacer->hasValue($this->manifest, self::IS_MAIN)
+			? (
+				$this->castValues
+					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($this->manifest, self::IS_MAIN))
+					: $this->interfacer->getValue($this->manifest, self::IS_MAIN)
+			)
+			: false;
+			return $isMain || $this->isSerializable();
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::isSerializable()
+	 */
+	public function isSerializable() {
+		return $this->interfacer->hasValue($this->manifest, self::IS_SERIALIZABLE)
+			? (
+				$this->castValues
+					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($this->manifest, self::IS_SERIALIZABLE))
+					: $this->interfacer->getValue($this->manifest, self::IS_SERIALIZABLE)
+			)
+			: false;
 	}
 	
 	/**
@@ -131,7 +163,7 @@ class ManifestParser extends ParentManifestParser {
 	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_getBaseInfosProperty()
 	 */
-	protected function _getBaseInfosProperty(Model $propertyModel) {
+	protected function _getBaseInfosProperty(AbstractModel $propertyModel) {
 		$currentProperty = $this->_getCurrentPropertyNode();
 	
 		$isId = $this->interfacer->hasValue($currentProperty, self::IS_ID)
@@ -174,7 +206,7 @@ class ManifestParser extends ParentManifestParser {
 	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_getRestriction()
 	 */
-	protected function _getRestriction($currentNode, Model $uniqueModel) {
+	protected function _getRestriction($currentNode, AbstractModel $uniqueModel) {
 		if ($uniqueModel instanceof ModelContainer) {
 			return null;
 		}
@@ -216,7 +248,7 @@ class ManifestParser extends ParentManifestParser {
 	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_getDefaultValue()
 	 */
-	protected function _getDefaultValue(Model $propertyModel) {
+	protected function _getDefaultValue(AbstractModel $propertyModel) {
 		$currentProperty = $this->_getCurrentPropertyNode();
 		
 		if ($this->interfacer->hasValue($currentProperty, 'default')) {
@@ -239,11 +271,11 @@ class ManifestParser extends ParentManifestParser {
 	/**
 	 * add model container if needed
 	 * @param mixed $propertyNode
-	 * @param \Comhon\Model\Model $uniqueModel
+	 * @param \Comhon\Model\AbstractModel $uniqueModel
 	 * @throws \Exception
-	 * @return \Comhon\Model\Model
+	 * @return \Comhon\Model\AbstractModel
 	 */
-	private function _completePropertyModel($propertyNode, $uniqueModel) {
+	private function _completePropertyModel($propertyNode, AbstractModel $uniqueModel) {
 		$propertyModel = $uniqueModel;
 		$typeId        = $this->interfacer->getValue($propertyNode,'type');
 	

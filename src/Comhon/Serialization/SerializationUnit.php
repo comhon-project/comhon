@@ -13,7 +13,6 @@ namespace Comhon\Serialization;
 
 use Comhon\Model\Model;
 use Comhon\Object\ComhonObject;
-use Comhon\Model\MainModel;
 use Comhon\Serialization\File\XmlFile;
 use Comhon\Serialization\File\JsonFile;
 use Comhon\Object\ObjectUnique;
@@ -79,7 +78,7 @@ abstract class SerializationUnit {
 	/**
 	 * get serialization unit type (through settings)
 	 * 
-	 * @return \Comhon\Model\MainModel
+	 * @return string
 	 */
 	public function getType() {
 		return $this->settings->getModel()->getName();

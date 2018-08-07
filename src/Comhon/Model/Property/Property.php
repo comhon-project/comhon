@@ -19,10 +19,11 @@ use Comhon\Object\ComhonDateTime;
 use Comhon\Model\Model;
 use Comhon\Object\ObjectUnique;
 use Comhon\Exception\ComhonException;
+use Comhon\Model\AbstractModel;
 
 class Property {
 
-	/** @var \Comhon\Model\Model */
+	/** @var \Comhon\Model\AbstractModel */
 	protected $model;
 	
 	/** @var string */
@@ -49,7 +50,7 @@ class Property {
 	
 	/**
 	 * 
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\AbstractModel $model
 	 * @param string $name
 	 * @param string $serializationName
 	 * @param boolean $isId
@@ -59,7 +60,7 @@ class Property {
 	 * @param boolean $isInterfacedAsNodeXml
 	 * @throws \Exception
 	 */
-	public function __construct(Model $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
+	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
 		$this->model = $model;
 		$this->name = $name;
 		$this->hasDefinedSerializationName = !is_null($serializationName);
@@ -88,7 +89,7 @@ class Property {
 	/**
 	 * get model
 	 * 
-	 * @return \Comhon\Model\Model
+	 * @return \Comhon\Model\AbstractModel
 	 */
 	public function getModel() {
 		$this->model->load();
@@ -98,7 +99,7 @@ class Property {
 	/**
 	 * get model or model inside model container
 	 * 
-	 * @return \Comhon\Model\Model
+	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
 	 */
 	public function getUniqueModel() {
 		$uniqueModel = $this->getModel();

@@ -116,8 +116,7 @@ $time_start_intermediaire = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
 $time_intermediaire = microtime(true) - $time_start_intermediaire;
 if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":6,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":11,"__inheritance__":"Test\\\\Person\\\\Woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
-	// TODO restore after model refactoring
-	// throw new \Exception('bad result');
+	throw new \Exception('bad result');
 }
 
 $Json = '{
@@ -257,8 +256,7 @@ $time_start_complex = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
 $time_complex = microtime(true) - $time_start_complex;
 if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":6,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":11,"__inheritance__":"Test\\\\Person\\\\Woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
-	// TODO restore after model refactoring
-	// throw new \Exception('bad result');
+	throw new \Exception('bad result');
 }
 
 if ($time_complex > $time_intermediaire) {
@@ -283,8 +281,7 @@ $time_start_intermediaire = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
 $time_intermediaire = microtime(true) - $time_start_intermediaire;
 if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":6,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":11,"__inheritance__":"Test\\\\Person\\\\Woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
-	// TODO restore after model refactoring
-	// throw new \Exception('bad result');
+	throw new \Exception('bad result');
 }
 
 $Json = '{
@@ -312,8 +309,7 @@ $time_start_complex = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
 $time_complex = microtime(true) - $time_start_complex;
 if (!compareJson(json_encode($result), '{"success":true,"result":[{"children":[{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":6,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":11,"__inheritance__":"Test\\\\Person\\\\Woman"}],"homes":[1,2,6],"bodies":[1,2],"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
-	// TODO restore after model refactoring
-	// throw new \Exception('bad result');
+	throw new \Exception('bad result');
 }
 
 if ($time_complex > $time_intermediaire) {

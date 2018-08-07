@@ -14,7 +14,6 @@ namespace Comhon\Interfacer;
 use Comhon\Object\ComhonObject;
 use Comhon\Model\Model;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Model\MainModel;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\UnexpectedValueTypeException;
 use Comhon\Exception\EnumerationException;
@@ -28,7 +27,7 @@ abstract class Interfacer {
 	 * @var string preference name that define private context 
 	 *     private properties are interfaced only in private context
 	 */
-	const PRIVATE_CONTEXT        = 'privateContext';
+	const PRIVATE_CONTEXT = 'privateContext';
 	
 	/**
 	 * @var string define serial context 
@@ -710,11 +709,11 @@ abstract class Interfacer {
 	 * import given node and construct comhon object
 	 * 
 	 * @param mixed $node
-	 * @param \Comhon\Model\MainModel $model
+	 * @param \Comhon\Model\Model $model
 	 * @param array $preferences
 	 * @return \Comhon\Object\ComhonObject
 	 */
-	public function import($node, MainModel $model, array $preferences = []) {
+	public function import($node, Model $model, array $preferences = []) {
 		$this->setPreferences($preferences);
 		try {
 			return $model->import($node, $this);

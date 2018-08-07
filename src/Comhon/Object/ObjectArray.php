@@ -19,12 +19,13 @@ use Comhon\Model\ModelContainer;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\NotSatisfiedRestrictionException;
 use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Model\ModelComhonObject;
 
 final class ObjectArray extends ComhonObject implements \Iterator {
-
+	
 	/**
 	 *
-	 * @param string|Model $model can be a model name or an instance of model
+	 * @param string|ModelComhonObject $model can be a model name or an instance of model
 	 * @param boolean $isLoaded
 	 * @param string $elementName
 	 * @param boolean $isAssociative not used if first parameter is instance of ModelArray
@@ -33,7 +34,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 		if ($model instanceof ModelArray) {
 			$objectModel = $model;
 		} else {
-			$elementModel = ($model instanceof Model) ? $model : ModelManager::getInstance()->getInstanceModel($model);
+			$elementModel = ($model instanceof ModelComhonObject) ? $model : ModelManager::getInstance()->getInstanceModel($model);
 		
 			if ($elementModel instanceof ModelContainer) {
 				throw new ComhonException('Object cannot have ModelContainer except ModelArray');
@@ -42,6 +43,15 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 		}
 		$this->setIsLoaded($isLoaded);
 		$this->_affectModel($objectModel);
+	}
+	
+	/**
+	 * get unique contained model
+	 *
+	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
+	 */
+	public function getUniqueModel() {
+		return $this->getModel()->getUniqueModel();
 	}
 	
 	/**
@@ -274,6 +284,22 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	 */
 	final public function getComhonClass() {
 		return get_class($this) . "({$this->getModel()->getUniqueModel()->getName()})";
+	}
+	
+	/***********************************************************************************************\
+	 |                                                                                               |
+	 |                                      Model - Properties                                       |
+	 |                                                                                               |
+	 \***********************************************************************************************/
+	
+	/**
+	 * verify if unique model associated to comhon object has specified id property
+	 *
+	 * @param string $propertyName
+	 * @return boolean
+	 */
+	protected function _hasIdProperty($propertyName) {
+		return $this->getModel()->hasComplexValues() ? $this->getModel()->getUniqueModel()->hasIdProperty($propertyName) : false;
 	}
 	
 	 /***********************************************************************************************\

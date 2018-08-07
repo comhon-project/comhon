@@ -13,6 +13,7 @@ namespace Comhon\Model\Restriction;
 
 use Comhon\Model\Model;
 use Comhon\Model\ModelString;
+use Comhon\Model\AbstractModel;
 
 class Enum implements Restriction {
 	
@@ -75,7 +76,7 @@ class Enum implements Restriction {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::isAllowedModel()
 	 */
-	public function isAllowedModel(Model $model) {
+	public function isAllowedModel(AbstractModel $model) {
 		return ($model instanceof ModelInteger)
 		|| ($model instanceof ModelString)
 		|| ($model instanceof ModelFloat);
