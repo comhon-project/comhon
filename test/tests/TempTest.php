@@ -1,14 +1,7 @@
 <?php
 
-use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\Config\Config;
-use Comhon\Exception\NotDefinedModelException;
-use Comhon\Object\Collection\MainObjectCollection;
-use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Interfacer\AssocArrayInterfacer;
 
 //Config::setLoadPath('./config/config-json-pgsql.json');
-
 
 /*foreach (scandir(__DIR__) as $resource) {
 	if ($resource !== '.' && $resource !== '..') {
@@ -30,34 +23,3 @@ use Comhon\Interfacer\AssocArrayInterfacer;
 		//file_put_contents(__DIR__ . '/' . $resource, $newContent);
 	}
 }*/
-/*
-abstract class A {
-	abstract protected function plop();
-	abstract public function ploppub();
-}
-
-class B extends A {
-	protected function plop() {
-		$c = new C();
-		$c->plop();
-	}
-	
-	public function ploppub() {
-		$this->plop();
-	}
-}
-
-class C extends A {
-	protected function plop() {
-		echo "c\n";
-	}
-	
-	public function ploppub() {
-		$this->plop();
-	}
-}
-
-$b = new B();
-$b->ploppub();
-
-die();*/

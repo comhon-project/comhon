@@ -31,6 +31,7 @@
 			<values type="\Test\Home" name="home"/>
 		</property>
 		<property type="ObjectWithIdAndMore" name="anObjectWithIdAndMore"/>
+		<property is_foreign="1" type="ObjectWithIdAndMore" name="aForeignObjectWithIdAndMore"/>
 		<property type="Recursive" name="recursiveLocal"/>
 	</properties>
 </manifest>

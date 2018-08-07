@@ -45,7 +45,9 @@ abstract class AbstractModel {
 	 * 
 	 * @return boolean
 	 */
-	abstract public function isComplex();
+	public function isComplex() {
+		return $this instanceof ModelComplex;
+	}
 	
 	/**
 	 * verify if during import we stay in first level object or not

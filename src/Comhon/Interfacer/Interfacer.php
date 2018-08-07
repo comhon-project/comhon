@@ -711,7 +711,7 @@ abstract class Interfacer {
 	 * @param mixed $node
 	 * @param \Comhon\Model\Model $model
 	 * @param array $preferences
-	 * @return \Comhon\Object\ComhonObject
+	 * @return \Comhon\Object\ObjectUnique|\Comhon\Object\ObjectArray
 	 */
 	public function import($node, Model $model, array $preferences = []) {
 		$this->setPreferences($preferences);

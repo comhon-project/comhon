@@ -82,7 +82,7 @@ abstract class ModelComplex extends AbstractModel {
 	 * @param mixed $interfacedValue
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
-	 * @return mixed
+	 * @return \Comhon\Object\ObjectUnique|\Comhon\Object\ObjectArray
 	 */
 	abstract public function import($interfacedValue, Interfacer $interfacer);
 	

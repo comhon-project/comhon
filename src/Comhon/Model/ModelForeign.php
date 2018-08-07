@@ -85,7 +85,12 @@ class ModelForeign extends ModelContainer {
 	 */
 	public function export(ComhonObject $object, Interfacer $interfacer) {
 		try {
+			$interfacer->initializeExport();
 			$node = $this->_export($object, 'root', $interfacer, true);
+			if (is_object($node)) {
+				$interfacer->finalizeExport($node);
+			}
+			return $node;
 		} catch (ComhonException $e) {
 			throw new ExportException($e);
 		}
@@ -124,10 +129,13 @@ class ModelForeign extends ModelContainer {
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
-	 * @return \Comhon\Object\ComhonObject
+	 * @return \Comhon\Object\ObjectUnique|\Comhon\Object\ObjectArray
 	 */
 	public function import($interfacedObject, Interfacer $interfacer) {
-		$this->_import($interfacedObject, $interfacer, new ObjectCollection(), true);
+		if ($interfacedObject instanceof \SimpleXMLElement) {
+			$interfacedObject = dom_import_simplexml($interfacedObject);
+		}
+		return $this->_import($interfacedObject, $interfacer, new ObjectCollection(), true);
 	}
 	
 	/**

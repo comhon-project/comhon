@@ -69,15 +69,6 @@ class ForeignProperty extends Property {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Property\Property::isComplex()
-	 */
-	public function isComplex() {
-		return true;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
 	 * @see \Comhon\Model\Property\Property::isInterfaceable()
 	 */
 	public function isInterfaceable($private, $serialization) {

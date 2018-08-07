@@ -22,6 +22,7 @@ use Comhon\Exception\NotSatisfiedRestrictionException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Model\ModelComhonObject;
+use Comhon\Model\ModelContainer;
 
 abstract class ComhonObject {
 
@@ -540,7 +541,7 @@ abstract class ComhonObject {
 	 * export comhon object according specified interfacer
 	 * 
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @return mixed
+	 * @return \Comhon\Object\ObjectUnique|\Comhon\Object\ObjectArray
 	 */
 	final public function export(Interfacer $interfacer) {
 		try {
@@ -596,7 +597,7 @@ abstract class ComhonObject {
 		if (!array_key_exists('model', $debugObject)) {
 			throw new ComhonException('model attribut doesn\'t exist anymore');
 		}
-		$debugObject['model'] = $this->model->getName();
+		$debugObject['model'] = ($this->model instanceof ModelContainer) ? $this->model->getUniqueModel()->getName() : $this->model->getName();
 		return $debugObject;
 	}
 	

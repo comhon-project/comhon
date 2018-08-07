@@ -65,12 +65,28 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 */
 	public function finalizeExport($rootNode) {
 		parent::finalizeExport($rootNode);
-		$this->domDocument->appendChild($rootNode);
+		
+		if (!empty($this->nullElements) && !is_null($this->mainForeignObjects)) {
+			$this->domDocument->appendChild($this->mainForeignObjects);
+			//var_dump($this->toString($this->mainForeignObjects));
+			
+			try {
+				$this->domDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
+				foreach ($this->nullElements as $i => $domElement) {
+					$domElement->setAttributeNS(self::NIL_URI, self::NULL_VALUE, 'true');
+					unset($this->nullElements[$i]);
+				}
+			} catch (\Exception $e) {}
+			$this->domDocument->removeChild($this->mainForeignObjects);
+		}
+		
 		if (!empty($this->nullElements)) {
+			$this->domDocument->appendChild($rootNode);
 			$this->domDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
 			foreach ($this->nullElements as $domElement) {
 				$domElement->setAttributeNS(self::NIL_URI, self::NULL_VALUE, 'true');
 			}
+			$this->domDocument->removeChild($rootNode);
 			$this->nullElements = [];
 		}
 	}
@@ -550,8 +566,6 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 			if (isset($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId])) {
 				$this->mainForeignIds[$modelName][self::INDEX_NODE_CONTAINER]->removeChild($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId]);
 			}
-			// TODO remove following line, it is probably old line not used anymore
-			//$this->unsetValue($this->getValue($this->mainForeignObjects, $modelName, true), $nodeId, true);
 			$this->setValue($this->mainForeignIds[$modelName][self::INDEX_NODE_CONTAINER], $node);
 			$this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId] = $node;
 		}

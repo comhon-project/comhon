@@ -221,7 +221,7 @@ class ModelManager {
 	 * get model instance
 	 * 
 	 * @param string $modelName fully qualified name of wanted model
-	 * @return \Comhon\Model\ModelUnique
+	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
 	 */
 	public function getInstanceModel($modelName) {
 		$return = $this->_getInstanceModel($modelName, true);
@@ -236,7 +236,7 @@ class ModelManager {
 	 * @param string $modelName fully qualified name of wanted model
 	 * @param boolean $loadModel true to load model not already instanciated
 	 * @throws \Exception
-	 * @return \Comhon\Model\ModelUnique
+	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
 	 */
 	private function _getInstanceModel($modelName, $loadModel) {
 		if (!array_key_exists($modelName, $this->instanceModels)) {

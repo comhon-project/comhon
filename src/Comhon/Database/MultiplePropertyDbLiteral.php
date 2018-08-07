@@ -12,7 +12,6 @@
 namespace Comhon\Database;
 
 use Comhon\Logic\Literal;
-use Comhon\Exception\ComhonException;
 use Comhon\Logic\Clause;
 use Comhon\Model\Property\MultipleForeignProperty;
 

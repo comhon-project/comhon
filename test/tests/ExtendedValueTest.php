@@ -472,6 +472,23 @@ if (!compareXML($xmlPrivateInterfacer->toString($XML), '<objects><TestDb namespa
 	throw new \Exception('not same foreign objects');
 }
 
+/** ****************** export XML MainForeignObjects with null value ********************* **/
+
+$obj = $object->getValue('mainParentTestDb')->getValue('obj');
+$object->getValue('mainParentTestDb')->setValue('obj', null);
+
+$xmlPrivateInterfacer->setExportMainForeignObjects(true);
+$XML = $object->export($xmlPrivateInterfacer);
+if (!compareXML($xmlPrivateInterfacer->toString($XML), '<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" defaultValue="default" id1="40" id2="50" date="2016-05-10T01:50:20+02:00" timestamp="2016-10-16T18:21:18+02:00" string="hhhh" integer="7" boolean="0" boolean2="1"><object plop="plop" plop2="plop2222"/><objectWithId xsi:nil="true"/><mainParentTestDb>2</mainParentTestDb><objectsWithId/><foreignObjects/><lonelyForeignObject xsi:nil="true"/><lonelyForeignObjectTwo xsi:nil="true"/><manBodyJson id="1567" __inheritance__="Test\Body\ManJsonExtended"/><womanXml id="3" __inheritance__="Test\Person\WomanXmlExtended"/></root>')) {
+	throw new \Exception('not same foreign objects');
+}
+$XML = $xmlPrivateInterfacer->getMainForeignObjects();
+if (!compareXML($xmlPrivateInterfacer->toString($XML), '<objects xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><TestDb namespace="Test\"/><MainTestDb namespace="Test\"><root id="2" name="qsdqsd"><obj xsi:nil="true"/></root></MainTestDb><ManJsonExtended namespace="Test\Body\"><root id="1567" date="2010-12-24T00:00:00+01:00" height="1.8" weight="80" baldness="0"/></ManJsonExtended><WomanXmlExtended namespace="Test\Person\"><root id="3" lastName="Smith"/></WomanXmlExtended></objects>')) {
+	throw new \Exception('not same foreign objects');
+}
+
+$object->getValue('mainParentTestDb')->setValue('obj', $obj);
+
 /** ****************** export public with foreign main object ********************* **/
 
 $dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');

@@ -101,7 +101,7 @@ if ($localPersonModel !== ModelManager::getInstance()->getInstanceModel('Test\Te
 if ($localPersonModel->getName() !== 'Test\Test\PersonLocal') {
 	throw new \Exception('model hasn\'t good name');
 }
-if (!compareJson(json_encode($localPersonModel->getPropertiesNames()), '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","anObjectWithIdAndMore","recursiveLocal"]')) {
+if (!compareJson(json_encode($localPersonModel->getPropertiesNames()), '["id","firstName","lastName","birthDate","birthPlace","bestFriend","father","mother","children","homes","anObjectWithIdAndMore","aForeignObjectWithIdAndMore","recursiveLocal"]')) {
 	throw new \Exception("model {$localPersonModel->getName()} hasn't good properties : ".json_encode($localPersonModel->getPropertiesNames()));
 }
 

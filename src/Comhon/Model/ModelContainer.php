@@ -26,17 +26,6 @@ abstract class ModelContainer extends ModelComplex {
 	}
 	
 	/**
-	 * verify if contained model is complex or not
-	 *
-	 * model is complex if model is not instance of SimpleModel
-	 *
-	 * @return boolean
-	 */
-	public function isComplex() {
-		return true;
-	}
-	
-	/**
 	 * get contained model
 	 * 
 	 * @return \Comhon\Model\Model

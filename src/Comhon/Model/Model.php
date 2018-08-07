@@ -41,7 +41,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var boolean */
 	protected $isLoading = false;
 	
-	/** @var ModelUnique */
+	/** @var Model */
 	private $parent;
 	
 	/** @var string */
@@ -267,7 +267,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * get parent model if current model extends from another one
 	 * 
-	 * @return ModelUnique|null null if no parent model
+	 * @return Model|null null if no parent model
 	 */
 	public function getParent() {
 		return $this->parent;
@@ -542,15 +542,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	public function isMain() {
 		return $this->isMain;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\AbstractModel::isComplex()
-	 */
-	public function isComplex() {
-		return true;
 	}
 	
 	/**
@@ -1004,7 +995,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
-	 * @return \Comhon\Object\ComhonObject
+	 * @return \Comhon\Object\ObjectUnique
 	 */
 	public function import($interfacedObject, Interfacer $interfacer) {
 		if ($interfacedObject instanceof \SimpleXMLElement) {

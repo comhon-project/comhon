@@ -14,7 +14,6 @@ namespace Comhon\Model;
 use Comhon\Object\ComhonDateTime;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
-use Comhon\Exception\ComhonException;
 use Comhon\Exception\UnexpectedValueTypeException;
 
 class ModelDateTime extends SimpleModel {

@@ -53,15 +53,6 @@ abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\AbstractModel::isComplex()
-	 */
-	public function isComplex() {
-		return false;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_isNextLevelFirstLevel()
 	 */
 	protected function _isNextLevelFirstLevel($isCurrentLevelFirstLevel) {

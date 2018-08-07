@@ -262,7 +262,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
-	 * @return \Comhon\Object\ComhonObject
+	 * @return \Comhon\Object\ObjectArray
 	 */
 	public function import($interfacedObject, Interfacer $interfacer) {
 		$this->load();
