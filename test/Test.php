@@ -288,32 +288,108 @@ function _compareDomElement(\DOMElement $DOMElementOne, \DOMElement $DOMElementT
 	return true;
 }
 try {
+	$plopTimes = [];
 	$time_start_global = microtime(true);
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'TempTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['TempTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ModelTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['ModelTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RequestTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['RequestTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['ValueTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ExtendedModelTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['ExtendedModelTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ExtendedValueTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['ExtendedValueTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'XmlSerializationTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['XmlSerializationTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'JsonSerializationTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['JsonSerializationTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ImportExportTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['ImportExportTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ImportExportExceptionTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['ImportExportExceptionTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'MultipleForeignTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['MultipleForeignTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'IntermediateRequestTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['IntermediateRequestTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ComplexRequestTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['ComplexRequestTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'MultipleIdRequestTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['MultipleIdRequestTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RequestFailureTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['RequestFailureTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'IntermediateVsComplexRequestTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['IntermediateVsComplexRequestTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'PartialImportExportTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['PartialImportExportTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'DatabaseSerializationTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['DatabaseSerializationTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['InterfacerTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RestrictionTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['RestrictionTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ValueRestrictionTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['ValueRestrictionTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'ToStringDebugTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['ToStringDebugTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'SelectQueryTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['SelectQueryTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'FormulaTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['FormulaTest'] = $time_end_local - $time_start_local;
+	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'SetValueExceptionTest.php';
+	$time_end_local = microtime(true);
+	$plopTimes['SetValueExceptionTest'] = $time_end_local - $time_start_local;
 	$time_end_global = microtime(true);
 	var_dump("\nglobal test exec time ".($time_end_global- $time_start_global));
 } catch (\Exception $e) {
@@ -324,6 +400,20 @@ try {
 		."\ntrace : \n" . json_encode($e->getTrace())
 	);
 }
+
+if (file_exists(__DIR__."/count.txt")) {
+	
+	foreach (json_decode(file_get_contents(__DIR__."/times.json")) as $key => $value) {
+		$plopTimes[$key] += $value;
+	}
+	file_put_contents(__DIR__."/times.json", json_encode($plopTimes));
+	file_put_contents(__DIR__."/count.txt", intval(file_get_contents(__DIR__."/count.txt")) + 1);
+	
+} else {
+	file_put_contents(__DIR__."/times.json", json_encode($plopTimes));
+	file_put_contents(__DIR__."/count.txt", 0);
+}
+
 
 // TODO for version > 2.0
 // replace self tests by phpunit tests
