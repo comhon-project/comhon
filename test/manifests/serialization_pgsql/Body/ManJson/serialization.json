@@ -4,7 +4,7 @@
         "type": "Comhon\\JsonFile",
         "inheritanceKey": "key",
         "value": {
-            "saticPath": "\/var\/data\/man_body_json",
+            "saticPath": ".\/data\/man_body_json",
             "staticName": "man_body.json"
         }
     }

@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<womanXmlExtended id="4" first_name="Marie" lastName="Smith" birth_date="2016-11-13T20:04:05+01:00" attribute="Test\Person\WomanXmlExtended"><children __UNLOAD__="1"/><homes __UNLOAD__="1"/><best_friend __inheritance__="man">5</best_friend><bodies><body>1</body></bodies></womanXmlExtended>

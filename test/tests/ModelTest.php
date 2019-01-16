@@ -223,8 +223,8 @@ if (
 $stdPublicInterfacer = new StdObjectInterfacer();
 $objDb = $testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPublicInterfacer);
 if (
-	(json_encode($objDb) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}')
-	&& (json_encode($objDb) !== '{"id":"2","DBMS":"pgsql","host":"localhost","name":"database","user":"root"}')
+	(json_encode($objDb) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database_test","user":"root"}')
+	&& (json_encode($objDb) !== '{"id":"2","DBMS":"pgsql","host":"localhost","name":"database_test","user":"root"}')
 ) {
 	throw new \Exception("model {$testDbModel->getName()} hasn't good values ".json_encode($objDb));
 }

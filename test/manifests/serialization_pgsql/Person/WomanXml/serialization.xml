@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<serialization type="Comhon\XmlFile" inheritanceKey="attribute">
-		<value saticPath="/var/data/woman_xml" staticName="woman.xml"/>
+		<value saticPath="./data/woman_xml" staticName="woman.xml"/>
 	</serialization>
 </manifest>

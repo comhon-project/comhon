@@ -3,7 +3,7 @@
     "serialization": {
         "type": "Comhon\\XmlFile",
         "value": {
-            "saticPath": "\/var\/data\/test_xml",
+            "saticPath": ".\/data\/test_xml",
             "staticName": "test.xml"
         }
     }
