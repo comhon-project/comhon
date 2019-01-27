@@ -158,7 +158,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		if (is_null($objectArray)) {
 			return null;
 		}
-		$this->verifValue($objectArray);
 		$nodeArray = $interfacer->createArrayNode($nodeName);
 		
 		foreach ($objectArray->getValues() as $key => $value) {
@@ -182,7 +181,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
 	protected function _exportId(ComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
-		$this->verifValue($objectArray);
 		$nodeArray = $interfacer->createArrayNode($nodeName);
 		foreach ($objectArray->getValues() as $key => $value) {
 			if (is_null($value)) {

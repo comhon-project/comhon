@@ -51,6 +51,7 @@ abstract class ModelComplex extends AbstractModel {
 	 * @return mixed
 	 */
 	public function export(ComhonObject $object, Interfacer $interfacer) {
+		$this->verifValue($object);
 		$interfacer->initializeExport();
 		self::$instanceObjectHash = [];
 		$this->_addMainCurrentObject($object, $interfacer);

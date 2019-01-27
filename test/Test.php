@@ -416,13 +416,12 @@ if (file_exists(__DIR__."/count.txt")) {
 
 
 // TODO for version > 2.0
+// DO NOT US ALIAS 't_x' -> DOC
 // replace self tests by phpunit tests
-// setvalue strict mandatory
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)
 // transaction serialization
 // allow to active only one value among several values (a or b might be set but not a and b)
 // define in manifest if property is requestable
-// rapide load Unique model in modelManager
 // from object specifying object path (object.property.property)
 // mandatory value when serialize
 // common models/values in unique files

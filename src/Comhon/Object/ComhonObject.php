@@ -27,7 +27,8 @@ use Comhon\Model\ModelContainer;
 abstract class ComhonObject {
 
 	/**
-	 * @var  \Comhon\Model\ModelComhonObject model associated to comhon object
+	 * @var  \Comhon\Model\ModelComhonObject|\Comhon\Model\Model|\Comhon\Model\ModelArray
+	 * model associated to comhon object
 	 */
 	private $model;
 	
@@ -81,28 +82,25 @@ abstract class ComhonObject {
 	 * @param string $name
 	 * @param mixed $value
 	 * @param boolean $flagAsUpdated if true, flag value as updated
-	 * @param boolean $strict if true, verify value type
 	 */
-	final public function setValue($name, $value, $flagAsUpdated = true, $strict = true) {
-		if ($strict) {
-			try {
-				if ($this instanceof ObjectArray) {
-					$this->model->verifElementValue($value);
-				} else {
-					$property = $this->model->getProperty($name, true);
-					if (!is_null($value)) {
-						$property->isSatisfiable($value, true);
-						$property->getModel()->verifValue($value);
-					}
-					if ($property->isAggregation()) {
-						$flagAsUpdated = false;
-					}
+	final public function setValue($name, $value, $flagAsUpdated = true) {
+		try {
+			if ($this instanceof ObjectArray) {
+				$this->model->verifElementValue($value);
+			} else {
+				$property = $this->model->getProperty($name, true);
+				if (!is_null($value)) {
+					$property->isSatisfiable($value, true);
+					$property->getModel()->verifValue($value);
 				}
-			} catch (NotSatisfiedRestrictionException $e) {
-				throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
-			} catch (UnexpectedValueTypeException $e) {
-				throw new UnexpectedValueTypeException($value, $e->getExpectedType());
+				if ($property->isAggregation()) {
+					$flagAsUpdated = false;
+				}
 			}
+		} catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
+		} catch (UnexpectedValueTypeException $e) {
+			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
 		if ($this->_hasIdProperty($name) && $this->model->isMain()) {
 			if ($this->hasCompleteId() && MainObjectCollection::getInstance()->getObject($this->getId(), $this->model->getName()) === $this) {

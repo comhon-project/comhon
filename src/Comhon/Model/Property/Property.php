@@ -250,7 +250,7 @@ class Property {
 	 * @return boolean true if value is exportable
 	 */
 	public function isExportable($private, $serialization, $value) {
-		return (is_null($value) || $this->getModel()->verifValue($value)) && $this->isInterfaceable($private, $serialization);
+		return $this->isInterfaceable($private, $serialization);
 	}
 	
 	/**

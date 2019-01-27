@@ -46,6 +46,7 @@ abstract class ConstantException {
 	const QUERY_BINDING_VALUE_FAILURE_EXCEPTION   = 603;
 	const UNEXPECTED_COUNT_VALUES_QUERY_EXCEPTION = 604;
 	const INCOMPLETE_SQL_DB_INFOS_EXCEPTION       = 605;
+	const DUPLICATED_TABLE_NAME_EXCEPTION         = 606;
 	
 	// request exception
 	const MALFORMED_REQUEST_EXCEPTION                  = 700;

@@ -777,14 +777,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			foreach ($object->getModel()->multipleForeignProperties as $propertyName => $multipleForeignProperty) {
 				try {
 					$foreignObject = $object->getValue($propertyName);
-					if (!is_null($foreignObject) && $multipleForeignProperty->getModel()->verifValue($foreignObject)) {
+					if (!is_null($foreignObject)) {
 						if (!$foreignObject->hasCompleteId()) {
 							throw new ComhonException("cannot export id of foreign property with model '{$this->modelName}' because object doesn't have complete id");
 						}
 						foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
 							if (!$onlyUpdatedValues || $foreignObject->isUpdatedValue($idProperty->getName())) {
 								$idValue = $foreignObject->getValue($idProperty->getName());
-								$idProperty->getModel()->verifValue($idValue);
 								$idValue = $idProperty->getModel()->_export($idValue, $serializationName, $interfacer, false);
 								$interfacer->setValue($node, $idValue, $serializationName);
 							}

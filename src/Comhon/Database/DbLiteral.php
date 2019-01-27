@@ -279,7 +279,7 @@ abstract class DbLiteral extends Literal {
 	 * @return string
 	 */
 	private static function _getAlias() {
-		return 't_'.self::$index++;
+		return '__t__'.self::$index++;
 	}
 	
 }

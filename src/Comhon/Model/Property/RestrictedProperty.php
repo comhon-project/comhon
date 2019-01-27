@@ -46,16 +46,6 @@ class RestrictedProperty extends Property {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Property\Property::isExportable()
-	 */
-	public function isExportable($private, $serialization, $value) {
-		$this->isSatisfiable($value, true);
-		return parent::isExportable($private, $serialization, $value);
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
 	 * @see \Comhon\Model\Property\Property::isSatisfiable()
 	 */
 	public function isSatisfiable($value, $throwException = false) {

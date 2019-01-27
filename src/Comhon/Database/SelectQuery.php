@@ -13,6 +13,7 @@ namespace Comhon\Database;
 
 use Comhon\Logic\Formula;
 use Comhon\Exception\ComhonException;
+use Comhon\Exception\Database\DuplicatedTableNameException;
 
 class SelectQuery {
 
@@ -305,6 +306,20 @@ class SelectQuery {
 	}
 	
 	/**
+	 * throw exception if several tables have same export name
+	 * @throws DuplicatedTableNameException 
+	 */
+	public function verifyDuplicatedTables() {
+		$tables = [];
+		foreach ($this->tables as $tableInQuery) {
+			if (array_key_exists($tableInQuery->getExportName(), $tables)) {
+				throw new DuplicatedTableNameException($tableInQuery->getExportName());
+			}
+			$tables[$tableInQuery->getExportName()] = null;
+		}
+	}
+	
+	/**
 	 * export stringified query in sql format with values to bind
 	 * 
 	 * @throws \Exception
@@ -313,16 +328,7 @@ class SelectQuery {
 	 *     - second element : values to bind
 	 */
 	public function export() {
-		$tables = [];
-		foreach ($this->tables as $tableInQuery) {
-			if (array_key_exists($tableInQuery->getExportName(), $tables)) {
-				throw new ComhonException("duplicate table '{$tableInQuery->getExportName()}'");
-			}
-			$tables[$tableInQuery->getExportName()] = null;
-		}
-		
 		$values = [];
-	
 		$query = 'SELECT '.$this->_getColumnsForQuery().' FROM '.$this->_exportJoinedTables($values);
 	
 		if (!is_null($this->where) && !is_null($conditions = $this->_getConditions($this->where, $values))) {
@@ -416,7 +422,7 @@ class SelectQuery {
 	}
 	
 	/**
-	 * export strigified joins, extract values for query and put them in $values
+	 * export stringified joins, extract values for query and put them in $values
 	 * 
 	 * @param array $values
 	 * @return string

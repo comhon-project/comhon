@@ -11,6 +11,10 @@
 
 namespace Comhon\Model;
 
+/**
+ * Model classes that implement this interface have instances 
+ * that might be associated to a comhon object
+ */
 interface ModelComhonObject {
 	
 }

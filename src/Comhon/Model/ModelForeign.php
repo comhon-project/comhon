@@ -85,6 +85,7 @@ class ModelForeign extends ModelContainer {
 	 */
 	public function export(ComhonObject $object, Interfacer $interfacer) {
 		try {
+			$this->verifValue($object);
 			$interfacer->initializeExport();
 			$node = $this->_export($object, 'root', $interfacer, true);
 			if (is_object($node)) {

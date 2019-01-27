@@ -360,6 +360,16 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$this->_addColumns();
 		$this->_addGroupedColumns();
 		$this->_addOrderColumns();
+		
+		try {
+			$this->selectQuery->verifyDuplicatedTables();
+		} catch (\Comhon\Exception\Database\DuplicatedTableNameException $e) {
+			if (substr($e->getTableName(), 0, 5) === '__t__') {
+				throw new MalformedRequestException('cannot use reserved node prefix id \'__t__\'');
+			} else {
+				throw $e;
+			}
+		}
 	}
 	
 	/**
@@ -670,7 +680,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * add select columns to select query
 	 */
 	private function _addColumns() {
-		
+		$this->selectQuery->getMainTable()->resetSelectedColumns();
 		if (empty($this->propertiesFilter)) {
 			$this->selectQuery->getMainTable()->selectAllColumns(true);
 		}

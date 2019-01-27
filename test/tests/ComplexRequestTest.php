@@ -20,7 +20,7 @@ $Json = '{
 				"children"  : [
 					{
 						"property" : "children",
-						"id"       : "t_1"
+						"id"       : "__t__1"
 					}
 				]
 			},
@@ -72,7 +72,7 @@ $Json = '{
 		"type" : "conjunction",
 		"elements" : [
 			{
-				"node"     : "t_1",
+				"node"     : "__t__1",
 				"property" : "firstName",
 				"operator" : "=",
 				"value"    : ["louise", "mouha", null]
@@ -162,9 +162,9 @@ $Json = '{
 //               ON birthPlace.town = town.id 
 //        LEFT JOIN house AS house 
 //               ON homes.house_id = house.id 
-//        LEFT JOIN person AS t_1 
-//               ON ( p2.id = t_1.mother_id 
-//                     OR p2.id = t_1.father_id ) 
+//        LEFT JOIN person AS __t__1 
+//               ON ( p2.id = __t__1.mother_id 
+//                     OR p2.id = __t__1.father_id ) 
 //        LEFT JOIN (SELECT person.id 
 //                   FROM   person 
 //                          INNER JOIN person AS t_7 

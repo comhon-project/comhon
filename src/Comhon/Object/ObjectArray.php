@@ -25,7 +25,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	
 	/**
 	 *
-	 * @param string|ModelComhonObject $model can be a model name or an instance of model
+	 * @param string|\Comhon\Model\ModelComhonObject $model can be a model name or an instance of model
 	 * @param boolean $isLoaded
 	 * @param string $elementName
 	 * @param boolean $isAssociative not used if first parameter is instance of ModelArray
@@ -77,20 +77,17 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	 * 
 	 * @param unknown $values
 	 * @param string $flagAsUpdated
-	 * @param string $strict
 	 */
-	final public function setValues($values, $flagAsUpdated = true, $strict = true) {
-		if ($strict) {
-			foreach ($values as $value) {
-				try {
-					$this->getModel()->verifElementValue($value);
-				}
-				catch (NotSatisfiedRestrictionException $e) {
-					throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
-				}
-				catch (UnexpectedValueTypeException $e) {
-					throw new UnexpectedValueTypeException($value, $e->getExpectedType());
-				}
+	final public function setValues($values, $flagAsUpdated = true) {
+		foreach ($values as $value) {
+			try {
+				$this->getModel()->verifElementValue($value);
+			}
+			catch (NotSatisfiedRestrictionException $e) {
+				throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
+			}
+			catch (UnexpectedValueTypeException $e) {
+				throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 			}
 		}
 		$this->_setValues($values, $flagAsUpdated);
@@ -101,19 +98,16 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	 * 
 	 * @param mixed $value
 	 * @param boolean $flagAsUpdated
-	 * @param boolean $strict
 	 */
-	final public function pushValue($value, $flagAsUpdated = true, $strict = true) {
-		if ($strict) {
-			try {
-				$this->getModel()->verifElementValue($value);
-			}
-			catch (NotSatisfiedRestrictionException $e) {
-				throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
-			}
-			catch (UnexpectedValueTypeException $e) {
-				throw new UnexpectedValueTypeException($value, $e->getExpectedType());
-			}
+	final public function pushValue($value, $flagAsUpdated = true) {
+		try {
+			$this->getModel()->verifElementValue($value);
+		}
+		catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
+		}
+		catch (UnexpectedValueTypeException $e) {
+			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
 		$this->_pushValue($value, $flagAsUpdated);
 	}
@@ -133,19 +127,16 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	 * 
 	 * @param mixed $value
 	 * @param boolean $flagAsUpdated
-	 * @param boolean $strict
 	 */
-	final public function unshiftValue($value, $flagAsUpdated = true, $strict = true) {
-		if ($strict) {
-			try {
-				$this->getModel()->verifElementValue($value);
-			}
-			catch (NotSatisfiedRestrictionException $e) {
-				throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
-			}
-			catch (UnexpectedValueTypeException $e) {
-				throw new UnexpectedValueTypeException($value, $e->getExpectedType());
-			}
+	final public function unshiftValue($value, $flagAsUpdated = true) {
+		try {
+			$this->getModel()->verifElementValue($value);
+		}
+		catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
+		}
+		catch (UnexpectedValueTypeException $e) {
+			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
 		$this->_unshiftValue($value, $flagAsUpdated);
 	}

@@ -15,7 +15,7 @@ use Comhon\Exception\ComhonException;
 
 class TableNode {
 
-	/** @var string */
+	/** @var string|SelectQuery */
 	private $table;
 	
 	/** @var string */

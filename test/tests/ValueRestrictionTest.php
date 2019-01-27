@@ -140,40 +140,6 @@ $testRestricted->getValue('enumFloatArray')->pushValue(3.5);
 
 /** ************** test export import with values not in restriction fail *************** **/
 
-$testRestricted->getValue('enumFloatArray')->pushValue(4.5, true, false);
-
-try {
-	$testRestricted->export($stdPrivateInterfacer);
-	$throw = true;
-} catch (ExportException $e) {
-	if (!($e->getOriginalException() instanceof NotSatisfiedRestrictionException)) {
-		throw new \Exception('wrong exception');
-	}
-	$throw = false;
-}
-if ($throw) {
-	throw new \Exception('export with values not in enum');
-}
-
-$testRestricted->getValue('enumFloatArray')->popValue();
-$testRestricted->export($stdPrivateInterfacer);
-$testRestricted->getValue('enumFloatArray')->unshiftValue(4.5, true, false);
-
-try {
-	$testRestricted->export($stdPrivateInterfacer);
-	$throw = true;
-} catch (ExportException $e) {
-	if (!($e->getOriginalException() instanceof NotSatisfiedRestrictionException)) {
-		throw new \Exception('wrong exception');
-	}
-	$throw = false;
-}
-if ($throw) {
-	throw new \Exception('export with values not in enum');
-}
-$testRestricted->getValue('enumFloatArray')->shiftValue();
-$testRestricted->export($stdPrivateInterfacer);
-
 if (!compareJson(json_encode($testRestricted->export($stdPrivateInterfacer)), '{"enumIntArray":[1,3],"enumFloatArray":[1.5,3.5],"emails":["plop@plop.fr","plop.plop@plop.plop"],"intervalInArray":[-1.4,1],"color":"#12abA8","naturalNumber":45,"birthDate":"2000-01-01T00:00:00+01:00","enumValue":"plop1"}')) {
 	throw new \Exception('bad value');
 }
