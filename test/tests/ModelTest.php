@@ -15,9 +15,6 @@ if (!ModelManager::getInstance()->hasInstanceModel('Comhon\Config')) {
 if (!ModelManager::getInstance()->hasInstanceModelLoaded('Comhon\Config')) {
 	throw new \Exception('model must be loaded');
 }
-if (ModelManager::getInstance()->hasInstanceModel('Comhon\SqlTable')) {
-	throw new \Exception('model already initialized');
-}
 
 $testModel    = ModelManager::getInstance()->getInstanceModel('Test\Test');
 $testModelTow = ModelManager::getInstance()->getInstanceModel('Test\Test');
@@ -142,15 +139,6 @@ if ($placeModel !== $placeModelTow) {
 
 /** ****************************** basic test for model 'Test\TestDb' ****************************** **/
 
-/*
- if (ModelManager::getInstance()->hasInstanceModel('Comhon\SqlDatabase')) {
-throw new \Exception("model must be not initialized");
-}
-if (ModelManager::getInstance()->hasInstanceModelLoaded('Comhon\SqlDatabase')) {
-throw new \Exception("model must be not loaded");
-}
-*/
-
 $testDbModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 
 if ($testDbModel->getName() !== 'Test\TestDb') {
@@ -201,13 +189,10 @@ if (
 }
 
 if (
-	json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"1"}'
-	&& json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"2"}'
+	json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root","password":"root"}'
+	&& json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"2","DBMS":"pgsql","host":"localhost","name":"database","user":"root","password":"root"}'
 ) {
 	throw new \Exception("model {$testDbModel->getName()} hasn't good values : ".json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)));
-}
-if ($testDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
-	throw new \Exception('object must be not loaded');
 }
 
 // LOAD VALUE
@@ -223,8 +208,8 @@ if (
 $stdPublicInterfacer = new StdObjectInterfacer();
 $objDb = $testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPublicInterfacer);
 if (
-	(json_encode($objDb) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database_test","user":"root"}')
-	&& (json_encode($objDb) !== '{"id":"2","DBMS":"pgsql","host":"localhost","name":"database_test","user":"root"}')
+	(json_encode($objDb) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}')
+	&& (json_encode($objDb) !== '{"id":"2","DBMS":"pgsql","host":"localhost","name":"database","user":"root"}')
 ) {
 	throw new \Exception("model {$testDbModel->getName()} hasn't good values ".json_encode($objDb));
 }

@@ -70,7 +70,7 @@ $person = $interfacer->import(json_decode('{"first_name":"john","last_name":"joh
 
 // fill a comhon object by importing json
 $interfacer = new StdObjectInterfacer();
-$person = $person->fill(json_decode('{"first_name":"john","last_name":"john","age":21}'), $interfacer);
+$person->fill(json_decode('{"first_name":"john","last_name":"john","age":21}'), $interfacer);
 
 // export a comhon object to xml
 $interfacer = new XMLInterfacer();

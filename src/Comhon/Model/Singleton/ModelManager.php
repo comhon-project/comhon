@@ -30,6 +30,7 @@ use Comhon\Exception\ComhonException;
 use Comhon\Exception\AlreadyUsedModelNameException;
 use Comhon\Exception\ConfigFileNotFoundException;
 use Comhon\Model\ModelUnique;
+use Comhon\Object\Collection\MainObjectCollection;
 
 class ModelManager {
 
@@ -154,9 +155,10 @@ class ModelManager {
 	}
 	
 	/**
-	 * reset singleton - should be called only for testing
+	 * reset singleton - should be called only for testing (reset main object collection too)
 	 */
 	public static function resetSingleton() {
+		MainObjectCollection::getInstance()->reset();
 		self::$_instance = null;
 	}
 	
@@ -261,7 +263,7 @@ class ModelManager {
 		$prefix_ad = substr($this->autoloadManifest[$nameSpacePrefix], 0, 1) == '.'
 			? Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $this->autoloadManifest[$nameSpacePrefix]
 			: $this->autoloadManifest[$nameSpacePrefix];
-		return $prefix_ad . '/' . str_replace('\\', '/', $nameSpaceSuffix) . '/manifest.' . $this->manifestExtension;
+		return $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $nameSpaceSuffix) . DIRECTORY_SEPARATOR .'manifest.' . $this->manifestExtension;
 	}
 		
 	private function _getSerializationManifestPath($manifest_af, $nameSpacePrefix, $nameSpaceSuffix) {
@@ -269,9 +271,9 @@ class ModelManager {
 			$prefix_ad = substr($this->autoloadSerializationManifest[$nameSpacePrefix], 0, 1) == '.'
 				? Config::getInstance()->getDirectory(). DIRECTORY_SEPARATOR . $this->autoloadSerializationManifest[$nameSpacePrefix]
 				: $this->autoloadSerializationManifest[$nameSpacePrefix];
-			$manifest_af = $prefix_ad . '/' . str_replace('\\', '/', $nameSpaceSuffix) . '/serialization.' . $this->manifestExtension;
+			$manifest_af = $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $nameSpaceSuffix) . DIRECTORY_SEPARATOR .'serialization.' . $this->manifestExtension;
 		} else {
-			$manifest_af = dirname($manifest_af) . '/serialization.' . $this->manifestExtension;
+			$manifest_af = dirname($manifest_af) . DIRECTORY_SEPARATOR .'serialization.' . $this->manifestExtension;
 		}
 		return file_exists($manifest_af) ? $manifest_af : null;
 	}

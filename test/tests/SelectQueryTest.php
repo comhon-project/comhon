@@ -40,7 +40,7 @@ $childTable->setAlias('child');
 list($query, $params) = $selectQuery->export();
 
 if ($query !== 'SELECT person.*,child.id AS child_id FROM  person inner join person AS child on person.id = child.father_id  WHERE child.first_name  IN  (?,?) GROUP BY child.id ORDER BY person.id') {
-	throw new \Exception('bad query');
+	throw new \Exception('bad query'.$query);
 }
 if ($params !== ['john', 'Jean']) {
 	throw new \Exception('bad params');

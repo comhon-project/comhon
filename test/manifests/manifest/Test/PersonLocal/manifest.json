@@ -88,6 +88,11 @@
             "type": "ObjectWithIdAndMore"
         },
         {
+            "name": "aForeignObjectWithIdAndMore",
+            "type": "ObjectWithIdAndMore",
+            "is_foreign": true
+        },
+        {
             "name": "recursiveLocal",
             "type": "Recursive"
         }

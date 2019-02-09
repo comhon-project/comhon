@@ -106,6 +106,14 @@ class DatabaseController {
 	}
 	
 	/**
+	 * 
+	 * @return \PDO
+	 */
+	public function getPDO() {
+		return $this->dbHandle;
+	}
+	
+	/**
 	 * permit to know if \PDO pilote support function \PDO::lastInsertId
 	 * 
 	 * @return boolean

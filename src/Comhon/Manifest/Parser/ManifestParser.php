@@ -86,14 +86,16 @@ abstract class ManifestParser {
 	private $currentProperties;
 
 	/**
-	 * verify if manifest describe a main model
+	 * verify if manifest describe a main model.
+	 * if true that means comhon object with described model might be stored in MainObjectCollection
 	 *
 	 * @return boolean
 	 */
 	abstract public function isMain();
 	
 	/**
-	 * verify if manifest describe a serializable model
+	 * verify if manifest describe a serializable model .
+	 * a serializable model is automatically a main model
 	 *
 	 * @return boolean
 	 */

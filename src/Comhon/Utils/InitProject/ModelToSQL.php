@@ -28,6 +28,7 @@ use Comhon\Serialization\SerializationUnit;
 use Comhon\Model\Model;
 use Comhon\Model\ModelContainer;
 use Comhon\Model\ModelArray;
+use Comhon\Model\ModelComplex;
 
 class ModelToSQL {
 	
@@ -109,10 +110,10 @@ class ModelToSQL {
 	 */
 	private function getForeignColumnsDescriptions($table, ForeignProperty $property, array &$foreignConstraints) {
 		$databaseId = $table->getValue('database')->getId();
-		$foreignModelName = $property->getModel()->getName();
+		$foreignModelName = $property->getUniqueModel()->getName();
 		
 		if (
-			array_key_exists($property->getModel()->getName(), $this->sqlModels)
+			array_key_exists($property->getUniqueModel()->getName(), $this->sqlModels)
 			&& !($property->getModel()->getModel() instanceof ModelContainer)
 			&& $databaseId === $this->sqlModels[$foreignModelName]['table']->getValue('database')->getId()
 		) {
@@ -131,8 +132,8 @@ class ModelToSQL {
 			$foreignConstraint = null;
 		}
 		
-		$hasMultipleColumns = count($property->getModel()->getIdProperties()) > 1
-			&& array_key_exists($property->getModel()->getName(), $this->sqlModels)
+		$hasMultipleColumns = count($property->getUniqueModel()->getIdProperties()) > 1
+			&& array_key_exists($property->getUniqueModel()->getName(), $this->sqlModels)
 			&& !($property->getModel()->getModel() instanceof ModelContainer);
 		
 		return $hasMultipleColumns
@@ -157,7 +158,7 @@ class ModelToSQL {
 		foreach ($properties as $name => $foreignIdProperty) {
 			
 			$column = $isInstanceMultiple 
-				? $this->escape($name)
+				? ($this->case === 'iso' ? $this->escape($name) : $this->escape($this->transformString($name)))
 				: $this->getColumnName($property->getModel(), $property->getModel()->getProperty($name));
 			
 			$columns[] = [
@@ -180,7 +181,7 @@ class ModelToSQL {
 	 * @return string[][]
 	 */
 	private function getUniqueForeignColumnDescription(ForeignProperty $property, array &$foreignConstraint = null) {
-		$idProperties = $property->getModel()->getIdProperties();
+		$idProperties = $property->getUniqueModel()->getIdProperties();
 		$foreignIdProperty = current($idProperties);
 		
 		if (!is_null($foreignConstraint)) {
@@ -203,9 +204,9 @@ class ModelToSQL {
 	 * @return string
 	 */
 	private function getColumnType(Property $property) {
-		switch ($property->getModel()->getName()) {
+		switch ($property->getUniqueModel()->getName()) {
 			case 'string':
-				$type = 'TEXT' /*CHARACTER SET utf8'*/;
+				$type = $property->isId() ? 'VARCHAR(255)' : 'TEXT' /*CHARACTER SET utf8'*/;
 				break;
 			case 'integer':
 				$type = 'INT';
@@ -214,10 +215,10 @@ class ModelToSQL {
 				$type = 'FLOAT';
 				break;
 			case 'boolean':
-				$type = 'BOOL';
+				$type = 'BOOLEAN';
 				break;
 			case 'dateTime':
-					$type = 'TIMESTAMP';
+					$type = 'TIMESTAMP NULL';
 					break;
 			default:
 				if (
@@ -227,7 +228,7 @@ class ModelToSQL {
 						&& !($property->getModel()->getModel() instanceof ModelArray)
 					)
 				){
-					throw new \Exception('type not handled : ' . $property->getModel()->getName() . ' -> ' . get_class($property->getModel()));
+					throw new \Exception('type not handled : ' . $property->getUniqueModel()->getName() . ' -> ' . get_class($property->getModel()));
 				}
 				// model that correspond to an object or an object array 
 				// that will be JSON encoded during serialization
@@ -246,29 +247,43 @@ class ModelToSQL {
 	 * @throws \Exception
 	 * @return string
 	 */
-	private function getColumnName(Model $model, Property $property) {
+	private function getColumnName(ModelComplex $model, Property $property) {
 		$column = $property->getSerializationName();
 		
+		if ($model instanceof ModelForeign) {
+			$model = $model->getUniqueModel();
+		}
 		if (!$model->hasSerialization() && !$property->hasDefinedSerializationName() && $this->case !== 'iso') {
-			switch ($this->case) {
-				case 'camel':
-					$column = $this->toCamelCase($property->getSerializationName());
-					break;
-				case 'pascal':
-					$column = $this->toPascalCase($property->getSerializationName());
-					break;
-				case 'kebab':
-					$column = $this->toKebabCase($property->getSerializationName());
-					break;
-				case 'snake':
-					$column = $this->toSnakeCase($property->getSerializationName());
-					break;
-				default:
-					throw new \Exception("invalid case $this->case");
-					break;
-			}
+			$column = $this->transformString($property->getSerializationName());
 		}
 		return $this->escape($column);
+	}
+	
+	/**
+	 * transform string to defined case
+	 * 
+	 * @param unknown $string
+	 * @throws \Exception
+	 * @return string
+	 */
+	private function transformString($string) {
+		switch ($this->case) {
+			case 'camel':
+				return $this->toCamelCase($string);
+				break;
+			case 'pascal':
+				return $this->toPascalCase($string);
+				break;
+			case 'kebab':
+				return $this->toKebabCase($string);
+				break;
+			case 'snake':
+				return $this->toSnakeCase($string);
+				break;
+			default:
+				throw new \Exception("invalid case $this->case");
+				break;
+		}
 	}
 	
 	private function escape($column) {
@@ -312,6 +327,7 @@ class ModelToSQL {
 	 * @return string
 	 */
 	private function toSnakeCase($string) {
+		$string = lcfirst($string);
 		$string = preg_replace_callback(
 			"|(?:[^A-Z]([A-Z]))|",
 			function ($matches) {return strtolower(substr($matches[0], 0, 1) . '_' . $matches[1]);},
@@ -361,23 +377,28 @@ class ModelToSQL {
 				$settings->setValue('saticPath', $origin_table_ad);
 			}
 		} catch(\Exception $e) {
-			$instruction = "Something goes wrong with model '$modelName' ({$e->getMessage()})." . PHP_EOL
-			."Would you like to continue ? [y/n]" . PHP_EOL;
-			do {
-				echo $instruction;
-				$response = trim(fgets(STDIN));
-				$instruction = "Invalid response. Again, would you like to continue ? [y/n]" . PHP_EOL;
-			} while ($response !== 'y' && $response !== 'n');
-			
-			if ($response === 'n') {
-				echo "script exited" . PHP_EOL;
-				exit(1);
-			}
+			$this->displayContinue($e, $modelName);
 		}
 		if (!is_null($model) && $model->hasSerialization() && !($model->getSerialization() instanceof SqlTable)) {
 			$model = null;
 		}
 		return $model;
+	}
+	
+	private function displayContinue(\Exception $e, $modelName, $propertyName = null) {
+		$msgProperty = is_null($propertyName) ? ' ' : " property '$propertyName' on ";
+		$instruction = "Something goes wrong with{$msgProperty}model '$modelName' ({$e->getMessage()})." . PHP_EOL
+		."Would you like to continue ? [y/n]" . PHP_EOL;
+		do {
+			echo $instruction;
+			$response = trim(fgets(STDIN));
+			$instruction = "Invalid response. Again, would you like to continue ? [y/n]" . PHP_EOL;
+		} while ($response !== 'y' && $response !== 'n');
+		
+		if ($response === 'n') {
+			echo "script exited" . PHP_EOL;
+			exit(1);
+		}
 	}
 	
 	/**
@@ -387,6 +408,7 @@ class ModelToSQL {
 	 * @return string|null
 	 */
 	private function defineTable($modelName) {
+		$defaultTableName = $this->toSnakeCase(str_replace('\\', '', $modelName));
 		$instruction = "Model $modelName doesn't have serialization." . PHP_EOL
 		."Would you like to save it in sql database ? [y/n]" . PHP_EOL;
 		do {
@@ -396,9 +418,9 @@ class ModelToSQL {
 		} while ($response !== 'y' && $response !== 'n');
 		
 		if ($response == 'y') {
-			echo "Enter a table name (default name : $modelName) : " . PHP_EOL;
+			echo "Enter a table name (default name : $defaultTableName) : " . PHP_EOL;
 			$response = trim(fgets(STDIN));
-			$table = empty($response) ? $modelName : $response;
+			$table = empty($response) ? $defaultTableName: $response;
 			
 			$settings = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getSerializationSettings();
 			$origin_table_ad = $settings->getValue('saticPath');
@@ -477,7 +499,7 @@ class ModelToSQL {
 			$sqlDatabase = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getObjectInstance();
 			$sqlDatabase->setId('generated');
 		}
-		if ($sqlDatabase->getModel()->getName() !== 'Comhon\SqlDatabase') {
+		if ($sqlDatabase->getUniqueModel()->getName() !== 'Comhon\SqlDatabase') {
 			$databaseModel = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase');
 			$expected = $databaseModel->getObjectInstance()->getComhonClass();
 			throw new ArgumentException($database, $expected, 3);
@@ -488,36 +510,63 @@ class ModelToSQL {
 		$sqlTables = [];
 		$foreignConstraints = [];
 		
-		// TODO manage autoload
-		$manifest_ad = realpath(dirname(Config::getInstance()->getManifestListPath()));
-		$objects = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($manifest_ad), \RecursiveIteratorIterator::SELF_FIRST);
-		
-		/**
-		 * @var SplFileInfo $object
-		 */
-		foreach($objects as $name => $object) {
-			if (!is_dir($name) || $object->getBasename() === '.' || $object->getBasename() === '..') {
-				continue;
-			}
-			$modelName = substr(str_replace('/', '\\', str_replace($manifest_ad, '', $name)), 1);
-			$model = $this->getModel($modelName);
+		$tableNames = [];
+		foreach (Config::getInstance()->getManifestAutoloadList() as $namespace => $path) {
+			$manifest_ad = Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $path;
+			$objects = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($manifest_ad), \RecursiveIteratorIterator::SELF_FIRST);
 			
-			if (!is_null($model)) {
-				if ($model->hasSerialization()) {
-					$model->getSerializationSettings()->loadValue('database');
-					$this->sqlModels[$model->getName()] = [
-						'table' => $model->getSerializationSettings(),
-						'model' => $model
-					];
-				} elseif (!is_null($table = $this->defineTable($modelName))) {
-					$serializationSettings = new Object('Comhon\SqlTable');
-					$serializationSettings->setId($table);
-					$serializationSettings->setValue('database', $this->defaultSqlDatabase);
-					
-					$this->sqlModels[$model->getName()] = [
-						'table' => $serializationSettings,
-						'model' => $model
-					];
+			/**
+			 * @var SplFileInfo $object
+			 */
+			foreach($objects as $name => $object) {
+				if (!is_dir($name) || $object->getBasename() === '.' || $object->getBasename() === '..') {
+					continue;
+				}
+				$modelName = $namespace . '\\' . substr(str_replace(DIRECTORY_SEPARATOR, '\\', str_replace($manifest_ad, '', $name)), 1);
+				$model = $this->getModel($modelName);
+				
+				if (!is_null($model)) {
+					if ($model->hasSerialization()) {
+						$model->getSerializationSettings()->loadValue('database');
+						$this->sqlModels[$model->getName()] = [
+							'table' => $model->getSerializationSettings(),
+							'model' => $model
+						];
+					} elseif (!is_null($table = $this->defineTable($modelName))) {
+						$serializationSettings = new Object('Comhon\SqlTable');
+						$serializationSettings->setId($table);
+						$serializationSettings->setValue('database', $this->defaultSqlDatabase);
+						
+						$this->sqlModels[$model->getName()] = [
+							'table' => $serializationSettings,
+							'model' => $model
+						];
+					}
+					if (array_key_exists($model->getName(), $this->sqlModels)) {
+						$tableName = $this->sqlModels[$model->getName()]['table']->getId();
+						if (array_key_exists($tableName, $tableNames)) {
+							$instruction = "Duplicated table '{$tableName}'."
+								. ' Would you like to create table for :' . PHP_EOL
+								. "(1) model '{$tableNames[$tableName]}', " . PHP_EOL
+								. "(2) model '{$model->getName()}', " . PHP_EOL
+								. '(0) or both ?' . PHP_EOL
+								. 'Please type one of following responses [1/2/0]'. PHP_EOL;
+							do {
+								echo $instruction;
+								$response = trim(fgets(STDIN));
+								$instruction = 'Invalid response. Please type one of following responses [1/2/0]' . PHP_EOL;
+							} while ($response !== '0' && $response !== '1' && $response !== '2');
+							
+							if ($response === '1') {
+								unset($this->sqlModels[$model->getName()]);
+							} elseif ($response === '2') {
+								unset($this->sqlModels[$tableNames[$tableName]]);
+								$tableNames[$tableName] = $model->getName();
+							}
+						} else {
+							$tableNames[$tableName] = $model->getName();
+						}
+					}
 				}
 			}
 		}
@@ -536,33 +585,37 @@ class ModelToSQL {
 				if (!$property->isSerializable() || $property->isAggregation()) {
 					continue;
 				}
-				
-				if (
-					array_key_exists($property->getModel()->getName(), $this->sqlModels)
-					&& ($property->getModel()->getModel() instanceof ModelArray)
-				) {
-					$instruction = "Is '{$this->getColumnName($this->currentModel, $property)}' an aggregation of '{$table->getId()}'"
+				try {
+					if (
+						array_key_exists($property->getUniqueModel()->getName(), $this->sqlModels)
+						&& ($property->getModel() instanceof ModelContainer)
+						&& ($property->getModel()->getModel() instanceof ModelArray)
+					) {
+						$instruction = "Is '{$this->getColumnName($this->currentModel, $property)}' an aggregation of '{$table->getId()}'"
 						. ' (in other words not serialized as a column)? [y/n]' . PHP_EOL;
-					 do {
-						 echo $instruction;
-						 $response = trim(fgets(STDIN));
-						 $instruction = "Invalid response. Is it an aggregation ? [y/n]" . PHP_EOL;
-					 } while ($response !== 'y' && $response !== 'n');
-					 
-					 if ($response === 'y') {
-					 	continue;
-					 }
-				}
-				
-				$propertyColumns = $property->isForeign() && !($property->getModel()->getModel() instanceof ModelArray)
+						do {
+							echo $instruction;
+							$response = trim(fgets(STDIN));
+							$instruction = "Invalid response. Is it an aggregation ? [y/n]" . PHP_EOL;
+						} while ($response !== 'y' && $response !== 'n');
+						
+						if ($response === 'y') {
+							continue;
+						}
+					}
+					
+					$propertyColumns = $property->isForeign() && !($property->getModel()->getModel() instanceof ModelArray)
 					? $this->getForeignColumnsDescriptions($table, $property, $foreignConstraints)
 					: [$this->getColumnDescription($property)];
-				
-				foreach ($propertyColumns as $column) {
-					$tableColumns[] = $column;
-				}
-				if ($property->isId()) {
-					$primaryKey[] = $this->getColumnName($this->currentModel, $property);
+					
+					foreach ($propertyColumns as $column) {
+						$tableColumns[] = $column;
+					}
+					if ($property->isId()) {
+						$primaryKey[] = $this->getColumnName($this->currentModel, $property);
+					}
+				} catch (\Exception $e) {
+					$this->displayContinue($e, $this->currentModel->getName(), $property->getName());
 				}
 			}
 			$databaseQueries[$table->getValue('database')->getId()] .= $this->getTableDefinition($table->getId(), $tableColumns, $primaryKey);
@@ -591,15 +644,16 @@ class ModelToSQL {
 	 * @param unknown $configPath comhon config file path
 	 */
 	public static function exec($outputPath, $configPath) {
-		Config::setLoadPath($configPath);
 		$optionManager = new OptionManager();
 		$optionManager->register_option_desciption(self::getOptionsDescriptions());
 		if ($optionManager->has_help_argument_option()) {
 			echo $optionManager->get_help();
 			exit(0);
 		}
+		
 		$options = $optionManager->get_options();
 		$case = isset($options['case']) ? $options['case'] : 'iso';
+		Config::setLoadPath($configPath);
 		
 		if (isset($options['database'])) {
 			$infos = explode(':', $options['database']);

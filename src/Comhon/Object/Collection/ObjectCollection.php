@@ -196,6 +196,13 @@ class ObjectCollection {
 	}
 	
 	/**
+	 * reset object collection
+	 */
+	public function reset() {
+		$this->map = [];
+	}
+	
+	/**
 	 * export all comhon objects in stdClass objets and json encode them
 	 * 
 	 * @return string

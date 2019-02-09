@@ -537,6 +537,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	
 	/**
 	 * verify if model is a main model
+	 * if true that means comhon object with current model might be stored in MainObjectCollection
 	 *
 	 * @return boolean
 	 */

@@ -2,6 +2,7 @@
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Exception\NotDefinedModelException;
+use Comhon\Object\Collection\MainObjectCollection;
 
 class LoadingModelTest extends TestCase
 {
@@ -79,6 +80,16 @@ class LoadingModelTest extends TestCase
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Test\PersonLocal\Recursive\ObjectWithIdAndMore');
 		$this->assertEquals('Test\Test\PersonLocal\Recursive\ObjectWithIdAndMore', $model->getName());
 		$this->assertEquals(['plop', 'plop2', 'plop3'], $model->getPropertiesNames());
+	}
+	
+	/**
+	 * load model discribed inside a manifest in local types
+	 */
+	public function testLoadSerializableModel()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
+		$this->assertEquals('Test\TestDb', $model->getName());
+		$this->assertFalse($model->getSerialization()->getSettings()->getValue('database')->isLoaded());
 	}
 
 }

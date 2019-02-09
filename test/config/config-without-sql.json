@@ -1,14 +1,14 @@
 {
-  "manifestFormat": "xml",
+  "manifestFormat": "json",
   "autoload": {
     "manifest":{
-      "Test":"./manifests/manifest"
+      "Test":"../manifests/manifest"
     },
     "serialization":{
-      "Test":"./manifests/serialization_pgsql"
+      "Test":"../manifests/serialization_pgsql"
     }
   },
-  "regexList":"./config/regex.json",
+  "regexList":"./regex.json",
   "dateTimeFormat": "c",
   "database": {
     "charset": "utf8",

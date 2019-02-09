@@ -3,12 +3,11 @@
 use Comhon\Utils\InitProject\ModelToSQL;
 use Comhon\Object\Config\Config;
 
-set_include_path(get_include_path().PATH_SEPARATOR.'/home/jean-philippe/ReposGit/comhon/src/');
-
-require_once 'Comhon.php';
+$loader = require_once __DIR__ . '/../vendor/autoload.php';
+$loader->addPsr4('Test\\Comhon\\', __DIR__);
 
 $output = __DIR__ . '/output';
-$config = "./config/config.json";
+$config = "./config/config-xml-mysql.json";
 
 try {
 	ModelToSQL::exec($output, $config);

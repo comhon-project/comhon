@@ -53,7 +53,20 @@ class ConfigTest extends TestCase
 	/**
 	 * @depends testDatabaseFileNotFoundConfig
 	 */
-	public function testSuccessConfig()
+	public function testSuccessConfigWithoutSql()
+	{
+		ModelManager::resetSingleton();
+		Config::resetSingleton();
+		Config::setLoadPath(__DIR__ . '/../config/config-without-sql.json');
+		$config = Config::getInstance();
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModel('Comhon\SqlTable'));
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModel('Comhon\SqlDatabase'));
+	}
+	
+	/**
+	 * @depends testSuccessConfigWithoutSql
+	 */
+	public function testSuccessConfigWithSql()
 	{
 		ModelManager::resetSingleton();
 		Config::resetSingleton();
@@ -61,16 +74,10 @@ class ConfigTest extends TestCase
 		$config = Config::getInstance();
 		$configPath = Config::getInstance()->getDirectory() . '/' . basename(Config::getLoadPath());
 		$this->assertTrue(strpos($configPath, realpath(Data::$config)) !== false);
+		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Comhon\SqlTable'));
+		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Comhon\SqlDatabase'));
 		
 		RegexCollection::getInstance();
-		
-		$plop = new stdClass();
-		$plop->plop = 'plop';
-		
-		$plop2 = new stdClass();
-		$plop2->plop = 'plop';
-		$plop2 = $plop;
-		$this->assertSame($plop2, $plop);
 	}
 
 }

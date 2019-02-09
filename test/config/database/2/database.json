@@ -1,1 +1,1 @@
-{"id":"2","DBMS":"pgsql","host":"localhost","name":"database_test","user":"root","password":"root","options":{"charset":"utf8","timezone":"UTC"}}
+{"id":"2","DBMS":"pgsql","host":"localhost","name":"database","user":"root","password":"root","options":{"charset":"utf8","timezone":"UTC"}}

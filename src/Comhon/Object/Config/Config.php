@@ -174,7 +174,7 @@ class Config extends ExtendableObject {
 	/**
 	 * get map namespace prefix to directory to allow manifest autoloading
 	 *
-	 * @return string[]
+	 * @return \Comhon\Object\ObjectArray|null
 	 */
 	public function getManifestAutoloadList() {
 		return ($this->getValue('autoload') instanceof ComhonObject)
@@ -185,7 +185,7 @@ class Config extends ExtendableObject {
 	/**
 	 * get map namespace prefix to directory to allow serialization manifest autoloading
 	 *
-	 * @return string[]
+	 * @return \Comhon\Object\ObjectArray|null
 	 */
 	public function getSerializationAutoloadList() {
 		return ($this->getValue('autoload') instanceof ComhonObject)

@@ -1,10 +1,22 @@
 <?php
 
+use Comhon\Object\Config\Config;
+use Comhon\Database\DatabaseController;
+
 $loader = require_once __DIR__ . '/../vendor/autoload.php';
 $loader->addPsr4('Test\\Comhon\\', __DIR__);
 
-// by change this setting we load some model and but some test expect them to be unload 
-// Config::setLoadPath(__DIR__.'/config/config.json');
+Config::setLoadPath(__DIR__.'/config/config-json-pgsql.json');
+
+echo "initializing database... ";
+
+$dbHandlerMySql = DatabaseController::getInstanceWithDataBaseId('1');
+$dbHandlerMySql->getPDO()->exec(file_get_contents('./data/database/database_mysql.sql'));
+
+$dbHandlerPgSql = DatabaseController::getInstanceWithDataBaseId('2');
+$dbHandlerPgSql->getPDO()->exec(file_get_contents('./data/database/database_pgsql.backup'));
+
+echo "success\n";
 
 /**
  * 
@@ -401,7 +413,7 @@ try {
 	);
 }
 
-if (file_exists(__DIR__."/count.txt")) {
+/*if (file_exists(__DIR__."/count.txt")) {
 	
 	foreach (json_decode(file_get_contents(__DIR__."/times.json")) as $key => $value) {
 		$plopTimes[$key] += $value;
@@ -412,11 +424,11 @@ if (file_exists(__DIR__."/count.txt")) {
 } else {
 	file_put_contents(__DIR__."/times.json", json_encode($plopTimes));
 	file_put_contents(__DIR__."/count.txt", 0);
-}
+}*/
 
 
 // TODO for version > 2.0
-// DO NOT US ALIAS 't_x' -> DOC
+// DO NOT US ALIAS '__t__x' -> DOC
 // replace self tests by phpunit tests
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)
 // transaction serialization

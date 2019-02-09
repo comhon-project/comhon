@@ -54,7 +54,7 @@ class ManifestParser extends ParentManifestParser {
 					: $this->interfacer->getValue($this->manifest, self::IS_MAIN)
 			)
 			: false;
-			return $isMain || $this->isSerializable();
+		return $isMain || $this->isSerializable();
 	}
 	
 	/**

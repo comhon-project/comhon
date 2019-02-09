@@ -8,6 +8,12 @@ use Comhon\Model\ModelForeign;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Object\Collection\MainObjectCollection;
 
+/**
+ * 
+ * test models that are not tagged as main.
+ * object linked to this kind of model are not stored in MainObjectCollection
+ *
+ */
 class NotMainImportExportTest extends TestCase
 {
 	public static function setUpBeforeClass()
