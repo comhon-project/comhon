@@ -39,7 +39,9 @@ class Utils {
 	public static function delTree($dir) {
 		$files = array_diff(scandir($dir), ['.','..']);
 		foreach ($files as $file) {
-			(is_dir("$dir/$file")) ? self::delTree("$dir/$file") : unlink("$dir/$file");
+			is_dir($dir . DIRECTORY_SEPARATOR . $file) 
+				? self::delTree($dir . DIRECTORY_SEPARATOR. $file) 
+				: unlink($dir . DIRECTORY_SEPARATOR. $file);
 		}
 		return rmdir($dir);
 	}

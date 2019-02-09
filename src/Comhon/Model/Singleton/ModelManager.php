@@ -87,14 +87,24 @@ class ModelManager {
 	 * @var string[] map namespace prefix to directory to allow manifest autoloading
 	 */
 	private $autoloadManifest = [
-		'Comhon' => __DIR__ . '/../../Manifest/Collection/Manifest'
+		'Comhon' => __DIR__ . DIRECTORY_SEPARATOR 
+			. '..' . DIRECTORY_SEPARATOR 
+			. '..' . DIRECTORY_SEPARATOR 
+			. 'Manifest' . DIRECTORY_SEPARATOR 
+			. 'Collection' . DIRECTORY_SEPARATOR 
+			. 'Manifest'
 	];
 	
 	/**
 	 * @var string[] map namespace prefix to directory to allow serialization manifest autoloading
 	 */
 	private $autoloadSerializationManifest = [
-		'Comhon' => __DIR__ . '/../../Manifest/Collection/Serialization'
+		'Comhon' => __DIR__ . DIRECTORY_SEPARATOR 
+			. '..' . DIRECTORY_SEPARATOR 
+			. '..' . DIRECTORY_SEPARATOR 
+			. 'Manifest' . DIRECTORY_SEPARATOR 
+			. 'Collection' . DIRECTORY_SEPARATOR 
+			. 'Serialization'
 	];
 	
 	/**
@@ -140,13 +150,15 @@ class ModelManager {
 			}
 			$lManifestAutoloadList = Config::getInstance()->getManifestAutoloadList();
 			if (!is_null($lManifestAutoloadList)) {
+				$comhonPath_ad = $this->autoloadManifest['Comhon'];
 				$this->autoloadManifest = $lManifestAutoloadList->getValues();
-				$this->autoloadManifest['Comhon'] = __DIR__ . '/../../Manifest/Collection/Manifest';
+				$this->autoloadManifest['Comhon'] = $comhonPath_ad;
 			}
 			$lSerializationManifestAutoloadList = Config::getInstance()->getSerializationAutoloadList();
 			if (!is_null($lSerializationManifestAutoloadList)) {
+				$comhonPath_ad = $this->autoloadSerializationManifest['Comhon'];
 				$this->autoloadSerializationManifest = $lSerializationManifestAutoloadList->getValues();
-				$this->autoloadSerializationManifest['Comhon'] = __DIR__ . '/../../Manifest/Collection/Serialization';
+				$this->autoloadSerializationManifest['Comhon'] = $comhonPath_ad;
 			}
 		} catch (\Exception $e) {
 			self::$_instance = null;

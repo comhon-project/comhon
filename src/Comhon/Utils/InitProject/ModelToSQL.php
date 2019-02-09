@@ -75,9 +75,9 @@ class ModelToSQL {
 		mkdir($output);
 		
 		$this->defaultSqlDatabase = $sqlDatabase;
-		$this->table_ad = $output. '/table';
+		$this->table_ad = $output. DIRECTORY_SEPARATOR . 'table';
 		mkdir($this->table_ad);
-		$databasePath = $output . '/database/';
+		$databasePath = $output . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR;
 		mkdir($databasePath);
 		
 		$settings = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings();
@@ -629,10 +629,10 @@ class ModelToSQL {
 		}
 		if (count($databaseQueries) > 1) {
 			foreach ($databaseQueries as $databaseId => $databaseQuery) {
-				file_put_contents($outputPath . "/database-$databaseId.sql", $databaseQuery);
+				file_put_contents($outputPath . DIRECTORY_SEPARATOR . "database-$databaseId.sql", $databaseQuery);
 			}
 		} else {
-			file_put_contents($outputPath . "/database.sql", current($databaseQueries));
+			file_put_contents($outputPath . DIRECTORY_SEPARATOR . "database.sql", current($databaseQueries));
 		}
 	}
 	
@@ -672,7 +672,6 @@ class ModelToSQL {
 			$sqlDatabase = null;
 		}
 		
-		// TODO testPrivateId -> foreignObjectValues INT -> text
 		$modelToSQL = new self();
 		$modelToSQL->transform($outputPath, $configPath, $sqlDatabase, $case);
 	}

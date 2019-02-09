@@ -27,7 +27,7 @@ class Config extends ExtendableObject {
 	/**
 	 * @var string
 	 */
-	private static $loadPath = './config.json';
+	private static $loadPath = '.' . DIRECTORY_SEPARATOR . 'config.json';
 	
 	/**
 	 * @var string
