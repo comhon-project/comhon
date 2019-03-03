@@ -723,16 +723,6 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @return \Comhon\Object\ObjectArray
 	 */
 	private function _buildObjectsWithRows($rows) {
-		$sqlTableUnit = $this->model->getSqlTableUnit();
-		
-		if (!is_null($sqlTableUnit->getInheritanceKey())) {
-			foreach ($rows as &$row) {
-				$model = $sqlTableUnit->getInheritedModel($row, $this->model);
-				if ($model!== $this->model) {
-					$row[Interfacer::INHERITANCE_KEY] = $model->getName();
-				}
-			}
-		}
 		$modelArray = new ModelArray($this->model, false, $this->model->getName());
 		$objectArray = $modelArray->import($rows, SqlTable::getInterfacer());
 		

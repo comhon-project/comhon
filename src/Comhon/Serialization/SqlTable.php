@@ -573,19 +573,6 @@ class SqlTable extends SerializationUnit {
 		
 		$isModelArray = $object->getModel() instanceof ModelArray;
 		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {
-			if (!is_null($this->getInheritanceKey())) {
-				if ($isModelArray) {
-					foreach ($rows as &$row) {
-						$model = $this->getInheritedModel($row, $uniqueModel);
-						$row[Interfacer::INHERITANCE_KEY] = $model->getName();
-					}
-				} else {
-					$model = $this->getInheritedModel($rows[0], $uniqueModel);
-					if ($model !== $uniqueModel) {
-						$object->cast($model);
-					}
-				}
-			}
 			$interfacer = self::getInterfacer(!$onlyIds);
 			$object->fill($isModelArray ? $rows : $rows[0], $interfacer);
 			$success = true;

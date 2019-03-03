@@ -695,8 +695,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		} catch (CastComhonObjectException $e) {
 			if ($newObject) {
 				$mainObject->reset();
-				throw $e;
 			}
+			throw $e;
+		} catch (ImportException $e) {
+			if ($newObject && ($e->getOriginalException() instanceof CastComhonObjectException)) {
+				$mainObject->reset();
+			}
+			throw $e;
 		}
 	}
 	
@@ -798,10 +803,11 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if ($isFirstLevel && $interfacer->hasToFlattenValues()) {
 			$this->_flattenValues($node, $object, $interfacer);
 		}
-		if ($object->getModel() !== $this) {
-			if (!$object->getModel()->isInheritedFrom($this)) {
-				throw new UnexpectedModelException($this, $object->getModel());
+		if ($isFirstLevel && $isSerialContext) {
+			if ($object->getModel()->getSerialization() && $object->getModel()->getSerialization()->getInheritanceKey()) {
+				$interfacer->setValue($node, $object->getModel()->getName(), $object->getModel()->getSerialization()->getInheritanceKey());
 			}
+		} elseif ($object->getModel() !== $this) {
 			$interfacer->setValue($node, $object->getModel()->getName(), Interfacer::INHERITANCE_KEY);
 		}
 		self::$instanceObjectHash[spl_object_hash($object)]--;
@@ -871,14 +877,33 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
+	 * get inherited model name from interfaced object
+	 * 
+	 * @param unknown $interfacedObject
+	 * @param Interfacer $interfacer
+	 * @param unknown $isFirstLevel
+	 * @return unknown
+	 */
+	protected function _getInheritedModelName($interfacedObject, Interfacer $interfacer, $isFirstLevel) {
+		if ($isFirstLevel && $interfacer->isSerialContext()) {
+			$inheritance = $this->getSerialization() && $this->getSerialization()->getInheritanceKey()
+				? $interfacer->getValue($interfacedObject, $this->getSerialization()->getInheritanceKey())
+				: null;
+		} else {
+			$inheritance = $interfacer->getValue($interfacedObject, Interfacer::INHERITANCE_KEY);
+		}
+		return $inheritance;
+	}
+	
+	/**
 	 * get inherited model
 	 *
 	 * @param string $inheritanceModelName
 	 * @return Model;
 	 */
-	protected function _getIneritedModel($inheritanceModelName) {
+	protected function _getInheritedModel($inheritanceModelName) {
 		$model = ModelManager::getInstance()->getInstanceModel($inheritanceModelName);
-		if (!$model->isInheritedFrom($this)) {
+		if ($model !== $this && !$model->isInheritedFrom($this)) {
 			throw new UnexpectedModelException($this, $model);
 		}
 		return $model;
@@ -937,8 +962,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return \Comhon\Object\ObjectUnique
 	 */
 	protected function _getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel = false) {
-		$inheritance = $interfacer->getValue($interfacedObject, Interfacer::INHERITANCE_KEY);
-		$model = is_null($inheritance) ? $this : $this->_getIneritedModel($inheritance);
+		$inheritance = $this->_getInheritedModelName($interfacedObject, $interfacer, $isFirstLevel);
+		$model = is_null($inheritance) ? $this : $this->_getInheritedModel($inheritance);
 		$id = $model->getIdFromInterfacedObject($interfacedObject, $interfacer, $isFirstLevel);
 		
 		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, $isFirstLevel);
@@ -1112,9 +1137,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		}
 		
 		try {
-			$this->_verifIdBeforeFillObject($object, $this->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $interfacer->hasToFlagValuesAsUpdated());
-			
-			if ($this->isMain) {
+			$inheritance = $this->_getInheritedModelName($interfacedObject, $interfacer, true);
+			if (!is_null($inheritance)) {
+				$object->cast(ModelManager::getInstance()->getInstanceModel($inheritance));
+			}
+			$model = $object->getModel();
+			$model->_verifIdBeforeFillObject($object, $model->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $interfacer->hasToFlagValuesAsUpdated());
+			if ($model->isMain) {
 				MainObjectCollection::getInstance()->addObject($object, false);
 			}
 			$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), true);
@@ -1284,7 +1313,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			}
 			$id = $interfacer->getValue($interfacedId, Interfacer::COMPLEX_ID_KEY);
 			$inheritance = $interfacer->getValue($interfacedId, Interfacer::INHERITANCE_KEY);
-			$model = $this->_getIneritedModel($inheritance);
+			$model = $this->_getInheritedModel($inheritance);
 		}
 		else {
 			$id = $interfacedId;

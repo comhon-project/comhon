@@ -115,13 +115,6 @@ abstract class SerializationFile extends SerializationUnit {
 		if ($formatedContent === false || is_null($formatedContent)) {
 			throw new SerializationException("cannot load file '$path'");
 		}
-		if (!is_null($this->getInheritanceKey())) {
-			$baseModel = $object->getModel();
-			$model = $this->getInheritedModel($formatedContent, $baseModel);
-			if ($model !== $baseModel) {
-				$object->cast($model);
-			}
-		}
 		$object->fill($formatedContent, $this->interfacer);
 		return true;
 	}

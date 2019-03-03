@@ -162,7 +162,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		
 		foreach ($objectArray->getValues() as $key => $value) {
 			try {
-				$this->verifElementValue($value);
 				if ($this->isAssociative) {
 					$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_export($value, $key, $interfacer, $isFirstLevel), $key);
 				} else {
@@ -186,8 +185,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			if (is_null($value)) {
 				$interfacer->addValue($nodeArray, null, $this->elementName);
 			} else {
-				$this->verifElementValue($value);
-				
 				if ($this->isAssociative) {
 					$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_exportId($value, $key, $interfacer), $key);
 				} else {
