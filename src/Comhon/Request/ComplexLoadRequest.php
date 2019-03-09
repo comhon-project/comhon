@@ -23,7 +23,7 @@ use Comhon\Model\Property\ForeignProperty;
 use Comhon\Serialization\SqlTable;
 use Comhon\Database\TableNode;
 use Comhon\Database\OnLiteral;
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Database\DbLiteral;
 use Comhon\Exception\SerializationException;
@@ -32,7 +32,7 @@ use Comhon\Exception\MalformedRequestException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Literal\MalformedLiteralException;
 use Comhon\Exception\Literal\UnresolvableLiteralException;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Exception\Literal\NotLinkableLiteralException;
 use Comhon\Exception\Literal\IncompatibleLiteralSerializationException;
 use Comhon\Exception\NotAllowedRequestException;
@@ -81,7 +81,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			throw new NotAllowedRequestException($this->model, $types);
 		}
 		$database = $this->model->getSqlTableUnit()->getSettings()->getValue('database');
-		if (!($database instanceof ObjectUnique)) {
+		if (!($database instanceof UniqueObject)) {
 			throw new SerializationException('not valid serialization settings, database information is missing');
 		}
 		$this->databaseId = $database->getId();
@@ -375,7 +375,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	/**
 	 * execute resquest and return resulting object
 	 * 
-	 * @return \Comhon\Object\ObjectArray
+	 * @return \Comhon\Object\ComhonArray
 	 */
 	public function execute() {
 		$this->_finalize();
@@ -558,7 +558,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$extendablesProperties = [];
 		foreach ($model->getForeignSerializableProperties('Comhon\SqlTable') as $property) {
 			$database = $property->getUniqueModel()->getSerialization()->getSettings()->getValue('database');
-			if (!($database instanceof ObjectUnique)) {
+			if (!($database instanceof UniqueObject)) {
 				throw new SerializationException('not valid serialization settings, database information is missing');
 			}
 			if ($database->getId() === $this->databaseId) {
@@ -599,7 +599,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			throw new IncompatibleLiteralSerializationException($rightProperty);
 		}
 		$database = $rightProperty->getUniqueModel()->getSerialization()->getSettings()->getValue('database');
-		if (!($database instanceof ObjectUnique)) {
+		if (!($database instanceof UniqueObject)) {
 			throw new SerializationException('not valid serialization settings, database information is missing');
 		}
 		if ($database->getId() !== $databaseId) {
@@ -720,7 +720,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * build comhon objects from rows retrieved from database
 	 * 
 	 * @param array $rows
-	 * @return \Comhon\Object\ObjectArray
+	 * @return \Comhon\Object\ComhonArray
 	 */
 	private function _buildObjectsWithRows($rows) {
 		$modelArray = new ModelArray($this->model, false, $this->model->getName());

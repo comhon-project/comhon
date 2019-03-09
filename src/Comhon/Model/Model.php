@@ -13,9 +13,9 @@ namespace Comhon\Model;
 
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Serialization\SqlTable;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\ComhonObject;
-use Comhon\Object\Object;
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Exception\UndefinedPropertyException;
 use Comhon\Model\Property\Property;
 use Comhon\Model\Property\ForeignProperty;
@@ -25,7 +25,7 @@ use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Serialization\SerializationUnit;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Exception\UnexpectedModelException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\ArgumentException;
@@ -45,7 +45,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	private $parent;
 	
 	/** @var string */
-	private $objectClass = Object::class;
+	private $objectClass = ComhonObject::class;
 	
 	/** @var boolean */
 	private $isExtended = false;
@@ -128,7 +128,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				// reinitialize attributes if any excpetion
 				$this->isLoading = false;
 				$this->parent = null;
-				$this->objectClass = Object::class;
+				$this->objectClass = ComhonObject::class;
 				$this->isExtended = false;
 				$this->properties   = [];
 				$this->idProperties = [];
@@ -248,7 +248,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * get instance of object associated to model
 	 * 
 	 * @param boolean $isloaded define if instanciated object will be flaged as loaded or not
-	 * @return \Comhon\Object\ObjectUnique|\Comhon\Object\ObjectArray
+	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
 	 */
 	public function getObjectInstance($isloaded = true) {
 		if ($this->isExtended) {
@@ -259,7 +259,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			}
 			return $object;
 		} else {
-			return new Object($this, $isloaded);
+			return new ComhonObject($this, $isloaded);
 		}
 		
 	}
@@ -576,7 +576,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * get serialization settings (if model has linked serialzation)
 	 * 
-	 * @return \Comhon\Object\ObjectUnique|null null if no serialization settings
+	 * @return \Comhon\Object\UniqueObject|null null if no serialization settings
 	 */
 	public function getSerializationSettings() {
 		return is_null($this->serialization) ? null : $this->serialization->getSettings();
@@ -639,9 +639,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_addMainCurrentObject()
 	 */
-	protected function _addMainCurrentObject(ComhonObject $object, Interfacer $interfacer) {
-		if (!($object instanceof ObjectUnique)) {
-			throw new ArgumentException($object, ObjectUnique::class, 1);
+	protected function _addMainCurrentObject(AbstractComhonObject $object, Interfacer $interfacer) {
+		if (!($object instanceof UniqueObject)) {
+			throw new ArgumentException($object, UniqueObject::class, 1);
 		}
 		if ($interfacer->hasToExportMainForeignObjects() && $object->getModel()->isMain() && !is_null($object->getId()) && $object->hasCompleteId()) {
 			$interfacer->addMainForeignObject($interfacer->createNode('empty'), $object->getId(), $object->getModel());
@@ -653,9 +653,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_removeMainCurrentObject()
 	 */
-	protected function _removeMainCurrentObject(ComhonObject $object, Interfacer $interfacer) {
-		if (!($object instanceof ObjectUnique)) {
-			throw new ArgumentException($object, ObjectUnique::class, 1);
+	protected function _removeMainCurrentObject(AbstractComhonObject $object, Interfacer $interfacer) {
+		if (!($object instanceof UniqueObject)) {
+			throw new ArgumentException($object, UniqueObject::class, 1);
 		}
 		if ($interfacer->hasToExportMainForeignObjects() && $object->getModel()->isMain() && !is_null($object->getId()) && $object->hasCompleteId()) {
 			$interfacer->removeMainForeignObject($object->getId(), $object->getModel());
@@ -669,7 +669,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param string[] $propertiesFilter
 	 * @param boolean $forceLoad if object already exists and is already loaded, force to reload object
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique|null null if load is unsuccessfull
+	 * @return \Comhon\Object\UniqueObject|null null if load is unsuccessfull
 	 */
 	public function loadObject($id, $propertiesFilter = null, $forceLoad = false) {
 		if (is_null($this->getSerialization())) {
@@ -708,13 +708,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * load instancied comhon object with serialized object
 	 *
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param string[] $propertiesFilter
 	 * @param boolean $forceLoad if object already exists and is already loaded, force to reload object
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique|null null if load is unsuccessfull
+	 * @return \Comhon\Object\UniqueObject|null null if load is unsuccessfull
 	 */
-	public function loadAndFillObject(ObjectUnique $object, $propertiesFilter = null, $forceLoad = false) {
+	public function loadAndFillObject(UniqueObject $object, $propertiesFilter = null, $forceLoad = false) {
 		$success = false;
 		$this->load();
 		if (is_null($serializationUnit = $this->getSerialization())) {
@@ -729,7 +729,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * export comhon object in specified format
 	 * 
-	 * @param \Comhon\Object\ComhonObject|null $object
+	 * @param \Comhon\Object\AbstractComhonObject|null $object
 	 * @param string $nodeName
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param boolean $isFirstLevel
@@ -748,7 +748,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		
 		if (array_key_exists(spl_object_hash($object), self::$instanceObjectHash)) {
 			if (self::$instanceObjectHash[spl_object_hash($object)] > 0) {
-				throw new ComhonException("Loop detected. Object '{$object->getModel()->getName()}' can't be exported");
+				throw new ComhonException("Loop detected. ComhonObject '{$object->getModel()->getName()}' can't be exported");
 			}
 		} else {
 			self::$instanceObjectHash[spl_object_hash($object)] = 0;
@@ -818,14 +818,14 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * flatten complex values of specified node
 	 * 
 	 * @param mixed $node
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 */
-	protected function _flattenValues(&$node, ObjectUnique $object, Interfacer $interfacer) {
+	protected function _flattenValues(&$node, UniqueObject $object, Interfacer $interfacer) {
 		foreach ($object->getModel()->getComplexProperties() as $propertyName => $complexProperty) {
 			$interfacedPropertyName = $interfacer->isSerialContext() ? $complexProperty->getSerializationName() : $propertyName;
 			
-			if (!$complexProperty->isForeign() || ($object->getValue($propertyName) instanceof ObjectArray)) {
+			if (!$complexProperty->isForeign() || ($object->getValue($propertyName) instanceof ComhonArray)) {
 				$interfacer->flattenNode($node, $interfacedPropertyName);
 			}
 			else if ($interfacer->isComplexInterfacedId($interfacer->getValue($node, $interfacedPropertyName, true))) {
@@ -844,7 +844,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
-	protected function _exportId(ComhonObject $object, $nodeName, Interfacer $interfacer) {
+	protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer) {
 		if ($object->getModel() !== $this) {
 			if (!$object->getModel()->isInheritedFrom($this)) {
 				throw new UnexpectedModelException($this, $object->getModel());
@@ -944,7 +944,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * build object collection
 	 *
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @return \Comhon\Object\Collection\ObjectCollection
 	 */
 	private function _loadLocalObjectCollection($object) {
@@ -959,7 +959,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	protected function _getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel = false) {
 		$inheritance = $this->_getInheritedModelName($interfacedObject, $interfacer, $isFirstLevel);
@@ -970,7 +970,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * get or create an instance of ComhonObject
+	 * get or create an instance of AbstractComhonObject
 	 *
 	 * @param integer|string $id
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
@@ -978,7 +978,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param boolean $isFirstLevel
 	 * @param boolean $isForeign
 	 * @throws \Exception
-	 * @return \Comhon\Object\ComhonObject
+	 * @return \Comhon\Object\AbstractComhonObject
 	 */
 	protected function _getOrCreateObjectInstance($id, Interfacer $interfacer, $localObjectCollection, $isFirstLevel, $isForeign = false) {
 		$isloaded = !$isForeign && (!$isFirstLevel || $interfacer->hasToFlagObjectAsLoaded());
@@ -1020,7 +1020,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	public function import($interfacedObject, Interfacer $interfacer) {
 		if ($interfacedObject instanceof \SimpleXMLElement) {
@@ -1045,7 +1045,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection) {
 		$this->load();
@@ -1094,7 +1094,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
-	 * @return \Comhon\Object\ObjectUnique|null
+	 * @return \Comhon\Object\UniqueObject|null
 	 */
 	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		if ($interfacer->isNullValue($interfacedObject)) {
@@ -1115,12 +1115,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * fill comhon object with values from interfaced object
 	 *
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
 	 */
-	public function fillObject(ComhonObject $object, $interfacedObject, Interfacer $interfacer) {
+	public function fillObject(AbstractComhonObject $object, $interfacedObject, Interfacer $interfacer) {
 		$this->load();
 		$this->verifValue($object);
 		
@@ -1162,12 +1162,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 *
 	 * check if has right model and right id
 	 *
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param mixed $id
 	 * @param boolean $flagAsUpdated
 	 * @throws \Exception
 	 */
-	private function _verifIdBeforeFillObject(ObjectUnique $object, $id, $flagAsUpdated) {
+	private function _verifIdBeforeFillObject(UniqueObject $object, $id, $flagAsUpdated) {
 		if ($object->getModel() !== $this) {
 			throw new UnexpectedModelException($this, $object->getModel());
 		}
@@ -1209,14 +1209,14 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * fill comhon object with values from interfaced object
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
 	 * @throws \Exception
 	 */
-	protected function _fillObject(ObjectUnique $object, $interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
+	protected function _fillObject(UniqueObject $object, $interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		$model = $object->getModel();
 		if ($model !== $this && !$model->isInheritedFrom($this)) {
 			throw new UnexpectedModelException($this, $model);
@@ -1278,10 +1278,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * unflatten complex values from interfaced object
 	 *
 	 * @param mixed $node
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 */
-	protected function _unFlattenValues(&$node, ObjectUnique $object, Interfacer $interfacer) {
+	protected function _unFlattenValues(&$node, UniqueObject $object, Interfacer $interfacer) {
 		foreach ($object->getModel()->getComplexProperties() as $propertyName => $complexProperty) {
 			$interfacedPropertyName = $interfacer->isSerialContext() ? $complexProperty->getSerializationName() : $propertyName;
 			
@@ -1301,7 +1301,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	protected function _importId($interfacedId, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		if ($interfacer->isNullValue($interfacedId)) {
@@ -1345,12 +1345,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * build interface id from comhon object
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
 	 * @return integer|string
 	 */
-	public function _toInterfacedId(ObjectUnique $object, Interfacer $interfacer) {
+	public function _toInterfacedId(UniqueObject $object, Interfacer $interfacer) {
 		if (!$object->hasCompleteId()) {
 			throw new ComhonException("cannot export id of foreign property with model '{$this->modelName}' because object doesn't have complete id");
 		}
@@ -1363,7 +1363,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param mixed $id
 	 * @param boolean $isloaded
 	 * @param boolean $flagAsUpdated
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	protected function _buildObjectFromId($id, $isloaded, $flagAsUpdated) {
 		return $this->_fillObjectwithId($this->getObjectInstance($isloaded), $id, $flagAsUpdated);
@@ -1372,13 +1372,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * fill comhon object with id
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param mixed $id
 	 * @param boolean $flagAsUpdated
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
-	protected function _fillObjectwithId(ObjectUnique $object, $id, $flagAsUpdated) {
+	protected function _fillObjectwithId(UniqueObject $object, $id, $flagAsUpdated) {
 		if ($object->getModel() !== $this) {
 			throw new UnexpectedModelException($this, $object->getModel());
 		}
@@ -1395,7 +1395,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return boolean
 	 */
 	public function verifValue($value) {
-		if (!($value instanceof ObjectUnique) || ($value->getModel() !== $this && !$value->getModel()->isInheritedFrom($this))) {
+		if (!($value instanceof UniqueObject) || ($value->getModel() !== $this && !$value->getModel()->isInheritedFrom($this))) {
 			$Obj = $this->getObjectInstance();
 			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
 		}

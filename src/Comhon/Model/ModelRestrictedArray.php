@@ -11,7 +11,7 @@
 
 namespace Comhon\Model;
 
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Model\Restriction\Restriction;
@@ -75,7 +75,7 @@ class ModelRestrictedArray extends ModelArray {
 	 */
 	public function verifValue($value) {
 		if (
-			!($value instanceof ObjectArray) 
+			!($value instanceof ComhonArray) 
 			|| (
 				$value->getModel() !== $this 
 				&& $value->getModel()->getModel() !== $this->getModel() 

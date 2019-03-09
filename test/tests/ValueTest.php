@@ -1,13 +1,12 @@
 <?php
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\ComhonObject as Object;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Exception\ComhonException;
 
 $time_start = microtime(true);
@@ -30,7 +29,7 @@ if (!is_null($testDbFromCollection)) {
 /** ****************************** test load new value ****************************** **/
 
 $dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
-/** @var Object $testDb */
+/** @var AbstractComhonObject $testDb */
 $testDb = $dbTestModel->loadObject('[1,"50"]');
 $mainParentTestDb = $testDb->getValue('mainParentTestDb');
 $object = $testDb->getValue('object');
@@ -477,7 +476,7 @@ if ($mainTestDb !== $testDb->getValue('mainParentTestDb')) {
 $mainTestDb2 = $mainTestModel->getObjectInstance();
 $mainTestDb2->setId(8541);
 
-$array = new ObjectArray($mainTestModel);
+$array = new ComhonArray($mainTestModel);
 $array->pushValue($mainTestDb);
 $array->pushValue($mainTestDb2);
 

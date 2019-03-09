@@ -12,8 +12,8 @@
 namespace Comhon\Request;
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\ComhonObject;
-use Comhon\Object\ObjectArray;
+use Comhon\Object\AbstractComhonObject;
+use Comhon\Object\ComhonArray;
 use Comhon\Exception\MalformedRequestException;
 use Comhon\Exception\PropertyVisibilityException;
 use Comhon\Exception\NotAllowedRequestException;
@@ -57,7 +57,7 @@ abstract class ObjectLoadRequest {
 	/**
 	 * execute resquest and return resulting object
 	 * 
-	 * @return \Comhon\Object\ComhonObject
+	 * @return \Comhon\Object\AbstractComhonObject
 	 */
 	abstract public function execute();
 	
@@ -136,11 +136,11 @@ abstract class ObjectLoadRequest {
 	 * 
 	 * load foreign properties and aggregations according request settings
 	 * 
-	 * @param \Comhon\Object\ComhonObject $object
-	 * @return \Comhon\Object\ObjectArray
+	 * @param \Comhon\Object\AbstractComhonObject $object
+	 * @return \Comhon\Object\ComhonArray
 	 */
-	protected function _completeObject(ComhonObject $object) {
-		$objects = ($object instanceof ObjectArray) ? $object->getValues() : [$object];
+	protected function _completeObject(AbstractComhonObject $object) {
+		$objects = ($object instanceof ComhonArray) ? $object->getValues() : [$object];
 
 		if ($this->requestChildren && !$this->loadForeignProperties) {
 			foreach ($objects as $obj) {

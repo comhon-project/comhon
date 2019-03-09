@@ -11,7 +11,7 @@
 
 namespace Comhon\Model;
 
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ComhonException;
@@ -30,27 +30,27 @@ abstract class ModelComplex extends AbstractModel {
 	 * object is added only if it has a main model associated
 	 * avoid to re-export current object via export of main foreign object
 	 *
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 */
-	abstract protected function _addMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer);
+	abstract protected function _addMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer);
 	
 	/**
 	 * remove main current object(s) from main foreign objects list in interfacer previously added
 	 *
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 */
-	abstract protected function _removeMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer);
+	abstract protected function _removeMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer);
 	
 	/**
 	 * export comhon object in specified format
 	 *
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @return mixed
 	 */
-	public function export(ComhonObject $object, Interfacer $interfacer) {
+	public function export(AbstractComhonObject $object, Interfacer $interfacer) {
 		$this->verifValue($object);
 		$interfacer->initializeExport();
 		self::$instanceObjectHash = [];
@@ -69,13 +69,13 @@ abstract class ModelComplex extends AbstractModel {
 	/**
 	 * export comhon object id(s)
 	 *
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param string $nodeName
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	abstract protected function _exportId(ComhonObject $object, $nodeName, Interfacer $interfacer);
+	abstract protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer);
 	
 	/**
 	 * import interfaced comhon object
@@ -83,7 +83,7 @@ abstract class ModelComplex extends AbstractModel {
 	 * @param mixed $interfacedValue
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique|\Comhon\Object\ObjectArray
+	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
 	 */
 	abstract public function import($interfacedValue, Interfacer $interfacer);
 	
@@ -94,7 +94,7 @@ abstract class ModelComplex extends AbstractModel {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	abstract protected function _importId($interfacedId, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel);
 	
@@ -105,7 +105,7 @@ abstract class ModelComplex extends AbstractModel {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection) {
 		throw new ComhonException('can call _importRoot only via Model');
@@ -114,10 +114,10 @@ abstract class ModelComplex extends AbstractModel {
 	/**
 	 * fill comhon object with values from interfaced object
 	 *
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
 	 */
-	abstract public function fillObject(ComhonObject $object, $interfacedObject, Interfacer $interfacer);
+	abstract public function fillObject(AbstractComhonObject $object, $interfacedObject, Interfacer $interfacer);
 }

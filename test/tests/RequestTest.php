@@ -1,8 +1,7 @@
 <?php
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\ComhonObject as Object;
-use Comhon\Object\Object as FinalObject;
+use Comhon\Object\ComhonObject as FinalObject;
 use Comhon\Api\ObjectService;
 use Comhon\Serialization\SqlTable;
 use Comhon\Object\Collection\MainObjectCollection;
@@ -137,7 +136,7 @@ foreach ($result->result as $index => $stdObject) {
 
 $dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 
-/** @var Object $object */
+/** @var AbstractComhonObject $object */
 $object = $dbTestModel->loadObject('[1,"1501774389"]');
 $objectJson = $object->export($stdPrivateInterfacer);
 

@@ -11,8 +11,8 @@
 
 namespace Comhon\Visitor;
 
-use Comhon\Object\ComhonObject;
-use Comhon\Object\ObjectArray;
+use Comhon\Object\AbstractComhonObject;
+use Comhon\Object\ComhonArray;
 use Comhon\Model\SimpleModel;
 use Comhon\Model\ModelCustom;
 use Comhon\Model\Property\ForeignProperty;
@@ -20,7 +20,7 @@ use Comhon\Exception\VisitorParameterException;
 
 abstract class Visitor {
 	
-	/** @var \Comhon\Object\Object main object to visit */
+	/** @var \Comhon\Object\ComhonObject main object to visit */
 	protected $mainObject;
 	
 	/** @var array parameters to apply on visitor */
@@ -35,11 +35,11 @@ abstract class Visitor {
 	/**
 	 * execute visitor
 	 * 
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param array $params
 	 * @return mixed|boolean
 	 */
-	final public function execute(ComhonObject $object, $params = []) {
+	final public function execute(AbstractComhonObject $object, $params = []) {
 		$this->_verifParameters($params);
 		$this->propertyNameStack = [];
 		$this->mainObject        = $object;
@@ -65,7 +65,7 @@ abstract class Visitor {
 	/**
 	 * accept to visit object of specified parent
 	 * 
-	 * @param \Comhon\Object\ComhonObject $parentObject
+	 * @param \Comhon\Object\AbstractComhonObject $parentObject
 	 * @param string $key
 	 * @param string $propertyName
 	 */
@@ -84,13 +84,13 @@ abstract class Visitor {
 	/**
 	 * accept to visit children of specified object
 	 * 
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 */
 	private function _acceptChildren($object) {
 		if (is_null($object)) {
 			return;
 		}
-		if ($object instanceof ObjectArray) {
+		if ($object instanceof ComhonArray) {
 			$propertyName = $object->getModel()->getElementName();
 			foreach ($object->getValues() as $key => $value) {
 				$this->_accept($object, $key, $propertyName);
@@ -154,14 +154,14 @@ abstract class Visitor {
 	 * 
 	 * permit to initialize some informations before visit
 	 * 
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 */
 	abstract protected function _init($object);
 	
 	/**
 	 * visit object in $parentObject at $key
 	 * 
-	 * @param \Comhon\Object\ComhonObject $parentObject
+	 * @param \Comhon\Object\AbstractComhonObject $parentObject
 	 * @param string $key
 	 * @param string $propertyNameStack
 	 */
@@ -170,7 +170,7 @@ abstract class Visitor {
 	/**
 	 * called after visting all children of current object
 	 * 
-	 * @param \Comhon\Object\ComhonObject $parentObject
+	 * @param \Comhon\Object\AbstractComhonObject $parentObject
 	 * @param string $key
 	 * @param string $propertyNameStack
 	 */
@@ -179,7 +179,7 @@ abstract class Visitor {
 	/**
 	 * finalize visit
 	 * 
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @return mixed permit to return all needed information at the end of visit
 	 */
 	abstract protected function _finalize($object);

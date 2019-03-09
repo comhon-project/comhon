@@ -165,7 +165,7 @@ abstract class ManifestParser {
 	abstract protected function _getDefaultValue(AbstractModel $propertyModel);
 	
 	/**
-	 * get property/ObjectArray restriction
+	 * get property/ComhonArray restriction
 	 * 
 	 * @param mixed $currentNode
 	 * @param \Comhon\Model\AbstractModel $propertyModel

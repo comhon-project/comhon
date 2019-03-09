@@ -9,7 +9,7 @@ use Comhon\Exception\ConstantException;
 use Comhon\Exception\Interfacer\InterfaceException;
 use Comhon\Model\Model;
 use Comhon\Model\ModelArray;
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Model\ModelComplex;
 
@@ -18,7 +18,7 @@ $time_start = microtime(true);
 /**
  * test function setValue() with unexpected value type
  *
- * @param ComhonObject $object
+ * @param AbstractComhonObject $object
  * @param string $property
  * @param mixed $value
  * @param string $expectedMessage
@@ -148,7 +148,7 @@ try {
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
 			"value must be a string, integer '12' given",
 			'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
-			ComhonObject::class,
+			AbstractComhonObject::class,
 			'fill'
 			);
 	$throw = false;
@@ -219,7 +219,7 @@ try {
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
 			"value must be a string, integer '12' given",
 			'.1.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
-			ComhonObject::class,
+			AbstractComhonObject::class,
 			'fill'
 			);
 	$throw = false;

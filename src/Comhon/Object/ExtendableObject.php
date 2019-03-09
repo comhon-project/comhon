@@ -15,7 +15,7 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\SimpleModel;
 use Comhon\Exception\ComhonException;
 
-abstract class ExtendableObject extends ObjectUnique {
+abstract class ExtendableObject extends UniqueObject {
 
 	/**
 	 * get model name

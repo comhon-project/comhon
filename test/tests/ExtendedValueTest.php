@@ -1,7 +1,7 @@
 <?php
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\ComhonObject as Object;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Model\Model;
 use Test\Comhon\Object\Person;
@@ -134,8 +134,8 @@ foreach ($man->getValue('children') as $child) {
 
 foreach (MainObjectCollection::getInstance()->getModelObjects('Test\Person') as $testPerson) {
 	if ($testPerson->getId() === 1 ) {
-		if (!($testPerson instanceof \Comhon\Object\Object)) {
-			throw new \Exception('wrong class '.get_class($testPerson).' , \Comhon\Object\Object');
+		if (!($testPerson instanceof \Comhon\Object\ComhonObject)) {
+			throw new \Exception('wrong class '.get_class($testPerson).' , \Comhon\Object\ComhonObject');
 		}
 	} else if ($testPerson->getId() === 11) {
 		if (!($testPerson instanceof Woman)) {
@@ -146,7 +146,7 @@ foreach (MainObjectCollection::getInstance()->getModelObjects('Test\Person') as 
 	}
 }
 
-/** @var Object $body */
+/** @var AbstractComhonObject $body */
 $body = $woman->getValue('bodies')->getValue(0);
 if (json_encode($body->getValue('tatoos')->export($stdPrivateInterfacer)) !== '[{"type":"sentence","location":"shoulder","tatooArtist":{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"}},{"type":"sentence","location":"arm","tatooArtist":{"id":6,"__inheritance__":"Test\\\\Person\\\\Man"}},{"type":"sentence","location":"leg","tatooArtist":{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"}}]') {
 	throw new \Exception('not same object values');
@@ -447,7 +447,7 @@ if ($obj !== $object->getValue('manBodyJson')) {
 /** ****************** export private with foreign main object ********************* **/
 
 $dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
-/** @var Object $object */
+/** @var AbstractComhonObject $object */
 $object = $dbTestModel->loadObject('[40,"50"]');
 $object->loadValue('mainParentTestDb');
 

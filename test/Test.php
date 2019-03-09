@@ -431,10 +431,9 @@ try {
 // verify strict value -> DOC
 // associative array -> DOC
 // add preference stringified values -> DOC
-// explain is_main is_serializable manifest -> DOC
+// explain import exception
 // replace model names with namespace -> DOC
 // DO NOT US ALIAS '__t__x' -> DOC
-// test special characters XML
 // should not check file exists when _getInstanceModel()
 //   pb if instanciate local type before parent manifest. should not instanciate another one
 // restriction string length (perhaps several restrictions same time)

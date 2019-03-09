@@ -40,7 +40,7 @@ abstract class SerializationManifestParser {
 	/**
 	 * get serialization settings
 	 * 
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	abstract protected function _getSerializationSettings();
 	
@@ -92,7 +92,7 @@ abstract class SerializationManifestParser {
 	 * 
 	 * @param \Comhon\Model\Model $model
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	final public function getSerializationSettings(Model $model) {
 		if ($this->model !== $model) {

@@ -11,7 +11,7 @@
 
 namespace Comhon\Utils\InitProject;
 
-use Comhon\Object\Object;
+use Comhon\Object\ComhonObject;
 use Comhon\Object\Config\Config;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Exception\SerializationManifestIdException;
@@ -21,7 +21,7 @@ use Comhon\Model\Property\Property;
 use Comhon\Model\Property\ForeignProperty;
 use Comhon\Model\SimpleModel;
 use Comhon\Model\ModelForeign;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Exception\ArgumentException;
 use Comhon\Utils\OptionManager;
 use Comhon\Serialization\SerializationUnit;
@@ -46,7 +46,7 @@ class ModelToSQL {
 	
 	/**
 	 * 
-	 * @var \Comhon\Object\ObjectUnique
+	 * @var \Comhon\Object\UniqueObject
 	 */
 	private $defaultSqlDatabase;
 	
@@ -65,10 +65,10 @@ class ModelToSQL {
 	/**
 	 *
 	 * @param string $output
-	 * @param \Comhon\Object\ObjectUnique $sqlDatabase
+	 * @param \Comhon\Object\UniqueObject $sqlDatabase
 	 * @return string
 	 */
-	private function initialize($output, ObjectUnique $sqlDatabase) {
+	private function initialize($output, UniqueObject $sqlDatabase) {
 		if (file_exists($output)) {
 			exec("rm -r $output");
 		}
@@ -103,7 +103,7 @@ class ModelToSQL {
 	
 	/**
 	 * 
-	 * @param \Comhon\Object\Object $table
+	 * @param \Comhon\Object\ComhonObject $table
 	 * @param \Comhon\Model\Property\ForeignProperty $property
 	 * @param array $foreignConstraints
 	 * @return array
@@ -488,10 +488,10 @@ class ModelToSQL {
 	 * 
 	 * @param string $outputPath folder path where database and serialization files will be exported
 	 * @param unknown $configPath comhon config file path
-	 * @param \Comhon\Object\ObjectUnique $sqlDatabase
+	 * @param \Comhon\Object\UniqueObject $sqlDatabase
 	 * @throws ArgumentException
 	 */
-	private function transform($outputPath, $configPath, ObjectUnique $sqlDatabase = null, $case = 'iso') {
+	private function transform($outputPath, $configPath, UniqueObject $sqlDatabase = null, $case = 'iso') {
 		Config::setLoadPath($configPath);
 		
 		$this->case = $case;
@@ -533,7 +533,7 @@ class ModelToSQL {
 							'model' => $model
 						];
 					} elseif (!is_null($table = $this->defineTable($modelName))) {
-						$serializationSettings = new Object('Comhon\SqlTable');
+						$serializationSettings = new ComhonObject('Comhon\SqlTable');
 						$serializationSettings->setId($table);
 						$serializationSettings->setValue('database', $this->defaultSqlDatabase);
 						

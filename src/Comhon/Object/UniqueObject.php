@@ -15,12 +15,12 @@ use Comhon\Model\Model;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Model\Property\AggregationProperty;
 use Comhon\Exception\CastComhonObjectException;
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\SerializationException;
 use Comhon\Model\ModelComhonObject;
 
-abstract class ObjectUnique extends ComhonObject {
+abstract class UniqueObject extends AbstractComhonObject {
 	
 	/**
 	 * @var boolean determine if current object has been casted
@@ -37,7 +37,7 @@ abstract class ObjectUnique extends ComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::reset()
+	 * @see \Comhon\Object\AbstractComhonObject::reset()
 	 */
 	final public function reset() {
 		if ($this->getModel()->hasIdProperties() && $this->getModel()->isMain()) {
@@ -137,14 +137,14 @@ abstract class ObjectUnique extends ComhonObject {
 	
 	 /***********************************************************************************************\
 	 |                                                                                               |
-	 |                                         Object Status                                         |
+	 |                                      ComhonObject Status                                      |
 	 |                                                                                               |
 	 \***********************************************************************************************/
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::isUpdated()
+	 * @see \Comhon\Object\AbstractComhonObject::isUpdated()
 	 */
 	final public function isUpdated() {
 		if (!$this->isFlagedAsUpdated()) {
@@ -165,7 +165,7 @@ abstract class ObjectUnique extends ComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::isIdUpdated()
+	 * @see \Comhon\Object\AbstractComhonObject::isIdUpdated()
 	 */
 	final public function isIdUpdated() {
 		foreach ($this->getModel()->getIdProperties() as $propertyName => $property) {
@@ -179,14 +179,14 @@ abstract class ObjectUnique extends ComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::isUpdatedValue()
+	 * @see \Comhon\Object\AbstractComhonObject::isUpdatedValue()
 	 */
 	final public function isUpdatedValue($name) {
 		if ($this->getModel()->hasProperty($name)) {
 			if (array_key_exists($name, $this->getUpdatedValues())) {
 				return true;
 			} else if ($this->hasValue($name)) {
-				if ($this->getValue($name) instanceof ComhonObject) {
+				if ($this->getValue($name) instanceof AbstractComhonObject) {
 					return $this->getModel()->getProperty($name)->isForeign()
 					? $this->getValue($name)->isIdUpdated()
 					: $this->getValue($name)->isUpdated();
@@ -202,7 +202,7 @@ abstract class ObjectUnique extends ComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::resetUpdatedStatus()
+	 * @see \Comhon\Object\AbstractComhonObject::resetUpdatedStatus()
 	 */
 	final public function resetUpdatedStatus($recursive = true) {
 		if ($recursive) {
@@ -221,7 +221,7 @@ abstract class ObjectUnique extends ComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::_resetUpdatedStatusRecursive()
+	 * @see \Comhon\Object\AbstractComhonObject::_resetUpdatedStatusRecursive()
 	 */
 	final protected function _resetUpdatedStatusRecursive(&$objectHashMap) {
 		if (array_key_exists(spl_object_hash($this), $objectHashMap)) {
@@ -236,10 +236,10 @@ abstract class ObjectUnique extends ComhonObject {
 		$this->_resetUpdatedStatus();
 		foreach ($this->getModel()->getComplexProperties() as $propertyName => $property) {
 			if (!$property->isForeign()) {
-				if ($this->hasValue($propertyName) && ($this->getValue($propertyName) instanceof ComhonObject)) {
+				if ($this->hasValue($propertyName) && ($this->getValue($propertyName) instanceof AbstractComhonObject)) {
 					$this->getValue($propertyName)->_resetUpdatedStatusRecursive($objectHashMap);
 				}
-			} else if ($this->hasValue($propertyName) && ($this->getValue($propertyName) instanceof ObjectArray)) {
+			} else if ($this->hasValue($propertyName) && ($this->getValue($propertyName) instanceof ComhonArray)) {
 				$this->getValue($propertyName)->resetUpdatedStatus(false);
 			}
 		}
@@ -289,7 +289,7 @@ abstract class ObjectUnique extends ComhonObject {
 			if ($object === $this) {
 				$addObject = true;
 				if (MainObjectCollection::getInstance()->hasObject($this->getId(), $model->getName(), false)) {
-					throw new ComhonException("Cannot cast object to '{$model->getName()}'. Object with id '{$this->getId()}' and model '{$model->getName()}' already exists in MainObjectCollection");
+					throw new ComhonException("Cannot cast object to '{$model->getName()}'. ComhonObject with id '{$this->getId()}' and model '{$model->getName()}' already exists in MainObjectCollection");
 				}
 			}
 		}
@@ -308,7 +308,7 @@ abstract class ObjectUnique extends ComhonObject {
 	
 	/**
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::getComhonClass()
+	 * @see \Comhon\Object\AbstractComhonObject::getComhonClass()
 	 */
 	final public function getComhonClass() {
 		return get_class($this) . "({$this->getModel()->getName()})";
@@ -356,7 +356,7 @@ abstract class ObjectUnique extends ComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::loadValue()
+	 * @see \Comhon\Object\AbstractComhonObject::loadValue()
 	 */
 	final public function loadValue($name, $propertiesFilter = null, $forceLoad = false) {
 		$property = $this->getModel()->getProperty($name, true);

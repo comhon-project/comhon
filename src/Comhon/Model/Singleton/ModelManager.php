@@ -24,7 +24,7 @@ use Comhon\Model\Property\Property;
 use Comhon\Serialization\SerializationUnit;
 use Comhon\Object\Config\Config;
 use Comhon\Manifest\Parser\ManifestParser;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Exception\NotDefinedModelException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\AlreadyUsedModelNameException;
@@ -515,11 +515,11 @@ class ModelManager {
 	 * we take parent model serialization to avoid to duplicated serializations
 	 * 
 	 * @param \Comhon\Model\Model $model
-	 * @param \Comhon\Object\ObjectUnique $serializationSettings
+	 * @param \Comhon\Object\UniqueObject $serializationSettings
 	 * @param string $inheritanceKey
 	 * @return \Comhon\Serialization\SerializationUnit|null null if no serialization
 	 */
-	private function _getUniqueSerialization(Model $model, ObjectUnique $serializationSettings = null, $inheritanceKey = null) {
+	private function _getUniqueSerialization(Model $model, UniqueObject $serializationSettings = null, $inheritanceKey = null) {
 		$serialization = null;
 		if (!is_null($model->getParent()) && !is_null($model->getParent()->getSerialization())) {
 			$extendedSerializationSettings = $model->getParent()->getSerialization()->getSettings();

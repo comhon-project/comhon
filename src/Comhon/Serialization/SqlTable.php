@@ -17,14 +17,14 @@ use Comhon\Database\SelectQuery;
 use Comhon\Logic\Literal;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\ModelArray;
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Model\Model;
 use Comhon\Utils\SqlUtils;
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\Config\Config;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Database\SimpleDbLiteral;
 use Comhon\Exception\Database\NotSupportedDBMSException;
 use Comhon\Exception\SerializationException;
@@ -246,7 +246,7 @@ class SqlTable extends SerializationUnit {
 	 * {@inheritDoc}
 	 * @see \Comhon\Serialization\SerializationUnit::_saveObject()
 	 */
-	protected function _saveObject(ObjectUnique $object, $operation = null) {
+	protected function _saveObject(UniqueObject $object, $operation = null) {
 		$this->_initDatabaseInterfacing($object->getModel());
 		
 		if (self::$modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
@@ -263,11 +263,11 @@ class SqlTable extends SerializationUnit {
 	/**
 	 * save object that have model with unique id property binded to incremental column
 	 *
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @throws \Exception
 	 * @return integer
 	 */
-	private function _saveObjectWithIncrementalId(ObjectUnique $object) {
+	private function _saveObjectWithIncrementalId(UniqueObject $object) {
 		if (!self::$modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
 			throw new SerializationException('operation not specified');
 		}
@@ -281,11 +281,11 @@ class SqlTable extends SerializationUnit {
 	/**
 	 * execute insert query to save comhon object
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @throws \Exception
 	 * @return integer number of affected rows
 	 */
-	private function _insertObject(ObjectUnique $object) {
+	private function _insertObject(UniqueObject $object) {
 		$interfacer = self::getInterfacer();
 		$interfacer->setExportOnlyUpdatedValues(false);
 		$mapOfString = $object->export($interfacer);
@@ -365,11 +365,11 @@ class SqlTable extends SerializationUnit {
 	/**
 	 * execute update query to save comhon object
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @throws \Exception
 	 * @return integer number of affected rows
 	 */
-	private function _updateObject(ObjectUnique $object) {
+	private function _updateObject(UniqueObject $object) {
 		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
 			throw new SerializationException('update operation require complete id');
 		}
@@ -424,7 +424,7 @@ class SqlTable extends SerializationUnit {
 	 * {@inheritDoc}
 	 * @see \Comhon\Serialization\SerializationUnit::_deleteObject()
 	 */
-	protected function _deleteObject(ObjectUnique $object) {
+	protected function _deleteObject(UniqueObject $object) {
 		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
 			throw new SerializationException('delete operation require complete id');
 		}
@@ -454,7 +454,7 @@ class SqlTable extends SerializationUnit {
 	 * {@inheritDoc}
 	 * @see \Comhon\Serialization\SerializationUnit::_loadObject()
 	 */
-	protected function _loadObject(ObjectUnique $object, $propertiesFilter = null) {
+	protected function _loadObject(UniqueObject $object, $propertiesFilter = null) {
 		$model         = $object->getModel();
 		$conjunction   = new Clause(Clause::CONJUNCTION);
 		$selectColumns = [];
@@ -476,7 +476,7 @@ class SqlTable extends SerializationUnit {
 	 * {@inheritDoc}
 	 * @see \Comhon\Serialization\SerializationUnit::loadAggregation()
 	 */
-	public function loadAggregation(ObjectArray $object, $parentId, $aggregationProperties, $propertiesFilter = null) {
+	public function loadAggregation(ComhonArray $object, $parentId, $aggregationProperties, $propertiesFilter = null) {
 		$model         = $object->getModel()->getUniqueModel();
 		$disjunction   = $this->getAggregationConditions($model, $parentId, $aggregationProperties);
 		$selectColumns = [];
@@ -508,13 +508,13 @@ class SqlTable extends SerializationUnit {
 	/**
 	 * load aggregation ids from database according parent id
 	 * 
-	 * @param \Comhon\Object\ObjectArray $object
+	 * @param \Comhon\Object\ComhonArray $object
 	 * @param integer|string $parentId
 	 * @param string[] $aggregationProperties
 	 * @throws \Exception
 	 * @return boolean
 	 */
-	public function loadAggregationIds(ObjectArray $object, $parentId, $aggregationProperties) {
+	public function loadAggregationIds(ComhonArray $object, $parentId, $aggregationProperties) {
 		$model         = $object->getModel()->getUniqueModel();
 		$disjunction   = $this->getAggregationConditions($model, $parentId, $aggregationProperties);
 		$selectColumns = [];
@@ -545,13 +545,13 @@ class SqlTable extends SerializationUnit {
 	/**
 	 * load specified comhon object according logical junction
 	 * 
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param string[] $selectColumns
 	 * @param \Comhon\Logic\Clause $clause
 	 * @param boolean $onlyIds used only for aggregation loading
 	 * @return boolean
 	 */
-	private function _loadObjectFromDatabase(ComhonObject $object, $selectColumns, Clause $clause, $onlyIds) {
+	private function _loadObjectFromDatabase(AbstractComhonObject $object, $selectColumns, Clause $clause, $onlyIds) {
 		$success = false;
 		$uniqueModel = ($object->getModel() instanceof ModelArray) ? $object->getUniqueModel() : $object->getModel();
 		$this->_initDatabaseInterfacing($uniqueModel);

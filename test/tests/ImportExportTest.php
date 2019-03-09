@@ -1,10 +1,9 @@
 <?php
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\ComhonObject as Object;
-use Comhon\Object\Object as FinalObject;
+use Comhon\Object\ComhonObject as FinalObject;
 use Comhon\Object\Collection\MainObjectCollection;
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
@@ -293,7 +292,7 @@ if (!MainObjectCollection::getInstance()->hasObject('[1456,"1501774389"]', 'Test
 $testDb = $dbTestModel->loadObject('[1,"50"]');
 $mainParentTestDb = $testDb->getValue('mainParentTestDb');
 
-/** @var ObjectArray $testDbs */
+/** @var ComhonArray $testDbs */
 $testDbs = $mainParentTestDb->getValue('childrenTestDb');
 $orderedTestDbs = [];
 foreach ($testDbs as $testDb) {
@@ -316,8 +315,8 @@ $serializedObject = '[{"default_value":"default","id_1":1,"id_2":"23","date":"20
 $serializedXML    = '<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><childTestDb default_value="default" id_1="1" id_2="23" date="2016-05-01T14:53:54+02:00" timestamp="2016-10-16T21:50:19+02:00" string="aaaa" integer="0" boolean="0" boolean2="1"><object xsi:nil="true"/><object_with_id xsi:nil="true"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/><lonely_foreign_object xsi:nil="true"/><lonely_foreign_object_two xsi:nil="true"/><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/></childTestDb><childTestDb default_value="default" id_1="1" id_2="50" date="2016-10-16T20:21:18+02:00" timestamp="2016-10-16T21:50:19+02:00" string="bbbb" integer="1" boolean="0" boolean2="1"><object plop="plop" plop2="plop2222"/><object_with_id plop="plop" plop2="plop2222"/><lonely_foreign_object xsi:nil="true"/><lonely_foreign_object_two xsi:nil="true"/><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/></childTestDb><childTestDb default_value="default" id_1="1" id_2="101" date="2016-04-13T09:14:33+02:00" timestamp="2016-10-16T21:50:19+02:00" string="cccc" integer="2" boolean="0" boolean2="1"><object plop="plop" plop2="plop2"/><object_with_id plop="plop" plop2="plop2"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/><lonely_foreign_object xsi:nil="true"/><lonely_foreign_object_two xsi:nil="true"/><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/></childTestDb><childTestDb default_value="default" id_1="1" id_2="1501774389" date="2016-04-12T05:14:33+02:00" timestamp="2016-10-13T11:50:19+02:00" string="nnnn" integer="2" boolean="0" boolean2="1"><object plop="plop" plop2="plop2"/><object_with_id plop="plop" plop2="plop2"/><main_test_id>1</main_test_id><objects_with_id><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" plop4="heyplop4" __inheritance__="Test\TestDb\ObjectWithIdAndMoreMore"/><objectWithId plop="1" plop2="heyplop2" plop3="heyplop3" __inheritance__="Test\TestDb\ObjectWithIdAndMore"/><objectWithId plop="1" plop2="heyplop2"/><objectWithId plop="11" plop2="heyplop22"/><objectWithId plop="11" plop2="heyplop22" plop3="heyplop33" __inheritance__="Test\TestDb\ObjectWithIdAndMore"/></objects_with_id><foreign_objects><foreignObject id="1" __inheritance__="Test\TestDb\ObjectWithIdAndMoreMore"/><foreignObject id="1" __inheritance__="Test\TestDb\ObjectWithIdAndMore"/><foreignObject>1</foreignObject><foreignObject>11</foreignObject><foreignObject id="11" __inheritance__="Test\TestDb\ObjectWithIdAndMore"/></foreign_objects><lonely_foreign_object id="11" __inheritance__="Test\TestDb\ObjectWithIdAndMore"/><lonely_foreign_object_two>11</lonely_foreign_object_two><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/></childTestDb><childTestDb default_value="default" id_1="2" id_2="50" date="2016-05-01T23:37:18+02:00" timestamp="2016-10-16T21:50:19+02:00" string="dddd" integer="3" boolean="0" boolean2="1"><object plop="plop" plop2="plop2222"/><object_with_id plop="plop" plop2="plop2222"/><lonely_foreign_object xsi:nil="true"/><lonely_foreign_object_two xsi:nil="true"/><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/><main_test_id>1</main_test_id><objects_with_id/><foreign_objects/></childTestDb><childTestDb default_value="default" id_1="2" id_2="102" date="2016-04-01T08:00:00+02:00" timestamp="2016-10-16T18:21:18+02:00" string="eeee" integer="4" boolean="0" boolean2="1"><main_test_id>1</main_test_id><object plop="plop10" plop2="plop20"/><object_with_id xsi:nil="true"/><objects_with_id/><foreign_objects/><lonely_foreign_object xsi:nil="true"/><lonely_foreign_object_two xsi:nil="true"/><man_body_json_id xsi:nil="true"/><woman_xml_id xsi:nil="true"/></childTestDb></root>';
 $sqlArray         = '[{"default_value":"default","id_1":1,"id_2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":null,"object_with_id":null,"string":"aaaa","integer":0,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","string":"bbbb","integer":1,"lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","string":"cccc","integer":2,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true},{"default_value":"default","id_1":1,"id_2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2\"}","string":"nnnn","integer":2,"main_test_id":1,"objects_with_id":"[{\"plop\":\"1\",\"plop2\":\"heyplop2\",\"plop3\":\"heyplop3\",\"plop4\":\"heyplop4\",\"__inheritance__\":\"Test\\\\\\\\TestDb\\\\\\\\ObjectWithIdAndMoreMore\"},{\"plop\":\"1\",\"plop2\":\"heyplop2\",\"plop3\":\"heyplop3\",\"__inheritance__\":\"Test\\\\\\\\TestDb\\\\\\\\ObjectWithIdAndMore\"},{\"plop\":\"1\",\"plop2\":\"heyplop2\"},{\"plop\":\"11\",\"plop2\":\"heyplop22\"},{\"plop\":\"11\",\"plop2\":\"heyplop22\",\"plop3\":\"heyplop33\",\"__inheritance__\":\"Test\\\\\\\\TestDb\\\\\\\\ObjectWithIdAndMore\"}]","foreign_objects":"[{\"id\":\"1\",\"__inheritance__\":\"Test\\\\\\\\TestDb\\\\\\\\ObjectWithIdAndMoreMore\"},{\"id\":\"1\",\"__inheritance__\":\"Test\\\\\\\\TestDb\\\\\\\\ObjectWithIdAndMore\"},\"1\",\"11\",{\"id\":\"11\",\"__inheritance__\":\"Test\\\\\\\\TestDb\\\\\\\\ObjectWithIdAndMore\"}]","lonely_foreign_object":"{\"id\":\"11\",\"__inheritance__\":\"Test\\\\\\\\TestDb\\\\\\\\ObjectWithIdAndMore\"}","lonely_foreign_object_two":"11","man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true},{"default_value":"default","id_1":2,"id_2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","object_with_id":"{\"plop\":\"plop\",\"plop2\":\"plop2222\"}","string":"dddd","integer":3,"lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"main_test_id":1,"objects_with_id":"[]","foreign_objects":"[]","boolean":false,"boolean2":true},{"default_value":"default","id_1":2,"id_2":"102","main_test_id":1,"date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":"{\"plop\":\"plop10\",\"plop2\":\"plop20\"}","object_with_id":null,"string":"eeee","integer":4,"objects_with_id":"[]","foreign_objects":"[]","lonely_foreign_object":null,"lonely_foreign_object_two":null,"man_body_json_id":null,"woman_xml_id":null,"boolean":false,"boolean2":true}]';
 
-$copiedObjectArray = new ObjectArray($dbTestModel, true, 'childTestDb');
-$modelArrayDbTest = $copiedObjectArray->getModel();
+$copiedComhonArray = new ComhonArray($dbTestModel, true, 'childTestDb');
+$modelArrayDbTest = $copiedComhonArray->getModel();
 
 foreach ($testDbs as $objectTestDb) {
 	$copiedObject = new FinalObject('Test\TestDb');
@@ -342,37 +341,37 @@ foreach ($testDbs as $objectTestDb) {
 		$copiedObject->setValue('boolean', $boolean1);
 		$copiedObject->setValue('boolean2', $boolean2);
 	}
-	$copiedObjectArray->pushValue($copiedObject);
+	$copiedComhonArray->pushValue($copiedObject);
 }
 
 /** ****************************** test stdObject ****************************** **/
 
-if (!compareJson(json_encode($copiedObjectArray->export($stdPrivateInterfacer)), $privateStdObject)) {
+if (!compareJson(json_encode($copiedComhonArray->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad private object value');
 }
-if (!compareJson(json_encode($copiedObjectArray->export($stdPublicInterfacer)), $publicStdObject)) {
+if (!compareJson(json_encode($copiedComhonArray->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($stdPrivateInterfacer), $stdPrivateInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($stdPrivateInterfacer), $stdPrivateInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad private object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($stdPublicInterfacer), $stdPublicInterfacer)->export($stdPublicInterfacer)), $publicStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($stdPublicInterfacer), $stdPublicInterfacer)->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (!compareJson(json_encode($copiedObjectArray->export($stdSerialInterfacer)), $serializedObject)) {
+if (!compareJson(json_encode($copiedComhonArray->export($stdSerialInterfacer)), $serializedObject)) {
 	throw new \Exception('bad serial object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($stdSerialInterfacer), $stdSerialInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($stdSerialInterfacer), $stdSerialInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($stdPublicInterfacer), $stdPrivateInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($stdPublicInterfacer), $stdPrivateInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($stdPrivateInterfacer), $stdPublicInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($stdPrivateInterfacer), $stdPublicInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 
-function resetValues(ObjectArray $objectArray) {
+function resetValues(ComhonArray $objectArray) {
 	foreach ($objectArray as $object) {
 		$id = $object->getId();
 		$object->reset();
@@ -380,138 +379,138 @@ function resetValues(ObjectArray $objectArray) {
 	}
 }
 
-/** @var ObjectArray $newObject */
+/** @var ComhonArray $newObject */
 $newObject = $testDbs;
 resetValues($newObject);
-$modelArrayDbTest->fillObject($newObject, $copiedObjectArray->export($stdPrivateInterfacer), $stdPrivateInterfacer);
+$modelArrayDbTest->fillObject($newObject, $copiedComhonArray->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($newObject);
-$modelArrayDbTest->fillObject($newObject, $copiedObjectArray->export($stdPublicInterfacer), $stdPublicInterfacer);
+$modelArrayDbTest->fillObject($newObject, $copiedComhonArray->export($stdPublicInterfacer), $stdPublicInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($newObject);
-$modelArrayDbTest->fillObject($newObject, $copiedObjectArray->export($stdSerialInterfacer), $stdSerialInterfacer);
+$modelArrayDbTest->fillObject($newObject, $copiedComhonArray->export($stdSerialInterfacer), $stdSerialInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 resetValues($newObject);
-$newObject->fill($copiedObjectArray->export($stdPrivateInterfacer), $stdPrivateInterfacer);
+$newObject->fill($copiedComhonArray->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($newObject);
-$newObject->fill($copiedObjectArray->export($stdPrivateInterfacer), $stdPublicInterfacer);
+$newObject->fill($copiedComhonArray->export($stdPrivateInterfacer), $stdPublicInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($newObject);
-$newObject->fill($copiedObjectArray->export($stdSerialInterfacer), $stdSerialInterfacer);
+$newObject->fill($copiedComhonArray->export($stdSerialInterfacer), $stdSerialInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 
 /** ****************************** test xml ****************************** **/
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($xmlPrivateInterfacer), $xmlPrivateInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
-	throw new \Exception('bad private object value : '.json_encode($modelArrayDbTest->import($copiedObjectArray->export($xmlPrivateInterfacer), $xmlPrivateInterfacer)->export($stdPrivateInterfacer)));
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($xmlPrivateInterfacer), $xmlPrivateInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
+	throw new \Exception('bad private object value : '.json_encode($modelArrayDbTest->import($copiedComhonArray->export($xmlPrivateInterfacer), $xmlPrivateInterfacer)->export($stdPrivateInterfacer)));
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($xmlPublicInterfacer), $xmlPublicInterfacer)->export($stdPublicInterfacer)), $publicStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($xmlPublicInterfacer), $xmlPublicInterfacer)->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (!compareXML($xmlSerialInterfacer->toString($copiedObjectArray->export($xmlSerialInterfacer)), $serializedXML)) {
+if (!compareXML($xmlSerialInterfacer->toString($copiedComhonArray->export($xmlSerialInterfacer)), $serializedXML)) {
 	throw new \Exception('bad serial object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($xmlSerialInterfacer), $xmlSerialInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($xmlSerialInterfacer), $xmlSerialInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($xmlPublicInterfacer), $xmlPrivateInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($xmlPublicInterfacer), $xmlPrivateInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($xmlPrivateInterfacer), $xmlPublicInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($xmlPrivateInterfacer), $xmlPublicInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 
 resetValues($newObject);
-$modelArrayDbTest->fillObject($newObject, $copiedObjectArray->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
+$modelArrayDbTest->fillObject($newObject, $copiedComhonArray->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($newObject);
-$modelArrayDbTest->fillObject($newObject, $copiedObjectArray->export($xmlPublicInterfacer), $xmlPublicInterfacer);
+$modelArrayDbTest->fillObject($newObject, $copiedComhonArray->export($xmlPublicInterfacer), $xmlPublicInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($newObject);
-$modelArrayDbTest->fillObject($newObject, $copiedObjectArray->export($xmlSerialInterfacer), $xmlSerialInterfacer);
+$modelArrayDbTest->fillObject($newObject, $copiedComhonArray->export($xmlSerialInterfacer), $xmlSerialInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 resetValues($newObject);
-$newObject->fill($copiedObjectArray->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
+$newObject->fill($copiedComhonArray->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($newObject);
-$newObject->fill($copiedObjectArray->export($xmlPrivateInterfacer), $xmlPublicInterfacer);
+$newObject->fill($copiedComhonArray->export($xmlPrivateInterfacer), $xmlPublicInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($newObject);
-$newObject->fill($copiedObjectArray->export($xmlSerialInterfacer), $xmlSerialInterfacer);
+$newObject->fill($copiedComhonArray->export($xmlSerialInterfacer), $xmlSerialInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 
 /** ****************************** test flattened array ****************************** **/
 
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($flattenArrayPrivateInterfacer), $flattenArrayPrivateInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($flattenArrayPrivateInterfacer), $flattenArrayPrivateInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad private object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($flattenArrayPublicInterfacer), $flattenArrayPublicInterfacer)->export($stdPublicInterfacer)), $publicStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($flattenArrayPublicInterfacer), $flattenArrayPublicInterfacer)->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (!compareJson(json_encode($copiedObjectArray->export($flattenArraySerialInterfacer)), $sqlArray)) {
+if (!compareJson(json_encode($copiedComhonArray->export($flattenArraySerialInterfacer)), $sqlArray)) {
 	throw new \Exception('bad serial object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($flattenArraySerialInterfacer), $flattenArraySerialInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($flattenArraySerialInterfacer), $flattenArraySerialInterfacer)->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($flattenArrayPublicInterfacer), $flattenArrayPrivateInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($flattenArrayPublicInterfacer), $flattenArrayPrivateInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
-if (!compareJson(json_encode($modelArrayDbTest->import($copiedObjectArray->export($flattenArrayPrivateInterfacer), $flattenArrayPublicInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
+if (!compareJson(json_encode($modelArrayDbTest->import($copiedComhonArray->export($flattenArrayPrivateInterfacer), $flattenArrayPublicInterfacer)->export($stdPrivateInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 
 resetValues($newObject);
-$modelArrayDbTest->fillObject($newObject, $copiedObjectArray->export($flattenArrayPrivateInterfacer), $flattenArrayPrivateInterfacer);
+$modelArrayDbTest->fillObject($newObject, $copiedComhonArray->export($flattenArrayPrivateInterfacer), $flattenArrayPrivateInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($newObject);
-$modelArrayDbTest->fillObject($newObject, $copiedObjectArray->export($flattenArrayPublicInterfacer), $flattenArrayPublicInterfacer);
+$modelArrayDbTest->fillObject($newObject, $copiedComhonArray->export($flattenArrayPublicInterfacer), $flattenArrayPublicInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($newObject);
-$modelArrayDbTest->fillObject($newObject, $copiedObjectArray->export($flattenArraySerialInterfacer), $flattenArraySerialInterfacer);
+$modelArrayDbTest->fillObject($newObject, $copiedComhonArray->export($flattenArraySerialInterfacer), $flattenArraySerialInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad serial object value');
 }
 resetValues($newObject);
-$newObject->fill($copiedObjectArray->export($stdPrivateInterfacer), $stdPrivateInterfacer);
+$newObject->fill($copiedComhonArray->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPrivateInterfacer)), $privateStdObject)) {
 	throw new \Exception('bad private object value');
 }
 resetValues($newObject);
-$newObject->fill($copiedObjectArray->export($stdPrivateInterfacer), $stdPublicInterfacer);
+$newObject->fill($copiedComhonArray->export($stdPrivateInterfacer), $stdPublicInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad public object value');
 }
 resetValues($newObject);
-$newObject->fill($copiedObjectArray->export($stdSerialInterfacer), $stdSerialInterfacer);
+$newObject->fill($copiedComhonArray->export($stdSerialInterfacer), $stdSerialInterfacer);
 if (!compareJson(json_encode($newObject->export($stdPublicInterfacer)), $publicStdObject)) {
 	throw new \Exception('bad serial object value');
 }

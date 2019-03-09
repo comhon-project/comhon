@@ -19,7 +19,7 @@ use Comhon\Exception\Literal\LiteralNotFoundException;
 use Comhon\Exception\Literal\LiteralPropertyAggregationException;
 use Comhon\Exception\PropertyVisibilityException;
 use Comhon\Exception\Literal\MalformedLiteralException;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Exception\SerializationException;
 
 abstract class DbLiteral extends Literal {
@@ -174,7 +174,7 @@ abstract class DbLiteral extends Literal {
 			throw new SerializationException('resquested model '.$firstModel->getName().' must have a database serialization');
 		}
 		$database = $firstModel->getSqlTableUnit()->getSettings()->getValue('database');
-		if (!($database instanceof ObjectUnique)) {
+		if (!($database instanceof UniqueObject)) {
 			throw new SerializationException('not valid serialization settings, database information is missing');
 		}
 		$databaseId = $database->getId();

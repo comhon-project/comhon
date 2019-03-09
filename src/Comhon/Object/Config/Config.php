@@ -12,7 +12,7 @@
 namespace Comhon\Object\Config;
 
 use Comhon\Object\ExtendableObject;
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Exception\ConfigMalformedException;
 use Comhon\Exception\ConfigFileNotFoundException;
@@ -134,7 +134,7 @@ class Config extends ExtendableObject {
 	/**
 	 * get database options
 	 * 
-	 * @return \Comhon\Object\ObjectUnique|null
+	 * @return \Comhon\Object\UniqueObject|null
 	 */
 	public function getDataBaseOptions() {
 		return $this->getValue('database');
@@ -146,7 +146,7 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getDataBaseCharset() {
-		return ($this->getValue('database') instanceof ComhonObject) && $this->getValue('database')->hasValue('charset')
+		return ($this->getValue('database') instanceof AbstractComhonObject) && $this->getValue('database')->hasValue('charset')
 			? $this->getValue('database')->getValue('charset')
 			: 'utf8';
 	}
@@ -157,7 +157,7 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getDataBaseTimezone() {
-		return ($this->getValue('database') instanceof ComhonObject) && $this->getValue('database')->hasValue('timezone')
+		return ($this->getValue('database') instanceof AbstractComhonObject) && $this->getValue('database')->hasValue('timezone')
 			? $this->getValue('database')->getValue('timezone')
 			: 'UTC';
 	}
@@ -174,10 +174,10 @@ class Config extends ExtendableObject {
 	/**
 	 * get map namespace prefix to directory to allow manifest autoloading
 	 *
-	 * @return \Comhon\Object\ObjectArray|null
+	 * @return \Comhon\Object\ComhonArray|null
 	 */
 	public function getManifestAutoloadList() {
-		return ($this->getValue('autoload') instanceof ComhonObject)
+		return ($this->getValue('autoload') instanceof AbstractComhonObject)
 			? $this->getValue('autoload')->getValue('manifest')
 			: null;
 	}
@@ -185,10 +185,10 @@ class Config extends ExtendableObject {
 	/**
 	 * get map namespace prefix to directory to allow serialization manifest autoloading
 	 *
-	 * @return \Comhon\Object\ObjectArray|null
+	 * @return \Comhon\Object\ComhonArray|null
 	 */
 	public function getSerializationAutoloadList() {
-		return ($this->getValue('autoload') instanceof ComhonObject)
+		return ($this->getValue('autoload') instanceof AbstractComhonObject)
 			? $this->getValue('autoload')->getValue('serialization')
 			: null;
 	}

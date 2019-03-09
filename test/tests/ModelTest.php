@@ -1,7 +1,6 @@
 <?php
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\ComhonObject as Object;
 use Comhon\Model\Model;
 use Comhon\Model\ModelForeign;
 use Comhon\Object\ComhonDateTime;

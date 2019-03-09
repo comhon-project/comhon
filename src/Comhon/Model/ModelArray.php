@@ -11,9 +11,9 @@
 
 namespace Comhon\Model;
 
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Model\Model;
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ArgumentException;
@@ -90,17 +90,17 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @return string
 	 */
 	public function getObjectClass() {
-		return 'Comhon\Object\ObjectArray';
+		return 'Comhon\Object\ComhonArray';
 	}
 	
 	/**
 	 * get instance of object array
 	 * 
 	 * @param boolean $isloaded define if instanciated object will be flaged as loaded or not
-	 * @return \Comhon\Object\ObjectArray
+	 * @return \Comhon\Object\ComhonArray
 	 */
 	public function getObjectInstance($isloaded = true) {
-		return new ObjectArray($this, $isloaded);
+		return new ComhonArray($this, $isloaded);
 	}
 	
 	/**
@@ -118,9 +118,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_addMainCurrentObject()
 	 */
-	protected function _addMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer) {
-		if (!($objectArray instanceof ObjectArray)) {
-			throw new ArgumentException($objectArray, ObjectArray::class, 1);
+	protected function _addMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer) {
+		if (!($objectArray instanceof ComhonArray)) {
+			throw new ArgumentException($objectArray, ComhonArray::class, 1);
 		}
 		if ($interfacer->hasToExportMainForeignObjects()) {
 			foreach ($objectArray->getValues() as $object) {
@@ -136,9 +136,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_removeMainCurrentObject()
 	 */
-	protected function _removeMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer) {
-		if (!($objectArray instanceof ObjectArray)) {
-			throw new ArgumentException($objectArray, ObjectArray::class, 1);
+	protected function _removeMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer) {
+		if (!($objectArray instanceof ComhonArray)) {
+			throw new ArgumentException($objectArray, ComhonArray::class, 1);
 		}
 		if ($interfacer->hasToExportMainForeignObjects()) {
 			foreach ($objectArray->getValues() as $object) {
@@ -179,7 +179,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
-	protected function _exportId(ComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
+	protected function _exportId(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
 		$nodeArray = $interfacer->createArrayNode($nodeName);
 		foreach ($objectArray->getValues() as $key => $value) {
 			if (is_null($value)) {
@@ -201,7 +201,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_import()
 	 * 
-	 * @return \Comhon\Object\ObjectArray|null
+	 * @return \Comhon\Object\ComhonArray|null
 	 */
 	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		if ($interfacer->isNullValue($interfacedObject)) {
@@ -232,7 +232,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	protected function _importId($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
 		if (is_null($interfacedObject)) {
@@ -257,7 +257,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectArray
+	 * @return \Comhon\Object\ComhonArray
 	 */
 	public function import($interfacedObject, Interfacer $interfacer) {
 		$this->load();
@@ -293,7 +293,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::fillObject()
 	 */
-	public function fillObject(ComhonObject $objectArray, $interfacedObject, Interfacer $interfacer) {
+	public function fillObject(AbstractComhonObject $objectArray, $interfacedObject, Interfacer $interfacer) {
 		$this->load();
 		$this->verifValue($objectArray);
 		if ($interfacedObject instanceof \SimpleXMLElement) {
@@ -332,7 +332,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @see \Comhon\Model\AbstractModel::verifValue()
 	 */
 	public function verifValue($value) {
-		if (!($value instanceof ObjectArray) || ($value->getModel()->getModel() !== $this->getModel() && !$value->getModel()->getModel()->isInheritedFrom($this->getModel()))) {
+		if (!($value instanceof ComhonArray) || ($value->getModel()->getModel() !== $this->getModel() && !$value->getModel()->getModel()->isInheritedFrom($this->getModel()))) {
 			$Obj = $this->getObjectInstance();
 			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
 		}

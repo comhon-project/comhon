@@ -14,7 +14,7 @@ namespace Comhon\Object\Collection;
 use Comhon\Model\Model;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Exception\ComhonException;
 
 class ObjectCollection {
@@ -27,7 +27,7 @@ class ObjectCollection {
 	 * @param string|integer $id
 	 * @param string $modelName
 	 * @param boolean $inlcudeInheritance if true, search in extended model with same serialization too
-	 * @return \Comhon\Object\ObjectUnique|null null if not found
+	 * @return \Comhon\Object\UniqueObject|null null if not found
 	 */
 	public function getObject($id, $modelName, $inlcudeInheritance = true) {
 		$object = array_key_exists($modelName, $this->map) && array_key_exists($id, $this->map[$modelName])
@@ -91,7 +91,7 @@ class ObjectCollection {
 	 * get all comhon objects with specified model name if exists
 	 * 
 	 * @param string $modelName
-	 * @return \Comhon\Object\ObjectUnique[]
+	 * @return \Comhon\Object\UniqueObject[]
 	 */
 	public function getModelObjects($modelName) {
 		return array_key_exists($modelName, $this->map) ? $this->map[$modelName] : [];
@@ -100,12 +100,12 @@ class ObjectCollection {
 	/**
 	 * add comhon object (if not already added)
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param boolean $throwException throw exception if object already added
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function addObject(ObjectUnique $object, $throwException = true) {
+	public function addObject(UniqueObject $object, $throwException = true) {
 		$success = false;
 		
 		if ($object->hasCompleteId() && $object->getModel()->hasIdProperties()) {
@@ -148,11 +148,11 @@ class ObjectCollection {
 	/**
 	 * remove comhon object from collection if exists
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function removeObject(ObjectUnique $object) {
+	public function removeObject(UniqueObject $object) {
 		$success = false;
 		if ($object->hasCompleteId() && $this->getObject($object->getId(), $object->getModel()->getName()) === $object) {
 			unset($this->map[$object->getModel()->getName()][$object->getId()]);

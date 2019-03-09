@@ -12,7 +12,7 @@
 namespace Comhon\Database;
 
 use Comhon\Object\Config\Config;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Exception\Database\NotSupportedDBMSException;
 use Comhon\Exception\Database\QueryExecutionFailureException;
 use Comhon\Model\Singleton\ModelManager;
@@ -87,10 +87,10 @@ class DatabaseController {
 	private $insertReturn;
 	
 	/**
-	 * @param \Comhon\Object\ObjectUnique $dbReference
+	 * @param \Comhon\Object\UniqueObject $dbReference
 	 * @throws \Exception
 	 */
-	private function __construct(ObjectUnique $dbReference) {
+	private function __construct(UniqueObject $dbReference) {
 		if (!array_key_exists($dbReference->getValue('DBMS'), self::$insertReturns)) {
 			throw new NotSupportedDBMSException($dbReference->getValue('DBMS'));
 		}
@@ -134,10 +134,10 @@ class DatabaseController {
 	/**
 	 * set database options
 	 * 
-	 * @param ObjectUnique $dbReference
+	 * @param UniqueObject $dbReference
 	 * @throws \Exception
 	 */
-	private function _setDatabaseOptions(ObjectUnique $dbReference) {
+	private function _setDatabaseOptions(UniqueObject $dbReference) {
 		switch ($dbReference->getValue('DBMS')) {
 			case 'mysql':
 				$this->_setDatabaseOptionsMySql();
@@ -221,10 +221,10 @@ class DatabaseController {
 	/**
 	 * get existing or new  instance of DatabaseController according specified database reference
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $dbReference
+	 * @param \Comhon\Object\UniqueObject $dbReference
 	 * @return DatabaseController
 	 */
-	public static function getInstanceWithDataBaseObject(ObjectUnique $dbReference) {
+	public static function getInstanceWithDataBaseObject(UniqueObject $dbReference) {
 		$databaseController = null;
 		if ($dbReference->getModel() !== ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')) {
 			throw new UnexpectedModelException(ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase'), $dbReference->getModel());

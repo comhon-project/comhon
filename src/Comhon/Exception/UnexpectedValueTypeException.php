@@ -11,7 +11,7 @@
 
 namespace Comhon\Exception;
 
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 
 class UnexpectedValueTypeException extends ComhonException {
 	
@@ -28,7 +28,7 @@ class UnexpectedValueTypeException extends ComhonException {
 	public function __construct($value, $expectedType, $property = null) {
 		$this->expectedType = $expectedType;
 		if (is_object($value)) {
-			if ($value instanceof ComhonObject) {
+			if ($value instanceof AbstractComhonObject) {
 				$type = $value->getComhonClass();
 			} else {
 				$type = get_class($value);

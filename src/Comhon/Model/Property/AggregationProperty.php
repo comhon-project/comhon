@@ -11,8 +11,8 @@
 
 namespace Comhon\Model\Property;
 
-use Comhon\Object\ObjectArray;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\ComhonArray;
+use Comhon\Object\UniqueObject;
 use Comhon\Model\Model;
 use Comhon\Exception\ComhonException;
 use Comhon\Serialization\SqlTable;
@@ -64,20 +64,20 @@ class AggregationProperty extends ForeignProperty {
 	 * @see \Comhon\Model\Property\ForeignProperty::loadValue()
 	 * @throws \Exception cannot call this function for aggregation
 	 */
-	public function loadValue(ObjectUnique $object, $propertiesFilter = null, $forceLoad = false) {
+	public function loadValue(UniqueObject $object, $propertiesFilter = null, $forceLoad = false) {
 		throw new ComhonException('use self::loadAggregationValue() function');
 	}
 	
 	/**
 	 * load aggregation value
 	 *
-	 * @param \Comhon\Object\ObjectArray $objectArray
-	 * @param \Comhon\Object\ObjectUnique $parentObject
+	 * @param \Comhon\Object\ComhonArray $objectArray
+	 * @param \Comhon\Object\UniqueObject $parentObject
 	 * @param string[] $propertiesFilter
 	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @return boolean true if success
 	 */
-	public function loadAggregationValue(ObjectArray $objectArray, ObjectUnique $parentObject, $propertiesFilter = null, $forceLoad = false) {
+	public function loadAggregationValue(ComhonArray $objectArray, UniqueObject $parentObject, $propertiesFilter = null, $forceLoad = false) {
 		$this->getModel()->verifValue($objectArray);
 		if ($objectArray->isLoaded() && !$forceLoad) {
 			return false;
@@ -94,7 +94,7 @@ class AggregationProperty extends ForeignProperty {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Property\Property::loadAggregationIds()
 	 */
-	public function loadAggregationIds(ObjectArray $objectArray, ObjectUnique $parentObject, $forceLoad = false) {
+	public function loadAggregationIds(ComhonArray $objectArray, UniqueObject $parentObject, $forceLoad = false) {
 		$this->getModel()->verifValue($objectArray);
 		if (is_null($sqlTableUnit = $this->getUniqueModel()->getSqlTableUnit())) {
 			throw new ComhonException('aggregation doesn\'t have model with sql serialization');

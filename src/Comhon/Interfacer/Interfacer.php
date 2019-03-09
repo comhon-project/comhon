@@ -11,7 +11,7 @@
 
 namespace Comhon\Interfacer;
 
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Model\Model;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Exception\ArgumentException;
@@ -692,11 +692,11 @@ abstract class Interfacer {
 	/**
 	 * export given comhon object to interfaced object 
 	 * 
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param array $preferences
 	 * @return mixed
 	 */
-	public function export(ComhonObject $object, $preferences = []) {
+	public function export(AbstractComhonObject $object, $preferences = []) {
 		$this->setPreferences($preferences);
 		try {
 			return $object->export($this);
@@ -711,7 +711,7 @@ abstract class Interfacer {
 	 * @param mixed $node
 	 * @param \Comhon\Model\Model $model
 	 * @param array $preferences
-	 * @return \Comhon\Object\ObjectUnique|\Comhon\Object\ObjectArray
+	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
 	 */
 	public function import($node, Model $model, array $preferences = []) {
 		$this->setPreferences($preferences);
@@ -810,7 +810,7 @@ abstract class Interfacer {
 			$this->setFlagValuesAsUpdated($preferences[self::FLAG_VALUES_AS_UPDATED]);
 		}
 		
-		// flag Object as updated
+		// flag ComhonObject as updated
 		if (array_key_exists(self::FLAG_OBJECT_AS_LOADED, $preferences)) {
 			if (!is_bool($preferences[self::FLAG_OBJECT_AS_LOADED])) {
 				throw new UnexpectedValueTypeException($preferences[self::FLAG_OBJECT_AS_LOADED], 'boolean', self::FLAG_OBJECT_AS_LOADED);

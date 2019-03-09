@@ -2,7 +2,7 @@
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Model\ModelArray;
 use Comhon\Model\ModelForeign;
 use Comhon\Interfacer\XMLInterfacer;
@@ -45,7 +45,7 @@ class NotMainImportExportTest extends TestCase
 		$this->assertEquals('{"id":"an_id","firstName":"john","anObjectWithIdAndMore":{"plop":"plop","plop3":"plop3"},"aForeignObjectWithIdAndMore":"plop","mother":789}', $interfacer->toString($interfacedPerson));
 		
 		// export object array
-		$personLocals = new ObjectArray($personLocalModel);
+		$personLocals = new ComhonArray($personLocalModel);
 		$personLocals->pushValue($personLocal);
 		$interfacedPerson = $personLocals->export($interfacer);
 		$this->assertEquals('[{"id":"an_id","firstName":"john","anObjectWithIdAndMore":{"plop":"plop","plop3":"plop3"},"aForeignObjectWithIdAndMore":"plop","mother":789}]', $interfacer->toString($interfacedPerson));

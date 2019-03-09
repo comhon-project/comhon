@@ -61,8 +61,8 @@ class ComhonDateTime extends \DateTime {
 	 * {@inheritDoc}
 	 * @see DateTime::setTime()
 	 */
-	public function setTime($hour, $minute, $second = null) {
-		parent::setTime($hour, $minute, $second);
+	public function setTime($hour, $minute, $second = null, $microseconds = null) {
+		parent::setTime($hour, $minute, $second, $microseconds);
 		$this->isUpdated = true;
 	}
 	

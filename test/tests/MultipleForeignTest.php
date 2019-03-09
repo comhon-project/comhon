@@ -1,7 +1,6 @@
 <?php
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\ComhonObject as Object;
 use Comhon\Model\Property\MultipleForeignProperty;
 use Comhon\Database\DatabaseController;
 use Comhon\Interfacer\StdObjectInterfacer;

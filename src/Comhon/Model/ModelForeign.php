@@ -11,7 +11,7 @@
 
 namespace Comhon\Model;
 
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ComhonException;
@@ -52,7 +52,7 @@ class ModelForeign extends ModelContainer {
 	 * get instance of object associated to contained model
 	 * 
 	 * @param boolean $isloaded define if instanciated object will be flaged as loaded or not
-	 * @return \Comhon\Object\ComhonObject
+	 * @return \Comhon\Object\AbstractComhonObject
 	 */
 	public function getObjectInstance($isloaded = true) {
 		return $this->getModel()->getObjectInstance($isloaded);
@@ -63,7 +63,7 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_addMainCurrentObject()
 	 */
-	protected function _addMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer) {
+	protected function _addMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer) {
 		throw new ComhonException('cannot call _addMainCurrentObject via ModelForeign');
 	}
 	
@@ -72,18 +72,18 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_removeMainCurrentObject()
 	 */
-	protected function _removeMainCurrentObject(ComhonObject $objectArray, Interfacer $interfacer) {
+	protected function _removeMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer) {
 		throw new ComhonException('cannot call _removeMainCurrentObject via ModelForeign');
 	}
 	
 	/**
 	 * export comhon object id in specified format
 	 *
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @return mixed
 	 */
-	public function export(ComhonObject $object, Interfacer $interfacer) {
+	public function export(AbstractComhonObject $object, Interfacer $interfacer) {
 		try {
 			$this->verifValue($object);
 			$interfacer->initializeExport();
@@ -118,7 +118,7 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
-	protected function _exportId(ComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
+	protected function _exportId(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
 		throw new ComhonException('should not call _exportId via ModelForeign');
 	}
 	
@@ -130,7 +130,7 @@ class ModelForeign extends ModelContainer {
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique|\Comhon\Object\ObjectArray
+	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
 	 */
 	public function import($interfacedObject, Interfacer $interfacer) {
 		if ($interfacedObject instanceof \SimpleXMLElement) {
@@ -166,7 +166,7 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::fillObject()
 	 */
-	public function fillObject(ComhonObject $object, $interfacedObject, Interfacer $interfacer) {
+	public function fillObject(AbstractComhonObject $object, $interfacedObject, Interfacer $interfacer) {
 		throw new ComhonException('cannot fill object via ModelForeign');
 	}
 	

@@ -11,13 +11,13 @@
 
 namespace Comhon\Model\Property;
 
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Model\SimpleModel;
 use Comhon\Model\ModelContainer;
 use Comhon\Model\ModelDateTime;
 use Comhon\Object\ComhonDateTime;
 use Comhon\Model\Model;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\AbstractModel;
 
@@ -285,24 +285,24 @@ class Property {
 	/**
 	 * load specified value
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param string[] $propertiesFilter
 	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @throws \Exception
 	 */
-	public function loadValue(ObjectUnique $object, $propertiesFilter = [], $forceLoad = false) {
+	public function loadValue(UniqueObject $object, $propertiesFilter = [], $forceLoad = false) {
 		throw new ComhonException('cannot load object, property is not foreign property');
 	}
 	
 	/**
 	 * load aggregation ids
 	 * 
-	 * @param \Comhon\Object\ObjectArray $object
-	 * @param \Comhon\Object\ObjectUnique $parentObject
+	 * @param \Comhon\Object\ComhonArray $object
+	 * @param \Comhon\Object\UniqueObject $parentObject
 	 * @param boolean $forceLoad if object is already loaded, force to reload object
 	 * @throws \Exception
 	 */
-	public function loadAggregationIds(ObjectArray $object, ObjectUnique $parentObject, $forceLoad = false) {
+	public function loadAggregationIds(ComhonArray $object, UniqueObject $parentObject, $forceLoad = false) {
 		throw new ComhonException('cannot load aggregation ids, property is not aggregation property');
 	}
 	

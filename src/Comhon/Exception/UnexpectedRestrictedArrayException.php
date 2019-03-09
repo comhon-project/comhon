@@ -12,7 +12,7 @@
 namespace Comhon\Exception;
 
 use Comhon\Model\Restriction\Restriction;
-use Comhon\Object\ObjectArray;
+use Comhon\Object\ComhonArray;
 use Comhon\Model\ModelRestrictedArray;
 
 class UnexpectedRestrictedArrayException extends UnexpectedValueTypeException {
@@ -21,7 +21,7 @@ class UnexpectedRestrictedArrayException extends UnexpectedValueTypeException {
 	 * @param mixed $value
 	 * @param \Comhon\Model\Restriction\Restriction $restriction
 	 */
-	public function __construct(ObjectArray $objectArray, ModelRestrictedArray $modelRestrictedArray) {
+	public function __construct(ComhonArray $objectArray, ModelRestrictedArray $modelRestrictedArray) {
 		$expectedRestriction = $modelRestrictedArray->getStringifiedRestriction();
 		$actualRestriction =  $objectArray->getModel() instanceof ModelRestrictedArray 
 			? $objectArray->getModel()->getStringifiedRestriction()

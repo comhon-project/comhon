@@ -11,7 +11,7 @@
 
 namespace Comhon\Exception;
 
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 
 class ArgumentException extends ComhonException {
 	
@@ -23,7 +23,7 @@ class ArgumentException extends ComhonException {
 	 */
 	public function __construct($argument, $expected, $index) {
 		if (is_object($argument)) {
-			if ($argument instanceof ComhonObject) {
+			if ($argument instanceof AbstractComhonObject) {
 				$type = $argument->getComhonClass();
 			} else {
 				$type = get_class($argument);

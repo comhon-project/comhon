@@ -21,7 +21,7 @@ use Comhon\Exception\NotSatisfiedRestrictionException;
 use Comhon\Exception\UnexpectedValueTypeException;
 use Comhon\Model\ModelComhonObject;
 
-final class ObjectArray extends ComhonObject implements \Iterator {
+final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	
 	/**
 	 *
@@ -37,7 +37,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 			$elementModel = ($model instanceof ModelComhonObject) ? $model : ModelManager::getInstance()->getInstanceModel($model);
 		
 			if ($elementModel instanceof ModelContainer) {
-				throw new ComhonException('Object cannot have ModelContainer except ModelArray');
+				throw new ComhonException('ComhonObject cannot have ModelContainer except ModelArray');
 			}
 			$objectModel = new ModelArray($elementModel, $isAssociative, is_null($elementName) ? $elementModel->getShortName() : $elementName);
 		}
@@ -57,7 +57,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::reset()
+	 * @see \Comhon\Object\AbstractComhonObject::reset()
 	 */
 	final public function reset() {
 		$this->_reset();
@@ -66,7 +66,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::loadValue()
+	 * @see \Comhon\Object\AbstractComhonObject::loadValue()
 	 */
 	final public function loadValue($pkey, $propertiesFilter = null, $forceLoad = false) {
 		return $this->getModel()->getUniqueModel()->loadAndFillObject($this->getValue($pkey), $propertiesFilter, $forceLoad);
@@ -154,7 +154,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::resetUpdatedStatus()
+	 * @see \Comhon\Object\AbstractComhonObject::resetUpdatedStatus()
 	 */
 	final public function resetUpdatedStatus($recursive = true) {
 		if ($recursive) {
@@ -175,7 +175,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::_resetUpdatedStatusRecursive()
+	 * @see \Comhon\Object\AbstractComhonObject::_resetUpdatedStatusRecursive()
 	 */
 	final protected function _resetUpdatedStatusRecursive(&$objectHashMap) {
 		$this->_resetUpdatedStatus();
@@ -188,7 +188,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 		}
 		else if ($this->getModel()->getModel()->isComplex()) {
 			foreach ($this->getValues() as $value) {
-				if ($value instanceof ComhonObject) {
+				if ($value instanceof AbstractComhonObject) {
 					$value->_resetUpdatedStatusRecursive($objectHashMap);
 				}
 			}
@@ -198,13 +198,13 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::isUpdated()
+	 * @see \Comhon\Object\AbstractComhonObject::isUpdated()
 	 */
 	final public function isUpdated() {
 		if (!$this->isFlagedAsUpdated()) {
 			if ($this->getModel()->getModel()->isComplex()) {
 				foreach ($this->getValues() as $value) {
-					if (($value instanceof ComhonObject) && $value->isUpdated()) {
+					if (($value instanceof AbstractComhonObject) && $value->isUpdated()) {
 						return true;
 					}
 				}
@@ -228,7 +228,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	final public function isIdUpdated() {
 		if (!$this->isFlagedAsUpdated() && $this->getModel()->getModel()->isComplex()) {
 			foreach ($this->getValues() as $value) {
-				if (($value instanceof ComhonObject) && $value->isIdUpdated()) {
+				if (($value instanceof AbstractComhonObject) && $value->isIdUpdated()) {
 					return true;
 				}
 			}
@@ -239,13 +239,13 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::isUpdatedValue()
+	 * @see \Comhon\Object\AbstractComhonObject::isUpdatedValue()
 	 */
 	final public function isUpdatedValue($key) {
 		if (!$this->isFlagedAsUpdated()) {
 			if ($this->getModel()->getModel()->isComplex()) {
 				$value = $this->getValue($key);
-				if (($value instanceof ComhonObject) && $value->isUpdated()) {
+				if (($value instanceof AbstractComhonObject) && $value->isUpdated()) {
 					return true;
 				}
 			}
@@ -271,7 +271,7 @@ final class ObjectArray extends ComhonObject implements \Iterator {
 	
 	/**
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\ComhonObject::getComhonClass()
+	 * @see \Comhon\Object\AbstractComhonObject::getComhonClass()
 	 */
 	final public function getComhonClass() {
 		return get_class($this) . "({$this->getModel()->getUniqueModel()->getName()})";

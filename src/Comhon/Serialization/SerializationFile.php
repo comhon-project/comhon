@@ -13,10 +13,10 @@ namespace Comhon\Serialization;
 
 use Comhon\Model\Model;
 use Comhon\Utils\Utils;
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Exception\SerializationException;
 use Comhon\Exception\ArgumentException;
 
@@ -34,20 +34,20 @@ abstract class SerializationFile extends SerializationUnit {
 	
 	/**
 	 *
-	 * @param \Comhon\Object\ObjectUnique $settings
+	 * @param \Comhon\Object\UniqueObject $settings
 	 * @param string $inheritanceKey
 	 */
-	protected function __construct(ObjectUnique $settings, $inheritanceKey = null) {
+	protected function __construct(UniqueObject $settings, $inheritanceKey = null) {
 		parent::__construct($settings, $inheritanceKey);
 		$this->interfacer = $this->_getInterfacer();
 	}
 	
 	/**
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @return string
 	 */
-	protected function _getPath(ObjectUnique $object) {
+	protected function _getPath(UniqueObject $object) {
 		return $this->settings->getValue('saticPath') . DIRECTORY_SEPARATOR . $object->getId() . DIRECTORY_SEPARATOR . $this->settings->getValue('staticName');
 	}
 
@@ -56,7 +56,7 @@ abstract class SerializationFile extends SerializationUnit {
 	 * {@inheritDoc}
 	 * @see \Comhon\Serialization\SerializationUnit::_saveObject()
 	 */
-	protected function _saveObject(ObjectUnique $object, $operation = null) {
+	protected function _saveObject(UniqueObject $object, $operation = null) {
 		if (!$object->getModel()->hasIdProperties()) {
 			throw new SerializationException('Cannot save model without id into file');
 		}
@@ -92,10 +92,10 @@ abstract class SerializationFile extends SerializationUnit {
 	
 	/**
 	 *
-	 * @param \Comhon\Object\ComhonObject $object
+	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param mixed $InterfacedObject
 	 */
-	protected function _addInheritanceKey(ComhonObject $object, $InterfacedObject) {
+	protected function _addInheritanceKey(AbstractComhonObject $object, $InterfacedObject) {
 		if (!is_null($this->getInheritanceKey())) {
 			$this->interfacer->setValue($InterfacedObject, $object->getModel()->getName(), $this->getInheritanceKey());
 		}
@@ -106,7 +106,7 @@ abstract class SerializationFile extends SerializationUnit {
 	 * {@inheritDoc}
 	 * @see \Comhon\Serialization\SerializationUnit::_loadObject()
 	 */
-	protected function _loadObject(ObjectUnique $object, $propertiesFilter = null) {
+	protected function _loadObject(UniqueObject $object, $propertiesFilter = null) {
 		$path = $this->_getPath($object);
 		if (!file_exists($path)) {
 			return false;
@@ -135,7 +135,7 @@ abstract class SerializationFile extends SerializationUnit {
 	 * {@inheritDoc}
 	 * @see \Comhon\Serialization\SerializationUnit::_deleteObject()
 	 */
-	protected function _deleteObject(ObjectUnique $object) {
+	protected function _deleteObject(UniqueObject $object) {
 		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
 			throw new SerializationException('delete operation require complete id');
 		}

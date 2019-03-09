@@ -12,10 +12,10 @@
 namespace Comhon\Serialization;
 
 use Comhon\Model\Model;
-use Comhon\Object\ComhonObject;
+use Comhon\Object\AbstractComhonObject;
 use Comhon\Serialization\File\XmlFile;
 use Comhon\Serialization\File\JsonFile;
-use Comhon\Object\ObjectUnique;
+use Comhon\Object\UniqueObject;
 use Comhon\Exception\SerializationException;
 use Comhon\Exception\ArgumentException;
 
@@ -36,7 +36,7 @@ abstract class SerializationUnit {
 	/** @var string xml file serialization */
 	const XML_FILE  = 'Comhon\XmlFile';
 	
-	/** @var \Comhon\Object\ComhonObject */
+	/** @var \Comhon\Object\AbstractComhonObject */
 	protected $settings;
 	
 	/** @var string */
@@ -44,10 +44,10 @@ abstract class SerializationUnit {
 	
 	/**
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $settings
+	 * @param \Comhon\Object\UniqueObject $settings
 	 * @param string $inheritanceKey
 	 */
-	protected function __construct(ObjectUnique $settings, $inheritanceKey = null) {
+	protected function __construct(UniqueObject $settings, $inheritanceKey = null) {
 		$this->settings = $settings;
 		$this->inheritanceKey = $inheritanceKey;
 	}
@@ -55,12 +55,12 @@ abstract class SerializationUnit {
 	/**
 	 * get serialization unit instance
 	 *
-	 * @param \Comhon\Object\ObjectUnique $settings
+	 * @param \Comhon\Object\UniqueObject $settings
 	 * @param string $inheritanceKey
 	 * @param string $class
 	 * @return \Comhon\Serialization\SerializationUnit
 	 */
-	public static function getInstance(ObjectUnique $settings, $inheritanceKey = null, $class = null) {
+	public static function getInstance(UniqueObject $settings, $inheritanceKey = null, $class = null) {
 		if (!is_null($class)) {
 			$lSerializationUnit = new $class($settings, $inheritanceKey);
 			if (!($lSerializationUnit instanceof SerializationUnit)) {
@@ -87,7 +87,7 @@ abstract class SerializationUnit {
 	/**
 	 * get serialization unit settings
 	 *
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	public function getSettings() {
 		return $this->settings;
@@ -105,14 +105,14 @@ abstract class SerializationUnit {
 	/**
 	 * save specified comhon object
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param string $operation
 	 * @throws \Exception
 	 * @return integer number of saved objects
 	 */
-	public function saveObject(ObjectUnique $object, $operation = null) {
+	public function saveObject(UniqueObject $object, $operation = null) {
 		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
-			throw new SerializationException('class serialization settings mismatch with parameter Object serialization settings');
+			throw new SerializationException('class serialization settings mismatch with first parameter object serialization settings');
 		}
 		if (!is_null($operation) && ($operation !== self::CREATE) && ($operation !== self::UPDATE)) {
 			throw new ArgumentException($operation, [self::CREATE, self::UPDATE], 2);
@@ -125,15 +125,15 @@ abstract class SerializationUnit {
 	/**
 	 * load specified comhon object from serialization according its id
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param string[] $propertiesFilter
 	 * @return boolean true if loading is successfull
 	 * @throws \Exception
 	 * @return boolean true if object is successfully load, false otherwise
 	 */
-	public function loadObject(ObjectUnique $object, $propertiesFilter = null) {
+	public function loadObject(UniqueObject $object, $propertiesFilter = null) {
 		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
-			throw new SerializationException('class serialization settings mismatch with parameter Object serialization settings');
+			throw new SerializationException('class serialization settings mismatch with first parameter object serialization settings');
 		}
 		return $this->_loadObject($object, $propertiesFilter);
 	}
@@ -141,13 +141,13 @@ abstract class SerializationUnit {
 	/**
 	 * delete specified comhon object from serialization according its id
 	 *
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @throws \Exception
 	 * @return integer number of deleted objects
 	 */
-	public function deleteObject(ObjectUnique $object) {
+	public function deleteObject(UniqueObject $object) {
 		if ($this->settings !== $object->getModel()->getSerializationSettings()) {
-			throw new SerializationException('class serialization settings mismatch with parameter Object serialization settings');
+			throw new SerializationException('class serialization settings mismatch with first parameter object serialization settings');
 		}
 		return $this->_deleteObject($object);
 	}
@@ -155,20 +155,20 @@ abstract class SerializationUnit {
 	/**
 	 * save specified comhon object
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param string $operation
 	 * @return integer number of saved objects
 	 */
-	abstract protected function _saveObject(ObjectUnique $object, $operation = null);
+	abstract protected function _saveObject(UniqueObject $object, $operation = null);
 	
 	/**
 	 * load specified comhon object from serialization according its id
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param string[] $propertiesFilter
 	 * @return boolean true if object is successfully load, false otherwise
 	 */
-	abstract protected function _loadObject(ObjectUnique $object, $propertiesFilter = null);
+	abstract protected function _loadObject(UniqueObject $object, $propertiesFilter = null);
 	
 	/**
 	 * get inherited model from serialized value
@@ -182,10 +182,10 @@ abstract class SerializationUnit {
 	/**
 	 * delete specified comhon object from serialization according its id
 	 * 
-	 * @param \Comhon\Object\ObjectUnique $object
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @throws \Exception
 	 * @return integer number of deleted objects
 	 */
-	abstract protected function _deleteObject(ObjectUnique $object);
+	abstract protected function _deleteObject(UniqueObject $object);
 	
 }

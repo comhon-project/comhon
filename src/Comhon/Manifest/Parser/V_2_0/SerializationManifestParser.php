@@ -90,7 +90,7 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	 * 
 	 * @param mixed $serializationNode
 	 * @throws \Exception
-	 * @return \Comhon\Object\ObjectUnique
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	private function _buildSerializationSettings($serializationNode) {
 		$type = $this->interfacer->getValue($serializationNode, 'type');

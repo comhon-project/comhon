@@ -12,8 +12,8 @@
 namespace Comhon\Model\Property;
 
 use Comhon\Model\Model;
-use Comhon\Object\ObjectUnique;
-use Comhon\Object\Object;
+use Comhon\Object\UniqueObject;
+use Comhon\Object\ComhonObject;
 use Comhon\Model\ModelForeign;
 
 class ForeignProperty extends Property {
@@ -35,7 +35,7 @@ class ForeignProperty extends Property {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Property\Property::loadValue()
 	 */
-	public function loadValue(ObjectUnique $object, $propertiesFilter = null, $forceLoad = false) {
+	public function loadValue(UniqueObject $object, $propertiesFilter = null, $forceLoad = false) {
 		$this->getModel()->verifValue($object);
 		if ($object->isLoaded() && !$forceLoad) {
 			return false;
