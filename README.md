@@ -52,7 +52,7 @@ $personModel = InstanceModel::getInstance()->getInstanceModel('person');
 $person = $personModel->getObjectInstance();
 
 // second way to instanciate a comhon object
-$person = new Object('person');
+$person = new ComhonObject('person');
 
 // third way to instanciate a comhon object only if you have defined a class
 $person = new Person();
