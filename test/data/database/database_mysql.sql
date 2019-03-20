@@ -165,7 +165,7 @@ INSERT INTO `man_body` (`id`, `height`, `weight`, `hair_color`, `hair_cut`, `eye
 CREATE TABLE `person` (
   `id` int(11) NOT NULL,
   `first_name` text CHARACTER SET utf8,
-  `lastName` text CHARACTER SET utf8,
+  `last_name` text CHARACTER SET utf8,
   `sex` text CHARACTER SET utf8 NOT NULL,
   `birth_place` int(11) DEFAULT NULL,
   `father_id` int(11) DEFAULT NULL,
@@ -178,7 +178,7 @@ CREATE TABLE `person` (
 -- Contenu de la table `person`
 --
 
-INSERT INTO `person` (`id`, `first_name`, `lastName`, `sex`, `birth_place`, `father_id`, `mother_id`, `birth_date`, `best_friend`) VALUES
+INSERT INTO `person` (`id`, `first_name`, `last_name`, `sex`, `birth_place`, `father_id`, `mother_id`, `birth_date`, `best_friend`) VALUES
 (1, 'Bernard', 'Dupond', 'Test\\Person\\Man', 2, NULL, NULL, '2016-11-13 19:04:05', NULL),
 (2, 'Marie', 'Smith', 'Test\\Person\\Woman', NULL, NULL, NULL, '2016-11-13 19:04:05', 5),
 (5, 'Jean', 'Henri', 'Test\\Person\\Man', NULL, 1, 2, '2016-11-13 19:04:05', 7),

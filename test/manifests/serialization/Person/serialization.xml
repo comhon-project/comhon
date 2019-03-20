@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="Comhon\SqlTable" inheritanceKey="sex" id="person"/>
+	<serialization type="Comhon\SqlTable" inheritanceKey="sex" id="`person`"/>
 	<properties>
 		<firstName serializationName="first_name"/>
+		<lastName serializationName="last_name"/>
 		<birthDate serializationName="birth_date"/>
 		<birthPlace serializationName="birth_place"/>
 		<bestFriend serializationName="best_friend"/>

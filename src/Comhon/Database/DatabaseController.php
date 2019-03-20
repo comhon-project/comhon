@@ -40,17 +40,27 @@ class DatabaseController {
 		//'ibm'
 		//'informix' => null,
 		//'sqlsrv' => null,
-		'mysql' => null,
+		self::MYSQL => null,
 		//'oci' => 'RETURNING',
 		//'odbc'
-		'pgsql' => 'RETURNING',
+		self::PGSQL => 'RETURNING',
 		//'sqlite' => 'OUTPUT',
 		//'4D'
 	];
 	
+	/**
+	 * escape characters to apply on columns when build query
+	 * 
+	 * @var array
+	 */
+	private static $escapeChars = [
+			self::MYSQL => '`',
+			self::PGSQL => '"'
+	];
+	
 	/** @var string */
 	private static $supportedLastInsertId = [
-		'mysql',
+		self::MYSQL,
 		//'cubrid',
 		//'informix',
 		//'sqlsrv',
@@ -87,6 +97,13 @@ class DatabaseController {
 	private $insertReturn;
 	
 	/**
+	 * escape character to apply on columns when build query
+	 *
+	 * @var string
+	 */
+	private $escapeChar;
+	
+	/**
 	 * @param \Comhon\Object\UniqueObject $dbReference
 	 * @throws \Exception
 	 */
@@ -102,6 +119,7 @@ class DatabaseController {
 		$this->dbHandle = new \PDO($dataSourceName, $dbReference->getValue('user'), $dbReference->getValue('password'));
 		$this->isSupportedLastInsertId = in_array($dbReference->getValue('DBMS'), self::$supportedLastInsertId);
 		$this->insertReturn = self::$insertReturns[$dbReference->getValue('DBMS')];
+		$this->escapeChar = self::$escapeChars[$dbReference->getValue('DBMS')];
 		$this->_setDatabaseOptions($dbReference);
 	}
 	
@@ -132,6 +150,15 @@ class DatabaseController {
 	}
 	
 	/**
+	 * get escape character to apply on columns when build query
+	 *
+	 * @return string|null null if returning is not supported
+	 */
+	public function getEscapeChar() {
+		return $this->escapeChar;
+	}
+	
+	/**
 	 * set database options
 	 * 
 	 * @param UniqueObject $dbReference
@@ -139,10 +166,10 @@ class DatabaseController {
 	 */
 	private function _setDatabaseOptions(UniqueObject $dbReference) {
 		switch ($dbReference->getValue('DBMS')) {
-			case 'mysql':
+			case self::MYSQL:
 				$this->_setDatabaseOptionsMySql();
 				break;
-			case 'pgsql':
+			case self::PGSQL:
 				$this->_setDatabaseOptionsPgSql();
 				break;
 			//case 'cubrid':
@@ -304,10 +331,24 @@ class DatabaseController {
 	 * @throws \Exception
 	 * @return array all selected rows
 	 */
-	public function executeSelectQuery(SelectQuery $selectQuery, $fetchStyle = \PDO::FETCH_ASSOC) {
+	public function select(SelectQuery $selectQuery, $fetchStyle = \PDO::FETCH_ASSOC) {
 		list($query, $values) = $selectQuery->export();
 		// var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
-		return $this->executeSimpleQuery($query, $values)->fetchAll($fetchStyle);
+		return $this->execute($query, $values)->fetchAll($fetchStyle);
+	}
+	
+	/**
+	 * prepare, execute and return results count of query. ignore offset and limit settings
+	 * @param SelectQuery $selectQuery
+	 * @param integer $fetchStyle
+	 * @throws \Exception
+	 * @return array all selected rows
+	 */
+	public function count(SelectQuery $selectQuery, $fetchStyle = \PDO::FETCH_ASSOC) {
+		list($query, $values) = $selectQuery->exportCount();
+		//var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
+		$row = $this->execute($query, $values)->fetch($fetchStyle);
+		return (integer) $row[SelectQuery::COL_COUNT];
 	}
 	
 	/**
@@ -317,7 +358,7 @@ class DatabaseController {
 	 * @throws \Exception
 	 * @return \PDOStatement
 	 */
-	public function executeSimpleQuery($query, $values = []) {
+	public function execute($query, $values = []) {
 		// var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
 		$PDOStatement = $this->_prepareQuery($query, $values);
 		$this->_doQuery($PDOStatement);

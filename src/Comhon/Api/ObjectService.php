@@ -63,6 +63,22 @@ class ObjectService {
 	}
 	
 	/**
+	 * retrieve requested objects count
+	 *
+	 * @param \stdClass $params
+	 * @param boolean $private
+	 * @return \stdClass
+	 */
+	public static function getObjectsCount(\stdClass $params, $private = false) {
+		try {
+			$count = ComplexLoadRequest::buildObjectLoadRequest($params, $private)->count();
+			return self::_setSuccessResponse($count);
+		} catch (\Exception $e) {
+			return self::_setErrorResponse($e);
+		}
+	}
+	
+	/**
 	 * get filter to apply on exported properties
 	 * 
 	 * @param \stdClass $params

@@ -115,7 +115,7 @@ $object->unsetValue('id');
 if (!is_null($object->getValue('id'))) {
 	throw new \Exception('id must be unset');
 }
-$statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
+$statement = $dbHandler->execute('select count(*) from child_test');
 $result = $statement->fetchAll();
 $count = (integer) $result[0][0];
 if ($count !== 2) {
@@ -129,7 +129,7 @@ if ($object->save() !== 1) {
 if (is_null($object->getValue('id'))) {
 	throw new \Exception('id must be set');
 }
-$statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
+$statement = $dbHandler->execute('select count(*) from child_test');
 $result = $statement->fetchAll();
 $count = (integer) $result[0][0];
 if ($count !== 3) {
@@ -168,7 +168,7 @@ if (count($object->getUpdatedValues()) !== 0) {
 	throw new \Exception('should not have updated values after save');
 }
 
-$statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
+$statement = $dbHandler->execute('select count(*) from child_test');
 $result = $statement->fetchAll();
 $count = (integer) $result[0][0];
 if ($count !== 3) {
@@ -179,7 +179,7 @@ if ($object->delete() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 
-$statement = $dbHandler->executeSimpleQuery('select count(*) from child_test');
+$statement = $dbHandler->execute('select count(*) from child_test');
 $result = $statement->fetchAll();
 $count = (integer) $result[0][0];
 if ($count !== 2) {

@@ -27,7 +27,7 @@ $selectQuery->addGroup('id');
 
 $throw = true;
 try {
-	$row = $databaseController->executeSelectQuery($selectQuery);
+	$row = $databaseController->select($selectQuery);
 } catch (ComhonException $e) {
 	$throw = false;
 }
@@ -53,7 +53,7 @@ $selectQuery->resetOrderColumns();
 $selectQuery->addOrder('id');
 list($query, $params) = $selectQuery->export();
 
-$row = $databaseController->executeSelectQuery($selectQuery);
+$row = $databaseController->select($selectQuery);
 
 if (
 	(json_encode($row) !== '[{"child_id":5},{"child_id":6}]')

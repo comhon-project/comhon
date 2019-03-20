@@ -51,16 +51,11 @@ class SqlTable extends SerializationUnit {
 	 * @var string
 	 */
 	private $tableId;
-
+	
 	/**
 	 * @var array store all incremental columns names grouped by table
 	 */
 	private static $autoIncrementColumns = [];
-	
-	/**
-	 * @var array store all columns names grouped by table that have to be escaped
-	 */
-	private static $columnsToEscape = [];
 	
 	/**
 	 * @var array store table informations group by model
@@ -89,32 +84,23 @@ class SqlTable extends SerializationUnit {
 	}
 	
 	/**
-	 * retrieve and store columns informations of table (auto incremental columns and columns to escape)
+	 * retrieve and store columns informations of table (auto incremental columns)
 	 */
 	private function _initColumnsInfos() {
 		if (!array_key_exists($this->tableId, self::$autoIncrementColumns)) {
-			list(self::$autoIncrementColumns[$this->tableId], self::$columnsToEscape[$this->tableId]) = $this->_getSpecificColumns();
+			self::$autoIncrementColumns[$this->tableId] = $this->_getIncrementalColumns();
 		}
 	}
 	
 	/**
-	 * get table id
+	 * get auto incremental columns
 	 * 
-	 * @return string
+	 * @return string[]
 	 */
-	private function _getTableId() {
-		return $this->settings->getValue('name').'_'.$this->settings->getValue('database')->getValue('id');
-	}
-	
-	/**
-	 * get auto incremental columns and columns to escape
-	 * 
-	 * @return [string[],string[]]
-	 */
-	private function _getSpecificColumns() {
+	private function _getIncrementalColumns() {
 	switch ($this->settings->getValue('database')->getValue('DBMS')) {
-			case 'mysql': return $this->_getSpecificColumnsMySql();
-			case 'pgsql': return $this->_getSpecificColumnsPgSql();
+			case 'mysql': return $this->_getIncrementalColumnsMySql();
+			case 'pgsql': return $this->_getIncrementalColumnsPgSql();
 			//case 'cubrid':
 			//case 'dblib':
 			//case 'firebird':
@@ -132,36 +118,31 @@ class SqlTable extends SerializationUnit {
 	/**
 	 * get auto incremental columns and columns to escape
 	 * 
-	 * @return [string[],string[]]
+	 * @return string[]
 	 */
-	private function _getSpecificColumnsMySql() {
+	private function _getIncrementalColumnsMySql() {
 		$DBMS = $this->settings->getValue('database')->getValue('DBMS');
 		$autoIncrementColumns = [];
-		$columnsToEscape = [];
 		
 		$query = 'SHOW COLUMNS FROM '.$this->settings->getValue('name');
-		$result = $this->dbController->executeSimpleQuery($query)->fetchAll(\PDO::FETCH_ASSOC);
+		$result = $this->dbController->execute($query)->fetchAll(\PDO::FETCH_ASSOC);
 		
 		foreach ($result as $row) {
 			if ($row['Extra'] === 'auto_increment') {
 				$autoIncrementColumns[] = $row['Field'];
 			}
-			if (SqlUtils::isReservedWorld($DBMS, $row['Field'])) {
-				$columnsToEscape[$row['Field']] = "`{$row['Field']}`";
-			}
 		}
-		return [$autoIncrementColumns, $columnsToEscape];
+		return $autoIncrementColumns;
 	}
 	
 	/**
 	 * get auto incremental columns and columns to escape
 	 * 
-	 * @return [string[],string[]]
+	 * @return string[]
 	 */
-	private function _getSpecificColumnsPgSql() {
+	private function _getIncrementalColumnsPgSql() {
 		$DBMS = $this->settings->getValue('database')->getValue('DBMS');
 		$autoIncrementColumns = [];
-		$columnsToEscape = [];
 		
 		$explodedTable = explode('.', $this->settings->getValue('name'));
 		if (count($explodedTable) == 1) {
@@ -173,21 +154,24 @@ class SqlTable extends SerializationUnit {
 		} else {
 			throw new SerializationException('doesn\'t manage table names that contain \'.\' character');
 		}
+		if (strpos($schema, '"') === 0) {
+			$schema = substr($schema, 1, -1);
+		}
+		if (strpos($table, '"') === 0) {
+			$table= substr($table, 1, -1);
+		}
 	
 		$query = "SELECT column_name, column_default FROM information_schema.columns 
 		WHERE table_schema='$schema' AND table_name='$table';";
-		$rows = $this->dbController->executeSimpleQuery($query)->fetchAll(\PDO::FETCH_ASSOC);
+		$rows = $this->dbController->execute($query)->fetchAll(\PDO::FETCH_ASSOC);
 		
 		foreach ($rows as $row) {
 			if ($row['column_default'] !== null && strpos($row['column_default'], 'nextval(') === 0) {
 				$autoIncrementColumns[] = $row['column_name'];
 				break;
 			}
-			if (SqlUtils::isReservedWorld($DBMS, $row['column_name'])) {
-				$columnsToEscape[$row['column_name']] = "\"{$row['column_name']}\"";
-			}
 		}
-		return [$autoIncrementColumns, $columnsToEscape];
+		return $autoIncrementColumns;
 	}
 	
 	/**
@@ -315,7 +299,7 @@ class SqlTable extends SerializationUnit {
 			throw new SerializationException('not supported yet');
 		}
 		$query .= $queryEnding;
-		$statement = $this->dbController->executeSimpleQuery($query, array_values($mapOfString));
+		$statement = $this->dbController->execute($query, array_values($mapOfString));
 		$affectedRows = $statement->rowCount();
 		
 		$autoIncrementProperties = self::$modelInfos[$object->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
@@ -345,20 +329,11 @@ class SqlTable extends SerializationUnit {
 	 * @return string
 	 */
 	private function _getSelectColumnString($mapOfString) {
-		$columnsToEscape = self::$columnsToEscape[$this->tableId];
-		
-		if (empty($columnsToEscape)) {
-			return implode(', ', array_keys($mapOfString));
+		if (empty($mapOfString)) {
+			return '';
 		} else {
-			$columns = [];
-			foreach ($mapOfString as $column => $string) {
-				if (array_key_exists($column, $columnsToEscape)) {
-					$columns[] = $columnsToEscape[$column];
-				} else {
-					$columns[] = $column;
-				}
-			}
-			return implode(', ', $columns);
+			$esc = $this->dbController->getEscapeChar();
+			return $esc . implode($esc . ', ' . $esc, array_keys($mapOfString)) . $esc;
 		}
 	}
 	
@@ -374,6 +349,7 @@ class SqlTable extends SerializationUnit {
 			throw new SerializationException('update operation require complete id');
 		}
 		$model            = $object->getModel();
+		$esc              = $this->dbController->getEscapeChar();
 		$conditions       = [];
 		$updates          = [];
 		$updateValues     = [];
@@ -396,7 +372,7 @@ class SqlTable extends SerializationUnit {
 				throw new SerializationException('update failed, id is not set');
 			}
 			unset($mapOfString[$column]);
-			$conditions[]       = "$column = ?";
+			$conditions[]       = "{$esc}$column{$esc}= ?";
 			$conditionsValues[] = $value;
 		}
 		if (empty($mapOfString) && !$object->isCasted()) {
@@ -405,16 +381,12 @@ class SqlTable extends SerializationUnit {
 		if (!is_null($this->getInheritanceKey())) {
 			$mapOfString[$this->getInheritanceKey()] = $object->getModel()->getName();
 		}
-		$columnsToEscape = self::$columnsToEscape[$this->tableId];
 		foreach ($mapOfString as $column => $value) {
-			if (array_key_exists($column, $columnsToEscape)) {
-				$column   = $columnsToEscape[$column];
-			}
-			$updates[]      = "$column = ?";
+			$updates[]      = "{$esc}$column{$esc}= ?";
 			$updateValues[] = $value;
 		}
 		$query = 'UPDATE '.$this->settings->getValue('name').' SET '.implode(', ', $updates).' WHERE '.implode(' and ', $conditions).';';
-		$statement = $this->dbController->executeSimpleQuery($query, array_merge($updateValues, $conditionsValues));
+		$statement = $this->dbController->execute($query, array_merge($updateValues, $conditionsValues));
 		
 		return $statement->rowCount();
 	}
@@ -431,6 +403,7 @@ class SqlTable extends SerializationUnit {
 		$this->_initDatabaseInterfacing($object->getModel());
 		
 		$model            = $object->getModel();
+		$esc              = $this->dbController->getEscapeChar();
 		$conditions       = [];
 		$conditionsValues = [];
 	
@@ -440,11 +413,11 @@ class SqlTable extends SerializationUnit {
 			if (is_null($value)) {
 				throw new SerializationException('delete failed, id is not set');
 			}
-			$conditions[]       = "$column = ?";
+			$conditions[]       = "{$esc}$column{$esc}= ?";
 			$conditionsValues[] = $value;
 		}
 		$query = 'DELETE FROM '.$this->settings->getValue('name').' WHERE '.implode(' and ', $conditions).';';
-		$statement = $this->dbController->executeSimpleQuery($query, $conditionsValues);
+		$statement = $this->dbController->execute($query, $conditionsValues);
 		
 		return $statement->rowCount();
 	}
@@ -569,7 +542,7 @@ class SqlTable extends SerializationUnit {
 		foreach ($selectColumns as $column) {
 			$selectQuery->getMainTable()->addSelectedColumn($column);
 		}
-		$rows = $this->dbController->executeSelectQuery($selectQuery);
+		$rows = $this->dbController->select($selectQuery);
 		
 		$isModelArray = $object->getModel() instanceof ModelArray;
 		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {

@@ -2,7 +2,7 @@
     "version": "2.0",
     "serialization": {
         "type": "Comhon\\SqlTable",
-        "id": "public.person"
+        "id": "\"public\".\"person\""
     },
     "properties": {
         "bodies": {

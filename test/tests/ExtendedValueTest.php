@@ -179,7 +179,7 @@ if (!compareJson(json_encode($woman->export($stdPrivateInterfacer)), '{"id":2,"f
 if (!compareXML($xmlPrivateInterfacer->toString($woman->export($xmlPrivateInterfacer)), '<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="2" firstName="Marie" lastName="Smith" birthDate="2016-11-13T20:04:05+01:00"><birthPlace xsi:nil="true"/><bestFriend id="5" __inheritance__="Test\Person\Man"/><father xsi:nil="true"/><mother xsi:nil="true"/><bodies><body>1</body></bodies></root>')) {
 	throw new \Exception('not same object values');
 }
-if (!compareJson(json_encode($woman->export($flattenArraySerialInterfacer)), '{"id":2,"first_name":"Marie","lastName":"Smith","birth_date":"2016-11-13T20:04:05+01:00","birth_place":null,"best_friend":5,"father_id":null,"mother_id":null,"sex":"Test\\\\Person\\\\Woman"}')) {
+if (!compareJson(json_encode($woman->export($flattenArraySerialInterfacer)), '{"id":2,"first_name":"Marie","last_name":"Smith","birth_date":"2016-11-13T20:04:05+01:00","birth_place":null,"best_friend":5,"father_id":null,"mother_id":null,"sex":"Test\\\\Person\\\\Woman"}')) {
 	throw new \Exception('not same object values : '.json_encode($woman->export($flattenArraySerialInterfacer)));
 }
 

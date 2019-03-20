@@ -262,7 +262,7 @@ ALTER SEQUENCE public.man_body_id_seq OWNED BY public.man_body.id;
 CREATE TABLE public.person (
     id bigint NOT NULL,
     first_name text,
-    "lastName" text,
+    last_name text,
     sex text NOT NULL,
     birth_place integer,
     father_id integer,

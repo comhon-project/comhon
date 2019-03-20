@@ -3,11 +3,14 @@
     "serialization": {
         "type": "Comhon\\SqlTable",
         "inheritanceKey": "sex",
-        "id": "public.person"
+        "id": "\"public\".\"person\""
     },
     "properties": {
         "firstName": {
             "serializationName": "first_name"
+        },
+        "lastName": {
+            "serializationName": "last_name"
         },
         "birthDate": {
             "serializationName": "birth_date"

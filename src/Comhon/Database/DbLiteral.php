@@ -59,14 +59,6 @@ abstract class DbLiteral extends Literal {
 	}
 	
 	/**
-	 * 
-	 * @return mixed
-	 */
-	public function getValue() {
-		return $this->value;
-	}
-	
-	/**
 	 * build instance of Literal 
 	 * 
 	 * @param \stdClass $stdObject

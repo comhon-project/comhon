@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="Comhon\SqlTable" id="public.person"/>
+	<serialization type="Comhon\SqlTable" id="&quot;public&quot;.&quot;person&quot;"/>
 	<properties>
 		<bodies>
 			<aggregations>

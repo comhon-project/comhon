@@ -3,10 +3,29 @@
 use Comhon\Object\Config\Config;
 use Comhon\Database\DatabaseController;
 
+if ($argc === 1) {
+	$configFile = 'config-xml-mysql.json';
+} else {
+	switch ($argv[1]) {
+		case 'pgsql':
+			$configFile = 'config-json-pgsql.json';
+			break;
+		case 'mysql':
+			$configFile = 'config-xml-mysql.json';
+			break;
+		
+		default:
+			echo "invalid first argument, must be 'pgsql' or 'mysql'.\n";
+			exit();
+	}
+}
+
 $loader = require_once __DIR__ . '/../vendor/autoload.php';
 $loader->addPsr4('Test\\Comhon\\', __DIR__);
 
-Config::setLoadPath(__DIR__.'/config/config-json-pgsql.json');
+echo "load config file $configFile... ";
+Config::setLoadPath(__DIR__.'/config/'.$configFile);
+echo "success\n";
 
 echo "initializing database... ";
 
@@ -427,7 +446,9 @@ try {
 }*/
 
 
-// TODO for version > 2.0
+// TODO for version > 3.0
+// do not use upper case column pgsql -> DOC
+// add selectquery select count(*) on query and func(*) on table
 // should not check file exists when _getInstanceModel()
 //   pb if instanciate local type before parent manifest. should not instanciate another one
 // restriction string length (perhaps several restrictions same time)

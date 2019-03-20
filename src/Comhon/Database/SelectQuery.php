@@ -35,6 +35,9 @@ class SelectQuery {
 	/** @var string */
 	const DESC = 'DESC';
 	
+	/** @var string */
+	const COL_COUNT = 'count';
+	
 	/** @var array */
 	private static $allowedJoins = [
 		self::INNER_JOIN => null,
@@ -220,6 +223,13 @@ class SelectQuery {
 	}
 	
 	/**
+	 * verify if query has joins
+	 */
+	public function hasJoin() {
+		return !empty($this->joinedTables);
+	}
+	
+	/**
 	 * set where conditions
 	 * 
 	 * @param \Comhon\Logic\Formula $where
@@ -321,16 +331,60 @@ class SelectQuery {
 	
 	/**
 	 * export stringified query in sql format with values to bind
+	 *
+	 * @throws \Exception
+	 * @return array
+	 *     - first element : the query
+	 *     - second element : values to bind
+	 */
+	public function export() {
+		list($query, $values) = $this->exportBase(false);
+		if (!is_null($this->limit)) {
+			if (empty($this->order)) {
+				trigger_error('Warning, limit is used without ordering');
+			}
+			$query .= ' LIMIT '.$this->limit;
+		}
+		if (!is_null($this->offset)) {
+			if (empty($this->order)) {
+				trigger_error('Warning, offset is used without ordering');
+			}
+			$query .= ' OFFSET '.$this->offset;
+		}
+		return [$query, $values];
+	}
+	
+	/**
+	 * export stringified count query in sql format with values to bind
+	 *
+	 * @throws \Exception
+	 * @return array
+	 *     - first element : the query
+	 *     - second element : values to bind
+	 */
+	public function exportCount() {
+		list($query, $values) = $this->exportBase(true);
+		if (!empty($this->group)) {
+			$query = 'SELECT sum(' . self::COL_COUNT . ') AS ' . self::COL_COUNT 
+				. " FROM ($query) AS count_table_alias";
+		}
+		return [$query, $values];
+	}
+	
+	/**
+	 * export stringified query in sql format with values to bind
 	 * 
 	 * @throws \Exception
 	 * @return array 
 	 *     - first element : the query
 	 *     - second element : values to bind
 	 */
-	public function export() {
+	private function exportBase($exportCount) {
 		$values = [];
-		$query = 'SELECT '.$this->_getColumnsForQuery().' FROM '.$this->_exportJoinedTables($values);
 	
+		$query = 'SELECT ' . ($exportCount ? 'count(*) AS ' . self::COL_COUNT : $this->_getColumnsForQuery())
+			. ' FROM ' . $this->_exportJoinedTables($values);
+		
 		if (!is_null($this->where) && !is_null($conditions = $this->_getConditions($this->where, $values))) {
 			$query .= ' WHERE '.$conditions;
 		}
@@ -350,18 +404,6 @@ class SelectQuery {
 		}
 		if (!is_null($this->having) && !is_null($conditions = $this->_getConditions($this->having, $values))) {
 			$query .= ' HAVING '.$conditions;
-		}
-		if (!is_null($this->limit)) {
-			if (empty($this->order)) {
-				trigger_error('Warning, limit is used without ordering');
-			}
-			$query .= ' LIMIT '.$this->limit;
-		}
-		if (!is_null($this->offset)) {
-			if (empty($this->order)) {
-				trigger_error('Warning, offset is used without ordering');
-			}
-			$query .= ' OFFSET '.$this->offset;
 		}
 		return [$query, $values];
 	}

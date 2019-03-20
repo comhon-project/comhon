@@ -160,6 +160,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				throw new MalformedRequestException('request cannot have model property and tree property in same time');
 			}
 			$objectLoadRequest = new ComplexLoadRequest($settings->model, $private);
+			$objectLoadRequest->initSelectQuery();
 		} else if (isset($settings->tree) && isset($settings->tree->model)) {
 			$objectLoadRequest = new ComplexLoadRequest($settings->tree->model, $private);
 			$objectLoadRequest->importModelTree($settings->tree);
@@ -206,6 +207,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$objectLoadRequest->loadForeignProperties($settings->loadForeignProperties);
 		}
 		return $objectLoadRequest;
+	}
+	
+	private function initSelectQuery() {
+		$tableNode = new TableNode($this->model->getSqlTableUnit()->getSettings()->getValue('name'));
+		$this->selectQuery = new SelectQuery($tableNode);
 	}
 	
 	/**
@@ -259,7 +265,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @param \stdClass[] $stdObjectLiteralCollection
 	 * @throws \Exception
 	 */
-	public function importLiteralCollection($stdObjectLiteralCollection) {
+	private function importLiteralCollection($stdObjectLiteralCollection) {
 		if (is_null($this->modelByNodeId)) {
 			throw new ComhonException('model tree must be set');
 		}
@@ -299,7 +305,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * 
 	 * @param \stdClass $stdObjectClause
 	 */
-	public function importClause(\stdClass $stdObjectClause) {
+	private function importClause(\stdClass $stdObjectClause) {
 		if (is_null($this->modelByNodeId)) {
 			$mainTableName = $this->model->getSqlTableUnit()->getSettings()->getValue('name');
 			$mainTableNode = new TableNode($mainTableName);
@@ -320,7 +326,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 *
 	 * @param \stdClass $stdObjectLiteral
 	 */
-	public function importLiteral($stdObjectLiteral) {
+	private function importLiteral($stdObjectLiteral) {
 		if (is_null($this->modelByNodeId)) {
 			$mainTableName = $this->model->getSqlTableUnit()->getSettings()->getValue('name');
 			$mainTableNode = new TableNode($mainTableName);
@@ -343,9 +349,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	/**
 	 * finalize request (must be called before query execution)
 	 * 
+	 * @var bool $isCount
 	 * @throws \Exception
 	 */
-	private function _finalize() {
+	private function _finalize($isCount = false) {
 		if (is_null($this->selectQuery)) {
 			throw new ComhonException('query not initialized');
 		}
@@ -355,11 +362,15 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			}
 			$this->selectQuery->where($this->filter);
 		}
-		$this->selectQuery->limit($this->length)->offset($this->offset);
 		$this->selectQuery->setFocusOnMainTable();
-		$this->_addColumns();
-		$this->_addGroupedColumns();
-		$this->_addOrderColumns();
+		if (!$isCount) {
+			$this->selectQuery->limit($this->length)->offset($this->offset);
+			$this->_addColumns();
+			$this->_addOrderColumns();
+		}
+		if ($this->selectQuery->hasJoin()) {
+			$this->_addGroupedColumns();
+		}
 		
 		try {
 			$this->selectQuery->verifyDuplicatedTables();
@@ -382,9 +393,24 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$sqlTable = $this->model->getSqlTableUnit()->getSettings();
 		$sqlTable->loadValue('database');
 		$dbInstance = DatabaseController::getInstanceWithDataBaseObject($sqlTable->getValue('database'));
-		$rows = $dbInstance->executeSelectQuery($this->selectQuery);
+		$rows = $dbInstance->select($this->selectQuery);
 		
 		return $this->_buildObjectsWithRows($rows);
+	}
+	
+	/**
+	 * execute resquest and return objects count according filters.
+	 * limit and order are ignored to get global objects count (usefull for pagination)
+	 *
+	 * @return integer
+	 */
+	public function count() {
+		$this->_finalize(true);
+		$sqlTable = $this->model->getSqlTableUnit()->getSettings();
+		$sqlTable->loadValue('database');
+		$dbInstance = DatabaseController::getInstanceWithDataBaseObject($sqlTable->getValue('database'));
+		
+		return $dbInstance->count($this->selectQuery);;
 	}
 	
 	/**
@@ -680,7 +706,6 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * add select columns to select query
 	 */
 	private function _addColumns() {
-		$this->selectQuery->getMainTable()->resetSelectedColumns();
 		if (empty($this->propertiesFilter)) {
 			$this->selectQuery->getMainTable()->selectAllColumns(true);
 		}
@@ -690,6 +715,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				$selectedColumns[] = $this->model->getProperty($propertyName, true)->getSerializationName();
 			}
 			$mainTable = $this->selectQuery->getMainTable();
+			$mainTable->resetSelectedColumns();
 			foreach ($selectedColumns as $column) {
 				$mainTable->addSelectedColumn($column);
 			}
