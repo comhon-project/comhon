@@ -57,7 +57,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	private $order = [];
 	
 	/** @var integer max length of retrieved serialized comhon objects */
-	private $length;
+	private $limit;
 	
 	/** @var integer number of serialized comhon objects that will be skiped */
 	private $offset;
@@ -88,13 +88,13 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	/**
-	 * set max length of retrieved comhon objects
+	 * set limit of retrieved comhon objects
 	 * 
 	 * @param integer $integer
 	 * @return \Comhon\Request\ComplexLoadRequest
 	 */
-	public function setMaxLength($integer) {
-		$this->length = $integer;
+	public function setLimit($integer) {
+		$this->limit = $integer;
 		return $this;
 	}
 	
@@ -177,8 +177,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				$objectLoadRequest->importLiteral($settings->filter);
 			}
 		}
-		if (isset($settings->maxLength)) {
-			$objectLoadRequest->setMaxLength($settings->maxLength);
+		if (isset($settings->limit)) {
+			$objectLoadRequest->setLimit($settings->limit);
 		}
 		if (isset($settings->properties) && is_array($settings->properties)) {
 			$objectLoadRequest->setPropertiesFilter($settings->properties);
@@ -364,7 +364,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		}
 		$this->selectQuery->setFocusOnMainTable();
 		if (!$isCount) {
-			$this->selectQuery->limit($this->length)->offset($this->offset);
+			$this->selectQuery->limit($this->limit)->offset($this->offset);
 			$this->_addColumns();
 			$this->_addOrderColumns();
 		}

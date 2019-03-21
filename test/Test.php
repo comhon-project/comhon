@@ -447,7 +447,6 @@ try {
 
 
 // TODO for version > 3.0
-// do not use upper case column pgsql -> DOC
 // add selectquery select count(*) on query and func(*) on table
 // should not check file exists when _getInstanceModel()
 //   pb if instanciate local type before parent manifest. should not instanciate another one

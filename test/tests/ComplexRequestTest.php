@@ -7,7 +7,7 @@ $time_start = microtime(true);
 $Json = '{
 	"requestChildren" : true,
 	"loadForeignProperties" : true,
-	"maxLength" : 1,
+	"limit" : 1,
 	"offset" : 0,
 	"order" : [{"property":"id", "type":"DESC"}],
 	"tree" : {

@@ -72,7 +72,7 @@ class CountRequestTest extends TestCase
 		$params->filter->property = 'lastName';
 		$params->filter->operator = '=';
 		$params->filter->value = 'Dupond';
-		$params->maxLength = 1;
+		$params->limit = 1;
 		$order = new \stdClass();
 		$order->property = 'firstName';
 		$params->order = [$order];
