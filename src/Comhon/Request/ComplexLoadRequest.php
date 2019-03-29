@@ -11,7 +11,7 @@
 
 namespace Comhon\Request;
 
-use Comhon\Database\DatabaseController;
+use Comhon\Database\DatabaseHandler;
 use Comhon\Logic\Clause;
 use Comhon\Logic\ClauseOptimizer;
 use Comhon\Logic\Literal;
@@ -76,11 +76,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public function __construct($modelName, $private = false) {
 		parent::__construct($modelName, $private);
-		if (!$this->model->hasSqlTableUnit()) {
+		if (!$this->model->hasSqlTableSerialization()) {
 			$types = [NotAllowedRequestException::INTERMEDIATE_REQUEST, NotAllowedRequestException::COMPLEXE_REQUEST];
 			throw new NotAllowedRequestException($this->model, $types);
 		}
-		$database = $this->model->getSqlTableUnit()->getSettings()->getValue('database');
+		$database = $this->model->getSqlTableSettings()->getValue('database');
 		if (!($database instanceof UniqueObject)) {
 			throw new SerializationException('not valid serialization settings, database information is missing');
 		}
@@ -210,7 +210,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}
 	
 	private function initSelectQuery() {
-		$tableNode = new TableNode($this->model->getSqlTableUnit()->getSettings()->getValue('name'));
+		$tableNode = new TableNode($this->model->getSqlTableSettings()->getValue('name'));
 		$this->selectQuery = new SelectQuery($tableNode);
 	}
 	
@@ -231,7 +231,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			throw new ComhonException('root model in model tree is not the same as model specified in constructor');
 		}
 		
-		$tableNode = new TableNode($this->model->getSqlTableUnit()->getSettings()->getValue('name'), isset($modelTree->id) ? $modelTree->id : null);
+		$tableNode = new TableNode($this->model->getSqlTableSettings()->getValue('name'), isset($modelTree->id) ? $modelTree->id : null);
 		$this->selectQuery = new SelectQuery($tableNode);
 		
 		$this->modelByNodeId = [$tableNode->getExportName() => $this->model];
@@ -239,6 +239,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$stack = [[$this->model, $tableNode, $modelTree]];
 		while (!empty($stack)) {
 			$lastElement    = array_pop($stack);
+			/** @var Model $leftModel */
 			$leftModel      = $lastElement[0];
 			$leftTable      = $lastElement[1];
 			
@@ -307,7 +308,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	private function importClause(\stdClass $stdObjectClause) {
 		if (is_null($this->modelByNodeId)) {
-			$mainTableName = $this->model->getSqlTableUnit()->getSettings()->getValue('name');
+			$mainTableName = $this->model->getSqlTableSettings()->getValue('name');
 			$mainTableNode = new TableNode($mainTableName);
 			$this->selectQuery = new SelectQuery($mainTableNode);
 			$this->modelByNodeId = [$mainTableName => $this->model];
@@ -328,7 +329,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	private function importLiteral($stdObjectLiteral) {
 		if (is_null($this->modelByNodeId)) {
-			$mainTableName = $this->model->getSqlTableUnit()->getSettings()->getValue('name');
+			$mainTableName = $this->model->getSqlTableSettings()->getValue('name');
 			$mainTableNode = new TableNode($mainTableName);
 			$this->selectQuery = new SelectQuery($mainTableNode);
 			$this->modelByNodeId = [$mainTableName => $this->model];
@@ -390,9 +391,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public function execute() {
 		$this->_finalize();
-		$sqlTable = $this->model->getSqlTableUnit()->getSettings();
+		$sqlTable = $this->model->getSqlTableSettings();
 		$sqlTable->loadValue('database');
-		$dbInstance = DatabaseController::getInstanceWithDataBaseObject($sqlTable->getValue('database'));
+		$dbInstance = DatabaseHandler::getInstanceWithDataBaseObject($sqlTable->getValue('database'));
 		$rows = $dbInstance->select($this->selectQuery);
 		
 		return $this->_buildObjectsWithRows($rows);
@@ -406,9 +407,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public function count() {
 		$this->_finalize(true);
-		$sqlTable = $this->model->getSqlTableUnit()->getSettings();
+		$sqlTable = $this->model->getSqlTableSettings();
 		$sqlTable->loadValue('database');
-		$dbInstance = DatabaseController::getInstanceWithDataBaseObject($sqlTable->getValue('database'));
+		$dbInstance = DatabaseHandler::getInstanceWithDataBaseObject($sqlTable->getValue('database'));
 		
 		return $dbInstance->count($this->selectQuery);;
 	}
@@ -520,7 +521,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				// add temporary leftJoin
 				// add leftjoin if model $rightModel is in literals ($litralsByModelName)
 				$leftModel = $stack[$stackIndex]['left_model'];
-				$temporaryLeftJoins[] = self::prepareJoinedTable($leftModel->getSqlTableUnit()->getSettings()->getValue('name'), $rightProperty, $this->databaseId);
+				$temporaryLeftJoins[] = self::prepareJoinedTable($leftModel->getSqlTableSettings()->getValue('name'), $rightProperty, $this->databaseId);
 				if (array_key_exists($rightModelName, $litralsByModelName)) {
 					$this->_joinTables($temporaryLeftJoins, $litralsByModelName[$rightModelName]);
 					$temporaryLeftJoins = [];
@@ -583,7 +584,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		
 		$extendablesProperties = [];
 		foreach ($model->getForeignSerializableProperties('Comhon\SqlTable') as $property) {
-			$database = $property->getUniqueModel()->getSerialization()->getSettings()->getValue('database');
+			$database = $property->getUniqueModel()->getSqlTableSettings()->getValue('database');
 			if (!($database instanceof UniqueObject)) {
 				throw new SerializationException('not valid serialization settings, database information is missing');
 			}
@@ -621,10 +622,10 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @return ['model' => \Comhon\Model\Model, 'table' => \Comhon\Database\TableNode, 'join_on' => \Comhon\Database\OnLiteral]
 	 */
 	public static function prepareJoinedTable($leftTable, $rightProperty, $databaseId, $rightAliasTable = null, $selectAllColumns = false) {
-		if (!($rightProperty instanceof ForeignProperty) || !$rightProperty->getUniqueModel()->hasSqlTableUnit()) {
+		if (!($rightProperty instanceof ForeignProperty) || !$rightProperty->getUniqueModel()->hasSqlTableSerialization()) {
 			throw new IncompatibleLiteralSerializationException($rightProperty);
 		}
-		$database = $rightProperty->getUniqueModel()->getSerialization()->getSettings()->getValue('database');
+		$database = $rightProperty->getUniqueModel()->getSqlTableSettings()->getValue('database');
 		if (!($database instanceof UniqueObject)) {
 			throw new SerializationException('not valid serialization settings, database information is missing');
 		}
@@ -632,7 +633,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			throw new IncompatibleLiteralSerializationException($rightProperty);
 		}
 		$rightModel = $rightProperty->getUniqueModel();
-		$rightTable = new TableNode($rightModel->getSqlTableUnit()->getSettings()->getValue('name'), $rightAliasTable, $selectAllColumns);
+		$rightTable = new TableNode($rightModel->getSqlTableSettings()->getValue('name'), $rightAliasTable, $selectAllColumns);
 		
 		if ($rightProperty->isAggregation()) {
 			$disJunction = [];

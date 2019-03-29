@@ -21,7 +21,7 @@ use Comhon\Exception\Database\IncompleteSqlDbInfosException;
 use Comhon\Exception\Database\UnexpectedCountValuesQueryException;
 use Comhon\Exception\Database\QueryBindingValueException;
 
-class DatabaseController {
+class DatabaseHandler {
 	
 	/** @var string */
 	const MYSQL = 'mysql';
@@ -29,7 +29,7 @@ class DatabaseController {
 	/** @var string */
 	const PGSQL = 'pgsql';
 
-	/** @var DatabaseController[] */
+	/** @var DatabaseHandler[] */
 	private static $instances = [];
 	
 	/** @var string[] */
@@ -74,7 +74,7 @@ class DatabaseController {
 	/**
 	 * @var \PDO 
 	 */
-	private $dbHandle;
+	private $pdo;
 	
 	/**
 	 * @var \PDOStatement[] all prepared queries already built (avoid to rebuild each time same query)
@@ -104,6 +104,13 @@ class DatabaseController {
 	private $escapeChar;
 	
 	/**
+	 * Database manager system
+	 *
+	 * @var string
+	 */
+	private $DBMS;
+	
+	/**
 	 * @param \Comhon\Object\UniqueObject $dbReference
 	 * @throws \Exception
 	 */
@@ -116,10 +123,11 @@ class DatabaseController {
 		if ($dbReference->hasValue('port')) {
 			$dataSourceName .= sprintf(';port=%s', $dbReference->getValue('port'));
 		}
-		$this->dbHandle = new \PDO($dataSourceName, $dbReference->getValue('user'), $dbReference->getValue('password'));
+		$this->pdo = new \PDO($dataSourceName, $dbReference->getValue('user'), $dbReference->getValue('password'));
 		$this->isSupportedLastInsertId = in_array($dbReference->getValue('DBMS'), self::$supportedLastInsertId);
 		$this->insertReturn = self::$insertReturns[$dbReference->getValue('DBMS')];
 		$this->escapeChar = self::$escapeChars[$dbReference->getValue('DBMS')];
+		$this->DBMS= $dbReference->getValue('DBMS');
 		$this->_setDatabaseOptions($dbReference);
 	}
 	
@@ -128,7 +136,7 @@ class DatabaseController {
 	 * @return \PDO
 	 */
 	public function getPDO() {
-		return $this->dbHandle;
+		return $this->pdo;
 	}
 	
 	/**
@@ -156,6 +164,15 @@ class DatabaseController {
 	 */
 	public function getEscapeChar() {
 		return $this->escapeChar;
+	}
+	
+	/**
+	 * get database manager system
+	 *
+	 * @return string
+	 */
+	public function getDBMS() {
+		return $this->DBMS;
 	}
 	
 	/**
@@ -207,16 +224,16 @@ class DatabaseController {
 	 * @throws \Exception
 	 */
 	private function _setDatabaseOptionsMySql() {
-		if ($this->dbHandle->exec('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';') === false) {
+		if ($this->pdo->exec('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';') === false) {
 			throw new QueryExecutionFailureException('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';');
 		}
-		if ($this->dbHandle->exec("SET time_zone = '{$this->_getTimeZoneOffset()}';") === false) {
+		if ($this->pdo->exec("SET time_zone = '{$this->_getTimeZoneOffset()}';") === false) {
 			throw new QueryExecutionFailureException("SET time_zone = '{$this->_getTimeZoneOffset()}';");
 		}
 		
 		// do not transform int to string (I fail to make it works)
-		// $this->dbHandle->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
-		// $this->dbHandle->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
+		// $this->pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+		// $this->pdo->setAttribute(\PDO::ATTR_STRINGIFY_FETCHES, false);
 	}
 	
 	/**
@@ -225,19 +242,19 @@ class DatabaseController {
 	 * @throws \Exception
 	 */
 	private function _setDatabaseOptionsPgSql() {
-		if ($this->dbHandle->exec('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';') === false) {
+		if ($this->pdo->exec('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';') === false) {
 			throw new QueryExecutionFailureException('SET NAMES \''.Config::getInstance()->getDataBaseCharset().'\';');
 		}
-		if ($this->dbHandle->exec("SET time zone  '{$this->_getTimeZoneOffset()}';") === false) {
+		if ($this->pdo->exec("SET time zone  '{$this->_getTimeZoneOffset()}';") === false) {
 			throw new QueryExecutionFailureException("SET time zone  '{$this->_getTimeZoneOffset()}';");
 		}
 	}
 
 	/**
-	 * get existing instance of DatabaseController according specified id
+	 * get existing instance of DatabaseHandler according specified id
 	 * 
 	 * @param string $id
-	 * @return DatabaseController|null
+	 * @return DatabaseHandler|null
 	 */
 	public static function getInstanceWithDataBaseId($id) {
 		return array_key_exists($id, self::$instances)
@@ -246,13 +263,13 @@ class DatabaseController {
 	}
 	
 	/**
-	 * get existing or new  instance of DatabaseController according specified database reference
+	 * get existing or new  instance of DatabaseHandler according specified database reference
 	 * 
 	 * @param \Comhon\Object\UniqueObject $dbReference
-	 * @return DatabaseController
+	 * @return DatabaseHandler
 	 */
 	public static function getInstanceWithDataBaseObject(UniqueObject $dbReference) {
-		$databaseController = null;
+		$instance = null;
 		if ($dbReference->getModel() !== ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')) {
 			throw new UnexpectedModelException(ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase'), $dbReference->getModel());
 		}
@@ -261,14 +278,14 @@ class DatabaseController {
 		}
 		$id = $dbReference->getValue('id');
 		if (array_key_exists($id, self::$instances)) {
-			$databaseController = self::$instances[$id];
+			$instance = self::$instances[$id];
 		}else if ($dbReference->hasValues(['DBMS', 'host', 'name', 'user', 'password'])) {
-			$databaseController = new DatabaseController($dbReference);
-			self::$instances[$id] = $databaseController;
+			$instance = new DatabaseHandler($dbReference);
+			self::$instances[$id] = $instance;
 		}else {
 			throw new IncompleteSqlDbInfosException();
 		}
-		return $databaseController;
+		return $instance;
 	}
 	
 	/**
@@ -281,7 +298,7 @@ class DatabaseController {
 	 */
 	private function _prepareQuery($query, $values = []) {
 		if (!array_key_exists($query, $this->preparedQueries)) {
-			$this->preparedQueries[$query] = $this->dbHandle->prepare($query);
+			$this->preparedQueries[$query] = $this->pdo->prepare($query);
 			$this->preparedQueriesParamCount[$query] = count($values);
 		}
 		else if (count($values) !== $this->preparedQueriesParamCount[$query]) {
@@ -321,7 +338,7 @@ class DatabaseController {
 	 * @return string
 	 */
 	public function lastInsertId() {
-		return $this->dbHandle->lastInsertId();
+		return $this->pdo->lastInsertId();
 	}
 	
 	/**

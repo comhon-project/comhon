@@ -82,11 +82,10 @@ class AggregationProperty extends ForeignProperty {
 		if ($objectArray->isLoaded() && !$forceLoad) {
 			return false;
 		}
-		$serializationUnit = $this->getUniqueModel()->getSerialization();
-		if (!($serializationUnit instanceof SqlTable)) {
+		if (is_null($sqlTableUnit = $this->getUniqueModel()->getSqlTableUnit())) {
 			throw new ComhonException('aggregation doesn\'t have model with sql serialization');
 		}
-		return $serializationUnit->loadAggregation($objectArray, $parentObject->getId(), $this->aggregationProperties, $propertiesFilter);
+		return $sqlTableUnit->loadAggregation($objectArray, $parentObject->getId(), $this->aggregationProperties, $propertiesFilter);
 	}
 	
 	/**

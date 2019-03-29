@@ -40,11 +40,11 @@ class ForeignProperty extends Property {
 		if ($object->isLoaded() && !$forceLoad) {
 			return false;
 		}
-		$serializationUnit = $this->getUniqueModel()->getSerialization();
-		if (is_null($serializationUnit)) {
+		$serialization = $this->getUniqueModel()->getSerialization();
+		if (is_null($serialization)) {
 			return false;
 		}
-		return $serializationUnit->loadObject($object, $propertiesFilter);
+		return $serialization->getSerializationUnit()->loadObject($object, $propertiesFilter);
 	}
 	
 	/**
@@ -53,8 +53,8 @@ class ForeignProperty extends Property {
 	 * @param string $serializationType
 	 * @return boolean
 	 */
-	public function hasSerializationUnit($serializationType) {
-		return $this->getUniqueModel()->hasSerializationUnit($serializationType);
+	public function hasSerialization($serializationType) {
+		return $this->getUniqueModel()->hasSerialization($serializationType);
 	}
 	
 	/**

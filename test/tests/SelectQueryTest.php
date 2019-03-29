@@ -5,7 +5,7 @@ use Comhon\Database\TableNode;
 use Comhon\Database\OnLiteral;
 use Comhon\Logic\Literal;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Database\DatabaseController;
+use Comhon\Database\DatabaseHandler;
 use Comhon\Database\SimpleDbLiteral;
 use Comhon\Exception\ComhonException;
 
@@ -17,8 +17,8 @@ $childTable->addSelectedColumn('id', 'child_id');
 $selectQuery = new SelectQuery($personTable);
 $selectQuery->join(SelectQuery::INNER_JOIN, $childTable, new OnLiteral($personTable, 'id', Literal::EQUAL, $childTable, 'father_id'));
 $selectQuery->where(new SimpleDbLiteral($childTable, 'first_name', Literal::EQUAL, ['john', 'Jean']));
-$database  = ModelManager::getInstance()->getInstanceModel('Test\Person')->getSerialization()->getSettings()->getValue('database');
-$databaseController = DatabaseController::getInstanceWithDataBaseObject($database);
+$database  = ModelManager::getInstance()->getInstanceModel('Test\Person')->getSqlTableSettings()->getValue('database');
+$databaseController = DatabaseHandler::getInstanceWithDataBaseObject($database);
 
 $selectQuery->setFocusOnMainTable();
 $selectQuery->addOrder('id');

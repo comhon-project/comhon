@@ -11,15 +11,13 @@
 
 namespace Comhon\Serialization;
 
-use Comhon\Database\DatabaseController;
+use Comhon\Database\DatabaseHandler;
 use Comhon\Logic\Clause;
 use Comhon\Database\SelectQuery;
 use Comhon\Logic\Literal;
-use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\ModelArray;
 use Comhon\Object\ComhonArray;
 use Comhon\Model\Model;
-use Comhon\Utils\SqlUtils;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\Config\Config;
 use Comhon\Interfacer\AssocArrayInterfacer;
@@ -30,27 +28,22 @@ use Comhon\Exception\Database\NotSupportedDBMSException;
 use Comhon\Exception\SerializationException;
 use Comhon\Exception\ArgumentException;
 
-class SqlTable extends SerializationUnit {
+class SqlTable extends ValidatedSerializationUnit {
+	
+	/** 
+	 * @var string sql serialization type
+	 */
+	const SETTINGS_TYPE = 'Comhon\SqlTable';
 	
 	/**
 	 * @var integer index that store information that permit to know if model has incremantal id
 	 */
-	const HAS_INCR_ID_INDEX          = 0;
+	const HAS_INCR_ID_INDEX = 0;
 	
 	/**
 	 * @var integer index that store information that permit to know if model has incremantal properties
 	 */
 	const AUTO_INCR_PROPERTIES_INDEX = 1;
-	
-	/**
-	 * @var DatabaseController
-	 */
-	private $dbController;
-	
-	/**
-	 * @var string
-	 */
-	private $tableId;
 	
 	/**
 	 * @var array store all incremental columns names grouped by table
@@ -67,6 +60,14 @@ class SqlTable extends SerializationUnit {
 	 */
 	private static $interfacer;
 	
+	/**
+	 * get serialization unit type
+	 * 
+	 * @return string
+	 */
+	public static function getType() {
+		return self::SETTINGS_TYPE;
+	}
 	
 	/**
 	 * initialize interfacing between specified model and sql table
@@ -74,33 +75,43 @@ class SqlTable extends SerializationUnit {
 	 * @param \Comhon\Model\Model $model
 	 */
 	private function _initDatabaseInterfacing(Model $model) {
-		if (is_null($this->dbController)) {
-			$this->settings->loadValue('database');
-			$this->tableId = $this->settings->getValue('name').'_'.$this->settings->getValue('database')->getValue('id');
-			$this->dbController = DatabaseController::getInstanceWithDataBaseObject($this->settings->getValue('database'));
-			$this->_initColumnsInfos();
+		$settings = $model->getSerializationSettings();
+		if (is_null($settings)) {
+			throw new SerializationException("model '{$model->getName()}' doesn't have serialization");
 		}
-		$this->_initColumnsProperties($model);
+		
+		$databaseId = $settings->getValue('database')->getId();
+		$dbHandler = DatabaseHandler::getInstanceWithDataBaseId($databaseId);
+		$tableName = $settings->getValue('name');
+		$tableId = $tableName. '_' . $databaseId;
+		$this->_initColumnsInfos($dbHandler, $tableId, $tableName);
+		$this->_initColumnsProperties($model, $tableId);
 	}
 	
 	/**
 	 * retrieve and store columns informations of table (auto incremental columns)
+	 * 
+	 * @param \Comhon\Database\DatabaseHandler $dbHandler
+	 * @param string $tableId
+	 * @param string $tableName
 	 */
-	private function _initColumnsInfos() {
-		if (!array_key_exists($this->tableId, self::$autoIncrementColumns)) {
-			self::$autoIncrementColumns[$this->tableId] = $this->_getIncrementalColumns();
+	private function _initColumnsInfos(DatabaseHandler $dbHandler, $tableId, $tableName) {
+		if (!array_key_exists($tableId, self::$autoIncrementColumns)) {
+			self::$autoIncrementColumns[$tableId] = $this->_getIncrementalColumns($dbHandler, $tableName);
 		}
 	}
 	
 	/**
 	 * get auto incremental columns
 	 * 
+	 * @param \Comhon\Database\DatabaseHandler $dbHandler
+	 * @param string $tableName
 	 * @return string[]
 	 */
-	private function _getIncrementalColumns() {
-	switch ($this->settings->getValue('database')->getValue('DBMS')) {
-			case 'mysql': return $this->_getIncrementalColumnsMySql();
-			case 'pgsql': return $this->_getIncrementalColumnsPgSql();
+	private function _getIncrementalColumns($dbHandler, $tableName) {
+		switch ($dbHandler->getDBMS()) {
+			case 'mysql': return $this->_getIncrementalColumnsMySql($dbHandler, $tableName);
+			case 'pgsql': return $this->_getIncrementalColumnsPgSql($dbHandler, $tableName);
 			//case 'cubrid':
 			//case 'dblib':
 			//case 'firebird':
@@ -111,21 +122,22 @@ class SqlTable extends SerializationUnit {
 			//case 'odbc':
 			//case 'sqlite':
 			//case '4D':
-			default: throw new NotSupportedDBMSException($this->settings->getValue('database')->getValue('DBMS'));
+			default: throw new NotSupportedDBMSException($dbHandler->getDBMS());
 		}
 	}
 	
 	/**
 	 * get auto incremental columns and columns to escape
 	 * 
+	 * @param \Comhon\Database\DatabaseHandler $dbHandler
+	 * @param string $tableName
 	 * @return string[]
 	 */
-	private function _getIncrementalColumnsMySql() {
-		$DBMS = $this->settings->getValue('database')->getValue('DBMS');
+	private function _getIncrementalColumnsMySql($dbHandler, $tableName) {
 		$autoIncrementColumns = [];
 		
-		$query = 'SHOW COLUMNS FROM '.$this->settings->getValue('name');
-		$result = $this->dbController->execute($query)->fetchAll(\PDO::FETCH_ASSOC);
+		$query = 'SHOW COLUMNS FROM ' . $tableName;
+		$result = $dbHandler->execute($query)->fetchAll(\PDO::FETCH_ASSOC);
 		
 		foreach ($result as $row) {
 			if ($row['Extra'] === 'auto_increment') {
@@ -138,13 +150,14 @@ class SqlTable extends SerializationUnit {
 	/**
 	 * get auto incremental columns and columns to escape
 	 * 
+	 * @param \Comhon\Database\DatabaseHandler $dbHandler
+	 * @param string $tableName
 	 * @return string[]
 	 */
-	private function _getIncrementalColumnsPgSql() {
-		$DBMS = $this->settings->getValue('database')->getValue('DBMS');
+	private function _getIncrementalColumnsPgSql($dbHandler, $tableName) {
 		$autoIncrementColumns = [];
 		
-		$explodedTable = explode('.', $this->settings->getValue('name'));
+		$explodedTable = explode('.', $tableName);
 		if (count($explodedTable) == 1) {
 			$schema = 'public';
 			$table  = $explodedTable[0];
@@ -163,7 +176,7 @@ class SqlTable extends SerializationUnit {
 	
 		$query = "SELECT column_name, column_default FROM information_schema.columns 
 		WHERE table_schema='$schema' AND table_name='$table';";
-		$rows = $this->dbController->execute($query)->fetchAll(\PDO::FETCH_ASSOC);
+		$rows = $dbHandler->execute($query)->fetchAll(\PDO::FETCH_ASSOC);
 		
 		foreach ($rows as $row) {
 			if ($row['column_default'] !== null && strpos($row['column_default'], 'nextval(') === 0) {
@@ -178,15 +191,16 @@ class SqlTable extends SerializationUnit {
 	 * store properties that are binded to specific columns (incremental columns and columns that have to be casted)
 	 * 
 	 * @param \Comhon\Model\Model $model
+	 * @param string $tableId
 	 */
-	private function _initColumnsProperties(Model $model) {
+	private function _initColumnsProperties(Model $model, $tableId) {
 		if (array_key_exists($model->getName(), self::$modelInfos)) {
 			return;
 		}
 		$autoIncrementProperties = [];
 		$hasIncrementalId = false;
 		
-		$autoIncrementColumns = self::$autoIncrementColumns[$this->tableId];
+		$autoIncrementColumns = self::$autoIncrementColumns[$tableId];
 		if (!empty($autoIncrementColumns)) {
 			foreach ($model->getSerializableProperties() as $property) {
 				if (in_array($property->getSerializationName(), $autoIncrementColumns)) {
@@ -202,6 +216,11 @@ class SqlTable extends SerializationUnit {
 			self::HAS_INCR_ID_INDEX          => $hasIncrementalId,
 			self::AUTO_INCR_PROPERTIES_INDEX => $autoIncrementProperties
 		];
+	}
+	
+	public function hasIncrementalId(Model $model) {
+		$this->_initDatabaseInterfacing($model);
+		return self::$modelInfos[$model->getName()][self::HAS_INCR_ID_INDEX];
 	}
 	
 	/**
@@ -273,15 +292,14 @@ class SqlTable extends SerializationUnit {
 		$interfacer = self::getInterfacer();
 		$interfacer->setExportOnlyUpdatedValues(false);
 		$mapOfString = $object->export($interfacer);
-		if (!is_null($this->getInheritanceKey())) {
-			$mapOfString[$this->getInheritanceKey()] = $object->getModel()->getName();
-		}
+		$databaseId = $object->getModel()->getSerializationSettings()->getValue('database')->getId();
+		$databaseHandler = DatabaseHandler::getInstanceWithDataBaseId($databaseId);
 		
-		$query = 'INSERT INTO '.$this->settings->getValue('name').' ('.$this->_getSelectColumnString($mapOfString)
+		$query = 'INSERT INTO '.$object->getModel()->getSerializationSettings()->getValue('name').' ('.$this->_getSelectColumnString($mapOfString, $databaseHandler)
 				.') VALUES ('.implode(', ', array_fill(0, count($mapOfString), '?')).')';
-		if (is_null($this->dbController->getInsertReturn())) {
+		if (is_null($databaseHandler->getInsertReturn())) {
 			$queryEnding = ';';
-		}else if ($this->dbController->getInsertReturn() == 'RETURNING') {
+		}else if ($databaseHandler->getInsertReturn() == 'RETURNING') {
 			$autoIncrementProperties = self::$modelInfos[$object->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
 			if (count($autoIncrementProperties) == 0) {
 				$queryEnding = ';';
@@ -294,20 +312,20 @@ class SqlTable extends SerializationUnit {
 				}
 				$queryEnding = ' RETURNING ' . implode(',', $returns) . ';';
 			}
-		}else if ($this->dbController->getInsertReturn() == 'OUTPUT') {
+		}else if ($databaseHandler->getInsertReturn() == 'OUTPUT') {
 			// TODO
 			throw new SerializationException('not supported yet');
 		}
 		$query .= $queryEnding;
-		$statement = $this->dbController->execute($query, array_values($mapOfString));
+		$statement = $databaseHandler->execute($query, array_values($mapOfString));
 		$affectedRows = $statement->rowCount();
 		
 		$autoIncrementProperties = self::$modelInfos[$object->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
 		if (($affectedRows > 0) && !empty($autoIncrementProperties)) {
-			if ($this->dbController->isSupportedLastInsertId()) {
-				$incrementalValue = current($autoIncrementProperties)->getModel()->castValue($this->dbController->lastInsertId());
+			if ($databaseHandler->isSupportedLastInsertId()) {
+				$incrementalValue = current($autoIncrementProperties)->getModel()->castValue($databaseHandler->lastInsertId());
 				$object->setValue(current($autoIncrementProperties)->getName(), $incrementalValue, false);
-			} elseif (!is_null($this->dbController->getInsertReturn()) && (count($autoIncrementProperties) > 0)) {
+			} elseif (!is_null($databaseHandler->getInsertReturn()) && (count($autoIncrementProperties) > 0)) {
 				$rows = $statement->fetchAll();
 				foreach ($autoIncrementProperties as $column => $autoIncrementProperty) {
 					if (!array_key_exists($column, $rows[0])) {
@@ -326,13 +344,14 @@ class SqlTable extends SerializationUnit {
 	 * escape columns if needed
 	 * 
 	 * @param [] $mapOfString
+	 * @param \Comhon\Database\DatabaseHandler $dbHandler
 	 * @return string
 	 */
-	private function _getSelectColumnString($mapOfString) {
+	private function _getSelectColumnString($mapOfString, $dbHandler) {
 		if (empty($mapOfString)) {
 			return '';
 		} else {
-			$esc = $this->dbController->getEscapeChar();
+			$esc = $dbHandler->getEscapeChar();
 			return $esc . implode($esc . ', ' . $esc, array_keys($mapOfString)) . $esc;
 		}
 	}
@@ -349,7 +368,9 @@ class SqlTable extends SerializationUnit {
 			throw new SerializationException('update operation require complete id');
 		}
 		$model            = $object->getModel();
-		$esc              = $this->dbController->getEscapeChar();
+		$databaseId       = $model->getSerializationSettings()->getValue('database')->getId();
+		$databaseHandler  = DatabaseHandler::getInstanceWithDataBaseId($databaseId);
+		$esc              = $databaseHandler->getEscapeChar();
 		$conditions       = [];
 		$updates          = [];
 		$updateValues     = [];
@@ -378,15 +399,12 @@ class SqlTable extends SerializationUnit {
 		if (empty($mapOfString) && !$object->isCasted()) {
 			return 0;
 		}
-		if (!is_null($this->getInheritanceKey())) {
-			$mapOfString[$this->getInheritanceKey()] = $object->getModel()->getName();
-		}
 		foreach ($mapOfString as $column => $value) {
 			$updates[]      = "{$esc}$column{$esc}= ?";
 			$updateValues[] = $value;
 		}
-		$query = 'UPDATE '.$this->settings->getValue('name').' SET '.implode(', ', $updates).' WHERE '.implode(' and ', $conditions).';';
-		$statement = $this->dbController->execute($query, array_merge($updateValues, $conditionsValues));
+		$query = 'UPDATE '.$object->getModel()->getSerializationSettings()->getValue('name').' SET '.implode(', ', $updates).' WHERE '.implode(' and ', $conditions).';';
+		$statement = $databaseHandler->execute($query, array_merge($updateValues, $conditionsValues));
 		
 		return $statement->rowCount();
 	}
@@ -403,7 +421,9 @@ class SqlTable extends SerializationUnit {
 		$this->_initDatabaseInterfacing($object->getModel());
 		
 		$model            = $object->getModel();
-		$esc              = $this->dbController->getEscapeChar();
+		$databaseId       = $model->getSerializationSettings()->getValue('database')->getId();
+		$databaseHandler  = DatabaseHandler::getInstanceWithDataBaseId($databaseId);
+		$esc              = $databaseHandler->getEscapeChar();
 		$conditions       = [];
 		$conditionsValues = [];
 	
@@ -416,8 +436,8 @@ class SqlTable extends SerializationUnit {
 			$conditions[]       = "{$esc}$column{$esc}= ?";
 			$conditionsValues[] = $value;
 		}
-		$query = 'DELETE FROM '.$this->settings->getValue('name').' WHERE '.implode(' and ', $conditions).';';
-		$statement = $this->dbController->execute($query, $conditionsValues);
+		$query = 'DELETE FROM '.$object->getModel()->getSerializationSettings()->getValue('name').' WHERE '.implode(' and ', $conditions).';';
+		$statement = $databaseHandler->execute($query, $conditionsValues);
 		
 		return $statement->rowCount();
 	}
@@ -433,7 +453,7 @@ class SqlTable extends SerializationUnit {
 		$selectColumns = [];
 		
 		foreach ($model->getIdProperties() as $propertyName => $property) {
-			$conjunction->addLiteral(new SimpleDbLiteral($this->settings->getValue('name'), $property->getSerializationName(), Literal::EQUAL, $object->getValue($propertyName)));
+			$conjunction->addLiteral(new SimpleDbLiteral($object->getModel()->getSerializationSettings()->getValue('name'), $property->getSerializationName(), Literal::EQUAL, $object->getValue($propertyName)));
 		}
 		if (is_array($propertiesFilter)) {
 			foreach ($propertiesFilter as $propertyName) {
@@ -529,7 +549,7 @@ class SqlTable extends SerializationUnit {
 		$uniqueModel = ($object->getModel() instanceof ModelArray) ? $object->getUniqueModel() : $object->getModel();
 		$this->_initDatabaseInterfacing($uniqueModel);
 		
-		$selectQuery = new SelectQuery($this->settings->getValue('name'));
+		$selectQuery = new SelectQuery($uniqueModel->getSerializationSettings()->getValue('name'));
 		$selectQuery->where($clause);
 		
 		if (!empty($selectColumns) && $uniqueModel->hasIdProperties()) {
@@ -542,7 +562,10 @@ class SqlTable extends SerializationUnit {
 		foreach ($selectColumns as $column) {
 			$selectQuery->getMainTable()->addSelectedColumn($column);
 		}
-		$rows = $this->dbController->select($selectQuery);
+		
+		$databaseId = $uniqueModel->getSerializationSettings()->getValue('database')->getId();
+		$databaseHandler = DatabaseHandler::getInstanceWithDataBaseId($databaseId);
+		$rows = $databaseHandler->select($selectQuery);
 		
 		$isModelArray = $object->getModel() instanceof ModelArray;
 		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {
@@ -561,8 +584,11 @@ class SqlTable extends SerializationUnit {
 	 * @param string[] $aggregationProperties
 	 * @return \Comhon\Logic\Clause
 	 */
-	public function getAggregationConditions(Model $model, $parentId, $aggregationProperties) {
-		
+	private function getAggregationConditions(Model $model, $parentId, $aggregationProperties) {
+		$settings = $model->getSerializationSettings();
+		if (is_null($settings)) {
+			throw new SerializationException("model '{$model->getName()}' doesn't have serialization");
+		}
 		$disjunction = new Clause(Clause::DISJUNCTION);
 		foreach ($aggregationProperties as $aggregationProperty) {
 			$property = $model->getProperty($aggregationProperty, true);
@@ -570,25 +596,15 @@ class SqlTable extends SerializationUnit {
 				$decodedId = json_decode($parentId);
 				$conjunction = new Clause(Clause::CONJUNCTION);
 				foreach ($property->getMultipleIdProperties() as $serializationName => $multipleForeignProperty) {
-					$conjunction->addLiteral(new SimpleDbLiteral($this->settings->getValue('name'), $serializationName, Literal::EQUAL, current($decodedId)));
+					$conjunction->addLiteral(new SimpleDbLiteral($settings->getValue('name'), $serializationName, Literal::EQUAL, current($decodedId)));
 					next($decodedId);
 				}
 				$disjunction->addClause($conjunction);
 			} else {
-				$disjunction->addLiteral(new SimpleDbLiteral($this->settings->getValue('name'), $property->getSerializationName(), Literal::EQUAL, $parentId));
+				$disjunction->addLiteral(new SimpleDbLiteral($settings->getValue('name'), $property->getSerializationName(), Literal::EQUAL, $parentId));
 			}
 		}
 		return $disjunction;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Serialization\SerializationUnit::getInheritedModel()
-	 */
-	public function getInheritedModel($value, Model $baseModel) {
-		return array_key_exists($this->inheritanceKey, $value) && !is_null($value[$this->inheritanceKey]) 
-				? ModelManager::getInstance()->getInstanceModel($value[$this->inheritanceKey]) : $baseModel;
 	}
 	
 }

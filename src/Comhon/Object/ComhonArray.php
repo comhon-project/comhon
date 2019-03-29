@@ -154,6 +154,15 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	/**
 	 * 
 	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::_verifyValueBeforeSet()
+	 */
+	protected function _verifyValueBeforeSet($name, $value, &$flagAsUpdated) {
+		$this->getModel()->verifElementValue($value);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \Comhon\Object\AbstractComhonObject::resetUpdatedStatus()
 	 */
 	final public function resetUpdatedStatus($recursive = true) {
@@ -284,13 +293,12 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 \***********************************************************************************************/
 	
 	/**
-	 * verify if unique model associated to comhon object has specified id property
-	 *
-	 * @param string $propertyName
-	 * @return boolean
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::_hasToUpdateMainObjectCollection()
 	 */
-	protected function _hasIdProperty($propertyName) {
-		return $this->getModel()->hasComplexValues() ? $this->getModel()->getUniqueModel()->hasIdProperty($propertyName) : false;
+	protected function _hasToUpdateMainObjectCollection($propertyName) {
+		return false;
 	}
 	
 	 /***********************************************************************************************\

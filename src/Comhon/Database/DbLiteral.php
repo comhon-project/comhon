@@ -153,7 +153,7 @@ abstract class DbLiteral extends Literal {
 	 * - second element is array of columns that will be use for group, select and joins with principale query
 	 */
 	private static function _getJoinedTablesFromQueue(Model $model, $queue, $allowPrivateProperties) {
-		$firstTable    = new TableNode($model->getSqlTableUnit()->getSettings()->getValue('name'), null, false);
+		$firstTable    = new TableNode($model->getSqlTableSettings()->getValue('name'), null, false);
 		$leftTable     = $firstTable;
 		$firstModel    = $model;
 		$leftModel     = $firstModel;
@@ -162,10 +162,10 @@ abstract class DbLiteral extends Literal {
 		$joinedTables  = [];
 		$on            = null;
 		
-		if (!$firstModel->hasSqlTableUnit()) {
+		if (!$firstModel->hasSqlTableSerialization()) {
 			throw new SerializationException('resquested model '.$firstModel->getName().' must have a database serialization');
 		}
-		$database = $firstModel->getSqlTableUnit()->getSettings()->getValue('database');
+		$database = $firstModel->getSqlTableSettings()->getValue('database');
 		if (!($database instanceof UniqueObject)) {
 			throw new SerializationException('not valid serialization settings, database information is missing');
 		}

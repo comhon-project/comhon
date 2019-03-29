@@ -31,6 +31,7 @@ use Comhon\Exception\AlreadyUsedModelNameException;
 use Comhon\Exception\ConfigFileNotFoundException;
 use Comhon\Model\ModelUnique;
 use Comhon\Object\Collection\MainObjectCollection;
+use Comhon\Serialization\Serialization;
 
 class ModelManager {
 
@@ -494,7 +495,7 @@ class ModelManager {
 	 * get serialization if exists
 	 * 
 	 * @param \Comhon\Model\Model $model
-	 * @return \Comhon\Serialization\SerializationUnit|null null if no serialization
+	 * @return \Comhon\Serialization\Serialization|null null if no serialization
 	 */
 	public function getSerializationInstance(Model $model) {
 		if (!is_null($this->serializationManifestParser)) {
@@ -517,12 +518,12 @@ class ModelManager {
 	 * @param \Comhon\Model\Model $model
 	 * @param \Comhon\Object\UniqueObject $serializationSettings
 	 * @param string $inheritanceKey
-	 * @return \Comhon\Serialization\SerializationUnit|null null if no serialization
+	 * @return \Comhon\Serialization\Serialization|null null if no serialization
 	 */
 	private function _getUniqueSerialization(Model $model, UniqueObject $serializationSettings = null, $inheritanceKey = null) {
 		$serialization = null;
 		if (!is_null($model->getParent()) && !is_null($model->getParent()->getSerialization())) {
-			$extendedSerializationSettings = $model->getParent()->getSerialization()->getSettings();
+			$extendedSerializationSettings = $model->getParent()->getSerializationSettings();
 			$extendedInheritanceKey = $model->getParent()->getSerialization()->getInheritanceKey();
 			$same = false;
 			
@@ -540,12 +541,12 @@ class ModelManager {
 			}
 			if ($same) {
 				$inheritanceKey = is_null($inheritanceKey) ? $extendedInheritanceKey : $inheritanceKey;
-				$serialization = SerializationUnit::getInstance($extendedSerializationSettings, $inheritanceKey);
+				$serialization = new Serialization($extendedSerializationSettings, $inheritanceKey);
 			} else {
-				$serialization = SerializationUnit::getInstance($serializationSettings, $inheritanceKey);
+				$serialization = new Serialization($serializationSettings, $inheritanceKey);
 			}
 		} else if (!is_null($serializationSettings)) {
-			$serialization = SerializationUnit::getInstance($serializationSettings, $inheritanceKey);
+			$serialization = new Serialization($serializationSettings, $inheritanceKey);
 		}
 		return $serialization;
 	}

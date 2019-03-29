@@ -2,7 +2,7 @@
 
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Serialization\SqlTable;
-use Comhon\Database\DatabaseController;
+use Comhon\Database\DatabaseHandler;
 
 $time_start = microtime(true);
 
@@ -15,8 +15,8 @@ if ($person->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 
-$databaseId = ModelManager::getInstance()->getInstanceModel('Test\Person')->getSerialization()->getSettings()->getValue('database')->getId();
-$dbHandler = DatabaseController::getInstanceWithDataBaseId($databaseId);
+$databaseId = ModelManager::getInstance()->getInstanceModel('Test\Person')->getSqlTableSettings()->getValue('database')->getId();
+$dbHandler = DatabaseHandler::getInstanceWithDataBaseId($databaseId);
 $statement = $dbHandler->execute('select sex from person where id = '.$person->getId());
 $result = $statement->fetchAll();
 if ($result[0]['sex'] !== 'Test\Person') {

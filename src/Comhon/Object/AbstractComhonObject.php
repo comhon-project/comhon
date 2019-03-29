@@ -85,24 +85,13 @@ abstract class AbstractComhonObject {
 	 */
 	final public function setValue($name, $value, $flagAsUpdated = true) {
 		try {
-			if ($this instanceof ComhonArray) {
-				$this->model->verifElementValue($value);
-			} else {
-				$property = $this->model->getProperty($name, true);
-				if (!is_null($value)) {
-					$property->isSatisfiable($value, true);
-					$property->getModel()->verifValue($value);
-				}
-				if ($property->isAggregation()) {
-					$flagAsUpdated = false;
-				}
-			}
+			$this->_verifyValueBeforeSet($name, $value, $flagAsUpdated);
 		} catch (NotSatisfiedRestrictionException $e) {
 			throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
 		} catch (UnexpectedValueTypeException $e) {
 			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
-		if ($this->_hasIdProperty($name) && $this->model->isMain()) {
+		if ($this->_hasToUpdateMainObjectCollection($name)) {
 			if ($this->hasCompleteId() && MainObjectCollection::getInstance()->getObject($this->getId(), $this->model->getName()) === $this) {
 				MainObjectCollection::getInstance()->removeObject($this);
 			}
@@ -114,7 +103,7 @@ abstract class AbstractComhonObject {
 		if ($flagAsUpdated) {
 			$this->updatedValues[$name] = false;
 			$this->isUpdated = true;
-		} else if (array_key_exists($name, $this->updatedValues)) {
+		} elseif (array_key_exists($name, $this->updatedValues)) {
 			unset($this->updatedValues[$name]);
 			if (empty($this->updatedValues)) {
 				$this->isUpdated = false;
@@ -182,7 +171,7 @@ abstract class AbstractComhonObject {
 	 */
 	final public function unsetValue($name, $flagAsUpdated = true) {
 		if ($this->hasValue($name)) {
-			if ($this->_hasIdProperty($name) && $this->model->isMain()) {
+			if ($this->_hasToUpdateMainObjectCollection($name)) {
 				MainObjectCollection::getInstance()->removeObject($this);
 			}
 			unset($this->values[$name]);
@@ -218,6 +207,17 @@ abstract class AbstractComhonObject {
 			$this->isUpdated = true;
 		}
 	}
+	
+	/**
+	 * 
+	 * verify value before set.
+	 * Warning! $flagAsUpdated is a reference so it can be updated
+	 * 
+	 * @param string $name
+	 * @param mixed $value
+	 * @param bool $flagAsUpdated
+	 */
+	abstract protected function _verifyValueBeforeSet($name, $value, &$flagAsUpdated);
 	
 	/**
 	 * reset values and reset update status
@@ -486,14 +486,12 @@ abstract class AbstractComhonObject {
 	}
 	
 	/**
-	 * verify if model associated to comhon object has specified id property
+	 * verify if main object collection has to be updated if value is updated
 	 *
 	 * @param string $propertyName
 	 * @return boolean
 	 */
-	protected function _hasIdProperty($propertyName) {
-		return $this->model->hasIdProperty($propertyName);
-	}
+	abstract protected function _hasToUpdateMainObjectCollection($propertyName);
 	
 	/**
 	 * get unique contained model

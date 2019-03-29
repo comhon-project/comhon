@@ -35,6 +35,7 @@ use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Visitor\ObjectCollectionCreator;
 use Comhon\Exception\CastComhonObjectException;
+use Comhon\Serialization\Serialization;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -53,7 +54,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var boolean */
 	private $isMain;
 	
-	/** @var SerializationUnit */
+	/** @var Serialization */
 	private $serialization = null;
 	
 	/** @var \Comhon\Model\Property\Property[] */
@@ -449,13 +450,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * get foreign properties that have their own serialization
 	 * 
-	 * @param string $serializationType ("sqlTable", "jsonFile"...)
+	 * @param string $serializationType ("Comhon\SqlTable", "Comhon\JsonFile"...)
 	 * @return \Comhon\Model\Property\Property[]
 	 */
 	public function getForeignSerializableProperties($serializationType) {
 		$properties = [];
 		foreach ($this->properties as $propertyName => $property) {
-			if (($property instanceof ForeignProperty) && $property->hasSerializationUnit($serializationType)) {
+			if (($property instanceof ForeignProperty) && $property->hasSerialization($serializationType)) {
 				$properties[] = $property;
 			}
 		}
@@ -548,7 +549,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * get serialization linked to model
 	 * 
-	 * @return \Comhon\Serialization\SerializationUnit|null
+	 * @return \Comhon\Serialization\Serialization|null
 	 */
 	public function getSerialization() {
 		return $this->serialization;
@@ -556,21 +557,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	
 	/**
 	 * verify if model has serialization
-	 *
-	 * @return boolean
-	 */
-	public function hasSerialization() {
-		return !is_null($this->serialization);
-	}
-	
-	/**
-	 * verify if model has serialization with specified type
 	 * 
 	 * @param string $serializationType
 	 * @return boolean
 	 */
-	public function hasSerializationUnit($serializationType) {
-		return !is_null($this->serialization) && ($this->serialization->getType() == $serializationType);
+	public function hasSerialization($serializationType = null) {
+		return !is_null($this->serialization) && (is_null($serializationType) || $this->serialization->getSettings()->getModel()->getName() === $serializationType);
 	}
 	
 	/**
@@ -587,8 +579,17 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 *
 	 * @return boolean
 	 */
-	public function hasSqlTableUnit() {
-		return !is_null($this->serialization) && ($this->serialization instanceof SqlTable);
+	public function hasSqlTableSerialization() {
+		return !is_null($this->serialization) && ($this->serialization->getSerializationUnit() instanceof SqlTable);
+	}
+	
+	/**
+	 * get linked sql serialization settings (if model has linked sql serialzation)
+	 *
+	 * @return \Comhon\Object\UniqueObject|null null if no sql serialization
+	 */
+	public function getSqlTableSettings() {
+		return !is_null($this->serialization) && ($this->serialization->getSerializationUnit() instanceof SqlTable) ? $this->serialization->getSettings() : null;
 	}
 	
 	/**
@@ -597,7 +598,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return \Comhon\Serialization\SqlTable|null null if no sql serialization
 	 */
 	public function getSqlTableUnit() {
-		return !is_null($this->serialization) && ($this->serialization instanceof SqlTable) ? $this->serialization : null;
+		return !is_null($this->serialization) && ($this->serialization->getSerializationUnit()instanceof SqlTable) ? $this->serialization->getSerializationUnit(): null;
 	}
 	
 	/**
@@ -717,11 +718,11 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	public function loadAndFillObject(UniqueObject $object, $propertiesFilter = null, $forceLoad = false) {
 		$success = false;
 		$this->load();
-		if (is_null($serializationUnit = $this->getSerialization())) {
+		if (is_null($serialization = $this->getSerialization())) {
 			throw new ComhonException("model {$this->getName()} doesn't have serialization");
 		}
 		if (!$object->isLoaded() || $forceLoad) {
-			$success = $serializationUnit->loadObject($object, $propertiesFilter);
+			$success = $serialization->getSerializationUnit()->loadObject($object, $propertiesFilter);
 		}
 		return $success;
 	}

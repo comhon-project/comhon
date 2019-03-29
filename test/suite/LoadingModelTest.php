@@ -89,7 +89,7 @@ class LoadingModelTest extends TestCase
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 		$this->assertEquals('Test\TestDb', $model->getName());
-		$this->assertFalse($model->getSerialization()->getSettings()->getValue('database')->isLoaded());
+		$this->assertFalse($model->getSqlTableSettings()->getValue('database')->isLoaded());
 	}
 
 }

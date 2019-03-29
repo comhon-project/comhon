@@ -1,7 +1,7 @@
 <?php
 
 use Comhon\Object\Config\Config;
-use Comhon\Database\DatabaseController;
+use Comhon\Database\DatabaseHandler;
 
 if ($argc === 1) {
 	$configFile = 'config-xml-mysql.json';
@@ -29,10 +29,10 @@ echo "success\n";
 
 echo "initializing database... ";
 
-$dbHandlerMySql = DatabaseController::getInstanceWithDataBaseId('1');
+$dbHandlerMySql = DatabaseHandler::getInstanceWithDataBaseId('1');
 $dbHandlerMySql->getPDO()->exec(file_get_contents('./data/database/database_mysql.sql'));
 
-$dbHandlerPgSql = DatabaseController::getInstanceWithDataBaseId('2');
+$dbHandlerPgSql = DatabaseHandler::getInstanceWithDataBaseId('2');
 $dbHandlerPgSql->getPDO()->exec(file_get_contents('./data/database/database_pgsql.backup'));
 
 echo "success\n";

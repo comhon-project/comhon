@@ -2,7 +2,7 @@
 
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\Property\MultipleForeignProperty;
-use Comhon\Database\DatabaseController;
+use Comhon\Database\DatabaseHandler;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
@@ -108,8 +108,8 @@ if (json_encode($parentObject->getValue('childrenTestDb')->export($stdPrivateInt
 
 /********************************************** test save *******************************************/
 
-$databaseId  = ModelManager::getInstance()->getInstanceModel('Test\Person')->getSerialization()->getSettings()->getValue('database')->getId();
-$dbHandler = DatabaseController::getInstanceWithDataBaseId($databaseId);
+$databaseId  = ModelManager::getInstance()->getInstanceModel('Test\Person')->getSqlTableSettings()->getValue('database')->getId();
+$dbHandler = DatabaseHandler::getInstanceWithDataBaseId($databaseId);
 $object->unsetValue('id');
 
 if (!is_null($object->getValue('id'))) {

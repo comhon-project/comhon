@@ -20,27 +20,14 @@ use Comhon\Object\UniqueObject;
 use Comhon\Exception\SerializationException;
 use Comhon\Exception\ArgumentException;
 
-abstract class SerializationFile extends SerializationUnit {
+abstract class SerializationFile extends ValidatedSerializationUnit {
 
-	/** @var \Comhon\Interfacer\Interfacer */
-	private $interfacer;
-	
 	/**
 	 * get interfacer able to read serialized file content
 	 *
 	 * @return \Comhon\Interfacer\Interfacer
 	 */
-	abstract protected function _getInterfacer();
-	
-	/**
-	 *
-	 * @param \Comhon\Object\UniqueObject $settings
-	 * @param string $inheritanceKey
-	 */
-	protected function __construct(UniqueObject $settings, $inheritanceKey = null) {
-		parent::__construct($settings, $inheritanceKey);
-		$this->interfacer = $this->_getInterfacer();
-	}
+	abstract protected static function _getInterfacer();
 	
 	/**
 	 * 
@@ -48,7 +35,11 @@ abstract class SerializationFile extends SerializationUnit {
 	 * @return string
 	 */
 	protected function _getPath(UniqueObject $object) {
-		return $this->settings->getValue('saticPath') . DIRECTORY_SEPARATOR . $object->getId() . DIRECTORY_SEPARATOR . $this->settings->getValue('staticName');
+		return $object->getModel()->getSerializationSettings()->getValue('saticPath') 
+			. DIRECTORY_SEPARATOR 
+			. $object->getId() 
+			. DIRECTORY_SEPARATOR 
+			. $object->getModel()->getSerializationSettings()->getValue('staticName');
 	}
 
 	/**
@@ -82,23 +73,11 @@ abstract class SerializationFile extends SerializationUnit {
 				throw new SerializationException("Cannot save object with id '{$object->getId()}'. Impossible to create directory '".dirname($path).'\'');
 			}
 		}
-		$content = $object->export($this->interfacer);
-		$this->_addInheritanceKey($object, $content);
-		if ($this->interfacer->write($content, $path) === false) {
+		$content = $object->export(static::_getInterfacer());
+		if (static::_getInterfacer()->write($content, $path) === false) {
 			throw new SerializationException("Cannot save object with id '{$object->getId()}'. Creation or filling file failed");
 		}
 		return 1;
-	}
-	
-	/**
-	 *
-	 * @param \Comhon\Object\AbstractComhonObject $object
-	 * @param mixed $InterfacedObject
-	 */
-	protected function _addInheritanceKey(AbstractComhonObject $object, $InterfacedObject) {
-		if (!is_null($this->getInheritanceKey())) {
-			$this->interfacer->setValue($InterfacedObject, $object->getModel()->getName(), $this->getInheritanceKey());
-		}
 	}
 	
 	/**
@@ -111,23 +90,12 @@ abstract class SerializationFile extends SerializationUnit {
 		if (!file_exists($path)) {
 			return false;
 		}
-		$formatedContent = $this->interfacer->read($path);
+		$formatedContent = static::_getInterfacer()->read($path);
 		if ($formatedContent === false || is_null($formatedContent)) {
 			throw new SerializationException("cannot load file '$path'");
 		}
-		$object->fill($formatedContent, $this->interfacer);
+		$object->fill($formatedContent, static::_getInterfacer());
 		return true;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Serialization\SerializationUnit::getInheritedModel()
-	 */
-	public function getInheritedModel($value, Model $baseModel) {
-		return $this->interfacer->hasValue($value, $this->inheritanceKey)
-			? ModelManager::getInstance()->getInstanceModel($this->interfacer->getValue($value, $this->inheritanceKey))
-			: $baseModel;
 	}
 	
 	/**

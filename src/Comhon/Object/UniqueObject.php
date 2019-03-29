@@ -84,6 +84,22 @@ abstract class UniqueObject extends AbstractComhonObject {
 		$this->_setValues($orderedvalues, false);
 	}
 	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::_verifyValueBeforeSet()
+	 */
+	protected function _verifyValueBeforeSet($name, $value, &$flagAsUpdated) {
+		$property = $this->getModel()->getProperty($name, true);
+		if (!is_null($value)) {
+			$property->isSatisfiable($value, true);
+			$property->getModel()->verifValue($value);
+		}
+		if ($property->isAggregation()) {
+			$flagAsUpdated = false;
+		}
+	}
+	
 	 /***********************************************************************************************\
 	 |                                                                                               |
 	 |                                        Values Getters                                         |
@@ -314,6 +330,15 @@ abstract class UniqueObject extends AbstractComhonObject {
 		return get_class($this) . "({$this->getModel()->getName()})";
 	}
 	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::_hasToUpdateMainObjectCollection()
+	 */
+	protected function _hasToUpdateMainObjectCollection($propertyName) {
+		return $this->getModel()->isMain() && $this->getModel()->hasIdProperty($propertyName);
+	}
+	
 	 /***********************************************************************************************\
 	 |                                                                                               |
 	 |                                Serialization / Deserialization                                |
@@ -335,7 +360,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 		if (is_null($this->getModel()->getSerialization())) {
 			throw new SerializationException('model doesn\'t have serialization');
 		}
-		return $this->getModel()->getSerialization()->saveObject($this, $operation);
+		return $this->getModel()->getSerialization()->getSerializationUnit()->saveObject($this, $operation);
 	}
 	
 	/**
@@ -350,7 +375,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 		if (is_null($this->getModel()->getSerialization())) {
 			throw new SerializationException('model doesn\'t have serialization');
 		}
-		return $this->getModel()->getSerialization()->deleteObject($this);
+		return $this->getModel()->getSerialization()->getSerializationUnit()->deleteObject($this);
 	}
 	
 	/**

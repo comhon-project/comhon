@@ -147,7 +147,7 @@ if (json_encode($testDbModel->getPropertiesNames()) !== '["id1","id2","date","ti
 	throw new \Exception("model {$testDbModel->getName()} hasn't good properties : ".json_encode($testDbModel->getPropertiesNames()));
 }
 var_dump(get_class($testDbModel));
-$dbModel = $testDbModel->getSerialization()->getSettings()->getModel()->getProperty('database')->getModel();
+$dbModel = $testDbModel->getSqlTableSettings()->getModel()->getProperty('database')->getModel();
 if ($dbModel->getModel()->getName() !== 'Comhon\SqlDatabase') {
 	throw new \Exception('model hasn\'t good name');
 }
@@ -181,38 +181,38 @@ $stdPrivateInterfacer = new StdObjectInterfacer();
 $stdPrivateInterfacer->setPrivateContext(true);
 
 if (
-	json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"test","database":"1"}'
-	&& json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"public.test","database":"2"}'
+	json_encode($testDbModel->getSqlTableSettings()->export($stdPrivateInterfacer)) !== '{"name":"test","database":"1"}'
+	&& json_encode($testDbModel->getSqlTableSettings()->export($stdPrivateInterfacer)) !== '{"name":"public.test","database":"2"}'
 ) {
 	throw new \Exception("model {$testDbModel->getName()} hasn't good values");
 }
 
 if (
-	json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root","password":"root"}'
-	&& json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"2","DBMS":"pgsql","host":"localhost","name":"database","user":"root","password":"root"}'
+	json_encode($testDbModel->getSqlTableSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root","password":"root"}'
+	&& json_encode($testDbModel->getSqlTableSettings()->getValue('database')->export($stdPrivateInterfacer)) !== '{"id":"2","DBMS":"pgsql","host":"localhost","name":"database","user":"root","password":"root"}'
 ) {
-	throw new \Exception("model {$testDbModel->getName()} hasn't good values : ".json_encode($testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPrivateInterfacer)));
+	throw new \Exception("model {$testDbModel->getName()} hasn't good values : ".json_encode($testDbModel->getSqlTableSettings()->getValue('database')->export($stdPrivateInterfacer)));
 }
 
 // LOAD VALUE
-$testDbModel->getSerialization()->getSettings()->loadValue('database');
+$testDbModel->getSqlTableSettings()->loadValue('database');
 
 /** ****************************** test serialization after load ****************************** **/
 if (
-	json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"test","database":"1"}'
-	&& json_encode($testDbModel->getSerialization()->getSettings()->export($stdPrivateInterfacer)) !== '{"name":"public.test","database":"2"}'
+	json_encode($testDbModel->getSqlTableSettings()->export($stdPrivateInterfacer)) !== '{"name":"test","database":"1"}'
+	&& json_encode($testDbModel->getSqlTableSettings()->export($stdPrivateInterfacer)) !== '{"name":"public.test","database":"2"}'
 ) {
 	throw new \Exception("model {$testDbModel->getName()} hasn't good values");
 }
 $stdPublicInterfacer = new StdObjectInterfacer();
-$objDb = $testDbModel->getSerialization()->getSettings()->getValue('database')->export($stdPublicInterfacer);
+$objDb = $testDbModel->getSqlTableSettings()->getValue('database')->export($stdPublicInterfacer);
 if (
 	(json_encode($objDb) !== '{"id":"1","DBMS":"mysql","host":"localhost","name":"database","user":"root"}')
 	&& (json_encode($objDb) !== '{"id":"2","DBMS":"pgsql","host":"localhost","name":"database","user":"root"}')
 ) {
 	throw new \Exception("model {$testDbModel->getName()} hasn't good values ".json_encode($objDb));
 }
-if (!$testDbModel->getSerialization()->getSettings()->getValue('database')->isLoaded()) {
+if (!$testDbModel->getSqlTableSettings()->getValue('database')->isLoaded()) {
 	throw new \Exception('object must be loaded');
 }
 
@@ -225,19 +225,19 @@ if (!ModelManager::getInstance()->hasInstanceModelLoaded('Comhon\SqlDatabase')) 
 }
 
 /** ****************************** same serialization object and model instance ****************************** **/
-if ($placeModel->getSerialization()->getSettings()->getValue('database') !== $testDbModel->getSerialization()->getSettings()->getValue('database')) {
+if ($placeModel->getSqlTableSettings()->getValue('database') !== $testDbModel->getSqlTableSettings()->getValue('database')) {
 	throw new \Exception('models haven\'t same serialization');
 }
 
-if ($placeModel->getSerialization()->getSettings()->getModel() !== $testDbModel->getSerialization()->getSettings()->getModel()) {
+if ($placeModel->getSqlTableSettings()->getModel() !== $testDbModel->getSqlTableSettings()->getModel()) {
 	throw new \Exception('models haven\'t same instance');
 }
 
-if (ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase') !== $testDbModel->getSerialization()->getSettings()->getValue('database')->getModel()) {
+if (ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase') !== $testDbModel->getSqlTableSettings()->getValue('database')->getModel()) {
 	throw new \Exception('models haven\'t same instance');
 }
 
-if (ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable') !== $testDbModel->getSerialization()->getSettings()->getModel()) {
+if (ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable') !== $testDbModel->getSqlTableSettings()->getModel()) {
 	throw new \Exception('models haven\'t same instance');
 }
 

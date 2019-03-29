@@ -379,7 +379,7 @@ class ModelToSQL {
 		} catch(\Exception $e) {
 			$this->displayContinue($e, $modelName);
 		}
-		if (!is_null($model) && $model->hasSerialization() && !($model->getSerialization() instanceof SqlTable)) {
+		if (!is_null($model) && $model->hasSerialization() && !($model->getSerialization()->getSerializationUnit() instanceof SqlTable)) {
 			$model = null;
 		}
 		return $model;
