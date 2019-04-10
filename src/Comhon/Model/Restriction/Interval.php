@@ -16,8 +16,8 @@ use Comhon\Model\ModelFloat;
 use Comhon\Model\ModelInteger;
 use Comhon\Model\ModelDateTime;
 use Comhon\Object\ComhonDateTime;
-use Comhon\Exception\MalformedIntervalException;
-use Comhon\Exception\NotSupportedModelIntervalException;
+use Comhon\Exception\Restriction\MalformedIntervalException;
+use Comhon\Exception\Restriction\NotSupportedModelIntervalException;
 use Comhon\Model\AbstractModel;
 
 class Interval implements Restriction {
@@ -60,8 +60,8 @@ class Interval implements Restriction {
 	 * 
 	 * @param string $interval
 	 * @param \Comhon\Model\AbstractModel $model
-	 * @throws \Comhon\Exception\MalformedIntervalException
-	 * @throws \Comhon\Exception\NotSupportedModelIntervalException
+	 * @throws \Comhon\Exception\Restriction\MalformedIntervalException
+	 * @throws \Comhon\Exception\Restriction\NotSupportedModelIntervalException
 	 */
 	public function __construct($interval, AbstractModel $model) {
 		$matches = [];

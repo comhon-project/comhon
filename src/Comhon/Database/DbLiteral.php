@@ -17,10 +17,10 @@ use Comhon\Logic\Clause;
 use Comhon\Logic\Literal;
 use Comhon\Exception\Literal\LiteralNotFoundException;
 use Comhon\Exception\Literal\LiteralPropertyAggregationException;
-use Comhon\Exception\PropertyVisibilityException;
+use Comhon\Exception\Model\PropertyVisibilityException;
 use Comhon\Exception\Literal\MalformedLiteralException;
 use Comhon\Object\UniqueObject;
-use Comhon\Exception\SerializationException;
+use Comhon\Exception\Serialization\SerializationException;
 
 abstract class DbLiteral extends Literal {
 	

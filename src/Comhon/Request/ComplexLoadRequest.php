@@ -24,18 +24,17 @@ use Comhon\Serialization\SqlTable;
 use Comhon\Database\TableNode;
 use Comhon\Database\OnLiteral;
 use Comhon\Object\ComhonArray;
-use Comhon\Interfacer\Interfacer;
 use Comhon\Database\DbLiteral;
-use Comhon\Exception\SerializationException;
+use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Exception\ArgumentException;
-use Comhon\Exception\MalformedRequestException;
+use Comhon\Exception\Request\MalformedRequestException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Literal\MalformedLiteralException;
 use Comhon\Exception\Literal\UnresolvableLiteralException;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Literal\NotLinkableLiteralException;
 use Comhon\Exception\Literal\IncompatibleLiteralSerializationException;
-use Comhon\Exception\NotAllowedRequestException;
+use Comhon\Exception\Request\NotAllowedRequestException;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	

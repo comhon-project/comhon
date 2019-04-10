@@ -12,7 +12,7 @@
 namespace Comhon\Serialization;
 
 use Comhon\Object\UniqueObject;
-use Comhon\Exception\SerializationException;
+use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Exception\ArgumentException;
 
 abstract class ValidatedSerializationUnit extends SerializationUnit {

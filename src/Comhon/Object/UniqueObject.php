@@ -14,10 +14,10 @@ namespace Comhon\Object;
 use Comhon\Model\Model;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Model\Property\AggregationProperty;
-use Comhon\Exception\CastComhonObjectException;
+use Comhon\Exception\Model\CastComhonObjectException;
 use Comhon\Object\ComhonArray;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\SerializationException;
+use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Model\ModelComhonObject;
 
 abstract class UniqueObject extends AbstractComhonObject {
@@ -289,8 +289,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 * new model must inherit from current model otherwise an exception is thrown
 	 *
 	 * @param \Comhon\Model\ModelComhonObject $model
-	 * @throws \Exception
-	 * @throws \Comhon\Exception\CastComhonObjectException
+	 * @throws \Comhon\Exception\Model\CastComhonObjectException
 	 */
 	final public function cast(ModelComhonObject $model) {
 		if ($this->getModel() === $model) {

@@ -12,7 +12,7 @@
 namespace Comhon\Database;
 
 use Comhon\Exception\Literal\MalformedLiteralException;
-use Comhon\Exception\PropertyVisibilityException;
+use Comhon\Exception\Model\PropertyVisibilityException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Literal\MultiplePropertyLiteralException;
 

@@ -24,6 +24,7 @@ SET time_zone = "+00:00";
 
 
 DROP TABLE IF EXISTS child_test;
+DROP TABLE IF EXISTS db_constraint;
 DROP TABLE IF EXISTS home;
 DROP TABLE IF EXISTS house;
 DROP TABLE IF EXISTS main_test;
@@ -44,7 +45,7 @@ CREATE TABLE `child_test` (
   `id` int(11) NOT NULL,
   `name` text NOT NULL,
   `parent_id_1` int(11) NOT NULL,
-  `parent_id_2` int(11) NOT NULL
+  `parent_id_2` varchar(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -52,8 +53,8 @@ CREATE TABLE `child_test` (
 --
 
 INSERT INTO `child_test` (`id`, `name`, `parent_id_1`, `parent_id_2`) VALUES
-(1, 'plop', 1, 1501774389),
-(2, 'plop2', 1, 1501774389);
+(1, 'plop', 1, '1501774389'),
+(2, 'plop2', 1, '1501774389');
 
 -- --------------------------------------------------------
 
@@ -221,7 +222,7 @@ INSERT INTO `place` (`id`, `number`, `type`, `name`, `geographic_latitude`, `geo
 
 CREATE TABLE `test` (
   `id_1` int(11) NOT NULL,
-  `id_2` int(11) NOT NULL,
+  `id_2` varchar(32) NOT NULL,
   `date` datetime DEFAULT NULL,
   `object` text CHARACTER SET utf8,
   `object_with_id` text,
@@ -245,15 +246,15 @@ CREATE TABLE `test` (
 --
 
 INSERT INTO `test` (`id_1`, `id_2`, `date`, `object`, `object_with_id`, `timestamp`, `integer`, `string`, `main_test_id`, `objects_with_id`, `foreign_objects`, `lonely_foreign_object`, `lonely_foreign_object_two`, `default_value`, `woman_xml_id`, `man_body_json_id`, `boolean`, `boolean2`) VALUES
-(1, 23, '2016-05-01 12:53:54', NULL, NULL, '2016-10-16 19:50:19', 0, 'aaaa', 1, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
-(1, 50, '2016-10-16 18:21:18', '{"plop":"plop","plop2":"plop2222"}', '{"plop":"plop","plop2":"plop2222"}', '2016-10-16 19:50:19', 1, 'bbbb', 1, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
-(1, 101, '2016-04-13 07:14:33', '{"plop":"plop","plop2":"plop2"}', '{"plop":"plop","plop2":"plop2"}', '2016-10-16 19:50:19', 2, 'cccc', 1, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
-(1, 1501774389, '2016-04-12 03:14:33', '{"plop":"plop","plop2":"plop2"}', '{"plop":"plop","plop2":"plop2"}', '2016-10-13 09:50:19', 2, 'nnnn', 1, '[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}]', '[{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}]', '{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}', '11', 'default', NULL, NULL, 0, 1),
-(2, 50, '2016-05-01 21:37:18', '{"plop":"plop","plop2":"plop2222"}', '{"plop":"plop","plop2":"plop2222"}', '2016-10-16 19:50:19', 3, 'dddd', 1, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
-(2, 102, '2016-04-01 06:00:00', '{"plop":"plop10","plop2":"plop20"}', NULL, '2016-10-16 16:21:18', 4, 'eeee', 1, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
-(3, 50, '2016-05-01 21:39:29', '{"plop":"plop","plop2":"plop2222"}', NULL, '2016-10-16 16:21:18', 5, 'ffff', 2, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
-(4, 50, '2016-05-09 23:56:36', '{"plop":"plop","plop2":"plop2222"}', NULL, '2016-10-16 16:21:18', 6, 'gggg', 2, '[]', '[]', NULL, NULL, 'default', 4, 4567, 0, 1),
-(40, 50, '2016-05-09 23:50:20', '{"plop":"plop","plop2":"plop2222"}', NULL, '2016-10-16 16:21:18', 7, 'hhhh', 2, '[]', '[]', NULL, NULL, 'default', 3, 1567, 0, 1);
+(1, '23', '2016-05-01 12:53:54', NULL, NULL, '2016-10-16 19:50:19', 0, 'aaaa', 1, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
+(1, '50', '2016-10-16 18:21:18', '{"plop":"plop","plop2":"plop2222"}', '{"plop":"plop","plop2":"plop2222"}', '2016-10-16 19:50:19', 1, 'bbbb', 1, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
+(1, '101', '2016-04-13 07:14:33', '{"plop":"plop","plop2":"plop2"}', '{"plop":"plop","plop2":"plop2"}', '2016-10-16 19:50:19', 2, 'cccc', 1, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
+(1, '1501774389', '2016-04-12 03:14:33', '{"plop":"plop","plop2":"plop2"}', '{"plop":"plop","plop2":"plop2"}', '2016-10-13 09:50:19', 2, 'nnnn', 1, '[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}]', '[{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}]', '{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}', '11', 'default', NULL, NULL, 0, 1),
+(2, '50', '2016-05-01 21:37:18', '{"plop":"plop","plop2":"plop2222"}', '{"plop":"plop","plop2":"plop2222"}', '2016-10-16 19:50:19', 3, 'dddd', 1, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
+(2, '102', '2016-04-01 06:00:00', '{"plop":"plop10","plop2":"plop20"}', NULL, '2016-10-16 16:21:18', 4, 'eeee', 1, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
+(3, '50', '2016-05-01 21:39:29', '{"plop":"plop","plop2":"plop2222"}', NULL, '2016-10-16 16:21:18', 5, 'ffff', 2, '[]', '[]', NULL, NULL, 'default', NULL, NULL, 0, 1),
+(4, '50', '2016-05-09 23:56:36', '{"plop":"plop","plop2":"plop2222"}', NULL, '2016-10-16 16:21:18', 6, 'gggg', 2, '[]', '[]', NULL, NULL, 'default', 4, 4567, 0, 1),
+(40, '50', '2016-05-09 23:50:20', '{"plop":"plop","plop2":"plop2222"}', NULL, '2016-10-16 16:21:18', 7, 'hhhh', 2, '[]', '[]', NULL, NULL, 'default', 3, 1567, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -337,6 +338,20 @@ CREATE TABLE `woman_body` (
 INSERT INTO `woman_body` (`id`, `height`, `weight`, `hair_color`, `hair_cut`, `eyes_color`, `physical_appearance`, `tatoos`, `piercings`, `owner_id`, `chest_size`, `date`) VALUES
 (1, 1.65, 60, 'black', 'long', 'green', 'athletic', '[{"type":"sentence","location":"shoulder","tatooArtist":5},{"type":"sentence","location":"arm","tatooArtist":6},{"type":"sentence","location":"leg","tatooArtist":5}]', '[{"type":"earring","location":"ear","piercer":5},{"type":"earring","location":"ear","piercer":6},{"type":"clasp","location":"eyebrow","piercer":5}]', 2, '90-B', '2017-06-27 22:23:17');
 
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `db_constraint`
+--
+
+CREATE TABLE `db_constraint` (
+  `id` int(11) NOT NULL,
+  `unique_name` varchar(32) CHARACTER SET utf8 NOT NULL,
+  `foreign_constraint` int(11) DEFAULT NULL,
+  `unique_one` int(11),
+  `unique_two` varchar(32)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
 --
 -- Index pour les tables exportées
 --
@@ -409,6 +424,12 @@ ALTER TABLE `town`
 --
 ALTER TABLE `woman_body`
   ADD PRIMARY KEY (`id`);
+  
+--
+-- Index pour la table `db_constraint`
+--
+ALTER TABLE `db_constraint`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT pour les tables exportées
@@ -464,6 +485,33 @@ ALTER TABLE `town`
 --
 ALTER TABLE `woman_body`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  
+--
+-- AUTO_INCREMENT pour la table `db_constraint`
+--
+ALTER TABLE `db_constraint`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+--
+-- FOREIGN KEY pour la table `db_constraint`
+--
+ALTER TABLE `db_constraint`
+  ADD FOREIGN KEY (`foreign_constraint`) REFERENCES `db_constraint`(`id`); 
+
+
+ALTER TABLE `db_constraint`
+  ADD FOREIGN KEY (`unique_one`, `unique_two`) REFERENCES test(`id_1`, `id_2`);
+
+  
+--
+-- UNIQUE pour la table `db_constraint`
+--
+ALTER TABLE `db_constraint`
+  ADD UNIQUE (`unique_name`); 
+
+ALTER TABLE `db_constraint`
+    ADD UNIQUE (`unique_one`, `unique_two`);
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

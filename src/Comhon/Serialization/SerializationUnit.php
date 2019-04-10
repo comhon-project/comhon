@@ -14,8 +14,6 @@ namespace Comhon\Serialization;
 use Comhon\Serialization\File\XmlFile;
 use Comhon\Serialization\File\JsonFile;
 use Comhon\Object\UniqueObject;
-use Comhon\Exception\SerializationException;
-use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
 
 abstract class SerializationUnit {

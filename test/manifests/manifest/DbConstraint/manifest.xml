@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0" is_serializable="1">
+	<properties>
+		<property type="integer" is_id="1" name="id"/>
+		<property type="string" name="unique_name"/>
+		<property is_foreign="1" type="\Test\DbConstraint" name="foreign_constraint"/>
+		<property type="integer" name="unique_one"/>
+		<property type="string" name="unique_two"/>
+		<property is_foreign="1" type="\Test\TestDb" name="foreign_constraint_composite"/>
+	</properties>
+</manifest>

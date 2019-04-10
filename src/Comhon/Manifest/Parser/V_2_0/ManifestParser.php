@@ -26,7 +26,7 @@ use Comhon\Model\ModelContainer;
 use Comhon\Model\ModelRestrictedArray;
 use Comhon\Manifest\Parser\ManifestParser as ParentManifestParser;
 use Comhon\Interfacer\XMLInterfacer;
-use Comhon\Exception\ManifestException;
+use Comhon\Exception\Manifest\ManifestException;
 use Comhon\Model\AbstractModel;
 
 class ManifestParser extends ParentManifestParser {

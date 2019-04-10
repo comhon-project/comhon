@@ -13,7 +13,7 @@ namespace Comhon\Model;
 
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
-use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
 
 class ModelInteger extends SimpleModel implements StringCastableModelInterface {
 	

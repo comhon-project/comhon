@@ -13,7 +13,7 @@ namespace Comhon\Model\Property;
 
 use Comhon\Model\Restriction\Restriction;
 use Comhon\Model\Model;
-use Comhon\Exception\NotSatisfiedRestrictionException;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\AbstractModel;
 

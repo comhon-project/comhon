@@ -1,8 +1,7 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 
 class SpecialCharTest extends TestCase

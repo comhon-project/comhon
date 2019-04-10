@@ -1,8 +1,9 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 use Comhon\Object\Config\Config;
-use Comhon\Exception\ConfigFileNotFoundException;
-use Comhon\Exception\ConfigMalformedException;
+use Comhon\Exception\Config\ConfigFileNotFoundException;
+use Comhon\Exception\Config\ConfigMalformedException;
 use Comhon\Model\Restriction\RegexCollection;
 use Test\Comhon\Data;
 use Comhon\Model\Singleton\ModelManager;

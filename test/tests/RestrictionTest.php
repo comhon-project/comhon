@@ -6,12 +6,12 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\ModelDateTime;
 use Comhon\Model\ModelInteger;
 use Comhon\Model\ModelFloat;
+use Comhon\Model\ModelString;
 use Comhon\Object\ComhonDateTime;
 use Comhon\Model\Restriction\Enum;
-use Comhon\Exception\MalformedIntervalException;
-use Comhon\Model\ModelString;
-use Comhon\Exception\NotSupportedModelIntervalException;
-use Comhon\Exception\NotExistingRegexException;
+use Comhon\Exception\Restriction\MalformedIntervalException;
+use Comhon\Exception\Restriction\NotSupportedModelIntervalException;
+use Comhon\Exception\Restriction\NotExistingRegexException;
 
 $time_start = microtime(true);
 

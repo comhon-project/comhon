@@ -25,8 +25,13 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Object\UniqueObject;
 use Comhon\Database\SimpleDbLiteral;
 use Comhon\Exception\Database\NotSupportedDBMSException;
-use Comhon\Exception\SerializationException;
+use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Exception\ArgumentException;
+use Comhon\Exception\Database\QueryExecutionFailureException;
+use Comhon\Exception\ComhonException;
+use Comhon\Exception\Serialization\UniqueException;
+use Comhon\Exception\Serialization\ForeignValueException;
+use Comhon\Exception\Serialization\NotNullException;
 
 class SqlTable extends ValidatedSerializationUnit {
 	
@@ -317,7 +322,8 @@ class SqlTable extends ValidatedSerializationUnit {
 			throw new SerializationException('not supported yet');
 		}
 		$query .= $queryEnding;
-		$statement = $databaseHandler->execute($query, array_values($mapOfString));
+		
+		$statement = $this->execute($databaseHandler, $query, array_values($mapOfString), $object);
 		$affectedRows = $statement->rowCount();
 		
 		$autoIncrementProperties = self::$modelInfos[$object->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
@@ -404,7 +410,7 @@ class SqlTable extends ValidatedSerializationUnit {
 			$updateValues[] = $value;
 		}
 		$query = 'UPDATE '.$object->getModel()->getSerializationSettings()->getValue('name').' SET '.implode(', ', $updates).' WHERE '.implode(' and ', $conditions).';';
-		$statement = $databaseHandler->execute($query, array_merge($updateValues, $conditionsValues));
+		$statement = $this->execute($databaseHandler, $query, array_merge($updateValues, $conditionsValues), $object);
 		
 		return $statement->rowCount();
 	}
@@ -605,6 +611,105 @@ class SqlTable extends ValidatedSerializationUnit {
 			}
 		}
 		return $disjunction;
+	}
+	
+	/**
+	 * 
+	 * @param DatabaseHandler $databaseHandler
+	 * @param string $query
+	 * @param array $values
+	 * @param UniqueObject $object
+	 * @return PDOStatement
+	 */
+	private function execute(DatabaseHandler $databaseHandler, $query, $values, UniqueObject $object) {
+		try {
+			return $databaseHandler->execute($query, $values);
+		} catch (QueryExecutionFailureException $e) {
+			$PDOStatement = $e->getPDOStatement();
+			if (!is_null($PDOStatement)) {
+				switch ($databaseHandler->getDBMS()) {
+					case DatabaseHandler::MYSQL:
+						$this->interfaceMySqlError($PDOStatement, $object);
+						break;
+					case DatabaseHandler::PGSQL:
+						$this->interfacePgSqlError($PDOStatement, $object);
+						break;
+					default:
+						throw new ComhonException('dbsm not managed : ' . $databaseHandler->getDBMS());
+				}
+			}
+			throw $e;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param \PDOStatement $PDOStatement
+	 * @param UniqueObject $object
+	 * @throws UniqueException
+	 * @throws NotNullException
+	 * @throws ForeignValueException
+	 */
+	private function interfaceMySqlError(\PDOStatement $PDOStatement, UniqueObject $object) {
+		$infos = $PDOStatement->errorInfo();
+		switch ($infos[1]) {
+			case 1048:
+				$res = preg_match('/Column \'([^\']+)\' cannot be null/', $infos[2], $matches);
+				if ($res === 1) {
+					throw new NotNullException($object->getModel(), $matches[1]);
+				}
+				break;
+			case 1062:
+				$res = preg_match('/\'(.+)\' for key \'(.+)\'/', $infos[2], $matches);
+				if ($res === 1) {
+					throw new UniqueException($object, $matches[2], $matches[1]);
+				}
+				break;
+			case 1364:
+				$res = preg_match('/Field \'([^\']+)\' doesn\'t have a default value/', $infos[2], $matches);
+				if ($res === 1) {
+					throw new NotNullException($object->getModel(), $matches[1]);
+				}
+				break;
+			case 1452:
+				$res = preg_match('/FOREIGN KEY \\(((?:`?[^`\\(\\)]+`?, )*`?[^`\\(\\)]+`?)\\) REFERENCES/', $infos[2], $matches);
+				if ($res === 1) {
+					throw new ForeignValueException($object, $matches[1]);
+				}
+				break;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param \PDOStatement $PDOStatement
+	 * @param UniqueObject $object
+	 * @throws NotNullException
+	 * @throws ForeignValueException
+	 * @throws UniqueException
+	 */
+	private function interfacePgSqlError(\PDOStatement $PDOStatement, UniqueObject $object) {
+		$infos = $PDOStatement->errorInfo();
+		switch ($infos[0]) {
+			case '23502':
+				$res = preg_match('/null value in column "([^"]+)" violates not-null constraint/', $infos[2], $matches);
+				if ($res === 1) {
+					throw new NotNullException($object->getModel(), $matches[1]);
+				}
+				break;
+			case '23503':
+				$res = preg_match('/\\((.+)\\)=\\((.+)\\)/', $infos[2], $matches);
+				if ($res === 1) {
+					throw new ForeignValueException($object, explode(', ', $matches[1]), $matches[2]);
+				}
+				break;
+			case '23505':
+				$res = preg_match('/\\((.+)\\)=\\(.+\\)/', $infos[2], $matches);
+				if ($res === 1) {
+					throw new UniqueException($object, explode(', ', $matches[1]));
+				}
+				break;
+		}
 	}
 	
 }

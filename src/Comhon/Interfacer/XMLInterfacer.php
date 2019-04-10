@@ -14,7 +14,7 @@ namespace Comhon\Interfacer;
 use Comhon\Model\Model;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\CastStringException;
+use Comhon\Exception\Model\CastStringException;
 
 class XMLInterfacer extends NoScalarTypedInterfacer {
 	

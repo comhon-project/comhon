@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0">
+	<serialization type="Comhon\SqlTable" id="public.db_constraint"/>
+	<properties>
+		<foreign_constraint_composite>
+			<serializationNames>
+				<id1>unique_one</id1>
+				<id2>unique_two</id2>
+			</serializationNames>
+		</foreign_constraint_composite>
+	</properties>
+</manifest>

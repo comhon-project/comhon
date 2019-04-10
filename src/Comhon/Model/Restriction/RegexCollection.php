@@ -12,9 +12,9 @@
 namespace Comhon\Model\Restriction;
 
 use Comhon\Object\Config\Config;
-use Comhon\Exception\NotExistingRegexException;
+use Comhon\Exception\Restriction\NotExistingRegexException;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\ConfigFileNotFoundException;
+use Comhon\Exception\Config\ConfigFileNotFoundException;
 
 class RegexCollection {
 	

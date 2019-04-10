@@ -13,11 +13,9 @@ namespace Comhon\Serialization;
 
 use Comhon\Model\Model;
 use Comhon\Utils\Utils;
-use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\UniqueObject;
-use Comhon\Exception\SerializationException;
+use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Exception\ArgumentException;
 
 abstract class SerializationFile extends ValidatedSerializationUnit {

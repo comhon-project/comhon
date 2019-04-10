@@ -14,7 +14,7 @@ namespace Comhon\Utils\InitProject;
 use Comhon\Object\ComhonObject;
 use Comhon\Object\Config\Config;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Exception\SerializationManifestIdException;
+use Comhon\Exception\Manifest\SerializationManifestIdException;
 use Comhon\Serialization\SqlTable;
 use Comhon\Model\Property\MultipleForeignProperty;
 use Comhon\Model\Property\Property;

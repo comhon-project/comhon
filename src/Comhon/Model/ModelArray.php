@@ -18,7 +18,7 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 

@@ -1,8 +1,8 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Exception\NotDefinedModelException;
-use Comhon\Object\Collection\MainObjectCollection;
+use Comhon\Exception\Model\NotDefinedModelException;
 
 class LoadingModelTest extends TestCase
 {

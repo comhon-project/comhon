@@ -17,8 +17,8 @@ use Comhon\Object\ComhonArray;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\UnexpectedValueTypeException;
-use Comhon\Exception\NotSatisfiedRestrictionException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Model\ModelComhonObject;
@@ -242,7 +242,7 @@ abstract class AbstractComhonObject {
 	/**
 	 * 
 	 * @param string $name
-	 * @return mixed|AbstractComhonObject|null null if value doesn't exist in values
+	 * @return mixed|ComhonArray|UniqueObject|null null if value doesn't exist in values
 	 */
 	final public function getValue($name) {
 		return ($this->hasValue($name)) ? $this->values[$name] : null;

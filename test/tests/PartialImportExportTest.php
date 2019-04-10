@@ -375,6 +375,33 @@ $object->flagValueAsUpdated('id1');
 $object->getValue('objectsWithId')->getValue(0)->setValue('plop3', $object->getValue('objectsWithId')->getValue(0)->getValue('plop3'));
 $object->getValue('object')->setValue('plop2', $object->getValue('object')->getValue('plop2'));
 $object->flagValueAsUpdated('integer');
+
+// reorder values due to different ordering between mysql and postgresql
+$values = $object->getValue('mainParentTestDb')->getValue('childrenTestDb')->getValues();
+foreach ($values as $i => $value) {
+	if ($i < 0 || $i > 5) {
+		throw new \Exception('wrong index'.$i);
+	}
+	if ($value->getId() === '[1,"23"]') {
+		$object->getValue('mainParentTestDb')->getValue('childrenTestDb')->setValue(0, $value);
+	}
+	if ($value->getId() === '[1,"50"]') {
+		$object->getValue('mainParentTestDb')->getValue('childrenTestDb')->setValue(1, $value);
+	}
+	if ($value->getId() === '[1,"101"]') {
+		$object->getValue('mainParentTestDb')->getValue('childrenTestDb')->setValue(2, $value);
+	}
+	if ($value->getId() === '[2,"50"]') {
+		$object->getValue('mainParentTestDb')->getValue('childrenTestDb')->setValue(3, $value);
+	}
+	if ($value->getId() === '[2,"102"]') {
+		$object->getValue('mainParentTestDb')->getValue('childrenTestDb')->setValue(4, $value);
+	}
+	if ($value->getId() === '[1,"1501774389"]') {
+		$object->getValue('mainParentTestDb')->getValue('childrenTestDb')->setValue(5, $value);
+	}
+}
+
 $object->getValue('mainParentTestDb')->getValue('childrenTestDb')->getValue(0)->setValue('integer', 1);
 
 $stdSerialUpdatedInterfacer->setExportMainForeignObjects(true);
@@ -382,7 +409,7 @@ if (!compareJson(json_encode($object->export($stdSerialUpdatedInterfacer)), $ser
 	throw new \Exception('bad object Values');
 }
 if (!compareJson(json_encode($stdSerialUpdatedInterfacer->getMainForeignObjects()), '{"Test\\\\TestDb":{"[1,\"23\"]":{"id_1":1,"id_2":"23","integer":1},"[1,\"50\"]":{"id_1":1,"id_2":"50"},"[1,\"101\"]":{"id_1":1,"id_2":"101"},"[2,\"50\"]":{"id_1":2,"id_2":"50"},"[2,\"102\"]":{"id_1":2,"id_2":"102"}},"Test\\\\MainTestDb":{"1":{"id":1}},"Test\\\\ChildTestDb":{"1":{"id":1,"name":"test_name","parent_id_1":1},"2":{"id":2,"parent_id_1":1}}}')) {
-	throw new \Exception('bad foreign objects Values');
+	throw new \Exception('bad foreign objects Values 1');
 }
 
 $xmlSerialUpdatedInterfacer->setExportMainForeignObjects(true);
@@ -390,7 +417,7 @@ if (!compareXML($xmlSerialUpdatedInterfacer->toString($object->export($xmlSerial
 	throw new \Exception('bad object Values');
 }
 if (!compareXML($xmlSerialUpdatedInterfacer->toString($xmlSerialUpdatedInterfacer->getMainForeignObjects()), '<objects><TestDb namespace="Test\"><root id_1="1" id_2="23" integer="1"/><root id_1="1" id_2="50"/><root id_1="1" id_2="101"/><root id_1="2" id_2="50"/><root id_1="2" id_2="102"/></TestDb><ChildTestDb namespace="Test\"><root id="1" name="test_name" parent_id_1="1"/><root id="2" parent_id_1="1"/></ChildTestDb><MainTestDb namespace="Test\"><root id="1"/></MainTestDb></objects>')) {
-	throw new \Exception('bad foreign objects Values');
+	throw new \Exception('bad foreign objects Values 2');
 }
 
 $flattenArraySerialUpdatedInterfacer->setExportMainForeignObjects(true);
@@ -398,7 +425,7 @@ if (json_encode($object->export($flattenArraySerialUpdatedInterfacer)) !== $seri
 	throw new \Exception('bad object Values');
 }
 if (!compareJson(json_encode($flattenArraySerialUpdatedInterfacer->getMainForeignObjects()), '{"Test\\\\TestDb":{"[1,\"23\"]":{"id_1":1,"id_2":"23","integer":1},"[1,\"50\"]":{"id_1":1,"id_2":"50"},"[1,\"101\"]":{"id_1":1,"id_2":"101"},"[2,\"50\"]":{"id_1":2,"id_2":"50"},"[2,\"102\"]":{"id_1":2,"id_2":"102"}},"Test\\\\MainTestDb":{"1":{"id":1}},"Test\\\\ChildTestDb":{"1":{"id":1,"name":"test_name","parent_id_1":1},"2":{"id":2,"parent_id_1":1}}}')) {
-	throw new \Exception('bad foreign objects Values');
+	throw new \Exception('bad foreign objects Values 3');
 }
 
 

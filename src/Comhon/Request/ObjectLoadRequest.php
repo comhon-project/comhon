@@ -14,9 +14,9 @@ namespace Comhon\Request;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\ComhonArray;
-use Comhon\Exception\MalformedRequestException;
-use Comhon\Exception\PropertyVisibilityException;
-use Comhon\Exception\NotAllowedRequestException;
+use Comhon\Exception\Request\MalformedRequestException;
+use Comhon\Exception\Model\PropertyVisibilityException;
+use Comhon\Exception\Request\NotAllowedRequestException;
 
 abstract class ObjectLoadRequest {
 

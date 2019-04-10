@@ -11,7 +11,7 @@
 
 namespace Comhon\Model;
 
-use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
 
 class ModelIndex extends ModelInteger {
 	

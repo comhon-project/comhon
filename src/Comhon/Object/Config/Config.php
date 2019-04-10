@@ -14,8 +14,8 @@ namespace Comhon\Object\Config;
 use Comhon\Object\ExtendableObject;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Exception\ConfigMalformedException;
-use Comhon\Exception\ConfigFileNotFoundException;
+use Comhon\Exception\Config\ConfigMalformedException;
+use Comhon\Exception\Config\ConfigFileNotFoundException;
 
 class Config extends ExtendableObject {
 	

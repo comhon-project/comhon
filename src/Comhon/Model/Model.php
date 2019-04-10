@@ -16,7 +16,7 @@ use Comhon\Serialization\SqlTable;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\ComhonObject;
 use Comhon\Object\ComhonArray;
-use Comhon\Exception\UndefinedPropertyException;
+use Comhon\Exception\Model\UndefinedPropertyException;
 use Comhon\Model\Property\Property;
 use Comhon\Model\Property\ForeignProperty;
 use Comhon\Model\Property\AggregationProperty;
@@ -24,17 +24,16 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Serialization\SerializationUnit;
 use Comhon\Object\UniqueObject;
-use Comhon\Exception\UnexpectedModelException;
+use Comhon\Exception\Model\UnexpectedModelException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\ArgumentException;
-use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Visitor\ObjectCollectionCreator;
-use Comhon\Exception\CastComhonObjectException;
+use Comhon\Exception\Model\CastComhonObjectException;
 use Comhon\Serialization\Serialization;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
@@ -394,7 +393,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * 
 	 * @param string $propertyName
 	 * @param boolean $throwException if true, throw an exception if property doesn't exist
-	 * @throws \Comhon\Exception\UndefinedPropertyException
+	 * @throws \Comhon\Exception\Model\UndefinedPropertyException
 	 * @return \Comhon\Model\Property\Property|null 
 	 *     null if property with specified name doesn't exist
 	 */
@@ -413,7 +412,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 *
 	 * @param string $propertyName
 	 * @param boolean $throwException
-	 * @throws \Comhon\Exception\UndefinedPropertyException
+	 * @throws \Comhon\Exception\Model\UndefinedPropertyException
 	 * @return \Comhon\Model\Property\Property|null 
 	 *     null if property with specified name doesn't exist
 	 */

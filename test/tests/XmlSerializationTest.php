@@ -2,7 +2,7 @@
 
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Serialization\File\XmlFile;
-use Comhon\Exception\SerializationException;
+use Comhon\Exception\Serialization\SerializationException;
 
 $time_start = microtime(true);
 

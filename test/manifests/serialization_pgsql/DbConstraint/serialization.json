@@ -1,0 +1,15 @@
+{
+    "version": "2.0",
+    "serialization": {
+        "type": "Comhon\\SqlTable",
+        "id": "public.db_constraint"
+    },
+    "properties": {
+        "foreign_constraint_composite": {
+            "serializationNames": {
+                "id1": "unique_one",
+                "id2": "unique_two"
+            }
+        }
+    }
+}

@@ -17,11 +17,18 @@ use Comhon\Exception\ComhonException;
 class QueryExecutionFailureException extends ComhonException {
 	
 	/**
+	 * 
+	 * @var \PDOStatement
+	 */
+	private $PDOStatement;
+	
+	/**
 	 * @param \PDOStatement|string $query
 	 */
 	public function __construct($query) {
 		$message = "\n\nexecution query failed :\n'";
 		if ($query instanceof \PDOStatement) {
+			$this->PDOStatement = $query;
 			$message .= $query->queryString
 					."'\n\nPDO errorInfo : \n"
 							.var_export($query->errorInfo(), true)
@@ -30,6 +37,10 @@ class QueryExecutionFailureException extends ComhonException {
 			$message .= $query;
 		}
 		parent::__construct($message, ConstantException::QUERY_EXECUTION_FAILURE_EXCEPTION);
+	}
+	
+	public function getPDOStatement() {
+		return $this->PDOStatement;
 	}
 	
 }

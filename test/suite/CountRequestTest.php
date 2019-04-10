@@ -1,9 +1,9 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 use Comhon\Database\SelectQuery;
 use Comhon\Database\DatabaseHandler;
 use Comhon\Api\ObjectService;
-use Comhon\Logic\Clause;
 
 class CountRequestTest extends TestCase
 {

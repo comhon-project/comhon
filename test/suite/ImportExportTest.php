@@ -1,11 +1,10 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Interfacer\AssocArrayInterfacer;
-use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\Interfacer\ImportException;
-use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
 
 class ImportExportTest extends TestCase
 {

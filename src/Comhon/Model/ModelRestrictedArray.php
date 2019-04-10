@@ -15,10 +15,10 @@ use Comhon\Object\ComhonArray;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Model\Restriction\Restriction;
-use Comhon\Exception\NotSatisfiedRestrictionException;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\UnexpectedValueTypeException;
-use Comhon\Exception\UnexpectedRestrictedArrayException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
+use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
 
 class ModelRestrictedArray extends ModelArray {
 	

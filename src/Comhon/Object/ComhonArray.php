@@ -17,8 +17,8 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\ModelArray;
 use Comhon\Model\ModelContainer;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\NotSatisfiedRestrictionException;
-use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Model\ModelComhonObject;
 
 final class ComhonArray extends AbstractComhonObject implements \Iterator {

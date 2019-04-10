@@ -5,7 +5,7 @@ use Comhon\Model\ModelRestrictedArray;
 use Comhon\Object\ComhonArray;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\ComhonDateTime;
-use Comhon\Exception\NotSatisfiedRestrictionException;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Model\Restriction\Regex;
 use Comhon\Model\Restriction\Enum;
 use Comhon\Exception\Interfacer\ImportException;

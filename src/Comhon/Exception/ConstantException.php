@@ -18,7 +18,6 @@ abstract class ConstantException {
 	const NOT_DEFINED_MODEL_EXCEPTION       = 101;
 	const UNEXPECTED_MODEL_EXCEPTION        = 102;
 	// 103
-	const MANIFEST_EXCEPTION                = 104;
 	const UNDEFINED_PROPERTY_EXCEPTION      = 105;
 	const CONFLICT_PROPERTIES_EXCEPTION     = 106;
 	const CAST_EXCEPTION                    = 107;
@@ -38,6 +37,7 @@ abstract class ConstantException {
 	const NOT_EXISTING_REGEX_EXCEPTION           = 403;
 	
 	// manifest exception
+	const MANIFEST_EXCEPTION      = 500;
 	const RESERVED_WORD_EXCEPTION = 501;
 	
 	// database exception
@@ -58,6 +58,12 @@ abstract class ConstantException {
 	const NOT_LINKABLE_LITERAL_EXCEPTION               = 706;
 	const NOT_ALLOWED_REQUEST_EXCEPTION                = 707;
 	const MULTIPLE_PROPERTY_LITERAL_EXCEPTION          = 708;
+	
+	// serialization exception
+	const SERIALIZATION_EXCEPTION       = 800;
+	const NOT_NULL_CONSTRAINT_EXCEPTION = 801;
+	const FOREIGN_CONSTRAINT_EXCEPTION  = 802;
+	const UNIQUE_CONSTRAINT_EXCEPTION   = 803;
 	
 	// config
 	const CONFIG_NOT_FOUND_EXCEPTION = 900;

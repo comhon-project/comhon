@@ -16,7 +16,7 @@ use Comhon\Object\UniqueObject;
 use Comhon\Exception\Database\NotSupportedDBMSException;
 use Comhon\Exception\Database\QueryExecutionFailureException;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Exception\UnexpectedModelException;
+use Comhon\Exception\Model\UnexpectedModelException;
 use Comhon\Exception\Database\IncompleteSqlDbInfosException;
 use Comhon\Exception\Database\UnexpectedCountValuesQueryException;
 use Comhon\Exception\Database\QueryBindingValueException;

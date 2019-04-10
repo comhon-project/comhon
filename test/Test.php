@@ -33,7 +33,7 @@ $dbHandlerMySql = DatabaseHandler::getInstanceWithDataBaseId('1');
 $dbHandlerMySql->getPDO()->exec(file_get_contents('./data/database/database_mysql.sql'));
 
 $dbHandlerPgSql = DatabaseHandler::getInstanceWithDataBaseId('2');
-$dbHandlerPgSql->getPDO()->exec(file_get_contents('./data/database/database_pgsql.backup'));
+$dbHandlerPgSql->getPDO()->exec(file_get_contents('./data/database/database_pgsql.sql'));
 
 echo "success\n";
 
@@ -444,7 +444,6 @@ try {
 	file_put_contents(__DIR__."/times.json", json_encode($plopTimes));
 	file_put_contents(__DIR__."/count.txt", 0);
 }*/
-
 
 // TODO for version > 3.0
 // add selectquery select count(*) on query and func(*) on table

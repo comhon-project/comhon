@@ -1,7 +1,7 @@
 <?php
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Exception\UnexpectedValueTypeException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\ConstantException;

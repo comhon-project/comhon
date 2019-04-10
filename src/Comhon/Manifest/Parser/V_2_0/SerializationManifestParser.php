@@ -14,8 +14,8 @@ namespace Comhon\Manifest\Parser\V_2_0;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Manifest\Parser\SerializationManifestParser as ParentSerializationManifestParser;
 use Comhon\Interfacer\XMLInterfacer;
-use Comhon\Exception\ManifestException;
-use Comhon\Exception\SerializationManifestIdException;
+use Comhon\Exception\Manifest\ManifestException;
+use Comhon\Exception\Manifest\SerializationManifestIdException;
 
 class SerializationManifestParser extends ParentSerializationManifestParser {
 

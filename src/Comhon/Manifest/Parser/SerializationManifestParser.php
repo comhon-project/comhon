@@ -16,7 +16,7 @@ use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Exception\ManifestException;
+use Comhon\Exception\Manifest\ManifestException;
 use Comhon\Exception\ComhonException;
 
 abstract class SerializationManifestParser {
