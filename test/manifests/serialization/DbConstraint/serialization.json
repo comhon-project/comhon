@@ -7,8 +7,8 @@
     "properties": {
         "foreign_constraint_composite": {
             "serializationNames": {
-                "id1": "unique_one",
-                "id2": "unique_two"
+                "id1": "unique_foreign_one",
+                "id2": "unique_foreign_two"
             }
         }
     }

@@ -349,7 +349,9 @@ CREATE TABLE `db_constraint` (
   `unique_name` varchar(32) CHARACTER SET utf8 NOT NULL,
   `foreign_constraint` int(11) DEFAULT NULL,
   `unique_one` int(11),
-  `unique_two` varchar(32)
+  `unique_two` varchar(32),
+  `unique_foreign_one` int(11),
+  `unique_foreign_two` varchar(32)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -500,8 +502,7 @@ ALTER TABLE `db_constraint`
 
 
 ALTER TABLE `db_constraint`
-  ADD FOREIGN KEY (`unique_one`, `unique_two`) REFERENCES test(`id_1`, `id_2`);
-
+  ADD FOREIGN KEY (`unique_foreign_one`, `unique_foreign_two`) REFERENCES test(`id_1`, `id_2`);
   
 --
 -- UNIQUE pour la table `db_constraint`
@@ -511,6 +512,9 @@ ALTER TABLE `db_constraint`
 
 ALTER TABLE `db_constraint`
     ADD UNIQUE (`unique_one`, `unique_two`);
+    
+ALTER TABLE `db_constraint`
+    ADD UNIQUE (`unique_foreign_one`, `unique_foreign_two`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

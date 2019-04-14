@@ -4,8 +4,8 @@
 	<properties>
 		<foreign_constraint_composite>
 			<serializationNames>
-				<id1>unique_one</id1>
-				<id2>unique_two</id2>
+				<id1>unique_foreign_one</id1>
+				<id2>unique_foreign_two</id2>
 			</serializationNames>
 		</foreign_constraint_composite>
 	</properties>

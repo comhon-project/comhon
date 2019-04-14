@@ -99,7 +99,9 @@ CREATE TABLE public.db_constraint (
     id bigint NOT NULL,
     foreign_constraint bigint,
     unique_one integer,
-    unique_two text
+    unique_two text,
+    unique_foreign_one integer,
+    unique_foreign_two text
 );
 
 
@@ -897,6 +899,14 @@ ALTER TABLE ONLY public.db_constraint
 
 ALTER TABLE ONLY public.db_constraint
     ADD CONSTRAINT db_constraint_unique_one_unique_two_key UNIQUE (unique_one, unique_two);
+    
+--
+-- TOC entry 2128 (class 2606 OID 59115)
+-- Name: db_constraint db_constraint_unique_one_unique_two_key; Type: CONSTRAINT; Schema: public; Owner: root
+--
+
+ALTER TABLE ONLY public.db_constraint
+    ADD CONSTRAINT db_constraint_unique_foreign_one_unique_foreign_two_key UNIQUE (unique_foreign_one, unique_foreign_two);
 
 
 --
@@ -1013,7 +1023,7 @@ ALTER TABLE ONLY public.db_constraint
 --
 
 ALTER TABLE ONLY public.db_constraint
-    ADD CONSTRAINT db_constraint_unique_one_fkey FOREIGN KEY (unique_one, unique_two) REFERENCES public.test(id_1, id_2);
+    ADD CONSTRAINT db_constraint_unique_one_fkey FOREIGN KEY (unique_foreign_one, unique_foreign_two) REFERENCES public.test(id_1, id_2);
 
 
 --

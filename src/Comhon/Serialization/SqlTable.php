@@ -656,25 +656,29 @@ class SqlTable extends ValidatedSerializationUnit {
 			case 1048:
 				$res = preg_match('/Column \'([^\']+)\' cannot be null/', $infos[2], $matches);
 				if ($res === 1) {
-					throw new NotNullException($object->getModel(), $matches[1]);
+					$propertyNames = $this->getPropertiesNamesFromSqlMessage($object->getModel(), $matches[1]);
+					throw new NotNullException($object->getModel(), $propertyNames[0]);
 				}
 				break;
 			case 1062:
 				$res = preg_match('/\'(.+)\' for key \'(.+)\'/', $infos[2], $matches);
 				if ($res === 1) {
-					throw new UniqueException($object, $matches[2], $matches[1]);
+					$propertyNames = $this->getPropertiesNamesFromSqlMessage($object->getModel(), $matches[2]);
+					throw new UniqueException($object, $propertyNames);
 				}
 				break;
 			case 1364:
 				$res = preg_match('/Field \'([^\']+)\' doesn\'t have a default value/', $infos[2], $matches);
 				if ($res === 1) {
-					throw new NotNullException($object->getModel(), $matches[1]);
+					$propertyNames = $this->getPropertiesNamesFromSqlMessage($object->getModel(), $matches[1]);
+					throw new NotNullException($object->getModel(), $propertyNames[0]);
 				}
 				break;
 			case 1452:
 				$res = preg_match('/FOREIGN KEY \\(((?:`?[^`\\(\\)]+`?, )*`?[^`\\(\\)]+`?)\\) REFERENCES/', $infos[2], $matches);
 				if ($res === 1) {
-					throw new ForeignValueException($object, $matches[1]);
+					$propertyNames = $this->getPropertiesNamesFromSqlMessage($object->getModel(), $matches[1]);
+					throw new ForeignValueException($object, $propertyNames[0]);
 				}
 				break;
 		}
@@ -694,22 +698,56 @@ class SqlTable extends ValidatedSerializationUnit {
 			case '23502':
 				$res = preg_match('/null value in column "([^"]+)" violates not-null constraint/', $infos[2], $matches);
 				if ($res === 1) {
-					throw new NotNullException($object->getModel(), $matches[1]);
+					$propertyNames = $this->getPropertiesNamesFromSqlMessage($object->getModel(), $matches[1]);
+					throw new NotNullException($object->getModel(), $propertyNames[0]);
 				}
 				break;
 			case '23503':
 				$res = preg_match('/\\((.+)\\)=\\((.+)\\)/', $infos[2], $matches);
 				if ($res === 1) {
-					throw new ForeignValueException($object, explode(', ', $matches[1]), $matches[2]);
+					$propertyNames = $this->getPropertiesNamesFromSqlMessage($object->getModel(), $matches[1]);
+					throw new ForeignValueException($object, $propertyNames[0]);
 				}
 				break;
 			case '23505':
 				$res = preg_match('/\\((.+)\\)=\\(.+\\)/', $infos[2], $matches);
 				if ($res === 1) {
-					throw new UniqueException($object, explode(', ', $matches[1]));
+					$propertyNames = $this->getPropertiesNamesFromSqlMessage($object->getModel(), $matches[1]);
+					throw new UniqueException($object, $propertyNames);
 				}
 				break;
 		}
+	}
+	
+	/**
+	 *
+	 * @param Model $model
+	 * @param string $messageColumns
+	 * @return string[]
+	 */
+	private function getPropertiesNamesFromSqlMessage(Model $model, $messageColumns) {
+		$columns = explode(', ', $messageColumns);
+		$propertiesNames = [];
+		foreach ($columns as $column) {
+			if ($column[0] === '`') {
+				$column = substr($column, 1, -1);
+			}
+			foreach ($model->getProperties() as $property) {
+				if ($property->hasMultipleSerializationNames()) {
+					foreach ($property->getMultipleIdProperties() as $seriakizationName => $idProperty) {
+						if ($column === $seriakizationName) {
+							$propertiesNames[] = $property->getName();
+							break;
+						}
+					}
+				} elseif ($column === $property->getSerializationName()) {
+					$propertiesNames[] = $property->getName();
+					break;
+				}
+			}
+		}
+		
+		return empty($propertiesNames) ? [$messageColumns] : array_unique($propertiesNames);
 	}
 	
 }

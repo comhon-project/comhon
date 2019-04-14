@@ -20,10 +20,10 @@ class NotNullException extends ComhonException {
 	/**
 	 * 
 	 * @param \Comhon\Model\Model $model
-	 * @param string $property
+	 * @param string $propertyName
 	 */
-	public function __construct(Model $model, $property) {
-		$message = "property '$property' of model '{$model->getName()}' cannot be serialized with null value";
+	public function __construct(Model $model, $propertyName) {
+		$message = "property '$propertyName' of model '{$model->getName()}' cannot be serialized with null value";
 		parent::__construct($message, ConstantException::NOT_NULL_CONSTRAINT_EXCEPTION);
 	}
 	

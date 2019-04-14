@@ -21,24 +21,31 @@ class UniqueException extends ComhonException {
 	/**
 	 * 
 	 * @param \Comhon\Object\UniqueObject $object
-	 * @param string|string[] $properties
-	 * @param string $value
+	 * @param string[] $propertiesNames
 	 */
-	public function __construct(UniqueObject $object, $properties, $value = null) {
-		if (!is_array($properties)) {
-			$properties = [$properties];
+	public function __construct(UniqueObject $object, array $propertiesNames) {
+		if (empty($propertiesNames)) {
+			$propertiesNames = ['Unknown'];
 		}
-		if (is_null($value)) {
-			$values = [];
-			foreach ($properties as $property) {
-				$values[] = $object->getValue($property);
+		foreach ($propertiesNames as $propertyName) {
+			$value = $object->getValue($propertyName);
+			if ($value instanceof UniqueObject) {
+				$value = $value->getId();
 			}
-			$value = '[' . implode(', ', $values) . ']';
-		} else {
-			$value = "[{$value}]";
+			$values[] = $value;
 		}
-		$property = '[' . implode(', ', $properties) . ']';
-		$message = "value(s) $value of property(ies) $property for model '{$object->getModel()->getName()}' already exists and must be unique";
+		if (count($propertiesNames) > 1) {
+			$messageValues = implode(', ', $values);
+			$messageProperties = implode(', ', $propertiesNames);
+			$messageValueWord = 'values';
+			$messagePropertyWord = 'properties';
+		} else {
+			$messageValues = $values[0];
+			$messageProperties = $propertiesNames[0];
+			$messageValueWord = 'value';
+			$messagePropertyWord = 'property';
+		}
+		$message = "$messageValueWord $messageValues of $messagePropertyWord $messageProperties for model '{$object->getModel()->getName()}' already exists and must be unique";
 		parent::__construct($message, ConstantException::UNIQUE_CONSTRAINT_EXCEPTION);
 	}
 	
