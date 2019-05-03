@@ -24,15 +24,25 @@ final class Serialization {
 	/** @var \Comhon\Serialization\SerializationUnit */
 	private $serializationUnit;
 	
+	/** @var string */
+	private $allowSerialization;
+	
+	/** @var string[] */
+	private $inheritanceValues;
+	
 	/**
 	 * 
 	 * @param UniqueObject $settings
 	 * @param string $inheritanceKey
+	 * @param bool $allowSerialization
+	 * @param string[] $inheritanceValues
 	 */
-	public function __construct(UniqueObject $settings, $inheritanceKey = null) {
+	public function __construct(UniqueObject $settings, $inheritanceKey = null, $allowSerialization = true, $inheritanceValues = null) {
 		$this->settings = $settings;
 		$this->inheritanceKey = $inheritanceKey;
 		$this->serializationUnit = SerializationUnit::getInstance($settings->getModel()->getName());
+		$this->allowSerialization = $allowSerialization;
+		$this->inheritanceValues= $inheritanceValues;
 	}
 	
 	/**
@@ -51,6 +61,25 @@ final class Serialization {
 	 */
 	public function getInheritanceKey() {
 		return $this->inheritanceKey;
+	}
+	
+	/**
+	 * verify if serialization (save) is allowed.
+	 * deserialization (load) still available even if serialization is not allowed.
+	 *
+	 * @return string
+	 */
+	public function isSerializationAllowed() {
+		return $this->allowSerialization;
+	}
+	
+	/**
+	 * get inheritance key
+	 *
+	 * @return string
+	 */
+	public function getInheritanceValues() {
+		return $this->inheritanceValues;
 	}
 	
 	/**

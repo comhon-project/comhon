@@ -1,0 +1,7 @@
+{
+    "version": "2.0",
+    "inheritance_values": [
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild"
+    ]
+}

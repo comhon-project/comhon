@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0" is_serializable="1">
-	<properties>
-		<property type="integer" is_id="1" name="id"/>
-		<property type="string" name="firstName"/>
-		<property type="string" name="lastName"/>
-		<property type="dateTime" name="birthDate"/>
-	</properties>
+  <properties>
+    <property type="integer" is_id="1" name="id"/>
+    <property type="string" name="firstName"/>
+    <property type="string" name="lastName"/>
+    <property type="dateTime" name="birthDate"/>
+  </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\Person\WomanXmlExtended</inheritance_requestable>
+  </inheritance_requestables>
 </manifest>

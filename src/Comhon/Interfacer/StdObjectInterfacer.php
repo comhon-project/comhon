@@ -212,10 +212,11 @@ class StdObjectInterfacer extends Interfacer {
 	 * transform given node to string
 	 * 
 	 * @param \stdClass $node
+	 * @param bool $prettyPrint
 	 * @return string
 	 */
-	public function toString($node) {
-		return json_encode($node);
+	public function toString($node, $prettyPrint = false) {
+		return $prettyPrint ? json_encode($node, JSON_PRETTY_PRINT) : json_encode($node);
 	}
 	
 	/**
@@ -223,10 +224,12 @@ class StdObjectInterfacer extends Interfacer {
 	 * 
 	 * @param mixed $node
 	 * @param string $path
+	 * @param bool $prettyPrint
 	 * @return boolean
 	 */
-	public function write($node, $path) {
-		return file_put_contents($path, json_encode($node)) !== false;
+	public function write($node, $path, $prettyPrint = false) {
+		$data = $prettyPrint ? json_encode($node, JSON_PRETTY_PRINT) : json_encode($node);
+		return file_put_contents($path, $data) !== false;
 	}
 	
 	/**

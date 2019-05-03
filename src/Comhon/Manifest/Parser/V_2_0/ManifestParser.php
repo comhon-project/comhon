@@ -42,6 +42,27 @@ class ManifestParser extends ParentManifestParser {
 	}
 	
 	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::getInheritanceRequestable()
+	 */
+	public function getInheritanceRequestable() {
+		$inheritanceRequestables = null;
+		
+		if ($this->interfacer->hasValue($this->manifest, self::INHERITANCE_REQUESTABLES, true)) {
+			$node = $this->interfacer->getValue($this->manifest, self::INHERITANCE_REQUESTABLES, true);
+			$inheritanceRequestables = $this->interfacer->getTraversableNode($node);
+			if ($this->interfacer instanceof XMLInterfacer) {
+				foreach ($inheritanceRequestables as $key => $domNode) {
+					$inheritanceRequestables[$key] = $this->interfacer->extractNodeText($domNode);
+				}
+			}
+		}
+		
+		return $inheritanceRequestables;
+	}
+	
+	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\ManifestParser::isMain()
@@ -54,7 +75,7 @@ class ManifestParser extends ParentManifestParser {
 					: $this->interfacer->getValue($this->manifest, self::IS_MAIN)
 			)
 			: false;
-		return $isMain || $this->isSerializable();
+		return $isMain;
 	}
 	
 	/**

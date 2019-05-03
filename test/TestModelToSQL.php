@@ -1,6 +1,6 @@
 <?php
 
-use Comhon\Utils\InitProject\ModelToSQL;
+use Comhon\Utils\Project\ModelToSQL;
 use Comhon\Object\Config\Config;
 
 $loader = require_once __DIR__ . '/../vendor/autoload.php';

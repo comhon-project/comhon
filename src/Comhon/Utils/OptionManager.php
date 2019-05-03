@@ -13,12 +13,17 @@ namespace Comhon\Utils;
 
 class OptionManager
 {
+	/**
+	 *
+	 * @var array
+	 */
+	private $options;
     
     /**
      * 
      * @var array
      */
-    private $options_description;
+    private $optionsDescription;
     
     /**
      * each option may have following properties
@@ -33,7 +38,7 @@ class OptionManager
      * 
      * @param array $opts associative array of several options [option_name => options_properties].
      */
-    public function register_option_desciption(array $opts)
+    public function registerOptionDesciption(array $opts)
     {
         $names = [];
         $shorts = [];
@@ -75,7 +80,7 @@ class OptionManager
             	throw new \Exception('error \'has_value\' should be a boolean');
             }
         }
-        $this->options_description = $opts;
+        $this->optionsDescription = $opts;
     }
     
     /**
@@ -84,9 +89,12 @@ class OptionManager
      * @throws \Exception
      * @return string[]
      */
-    public function get_options()
+    public function getOptions()
     {
-        if (is_null($this->options_description)) {
+    	if (!is_null($this->options)) {
+    		return $this->options;
+    	}
+        if (is_null($this->optionsDescription)) {
             throw new \Exception('no option registered');
         }
         $options = [];
@@ -94,7 +102,7 @@ class OptionManager
         $shortopts = '';
         $longopts  = [];
         
-        foreach ($this->options_description as $opt) {
+        foreach ($this->optionsDescription as $opt) {
             $shortopts .= isset($opt['short']) ? ($opt['has_value'] ? $opt['short'].':' : $opt['short']) : '';
             $longopts[] = isset($opt['long']) ? ($opt['has_value'] ? $opt['long'].':' : $opt['long']) : null;
         }
@@ -103,7 +111,7 @@ class OptionManager
         $tmp_options = getopt($shortopts, $longopts);
         
         // grab options with their long name
-        foreach ($this->options_description as $name => $opt) {
+        foreach ($this->optionsDescription as $name => $opt) {
             $short_option = isset($opt['short']) ? $opt['short'] : null;
             $long_option  = isset($opt['long']) ? $opt['long'] : null;
             
@@ -121,7 +129,7 @@ class OptionManager
         }
         
         // validate options
-        foreach ($this->options_description as $name => $opt) {
+        foreach ($this->optionsDescription as $name => $opt) {
             $valid = false;
             while (!$valid) {
                 if (isset($options[$name])) {
@@ -146,8 +154,32 @@ class OptionManager
                 }
             }
         }
-        
-        return $options;
+        $this->options = $options;
+        return $this->options;
+    }
+    
+    /**
+     * get option
+     * 
+     * @param string $name
+     * @return string|null return null if option doesn't exist
+     */
+    public function getOption($name)
+    {
+    	$options = $this->getOptions();
+    	return array_key_exists($name, $options) ? $options[$name] : null;
+    }
+    
+    /**
+     * verify if option is in specified script arguments
+     * 
+     * @param string $name
+     * @return boolean
+     */
+    public function hasOption($name)
+    {
+    	$options = $this->getOptions();
+    	return array_key_exists($name, $options);
     }
     
     /**
@@ -156,15 +188,15 @@ class OptionManager
      * @throws \Exception
      * @return string
      */
-    public function get_help() {
-        if (is_null($this->options_description))
+    public function getHelp() {
+        if (is_null($this->optionsDescription))
         {
             throw new \Exception('no option registered');
         }
         $help = "OPTIONS : " . PHP_EOL;
         $first_pad = 0;
         $second_pad = 0;
-        foreach ($this->options_description as $opt_name => $opt) {
+        foreach ($this->optionsDescription as $opt_name => $opt) {
             if (isset($opt['short'])) {
                 $opt_lenght = 5 + ($opt['has_value'] ? strlen($opt_name) : 0) + 3;
                 $first_pad = max($first_pad, $opt_lenght);
@@ -174,7 +206,7 @@ class OptionManager
                 $second_pad = max($second_pad, $opt_lenght);
             }
         }
-        foreach ($this->options_description as $opt_name => $opt) {
+        foreach ($this->optionsDescription as $opt_name => $opt) {
             if (!isset($opt['description'])) {
                 throw new \Exception('description is missing');
             }
@@ -193,7 +225,7 @@ class OptionManager
         }
         
         $long_descriptions = '';
-        foreach ($this->options_description as $opt_name => $opt) {
+        foreach ($this->optionsDescription as $opt_name => $opt) {
             $line = '';
             if (isset($opt['short'])) {
                 $line .= "  -{$opt['short']} " . ($opt['has_value'] ? "<$opt_name>" : '');
@@ -224,7 +256,7 @@ class OptionManager
     /**
      * verify if arguments script contain an help option (-h or --help)
      */
-    public function has_help_argument_option()
+    public function hasHelpArgumentOption()
     {
         $help = getopt('h', ['help']);
         return isset($help['h']) || isset($help['help']);

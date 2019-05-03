@@ -35,13 +35,11 @@ class ObjectCollection {
 			: null;
 		
 		if (is_null($object) && $inlcudeInheritance) {
-			$currentModel = ModelManager::getInstance()->getInstanceModel($modelName);
-			$serialization = $currentModel->getSerializationSettings();
+			$model = ModelManager::getInstance()->getInstanceModel($modelName);
 			
-			if (!is_null($serialization)) {
+			if (!is_null($model->getSerialization())) {
 				$modelNames = [];
-				$model = $currentModel->getParent();
-				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
+				while (!is_null($model = $model->getFirstParentMatch(true))) {
 					$modelNames[] = $model->getName();
 					if (isset($this->map[$model->getName()][$id])) {
 						if (in_array($this->map[$model->getName()][$id]->getModel()->getName(), $modelNames)) {
@@ -49,7 +47,6 @@ class ObjectCollection {
 						}
 						break;
 					}
-					$model = $model->getParent();
 				}
 			}
 		}
@@ -68,19 +65,16 @@ class ObjectCollection {
 		$hasObject = array_key_exists($modelName, $this->map) && array_key_exists($id, $this->map[$modelName]);
 		
 		if (!$hasObject && $inlcudeInheritance) {
-			$currentModel = ModelManager::getInstance()->getInstanceModel($modelName);
-			$serialization = $currentModel->getSerializationSettings();
+			$model = ModelManager::getInstance()->getInstanceModel($modelName);
 			
-			if (!is_null($serialization)) {
+			if (!is_null($model->getSerialization())) {
 				$modelNames = [];
-				$model = $currentModel->getParent();
-				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
+				while (!is_null($model = $model->getFirstParentMatch(true))) {
 					$modelNames[] = $model->getName();
 					if (isset($this->map[$model->getName()][$id])) {
 						$hasObject = in_array($this->map[$model->getName()][$id]->getModel()->getName(), $modelNames);
 						break;
 					}
-					$model = $model->getParent();
 				}
 			}
 		}
@@ -125,12 +119,10 @@ class ObjectCollection {
 		}
 		
 		if ($success) {
-			$serialization = $object->getModel()->getSerializationSettings();
-			
-			if (!is_null($serialization)) {
+			if (!is_null($object->getModel()->getSerialization())) {
 				$id    = $object->getId();
-				$model = $object->getModel()->getParent();
-				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
+				$model = $object->getModel();
+				while (!is_null($model = $model->getFirstParentMatch(true))) {
 					if (isset($this->map[$model->getName()][$id])) {
 						if ($this->map[$model->getName()][$id] !== $object) {
 							throw new ComhonException('parent model key has different object instance with same id');
@@ -138,7 +130,6 @@ class ObjectCollection {
 						break;
 					}
 					$this->map[$model->getName()][$id] = $object;
-					$model = $model->getParent();
 				}
 			}
 		}
@@ -160,17 +151,14 @@ class ObjectCollection {
 		}
 		
 		if ($success) {
-			$serialization = $object->getModel()->getSerializationSettings();
-			
-			if (!is_null($serialization)) {
+			if (!is_null($object->getModel()->getSerialization())) {
 				$id    = $object->getId();
-				$model = $object->getModel()->getParent();
-				while (!is_null($model) && $model->getSerializationSettings() === $serialization) {
+				$model = $object->getModel();
+				while (!is_null($model = $model->getFirstParentMatch(true))) {
 					if (!isset($this->map[$model->getName()][$id]) || $this->map[$model->getName()][$id] !== $object) {
 						throw new ComhonException('parent model key doesn\'t have object or has different object instance with same id');
 					}
 					unset($this->map[$model->getName()][$id]);
-					$model = $model->getParent();
 				}
 			}
 		}

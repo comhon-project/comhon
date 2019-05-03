@@ -19,5 +19,8 @@
             "name": "birthDate",
             "type": "dateTime"
         }
+    ],
+    "inheritance_requestables": [
+        "\\Test\\Person\\WomanXmlExtended"
     ]
 }

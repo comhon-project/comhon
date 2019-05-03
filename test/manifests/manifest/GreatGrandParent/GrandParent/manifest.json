@@ -1,0 +1,17 @@
+{
+    "version": "2.0",
+    "is_serializable": true,
+    "extends": "\\Test\\GreatGrandParent",
+    "properties": [
+        {
+            "name": "grandParent",
+            "type": "string"
+        }
+    ],
+    "inheritance_requestables": [
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne",
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild",
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentTwo\\Child"
+    ]
+}

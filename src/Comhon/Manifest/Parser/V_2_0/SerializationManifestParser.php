@@ -77,9 +77,9 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::_getSerializationSettings()
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getSerializationSettings()
 	 */
-	protected function _getSerializationSettings() {
+	public function getSerializationSettings() {
 		return $this->interfacer->hasValue($this->manifest, 'serialization', true)
 			? $this->_buildSerializationSettings($this->interfacer->getValue($this->manifest, 'serialization', true))
 			: null;
@@ -126,6 +126,27 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 					? $this->interfacer->getValue($serializationNode, 'inheritanceKey')
 					: null
 			);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getInheritanceValues()
+	 */
+	public function getInheritanceValues() {
+		$inheritanceValues = null;
+		
+		if ($this->interfacer->hasValue($this->manifest, self::INHERITANCE_VALUES, true)) {
+			$node = $this->interfacer->getValue($this->manifest, self::INHERITANCE_VALUES, true);
+			$inheritanceValues = $this->interfacer->getTraversableNode($node);
+			if ($this->interfacer instanceof XMLInterfacer) {
+				foreach ($inheritanceValues as $key => $domNode) {
+					$inheritanceValues[$key] = $this->interfacer->extractNodeText($domNode);
+				}
+			}
+		}
+		
+		return $inheritanceValues;
 	}
 	
 }

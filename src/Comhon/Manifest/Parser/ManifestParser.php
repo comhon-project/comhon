@@ -44,6 +44,9 @@ abstract class ManifestParser {
 	const IS_SERIALIZABLE = 'is_serializable';
 	
 	/** @var string */
+	const INHERITANCE_REQUESTABLES = 'inheritance_requestables';
+	
+	/** @var string */
 	const NAME            = 'name';
 	
 	/** @var string */
@@ -107,6 +110,13 @@ abstract class ManifestParser {
 	 * @return string|null null if no extends model name
 	 */
 	abstract public function getExtends();
+	
+	/**
+	 * get inherited model that are requestable
+	 *
+	 * @return string[]|null null if no requestable inherited model
+	 */
+	abstract public function getInheritanceRequestable();
 	
 	/**
 	 * get object class
@@ -178,19 +188,18 @@ abstract class ManifestParser {
 	abstract protected function _isCurrentPropertyForeign();
 	
 	/**
-	 * @param \Comhon\Model\Model $model
 	 * @param string $manifestPath_afe
 	 * @param string $serializationManifestPath_afe
 	 */
-	final public function __construct(Model $model, $manifest, $serializationManifestPath_afe = null) {
+	final public function __construct($manifest, $serializationManifestPath_afe = null) {
 		$this->interfacer        = $this->_getInterfacer($manifest);
 		$this->manifest          = $manifest;
 		$this->currentProperties = $this->_getCurrentProperties();
 		$this->localTypes        = $this->_getLocalTypes();
 		$this->castValues        = ($this->interfacer instanceof NoScalarTypedInterfacer);
 		
-		if ($this->isSerializable() && !is_null($serializationManifestPath_afe)) {
-			$this->serializationManifestParser = SerializationManifestParser::getInstance($model, $serializationManifestPath_afe);
+		if (!is_null($serializationManifestPath_afe)) {
+			$this->serializationManifestParser = SerializationManifestParser::getInstance($serializationManifestPath_afe);
 		}
 	}
 	
@@ -367,13 +376,12 @@ abstract class ManifestParser {
 	/**
 	 * get manifest parser instance
 	 * 
-	 * @param \Comhon\Model\Model $model
 	 * @param string $manifestPath_afe
 	 * @param string $serializationManifestPath_afe
 	 * @throws \Exception
 	 * @return ManifestParser
 	 */
-	public static function getInstance(Model $model, $manifestPath_afe, $serializationManifestPath_afe) {
+	public static function getInstance($manifestPath_afe, $serializationManifestPath_afe) {
 		switch (mb_strtolower(pathinfo($manifestPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
 				$interfacer = new XMLInterfacer();
@@ -384,7 +392,7 @@ abstract class ManifestParser {
 			default:
 				throw new ManifestException('extension not recognized for manifest file : '.$manifestPath_afe);
 		}
-		return self::_getInstanceWithInterfacer($model, $manifestPath_afe, $serializationManifestPath_afe, $interfacer);
+		return self::_getInstanceWithInterfacer($manifestPath_afe, $serializationManifestPath_afe, $interfacer);
 	}
 	
 	/**
@@ -409,14 +417,13 @@ abstract class ManifestParser {
 	/**
 	 * get manifest parser instance
 	 *
-	 * @param \Comhon\Model\Model $model
 	 * @param string $manifestPath_afe
 	 * @param string $serializationManifestPath_afe
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
 	 * @return ManifestParser
 	 */
-	private static function _getInstanceWithInterfacer($model, $manifestPath_afe, $serializationManifestPath_afe, Interfacer $interfacer) {
+	private static function _getInstanceWithInterfacer($manifestPath_afe, $serializationManifestPath_afe, Interfacer $interfacer) {
 		$manifest = $interfacer->read($manifestPath_afe);
 		
 		if ($manifest === false || is_null($manifest)) {
@@ -428,7 +435,7 @@ abstract class ManifestParser {
 		}
 		$version = (string) $interfacer->getValue($manifest, 'version');
 		switch ($version) {
-			case '2.0': return new V_2_0\ManifestParser($model, $manifest, $serializationManifestPath_afe, $interfacer);
+			case '2.0': return new V_2_0\ManifestParser($manifest, $serializationManifestPath_afe, $interfacer);
 			default:    throw new ManifestException("version $version not recognized for manifest $manifestPath_afe");
 		}
 	}

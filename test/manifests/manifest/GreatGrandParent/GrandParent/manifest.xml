@@ -1,0 +1,11 @@
+<manifest version="2.0" extends="\Test\GreatGrandParent" is_serializable="1">
+  <properties>
+    <property type="string" name="grandParent"/>
+  </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne</inheritance_requestable>
+    <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child</inheritance_requestable>
+    <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\AnotherChild</inheritance_requestable>
+    <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentTwo\Child</inheritance_requestable>
+  </inheritance_requestables>
+</manifest>

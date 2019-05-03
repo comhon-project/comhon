@@ -32,24 +32,27 @@ use Comhon\Exception\Config\ConfigFileNotFoundException;
 use Comhon\Model\ModelUnique;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Serialization\Serialization;
+use Comhon\Manifest\Parser\SerializationManifestParser;
 
 class ModelManager {
 
 	/** @var string */
-	const PROPERTIES     = 'properties';
+	const PROPERTIES      = 'properties';
 	
 	/** @var string */
-	const OBJECT_CLASS   = 'objectClass';
+	const OBJECT_CLASS    = 'objectClass';
 	
 	/** @var string */
-	const SERIALIZATION  = 'serialization';
+	const SERIALIZATION   = 'serialization';
 	
 	/** @var string */
-	const PARENT_MODEL   = 'parentModel';
+	const PARENT_MODEL    = 'parentModel';
 	
 	/** @var string */
-	const IS_MAIN_MODEL  = 'isMainModel';
+	const IS_MAIN_MODEL   = 'isMainModel';
 	
+	/** @var string */
+	const IS_SERIALIZABLE = 'isSerializable';
 	
 	/**
 	 * @var \Comhon\Model\AbstractModel[]
@@ -73,11 +76,6 @@ class ModelManager {
 	 * @var \Comhon\Manifest\Parser\ManifestParser
 	 */
 	private $manifestParser;
-	
-	/**
-	 * @var \Comhon\Manifest\Parser\SerializationManifestParser
-	 */
-	private $serializationManifestParser;
 	
 	/**
 	 * @var string
@@ -365,42 +363,47 @@ class ModelManager {
 		try {
 			if (is_null($this->manifestParser) && is_object($this->instanceModels[$model->getName()]) && $this->instanceModels[$model->getName()]->isLoaded()) {
 				$return = [
+					self::IS_MAIN_MODEL  => $model->isMain(),
 					self::PROPERTIES     => $model->getProperties(), 
 					self::PARENT_MODEL   => $model->getParent(),
-					self::OBJECT_CLASS   => $model->getObjectClass()
+					self::OBJECT_CLASS   => $model->getObjectClass(),
+					self::SERIALIZATION  => $model->getSerialization()
 				];
-				if ($model->isMain()) {
-					$return[self::SERIALIZATION] = $model->getSerialization();
-				}
 			}else {
-				$unsetManifestParser = false;
 				if (is_null($this->manifestParser)) {
-					$unsetManifestParser    = true;
+					$isLocalType = false;
 					list($prefix, $suffix)  = $this->_splitModelName($model->getName());
 					$manifestPath_afe       = $this->_getManifestPath($prefix, $suffix);
 					$serializationPath_afe  = $this->_getSerializationManifestPath($manifestPath_afe, $prefix, $suffix);
-					$this->manifestParser   = ManifestParser::getInstance($model, $manifestPath_afe, $serializationPath_afe);
+					$this->manifestParser   = ManifestParser::getInstance($manifestPath_afe, $serializationPath_afe);
 					$this->currentNamespace = $model->getName();
 					$isMain                 = $this->manifestParser->isMain();
+					$isSerializable         = $this->manifestParser->isSerializable();
+					$serialManifestParser   = $this->manifestParser->getSerializationManifestParser();
 					
 					$this->_buildLocalModels();
 				} else {
+					$isLocalType = true;
 					$isMain = false;
+					$isSerializable = false;
+					$serialManifestParser = null;
 				}
 				$parentModel = $this->_getParentModel($model);
 				
 				$return = [
-					self::IS_MAIN_MODEL => $isMain,
-					self::PARENT_MODEL  => $parentModel,
-					self::OBJECT_CLASS  => $this->manifestParser->getObjectClass(),
-					self::PROPERTIES    => $this->_buildProperties($parentModel)
+					self::PARENT_MODEL    => $parentModel,
+					self::OBJECT_CLASS    => $this->manifestParser->getObjectClass(),
+					self::PROPERTIES      => $this->_buildProperties($parentModel, $model->getName()),
 				];
 				
-				if ($unsetManifestParser) {
-					$this->serializationManifestParser = $this->manifestParser->getSerializationManifestParser();
-					unset($this->manifestParser);
+				if (!$isLocalType) {
 					$this->manifestParser = null;
 				}
+				
+				// must be done after set $this->manifestParser to null because new model may be instanciated
+				$return[self::SERIALIZATION] = $isLocalType ? null
+					: $this->_getSerializationInstance($serialManifestParser, $isSerializable, $parentModel);
+				$return[self::IS_MAIN_MODEL] = $return[self::SERIALIZATION] ? true : $isMain;
 			}
 		} catch (\Exception $e) {
 			$this->manifestParser = null;
@@ -470,7 +473,7 @@ class ModelManager {
 	 * @throws \Exception
 	 * @return \Comhon\Model\Property\Property[]
 	 */
-	private function _buildProperties(Model $parentModel = null) {
+	private function _buildProperties(Model $parentModel = null, $modelNameux) {
 		$properties = is_null($parentModel) ? [] : $parentModel->getProperties();
 		if ($this->manifestParser->getCurrentPropertiesCount() > 0) {
 			do {
@@ -494,60 +497,87 @@ class ModelManager {
 	/**
 	 * get serialization if exists
 	 * 
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Manifest\Parser\SerializationManifestParser $serializationManifestParser
+	 * @param bool $isSerializable
+	 * @param \Comhon\Model\Model $parentModel
 	 * @return \Comhon\Serialization\Serialization|null null if no serialization
 	 */
-	public function getSerializationInstance(Model $model) {
-		if (!is_null($this->serializationManifestParser)) {
-			$inheritanceKey        =  $this->serializationManifestParser->getInheritanceKey();
-			$serializationSettings = $this->serializationManifestParser->getSerializationSettings($model);
-			$serialization         = $this->_getUniqueSerialization($model, $serializationSettings, $inheritanceKey);
-			unset($this->serializationManifestParser);
-			$this->serializationManifestParser = null;
-			return $serialization;
+	private function _getSerializationInstance(SerializationManifestParser $serializationManifestParser = null, $isSerializable = false, Model $parentModel = null) {
+		$serializationSettings = null;
+		$inheritanceKey = null;
+		$inheritanceValues = null;
+		$serialization = null;
+		
+		if (!is_null($serializationManifestParser)) {
+			$inheritanceKey        = $serializationManifestParser->getInheritanceKey();
+			$serializationSettings = $serializationManifestParser->getSerializationSettings();
+			$inheritanceValues     = $serializationManifestParser->getInheritanceValues();
+			
+			if (is_array($inheritanceValues)) {
+				for ($i = 0; $i < count($inheritanceValues); $i++) {
+					$modelName = $inheritanceValues[$i];
+					$modelName = ($modelName[0] != '\\') ? $this->currentNamespace. '\\' . $modelName : substr($modelName, 1) ;
+					$inheritanceValues[$i] = $modelName;
+				}
+			}
 		}
-		return $this->_getUniqueSerialization($model);
+		if (!is_null($serializationSettings)) {
+			$serialization = new Serialization(
+				$this->getUniqueSerializationSettings($serializationSettings, $parentModel), 
+				$inheritanceKey, 
+				$isSerializable, 
+				$inheritanceValues
+			);
+		} elseif (!is_null($parentModel) && !is_null($parentModel->getSerialization())) {
+			$serialization = new Serialization(
+				$parentModel->getSerializationSettings(), 
+				$parentModel->getSerialization()->getInheritanceKey(), 
+				$isSerializable, 
+				$inheritanceValues
+			);
+		}
+		
+		return $serialization;
 	}
 	
 	/**
-	 * get serialization from parent model if exists and if needed
+	 * get serialization settings from parent model if exists and if needed
+	 *
+	 * if current model has same serialization settings than it parent model,
+	 * we take parent model serialization settings.
 	 * 
-	 * if current model has same serialization settings than it parent model, 
-	 * we take parent model serialization to avoid to duplicated serializations
-	 * 
-	 * @param \Comhon\Model\Model $model
+	 * by having unique instance we can compare quickly if parent and children have same serialization settings.
+	 * it is basicaly used in ObjectCollection.
+	 *
 	 * @param \Comhon\Object\UniqueObject $serializationSettings
-	 * @param string $inheritanceKey
-	 * @return \Comhon\Serialization\Serialization|null null if no serialization
+	 * @param \Comhon\Model\Model $parentModel
+	 * @return \Comhon\Object\UniqueObject|null null if no serialization
 	 */
-	private function _getUniqueSerialization(Model $model, UniqueObject $serializationSettings = null, $inheritanceKey = null) {
-		$serialization = null;
-		if (!is_null($model->getParent()) && !is_null($model->getParent()->getSerialization())) {
-			$extendedSerializationSettings = $model->getParent()->getSerializationSettings();
-			$extendedInheritanceKey = $model->getParent()->getSerialization()->getInheritanceKey();
-			$same = false;
+	private function getUniqueSerializationSettings(UniqueObject $serializationSettings, Model $parentModel = null) {
+		$same = false;
+		while (!is_null($parentModel) && !$same) {
+			if (is_null($parentModel->getSerialization())) {
+				$parentModel = $parentModel->getParent();
+				continue;
+			}
+			$parentSerializationSettings = $parentModel->getSerializationSettings();
 			
-			if (is_null($serializationSettings) || $serializationSettings === $extendedSerializationSettings) {
+			if ($serializationSettings === $parentSerializationSettings) {
 				$same = true;
 			}
-			else if ($serializationSettings->getModel()->getName() == $extendedSerializationSettings->getModel()->getName()) {
+			elseif ($serializationSettings->getModel()->getName() == $parentSerializationSettings->getModel()->getName()) {
 				$same = true;
 				foreach ($serializationSettings->getModel()->getProperties() as $property) {
-					if ($serializationSettings->getValue($property->getName()) !== $extendedSerializationSettings->getValue($property->getName())) {
+					if ($serializationSettings->getValue($property->getName()) !== $parentSerializationSettings->getValue($property->getName())) {
 						$same = false;
 						break;
 					}
 				}
 			}
-			if ($same) {
-				$inheritanceKey = is_null($inheritanceKey) ? $extendedInheritanceKey : $inheritanceKey;
-				$serialization = new Serialization($extendedSerializationSettings, $inheritanceKey);
-			} else {
-				$serialization = new Serialization($serializationSettings, $inheritanceKey);
-			}
-		} else if (!is_null($serializationSettings)) {
-			$serialization = new Serialization($serializationSettings, $inheritanceKey);
+			$parentModel = $parentModel->getParent();
 		}
-		return $serialization;
+		
+		return $same ? $parentSerializationSettings : $serializationSettings;
 	}
+	
 }

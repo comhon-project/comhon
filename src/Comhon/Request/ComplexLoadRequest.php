@@ -35,6 +35,7 @@ use Comhon\Object\UniqueObject;
 use Comhon\Exception\Literal\NotLinkableLiteralException;
 use Comhon\Exception\Literal\IncompatibleLiteralSerializationException;
 use Comhon\Exception\Request\NotAllowedRequestException;
+use Comhon\Database\SimpleDbLiteral;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	
@@ -356,11 +357,26 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (is_null($this->selectQuery)) {
 			throw new ComhonException('query not initialized');
 		}
+		$inheritanceValuesLiteral = null;
+		if (!empty($this->model->getSerialization()->getInheritanceValues())) {
+			$values = $this->model->getSerialization()->getInheritanceValues();
+			$inheritanceValuesLiteral = new SimpleDbLiteral(
+				$this->selectQuery->getMainTable(),
+				$this->model->getSerialization()->getInheritanceKey(),
+				Literal::EQUAL,
+				count($values) > 1 ? $values : $values[0]
+			);
+		}
 		if (!is_null($this->filter)) {
 			if ($this->optimizeLiterals) {
 				$this->filter = ClauseOptimizer::optimizeLiterals($this->filter);
 			}
-			$this->selectQuery->where($this->filter);
+			$clause = new Clause(Clause::CONJUNCTION);
+			$clause->addElement($this->filter);
+			$clause->addLiteral($inheritanceValuesLiteral);
+			$this->selectQuery->where($clause);
+		} elseif (!is_null($inheritanceValuesLiteral)) {
+			$this->selectQuery->where($inheritanceValuesLiteral);
 		}
 		$this->selectQuery->setFocusOnMainTable();
 		if (!$isCount) {
@@ -500,15 +516,14 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$stack[count($stack) - 1]['current']++;
 			if ($stack[count($stack) - 1]['current'] < count($stack[count($stack) - 1]['properties'])) {
 				$stackIndex     = count($stack) - 1;
+				/** @var \Comhon\Model\Property\Property $rightProperty */
 				$rightProperty  = $stack[$stackIndex]['properties'][$stack[$stackIndex]['current']];
 				$rightModel     = $rightProperty->getUniqueModel();
 				$rightModelName = $rightModel->getName();
 				
 				$higherRightModelName = $rightModelName;
-				$model = $rightModel->getParent();
-				while (!is_null($model) && $model->getSerializationSettings() === $rightModel->getSerializationSettings()) {
-					$higherRightModelName = $model->getName();
-					$model = $model->getParent();
+				if (!is_null($lastParentModel = $rightModel->getLastParentMatch(true))) {
+					$higherRightModelName = $lastParentModel->getName();
 				}
 				
 				if (array_key_exists($higherRightModelName, $arrayVisitedModels) && ($arrayVisitedModels[$higherRightModelName] > 0)) {
@@ -599,10 +614,8 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		];
 		
 		$higherRightModelName = $model->getName();
-		$parentModel = $model->getParent();
-		while (!is_null($parentModel) && $parentModel->getSerializationSettings() === $model->getSerializationSettings()) {
-			$higherRightModelName = $parentModel->getName();
-			$parentModel = $parentModel->getParent();
+		if (!is_null($lastParentModel = $model->getLastParentMatch(true))) {
+			$higherRightModelName = $lastParentModel->getName();
 		}
 		
 		$stackVisitedModels[] = $higherRightModelName;

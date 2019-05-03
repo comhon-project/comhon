@@ -1,0 +1,8 @@
+<manifest version="2.0" extends="\Test\GreatGrandParent\GrandParent\ParentOne" is_serializable="1">
+  <properties>
+    <property type="string" name="childOne"/>
+  </properties>
+  <inheritance_values>
+    <inheritance_value>\Test\GreatGrandParent\GrandParent\ParentOne\AnotherChild</inheritance_value>
+  </inheritance_values>
+</manifest>

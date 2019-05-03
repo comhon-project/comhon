@@ -1,11 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="Comhon\SqlTable" id="&quot;public&quot;.&quot;person&quot;"/>
-	<properties>
-		<bodies>
-			<aggregations>
-				<aggregation>owner</aggregation>
-			</aggregations>
-		</bodies>
-	</properties>
+  <serialization type="Comhon\SqlTable" inheritanceKey="sex" id="&quot;public&quot;.&quot;person&quot;"/>
+  <properties>
+    <bodies>
+      <aggregations>
+        <aggregation>owner</aggregation>
+      </aggregations>
+    </bodies>
+  </properties>
+  <inheritance_values>
+    <inheritance_value>\Test\Person\Woman</inheritance_value>
+  </inheritance_values>
 </manifest>

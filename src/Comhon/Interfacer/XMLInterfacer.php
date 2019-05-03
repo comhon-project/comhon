@@ -46,6 +46,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 */
 	protected function _initInstance() {
 		$this->domDocument = new \DOMDocument();
+		$this->domDocument->preserveWhiteSpace = false;
 		$this->nullElements = [];
 	}
 	
@@ -54,6 +55,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 */
 	public function initializeExport() {
 		$this->domDocument = new \DOMDocument();
+		$this->domDocument->preserveWhiteSpace = false;
 		$this->nullElements = [];
 		parent::initializeExport();
 	}
@@ -372,9 +374,11 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * transform given node to string
 	 * 
 	 * @param \DOMElement $node
+	 * @param bool $prettyPrint
 	 * @return string
 	 */
-	public function toString($node) {
+	public function toString($node, $prettyPrint = false) {
+		$this->domDocument->formatOutput = $prettyPrint;
 		return $this->domDocument->saveXML($node);
 	}
 	
@@ -383,9 +387,11 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * 
 	 * @param \DOMElement $node
 	 * @param string $path
+	 * @param bool $prettyPrint
 	 * @return boolean
 	 */
-	public function write($node, $path) {
+	public function write($node, $path, $prettyPrint = false) {
+		$this->domDocument->formatOutput = $prettyPrint;
 		return file_put_contents($path, $this->domDocument->saveXML($node)) !== false;
 	}
 	

@@ -1,7 +1,7 @@
 {
     "version": "2.0",
     "object": "Test\\Comhon\\Object\\Person",
-    "is_serializable": true,
+    "is_serializable": false,
     "properties": [
         {
             "name": "id",
@@ -58,5 +58,9 @@
             },
             "is_foreign": true
         }
+    ],
+    "inheritance_requestables": [
+        "\\Test\\Person\\Man",
+        "\\Test\\Person\\Woman"
     ]
 }

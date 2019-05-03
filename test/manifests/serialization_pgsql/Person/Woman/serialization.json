@@ -2,6 +2,7 @@
     "version": "2.0",
     "serialization": {
         "type": "Comhon\\SqlTable",
+        "inheritanceKey": "sex",
         "id": "\"public\".\"person\""
     },
     "properties": {
@@ -10,5 +11,8 @@
                 "owner"
             ]
         }
-    }
+    },
+    "inheritance_values": [
+        "\\Test\\Person\\Woman"
+    ]
 }

@@ -316,7 +316,7 @@ class Property {
 	 */
 	public function isEqual(Property $property) {
 		return $this === $property || (
-			get_class($this)          === get_class($property) &&
+			get_class($this)         === get_class($property) &&
 			$this->model             === $property->getModel() &&
 			$this->name              === $property->getName() &&
 			$this->isId              === $property->isId() &&

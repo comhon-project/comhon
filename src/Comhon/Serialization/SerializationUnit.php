@@ -70,31 +70,4 @@ abstract class SerializationUnit {
 	 */
 	abstract public function deleteObject(UniqueObject $object);
 	
-	/**
-	 * save specified comhon object
-	 * 
-	 * @param \Comhon\Object\UniqueObject $object
-	 * @param string $operation
-	 * @return integer number of saved objects
-	 */
-	abstract protected function _saveObject(UniqueObject $object, $operation = null);
-	
-	/**
-	 * load specified comhon object from serialization according its id
-	 * 
-	 * @param \Comhon\Object\UniqueObject $object
-	 * @param string[] $propertiesFilter
-	 * @return boolean true if object is successfully load, false otherwise
-	 */
-	abstract protected function _loadObject(UniqueObject $object, $propertiesFilter = null);
-	
-	/**
-	 * delete specified comhon object from serialization according its id
-	 * 
-	 * @param \Comhon\Object\UniqueObject $object
-	 * @throws \Exception
-	 * @return integer number of deleted objects
-	 */
-	abstract protected function _deleteObject(UniqueObject $object);
-	
 }

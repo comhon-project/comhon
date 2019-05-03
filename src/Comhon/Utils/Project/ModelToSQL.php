@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Comhon\Utils\InitProject;
+namespace Comhon\Utils\Project;
 
 use Comhon\Object\ComhonObject;
 use Comhon\Object\Config\Config;
@@ -23,7 +23,6 @@ use Comhon\Model\SimpleModel;
 use Comhon\Model\ModelForeign;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\ArgumentException;
-use Comhon\Utils\OptionManager;
 use Comhon\Serialization\SerializationUnit;
 use Comhon\Model\Model;
 use Comhon\Model\ModelContainer;
@@ -487,13 +486,10 @@ class ModelToSQL {
 	 * execute database file and comhon serialization files generation
 	 * 
 	 * @param string $outputPath folder path where database and serialization files will be exported
-	 * @param unknown $configPath comhon config file path
 	 * @param \Comhon\Object\UniqueObject $sqlDatabase
 	 * @throws ArgumentException
 	 */
-	private function transform($outputPath, $configPath, UniqueObject $sqlDatabase = null, $case = 'iso') {
-		Config::setLoadPath($configPath);
-		
+	private function transform($outputPath, UniqueObject $sqlDatabase = null, $case = 'iso') {
 		$this->case = $case;
 		if (is_null($sqlDatabase)) {
 			$sqlDatabase = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getObjectInstance();
@@ -516,7 +512,7 @@ class ModelToSQL {
 			$objects = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($manifest_ad), \RecursiveIteratorIterator::SELF_FIRST);
 			
 			/**
-			 * @var SplFileInfo $object
+			 * @var \SplFileInfo $object
 			 */
 			foreach($objects as $name => $object) {
 				if (!is_dir($name) || $object->getBasename() === '.' || $object->getBasename() === '..') {
@@ -641,22 +637,19 @@ class ModelToSQL {
 	 * options are taken from script arguments
 	 * 
 	 * @param string $outputPath folder path where database and serialization files will be exported
-	 * @param unknown $configPath comhon config file path
+	 * @param string $configPath comhon config file path
+	 * @param string $case case of tables and columns to use
+	 * @param string $database database connection informations
 	 */
-	public static function exec($outputPath, $configPath) {
-		$optionManager = new OptionManager();
-		$optionManager->register_option_desciption(self::getOptionsDescriptions());
-		if ($optionManager->has_help_argument_option()) {
-			echo $optionManager->get_help();
-			exit(0);
-		}
-		
-		$options = $optionManager->get_options();
-		$case = isset($options['case']) ? $options['case'] : 'iso';
+	public static function exec($outputPath, $configPath, $case = 'iso', $database = null) {
 		Config::setLoadPath($configPath);
 		
-		if (isset($options['database'])) {
-			$infos = explode(':', $options['database']);
+		if (!is_null($database)) {
+			$infos = explode(':', $database);
+			
+			if (count($infos) > 7 || $infos < 6) {
+				throw new \Exception('malformed database description : '.$database);
+			}
 			
 			$sqlDatabase = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getObjectInstance();
 			$sqlDatabase->setId($infos[0]);
@@ -673,41 +666,7 @@ class ModelToSQL {
 		}
 		
 		$modelToSQL = new self();
-		$modelToSQL->transform($outputPath, $configPath, $sqlDatabase, $case);
-	}
-	
-	/**
-	 * 
-	 * @return array
-	 */
-	private static function getOptionsDescriptions() {
-		return [
-			'database' => [
-				'short' => 'd',
-				'long' => 'database',
-				'has_value' => true,
-				'description' => 'Database informations',
-				'pattern' => '^([^:]+:){5,6}[^:]+$',
-				'long_description' =>
-					'Database informations that will be used for models without serialization.' . PHP_EOL .
-					'Value must match with following patterns : ' . PHP_EOL .
-					'id:DBMS:host:name:user:password or id:DBMS:host:name:user:password:port' . PHP_EOL .
-					' - id is your database identifier that will be used in Comhon framework' . PHP_EOL .
-					' - DBMS is your database management system' . PHP_EOL .
-					' - host is your database host' . PHP_EOL .
-					' - name is your database name' . PHP_EOL .
-					' - user is your database user name' . PHP_EOL .
-					' - password is your database password' . PHP_EOL .
-					' - port is your database port (optional)'
-			],
-			'case' => [
-				'short' => 'c',
-				'long' => 'case',
-				'has_value' => true,
-				'enum' => ['camel', 'pascal', 'kebab', 'snake'],
-				'description' => 'column name\'s case',
-			]
-		];
+		$modelToSQL->transform($outputPath, $sqlDatabase, $case);
 	}
     
 }

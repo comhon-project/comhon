@@ -634,18 +634,20 @@ abstract class Interfacer {
 	 * transform given node to string
 	 * 
 	 * @param mixed $node
+	 * @param bool $prettyPrint
 	 * @return string
 	 */
-	abstract public function toString($node);
+	abstract public function toString($node, $prettyPrint = false);
 	
 	/**
 	 * write file with given content
 	 * 
 	 * @param mixed $node
 	 * @param string $path
+	 * @param bool $prettyPrint
 	 * @return boolean
 	 */
-	abstract public function write($node, $path);
+	abstract public function write($node, $path, $prettyPrint = false);
 	
 	/**
 	 * read file and load node with file content

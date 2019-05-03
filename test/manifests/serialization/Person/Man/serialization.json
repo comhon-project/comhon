@@ -6,5 +6,8 @@
                 "owner"
             ]
         }
-    }
+    },
+    "inheritance_values": [
+        "\\Test\\Person\\Man"
+    ]
 }

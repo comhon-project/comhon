@@ -112,14 +112,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				$this->isMain = $result[ModelManager::IS_MAIN_MODEL];
 				$this->parent = $result[ModelManager::PARENT_MODEL];
 				$this->_setProperties($result[ModelManager::PROPERTIES]);
+				$this->serialization = $result[ModelManager::SERIALIZATION];
+				$this->_verifyIdSerialization();
 				
-				if (!is_null($result[ModelManager::OBJECT_CLASS])) {
-					if ($this->objectClass !== $result[ModelManager::OBJECT_CLASS]) {
-						$this->objectClass = $result[ModelManager::OBJECT_CLASS];
-						$this->isExtended = true;
-					}
+				if (!is_null($result[ModelManager::OBJECT_CLASS]) && ($this->objectClass !== $result[ModelManager::OBJECT_CLASS])) {
+					$this->objectClass = $result[ModelManager::OBJECT_CLASS];
+					$this->isExtended = true;
 				}
-				$this->_setSerialization();
 				$this->_init();
 				$this->isLoaded  = true;
 				$this->isLoading = false;
@@ -212,17 +211,16 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * load, build and affect serializaton to model
+	 * verify if ids are compatible with parent (if current and parent have same serialization)
 	 */
-	final protected function _setSerialization() {
-		$this->serialization = ModelManager::getInstance()->getSerializationInstance($this);
-		if ($this->hasParent()) {
-			if (count($this->getIdProperties()) != count($this->getParent()->getIdProperties())) {
-				throw new ComhonException("model {$this->getName()} extended from model {$this->getParent()->getName()} and with same serialization must have same id(s)");
+	final protected function _verifyIdSerialization() {
+		if (!is_null($this->serialization) && !is_null($parentMatchModel = $this->getFirstParentMatch(true))) {
+			if (count($this->getIdProperties()) != count($parentMatchModel->getIdProperties())) {
+				throw new ComhonException("model {$this->getName()} extended from model {$parentMatchModel->getName()} and with same serialization must have same id(s)");
 			}
-			foreach ($this->getParent()->getIdProperties() as $propertyName => $property) {
+			foreach ($parentMatchModel->getIdProperties() as $propertyName => $property) {
 				if (!$this->hasIdProperty($propertyName) || !$property->isEqual($this->getIdProperty($propertyName))) {
-					throw new ComhonException("model {$this->getName()} extended from model {$this->getParent()->getName()} and with same serialization must have same id(s)");
+					throw new ComhonException("model {$this->getName()} extended from model {$parentMatchModel->getName()} and with same serialization must have same id(s)");
 				}
 			}
 		}
@@ -271,6 +269,65 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	public function getParent() {
 		return $this->parent;
+	}
+	
+	/**
+	 * get first parent model that match with all specified parameters.
+	 * if a parameter is null, it is not taken in account in match.
+	 *
+	 * @param bool $sameSerialization
+	 * @param bool $isSerializable
+	 * @return Model|null null if no parent model matches
+	 */
+	public function getFirstParentMatch($sameSerialization = null, $isSerializable = null) {
+		return $this->getParentMatch($sameSerialization, $isSerializable, true);
+	}
+	
+	/**
+	 * get last parent model that match with all specified parameters.
+	 * if a parameter is null, it is not taken in account in match.
+	 *
+	 * @param bool $sameSerialization
+	 * @param bool $isSerializable
+	 * @return Model|null null if no parent model matches
+	 */
+	public function getLastParentMatch($sameSerialization = null, $isSerializable = null) {
+		return $this->getParentMatch($sameSerialization, $isSerializable, false);
+	}
+	
+	/**
+	 * get first parent model that match with all specified parameters.
+	 * if a parameter is null, it is not taken in account in match.
+	 * 
+	 * @param bool $sameSerialization
+	 * @param bool $isSerializable
+	 * @param bool $first if true stop at first parent match otherwise coninue to last parent match
+	 * @return Model|null null if no parent model matches
+	 */
+	private function getParentMatch($sameSerialization, $isSerializable, $first) {
+		$model = $this;
+		$parentMatch = null;
+		$serializationSettings = $this->getSerializationSettings();
+		while (!is_null($model->getParent())) {
+			$model = $model->getParent();
+			$parentSerialization = $model->getSerialization();
+			
+			if (!is_null($isSerializable)) {
+				if ((!is_null($parentSerialization) && $parentSerialization->isSerializationAllowed()) !== $isSerializable) {
+					continue;
+				}
+			}
+			if (!is_null($sameSerialization)) {
+				if ((!is_null($parentSerialization) && $parentSerialization->getSettings() === $serializationSettings) !== $sameSerialization) {
+					continue;
+				}
+			}
+			$parentMatch = $model;
+			if ($first) {
+				break;
+			}
+		}
+		return $parentMatch;
 	}
 	
 	/**

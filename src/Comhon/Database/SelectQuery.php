@@ -180,7 +180,7 @@ class SelectQuery {
 	 * 
 	 * @return TableNode
 	 */
-	public function getTableFocus() {
+	public function getFocusedTable() {
 		return $this->tableFocus;
 	}
 	
