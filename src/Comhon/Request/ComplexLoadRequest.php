@@ -371,10 +371,14 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			if ($this->optimizeLiterals) {
 				$this->filter = ClauseOptimizer::optimizeLiterals($this->filter);
 			}
-			$clause = new Clause(Clause::CONJUNCTION);
-			$clause->addElement($this->filter);
-			$clause->addLiteral($inheritanceValuesLiteral);
-			$this->selectQuery->where($clause);
+			if (!is_null($inheritanceValuesLiteral)) {
+				$clause = new Clause(Clause::CONJUNCTION);
+				$clause->addElement($this->filter);
+				$clause->addLiteral($inheritanceValuesLiteral);
+				$this->selectQuery->where($clause);
+			} else {
+				$this->selectQuery->where($this->filter);
+			}
 		} elseif (!is_null($inheritanceValuesLiteral)) {
 			$this->selectQuery->where($inheritanceValuesLiteral);
 		}
