@@ -21,11 +21,23 @@ use Comhon\Exception\ArgumentException;
 abstract class SerializationFile extends ValidatedSerializationUnit {
 
 	/**
-	 * get interfacer able to read serialized file content
+	 * @var \Comhon\Interfacer\StdObjectInterfacer interfacer able to read serialized file content
+	 */
+	protected $interfacer;
+	
+	/**
+	 * initialize and return interfacer able to read serialized file content
 	 *
 	 * @return \Comhon\Interfacer\Interfacer
 	 */
-	abstract protected static function _getInterfacer();
+	abstract protected static function _initInterfacer();
+	
+	private function getInterfacer() {
+		if (is_null($this->interfacer)) {
+			$this->interfacer = static::_initInterfacer();
+		}
+		return $this->interfacer;
+	}
 	
 	/**
 	 * 
@@ -71,8 +83,8 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 				throw new SerializationException("Cannot save object with id '{$object->getId()}'. Impossible to create directory '".dirname($path).'\'');
 			}
 		}
-		$content = $object->export(static::_getInterfacer());
-		if (static::_getInterfacer()->write($content, $path) === false) {
+		$content = $object->export($this->getInterfacer());
+		if ($this->getInterfacer()->write($content, $path) === false) {
 			throw new SerializationException("Cannot save object with id '{$object->getId()}'. Creation or filling file failed");
 		}
 		return 1;
@@ -88,11 +100,11 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 		if (!file_exists($path)) {
 			return false;
 		}
-		$formatedContent = static::_getInterfacer()->read($path);
+		$formatedContent = $this->getInterfacer()->read($path);
 		if ($formatedContent === false || is_null($formatedContent)) {
 			throw new SerializationException("cannot load file '$path'");
 		}
-		$object->fill($formatedContent, static::_getInterfacer());
+		$object->fill($formatedContent, $this->getInterfacer());
 		return true;
 	}
 	

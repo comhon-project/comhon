@@ -22,10 +22,23 @@ class XmlFile extends SerializationFile {
 	const SETTINGS_TYPE = 'Comhon\XmlFile';
 	
 	/**
-	 * 
-	 * @var \Comhon\Interfacer\XMLInterfacer
+	 * @var \Comhon\Serialization\File\XmlFile
 	 */
-	private static $interfacer;
+	private static $instance;
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::getInstance()
+	 * 
+	 * @return \Comhon\Serialization\File\XmlFile
+	 */
+	public static function getInstance() {
+		if (is_null(self::$instance)) {
+			self::$instance = new self();
+		}
+		
+		return self::$instance;
+	}
 	
 	/**
 	 * get serialization unit type
@@ -38,18 +51,17 @@ class XmlFile extends SerializationFile {
 	
 	/**
 	 * {@inheritDoc}
-	 * @see \Comhon\Serialization\SerializationFile::_getInterfacer()
+	 * @see \Comhon\Serialization\SerializationFile::_initInterfacer()
 	 * 
 	 * @return \Comhon\Interfacer\XMLInterfacer
 	 */
-	protected static function _getInterfacer() {
-		if (is_null(self::$interfacer)) {
-			self::$interfacer = new XMLInterfacer();
-			self::$interfacer->setSerialContext(true);
-			self::$interfacer->setPrivateContext(true);
-			self::$interfacer->setFlagValuesAsUpdated(false);
-		}
-		return self::$interfacer;
+	protected static function _initInterfacer() {
+		$interfacer = new XMLInterfacer();
+		$interfacer->setSerialContext(true);
+		$interfacer->setPrivateContext(true);
+		$interfacer->setFlagValuesAsUpdated(false);
+		
+		return $interfacer;
 	}
 	
 }

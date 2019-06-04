@@ -40,7 +40,7 @@ final class Serialization {
 	public function __construct(UniqueObject $settings, $inheritanceKey = null, $allowSerialization = true, $inheritanceValues = null) {
 		$this->settings = $settings;
 		$this->inheritanceKey = $inheritanceKey;
-		$this->serializationUnit = SerializationUnit::getInstance($settings->getModel()->getName());
+		$this->serializationUnit = SerializationUnitFactory::getInstance($settings->getModel()->getName());
 		$this->allowSerialization = $allowSerialization;
 		$this->inheritanceValues= $inheritanceValues;
 	}

@@ -248,6 +248,9 @@ class DatabaseHandler {
 		if ($this->pdo->exec("SET time zone  '{$this->_getTimeZoneOffset()}';") === false) {
 			throw new QueryExecutionFailureException("SET time zone  '{$this->_getTimeZoneOffset()}';");
 		}
+		if ($this->pdo->exec("SET lc_messages TO 'en_US.UTF-8';") === false) {
+			throw new QueryExecutionFailureException("SET lc_messages TO 'en_US.UTF-8';");
+		}
 	}
 
 	/**

@@ -22,10 +22,23 @@ class JsonFile extends SerializationFile {
 	const SETTINGS_TYPE = 'Comhon\JsonFile';
 	
 	/**
-	 *
-	 * @var \Comhon\Interfacer\StdObjectInterfacer
+	 * @var \Comhon\Serialization\File\JsonFile
 	 */
-	private static $interfacer;
+	private static $instance;
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::getInstance()
+	 * 
+	 * @return \Comhon\Serialization\File\JsonFile
+	 */
+	public static function getInstance() {
+		if (is_null(self::$instance)) {
+			self::$instance = new self();
+		}
+		
+		return self::$instance;
+	}
 	
 	/**
 	 * get serialization unit type
@@ -38,18 +51,17 @@ class JsonFile extends SerializationFile {
 	
 	/**
 	 * {@inheritDoc}
-	 * @see \Comhon\Serialization\SerializationFile::_getInterfacer()
+	 * @see \Comhon\Serialization\SerializationFile::_initInterfacer()
 	 * 
 	 * @return \Comhon\Interfacer\StdObjectInterfacer
 	 */
-	protected static function _getInterfacer() {
-		if (is_null(self::$interfacer)) {
-			self::$interfacer = new StdObjectInterfacer();
-			self::$interfacer->setSerialContext(true);
-			self::$interfacer->setPrivateContext(true);
-			self::$interfacer->setFlagValuesAsUpdated(false);
-		}
-		return self::$interfacer;
+	protected static function _initInterfacer() {
+		$interfacer = new StdObjectInterfacer();
+		$interfacer->setSerialContext(true);
+		$interfacer->setPrivateContext(true);
+		$interfacer->setFlagValuesAsUpdated(false);
+		
+		return $interfacer;
 	}
 	
 }

@@ -53,17 +53,36 @@ class SqlTable extends ValidatedSerializationUnit {
 	/**
 	 * @var array store all incremental columns names grouped by table
 	 */
-	private static $autoIncrementColumns = [];
+	private $autoIncrementColumns = [];
 	
 	/**
 	 * @var array store table informations group by model
 	 */
-	private static $modelInfos = [];
+	private $modelInfos = [];
 	
 	/**
 	 * @var \Comhon\Interfacer\AssocArrayInterfacer interfacer able to read retrieved rows from database
 	 */
-	private static $interfacer;
+	private $interfacer;
+	
+	/**
+	 * @var \Comhon\Serialization\File\XmlFile
+	 */
+	private static $instance;
+	
+	/**
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::getInstance()
+	 *
+	 * @return \Comhon\Serialization\SqlTable
+	 */
+	public static function getInstance() {
+		if (is_null(self::$instance)) {
+			self::$instance = new self();
+		}
+		
+		return self::$instance;
+	}
 	
 	/**
 	 * get serialization unit type
@@ -86,23 +105,23 @@ class SqlTable extends ValidatedSerializationUnit {
 		}
 		
 		$databaseId = $settings->getValue('database')->getId();
-		$dbHandler = DatabaseHandler::getInstanceWithDataBaseId($databaseId);
 		$tableName = $settings->getValue('name');
 		$tableId = $tableName. '_' . $databaseId;
-		$this->_initColumnsInfos($dbHandler, $tableId, $tableName);
+		$this->_initColumnsInfos($databaseId, $tableId, $tableName);
 		$this->_initColumnsProperties($model, $tableId);
 	}
 	
 	/**
 	 * retrieve and store columns informations of table (auto incremental columns)
 	 * 
-	 * @param \Comhon\Database\DatabaseHandler $dbHandler
+	 * @param string $databaseId
 	 * @param string $tableId
 	 * @param string $tableName
 	 */
-	private function _initColumnsInfos(DatabaseHandler $dbHandler, $tableId, $tableName) {
-		if (!array_key_exists($tableId, self::$autoIncrementColumns)) {
-			self::$autoIncrementColumns[$tableId] = $this->_getIncrementalColumns($dbHandler, $tableName);
+	private function _initColumnsInfos($databaseId, $tableId, $tableName) {
+		if (!array_key_exists($tableId, $this->autoIncrementColumns)) {
+			$dbHandler = DatabaseHandler::getInstanceWithDataBaseId($databaseId);
+			$this->autoIncrementColumns[$tableId] = $this->_getIncrementalColumns($dbHandler, $tableName);
 		}
 	}
 	
@@ -199,13 +218,13 @@ class SqlTable extends ValidatedSerializationUnit {
 	 * @param string $tableId
 	 */
 	private function _initColumnsProperties(Model $model, $tableId) {
-		if (array_key_exists($model->getName(), self::$modelInfos)) {
+		if (array_key_exists($model->getName(), $this->modelInfos)) {
 			return;
 		}
 		$autoIncrementProperties = [];
 		$hasIncrementalId = false;
 		
-		$autoIncrementColumns = self::$autoIncrementColumns[$tableId];
+		$autoIncrementColumns = $this->autoIncrementColumns[$tableId];
 		if (!empty($autoIncrementColumns)) {
 			foreach ($model->getSerializableProperties() as $property) {
 				if (in_array($property->getSerializationName(), $autoIncrementColumns)) {
@@ -217,7 +236,7 @@ class SqlTable extends ValidatedSerializationUnit {
 			}
 		}
 		
-		self::$modelInfos[$model->getName()] = [
+		$this->modelInfos[$model->getName()] = [
 			self::HAS_INCR_ID_INDEX          => $hasIncrementalId,
 			self::AUTO_INCR_PROPERTIES_INDEX => $autoIncrementProperties
 		];
@@ -225,7 +244,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	
 	public function hasIncrementalId(Model $model) {
 		$this->_initDatabaseInterfacing($model);
-		return self::$modelInfos[$model->getName()][self::HAS_INCR_ID_INDEX];
+		return $this->modelInfos[$model->getName()][self::HAS_INCR_ID_INDEX];
 	}
 	
 	/**
@@ -234,19 +253,19 @@ class SqlTable extends ValidatedSerializationUnit {
 	 * @param string $flagObjectAsLoaded if true flag imported comhon object as loaded
 	 * @return \Comhon\Interfacer\AssocArrayInterfacer
 	 */
-	public static function getInterfacer($flagObjectAsLoaded = true) {
-		if (is_null(self::$interfacer)) {
-			self::$interfacer = new AssocArrayInterfacer();
-			self::$interfacer->setPrivateContext(true);
-			self::$interfacer->setSerialContext(true);
-			self::$interfacer->setFlagValuesAsUpdated(false);
-			self::$interfacer->setDateTimeFormat('Y-m-d H:i:s');
-			self::$interfacer->setDateTimeZone(Config::getInstance()->getDataBaseTimezone());
-			self::$interfacer->setFlattenValues(true);
-			self::$interfacer->setStringifiedValues(true);
+	public function getInterfacer($flagObjectAsLoaded = true) {
+		if (is_null($this->interfacer)) {
+			$this->interfacer = new AssocArrayInterfacer();
+			$this->interfacer->setPrivateContext(true);
+			$this->interfacer->setSerialContext(true);
+			$this->interfacer->setFlagValuesAsUpdated(false);
+			$this->interfacer->setDateTimeFormat('Y-m-d H:i:s');
+			$this->interfacer->setDateTimeZone(Config::getInstance()->getDataBaseTimezone());
+			$this->interfacer->setFlattenValues(true);
+			$this->interfacer->setStringifiedValues(true);
 		}
-		self::$interfacer->setFlagObjectAsLoaded($flagObjectAsLoaded);
-		return self::$interfacer;
+		$this->interfacer->setFlagObjectAsLoaded($flagObjectAsLoaded);
+		return $this->interfacer;
 	}
 	
 	/**
@@ -257,7 +276,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	protected function _saveObject(UniqueObject $object, $operation = null) {
 		$this->_initDatabaseInterfacing($object->getModel());
 		
-		if (self::$modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
+		if ($this->modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
 			return $this->_saveObjectWithIncrementalId($object);
 		} else if ($operation == self::CREATE) {
 			return $this->_insertObject($object);
@@ -276,7 +295,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	 * @return integer
 	 */
 	private function _saveObjectWithIncrementalId(UniqueObject $object) {
-		if (!self::$modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
+		if (!$this->modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
 			throw new SerializationException('operation not specified');
 		}
 		if ($object->hasCompleteId()) {
@@ -294,7 +313,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	 * @return integer number of affected rows
 	 */
 	private function _insertObject(UniqueObject $object) {
-		$interfacer = self::getInterfacer();
+		$interfacer = $this->getInterfacer();
 		$interfacer->setExportOnlyUpdatedValues(false);
 		$mapOfString = $object->export($interfacer);
 		$databaseId = $object->getModel()->getSerializationSettings()->getValue('database')->getId();
@@ -305,7 +324,7 @@ class SqlTable extends ValidatedSerializationUnit {
 		if (is_null($databaseHandler->getInsertReturn())) {
 			$queryEnding = ';';
 		}else if ($databaseHandler->getInsertReturn() == 'RETURNING') {
-			$autoIncrementProperties = self::$modelInfos[$object->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
+			$autoIncrementProperties = $this->modelInfos[$object->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
 			if (count($autoIncrementProperties) == 0) {
 				$queryEnding = ';';
 			} elseif (count($autoIncrementProperties) == 1) {
@@ -326,7 +345,7 @@ class SqlTable extends ValidatedSerializationUnit {
 		$statement = $this->execute($databaseHandler, $query, array_values($mapOfString), $object);
 		$affectedRows = $statement->rowCount();
 		
-		$autoIncrementProperties = self::$modelInfos[$object->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
+		$autoIncrementProperties = $this->modelInfos[$object->getModel()->getName()][self::AUTO_INCR_PROPERTIES_INDEX];
 		if (($affectedRows > 0) && !empty($autoIncrementProperties)) {
 			if ($databaseHandler->isSupportedLastInsertId()) {
 				$incrementalValue = current($autoIncrementProperties)->getModel()->castValue($databaseHandler->lastInsertId());
@@ -382,7 +401,7 @@ class SqlTable extends ValidatedSerializationUnit {
 		$updateValues     = [];
 		$conditionsValues = [];
 
-		$interfacer = self::getInterfacer();
+		$interfacer = $this->getInterfacer();
 		$interfacer->setExportOnlyUpdatedValues(true);
 		$mapOfString = $object->export($interfacer);
 		foreach ($object->getDeletedValues() as $propertyName) {
@@ -575,7 +594,7 @@ class SqlTable extends ValidatedSerializationUnit {
 		
 		$isModelArray = $object->getModel() instanceof ModelArray;
 		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {
-			$interfacer = self::getInterfacer(!$onlyIds);
+			$interfacer = $this->getInterfacer(!$onlyIds);
 			$object->fill($isModelArray ? $rows : $rows[0], $interfacer);
 			$success = true;
 		}

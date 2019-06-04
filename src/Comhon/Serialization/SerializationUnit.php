@@ -11,10 +11,7 @@
 
 namespace Comhon\Serialization;
 
-use Comhon\Serialization\File\XmlFile;
-use Comhon\Serialization\File\JsonFile;
 use Comhon\Object\UniqueObject;
-use Comhon\Exception\ComhonException;
 
 abstract class SerializationUnit {
 
@@ -27,18 +24,9 @@ abstract class SerializationUnit {
 	/**
 	 * get serialization unit instance
 	 *
-	 * @param \Comhon\Object\UniqueObject $settings
-	 * @param string $inheritanceKey
 	 * @return \Comhon\Serialization\SerializationUnit
 	 */
-	public static function getInstance($type) {
-		switch ($type) {
-			case SqlTable::getType() : return new SqlTable();
-			case XmlFile::getType() : return new XmlFile();
-			case JsonFile::getType() : return new JsonFile();
-			default: throw new ComhonException('not managed serialization unit type : ' . $type);
-		}
-	}
+	abstract public static function getInstance();
 	
 	/**
 	 * save specified comhon object

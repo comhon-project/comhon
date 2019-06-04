@@ -1,0 +1,27 @@
+object(Comhon\Object\ComhonObject)#998 (5) {
+  ["model"]=>
+  string(11) "Test\TestDb"
+  ["values"]=>
+  array(2) {
+    ["id1"]=>
+    int(789201)
+    ["timestamp"]=>
+    object(Comhon\Object\ComhonDateTime)#1012 (4) {
+      ["isUpdated":"Comhon\Object\ComhonDateTime":private]=>
+      bool(false)
+      ["date"]=>
+      string(26) "2000-01-01 00:00:00.000000"
+      ["timezone_type"]=>
+      int(3)
+      ["timezone"]=>
+      string(13) "Europe/Berlin"
+    }
+  }
+  ["isLoaded"]=>
+  bool(true)
+  ["updatedValues"]=>
+  array(0) {
+  }
+  ["isUpdated"]=>
+  bool(false)
+}

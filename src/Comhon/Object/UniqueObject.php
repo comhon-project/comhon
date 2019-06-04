@@ -151,6 +151,20 @@ abstract class UniqueObject extends AbstractComhonObject {
 		return true;
 	}
 	
+	/**
+	 * verify if at least one id value is set
+	 *
+	 * @return boolean true if no one id value is set or if model doesn't have id properties
+	 */
+	final public function hasEmptyId() {
+		foreach ($this->getModel()->getIdProperties() as $propertyName => $property) {
+			if(!is_null($this->getValue($propertyName))) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	 /***********************************************************************************************\
 	 |                                                                                               |
 	 |                                      ComhonObject Status                                      |

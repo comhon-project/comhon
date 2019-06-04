@@ -146,7 +146,7 @@ if ($testDbModel->getName() !== 'Test\TestDb') {
 if (json_encode($testDbModel->getPropertiesNames()) !== '["id1","id2","date","timestamp","object","objectWithId","string","integer","mainParentTestDb","objectsWithId","foreignObjects","lonelyForeignObject","lonelyForeignObjectTwo","defaultValue","manBodyJson","womanXml","notSerializedValue","notSerializedForeignObject","boolean","boolean2","childrenTestDb","notLinkableArrayTestDb","notLinkableTestDb","notLinkableTestObjValue"]') {
 	throw new \Exception("model {$testDbModel->getName()} hasn't good properties : ".json_encode($testDbModel->getPropertiesNames()));
 }
-var_dump(get_class($testDbModel));
+
 $dbModel = $testDbModel->getSqlTableSettings()->getModel()->getProperty('database')->getModel();
 if ($dbModel->getModel()->getName() !== 'Comhon\SqlDatabase') {
 	throw new \Exception('model hasn\'t good name');

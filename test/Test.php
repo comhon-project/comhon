@@ -25,7 +25,7 @@ $loader->addPsr4('Test\\Comhon\\', __DIR__);
 
 echo "load config file $configFile... ";
 Config::setLoadPath(__DIR__.'/config/'.$configFile);
-echo "success\n";
+echo "success".PHP_EOL;
 
 echo "initializing database... ";
 
@@ -35,7 +35,9 @@ $dbHandlerMySql->getPDO()->exec(file_get_contents('./data/database/database_mysq
 $dbHandlerPgSql = DatabaseHandler::getInstanceWithDataBaseId('2');
 $dbHandlerPgSql->getPDO()->exec(file_get_contents('./data/database/database_pgsql.sql'));
 
-echo "success\n";
+echo "success".PHP_EOL;
+
+echo PHP_EOL;
 
 /**
  * 
@@ -422,7 +424,7 @@ try {
 	$time_end_local = microtime(true);
 	$plopTimes['SetValueExceptionTest'] = $time_end_local - $time_start_local;
 	$time_end_global = microtime(true);
-	var_dump("\nglobal test exec time ".($time_end_global- $time_start_global));
+	echo (PHP_EOL."global test exec time ".($time_end_global- $time_start_global).PHP_EOL);
 } catch (\Exception $e) {
 	var_dump("FAILURE !!!"
 		."\ncode : " . $e->getCode()
@@ -447,6 +449,7 @@ try {
 
 // TODO for version > 3.0
 // serialization unit singleton
+// object service doesn't catch and return comhon object
 // add selectquery select count(*) on query and func(*) on table
 // should not check file exists when _getInstanceModel()
 //   pb if instanciate local type before parent manifest. should not instanciate another one
