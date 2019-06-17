@@ -2,7 +2,7 @@
 
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\ComhonObject as FinalObject;
-use Comhon\Api\ObjectService;
+use Test\Comhon\Service\ObjectService;
 use Comhon\Serialization\SqlTable;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Interfacer\StdObjectInterfacer;

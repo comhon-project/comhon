@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use Comhon\Database\SelectQuery;
 use Comhon\Database\DatabaseHandler;
-use Comhon\Api\ObjectService;
+use Comhon\Request\ComplexLoadRequest;
 
 class CountRequestTest extends TestCase
 {
@@ -55,12 +55,9 @@ class CountRequestTest extends TestCase
 	{
 		$params = new \stdClass();
 		$params->model = 'Test\Person';
-		$result = ObjectService::getObjectsCount($params);
+		$count = ComplexLoadRequest::buildObjectLoadRequest($params)->count();
 		
-		$this->assertObjectHasAttribute('success', $result);
-		$this->assertEquals(true, $result->success);
-		$this->assertObjectHasAttribute('result', $result);
-		$this->assertSame(9, $result->result);
+		$this->assertSame(9, $count);
 	}
 	
 	public function testCountWithLimitAndFilterServiceRequest()
@@ -77,17 +74,10 @@ class CountRequestTest extends TestCase
 		$order->property = 'firstName';
 		$params->order = [$order];
 		
-		$result = ObjectService::getObjects($params);
-		$this->assertObjectHasAttribute('success', $result);
-		$this->assertEquals(true, $result->success);
-		$this->assertObjectHasAttribute('result', $result);
-		$this->assertInternalType('array',$result->result);
-		$this->assertCount(1, $result->result);
+		$objects = ComplexLoadRequest::buildObjectLoadRequest($params)->execute();
+		$this->assertCount(1, $objects->getValues());
 		
-		$result = ObjectService::getObjectsCount($params);
-		$this->assertObjectHasAttribute('success', $result);
-		$this->assertEquals(true, $result->success);
-		$this->assertObjectHasAttribute('result', $result);
-		$this->assertSame(2, $result->result);
+		$count = ComplexLoadRequest::buildObjectLoadRequest($params)->count();
+		$this->assertSame(2, $count);
 	}
 }

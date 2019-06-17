@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Comhon\Api;
+namespace Test\Comhon\Service;
 
 use Comhon\Request\ComplexLoadRequest;
 use Comhon\Request\SimpleLoadRequest;
@@ -70,12 +70,7 @@ class ObjectService {
 	 * @return \stdClass
 	 */
 	public static function getObjectsCount(\stdClass $params, $private = false) {
-		try {
-			$count = ComplexLoadRequest::buildObjectLoadRequest($params, $private)->count();
-			return self::_setSuccessResponse($count);
-		} catch (\Exception $e) {
-			return self::_setErrorResponse($e);
-		}
+		return ComplexLoadRequest::buildObjectLoadRequest($params, $private)->count();
 	}
 	
 	/**

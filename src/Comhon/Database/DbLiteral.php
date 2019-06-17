@@ -21,6 +21,7 @@ use Comhon\Exception\Model\PropertyVisibilityException;
 use Comhon\Exception\Literal\MalformedLiteralException;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Serialization\SerializationException;
+use Comhon\Model\Property\Property;
 
 abstract class DbLiteral extends Literal {
 	
@@ -104,14 +105,36 @@ abstract class DbLiteral extends Literal {
 			if (!$allowPrivateProperties && $property->isPrivate()) {
 				throw new PropertyVisibilityException($property->getName());
 			}
-			$literal = $property->hasMultipleSerializationNames()
-				? new MultiplePropertyDbLiteral($table, $property, $stdObject->operator, $stdObject->value)
-				: new SimpleDbLiteral($table, $property->getSerializationName(), $stdObject->operator, $stdObject->value);
+			
+			if ($property->hasMultipleSerializationNames()) {
+				$literal = new MultiplePropertyDbLiteral($table, $property, $stdObject->operator, $stdObject->value);
+			} else {
+				self::verifyLitteralValue($property, $stdObject->value);
+				$literal = new SimpleDbLiteral($table, $property->getSerializationName(), $stdObject->operator, $stdObject->value);
+			}
 		}
 		if (isset($stdObject->id)) {
 			$literal->setId($stdObject->id);
 		}
 		return $literal;
+	}
+	
+	/**
+	 * verify if value is valid according property model
+	 * 
+	 * @param \Comhon\Model\Property\Property $property
+	 * @param mixed $value
+	 */
+	private static function verifyLitteralValue(Property $property, $value) {
+		if (is_array($value)) {
+			foreach ($value as $element) {
+				if (!is_null($element)) {
+					$property->getModel()->verifValue($element);
+				}
+			}
+		} elseif (!is_null($value)) {
+			$property->getModel()->verifValue($value);
+		}
 	}
 	
 	/**

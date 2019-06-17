@@ -1,6 +1,6 @@
 <?php
 
-use Comhon\Api\ObjectService;
+use Test\Comhon\Service\ObjectService;
 
 $time_start = microtime(true);
 

@@ -1,6 +1,6 @@
 <?php
 
-use Comhon\Api\ObjectService;
+use Test\Comhon\Service\ObjectService;
 use Comhon\Object\Config\Config;
 
 $loader = require_once __DIR__ . '/../vendor/autoload.php';

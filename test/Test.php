@@ -20,8 +20,8 @@ if ($argc === 1) {
 	}
 }
 
-$loader = require_once __DIR__ . '/../vendor/autoload.php';
-$loader->addPsr4('Test\\Comhon\\', __DIR__);
+$loader = require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+$loader->addPsr4('Test\\Comhon\\', __DIR__ . DIRECTORY_SEPARATOR . 'classes');
 
 echo "load config file $configFile... ";
 Config::setLoadPath(__DIR__.'/config/'.$configFile);
@@ -448,8 +448,6 @@ try {
 }*/
 
 // TODO for version > 3.0
-// serialization unit singleton
-// object service doesn't catch and return comhon object
 // add selectquery select count(*) on query and func(*) on table
 // should not check file exists when _getInstanceModel()
 //   pb if instanciate local type before parent manifest. should not instanciate another one

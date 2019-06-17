@@ -1,6 +1,6 @@
 <?php
 
-use Comhon\Api\ObjectService;
+use Test\Comhon\Service\ObjectService;
 use Comhon\Model\Model;
 use Comhon\Object\Config\Config;
 
