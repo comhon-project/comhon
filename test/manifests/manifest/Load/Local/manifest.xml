@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest version="2.0" is_main="1">
+	<types>
+		<type name="Local">
+			<properties>
+				<property type="string" name="stringValue"/>
+			</properties>
+		</type>
+	</types>
+	
+	<properties>
+		<property type="Local" name="local"/>
+	</properties>
+</manifest>

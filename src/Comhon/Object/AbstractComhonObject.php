@@ -11,9 +11,7 @@
 
 namespace Comhon\Object;
 
-use Comhon\Model\Model;
 use Comhon\Object\Collection\MainObjectCollection;
-use Comhon\Object\ComhonArray;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Exception\ComhonException;
@@ -416,7 +414,7 @@ abstract class AbstractComhonObject {
 	/**
 	 * reset updated status of comhon objects recursively
 	 * 
-	 * @param unknown $objectHashMap
+	 * @param \Comhon\Object\UniqueObject[] $objectHashMap
 	 */
 	abstract protected function _resetUpdatedStatusRecursive(&$objectHashMap);
 	

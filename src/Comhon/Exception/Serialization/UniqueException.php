@@ -13,7 +13,6 @@ namespace Comhon\Exception\Serialization;
 
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\ConstantException;
-use Comhon\Model\Model;
 use Comhon\Object\UniqueObject;
 
 class UniqueException extends ComhonException {
@@ -27,6 +26,7 @@ class UniqueException extends ComhonException {
 		if (empty($propertiesNames)) {
 			$propertiesNames = ['Unknown'];
 		}
+		$values = [];
 		foreach ($propertiesNames as $propertyName) {
 			$value = $object->getValue($propertyName);
 			if ($value instanceof UniqueObject) {

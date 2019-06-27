@@ -1,0 +1,10 @@
+{
+    "version": "2.0",
+    "is_main": true,
+    "properties": [
+        {
+            "name": "malformedProperty",
+            "type": "wrong-type"
+        }
+    ]
+}

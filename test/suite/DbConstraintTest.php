@@ -90,7 +90,6 @@ class DbConstraintTest extends TestCase
 	
 	public function testForeign()
 	{
-		$hasThrownEx = false;
 		$model = ModelManager::getInstance()->getInstanceModel('Test\DbConstraint');
 		
 		$objForeign = $model->getObjectInstance();
@@ -107,7 +106,6 @@ class DbConstraintTest extends TestCase
 	
 	public function testForeignComposite()
 	{
-		$hasThrownEx = false;
 		$model = ModelManager::getInstance()->getInstanceModel('Test\DbConstraint');
 		$modelTest = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 		
@@ -125,7 +123,6 @@ class DbConstraintTest extends TestCase
 	
 	public function testNotNullSetToNull()
 	{
-		$hasThrownEx = false;
 		 $model = ModelManager::getInstance()->getInstanceModel('Test\DbConstraint');
 		 
 		 $obj = $model->getObjectInstance();
@@ -138,7 +135,6 @@ class DbConstraintTest extends TestCase
 	
 	public function testNotNullNotSet()
 	{
-		$hasThrownEx = false;
 		$model = ModelManager::getInstance()->getInstanceModel('Test\DbConstraint');
 		
 		$objForeign = $model->getObjectInstance();

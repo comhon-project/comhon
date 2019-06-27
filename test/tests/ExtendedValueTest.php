@@ -1,9 +1,7 @@
 <?php
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\Collection\MainObjectCollection;
-use Comhon\Model\Model;
 use Test\Comhon\Object\Person;
 use Test\Comhon\Object\Man;
 use Test\Comhon\Object\Woman;

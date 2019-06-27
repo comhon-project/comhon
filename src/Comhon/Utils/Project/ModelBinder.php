@@ -13,7 +13,6 @@ namespace Comhon\Utils\Project;
 
 use Comhon\Object\Config\Config;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Model\Model;
 use Comhon\Exception\ComhonException;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
@@ -41,7 +40,7 @@ class ModelBinder {
 	 * execute link binding between models
 	 * options are taken from script arguments
 	 * 
-	 * @param unknown $configPath comhon config file path
+	 * @param string $configPath comhon config file path
 	 */
 	public static function exec($configPath, $interactive = true) {
 		Config::setLoadPath($configPath);

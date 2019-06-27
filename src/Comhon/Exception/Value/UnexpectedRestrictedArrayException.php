@@ -12,7 +12,6 @@
 namespace Comhon\Exception\Value;
 
 use Comhon\Exception\ConstantException;
-use Comhon\Model\Restriction\Restriction;
 use Comhon\Object\ComhonArray;
 use Comhon\Model\ModelRestrictedArray;
 

@@ -13,7 +13,6 @@ namespace Comhon\Serialization;
 
 use Comhon\Serialization\File\XmlFile;
 use Comhon\Serialization\File\JsonFile;
-use Comhon\Object\UniqueObject;
 use Comhon\Exception\ComhonException;
 
 abstract class SerializationUnitFactory {

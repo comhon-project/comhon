@@ -20,8 +20,6 @@ use Comhon\Model\ModelPercentage;
 use Comhon\Model\ModelIndex;
 use Comhon\Model\ModelDateTime;
 use Comhon\Model\Model;
-use Comhon\Model\Property\Property;
-use Comhon\Serialization\SerializationUnit;
 use Comhon\Object\Config\Config;
 use Comhon\Manifest\Parser\ManifestParser;
 use Comhon\Object\UniqueObject;
@@ -190,26 +188,6 @@ class ModelManager {
 	}
 	
 	/**
-	 * verify if model exists (i.e. is defined by an manifest or is a simple model)
-	 * 
-	 * @param string $modelName fully qualified name of wanted model
-	 * @return boolean
-	 */
-	public function modelExists($modelName) {
-		return array_key_exists($modelName, $this->instanceModels) || $this->manifestExists($modelName);
-	}
-	
-	/**
-	 * verify if manifest exists
-	 *
-	 * @param string $modelName model fully qualified name
-	 * @return boolean
-	 */
-	public function manifestExists($modelName) {
-		return array_key_exists($modelName, $this->instanceModels);
-	}
-	
-	/**
 	 * verify if specified model is instanciated (not necessary loaded)
 	 *
 	 * @param string $modelName fully qualified name of wanted model
@@ -253,16 +231,8 @@ class ModelManager {
 	 */
 	private function _getInstanceModel($modelName, $loadModel) {
 		if (!array_key_exists($modelName, $this->instanceModels)) {
-			list($prefix, $suffix) = $this->_splitModelName($modelName);
-			if (file_exists($this->_getManifestPath($prefix, $suffix))) {
-				$model = new Model($modelName);
-				$this->_addInstanceModel($model);
-			} else {
-				$this->loadIntermediateManifest($modelName, $prefix, $suffix);
-				if (!array_key_exists($modelName, $this->instanceModels)) {
-					throw new NotDefinedModelException($modelName);
-				}
-			}
+			$model = new Model($modelName);
+			$this->_addInstanceModel($model);
 		}
 		if ($loadModel) {
 			$this->instanceModels[$modelName]->load();
@@ -270,7 +240,16 @@ class ModelManager {
 		return $this->instanceModels[$modelName];
 	}
 	
+	/**
+	 * 
+	 * @param string $nameSpacePrefix
+	 * @param string $nameSpaceSuffix
+	 * @return string
+	 */
 	private function _getManifestPath($nameSpacePrefix, $nameSpaceSuffix) {
+		if (!array_key_exists($nameSpacePrefix, $this->autoloadManifest)) {
+			throw new ComhonException("prefix namespace '$nameSpacePrefix' do not belong to autoload manifest list");
+		}
 		$prefix_ad = substr($this->autoloadManifest[$nameSpacePrefix], 0, 1) == '.'
 			? Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $this->autoloadManifest[$nameSpacePrefix]
 			: $this->autoloadManifest[$nameSpacePrefix];
@@ -290,13 +269,21 @@ class ModelManager {
 	}
 	
 	/**
-	 * try to load intermediate manifests
+	 * load model from "intermediate" manifests. 
+	 * actually specified model is not defined in manifest but it may be defined in another manifest as local type.
 	 * 
-	 * @param string $modelName
-	 * @throws \Exception
+	 * @param \Comhon\Model\Model $model
+	 * @param string $nameSpacePrefix
+	 * @param string $nameSpaceSuffix
 	 */
-	private function loadIntermediateManifest($modelName, $nameSpacePrefix, $nameSpaceSuffix) {
+	private function _loadModelFromIntermediateManifest(Model $model, $nameSpacePrefix, $nameSpaceSuffix) {
 		$parentNameSpaceSuffix = $nameSpaceSuffix;
+		
+		// at this point (before following line) the current local model is tagged as loading
+		// so if we try to call load function on it, it will do nothing more
+		// but we will "re"load it through to intermediate manifest 
+		// so we have to abort current loading to be able to truly load it
+		$model->abortLoading();
 		
 		while (($separatorOffset = strrpos($parentNameSpaceSuffix, '\\')) !== false) {
 			$parentNameSpaceSuffix = substr($parentNameSpaceSuffix, 0, $separatorOffset);
@@ -309,6 +296,12 @@ class ModelManager {
 				$this->getInstanceModel($parentNameSpace);
 				$parentNameSpaceSuffix = '';
 			}
+		}
+		
+		// current handled model should be loaded during intermediate model loading
+		// if not, that means model doesn't exist.
+		if (!$model->isLoaded()) {
+			throw new NotDefinedModelException($model->getName());
 		}
 	}
 	
@@ -372,7 +365,17 @@ class ModelManager {
 			}else {
 				if (is_null($this->manifestParser)) {
 					$isLocalType = false;
-					list($prefix, $suffix)  = $this->_splitModelName($model->getName());
+					list($prefix, $suffix) = $this->_splitModelName($model->getName());
+					
+					// if manifest file doesn't exists that probably means that we are handling a local type defined in a manifest
+					// so we have to load the "intermediate" model from manifest and so the local model
+					if (!file_exists($this->_getManifestPath($prefix, $suffix))) {
+						$this->_loadModelFromIntermediateManifest($model, $prefix, $suffix);
+						
+						// current handled model loading is stopped because already loaded from intermediate model loading
+						return null;
+					}
+					
 					$manifestPath_afe       = $this->_getManifestPath($prefix, $suffix);
 					$serializationPath_afe  = $this->_getSerializationManifestPath($manifestPath_afe, $prefix, $suffix);
 					$this->manifestParser   = ManifestParser::getInstance($manifestPath_afe, $serializationPath_afe);
@@ -427,7 +430,9 @@ class ModelManager {
 			
 			do {
 				$localModelName = $this->currentNamespace. '\\' . $this->manifestParser->getCurrentLocalModelName();
-				$this->_addInstanceModel(new Model($localModelName));
+				if (!array_key_exists($localModelName, $this->instanceModels)) {
+					$this->_addInstanceModel(new Model($localModelName));
+				}
 			} while ($this->manifestParser->nextLocalModel());
 			
 			$this->manifestParser->activateFocusOnLocalModels();

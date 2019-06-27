@@ -11,7 +11,6 @@
 
 namespace Comhon\Object\Collection;
 
-use Comhon\Model\Model;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\ComhonException;
 

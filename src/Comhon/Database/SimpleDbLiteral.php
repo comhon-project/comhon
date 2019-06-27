@@ -11,7 +11,6 @@
 
 namespace Comhon\Database;
 
-use Comhon\Logic\Literal;
 use Comhon\Exception\ComhonException;
 
 class SimpleDbLiteral extends DbLiteral {

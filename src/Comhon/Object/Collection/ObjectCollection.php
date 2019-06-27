@@ -11,7 +11,6 @@
 
 namespace Comhon\Object\Collection;
 
-use Comhon\Model\Model;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\UniqueObject;

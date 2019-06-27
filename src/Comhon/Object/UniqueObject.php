@@ -11,11 +11,9 @@
 
 namespace Comhon\Object;
 
-use Comhon\Model\Model;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Model\Property\AggregationProperty;
 use Comhon\Exception\Model\CastComhonObjectException;
-use Comhon\Object\ComhonArray;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Model\ModelComhonObject;

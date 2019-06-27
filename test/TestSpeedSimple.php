@@ -1,7 +1,6 @@
 <?php
 
 use Test\Comhon\Service\ObjectService;
-use Comhon\Model\Model;
 use Comhon\Object\Config\Config;
 
 $loader = require_once __DIR__ . '/../vendor/autoload.php';

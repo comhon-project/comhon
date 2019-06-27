@@ -57,7 +57,7 @@ class ObjectCollectionCreator extends Visitor {
 		if ($value->getModel() instanceof ModelArray) {
 			return true;
 		}
-		$success = $this->localObjectCollection->addObject($value, false);
+		$this->localObjectCollection->addObject($value, false);
 		
 		// we don't want to visit child object with main model because they can't share LocalObjectCollection
 		return !$value->getModel()->isMain();

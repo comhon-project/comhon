@@ -12,7 +12,6 @@
 namespace Comhon\Model\Restriction;
 
 use Comhon\Model\ModelString;
-use Comhon\Model\Model;
 use Comhon\Model\AbstractModel;
 
 class Regex implements Restriction {

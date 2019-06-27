@@ -12,7 +12,6 @@
 namespace Comhon\Object;
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Model\Model;
 use Comhon\Model\ModelContainer;
 use Comhon\Model\SimpleModel;
 use Comhon\Exception\ComhonException;

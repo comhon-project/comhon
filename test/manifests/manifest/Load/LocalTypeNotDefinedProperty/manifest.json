@@ -1,0 +1,30 @@
+{
+    "version": "2.0",
+    "is_main": true,
+    "types": [
+        {
+            "name": "MalformedLocalType",
+            "properties": [
+                {
+                    "name": "malformedPropertyInLocal",
+                    "type": "wrong-type-in-local"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "malformedProperty",
+            "type": "MalformedLocalType"
+        },
+        {
+            "name": "malformedChild",
+            "type": "\\Test\\Load\\NotDefinedProperty"
+        }
+    ]
+}

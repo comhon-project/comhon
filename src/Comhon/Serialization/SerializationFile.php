@@ -11,9 +11,7 @@
 
 namespace Comhon\Serialization;
 
-use Comhon\Model\Model;
 use Comhon\Utils\Utils;
-use Comhon\Interfacer\Interfacer;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Exception\ArgumentException;

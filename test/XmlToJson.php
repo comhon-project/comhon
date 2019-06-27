@@ -1,8 +1,8 @@
 <?php
 
 $folders = [
-	'/home/jean-philippe/ReposGit/comhon/test/manifests/',
-	'/home/jean-philippe/ReposGit/comhon/src/Comhon/Manifest/Collection/'
+	__DIR__ . '/manifests/',
+	dirname(__DIR__) . '/src/Comhon/Manifest/Collection/'
 ];
 
 foreach ($folders as $folder) {
@@ -130,10 +130,10 @@ function transformManifest($xml, $dir) {
 	file_put_contents($dir.'/manifest.json', json_encode($json, JSON_PRETTY_PRINT));
 }
 
-function getDirContents($dir, &$results = array()){
+function getDirContents($dir, &$results = array()) {
 	$files = scandir($dir);
 
-	foreach($files as $key => $value){
+	foreach($files as $value) {
 		$path = realpath($dir.DIRECTORY_SEPARATOR.$value);
 		if(!is_dir($path)) {
 			$results[] = $path;

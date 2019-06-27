@@ -11,7 +11,6 @@ class ImportExportTest extends TestCase
 	
 	public function testThrowExceptionImport()
 	{
-		$hasThrownEx = false;
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Test');
 		$test = $model->getObjectInstance();
 		$testJson = '{"objectContainer":{"person":{"recursiveLocal":{"firstName":true}}}}';
@@ -27,7 +26,6 @@ class ImportExportTest extends TestCase
 	 */
 	public function testThrownExceptionImport()
 	{
-		$hasThrownEx = false;
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Test');
 		$test = $model->getObjectInstance();
 		$testJson = '{"objectContainer":{"person":{"recursiveLocal":{"firstName":true}}}}';

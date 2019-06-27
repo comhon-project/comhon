@@ -11,7 +11,6 @@
 
 namespace Comhon\Object;
 
-use Comhon\Model\Model;
 use Comhon\Model\ModelDateTime;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\ModelArray;
@@ -75,7 +74,7 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	/**
 	 * set values
 	 * 
-	 * @param unknown $values
+	 * @param mixed $values
 	 * @param string $flagAsUpdated
 	 */
 	final public function setValues($values, $flagAsUpdated = true) {

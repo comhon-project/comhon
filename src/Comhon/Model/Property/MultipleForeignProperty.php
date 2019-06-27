@@ -11,7 +11,6 @@
 
 namespace Comhon\Model\Property;
 
-use Comhon\Model\Model;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\ModelForeign;
 
@@ -25,7 +24,7 @@ class MultipleForeignProperty extends ForeignProperty {
 	
 	/**
 	 * 
-	 * @param \Comhon\Object\ModelForeign $model
+	 * @param \Comhon\Model\ModelForeign $model
 	 * @param string $name
 	 * @param string[] $serializationNames
 	 * @param boolean $isPrivate
@@ -60,7 +59,7 @@ class MultipleForeignProperty extends ForeignProperty {
 					.json_encode(array_keys($idProperties)).' != '. json_encode(array_values($this->multipleIdProperties)));
 			}
 			$multipleIdProperties = [];
-			foreach ($idProperties as $idPropertyName => $idProperty) {
+			foreach ($idProperties as $idProperty) {
 				if (!array_key_exists($idProperty->getName(), $this->multipleIdProperties)) {
 					throw new ComhonException('ids properties and serialization names doesn\t match : '
 						.json_encode(array_keys($idProperties)).' != '. json_encode($this->multipleIdProperties));

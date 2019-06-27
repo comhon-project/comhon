@@ -11,7 +11,6 @@
 
 namespace Comhon\Model\Restriction;
 
-use Comhon\Model\Model;
 use Comhon\Model\AbstractModel;
 
 interface Restriction {

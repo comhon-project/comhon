@@ -208,10 +208,8 @@ class SelectQuery {
 	public function join($joinType, $table, $on) {
 		if ($table instanceof TableNode) {
 			$tableNode = $table;
-			$tableName = $table->getExportName();
 		} else {
 			$tableNode = new TableNode($table);
-			$tableName = $table;
 		}
 		if (!array_key_exists($joinType, self::$allowedJoins)) {
 			throw new ComhonException("undefined join type '$joinType'");

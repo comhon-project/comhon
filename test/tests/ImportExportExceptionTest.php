@@ -10,8 +10,6 @@ use Comhon\Exception\Interfacer\InterfaceException;
 use Comhon\Model\Model;
 use Comhon\Model\ModelArray;
 use Comhon\Object\AbstractComhonObject;
-use Comhon\Exception\Interfacer\ExportException;
-use Comhon\Model\ModelComplex;
 
 $time_start = microtime(true);
 
@@ -54,7 +52,6 @@ function verifException(InterfaceException $e, $code, $message, $stringifiedProp
 }
 
 $testModel = ModelManager::getInstance()->getInstanceModel('Test\Test');
-$test = $testModel->getObjectInstance();
 
 $stdPrivateInterfacer = new StdObjectInterfacer();
 $stdPrivateInterfacer->setPrivateContext(true);
@@ -77,7 +74,7 @@ $stdTest->objectContainer->objectValueTwo->propertyTwoArray[] = $obj;
 
 $throw = true;
 try {
-	$test = $stdPrivateInterfacer->import($stdTest, $testModel);
+	$stdPrivateInterfacer->import($stdTest, $testModel);
 } catch (ImportException $e) {
 	verifException(
 		$e, 
@@ -97,7 +94,7 @@ if ($throw) {
 
 $throw = true;
 try {
-	$test = $testModel->import($stdTest, $stdPrivateInterfacer);
+	$testModel->import($stdTest, $stdPrivateInterfacer);
 } catch (ImportException $e) {
 	verifException(
 			$e,
@@ -119,7 +116,7 @@ $testObj = $testModel->getObjectInstance();
 
 $throw = true;
 try {
-	$test = $testModel->fillObject($testObj, $stdTest, $stdPrivateInterfacer);
+	$testModel->fillObject($testObj, $stdTest, $stdPrivateInterfacer);
 } catch (ImportException $e) {
 	verifException(
 			$e,
@@ -141,7 +138,7 @@ $testObj = $testModel->getObjectInstance();
 
 $throw = true;
 try {
-	$test = $testObj->fill($stdTest, $stdPrivateInterfacer);
+	$testObj->fill($stdTest, $stdPrivateInterfacer);
 } catch (ImportException $e) {
 	verifException(
 			$e,
@@ -164,7 +161,7 @@ $stdTestArray = [null, $stdTest];
 
 $throw = true;
 try {
-	$test = $testModelArray->import($stdTestArray, $stdPrivateInterfacer);
+	$testModelArray->import($stdTestArray, $stdPrivateInterfacer);
 } catch (ImportException $e) {
 	verifException(
 			$e,
@@ -188,7 +185,7 @@ $stdTestArray = [null, $stdTest];
 
 $throw = true;
 try {
-	$test = $testModelArray->fillObject($testArray, $stdTestArray, $stdPrivateInterfacer);
+	$testModelArray->fillObject($testArray, $stdTestArray, $stdPrivateInterfacer);
 } catch (ImportException $e) {
 	verifException(
 			$e,
@@ -212,7 +209,7 @@ $stdTestArray = [null, $stdTest];
 
 $throw = true;
 try {
-	$test = $testArray->fill($stdTestArray, $stdPrivateInterfacer);
+	$testArray->fill($stdTestArray, $stdPrivateInterfacer);
 } catch (ImportException $e) {
 	verifException(
 			$e,

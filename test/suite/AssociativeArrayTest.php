@@ -11,7 +11,6 @@ class AssociativeArrayTest extends TestCase
 	
 	public function testAssociativeArray()
 	{
-		$hasThrownEx = false;
 		$model = ModelManager::getInstance()->getInstanceModel('Test\TestAssociativeArray');
 		$testAssociativeArray = $model->getObjectInstance();
 		

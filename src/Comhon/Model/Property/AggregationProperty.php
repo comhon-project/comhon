@@ -13,9 +13,7 @@ namespace Comhon\Model\Property;
 
 use Comhon\Object\ComhonArray;
 use Comhon\Object\UniqueObject;
-use Comhon\Model\Model;
 use Comhon\Exception\ComhonException;
-use Comhon\Serialization\SqlTable;
 use Comhon\Model\ModelForeign;
 
 class AggregationProperty extends ForeignProperty {

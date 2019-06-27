@@ -11,6 +11,7 @@ use Comhon\Model\Restriction\Enum;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\ComhonException;
 use Comhon\Object\AbstractComhonObject;
+use Comhon\Interfacer\StdObjectInterfacer;
 
 $time_start = microtime(true);
 
@@ -136,6 +137,8 @@ $testRestricted->getValue('enumIntArray')->setValue(1, 3);
 $testRestricted->getValue('enumFloatArray')->pushValue(1.5);
 $testRestricted->getValue('enumFloatArray')->pushValue(3.5);
 
+$stdPrivateInterfacer = new StdObjectInterfacer();
+$stdPrivateInterfacer->setPrivateContext(true);
 
 /** ************** test export import with values not in restriction fail *************** **/
 
@@ -157,6 +160,9 @@ if ($throw) {
 	throw new \Exception('export with values not in enum');
 }
 
+$modelFloat  = ModelManager::getInstance()->getInstanceModel('float');
+$modelString = ModelManager::getInstance()->getInstanceModel('string');
+
 /** ************** test set value array with good restriction but not same instance *************** **/
 
 $restriction = new Interval(']-1.50, 2[', $modelFloat);
@@ -176,27 +182,14 @@ $testRestricted->setValue('enumFloatArray', $objectArray);
 
 /** ************** test set value array with bad restriction *************** **/
 
-$modelFloat  = ModelManager::getInstance()->getInstanceModel('float');
-$modelString = ModelManager::getInstance()->getInstanceModel('string');
-
 // Interval should be ']-1.50, 2['
 $restriction = new Interval(']-1.50, 2]', $modelFloat);
 $modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, false, 'intervalValue');
 $objectArray = new ComhonArray($modelRestrictedArray);
 testSetBadArrayValue($testRestricted, 'intervalInArray', $objectArray);
 
-$restriction = new Regex('color');
-$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, false, 'intervalValue');
-$objectArray = new ComhonArray($modelRestrictedArray);
-testSetBadArrayValue($testRestricted, 'intervalInArray', $objectArray);
-
 // Regex should be 'email'
 $restriction = new Regex('color');
-$modelRestrictedArray = new ModelRestrictedArray($modelString, $restriction, false, 'email');
-$objectArray = new ComhonArray($modelRestrictedArray);
-testSetBadArrayValue($testRestricted, 'emails', $objectArray);
-
-$restriction = new Interval(']-1.50, 2]', $modelFloat);
 $modelRestrictedArray = new ModelRestrictedArray($modelString, $restriction, false, 'email');
 $objectArray = new ComhonArray($modelRestrictedArray);
 testSetBadArrayValue($testRestricted, 'emails', $objectArray);

@@ -11,7 +11,6 @@
 
 namespace Comhon\Model;
 
-use Comhon\Model\Singleton\ModelManager;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Object\Collection\ObjectCollection;

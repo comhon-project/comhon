@@ -7,7 +7,6 @@ use Comhon\Object\ComhonArray;
 use Comhon\Model\ModelArray;
 use Comhon\Model\ModelForeign;
 use Comhon\Interfacer\XMLInterfacer;
-use Comhon\Object\Collection\MainObjectCollection;
 
 /**
  * 

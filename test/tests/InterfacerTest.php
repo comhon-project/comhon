@@ -4,7 +4,6 @@
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\Interfacer;
-use Test\Comhon\Object\Person;
 use Comhon\Interfacer\AssocArrayInterfacer;
 
 $time_start = microtime(true);

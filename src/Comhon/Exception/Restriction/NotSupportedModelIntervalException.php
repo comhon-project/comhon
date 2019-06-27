@@ -13,7 +13,6 @@ namespace Comhon\Exception\Restriction;
 
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\ConstantException;
-use Comhon\Model\Model;
 use Comhon\Model\AbstractModel;
 
 class NotSupportedModelIntervalException extends ComhonException {

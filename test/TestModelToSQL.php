@@ -1,7 +1,6 @@
 <?php
 
 use Comhon\Utils\Project\ModelToSQL;
-use Comhon\Object\Config\Config;
 
 $loader = require_once __DIR__ . '/../vendor/autoload.php';
 $loader->addPsr4('Test\\Comhon\\', __DIR__);

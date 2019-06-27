@@ -402,7 +402,11 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * @return \DOMElement|boolean return false on failure
 	 */
 	public function read($path) {
-		if (!$this->domDocument->load($path)) {
+		try {
+			if (!$this->domDocument->load($path)) {
+				return false;
+			}
+		} catch (\Exception $e) {
 			return false;
 		}
 		if ($this->domDocument->childNodes->length !== 1 || !($this->domDocument->childNodes->item(0) instanceof \DOMElement)) {

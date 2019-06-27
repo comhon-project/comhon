@@ -11,9 +11,10 @@
 
 namespace Comhon\Model\Restriction;
 
-use Comhon\Model\Model;
 use Comhon\Model\ModelString;
 use Comhon\Model\AbstractModel;
+use Comhon\Model\ModelInteger;
+use Comhon\Model\ModelFloat;
 
 class Enum implements Restriction {
 	

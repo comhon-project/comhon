@@ -11,7 +11,6 @@
 
 namespace Comhon\Manifest\Parser;
 
-use Comhon\Model\Model;
 use Comhon\Model\ModelForeign;
 use Comhon\Model\Property\ForeignProperty;
 use Comhon\Model\Property\AggregationProperty;
@@ -359,7 +358,7 @@ abstract class ManifestParser {
 	/**
 	 * get serialization informations of property
 	 * 
-	 * @param unknown $propertyName
+	 * @param string $propertyName
 	 * @return [string|null, \Comhon\Model\Property\Property[]|null, boolean, string[]|null]
 	 *     0 : serialization name $serializationNames)
 	 *     1 : aggregations

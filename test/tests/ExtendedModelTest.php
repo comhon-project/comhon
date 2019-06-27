@@ -1,7 +1,6 @@
 <?php
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Model\Model;
 use Comhon\Exception\ComhonException;
 
 $time_start = microtime(true);

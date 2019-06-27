@@ -1,4 +1,4 @@
-object(Comhon\Object\ComhonObject)#998 (5) {
+object(Comhon\Object\ComhonObject)#_1 (5) {
   ["model"]=>
   string(11) "Test\TestDb"
   ["values"]=>
@@ -6,7 +6,7 @@ object(Comhon\Object\ComhonObject)#998 (5) {
     ["id1"]=>
     int(789201)
     ["timestamp"]=>
-    object(Comhon\Object\ComhonDateTime)#1012 (4) {
+    object(Comhon\Object\ComhonDateTime)#_2 (4) {
       ["isUpdated":"Comhon\Object\ComhonDateTime":private]=>
       bool(false)
       ["date"]=>

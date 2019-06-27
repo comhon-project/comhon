@@ -35,11 +35,11 @@ class ModelRestrictedArray extends ModelArray {
 	 */
 	public function __construct(ModelUnique $model, Restriction $restriction, $isAssociative, $elementName) {
 		parent::__construct($model, $isAssociative, $elementName);
-		$this->restriction = $restriction;
 		
-		if (!($this->model instanceof SimpleModel)) {
-			throw new ComhonException('ModelRestrictedArray can only contain SimpleModel, '.get_class($this->model).' given');
+		if (!$restriction->isAllowedModel($this->model)) {
+			throw new ComhonException('restriction doesn\'t allow specified model'.get_class($this->model));
 		}
+		$this->restriction = $restriction;
 	}
 	
 	/**

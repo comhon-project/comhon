@@ -12,7 +12,6 @@
 namespace Comhon\Model;
 
 use Comhon\Object\ComhonArray;
-use Comhon\Model\Model;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;

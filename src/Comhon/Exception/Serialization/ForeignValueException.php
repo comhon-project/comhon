@@ -13,7 +13,6 @@ namespace Comhon\Exception\Serialization;
 
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\ConstantException;
-use Comhon\Model\Model;
 use Comhon\Object\UniqueObject;
 
 class ForeignValueException extends ComhonException {

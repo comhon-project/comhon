@@ -117,7 +117,7 @@ class Clause extends Formula {
 		if ($indexByMD5) {
 			foreach ($this->formulas as $formula) {
 				if ($formula instanceof Literal) {
-					$literals[md5($formula->exportDebug())] = $literal;
+					$literals[md5($formula->exportDebug())] = $formula;
 				}
 			}
 		}else {
@@ -308,7 +308,7 @@ class Clause extends Formula {
 	 * @param \stdClass $stdObject
 	 * @param \Comhon\Model\Model[] $modelByNodeId
 	 * @param Literal[] $literalCollection
-	 * @param SelectQuery $selectQuery
+	 * @param \Comhon\Database\SelectQuery $selectQuery
 	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
 	 * @return Clause

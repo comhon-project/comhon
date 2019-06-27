@@ -118,7 +118,7 @@ class Config extends ExtendableObject {
 	/**
 	 * set path to config directory
 	 * 
-	 * @param unknown $path_ad
+	 * @param string $path_ad
 	 */
 	private function _setDirectory($path_ad) {
 		$this->config_ad = $path_ad;

@@ -15,13 +15,14 @@ use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ComhonException;
+use Comhon\Exception\Interfacer\ExportException;
 
 class ModelForeign extends ModelContainer {
 
 	/**
 	 * 
 	 * @param AbstractModel $model
-	 * @throws Exception
+	 * @throws \Comhon\Exception\ComhonException
 	 */
 	public function __construct(AbstractModel $model) {
 		parent::__construct($model);

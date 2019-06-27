@@ -33,7 +33,6 @@ class ArgumentException extends ComhonException {
 		}
 		
 		$nodes       = debug_backtrace();
-		$definedLine = $nodes[0]['line'];
 		$definedFile = $nodes[0]['file'];
 		$callLine    = $nodes[1]['line'];
 		$callFile    = $nodes[1]['file'];

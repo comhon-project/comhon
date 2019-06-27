@@ -3,7 +3,7 @@
 use Comhon\Utils\Project\ModelBinder;
 use Comhon\Utils\OptionManager;
 
-$loader = require_once __DIR__ . '/../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 $optionsDescription = [
 	'config' => [

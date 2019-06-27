@@ -19,7 +19,7 @@ class ComhonDateTime extends \DateTime {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see DateTime::add()
+	 * @see \DateTime::add()
 	 */
 	public function add($interval) {
 		parent::add($interval);
@@ -29,7 +29,7 @@ class ComhonDateTime extends \DateTime {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see DateTime::modify()
+	 * @see \DateTime::modify()
 	 */
 	public function modify($modify) {
 		parent::modify($modify);
@@ -39,7 +39,7 @@ class ComhonDateTime extends \DateTime {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see DateTime::setDate()
+	 * @see \DateTime::setDate()
 	 */
 	public function setDate($year, $month , $day) {
 		parent::setDate($year, $month , $day);
@@ -49,7 +49,7 @@ class ComhonDateTime extends \DateTime {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see DateTime::setISODate()
+	 * @see \DateTime::setISODate()
 	 */
 	public function setISODate($year, $week, $day = null) {
 		parent::setISODate($year, $week, $day);
@@ -59,7 +59,7 @@ class ComhonDateTime extends \DateTime {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see DateTime::setTime()
+	 * @see \DateTime::setTime()
 	 */
 	public function setTime($hour, $minute, $second = null, $microseconds = null) {
 		parent::setTime($hour, $minute, $second, $microseconds);
@@ -69,7 +69,7 @@ class ComhonDateTime extends \DateTime {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see DateTime::setTimestamp()
+	 * @see \DateTime::setTimestamp()
 	 */
 	public function setTimestamp($unixtimestamp) {
 		parent::setTimestamp($unixtimestamp);
@@ -79,7 +79,7 @@ class ComhonDateTime extends \DateTime {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see DateTime::sub()
+	 * @see \DateTime::sub()
 	 */
 	public function sub($interval) {
 		parent::sub($interval);

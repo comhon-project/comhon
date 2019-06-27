@@ -23,7 +23,6 @@ use Comhon\Model\Property\ForeignProperty;
 use Comhon\Serialization\SqlTable;
 use Comhon\Database\TableNode;
 use Comhon\Database\OnLiteral;
-use Comhon\Object\ComhonArray;
 use Comhon\Database\DbLiteral;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Exception\ArgumentException;

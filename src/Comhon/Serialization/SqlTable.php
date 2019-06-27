@@ -21,7 +21,6 @@ use Comhon\Model\Model;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\Config\Config;
 use Comhon\Interfacer\AssocArrayInterfacer;
-use Comhon\Interfacer\Interfacer;
 use Comhon\Object\UniqueObject;
 use Comhon\Database\SimpleDbLiteral;
 use Comhon\Exception\Database\NotSupportedDBMSException;
@@ -638,7 +637,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	 * @param string $query
 	 * @param array $values
 	 * @param UniqueObject $object
-	 * @return PDOStatement
+	 * @return \PDOStatement
 	 */
 	private function execute(DatabaseHandler $databaseHandler, $query, $values, UniqueObject $object) {
 		try {

@@ -24,7 +24,6 @@ use Comhon\Model\ModelForeign;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\ArgumentException;
 use Comhon\Serialization\SerializationUnit;
-use Comhon\Model\Model;
 use Comhon\Model\ModelContainer;
 use Comhon\Model\ModelArray;
 use Comhon\Model\ModelComplex;
@@ -261,7 +260,7 @@ class ModelToSQL {
 	/**
 	 * transform string to defined case
 	 * 
-	 * @param unknown $string
+	 * @param string $string
 	 * @throws \Exception
 	 * @return string
 	 */
@@ -498,12 +497,11 @@ class ModelToSQL {
 		if ($sqlDatabase->getUniqueModel()->getName() !== 'Comhon\SqlDatabase') {
 			$databaseModel = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase');
 			$expected = $databaseModel->getObjectInstance()->getComhonClass();
-			throw new ArgumentException($database, $expected, 3);
+			throw new ArgumentException($sqlDatabase, $expected, 3);
 		}
 		$this->initialize($outputPath, $sqlDatabase);
 		
 		$databaseQueries = [];
-		$sqlTables = [];
 		$foreignConstraints = [];
 		
 		$tableNames = [];

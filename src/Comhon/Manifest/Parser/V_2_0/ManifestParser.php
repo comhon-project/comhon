@@ -13,8 +13,6 @@ namespace Comhon\Manifest\Parser\V_2_0;
 
 use Comhon\Model\ModelArray;
 use Comhon\Model\ModelDateTime;
-use Comhon\Model\Model;
-use Comhon\Model\Property\Property;
 use Comhon\Model\SimpleModel;
 use Comhon\Model\ModelString;
 use Comhon\Model\ModelFloat;

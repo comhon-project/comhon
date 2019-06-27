@@ -16,7 +16,6 @@ use Comhon\Model\SimpleModel;
 use Comhon\Model\ModelContainer;
 use Comhon\Model\ModelDateTime;
 use Comhon\Object\ComhonDateTime;
-use Comhon\Model\Model;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\AbstractModel;

@@ -448,6 +448,7 @@ try {
 }*/
 
 // TODO for version > 3.0
+// verify if import/export null value load property model (should not be necessary)
 // add selectquery select count(*) on query and func(*) on table
 // should not check file exists when _getInstanceModel()
 //   pb if instanciate local type before parent manifest. should not instanciate another one

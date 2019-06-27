@@ -3,8 +3,8 @@
     "is_main": true,
     "properties": [
         {
-            "name": "name",
-            "type": "wrong-type"
+            "name": "localDistant",
+            "type": "\\Test\\Load\\Local"
         }
     ]
 }

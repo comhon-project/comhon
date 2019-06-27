@@ -11,9 +11,7 @@
 
 namespace Comhon\Model\Property;
 
-use Comhon\Model\Model;
 use Comhon\Object\UniqueObject;
-use Comhon\Object\ComhonObject;
 use Comhon\Model\ModelForeign;
 
 class ForeignProperty extends Property {

@@ -11,7 +11,6 @@
 
 namespace Comhon\Request;
 
-use Comhon\Model\Model;
 use Comhon\Exception\Request\MalformedRequestException;
 use Comhon\Exception\Request\NotAllowedRequestException;
 

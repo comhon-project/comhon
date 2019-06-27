@@ -48,18 +48,14 @@ abstract class ClauseOptimizer {
 	
 	/**
 	 * optimize query literals to optimize execution time of query
-	 * @param unknown $clause
+	 * @param \Comhon\Logic\Clause $clause
 	 * @param integer $countMax	optimisation will not be executed if there is more literals than $countMax
 	 * 								actually, optimization is exponential and it can take more time than request itself
 	 * @return \Comhon\Logic\Clause
 	 */
 	public static function optimizeLiterals($clause, $countMax = 10) {
 		$flattenedLiterals = $clause->getFlattenedLiterals(true);
-		$literalKeys = [];
-		foreach ($flattenedLiterals as $key => $literal) {
-			$literalKeys[] = $key;
-		
-		}
+		$literalKeys = array_keys($flattenedLiterals);
 		if (count($literalKeys) > $countMax) {
 			return $clause;
 		}
@@ -74,9 +70,9 @@ abstract class ClauseOptimizer {
 	
 	/**
 	 * 
-	 * @param unknown $clause
-	 * @param unknown $flattenedLiterals
-	 * @param unknown $literalKeys
+	 * @param \Comhon\Logic\Clause $clause
+	 * @param string[] $flattenedLiterals
+	 * @param string[] $literalKeys
 	 * @return array|boolean[]
 	 */
 	private static function _setLogicalConjunctions($clause, $flattenedLiterals, $literalKeys) {
@@ -115,8 +111,8 @@ abstract class ClauseOptimizer {
 	
 	/**
 	 * 
-	 * @param unknown $logicalConjunctions
-	 * @return unknown[]
+	 * @param \Comhon\Logic\Clause[] $logicalConjunctions
+	 * @return \Comhon\Logic\Clause[]
 	 */
 	private static function _execQuineMcCluskeyAlgorithm(&$logicalConjunctions) {
 		$primeImplicants = [];
@@ -126,8 +122,8 @@ abstract class ClauseOptimizer {
 	
 	/**
 	 * 
-	 * @param unknown $logicalConjunctions
-	 * @param unknown $primeImplicants
+	 * @param \Comhon\Logic\Clause[] $logicalConjunctions
+	 * @param \Comhon\Logic\Clause[] $primeImplicants
 	 */
 	private static function _findPrimeImplicants($logicalConjunctions, &$primeImplicants) {
 		$i = 0;
@@ -180,9 +176,9 @@ abstract class ClauseOptimizer {
 	
 	/**
 	 * 
-	 * @param unknown $allLogicalConjunctions
-	 * @param unknown $primeImplicants
-	 * @return unknown[]
+	 * @param \Comhon\Logic\Clause[] $allLogicalConjunctions
+	 * @param \Comhon\Logic\Clause[] $primeImplicants
+	 * @return \Comhon\Logic\Clause[]
 	 */
 	private static function _findEssentialPrimeImplicants($allLogicalConjunctions, $primeImplicants) {
 		$essentialPrimeImplicants = [];
@@ -221,14 +217,14 @@ abstract class ClauseOptimizer {
 	
 	/**
 	 * 
-	 * @param unknown $allLogicalConjunctions
-	 * @param unknown $primeImplicants
+	 * @param \Comhon\Logic\Clause[] $allLogicalConjunctions
+	 * @param \Comhon\Logic\Clause[] $primeImplicants
 	 * @return boolean[][]|number[][]
 	 */
 	private static function _buildMatrix($allLogicalConjunctions, $primeImplicants) {
 		$matrix = [];
-		foreach ($allLogicalConjunctions as $key => $logicalConjunctions) {
-			foreach ($logicalConjunctions as $index => $values) {
+		foreach ($allLogicalConjunctions as $logicalConjunctions) {
+			foreach ($logicalConjunctions as $values) {
 				$nbMatches = 0;
 				$matches = [];
 				foreach ($primeImplicants as $primeImplicant) {
@@ -254,8 +250,8 @@ abstract class ClauseOptimizer {
 	
 	/**
 	 * 
-	 * @param unknown $array1
-	 * @param unknown $array2
+	 * @param boolean[]|number[] $array1
+	 * @param boolean[]|number[] $array2
 	 * @return number
 	 */
 	public static function sortByLastValue($array1, $array2) {
@@ -267,8 +263,8 @@ abstract class ClauseOptimizer {
 	
 	/**
 	 * 
-	 * @param array $essentialPrimeImplicants
-	 * @return array
+	 * @param \Comhon\Logic\Clause[] $essentialPrimeImplicants
+	 * @return number[]
 	 */
 	private static function _findLiteralsToFactoryze($essentialPrimeImplicants) {
 		$literalsToFactoryze = [];
@@ -298,10 +294,10 @@ abstract class ClauseOptimizer {
 	
 	/**
 	 * 
-	 * @param unknown $essentialPrimeImplicants
-	 * @param unknown $flattenedLiterals
-	 * @param unknown $literalsToFactoryze
-	 * @param unknown $literalKeys
+	 * @param \Comhon\Logic\Clause[] $essentialPrimeImplicants
+	 * @param string[] $flattenedLiterals
+	 * @param integer[] $literalsToFactoryze
+	 * @param string[] $literalKeys
 	 * @return \Comhon\Logic\Clause
 	 */
 	private static function _setFinalClause($essentialPrimeImplicants, $flattenedLiterals, $literalsToFactoryze, $literalKeys) {

@@ -19,7 +19,6 @@ use Comhon\Object\ComhonArray;
 use Comhon\Exception\Model\UndefinedPropertyException;
 use Comhon\Model\Property\Property;
 use Comhon\Model\Property\ForeignProperty;
-use Comhon\Model\Property\AggregationProperty;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
@@ -105,10 +104,22 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * parse related manifest, fill model with needed inofmrations
 	 */
 	final public function load() {
-		if (!$this->isLoaded && !$this->isLoading) {
-			try {
-				$this->isLoading = true;
-				$result = ModelManager::getInstance()->getProperties($this);
+		if ($this->isLoaded || $this->isLoading) {
+			return;
+		}
+		try {
+			$this->isLoading = true;
+			$result = ModelManager::getInstance()->getProperties($this);
+			
+			if (is_null($result)) {
+				// if $result is null that means current loading has been aborted
+				// and a second loading has been completed with success
+				// (this behaviour may be encountered for model defined in manifest local type
+				// and that has been instanciated before manifest loading)
+				if (!$this->isLoaded) {
+					throw new ComhonException("model $this->modelName is not loaded");
+				}
+			} else {
 				$this->isMain = $result[ModelManager::IS_MAIN_MODEL];
 				$this->parent = $result[ModelManager::PARENT_MODEL];
 				$this->_setProperties($result[ModelManager::PROPERTIES]);
@@ -122,28 +133,39 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				$this->_init();
 				$this->isLoaded  = true;
 				$this->isLoading = false;
-				
-			} catch (\Exception $e) {
-				// reinitialize attributes if any excpetion
-				$this->isLoading = false;
-				$this->parent = null;
-				$this->objectClass = ComhonObject::class;
-				$this->isExtended = false;
-				$this->properties   = [];
-				$this->idProperties = [];
-				$this->aggregations = [];
-				$this->publicProperties  = [];
-				$this->serializableProperties = [];
-				$this->propertiesWithDefaultValues = [];
-				$this->multipleForeignProperties = [];
-				$this->complexProperties = [];
-				$this->dateTimeProperties = [];
-				$this->uniqueIdProperty = null;
-				$this->hasPrivateIdProperty = false;
-				
-				throw $e;
 			}
+		} catch (\Exception $e) {
+			// reinitialize attributes if any exception
+			$this->isLoading = false;
+			$this->parent = null;
+			$this->objectClass = ComhonObject::class;
+			$this->isExtended = false;
+			$this->properties   = [];
+			$this->idProperties = [];
+			$this->aggregations = [];
+			$this->publicProperties  = [];
+			$this->serializableProperties = [];
+			$this->propertiesWithDefaultValues = [];
+			$this->multipleForeignProperties = [];
+			$this->complexProperties = [];
+			$this->dateTimeProperties = [];
+			$this->uniqueIdProperty = null;
+			$this->hasPrivateIdProperty = false;
+			
+			throw $e;
 		}
+	}
+	
+	/**
+	 * abort local model loading. should not be called handly
+	 * 
+	 * @throws ComhonException
+	 */
+	public function abortLoading() {
+		if (!$this->isLoading) {
+			throw new ComhonException("model is not loading");
+		}
+		$this->isLoading = false;
 	}
 	
 	/**
@@ -511,7 +533,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	public function getForeignSerializableProperties($serializationType) {
 		$properties = [];
-		foreach ($this->properties as $propertyName => $property) {
+		foreach ($this->properties as $property) {
 			if (($property instanceof ForeignProperty) && $property->hasSerialization($serializationType)) {
 				$properties[] = $property;
 			}
@@ -936,10 +958,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * get inherited model name from interfaced object
 	 * 
-	 * @param unknown $interfacedObject
+	 * @param mixed $interfacedObject
 	 * @param Interfacer $interfacer
-	 * @param unknown $isFirstLevel
-	 * @return unknown
+	 * @param bool $isFirstLevel
+	 * @return string|null
 	 */
 	protected function _getInheritedModelName($interfacedObject, Interfacer $interfacer, $isFirstLevel) {
 		if ($isFirstLevel && $interfacer->isSerialContext()) {
