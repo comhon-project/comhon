@@ -108,9 +108,6 @@ class ModelForeign extends ModelContainer {
 		if (is_null($object)) {
 			return null;
 		}
-		if (!$this->getUniqueModel()->hasIdProperties()) {
-			throw new ComhonException("foreign property must have model with id, actual model '{$this->getUniqueModel()->getName()}' doesn't");
-		}
 		return $this->getModel()->_exportId($object, $nodeName, $interfacer);
 	}
 	
@@ -147,9 +144,6 @@ class ModelForeign extends ModelContainer {
 	 * @see \Comhon\Model\ModelContainer::_import()
 	 */
 	protected function _import($value, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
-		if (!$this->getUniqueModel()->hasIdProperties()) {
-			throw new ComhonException("foreign property must have model with id, actual model '{$this->getUniqueModel()->getName()}' doesn't");
-		}
 		return $this->getModel()->_importId($value, $interfacer, $localObjectCollection, $isFirstLevel);
 	}
 	

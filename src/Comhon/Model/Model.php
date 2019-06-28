@@ -924,6 +924,15 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
 	protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer) {
+		if (!$this->hasIdProperties()) {
+			throw new ComhonException("cannot import id, actual model '{$this->getUniqueModel()->getName()}' doesn't have id");
+		}
+		if (!$interfacer->isPrivateContext() && $this->hasPrivateIdProperty()) {
+			throw new ComhonException(
+				'Cannot export private id in public context. '
+				. 'You MUST define foreign property as private if related model has private id.'
+			);
+		}
 		if ($object->getModel() !== $this) {
 			if (!$object->getModel()->isInheritedFrom($this)) {
 				throw new UnexpectedModelException($this, $object->getModel());
@@ -1314,8 +1323,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				if ($property->isInterfaceable($private, $isSerialContext)) {
 					$interfacedPropertyName = $isSerialContext ? $property->getSerializationName() : $propertyName;
 					if ($interfacer->hasValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml())) {
-						$value = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
-						$value = $property->getModel()->_import($value, $interfacer, $localObjectCollection, $property->getModel()->_isNextLevelFirstLevel($isFirstLevel));
+						$interfacedValue = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
+						$value =  $interfacer->isNullValue($interfacedValue) ? null
+							: $property->getModel()->_import($interfacedValue, $interfacer, $localObjectCollection, $property->getModel()->_isNextLevelFirstLevel($isFirstLevel));
+						
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 					}
 				}
@@ -1383,6 +1394,15 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return \Comhon\Object\UniqueObject
 	 */
 	protected function _importId($interfacedId, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
+		if (!$this->hasIdProperties()) {
+			throw new ComhonException("cannot import id, actual model '{$this->getUniqueModel()->getName()}' doesn't have id");
+		}
+		if (!$interfacer->isPrivateContext() && $this->hasPrivateIdProperty()) {
+			throw new ComhonException(
+				'Cannot import private id in public context. '
+				. 'You MUST define foreign property as private if related model has private id.'
+			);
+		}
 		if ($interfacer->isNullValue($interfacedId)) {
 			return null;
 		}

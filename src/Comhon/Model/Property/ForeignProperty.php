@@ -64,13 +64,4 @@ class ForeignProperty extends Property {
 		return true;
 	}
 	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Property\Property::isInterfaceable()
-	 */
-	public function isInterfaceable($private, $serialization) {
-		return parent::isInterfaceable($private, $serialization) && ($private || !$this->getUniqueModel()->hasPrivateIdProperty());
-	}
-	
 }

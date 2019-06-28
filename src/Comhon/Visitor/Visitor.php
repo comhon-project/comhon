@@ -99,7 +99,7 @@ abstract class Visitor {
 		else if (!array_key_exists(spl_object_hash($object), $this->instanceObjectHash)) {
 			$this->instanceObjectHash[spl_object_hash($object)] = $object;
 			foreach ($object->getModel()->getProperties() as $propertyName => $property) {
-				if (! ($property->getUniqueModel() instanceof SimpleModel)) {
+				if (! $property->isUniqueModelSimple()) {
 					$this->_accept($object, $propertyName, $propertyName);
 				}
 			}

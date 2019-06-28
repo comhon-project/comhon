@@ -102,11 +102,22 @@ class Property {
 	 */
 	public function getUniqueModel() {
 		$uniqueModel = $this->getModel();
-		while ($uniqueModel instanceof ModelContainer) {
-			$uniqueModel = $uniqueModel->getModel();
+		if ($uniqueModel instanceof ModelContainer) {
+			$uniqueModel = $uniqueModel->getUniqueModel();
 		}
 		$uniqueModel->load();
 		return $uniqueModel;
+	}
+	
+	/**
+	 * verify if model or model inside model container is a simple model
+	 *
+	 * @return bool
+	 */
+	public function isUniqueModelSimple() {
+		return $this->model instanceof ModelContainer
+			? $this->model->isUniqueModelSimple()
+			: $this->model instanceof SimpleModel;
 	}
 	
 	/**

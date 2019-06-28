@@ -53,6 +53,17 @@ abstract class ModelContainer extends ModelComplex {
 	}
 	
 	/**
+	 * verify unique model inside model container is a simple model
+	 *
+	 * @return bool
+	 */
+	public function isUniqueModelSimple() {
+		return $this->model instanceof ModelContainer
+			? $this->model->isUniqueModelSimple()
+			: $this->model instanceof SimpleModel;
+	}
+	
+	/**
 	 * get unique contained model
 	 *
 	 * a model container may contain another container so this function permit to

@@ -9,8 +9,46 @@ use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Exception\ComhonException;
+use Comhon\Exception\Interfacer\ExportException;
+use Comhon\Exception\Interfacer\ImportException;
 
 $time_start = microtime(true);
+
+function testExportPrivateIdPublicContext($comhonObject, $publicInterfacer, $exceptionProperties) {
+	$throw = true;
+	try {
+		$comhonObject->export($publicInterfacer);
+	} catch (ExportException $e) {
+		if ($e->getMessage() !== 'Cannot export private id in public context. You MUST define foreign property as private if related model has private id.') {
+			throw new \Exception('bad exception message : ' . $e->getMessage());
+		}
+		if ($e->getStringifiedProperties() !== $exceptionProperties) {
+			throw new \Exception('bad exception properties : ' . $e->getStringifiedProperties() . " != $exceptionProperties");
+		}
+		$throw = false;
+	}
+	if ($throw) {
+		throw new \Exception('export foreign value with private id should failed');
+	}
+}
+
+function testImportPrivateIdPublicContext($model, $interfacedPrivateObject, $publicInterfacer, $exceptionProperties) {
+	try {
+		$throw = true;
+		$model->import($interfacedPrivateObject, $publicInterfacer);
+	} catch (ImportException $e) {
+		if ($e->getMessage() !== 'Cannot import private id in public context. You MUST define foreign property as private if related model has private id.') {
+			throw new \Exception('bad exception message : ' . $e->getMessage());
+		}
+		if ($e->getStringifiedProperties() !== $exceptionProperties) {
+			throw new \Exception('bad exception properties : ' . $e->getStringifiedProperties() . " != $exceptionProperties");
+		}
+		$throw = false;
+	}
+	if ($throw) {
+		throw new \Exception('import foreign value with private id should failed');
+	}
+}
 
 $stdPrivateInterfacer = new StdObjectInterfacer();
 $stdPrivateInterfacer->setPrivateContext(true);
@@ -591,45 +629,40 @@ if (json_encode($testPrivateId->export($stdPrivateInterfacer)) !== $privateStdOb
 if (json_encode($testPrivateId->export($stdSerialInterfacer)) !== $privateStdObject) {
 	throw new \Exception('bad serial object value : '.json_encode($testPrivateId->export($stdPrivateInterfacer)));
 }
-if (json_encode($testPrivateId->export($stdPublicInterfacer)) !== '{"name":"test 1","objectValues":[{"id2":2,"propertyOne":"azeaze1"},{"id2":20,"propertyOne":"azeaze10"},{"id2":200,"propertyOne":"azeaze100"}]}') {
-	throw new \Exception('bad public object value : '.json_encode($testPrivateId->export($stdPublicInterfacer)));
-}
+
+testExportPrivateIdPublicContext($testPrivateId, $stdPublicInterfacer, '.foreignObjectValue');
+
 if (json_encode($testPrivateIdModel->import($testPrivateId->export($stdPrivateInterfacer), $stdPrivateInterfacer)->export($stdPrivateInterfacer)) !== $privateStdObject) {
 	throw new \Exception('bad private object value : '.json_encode($testPrivateIdModel->import($testPrivateId->export($stdPrivateInterfacer), $stdPrivateInterfacer)->export($stdPrivateInterfacer)));
 }
-if (!compareJson(json_encode($testPrivateIdModel->import($testPrivateId->export($stdPrivateInterfacer), $stdPublicInterfacer)->export($stdPrivateInterfacer)), '{"name":"test 1","objectValues":[{"id1":null,"id2":2,"propertyOne":"azeaze1"},{"id1":null,"id2":20,"propertyOne":"azeaze10"},{"id1":null,"id2":200,"propertyOne":"azeaze100"}]}')) {
-	throw new \Exception('bad public object value : '.json_encode($testPrivateIdModel->import($testPrivateId->export($stdPrivateInterfacer), $stdPublicInterfacer)->export($stdPrivateInterfacer)));
-}
 
+testImportPrivateIdPublicContext($testPrivateIdModel, $testPrivateId->export($stdPrivateInterfacer), $stdPublicInterfacer, '.foreignObjectValue');
 
 $privateFlattenedArray = '{"id":"1","name":"test 1","objectValues":"[{\"id1\":1,\"id2\":2,\"propertyOne\":\"azeaze1\"},{\"id1\":10,\"id2\":20,\"propertyOne\":\"azeaze10\"},{\"id1\":100,\"id2\":200,\"propertyOne\":\"azeaze100\"}]","foreignObjectValue":"[1,2]","foreignObjectValues":"[\"[10,20]\",\"[100,200]\"]","foreignTestPrivateId":"2","foreignTestPrivateIds":"[\"3\",\"1\"]"}';
 if (json_encode($testPrivateId->export($flattenArrayPrivateInterfacer)) !== $privateFlattenedArray) {
 	throw new \Exception('bad private object value : '.json_encode($testPrivateId->export($flattenArrayPrivateInterfacer)));
 }
-if (json_encode($testPrivateId->export($flattenArrayPublicInterfacer)) !== '{"name":"test 1","objectValues":"[{\"id2\":2,\"propertyOne\":\"azeaze1\"},{\"id2\":20,\"propertyOne\":\"azeaze10\"},{\"id2\":200,\"propertyOne\":\"azeaze100\"}]"}') {
-	throw new \Exception('bad public object value : '.json_encode($testPrivateId->export($flattenArrayPublicInterfacer)));
-}
+
+testExportPrivateIdPublicContext($testPrivateId, $flattenArrayPublicInterfacer, '.foreignObjectValue');
+
 if (!compareJson(json_encode($testPrivateIdModel->import($testPrivateId->export($flattenArrayPrivateInterfacer), $flattenArrayPrivateInterfacer)->export($flattenArrayPrivateInterfacer)), $privateFlattenedArray)) {
 	throw new \Exception('bad private object value : '.json_encode($testPrivateIdModel->import($testPrivateId->export($flattenArrayPrivateInterfacer), $flattenArrayPrivateInterfacer)->export($flattenArrayPrivateInterfacer)));
 }
-if (!compareJson(json_encode($testPrivateIdModel->import($testPrivateId->export($flattenArrayPrivateInterfacer), $flattenArrayPublicInterfacer)->export($flattenArrayPrivateInterfacer)), '{"name":"test 1","objectValues":"[{\"id1\":null,\"id2\":2,\"propertyOne\":\"azeaze1\"},{\"id1\":null,\"id2\":20,\"propertyOne\":\"azeaze10\"},{\"id1\":null,\"id2\":200,\"propertyOne\":\"azeaze100\"}]"}')) {
-	throw new \Exception('bad public object value : '.json_encode($testPrivateIdModel->import($testPrivateId->export($flattenArrayPrivateInterfacer), $flattenArrayPublicInterfacer)->export($flattenArrayPrivateInterfacer)));
-}
 
+testImportPrivateIdPublicContext($testPrivateIdModel, $testPrivateId->export($flattenArrayPrivateInterfacer), $flattenArrayPublicInterfacer, '.foreignObjectValue');
 
 $privateXml = '<root id="1" name="test 1"><objectValues><objectValue id1="1" id2="2" propertyOne="azeaze1"/><objectValue id1="10" id2="20" propertyOne="azeaze10"/><objectValue id1="100" id2="200" propertyOne="azeaze100"/></objectValues><foreignObjectValue>[1,2]</foreignObjectValue><foreignObjectValues><foreignObjectValue>[10,20]</foreignObjectValue><foreignObjectValue>[100,200]</foreignObjectValue></foreignObjectValues><foreignTestPrivateId>2</foreignTestPrivateId><foreignTestPrivateIds><foreignTestPrivateId>3</foreignTestPrivateId><foreignTestPrivateId>1</foreignTestPrivateId></foreignTestPrivateIds></root>';
 if (!compareXML($xmlPrivateInterfacer->toString($testPrivateId->export($xmlPrivateInterfacer)), $privateXml)) {
 	throw new \Exception('bad private object value');
 }
-if (!compareXML($xmlPublicInterfacer->toString($testPrivateId->export($xmlPublicInterfacer)), '<root name="test 1"><objectValues><objectValue id2="2" propertyOne="azeaze1"/><objectValue id2="20" propertyOne="azeaze10"/><objectValue id2="200" propertyOne="azeaze100"/></objectValues></root>')) {
-	throw new \Exception('bad public object value');
-}
+
+testExportPrivateIdPublicContext($testPrivateId, $xmlPublicInterfacer, '.foreignObjectValue');
+
 if (!compareXML($xmlPrivateInterfacer->toString($testPrivateIdModel->import($testPrivateId->export($xmlPrivateInterfacer), $xmlPrivateInterfacer)->export($xmlPrivateInterfacer)), $privateXml)) {
 	throw new \Exception('bad private object value');
 }
-if (!compareXML($xmlPrivateInterfacer->toString($testPrivateIdModel->import($testPrivateId->export($xmlPrivateInterfacer), $xmlPublicInterfacer)->export($xmlPrivateInterfacer)), '<root name="test 1"><objectValues><objectValue id1="xsi:nil" id2="2" propertyOne="azeaze1"/><objectValue id1="xsi:nil" id2="20" propertyOne="azeaze10"/><objectValue id1="xsi:nil" id2="200" propertyOne="azeaze100"/></objectValues></root>')) {
-	throw new \Exception('bad public object value');
-}
+
+testImportPrivateIdPublicContext($testPrivateIdModel, $testPrivateId->export($xmlPrivateInterfacer), $xmlPublicInterfacer, '.foreignObjectValue');
 
 /** ************************************** test node/attribute xml ********************************************* **/
 
