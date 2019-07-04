@@ -302,6 +302,8 @@ abstract class Interfacer {
 	public function setPropertiesFilter($propertiesNames, $modelName) {
 		if (is_array($propertiesNames)) {
 			$this->propertiesFilters[$modelName] = array_flip($propertiesNames);
+			
+			// add id properties even if they are not in filter properties
 			$model = ModelManager::getInstance()->getInstanceModel($modelName);
 			foreach ($model->getIdProperties()as $propertyName => $property) {
 				$this->propertiesFilters[$modelName][$propertyName] = null;

@@ -63,20 +63,4 @@ abstract class ModelContainer extends ModelComplex {
 			: $this->model instanceof SimpleModel;
 	}
 	
-	/**
-	 * get unique contained model
-	 *
-	 * a model container may contain another container so this function permit to
-	 * get the final unique model that is not a container
-	 *
-	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
-	 */
-	protected function _getUniqueModel() {
-		$uniqueModel = $this->model;
-		while ($uniqueModel instanceof ModelContainer) {
-			$uniqueModel = $uniqueModel->model;
-		}
-		return $uniqueModel;
-	}
-	
 }

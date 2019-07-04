@@ -42,7 +42,7 @@ final class Serialization {
 		$this->inheritanceKey = $inheritanceKey;
 		$this->serializationUnit = SerializationUnitFactory::getInstance($settings->getModel()->getName());
 		$this->allowSerialization = $allowSerialization;
-		$this->inheritanceValues= $inheritanceValues;
+		$this->inheritanceValues = $inheritanceValues;
 	}
 	
 	/**

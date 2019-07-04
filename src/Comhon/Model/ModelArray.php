@@ -36,12 +36,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	
 	/**
 	 * 
-	 * @var boolean
-	 */
-	private $hasComplexValues;
-	
-	/**
-	 * 
 	 * @param ModelUnique $model
 	 * @param boolean $isAssociative
 	 * @param string $elementName
@@ -50,8 +44,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		parent::__construct($model);
 		$this->isAssociative = $isAssociative;
 		$this->elementName = $elementName;
-		
-		$this->hasComplexValues = !($this->_getUniqueModel() instanceof SimpleModel);
 	}
 	
 	/**
@@ -72,15 +64,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 */
 	public function isAssociative() {
 		return $this->isAssociative;
-	}
-	
-	/**
-	 * verify if array has complex values (comhon objects)
-	 *
-	 * @return boolean
-	 */
-	public function hasComplexValues() {
-		return $this->hasComplexValues;
 	}
 	
 	/**
