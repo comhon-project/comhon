@@ -26,7 +26,7 @@ class ModelForeign extends ModelContainer {
 	 */
 	public function __construct(AbstractModel $model) {
 		parent::__construct($model);
-		if ($this->model instanceof SimpleModel) {
+		if ($this->isUniqueModelSimple()) {
 			throw new ComhonException('ModelForeign can\'t contain SimpleModel');
 		}
 	}

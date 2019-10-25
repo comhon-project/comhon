@@ -80,9 +80,6 @@ if (json_encode(array_keys($bodyModel->getProperties())) !== '["id","date","heig
 if ($bodyModel->getProperty('hairColor') !== $womanBodyModel->getProperty('hairColor')) {
 	throw new \Exception('not same instance of property');
 }
-if ($bodyModel->getProperty('owner') === $womanBodyModel->getProperty('owner')) {
-	throw new \Exception('same instance of property');
-}
 
 $tatooModel = $womanBodyModel->getProperty('tatoos')->getModel()->getModel();
 if ($tatooModel->getName() !== 'Test\Body\Tatoo') {

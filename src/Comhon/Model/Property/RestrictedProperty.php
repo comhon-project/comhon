@@ -55,4 +55,17 @@ class RestrictedProperty extends Property {
 		return $isSatisfiable;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isEqual()
+	 */
+	public function isEqual(Property $property) {
+		return $this === $property || (
+			parent::isEqual($property) &&
+			($property instanceof RestrictedProperty) &&
+			$this->restriction->isEqual($property->restriction) 
+		);
+	}
+	
 }

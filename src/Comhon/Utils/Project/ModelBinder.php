@@ -117,7 +117,7 @@ class ModelBinder {
 			}
 			$serializationAllowed = $model->getSerialization()->isSerializationAllowed();
 			
-			while (!is_null($model = $model->getFirstParentMatch(true))) {
+			while (!is_null($model = $model->getFirstMainParentMatch(true))) {
 				if (!array_key_exists($model->getName(), $modelsInfos)) {
 					throw new ComhonException('model not found : ' . $model->getName());
 				}
@@ -158,9 +158,13 @@ class ModelBinder {
 			/** @var \Comhon\Model\Model $currentModel */
 			$currentModel = $modelInfos['model'];
 			$model = $currentModel;
-			$parentModel = $model->getFirstParentMatch(true);
+			$parentModel = $model->getFirstMainParentMatch(true);
 			
 			while (!is_null($parentModel) && !$addFilter) {
+				if (is_null($parentModel->getSerialization())) {
+					$parentModel = $parentModel->getParent();
+					continue;
+				}
 				if ($parentModel->getSerialization()->isSerializationAllowed()) {
 					$addFilter = true;
 				}
@@ -171,7 +175,7 @@ class ModelBinder {
 					}
 				}
 				$model = $parentModel;
-				$parentModel = $model->getFirstParentMatch(true);
+				$parentModel = $model->getFirstMainParentMatch(true);
 			}
 			
 			if ($addFilter) {

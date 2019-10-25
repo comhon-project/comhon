@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="Comhon\JsonFile">
+	<serialization type="Comhon\File\JsonFile">
 		<value saticPath="./database" staticName="database.json"/>
 	</serialization>
 </manifest>

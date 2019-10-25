@@ -96,7 +96,7 @@ abstract class ManifestParser {
 	abstract public function isMain();
 	
 	/**
-	 * verify if manifest describe a serializable model .
+	 * verify if manifest describe a serializable model.
 	 * a serializable model is automatically a main model
 	 *
 	 * @return boolean
@@ -104,9 +104,9 @@ abstract class ManifestParser {
 	abstract public function isSerializable();
 	
 	/**
-	 * get extends model name
+	 * get extends model names
 	 *
-	 * @return string|null null if no extends model name
+	 * @return string[]|null null if no extends model name
 	 */
 	abstract public function getExtends();
 	
@@ -435,6 +435,7 @@ abstract class ManifestParser {
 		$version = (string) $interfacer->getValue($manifest, 'version');
 		switch ($version) {
 			case '2.0': return new V_2_0\ManifestParser($manifest, $serializationManifestPath_afe, $interfacer);
+			case '3.0': return new V_3_0\ManifestParser($manifest, $serializationManifestPath_afe, $interfacer);
 			default:    throw new ManifestException("version $version not recognized for manifest $manifestPath_afe");
 		}
 	}

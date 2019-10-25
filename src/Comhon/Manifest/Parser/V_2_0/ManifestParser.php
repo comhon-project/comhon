@@ -36,7 +36,9 @@ class ManifestParser extends ParentManifestParser {
 	 */
 	public function getExtends() {
 		$currentNode = $this->focusLocalTypes ? current($this->localTypes) : $this->manifest;
-		return $this->interfacer->getValue($currentNode, self::_EXTENDS);
+		$extends = $this->interfacer->getValue($currentNode, self::_EXTENDS);
+		
+		return is_null($extends) ? null : [$extends];
 	}
 	
 	/**

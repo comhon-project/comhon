@@ -44,7 +44,7 @@ class ModelManager {
 	const SERIALIZATION   = 'serialization';
 	
 	/** @var string */
-	const PARENT_MODEL    = 'parentModel';
+	const PARENT_MODELS   = 'parentModels';
 	
 	/** @var string */
 	const IS_MAIN_MODEL   = 'isMainModel';
@@ -344,8 +344,9 @@ class ModelManager {
 	 * 
 	 * @param \Comhon\Model\Model $model
 	 * @return [
+	 *     self::IS_MAIN_MODEL => bool
 	 *     self::PROPERTIES    => \Comhon\Model\Property\Property[]
-	 *     self::PARENT_MODEL  => \Comhon\Model\Model|null
+	 *     self::PARENT_MODELS => \Comhon\Model\Model[]
 	 *     self::OBJECT_CLASS  => string|null
 	 *     self::SERIALIZATION => \Comhon\Serialization\SerializationUnit|null
 	 * ]
@@ -358,7 +359,7 @@ class ModelManager {
 				$return = [
 					self::IS_MAIN_MODEL  => $model->isMain(),
 					self::PROPERTIES     => $model->getProperties(), 
-					self::PARENT_MODEL   => $model->getParent(),
+					self::PARENT_MODELS  => $model->getParents(),
 					self::OBJECT_CLASS   => $model->getObjectClass(),
 					self::SERIALIZATION  => $model->getSerialization()
 				];
@@ -391,12 +392,12 @@ class ModelManager {
 					$isSerializable = false;
 					$serialManifestParser = null;
 				}
-				$parentModel = $this->_getParentModel($model);
+				$parentModels = $this->_getParentModels($model);
 				
 				$return = [
-					self::PARENT_MODEL    => $parentModel,
+					self::PARENT_MODELS   => $parentModels,
 					self::OBJECT_CLASS    => $this->manifestParser->getObjectClass(),
-					self::PROPERTIES      => $this->_buildProperties($parentModel, $model->getName()),
+					self::PROPERTIES      => $this->_buildProperties($parentModels, $model),
 				];
 				
 				if (!$isLocalType) {
@@ -405,7 +406,7 @@ class ModelManager {
 				
 				// must be done after set $this->manifestParser to null because new model may be instanciated
 				$return[self::SERIALIZATION] = $isLocalType ? null
-					: $this->_getSerializationInstance($serialManifestParser, $isSerializable, $parentModel);
+					: $this->_getSerializationInstance($serialManifestParser, $isSerializable, $parentModels);
 				$return[self::IS_MAIN_MODEL] = $return[self::SERIALIZATION] ? true : $isMain;
 			}
 		} catch (\Exception $e) {
@@ -446,40 +447,56 @@ class ModelManager {
 	}
 	
 	/**
-	 * get parent model if exists
+	 * get parent models if exist
 	 * 
 	 * @param \Comhon\Model\Model $model
 	 * @throws \Exception
-	 * @return \Comhon\Model\Model|null null if no parent model
+	 * @return \Comhon\Model\Model[]
 	 */
-	private function _getParentModel(Model $model) {
-		$parentModel = null;
-		$modelName = $this->manifestParser->getExtends();
+	private function _getParentModels(Model $model) {
+		$parentModels = [];
+		$modelNames = $this->manifestParser->getExtends();
 		
-		if (array_key_exists($modelName, $this->instanceSimpleModels)) {
-			throw new ComhonException("{$model->getName()} cannot extends from $modelName");
+		if (!is_null($modelNames)) {
+			foreach ($modelNames as $modelName) {
+				if (array_key_exists($modelName, $this->instanceSimpleModels)) {
+					throw new ComhonException("{$model->getName()} cannot extends from {$modelName}");
+				}
+				
+				$modelName = $modelName[0] == '\\' ? substr($modelName, 1) : $this->currentNamespace. '\\' . $modelName;
+				
+				$manifestParser = $this->manifestParser;
+				$this->manifestParser = null;
+				$parentModels[] = $this->getInstanceModel($modelName);
+				$this->manifestParser = $manifestParser;
+			}
 		}
 		
-		if (!is_null($modelName)) {
-			$modelName = $modelName[0] == '\\' ? substr($modelName, 1) : $this->currentNamespace. '\\' . $modelName;
-			
-			$manifestParser = $this->manifestParser;
-			$this->manifestParser = null;
-			$parentModel = $this->getInstanceModel($modelName);
-			$this->manifestParser = $manifestParser;
-		}
-		return $parentModel;
+		return $parentModels;
 	}
 	
 	/**
 	 * build model properties
 	 * 
-	 * @param \Comhon\Model\Model|null $parentModel
+	 * @param \Comhon\Model\Model[] $parentModels
+	 * @param \Comhon\Model\Model $currentModel
 	 * @throws \Exception
 	 * @return \Comhon\Model\Property\Property[]
 	 */
-	private function _buildProperties(Model $parentModel = null, $modelNameux) {
-		$properties = is_null($parentModel) ? [] : $parentModel->getProperties();
+	private function _buildProperties(array $parentModels, $currentModel) {
+		/** @var \Comhon\Model\Property\Property[] $properties */
+		$properties = [];
+		foreach ($parentModels as $parentModel) {
+			foreach ($parentModel->getProperties() as $propertyName => $property) {
+				if (array_key_exists($propertyName, $properties) && !$properties[$propertyName]->isEqual($property)) {
+					throw new ComhonException(
+						"Multiple inheritance conflict on property \"$propertyName\" ".
+						"on model \"{$currentModel->getName()}\""
+					);
+				}
+				$properties[$propertyName] = $property;
+			}
+		}
 		if ($this->manifestParser->getCurrentPropertiesCount() > 0) {
 			do {
 				$modelName = $this->manifestParser->getCurrentPropertyModelName();
@@ -491,6 +508,13 @@ class ModelManager {
 				
 				$propertyModel = $this->_getInstanceModel($modelName, false);
 				$property      = $this->manifestParser->getCurrentProperty($propertyModel);
+				
+				if (array_key_exists($property->getName(), $properties) && !$properties[$property->getName()]->isEqual($property)) {
+					throw new ComhonException(
+							"Inheritance conflict on property \"$propertyName\" ".
+							"on model \"{$currentModel->getName()}\""
+					);
+				}
 				
 				$properties[$property->getName()] = $property;
 			} while ($this->manifestParser->nextProperty());
@@ -504,14 +528,15 @@ class ModelManager {
 	 * 
 	 * @param \Comhon\Manifest\Parser\SerializationManifestParser $serializationManifestParser
 	 * @param bool $isSerializable
-	 * @param \Comhon\Model\Model $parentModel
+	 * @param \Comhon\Model\Model[] $parentModels
 	 * @return \Comhon\Serialization\Serialization|null null if no serialization
 	 */
-	private function _getSerializationInstance(SerializationManifestParser $serializationManifestParser = null, $isSerializable = false, Model $parentModel = null) {
+	private function _getSerializationInstance(SerializationManifestParser $serializationManifestParser = null, $isSerializable = false, array $parentModels = []) {
 		$serializationSettings = null;
 		$inheritanceKey = null;
 		$inheritanceValues = null;
 		$serialization = null;
+		$parentModel = isset($parentModels[0]) ? $parentModels[0] : null;
 		
 		if (!is_null($serializationManifestParser)) {
 			$inheritanceKey        = $serializationManifestParser->getInheritanceKey();

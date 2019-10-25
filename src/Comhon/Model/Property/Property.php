@@ -75,7 +75,7 @@ class Property {
 			if (!is_null($isInterfacedAsNodeXml) && !$isInterfacedAsNodeXml) {
 				trigger_error('warning! 8th parameter is ignored, property with complex model is inevitably interfaced as node xml');
 			}
-			// without inheritance foreign property may be exported as attribute because only id is exported
+			// without inheritance, foreign property may be exported as attribute because only id is exported
 			// but due to inheritance, model name can be exported with id so we need to export as node
 			$this->interfaceAsNodeXml = true;
 		}
@@ -284,9 +284,9 @@ class Property {
 	}
 	
 	/**
-	 * get aggregation properties if exists
+	 * get aggregation properties names if exist
 	 * 
-	 * @return Property[]|null null if there are no aggregation properties
+	 * @return string[]|null null if there are no aggregation properties
 	 */
 	public function getAggregationProperties() {
 		return null;
@@ -327,13 +327,14 @@ class Property {
 	public function isEqual(Property $property) {
 		return $this === $property || (
 			get_class($this)         === get_class($property) &&
-			$this->model             === $property->getModel() &&
 			$this->name              === $property->getName() &&
 			$this->isId              === $property->isId() &&
 			$this->isPrivate         === $property->isPrivate() &&
 			$this->default           === $property->getDefaultValue() &&
 			$this->isSerializable    === $property->isSerializable() &&
-			$this->serializationName === $property->getSerializationName()
+			$this->serializationName === $property->getSerializationName() &&
+			$this->model->isEqual($property->getModel())
 		);
 	}
+	
 }

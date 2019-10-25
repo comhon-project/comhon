@@ -13,7 +13,6 @@ namespace Comhon\Visitor;
 
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\ComhonArray;
-use Comhon\Model\SimpleModel;
 use Comhon\Model\ModelCustom;
 use Comhon\Model\Property\ForeignProperty;
 use Comhon\Exception\Visitor\VisitorParameterException;

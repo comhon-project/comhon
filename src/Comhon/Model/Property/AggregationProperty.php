@@ -18,7 +18,7 @@ use Comhon\Model\ModelForeign;
 
 class AggregationProperty extends ForeignProperty {
 	
-	/** @var Property[] */
+	/** @var string[] */
 	private $aggregationProperties = null;
 	
 	/**
@@ -108,7 +108,7 @@ class AggregationProperty extends ForeignProperty {
 	 * @see \Comhon\Model\Property\Property::isEqual()
 	 */
 	public function isEqual(Property $property) {
-		if (count($this->aggregationProperties) != count($property->getAggregationProperties())) {
+		if (is_null($property->getAggregationProperties()) || count($this->aggregationProperties) != count($property->getAggregationProperties())) {
 			return false;
 		}
 		foreach ($property->getAggregationProperties() as $propertyName) {

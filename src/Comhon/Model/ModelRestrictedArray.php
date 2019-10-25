@@ -108,4 +108,15 @@ class ModelRestrictedArray extends ModelArray {
 		return true;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelContainer::isEqual()
+	 */
+	public function isEqual(AbstractModel $model) {
+		return parent::isEqual($model) && 
+			($model instanceof ModelRestrictedArray) &&
+			$this->restriction->isEqual($model->restriction);
+	}
+	
 }

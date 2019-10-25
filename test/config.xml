@@ -1,12 +1,12 @@
 <phpunit>
 	<testsuites>
-	  <testsuite name="My Test Suite">
+	  <testsuite name="Config Test Suite (must be done first)">
 	    <file>suite/ConfigTest.php</file>
 	  </testsuite>
-	  <testsuite name="My Test Suite 2">
+	  <testsuite name="Load Model Test Suite (must be done second">
 	    <file>suite/LoadingModelTest.php</file>
 	  </testsuite>
-	  <testsuite name="My Test Suite 3">
+	  <testsuite name="My Test Suite">
 	    <directory>suite</directory>
 	  </testsuite>
 	</testsuites>

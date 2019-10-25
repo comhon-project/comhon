@@ -19,7 +19,7 @@ class JsonFile extends SerializationFile {
 	/**
 	 * @var string json serialization type
 	 */
-	const SETTINGS_TYPE = 'Comhon\JsonFile';
+	const SETTINGS_TYPE = 'Comhon\File\JsonFile';
 	
 	/**
 	 * @var \Comhon\Serialization\File\JsonFile

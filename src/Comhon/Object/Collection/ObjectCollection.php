@@ -38,7 +38,7 @@ class ObjectCollection {
 			
 			if (!is_null($model->getSerialization())) {
 				$modelNames = [];
-				while (!is_null($model = $model->getFirstParentMatch(true))) {
+				while (!is_null($model = $model->getFirstMainParentMatch(true))) {
 					$modelNames[] = $model->getName();
 					if (isset($this->map[$model->getName()][$id])) {
 						if (in_array($this->map[$model->getName()][$id]->getModel()->getName(), $modelNames)) {
@@ -68,7 +68,7 @@ class ObjectCollection {
 			
 			if (!is_null($model->getSerialization())) {
 				$modelNames = [];
-				while (!is_null($model = $model->getFirstParentMatch(true))) {
+				while (!is_null($model = $model->getFirstMainParentMatch(true))) {
 					$modelNames[] = $model->getName();
 					if (isset($this->map[$model->getName()][$id])) {
 						$hasObject = in_array($this->map[$model->getName()][$id]->getModel()->getName(), $modelNames);
@@ -121,7 +121,7 @@ class ObjectCollection {
 			if (!is_null($object->getModel()->getSerialization())) {
 				$id    = $object->getId();
 				$model = $object->getModel();
-				while (!is_null($model = $model->getFirstParentMatch(true))) {
+				while (!is_null($model = $model->getFirstMainParentMatch(true))) {
 					if (isset($this->map[$model->getName()][$id])) {
 						if ($this->map[$model->getName()][$id] !== $object) {
 							throw new ComhonException('parent model key has different object instance with same id');
@@ -153,7 +153,7 @@ class ObjectCollection {
 			if (!is_null($object->getModel()->getSerialization())) {
 				$id    = $object->getId();
 				$model = $object->getModel();
-				while (!is_null($model = $model->getFirstParentMatch(true))) {
+				while (!is_null($model = $model->getFirstMainParentMatch(true))) {
 					if (!isset($this->map[$model->getName()][$id]) || $this->map[$model->getName()][$id] !== $object) {
 						throw new ComhonException('parent model key doesn\'t have object or has different object instance with same id');
 					}

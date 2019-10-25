@@ -19,7 +19,7 @@ class XmlFile extends SerializationFile {
 	/**
 	 * @var string xml serialization type
 	 */
-	const SETTINGS_TYPE = 'Comhon\XmlFile';
+	const SETTINGS_TYPE = 'Comhon\File\XmlFile';
 	
 	/**
 	 * @var \Comhon\Serialization\File\XmlFile

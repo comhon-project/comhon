@@ -1,0 +1,5 @@
+<manifest version="3.0" is_serializable="0">
+  <properties>
+    <property type="string" name="three"/>
+  </properties>
+</manifest>

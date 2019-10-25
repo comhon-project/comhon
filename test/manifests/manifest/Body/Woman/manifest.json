@@ -6,11 +6,6 @@
         {
             "name": "chestSize",
             "type": "string"
-        },
-        {
-            "name": "owner",
-            "type": "\\Test\\Person\\Woman",
-            "is_foreign": true
         }
     ]
 }

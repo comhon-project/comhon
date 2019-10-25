@@ -1,7 +1,7 @@
 {
     "version": "2.0",
     "serialization": {
-        "type": "Comhon\\XmlFile",
+        "type": "Comhon\\File\\XmlFile",
         "value": {
             "saticPath": ".\/data\/test_xml",
             "staticName": "test.xml"

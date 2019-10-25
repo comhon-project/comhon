@@ -16,7 +16,7 @@ use Comhon\Model\Property\AggregationProperty;
 use Comhon\Exception\Model\CastComhonObjectException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Serialization\SerializationException;
-use Comhon\Model\ModelComhonObject;
+use Comhon\Model\Model;
 
 abstract class UniqueObject extends AbstractComhonObject {
 	
@@ -300,10 +300,10 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 * update current model to specified model.
 	 * new model must inherit from current model otherwise an exception is thrown
 	 *
-	 * @param \Comhon\Model\ModelComhonObject $model
+	 * @param \Comhon\Model\Model $model
 	 * @throws \Comhon\Exception\Model\CastComhonObjectException
 	 */
-	final public function cast(ModelComhonObject $model) {
+	final public function cast(Model $model) {
 		if ($this->getModel() === $model) {
 			return;
 		}

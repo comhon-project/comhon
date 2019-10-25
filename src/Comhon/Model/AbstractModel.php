@@ -88,4 +88,14 @@ abstract class AbstractModel {
 	 */
 	abstract public function verifValue($value);
 	
+	/**
+	 * verify if specified model is equal (same instance) to this model
+	 *
+	 * @param AbstractModel $model
+	 * @return boolean
+	 */
+	public function isEqual(AbstractModel $model) {
+		return $this === $model;
+	}
+	
 }

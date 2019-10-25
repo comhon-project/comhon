@@ -82,43 +82,65 @@ class InheritedSerializationTest extends TestCase
 	public function testFirstParentMatch()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentOne\Child');
-		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentOne', $model->getFirstParentMatch()->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentOne', $model->getFirstParentMatch(true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstParentMatch(null, true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstParentMatch(true, true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentOne', $model->getFirstParentMatch(true, false)->getName());
-		$this->assertEquals('Test\GreatGrandParent', $model->getFirstParentMatch(false, false)->getName());
-		$this->assertEquals('Test\GreatGrandParent', $model->getFirstParentMatch(false)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentOne', $model->getFirstMainParentMatch()->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentOne', $model->getFirstMainParentMatch(true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstMainParentMatch(null, true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstMainParentMatch(true, true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentOne', $model->getFirstMainParentMatch(true, false)->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getFirstMainParentMatch(false, false)->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getFirstMainParentMatch(false)->getName());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentTwo\Child');
-		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentTwo', $model->getFirstParentMatch()->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstParentMatch(true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentTwo', $model->getFirstParentMatch(null, true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstParentMatch(true, true)->getName());
-		$this->assertNull($model->getFirstParentMatch(true, false));
-		$this->assertEquals('Test\GreatGrandParent', $model->getFirstParentMatch(false, false)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentTwo', $model->getFirstParentMatch(false)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentTwo', $model->getFirstMainParentMatch()->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstMainParentMatch(true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentTwo', $model->getFirstMainParentMatch(null, true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstMainParentMatch(true, true)->getName());
+		$this->assertNull($model->getFirstMainParentMatch(true, false));
+		$this->assertEquals('Test\GreatGrandParent', $model->getFirstMainParentMatch(false, false)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentTwo', $model->getFirstMainParentMatch(false)->getName());
+		
+		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParentTwo\Parent\Child');
+		$this->assertEquals('Test\GreatGrandParent\GrandParentTwo\Parent', $model->getFirstMainParentMatch()->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParentTwo\Parent', $model->getFirstMainParentMatch(true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParentTwo\Parent', $model->getFirstMainParentMatch(null, false)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParentTwo\Parent', $model->getFirstMainParentMatch(true, false)->getName());
+		$this->assertNull($model->getFirstMainParentMatch(false));
+		$this->assertNull($model->getFirstMainParentMatch(false, true));
+		$this->assertNull($model->getFirstMainParentMatch(false, false));
+		$this->assertNull($model->getFirstMainParentMatch(true, true));
+		$this->assertNull($model->getFirstMainParentMatch(null, true));
 	}
 	
 	public function testLastParentMatch()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentOne\Child');
-		$this->assertEquals('Test\GreatGrandParent', $model->getLastParentMatch()->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastParentMatch(true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastParentMatch(null, true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastParentMatch(true, true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentOne', $model->getLastParentMatch(true, false)->getName());
-		$this->assertEquals('Test\GreatGrandParent', $model->getLastParentMatch(false, false)->getName());
-		$this->assertEquals('Test\GreatGrandParent', $model->getLastParentMatch(false)->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getLastMainParentMatch()->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastMainParentMatch(true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastMainParentMatch(null, true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastMainParentMatch(true, true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentOne', $model->getLastMainParentMatch(true, false)->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getLastMainParentMatch(false, false)->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getLastMainParentMatch(false)->getName());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentTwo\Child');
-		$this->assertEquals('Test\GreatGrandParent', $model->getLastParentMatch()->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastParentMatch(true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastParentMatch(null, true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastParentMatch(true, true)->getName());
-		$this->assertNull($model->getLastParentMatch(true, false));
-		$this->assertEquals('Test\GreatGrandParent', $model->getLastParentMatch(false, false)->getName());
-		$this->assertEquals('Test\GreatGrandParent', $model->getLastParentMatch(false)->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getLastMainParentMatch()->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastMainParentMatch(true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastMainParentMatch(null, true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getLastMainParentMatch(true, true)->getName());
+		$this->assertNull($model->getLastMainParentMatch(true, false));
+		$this->assertEquals('Test\GreatGrandParent', $model->getLastMainParentMatch(false, false)->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getLastMainParentMatch(false)->getName());
+		
+		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParentTwo\Parent\Child');
+		$this->assertEquals('Test\GreatGrandParent', $model->getLastMainParentMatch()->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getLastMainParentMatch(true)->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getLastMainParentMatch(null, false)->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getLastMainParentMatch(true, false)->getName());
+		$this->assertNull($model->getLastMainParentMatch(false));
+		$this->assertNull($model->getLastMainParentMatch(false, true));
+		$this->assertNull($model->getLastMainParentMatch(false, false));
+		$this->assertNull($model->getLastMainParentMatch(true, true));
+		$this->assertNull($model->getLastMainParentMatch(null, true));
 	}
 	
 }

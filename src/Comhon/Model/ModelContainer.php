@@ -63,4 +63,16 @@ abstract class ModelContainer extends ModelComplex {
 			: $this->model instanceof SimpleModel;
 	}
 	
+	/**
+	 * verify if specified model is equal to this model container
+	 * 
+	 * verify if model are same instance or if they have same contained model
+	 * 
+	 * @param AbstractModel $model
+	 * @return boolean
+	 */
+	public function isEqual(AbstractModel $model) {
+		return parent::isEqual($model) || ((get_class($this) == get_class($model)) && $this->model->isEqual($model->model));
+	}
+	
 }

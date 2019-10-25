@@ -140,6 +140,7 @@ abstract class ObjectLoadRequest {
 	 * @return \Comhon\Object\ComhonArray
 	 */
 	protected function _completeObject(AbstractComhonObject $object) {
+		/** @var \Comhon\Object\UniqueObject[] $objects */
 		$objects = ($object instanceof ComhonArray) ? $object->getValues() : [$object];
 
 		if ($this->requestChildren && !$this->loadForeignProperties) {

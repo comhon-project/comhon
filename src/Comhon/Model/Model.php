@@ -40,8 +40,15 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var boolean */
 	protected $isLoading = false;
 	
-	/** @var Model */
-	private $parent;
+	/** 
+	 * list of parent models (current model extends these models).
+	 * Comhon inheriance manage multiple inheritance so it may contain several models.
+	 * first parent model (at index 0) is called main parent model. 
+	 * current model may inherit serialization only from main parent model.
+	 * 
+	 * @var Model[] 
+	 */
+	private $parents;
 	
 	/** @var string */
 	private $objectClass = ComhonObject::class;
@@ -121,7 +128,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				}
 			} else {
 				$this->isMain = $result[ModelManager::IS_MAIN_MODEL];
-				$this->parent = $result[ModelManager::PARENT_MODEL];
+				$this->parents = $result[ModelManager::PARENT_MODELS];
 				$this->_setProperties($result[ModelManager::PROPERTIES]);
 				$this->serialization = $result[ModelManager::SERIALIZATION];
 				$this->_verifyIdSerialization();
@@ -137,7 +144,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		} catch (\Exception $e) {
 			// reinitialize attributes if any exception
 			$this->isLoading = false;
-			$this->parent = null;
+			$this->parents = null;
 			$this->objectClass = ComhonObject::class;
 			$this->isExtended = false;
 			$this->properties   = [];
@@ -236,7 +243,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * verify if ids are compatible with parent (if current and parent have same serialization)
 	 */
 	final protected function _verifyIdSerialization() {
-		if (!is_null($this->serialization) && !is_null($parentMatchModel = $this->getFirstParentMatch(true))) {
+		if (!is_null($this->serialization) && !is_null($parentMatchModel = $this->getFirstMainParentMatch(true))) {
 			if (count($this->getIdProperties()) != count($parentMatchModel->getIdProperties())) {
 				throw new ComhonException("model {$this->getName()} extended from model {$parentMatchModel->getName()} and with same serialization must have same id(s)");
 			}
@@ -285,48 +292,59 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * get parent model if current model extends from another one
+	 * get parent models. Comhon inheriance manage multiple inheritance so it may return several models.
 	 * 
-	 * @return Model|null null if no parent model
+	 * @return Model[] if current model doesn't extend from any models, an empty array is returned.
 	 */
-	public function getParent() {
-		return $this->parent;
+	public function getParents() {
+		return $this->parents;
+	}
+	
+	/**
+	 * get parent model at specified index (default 0) 
+	 *
+	 * @return Model|null null if parent model at specified index doesn't exist
+	 */
+	public function getParent($index = 0) {
+		return isset($this->parents[$index]) ? $this->parents[$index] : null;
+	}
+	
+	/**
+	 * get first main parent model that match with all specified parameters.
+	 * the main parent is the parent model at index 0 if exists.
+	 * if a parameter is null, it is not taken in account in match.
+	 *
+	 * @param bool $sameSerializationSettings
+	 * @param bool $isSerializable
+	 * @return Model|null null if no parent model matches
+	 */
+	public function getFirstMainParentMatch($sameSerializationSettings = null, $isSerializable = null) {
+		return $this->_getMainParentMatch($sameSerializationSettings, $isSerializable, true);
+	}
+	
+	/**
+	 * get last main parent model that match with all specified parameters.
+	 * the main parent is the parent model at index 0 if exists.
+	 * if a parameter is null, it is not taken in account in match.
+	 *
+	 * @param bool $sameSerializationSettings
+	 * @param bool $isSerializable
+	 * @return Model|null null if no parent model matches
+	 */
+	public function getLastMainParentMatch($sameSerializationSettings = null, $isSerializable = null) {
+		return $this->_getMainParentMatch($sameSerializationSettings, $isSerializable, false);
 	}
 	
 	/**
 	 * get first parent model that match with all specified parameters.
 	 * if a parameter is null, it is not taken in account in match.
-	 *
-	 * @param bool $sameSerialization
-	 * @param bool $isSerializable
-	 * @return Model|null null if no parent model matches
-	 */
-	public function getFirstParentMatch($sameSerialization = null, $isSerializable = null) {
-		return $this->getParentMatch($sameSerialization, $isSerializable, true);
-	}
-	
-	/**
-	 * get last parent model that match with all specified parameters.
-	 * if a parameter is null, it is not taken in account in match.
-	 *
-	 * @param bool $sameSerialization
-	 * @param bool $isSerializable
-	 * @return Model|null null if no parent model matches
-	 */
-	public function getLastParentMatch($sameSerialization = null, $isSerializable = null) {
-		return $this->getParentMatch($sameSerialization, $isSerializable, false);
-	}
-	
-	/**
-	 * get first parent model that match with all specified parameters.
-	 * if a parameter is null, it is not taken in account in match.
 	 * 
-	 * @param bool $sameSerialization
+	 * @param bool $sameSerializationSettings
 	 * @param bool $isSerializable
 	 * @param bool $first if true stop at first parent match otherwise coninue to last parent match
 	 * @return Model|null null if no parent model matches
 	 */
-	private function getParentMatch($sameSerialization, $isSerializable, $first) {
+	private function _getMainParentMatch($sameSerializationSettings, $isSerializable, $first) {
 		$model = $this;
 		$parentMatch = null;
 		$serializationSettings = $this->getSerializationSettings();
@@ -339,8 +357,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					continue;
 				}
 			}
-			if (!is_null($sameSerialization)) {
-				if ((!is_null($parentSerialization) && $parentSerialization->getSettings() === $serializationSettings) !== $sameSerialization) {
+			if (!is_null($sameSerializationSettings)) {
+				if (($model->getSerializationSettings() === $serializationSettings) !== $sameSerializationSettings) {
 					continue;
 				}
 			}
@@ -353,12 +371,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * verify if model extends from another one
+	 * verify if model extends from at least another one
 	 * 
 	 * @return boolean
 	 */
 	public function hasParent() {
-		return !is_null($this->parent);
+		return !empty($this->parents);
 	}
 	
 	/**
@@ -368,11 +386,15 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return boolean
 	 */
 	public function isInheritedFrom(Model $model) {
-		$currentModel = $this;
 		$isInherited = false;
-		while (!is_null($currentModel->parent) && !$isInherited) {
-			$isInherited = $model === $currentModel->parent;
-			$currentModel = $currentModel->parent;
+		foreach ($this->getParents() as $parent) {
+			$isInherited = $model === $parent;
+			if (!$isInherited) {
+				$isInherited = $parent->isInheritedFrom($model);
+			}
+			if ($isInherited) {
+				break;
+			}
 		}
 		return $isInherited;
 	}
@@ -528,7 +550,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * get foreign properties that have their own serialization
 	 * 
-	 * @param string $serializationType ("Comhon\SqlTable", "Comhon\JsonFile"...)
+	 * @param string $serializationType ("Comhon\SqlTable", "Comhon\File\JsonFile"...)
 	 * @return \Comhon\Model\Property\Property[]
 	 */
 	public function getForeignSerializableProperties($serializationType) {
@@ -924,41 +946,33 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
 	protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer) {
-		if (!$this->hasIdProperties()) {
-			throw new ComhonException("cannot import id, actual model '{$this->getUniqueModel()->getName()}' doesn't have id");
+		$model = $object->getModel();
+		if (!$model->hasIdProperties()) {
+			throw new ComhonException("cannot export id, actual model '{$model->getName()}' doesn't have id");
 		}
-		if (!$interfacer->isPrivateContext() && $this->hasPrivateIdProperty()) {
+		if (!$interfacer->isPrivateContext() && $model->hasPrivateIdProperty()) {
 			throw new ComhonException(
 				'Cannot export private id in public context. '
 				. 'You MUST define foreign property as private if related model has private id.'
 			);
 		}
-		if ($object->getModel() !== $this) {
-			if (!$object->getModel()->isInheritedFrom($this)) {
-				throw new UnexpectedModelException($this, $object->getModel());
+		if ($model !== $this) {
+			if (!$model->isInheritedFrom($this)) {
+				throw new UnexpectedModelException($this, $model);
 			}
 			$exportedId = $interfacer->createNode($nodeName);
-			$interfacer->setValue($exportedId, $object->getModel()->_toInterfacedId($object, $interfacer), Interfacer::COMPLEX_ID_KEY);
-			$interfacer->setValue($exportedId, $object->getModel()->getName(), Interfacer::INHERITANCE_KEY);
+			$interfacer->setValue($exportedId, self::_toInterfacedId($object, $interfacer), Interfacer::COMPLEX_ID_KEY);
+			$interfacer->setValue($exportedId, $model->getName(), Interfacer::INHERITANCE_KEY);
 		} else {
-			$exportedId = $this->_toInterfacedId($object, $interfacer);
+			$exportedId = self::_toInterfacedId($object, $interfacer);
 		}
 		
-		if ($this->isMain && $interfacer->hasToExportMainForeignObjects()) {
-			if ($object->getModel() === $this) {
-				$model = $this;
-			} else {
-				if (!$object->getModel()->isInheritedFrom($this)) {
-					throw new UnexpectedModelException($this, $object->getModel());
-				}
-				$model = $object->getModel();
-			}
-			$valueId   = $this->_toInterfacedId($object, $interfacer);
-			$modelName = $model->getName();
+		if ($model->isMain() && $interfacer->hasToExportMainForeignObjects()) {
+			$valueId   = self::_toInterfacedId($object, $interfacer);
 			
-			if (!$interfacer->hasMainForeignObject($modelName, $valueId)) {
-				$interfacer->addMainForeignObject($interfacer->createNode('empty'), $valueId, $object->getModel());
-				$interfacer->addMainForeignObject($model->_export($object, 'root', $interfacer, true), $valueId, $object->getModel());
+			if (!$interfacer->hasMainForeignObject($model->getName(), $valueId)) {
+				$interfacer->addMainForeignObject($interfacer->createNode('empty'), $valueId, $model);
+				$interfacer->addMainForeignObject($model->_export($object, 'root', $interfacer, true), $valueId, $model);
 			}
 		}
 		return $exportedId;
@@ -1449,9 +1463,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @throws \Exception
 	 * @return integer|string
 	 */
-	public function _toInterfacedId(UniqueObject $object, Interfacer $interfacer) {
+	private static function _toInterfacedId(UniqueObject $object, Interfacer $interfacer) {
 		if (!$object->hasCompleteId()) {
-			throw new ComhonException("cannot export id of foreign property with model '{$this->modelName}' because object doesn't have complete id");
+			throw new ComhonException("cannot export id of foreign property with model '{$object->getModel()->getName()}' because object doesn't have complete id");
 		}
 		return $object->getId();
 	}

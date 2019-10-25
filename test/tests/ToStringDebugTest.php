@@ -15,11 +15,11 @@ $testDb->unsetValue('childrenTestDb', false);
 $testDb->unsetValue('defaultValue', false);
 
 if (Config::getInstance()->getManifestFormat() == 'json') {
-	$first = '#1014';
-	$second = '#1002';
-} else {
 	$first = '#1012';
-	$second = '#997';
+	$second = '#1000';
+} else {
+	$first = '#1010';
+	$second = '#995';
 }
 $varDumpContent = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'object_var_dump.txt');
 $varDumpContent = str_replace(['#_1', '#_2'], [$first, $second], $varDumpContent);
@@ -29,7 +29,7 @@ var_dump($testDb);
 $var_dump_content = ob_get_clean();
 
 if ($var_dump_content !== $varDumpContent) {
-	throw new \Exception('bad value var_dump()');
+	throw new \Exception('bad value var_dump()'.PHP_EOL.$var_dump_content);
 }
 if ($testDb->__toString() !== file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'object_to_string.json')) {
 	throw new \Exception('bad value __toString()');
