@@ -1,3 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest extends="\Comhon\File" version="2.0" is_main="1">
+<manifest version="3.0" is_main="1">
+  <extends>
+    <type>\Comhon\File</type>
+  </extends>
 </manifest>

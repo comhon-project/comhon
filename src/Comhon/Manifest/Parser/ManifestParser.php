@@ -77,12 +77,12 @@ abstract class ManifestParser {
 	
 	/** @var boolean */
 	protected $castValues;
-
-	/** @var boolean */
-	protected $focusLocalTypes = false;
 	
-	/** @var array */
-	protected $localTypes;
+	/** @var string */
+	protected $namespace;
+	
+	/** @var boolean */
+	protected $isLocal;
 	
 	/** @var array */
 	private $currentProperties;
@@ -125,11 +125,11 @@ abstract class ManifestParser {
 	abstract public function getObjectClass();
 	
 	/**
-	 * get current local model name
-	 * 
-	 * @return string
+	 * get manifest parsers that will permit to build all local models
+	 *
+	 * @return ManifestParser[]
 	 */
-	abstract public function getCurrentLocalModelName();
+	abstract public function getLocalModelManifestParsers();
 	
 	/**
 	 * get current property model name
@@ -138,13 +138,6 @@ abstract class ManifestParser {
 	 */
 	abstract public function getCurrentPropertyModelName();
 
-	/**
-	 * get local types
-	 * 
-	 * @return mixed[]
-	 */
-	abstract protected function _getLocalTypes();
-	
 	/**
 	 * get current properties
 	 * 
@@ -187,19 +180,37 @@ abstract class ManifestParser {
 	abstract protected function _isCurrentPropertyForeign();
 	
 	/**
-	 * @param string $manifestPath_afe
+	 * @param mixed $manifest
+	 * @param boolean $isLocal
+	 * @param string $namespace
 	 * @param string $serializationManifestPath_afe
+	 * @param boolean $init
 	 */
-	final public function __construct($manifest, $serializationManifestPath_afe = null) {
-		$this->interfacer        = $this->_getInterfacer($manifest);
-		$this->manifest          = $manifest;
-		$this->currentProperties = $this->_getCurrentProperties();
-		$this->localTypes        = $this->_getLocalTypes();
-		$this->castValues        = ($this->interfacer instanceof NoScalarTypedInterfacer);
+	final public function __construct($manifest, $isLocal, $namespace, $serializationManifestPath_afe = null, $init = true) {
+		$this->manifest = $manifest;
+		$this->isLocal = $isLocal;
+		$this->namespace = $namespace;
 		
+		if ($init) {
+			$this->_init();
+		}
 		if (!is_null($serializationManifestPath_afe)) {
 			$this->serializationManifestParser = SerializationManifestParser::getInstance($serializationManifestPath_afe);
 		}
+	}
+	
+	private function _init() {
+		$this->interfacer = $this->_getInterfacer($this->manifest);
+		$this->castValues = ($this->interfacer instanceof NoScalarTypedInterfacer);
+	}
+	
+	/**
+	 * get namespace used for current manifest
+	 *
+	 * @return string
+	 */
+	public function getNamespace() {
+		return $this->namespace;
 	}
 	
 	/**
@@ -212,66 +223,14 @@ abstract class ManifestParser {
 	}
 	
 	/**
-	 * get local model count
-	 * 
-	 * @return integer
-	 */
-	public function getLocalModelCount() {
-		return count($this->localTypes);
-	}
-	
-	/**
-	 * is currently focus on local model
-	 * 
-	 * @return boolean
-	 */
-	public function isFocusOnLocalModel() {
-		return $this->focusLocalTypes;
-	}
-	
-	/**
-	 * activate focus on local models
-	 * 
-	 * @throws \Exception
-	 */
-	public function activateFocusOnLocalModels() {
-		reset($this->localTypes);
-		$this->focusLocalTypes   = true;
-		$this->currentProperties = $this->_getCurrentProperties();
-	}
-	
-	/**
-	 * desactivate focus on local models
-	 *
-	 * @throws \Exception
-	 */
-	public function desactivateFocusOnLocalModels() {
-		reset($this->localTypes);
-		$this->focusLocalTypes   = false;
-		$this->currentProperties = $this->_getCurrentProperties();
-	}
-	
-	/**
-	 * go to next local model
-	 * 
-	 * @throws \Exception
-	 * @return boolean false if there is no next local model
-	 */
-	public function nextLocalModel() {
-		if ($this->focusLocalTypes && (next($this->localTypes) !== false)) {
-			$this->currentProperties = $this->_getCurrentProperties();
-			
-			return true;
-		}
-		return false;
-	}
-	
-	/**
 	 * go to next property
 	 * 
 	 * @return boolean false if there is no next property
 	 */
 	public function nextProperty() {
+		if (is_null($this->currentProperties)) {
+			$this->currentProperties = $this->_getCurrentProperties();
+		}
 		return next($this->currentProperties) !== false;
 	}
 	
@@ -281,6 +240,9 @@ abstract class ManifestParser {
 	 * @return mixed
 	 */
 	protected function _getCurrentPropertyNode() {
+		if (is_null($this->currentProperties)) {
+			$this->currentProperties = $this->_getCurrentProperties();
+		}
 		if (!current($this->currentProperties)) {
 			throw new ComhonException('current property is out of range');
 		}
@@ -293,6 +255,9 @@ abstract class ManifestParser {
 	 * @return integer
 	 */
 	public function getCurrentPropertiesCount() {
+		if (is_null($this->currentProperties)) {
+			$this->currentProperties = $this->_getCurrentProperties();
+		}
 		return count($this->currentProperties);
 	}
 	
@@ -366,7 +331,7 @@ abstract class ManifestParser {
 	 *     3 : true if property is serialized in several properties
 	 */
 	private function _getBaseSerializationInfosProperty($propertyName) {
-		if (!$this->focusLocalTypes && !is_null($this->serializationManifestParser)) {
+		if (!is_null($this->serializationManifestParser)) {
 			return $this->serializationManifestParser->getPropertySerializationInfos($propertyName);
 		}
 		return [null, null, true, []];
@@ -377,10 +342,11 @@ abstract class ManifestParser {
 	 * 
 	 * @param string $manifestPath_afe
 	 * @param string $serializationManifestPath_afe
+	 * @param string $namespace
 	 * @throws \Exception
 	 * @return ManifestParser
 	 */
-	public static function getInstance($manifestPath_afe, $serializationManifestPath_afe) {
+	public static function getInstance($manifestPath_afe, $serializationManifestPath_afe, $namespace) {
 		switch (mb_strtolower(pathinfo($manifestPath_afe, PATHINFO_EXTENSION))) {
 			case 'xml':
 				$interfacer = new XMLInterfacer();
@@ -391,7 +357,7 @@ abstract class ManifestParser {
 			default:
 				throw new ManifestException('extension not recognized for manifest file : '.$manifestPath_afe);
 		}
-		return self::_getInstanceWithInterfacer($manifestPath_afe, $serializationManifestPath_afe, $interfacer);
+		return self::_getInstanceWithInterfacer($manifestPath_afe, $serializationManifestPath_afe, $namespace, $interfacer);
 	}
 	
 	/**
@@ -418,11 +384,12 @@ abstract class ManifestParser {
 	 *
 	 * @param string $manifestPath_afe
 	 * @param string $serializationManifestPath_afe
+	 * @param string $namespace
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
 	 * @return ManifestParser
 	 */
-	private static function _getInstanceWithInterfacer($manifestPath_afe, $serializationManifestPath_afe, Interfacer $interfacer) {
+	private static function _getInstanceWithInterfacer($manifestPath_afe, $serializationManifestPath_afe, $namespace, Interfacer $interfacer) {
 		$manifest = $interfacer->read($manifestPath_afe);
 		
 		if ($manifest === false || is_null($manifest)) {
@@ -434,8 +401,8 @@ abstract class ManifestParser {
 		}
 		$version = (string) $interfacer->getValue($manifest, 'version');
 		switch ($version) {
-			case '2.0': return new V_2_0\ManifestParser($manifest, $serializationManifestPath_afe, $interfacer);
-			case '3.0': return new V_3_0\ManifestParser($manifest, $serializationManifestPath_afe, $interfacer);
+			case '2.0': return new V_2_0\ManifestParser($manifest, false, $namespace, $serializationManifestPath_afe);
+			case '3.0': return new V_3_0\ManifestParser($manifest, false, $namespace, $serializationManifestPath_afe);
 			default:    throw new ManifestException("version $version not recognized for manifest $manifestPath_afe");
 		}
 	}

@@ -5,9 +5,15 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Object\Config\Config;
+use Test\Comhon\Data;
 
 class AssociativeArrayTest extends TestCase
 {
+	public static function setUpBeforeClass()
+	{
+		Config::setLoadPath(Data::$config);
+	}
 	
 	public function testAssociativeArray()
 	{

@@ -1,5 +1,5 @@
 {
-    "version": "2.0",
+    "version": "3.0",
     "is_serializable": true,
     "types": [
         {
@@ -17,7 +17,9 @@
         },
         {
             "name": "Tatoo",
-            "extends": "Art",
+            "extends": [
+                "Art"
+            ],
             "properties": [
                 {
                     "name": "tatooArtist",
@@ -28,7 +30,9 @@
         },
         {
             "name": "Piercing",
-            "extends": "Art",
+            "extends": [
+                "Art"
+            ],
             "properties": [
                 {
                     "name": "piercer",

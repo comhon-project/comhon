@@ -1,0 +1,8 @@
+<manifest version="3.0" is_serializable="1">
+  <extends>
+    <type>\Test\Extends\Loop\LoopOne</type>
+  </extends>
+  <properties>
+    <property type="integer" is_id="1" name="id"/>
+  </properties>
+</manifest>

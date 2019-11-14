@@ -1,0 +1,14 @@
+{
+    "version": "3.0",
+    "extends": [
+        "\\Test\\Extends\\Loop\\LoopOne"
+    ],
+    "is_serializable": true,
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        }
+    ]
+}

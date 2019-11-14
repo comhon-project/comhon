@@ -1,0 +1,52 @@
+{
+    "version": "3.0",
+    "extends": [
+        "\\Test\\Extends\\Loop\\LoopTwo"
+    ],
+    "is_serializable": true,
+    "types": [
+        {
+            "name": "LocalLoopOne",
+            "extends": [
+                "LocalLoopTwo"
+            ],
+            "properties": [
+                {
+                    "name": "property",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "LocalLoopTwo",
+            "extends": [
+                "LocalLoopThree"
+            ],
+            "properties": [
+                {
+                    "name": "loopIntermediateProperty",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "LocalLoopThree",
+            "extends": [
+                "LocalLoopOne"
+            ],
+            "properties": [
+                {
+                    "name": "loopProperty",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        }
+    ]
+}

@@ -70,7 +70,6 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 		
 		if (!empty($this->nullElements) && !is_null($this->mainForeignObjects)) {
 			$this->domDocument->appendChild($this->mainForeignObjects);
-			//var_dump($this->toString($this->mainForeignObjects));
 			
 			try {
 				$this->domDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);

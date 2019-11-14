@@ -6,9 +6,16 @@ use Comhon\Exception\Serialization\UniqueException;
 use Comhon\Database\DatabaseHandler;
 use Comhon\Exception\Serialization\ForeignValueException;
 use Comhon\Exception\Serialization\NotNullException;
+use Test\Comhon\Data;
+use Comhon\Object\Config\Config;
 
 class DbConstraintTest extends TestCase
 {
+	public static function setUpBeforeClass()
+	{
+		Config::setLoadPath(Data::$config);
+	}
+	
 	/**
 	 * @beforeClass
 	 * @afterClass

@@ -1,0 +1,49 @@
+{
+    "version": "3.0",
+    "extends": [
+        "Itself"
+    ],
+    "is_serializable": true,
+    "types": [
+        {
+            "name": "One",
+            "extends": [
+                "Two"
+            ],
+            "properties": [
+                {
+                    "name": "booleanProperty",
+                    "type": "boolean"
+                }
+            ]
+        },
+        {
+            "name": "Two",
+            "extends": [
+                "Itself\\Itself"
+            ],
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "is_id": true
+                },
+                {
+                    "name": "integerProperty",
+                    "type": "integer"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "floatProperty",
+            "type": "float"
+        }
+    ]
+}

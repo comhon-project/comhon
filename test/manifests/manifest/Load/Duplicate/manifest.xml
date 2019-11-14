@@ -1,0 +1,13 @@
+<manifest version="3.0">
+  <types>
+    <type name="Local">
+      <properties>
+        <property type="string" name="localOne"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="string" is_id="1" name="name"/>
+    <property type="string" name="stringProperty"/>
+  </properties>
+</manifest>

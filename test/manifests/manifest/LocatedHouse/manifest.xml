@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0" is_serializable="1">
-	<properties>
-		<property type="integer" is_id="1" name="id"/>
-		<property type="float" name="surface"/>
-		<property type="string" name="type"/>
-		<property type="boolean" name="garden"/>
-		<property type="boolean" name="garage"/>
-		<property is_foreign="1" type="array" name="residents">
-			<values type="\Test\Home" name="resident"/>
-		</property>
-		<property is_foreign="1" type="\Test\Place" name="address"/>
-	</properties>
+<manifest version="3.0" is_serializable="1">
+  <properties>
+    <property type="integer" is_id="1" name="id"/>
+    <property type="float" name="surface"/>
+    <property type="string" name="type"/>
+    <property type="boolean" name="garden"/>
+    <property type="boolean" name="garage"/>
+    <property is_foreign="1" type="array" name="residents">
+      <values type="\Test\Home" name="resident"/>
+    </property>
+    <property is_foreign="1" type="\Test\Place" name="address"/>
+  </properties>
 </manifest>

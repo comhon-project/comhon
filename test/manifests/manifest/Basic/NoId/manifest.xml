@@ -1,0 +1,20 @@
+<manifest version="3.0">
+  <types>
+    <type name="ObjectContainer">
+      <properties>
+        <property type="Object" name="objectProperty"/>
+      </properties>
+    </type>
+    <type name="Object">
+      <properties>
+        <property type="string" is_id="1" name="id"/>
+        <property type="string" name="propertyOne"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="string" name="stringProperty"/>
+    <property type="float" name="floatProperty"/>
+    <property type="ObjectContainer" name="objectContainerProperty"/>
+  </properties>
+</manifest>

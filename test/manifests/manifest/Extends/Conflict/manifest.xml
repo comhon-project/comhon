@@ -1,0 +1,42 @@
+<manifest version="3.0" is_serializable="1">
+  <types>
+    <type name="One">
+      <extends>
+        <type>\Test\Extends\Conflict</type>
+      </extends>
+      <properties>
+        <property type="string" name="integerProperty"/>
+      </properties>
+    </type>
+    <type name="Two">
+      <extends>
+        <type>\Test\Extends\Conflict</type>
+      </extends>
+      <properties>
+        <property type="integer" name="integerProperty"/>
+      </properties>
+    </type>
+    <type name="Three">
+      <extends>
+        <type>\Test\Extends\Conflict</type>
+      </extends>
+      <properties>
+        <property type="integer" name="integerProperty" interval="[0,2]"/>
+      </properties>
+    </type>
+    <type name="Four">
+      <extends>
+        <type>Five</type>
+        <type>\Test\Extends\Conflict</type>
+      </extends>
+    </type>
+    <type name="Five">
+      <properties>
+        <property type="float" name="integerProperty"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="integer" name="integerProperty" interval="[0,]"/>
+  </properties>
+</manifest>

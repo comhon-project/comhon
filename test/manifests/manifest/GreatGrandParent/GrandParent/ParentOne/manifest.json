@@ -1,7 +1,9 @@
 {
-    "version": "2.0",
+    "version": "3.0",
+    "extends": [
+        "\\Test\\GreatGrandParent\\GrandParent"
+    ],
     "is_serializable": false,
-    "extends": "\\Test\\GreatGrandParent\\GrandParent",
     "properties": [
         {
             "name": "parentOne",
@@ -9,10 +11,6 @@
         }
     ],
     "inheritance_requestables": [
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild"
-    ],
-    "inheritance_values": [
         "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
         "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild"
     ]

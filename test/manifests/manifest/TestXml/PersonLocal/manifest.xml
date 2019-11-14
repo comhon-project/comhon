@@ -1,36 +1,36 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-
-	<types>
-		<type name="ObjectWithId">
-			<properties>
-				<property type="string" is_id="1" name="plop"/>
-				<property type="string" name="plop2"/>
-			</properties>
-		</type>
-		<type name="ObjectWithIdAndMore" extends="ObjectWithId">
-			<properties>
-				<property type="string" is_private="1" name="plop3"/>
-			</properties>
-		</type>
-	</types>
-
-	<properties>
-		<property type="string" is_id="1" name="id"/>
-		<property type="string" name="firstName"/>
-		<property type="string" name="lastName"/>
-		<property type="dateTime" name="birthDate"/>
-		<property is_foreign="1" type="\Test\Place" name="birthPlace"/>
-		<property is_foreign="1" type="\Test\Person" name="bestFriend"/>
-		<property is_foreign="1" type="\Test\Person\Man" name="father"/>
-		<property is_foreign="1" type="\Test\Person\Woman" name="mother"/>
-		<property is_foreign="1" type="array" name="children">
-			<values type="\Test\Person" name="child"/>
-		</property>
-		<property is_foreign="1" type="array" name="homes">
-			<values type="\Test\Home" name="home"/>
-		</property>
-		<property type="ObjectWithIdAndMore" name="anObjectWithIdAndMore"/>
-		<property type="Recursive" name="recursiveLocal"/>
-	</properties>
+<manifest version="3.0">
+  <types>
+    <type name="ObjectWithId">
+      <properties>
+        <property type="string" is_id="1" name="plop"/>
+        <property type="string" name="plop2"/>
+      </properties>
+    </type>
+    <type name="ObjectWithIdAndMore">
+      <extends>
+        <type>ObjectWithId</type>
+      </extends>
+      <properties>
+        <property type="string" is_private="1" name="plop3"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="string" is_id="1" name="id"/>
+    <property type="string" name="firstName"/>
+    <property type="string" name="lastName"/>
+    <property type="dateTime" name="birthDate"/>
+    <property is_foreign="1" type="\Test\Place" name="birthPlace"/>
+    <property is_foreign="1" type="\Test\Person" name="bestFriend"/>
+    <property is_foreign="1" type="\Test\Person\Man" name="father"/>
+    <property is_foreign="1" type="\Test\Person\Woman" name="mother"/>
+    <property is_foreign="1" type="array" name="children">
+      <values type="\Test\Person" name="child"/>
+    </property>
+    <property is_foreign="1" type="array" name="homes">
+      <values type="\Test\Home" name="home"/>
+    </property>
+    <property type="ObjectWithIdAndMore" name="anObjectWithIdAndMore"/>
+    <property type="Recursive" name="recursiveLocal"/>
+  </properties>
 </manifest>

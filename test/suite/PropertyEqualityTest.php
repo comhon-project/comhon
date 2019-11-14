@@ -10,9 +10,15 @@ use Comhon\Model\Restriction\Enum;
 use Comhon\Model\Property\RestrictedProperty;
 use Comhon\Model\ModelRestrictedArray;
 use Comhon\Model\Restriction\Interval;
+use Test\Comhon\Data;
+use Comhon\Object\Config\Config;
 
 class PropertyEqualityTest extends TestCase
 {
+	public static function setUpBeforeClass()
+	{
+		Config::setLoadPath(Data::$config);
+	}
 	
 	public function testSimpleProperty()
 	{

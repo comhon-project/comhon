@@ -111,12 +111,12 @@ if ($bodyTatooModel->getName() !== 'Test\Body\Tatoo') {
 
 $throw = false;
 try {
-	ModelManager::getInstance()->getInstanceModel('Test\Body\Woman\Tatouage');
+	ModelManager::getInstance()->getInstanceModel('Test\Body\Woman\Tatoo');
 	$throw = true;
 } catch (ComhonException $e) {
 }
 if ($throw) {
-	throw new \Exception('get instance model with local model \'tatouage\' should fail');
+	throw new \Exception('get instance model with local model \'Tatoo\' should fail');
 }
 
 

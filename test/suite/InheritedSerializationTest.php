@@ -3,9 +3,15 @@
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\ComhonObject;
+use Test\Comhon\Data;
+use Comhon\Object\Config\Config;
 
 class InheritedSerializationTest extends TestCase
 {
+	public static function setUpBeforeClass()
+	{
+		Config::setLoadPath(Data::$config);
+	}
 	
 	public function testParentSerializationInstance()
 	{

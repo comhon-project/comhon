@@ -1,6 +1,8 @@
 {
-    "version": "2.0",
-    "extends": "\\Test\\Body\\ManJson",
+    "version": "3.0",
+    "extends": [
+        "\\Test\\Body\\ManJson"
+    ],
     "is_serializable": true,
     "properties": [
         {

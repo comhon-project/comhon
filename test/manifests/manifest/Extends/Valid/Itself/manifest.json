@@ -1,0 +1,29 @@
+{
+    "version": "3.0",
+    "is_serializable": true,
+    "types": [
+        {
+            "name": "Itself",
+            "extends": [
+                "\\Test\\Extends\\Valid\\Itself"
+            ],
+            "properties": [
+                {
+                    "name": "floatProperty",
+                    "type": "float"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "stringProperty",
+            "type": "string"
+        }
+    ]
+}

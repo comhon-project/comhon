@@ -4,9 +4,15 @@ use PHPUnit\Framework\TestCase;
 use Comhon\Database\SelectQuery;
 use Comhon\Database\DatabaseHandler;
 use Comhon\Request\ComplexLoadRequest;
+use Test\Comhon\Data;
+use Comhon\Object\Config\Config;
 
 class CountRequestTest extends TestCase
 {
+	public static function setUpBeforeClass()
+	{
+		Config::setLoadPath(Data::$config);
+	}
 	
 	public function testCountSelectQueryMySql()
 	{

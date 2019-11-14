@@ -87,8 +87,11 @@ function transformManifest($xml, $dir) {
 		$json->object = (string) $xml['object'];
 	}
 	
-	if (isset($xml['extends'])) {
-		$json->extends = (string) $xml['extends'];
+	if (isset($xml->extends)) {
+		$json->extends = [];
+		foreach ($xml->extends->children() as $extends) {
+			$json->extends[] = (string) $extends;
+		}
 	}
 	
 	if (isset($xml['is_main'])) {
@@ -115,9 +118,13 @@ function transformManifest($xml, $dir) {
 			if (isset($type['object'])) {
 				$typeObj->object = (string) $type['object'];
 			}
-			if (isset($type['extends'])) {
-				$typeObj->extends = (string) $type['extends'];
+			if (isset($type->extends)) {
+				$typeObj->extends = [];
+				foreach ($type->extends->children() as $extends) {
+					$typeObj->extends[] = (string) $extends;
+				}
 			}
+			
 			$typeObj->properties = getProperties($type->properties);
 			$json->types[] = $typeObj;
 		}

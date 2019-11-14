@@ -31,8 +31,12 @@ if (json_encode($testModel->getPropertiesNames()) !== '["name","stringValue","fl
 }
 
 /** ******************** test local model 'personLocal' load status ******************** **/
-if (!ModelManager::getInstance()->hasInstanceModel('Test\Test\PersonLocal')) {
+if (!ModelManager::getInstance()->hasInstanceModel('Test\Test\ObjectContainer')) {
 	throw new \Exception('model not initialized');
+}
+ModelManager::getInstance()->getInstanceModel('Test\Test\ObjectContainer');
+if (!ModelManager::getInstance()->hasInstanceModel('Test\Test\PersonLocal')) {
+	throw new \Exception('model not initialized 1');
 }
 if (ModelManager::getInstance()->hasInstanceModelLoaded('Test\Test\PersonLocal')) {
 	throw new \Exception('model must be not loaded');

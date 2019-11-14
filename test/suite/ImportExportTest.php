@@ -5,9 +5,15 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
+use Test\Comhon\Data;
+use Comhon\Object\Config\Config;
 
 class ImportExportTest extends TestCase
 {
+	public static function setUpBeforeClass()
+	{
+		Config::setLoadPath(Data::$config);
+	}
 	
 	public function testThrowExceptionImport()
 	{

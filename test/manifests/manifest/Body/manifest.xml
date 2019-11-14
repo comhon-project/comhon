@@ -1,49 +1,54 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0" is_serializable="1">
-	<types>
-		<type name="Art">
-			<properties>
-				<property type="string" name="type"/>
-				<property type="string" name="location"/>
-			</properties>
-		</type>
-		<type name="Tatoo" extends="Art">
-			<properties>
-				<property is_foreign="1" type="\Test\Person" name="tatooArtist"/>
-			</properties>
-		</type>
-		<type name="Piercing" extends="Art">
-			<properties>
-				<property is_foreign="1" type="\Test\Person" name="piercer"/>
-			</properties>
-		</type>
-	</types>
-	<properties>
-		<property type="integer" is_id="1" name="id"/>
-		<property type="dateTime" name="date"/>
-		<property type="float" name="height"/>
-		<property type="float" name="weight"/>
-		<property type="string" name="hairColor"/>
-		<property type="string" name="hairCut"/>
-		<property type="string" name="eyesColor"/>
-		<property type="string" name="physicalAppearance">
-			<enum>
-				<value>slim</value>
-				<value>average</value>
-				<value>athletic</value>
-				<value>muscular</value>
-				<value>fat</value>
-			</enum>
-		</property>
-		<property type="array" name="tatoos">
-			<values type="\Test\Body\Tatoo" name="tatoo"/>
-		</property>
-		<property type="array" name="piercings">
-			<values type="Piercing" name="piercing"/>
-		</property>
-		<property type="array" name="arts">
-			<values type="Art" name="art"/>
-		</property>
-		<property is_foreign="1" type="\Test\Person" name="owner"/>
-	</properties>
+<manifest version="3.0" is_serializable="1">
+  <types>
+    <type name="Art">
+      <properties>
+        <property type="string" name="type"/>
+        <property type="string" name="location"/>
+      </properties>
+    </type>
+    <type name="Tatoo">
+      <extends>
+        <type>Art</type>
+      </extends>
+      <properties>
+        <property is_foreign="1" type="\Test\Person" name="tatooArtist"/>
+      </properties>
+    </type>
+    <type name="Piercing">
+      <extends>
+        <type>Art</type>
+      </extends>
+      <properties>
+        <property is_foreign="1" type="\Test\Person" name="piercer"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="integer" is_id="1" name="id"/>
+    <property type="dateTime" name="date"/>
+    <property type="float" name="height"/>
+    <property type="float" name="weight"/>
+    <property type="string" name="hairColor"/>
+    <property type="string" name="hairCut"/>
+    <property type="string" name="eyesColor"/>
+    <property type="string" name="physicalAppearance">
+      <enum>
+        <value>slim</value>
+        <value>average</value>
+        <value>athletic</value>
+        <value>muscular</value>
+        <value>fat</value>
+      </enum>
+    </property>
+    <property type="array" name="tatoos">
+      <values type="\Test\Body\Tatoo" name="tatoo"/>
+    </property>
+    <property type="array" name="piercings">
+      <values type="Piercing" name="piercing"/>
+    </property>
+    <property type="array" name="arts">
+      <values type="Art" name="art"/>
+    </property>
+    <property is_foreign="1" type="\Test\Person" name="owner"/>
+  </properties>
 </manifest>

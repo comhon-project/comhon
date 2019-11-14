@@ -34,6 +34,9 @@ use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Visitor\ObjectCollectionCreator;
 use Comhon\Exception\Model\CastComhonObjectException;
 use Comhon\Serialization\Serialization;
+use Comhon\Manifest\Parser\ManifestParser;
+use Comhon\Exception\Model\NotDefinedModelException;
+use Comhon\Exception\Model\AlreadyUsedModelNameException;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -95,6 +98,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var boolean */
 	private $hasPrivateIdProperty = false;
 	
+	private $manifestParser;
+	
 	/**
 	 * don't instanciate a model by yourself because it take time.
 	 * to get a model instance use singleton ModelManager.
@@ -116,31 +121,28 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		}
 		try {
 			$this->isLoading = true;
-			$result = ModelManager::getInstance()->getProperties($this);
-			
-			if (is_null($result)) {
-				// if $result is null that means current loading has been aborted
-				// and a second loading has been completed with success
-				// (this behaviour may be encountered for model defined in manifest local type
-				// and that has been instanciated before manifest loading)
-				if (!$this->isLoaded) {
-					throw new ComhonException("model $this->modelName is not loaded");
+			if (is_null($this->manifestParser)) {
+				ModelManager::getInstance()->addManifestParser($this);
+				if (is_null($this->manifestParser)) {
+					throw new NotDefinedModelException($this->getName());
 				}
-			} else {
-				$this->isMain = $result[ModelManager::IS_MAIN_MODEL];
-				$this->parents = $result[ModelManager::PARENT_MODELS];
-				$this->_setProperties($result[ModelManager::PROPERTIES]);
-				$this->serialization = $result[ModelManager::SERIALIZATION];
-				$this->_verifyIdSerialization();
-				
-				if (!is_null($result[ModelManager::OBJECT_CLASS]) && ($this->objectClass !== $result[ModelManager::OBJECT_CLASS])) {
-					$this->objectClass = $result[ModelManager::OBJECT_CLASS];
-					$this->isExtended = true;
-				}
-				$this->_init();
-				$this->isLoaded  = true;
-				$this->isLoading = false;
 			}
+			$result = ModelManager::getInstance()->getProperties($this, $this->manifestParser);
+			$this->isMain = $result[ModelManager::IS_MAIN_MODEL];
+			$this->parents = $result[ModelManager::PARENT_MODELS];
+			$this->_setProperties($result[ModelManager::PROPERTIES]);
+			$this->serialization = $result[ModelManager::SERIALIZATION];
+			$this->_verifyIdSerialization();
+			
+			if (!is_null($result[ModelManager::OBJECT_CLASS]) && ($this->objectClass !== $result[ModelManager::OBJECT_CLASS])) {
+				$this->objectClass = $result[ModelManager::OBJECT_CLASS];
+				$this->isExtended = true;
+			}
+			$this->_init();
+			$this->isLoaded  = true;
+			$this->isLoading = false;
+			$this->manifestParser = null;
+			
 		} catch (\Exception $e) {
 			// reinitialize attributes if any exception
 			$this->isLoading = false;
@@ -158,21 +160,34 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$this->dateTimeProperties = [];
 			$this->uniqueIdProperty = null;
 			$this->hasPrivateIdProperty = false;
+			$this->manifestParser = null;
 			
 			throw $e;
 		}
 	}
 	
 	/**
-	 * abort local model loading. should not be called handly
+	 * set manifest parser to populate model attributes.
+	 * should be called only during model loading.
 	 * 
+	 * @param ManifestParser $manifestParser
 	 * @throws ComhonException
 	 */
-	public function abortLoading() {
-		if (!$this->isLoading) {
-			throw new ComhonException("model is not loading");
+	public function setManifestParser(ManifestParser $manifestParser) {
+		if (!is_null($this->manifestParser)) {
+			throw new ComhonException('error during model \''.$this->modelName.'\' loading');
 		}
-		$this->isLoading = false;
+		$this->manifestParser = $manifestParser;
+	}
+	
+	/**
+	 * verify if model has a manifest parser set.
+	 * should be called only during model loading.
+	 *
+	 * @return boolean
+	 */
+	public function hasManifestParser() {
+		return !is_null($this->manifestParser);
 	}
 	
 	/**
@@ -432,6 +447,15 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			return substr($name, $pos + 1);
 		}
 		return $name;
+	}
+	
+	/**
+	 * verify if model is loading or not
+	 *
+	 * @return boolean
+	 */
+	public function isLoading() {
+		return $this->isLoading;
 	}
 	
 	/**

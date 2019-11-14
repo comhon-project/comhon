@@ -1,14 +1,13 @@
 {
-    "version": "2.0",
+    "version": "3.0",
+    "extends": [
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne"
+    ],
     "is_serializable": true,
-    "extends": "\\Test\\GreatGrandParent\\GrandParent\\ParentOne",
     "properties": [
         {
             "name": "childOne",
             "type": "string"
         }
-    ],
-    "inheritance_values": [
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild"
     ]
 }

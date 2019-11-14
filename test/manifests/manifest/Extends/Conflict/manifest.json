@@ -1,0 +1,67 @@
+{
+    "version": "3.0",
+    "is_serializable": true,
+    "types": [
+        {
+            "name": "One",
+            "extends": [
+                "\\Test\\Extends\\Conflict"
+            ],
+            "properties": [
+                {
+                    "name": "integerProperty",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Two",
+            "extends": [
+                "\\Test\\Extends\\Conflict"
+            ],
+            "properties": [
+                {
+                    "name": "integerProperty",
+                    "type": "integer"
+                }
+            ]
+        },
+        {
+            "name": "Three",
+            "extends": [
+                "\\Test\\Extends\\Conflict"
+            ],
+            "properties": [
+                {
+                    "name": "integerProperty",
+                    "type": "integer",
+                    "interval": "[0,2]"
+                }
+            ]
+        },
+        {
+            "name": "Four",
+            "extends": [
+                "Five",
+                "\\Test\\Extends\\Conflict"
+            ],
+            "properties": []
+        },
+        {
+            "name": "Five",
+            "properties": [
+                {
+                    "name": "integerProperty",
+                    "type": "float"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "integerProperty",
+            "type": "integer",
+            "interval": "[0,]"
+        }
+    ]
+}

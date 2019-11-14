@@ -66,14 +66,9 @@ class ModelManager {
 	private $instanceSimpleModels;
 	
 	/**
-	 * @var string namespace to apply on local models during manifest parsing
+	 * @var string
 	 */
-	private $currentNamespace;
-	
-	/**
-	 * @var \Comhon\Manifest\Parser\ManifestParser
-	 */
-	private $manifestParser;
+	private $originalModelName;
 	
 	/**
 	 * @var string
@@ -231,8 +226,7 @@ class ModelManager {
 	 */
 	private function _getInstanceModel($modelName, $loadModel) {
 		if (!array_key_exists($modelName, $this->instanceModels)) {
-			$model = new Model($modelName);
-			$this->_addInstanceModel($model);
+			$this->_addInstanceModel(new Model($modelName));
 		}
 		if ($loadModel) {
 			$this->instanceModels[$modelName]->load();
@@ -242,26 +236,33 @@ class ModelManager {
 	
 	/**
 	 * 
-	 * @param string $nameSpacePrefix
-	 * @param string $nameSpaceSuffix
+	 * @param string $fullyQualifiedNamePrefix
+	 * @param string $fullyQualifiedNameSuffix
 	 * @return string
 	 */
-	private function _getManifestPath($nameSpacePrefix, $nameSpaceSuffix) {
-		if (!array_key_exists($nameSpacePrefix, $this->autoloadManifest)) {
-			throw new ComhonException("prefix namespace '$nameSpacePrefix' do not belong to autoload manifest list");
+	private function _getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) {
+		if (!array_key_exists($fullyQualifiedNamePrefix, $this->autoloadManifest)) {
+			throw new ComhonException("prefix namespace '$fullyQualifiedNamePrefix' do not belong to autoload manifest list");
 		}
-		$prefix_ad = substr($this->autoloadManifest[$nameSpacePrefix], 0, 1) == '.'
-			? Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $this->autoloadManifest[$nameSpacePrefix]
-			: $this->autoloadManifest[$nameSpacePrefix];
-		return $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $nameSpaceSuffix) . DIRECTORY_SEPARATOR .'manifest.' . $this->manifestExtension;
+		$prefix_ad = substr($this->autoloadManifest[$fullyQualifiedNamePrefix], 0, 1) == '.'
+			? Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $this->autoloadManifest[$fullyQualifiedNamePrefix]
+			: $this->autoloadManifest[$fullyQualifiedNamePrefix];
+		return $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $fullyQualifiedNameSuffix) . DIRECTORY_SEPARATOR .'manifest.' . $this->manifestExtension;
 	}
-		
-	private function _getSerializationManifestPath($manifest_af, $nameSpacePrefix, $nameSpaceSuffix) {
-		if (array_key_exists($nameSpacePrefix, $this->autoloadSerializationManifest)) {
-			$prefix_ad = substr($this->autoloadSerializationManifest[$nameSpacePrefix], 0, 1) == '.'
-				? Config::getInstance()->getDirectory(). DIRECTORY_SEPARATOR . $this->autoloadSerializationManifest[$nameSpacePrefix]
-				: $this->autoloadSerializationManifest[$nameSpacePrefix];
-			$manifest_af = $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $nameSpaceSuffix) . DIRECTORY_SEPARATOR .'serialization.' . $this->manifestExtension;
+	
+	/**
+	 * 
+	 * @param string $manifest_af
+	 * @param string $fullyQualifiedNamePrefix
+	 * @param string $fullyQualifiedNameSuffix
+	 * @return string|null
+	 */
+	private function _getSerializationManifestPath($manifest_af, $fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) {
+		if (array_key_exists($fullyQualifiedNamePrefix, $this->autoloadSerializationManifest)) {
+			$prefix_ad = substr($this->autoloadSerializationManifest[$fullyQualifiedNamePrefix], 0, 1) == '.'
+				? Config::getInstance()->getDirectory(). DIRECTORY_SEPARATOR . $this->autoloadSerializationManifest[$fullyQualifiedNamePrefix]
+				: $this->autoloadSerializationManifest[$fullyQualifiedNamePrefix];
+			$manifest_af = $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $fullyQualifiedNameSuffix) . DIRECTORY_SEPARATOR .'serialization.' . $this->manifestExtension;
 		} else {
 			$manifest_af = dirname($manifest_af) . DIRECTORY_SEPARATOR .'serialization.' . $this->manifestExtension;
 		}
@@ -269,40 +270,48 @@ class ModelManager {
 	}
 	
 	/**
-	 * load model from "intermediate" manifests. 
-	 * actually specified model is not defined in manifest but it may be defined in another manifest as local type.
+	 * add manifest parser to specified model
 	 * 
 	 * @param \Comhon\Model\Model $model
-	 * @param string $nameSpacePrefix
-	 * @param string $nameSpaceSuffix
 	 */
-	private function _loadModelFromIntermediateManifest(Model $model, $nameSpacePrefix, $nameSpaceSuffix) {
-		$parentNameSpaceSuffix = $nameSpaceSuffix;
+	public function addManifestParser(Model $model) {
+		$fullyQualifiedName = $model->getName();
+		list($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) = $this->_splitModelName($fullyQualifiedName);
+		$separatorOffset = PHP_INT_MAX;
+		$manifestPath_afe = null;
 		
-		// at this point (before following line) the current local model is tagged as loading
-		// so if we try to call load function on it, it will do nothing more
-		// but we will "re"load it through to intermediate manifest 
-		// so we have to abort current loading to be able to truly load it
-		$model->abortLoading();
-		
-		while (($separatorOffset = strrpos($parentNameSpaceSuffix, '\\')) !== false) {
-			$parentNameSpaceSuffix = substr($parentNameSpaceSuffix, 0, $separatorOffset);
-			$parentNameSpace = $nameSpacePrefix . '\\' . $parentNameSpaceSuffix;
-			
-			if (array_key_exists($parentNameSpace, $this->instanceModels)) {
-				$this->instanceModels[$parentNameSpace]->load();
-				$parentNameSpaceSuffix = '';
-			} elseif (file_exists($this->_getManifestPath($nameSpacePrefix, $parentNameSpaceSuffix))) {
-				$this->getInstanceModel($parentNameSpace);
-				$parentNameSpaceSuffix = '';
+		while (is_null($manifestPath_afe) && $separatorOffset !== false) {
+			$tempManifestPath_afe = $this->_getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix);
+			if (file_exists($tempManifestPath_afe)) {
+				$manifestPath_afe = $tempManifestPath_afe;
+			}
+			if (is_null($manifestPath_afe) && ($separatorOffset = strrpos($fullyQualifiedNameSuffix, '\\')) !== false) {
+				$fullyQualifiedNameSuffix = substr($fullyQualifiedNameSuffix, 0, $separatorOffset);
+				$fullyQualifiedName = $fullyQualifiedNamePrefix . '\\' . $fullyQualifiedNameSuffix;
 			}
 		}
-		
-		// current handled model should be loaded during intermediate model loading
-		// if not, that means model doesn't exist.
-		if (!$model->isLoaded()) {
+		if (is_null($manifestPath_afe)) {
 			throw new NotDefinedModelException($model->getName());
 		}
+		$serializationPath_afe  = $this->_getSerializationManifestPath(
+			$manifestPath_afe, 
+			$fullyQualifiedNamePrefix, 
+			$fullyQualifiedNameSuffix
+		);
+		
+		/**
+		 * the model that come from manifest (not necessarily same than $model because $model might be a model from local type)
+		 * @var Model $mainModel
+		 */
+		$mainModel = $this->_getInstanceModel($fullyQualifiedName, false);
+		$manifestParser = ManifestParser::getInstance($manifestPath_afe, $serializationPath_afe, $mainModel->getName());
+		$localTypeManifestParsers = $manifestParser->getLocalModelManifestParsers();
+		
+		if ($mainModel !== $model && !array_key_exists($model->getName(), $localTypeManifestParsers)) {
+			throw new NotDefinedModelException($model->getName());
+		}
+		$mainModel->setManifestParser($manifestParser);
+		$this->_instanciateLocalModels($localTypeManifestParsers);
 	}
 	
 	/**
@@ -351,98 +360,58 @@ class ModelManager {
 	 *     self::SERIALIZATION => \Comhon\Serialization\SerializationUnit|null
 	 * ]
 	 */
-	public function getProperties(Model $model) {
+	public function getProperties(Model $model, ManifestParser $manifestParser) {
 		$return = null;
+		$isOriginalModel = false;
 		
 		try {
-			if (is_null($this->manifestParser) && is_object($this->instanceModels[$model->getName()]) && $this->instanceModels[$model->getName()]->isLoaded()) {
-				$return = [
-					self::IS_MAIN_MODEL  => $model->isMain(),
-					self::PROPERTIES     => $model->getProperties(), 
-					self::PARENT_MODELS  => $model->getParents(),
-					self::OBJECT_CLASS   => $model->getObjectClass(),
-					self::SERIALIZATION  => $model->getSerialization()
-				];
-			}else {
-				if (is_null($this->manifestParser)) {
-					$isLocalType = false;
-					list($prefix, $suffix) = $this->_splitModelName($model->getName());
-					
-					// if manifest file doesn't exists that probably means that we are handling a local type defined in a manifest
-					// so we have to load the "intermediate" model from manifest and so the local model
-					if (!file_exists($this->_getManifestPath($prefix, $suffix))) {
-						$this->_loadModelFromIntermediateManifest($model, $prefix, $suffix);
-						
-						// current handled model loading is stopped because already loaded from intermediate model loading
-						return null;
-					}
-					
-					$manifestPath_afe       = $this->_getManifestPath($prefix, $suffix);
-					$serializationPath_afe  = $this->_getSerializationManifestPath($manifestPath_afe, $prefix, $suffix);
-					$this->manifestParser   = ManifestParser::getInstance($manifestPath_afe, $serializationPath_afe);
-					$this->currentNamespace = $model->getName();
-					$isMain                 = $this->manifestParser->isMain();
-					$isSerializable         = $this->manifestParser->isSerializable();
-					$serialManifestParser   = $this->manifestParser->getSerializationManifestParser();
-					
-					$this->_buildLocalModels();
-				} else {
-					$isLocalType = true;
-					$isMain = false;
-					$isSerializable = false;
-					$serialManifestParser = null;
-				}
-				$parentModels = $this->_getParentModels($model);
-				
-				$return = [
-					self::PARENT_MODELS   => $parentModels,
-					self::OBJECT_CLASS    => $this->manifestParser->getObjectClass(),
-					self::PROPERTIES      => $this->_buildProperties($parentModels, $model),
-				];
-				
-				if (!$isLocalType) {
-					$this->manifestParser = null;
-				}
-				
-				// must be done after set $this->manifestParser to null because new model may be instanciated
-				$return[self::SERIALIZATION] = $isLocalType ? null
-					: $this->_getSerializationInstance($serialManifestParser, $isSerializable, $parentModels);
-				$return[self::IS_MAIN_MODEL] = $return[self::SERIALIZATION] ? true : $isMain;
+			if (isset($this->instanceModels[$model->getName()]) && $this->instanceModels[$model->getName()]->isLoaded()) {
+				throw new ComhonException("function should not be called, model {$model->getName()} already loaded");
+			}
+			if (is_null($this->originalModelName)) {
+				$this->originalModelName = $model->getName();
+				$isOriginalModel = true;
+			}
+			$parentModels = $this->_getParentModels($model, $manifestParser);
+			
+			$return = [
+				self::PARENT_MODELS => $parentModels,
+				self::OBJECT_CLASS => $manifestParser->getObjectClass(),
+				self::PROPERTIES => $this->_buildProperties($parentModels, $model, $manifestParser),
+			];
+			
+			$return[self::SERIALIZATION] = $this->_getSerializationInstance(
+				$manifestParser, 
+				$manifestParser->getSerializationManifestParser(), 
+				$manifestParser->isSerializable(), 
+				$parentModels
+			);
+			$return[self::IS_MAIN_MODEL] = $return[self::SERIALIZATION] ? true : $manifestParser->isMain();
+			
+			if ($isOriginalModel) {
+				$this->originalModelName = null;
 			}
 		} catch (\Exception $e) {
-			$this->manifestParser = null;
+			$this->originalModelName = null;
 			throw $e;
 		}
 		return $return;
 	}
 	
 	/**
-	 * build local models
+	 * instanciate models according given local manifest parsers
 	 * 
-	 * @param string $manifestPath_ad
-	 * @throws \Exception
+	 * @param array $localTypeManifestParsers
 	 */
-	private function _buildLocalModels() {
-		if ($this->manifestParser->isFocusOnLocalModel()) {
-			throw new ComhonException('cannot define local model inside local model');
-		}
-		if ($this->manifestParser->getLocalModelCount() > 0) {
-			$this->manifestParser->activateFocusOnLocalModels();
-			
-			do {
-				$localModelName = $this->currentNamespace. '\\' . $this->manifestParser->getCurrentLocalModelName();
-				if (!array_key_exists($localModelName, $this->instanceModels)) {
-					$this->_addInstanceModel(new Model($localModelName));
+	private function _instanciateLocalModels($localTypeManifestParsers) {
+		foreach ($localTypeManifestParsers as $modelName => $localManifestParser) {
+			$model = $this->_getInstanceModel($modelName, false);
+			if (!$model->isLoaded()) {
+				if ($model->hasManifestParser()) {
+					throw new AlreadyUsedModelNameException($model->getName());
 				}
-			} while ($this->manifestParser->nextLocalModel());
-			
-			$this->manifestParser->activateFocusOnLocalModels();
-			do {
-				$localModelName = $this->currentNamespace. '\\' . $this->manifestParser->getCurrentLocalModelName();
-				$this->instanceModels[$localModelName]->load();
-			} while ($this->manifestParser->nextLocalModel());
-			
-			$this->manifestParser->desactivateFocusOnLocalModels();
+				$model->setManifestParser($localManifestParser);
+			}
 		}
 	}
 	
@@ -450,25 +419,25 @@ class ModelManager {
 	 * get parent models if exist
 	 * 
 	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Manifest\Parser\ManifestParser $manifestParser
 	 * @throws \Exception
 	 * @return \Comhon\Model\Model[]
 	 */
-	private function _getParentModels(Model $model) {
+	private function _getParentModels(Model $model, ManifestParser $manifestParser) {
 		$parentModels = [];
-		$modelNames = $this->manifestParser->getExtends();
+		$modelNames = $manifestParser->getExtends();
 		
 		if (!is_null($modelNames)) {
 			foreach ($modelNames as $modelName) {
 				if (array_key_exists($modelName, $this->instanceSimpleModels)) {
 					throw new ComhonException("{$model->getName()} cannot extends from {$modelName}");
 				}
+				$modelName = $modelName[0] == '\\' ? substr($modelName, 1) : $manifestParser->getNamespace(). '\\' . $modelName;
 				
-				$modelName = $modelName[0] == '\\' ? substr($modelName, 1) : $this->currentNamespace. '\\' . $modelName;
-				
-				$manifestParser = $this->manifestParser;
-				$this->manifestParser = null;
+				if ($this->hasInstanceModel($modelName) && $this->_getInstanceModel($modelName, false)->isLoading()) {
+					throw new ComhonException("loop detected in model inheritance : {$model->getName()} and {$this->originalModelName}");
+				}
 				$parentModels[] = $this->getInstanceModel($modelName);
-				$this->manifestParser = $manifestParser;
 			}
 		}
 		
@@ -480,10 +449,11 @@ class ModelManager {
 	 * 
 	 * @param \Comhon\Model\Model[] $parentModels
 	 * @param \Comhon\Model\Model $currentModel
+	 * @param \Comhon\Manifest\Parser\ManifestParser $manifestParser
 	 * @throws \Exception
 	 * @return \Comhon\Model\Property\Property[]
 	 */
-	private function _buildProperties(array $parentModels, $currentModel) {
+	private function _buildProperties(array $parentModels, Model $currentModel, ManifestParser $manifestParser) {
 		/** @var \Comhon\Model\Property\Property[] $properties */
 		$properties = [];
 		foreach ($parentModels as $parentModel) {
@@ -497,17 +467,17 @@ class ModelManager {
 				$properties[$propertyName] = $property;
 			}
 		}
-		if ($this->manifestParser->getCurrentPropertiesCount() > 0) {
+		if ($manifestParser->getCurrentPropertiesCount() > 0) {
 			do {
-				$modelName = $this->manifestParser->getCurrentPropertyModelName();
+				$modelName = $manifestParser->getCurrentPropertyModelName();
 				if (!array_key_exists($modelName, $this->instanceSimpleModels)) {
 					$modelName = ($modelName[0] != '\\') 
-						? $this->currentNamespace. '\\' . $modelName 
+						? $manifestParser->getNamespace(). '\\' . $modelName 
 						: substr($modelName, 1) ;
 				}
 				
 				$propertyModel = $this->_getInstanceModel($modelName, false);
-				$property      = $this->manifestParser->getCurrentProperty($propertyModel);
+				$property      = $manifestParser->getCurrentProperty($propertyModel);
 				
 				if (array_key_exists($property->getName(), $properties) && !$properties[$property->getName()]->isEqual($property)) {
 					throw new ComhonException(
@@ -517,7 +487,7 @@ class ModelManager {
 				}
 				
 				$properties[$property->getName()] = $property;
-			} while ($this->manifestParser->nextProperty());
+			} while ($manifestParser->nextProperty());
 		}
 	
 		return $properties;
@@ -526,12 +496,13 @@ class ModelManager {
 	/**
 	 * get serialization if exists
 	 * 
+	 * @param \Comhon\Manifest\Parser\ManifestParser $manifestParser
 	 * @param \Comhon\Manifest\Parser\SerializationManifestParser $serializationManifestParser
 	 * @param bool $isSerializable
 	 * @param \Comhon\Model\Model[] $parentModels
 	 * @return \Comhon\Serialization\Serialization|null null if no serialization
 	 */
-	private function _getSerializationInstance(SerializationManifestParser $serializationManifestParser = null, $isSerializable = false, array $parentModels = []) {
+	private function _getSerializationInstance(ManifestParser $manifestParser, SerializationManifestParser $serializationManifestParser = null, $isSerializable = false, array $parentModels = []) {
 		$serializationSettings = null;
 		$inheritanceKey = null;
 		$inheritanceValues = null;
@@ -546,7 +517,7 @@ class ModelManager {
 			if (is_array($inheritanceValues)) {
 				for ($i = 0; $i < count($inheritanceValues); $i++) {
 					$modelName = $inheritanceValues[$i];
-					$modelName = ($modelName[0] != '\\') ? $this->currentNamespace. '\\' . $modelName : substr($modelName, 1) ;
+					$modelName = ($modelName[0] != '\\') ? $manifestParser->getNamespace(). '\\' . $modelName : substr($modelName, 1) ;
 					$inheritanceValues[$i] = $modelName;
 				}
 			}

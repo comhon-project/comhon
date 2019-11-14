@@ -1,5 +1,7 @@
 {
-    "version": "2.0",
-    "extends": "\\Comhon\\File",
+    "version": "3.0",
+    "extends": [
+        "\\Comhon\\File"
+    ],
     "is_main": true
 }

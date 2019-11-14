@@ -1,0 +1,12 @@
+<manifest version="3.0">
+  <types>
+    <type name="MyLocal">
+      <properties>
+        <property type="string" name="localOne"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="float" name="floatProperty"/>
+  </properties>
+</manifest>

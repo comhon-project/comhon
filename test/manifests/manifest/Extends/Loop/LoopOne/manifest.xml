@@ -1,0 +1,34 @@
+<manifest version="3.0" is_serializable="1">
+  <extends>
+    <type>\Test\Extends\Loop\LoopTwo</type>
+  </extends>
+  <types>
+    <type name="LocalLoopOne">
+      <extends>
+        <type>LocalLoopTwo</type>
+      </extends>
+      <properties>
+        <property type="string" name="property"/>
+      </properties>
+    </type>
+    <type name="LocalLoopTwo">
+      <extends>
+        <type>LocalLoopThree</type>
+      </extends>
+      <properties>
+        <property type="string" name="loopIntermediateProperty"/>
+      </properties>
+    </type>
+    <type name="LocalLoopThree">
+      <extends>
+        <type>LocalLoopOne</type>
+      </extends>
+      <properties>
+        <property type="string" name="loopProperty"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="integer" is_id="1" name="id"/>
+  </properties>
+</manifest>

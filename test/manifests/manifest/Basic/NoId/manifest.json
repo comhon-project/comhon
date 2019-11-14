@@ -1,0 +1,42 @@
+{
+    "version": "3.0",
+    "types": [
+        {
+            "name": "ObjectContainer",
+            "properties": [
+                {
+                    "name": "objectProperty",
+                    "type": "Object"
+                }
+            ]
+        },
+        {
+            "name": "Object",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "is_id": true
+                },
+                {
+                    "name": "propertyOne",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "stringProperty",
+            "type": "string"
+        },
+        {
+            "name": "floatProperty",
+            "type": "float"
+        },
+        {
+            "name": "objectContainerProperty",
+            "type": "ObjectContainer"
+        }
+    ]
+}

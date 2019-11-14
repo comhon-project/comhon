@@ -35,8 +35,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::getExtends()
 	 */
 	public function getExtends() {
-		$currentNode = $this->focusLocalTypes ? current($this->localTypes) : $this->manifest;
-		$extends = $this->interfacer->getValue($currentNode, self::_EXTENDS);
+		$extends = $this->interfacer->getValue($this->manifest, self::_EXTENDS);
 		
 		return is_null($extends) ? null : [$extends];
 	}
@@ -99,33 +98,37 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::getObjectClass()
 	 */
 	public function getObjectClass() {
-		if ($this->focusLocalTypes) {
-			$current = current($this->localTypes);
-			return $this->interfacer->getValue($current, self::_OBJECT);
-		} else {
-			return $this->interfacer->getValue($this->manifest, self::_OBJECT);
-		}
+		return $this->interfacer->getValue($this->manifest, self::_OBJECT);
 	}
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\ManifestParser::getCurrentLocalModelName()
+	 * @see \Comhon\Manifest\Parser\ManifestParser::getLocalModelManifestParsers()
 	 */
-	public function getCurrentLocalModelName() {
-		$current = current($this->localTypes);
-		return $this->interfacer->getValue($current, self::NAME);
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\ManifestParser::_getLocalTypes()
-	 */
-	protected function _getLocalTypes() {
-		return $this->interfacer->hasValue($this->manifest, 'types', true)
+	public function getLocalModelManifestParsers() {
+		$manifestParsers = [];
+		$types = !$this->isLocal && $this->interfacer->hasValue($this->manifest, 'types', true)
 			? $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, 'types', true))
 			: []; 
+		
+		foreach ($types as $type) {
+			if (!$this->interfacer->hasValue($type, self::NAME)) {
+				throw new ManifestException("local type name not defined");
+			}
+			$name = $this->interfacer->getValue($type, self::NAME);
+			if (!is_string($name) || $name == '') {
+				throw new ManifestException("local type name invalid");
+			}
+			$modelName = $this->namespace. '\\' . $name;
+			
+			$manifestParser = new static($type, true, $this->namespace, null, false);
+			$manifestParser->interfacer = $this->interfacer;
+			$manifestParser->castValues = $this->castValues;
+			$manifestParsers[$modelName] = $manifestParser;
+		}
+		
+		return $manifestParsers;
 	}
 	
 	/**
@@ -134,9 +137,8 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_getCurrentProperties()
 	 */
 	protected function _getCurrentProperties() {
-		$parentNode = $this->focusLocalTypes ? current($this->localTypes) : $this->manifest;
-		return $this->interfacer->hasValue($parentNode, 'properties', true)
-			? $this->interfacer->getTraversableNode($this->interfacer->getValue($parentNode, 'properties', true))
+		return $this->interfacer->hasValue($this->manifest, 'properties', true)
+			? $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, 'properties', true))
 			: [];
 	}
 	

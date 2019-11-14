@@ -1,5 +1,5 @@
 {
-    "version": "2.0",
+    "version": "3.0",
     "is_main": true,
     "is_serializable": true,
     "types": [
@@ -32,7 +32,9 @@
         },
         {
             "name": "ObjectWithIdAndMore",
-            "extends": "ObjectWithId",
+            "extends": [
+                "ObjectWithId"
+            ],
             "properties": [
                 {
                     "name": "plop3",
@@ -43,7 +45,9 @@
         },
         {
             "name": "ObjectWithIdAndMoreMore",
-            "extends": "ObjectWithIdAndMore",
+            "extends": [
+                "ObjectWithIdAndMore"
+            ],
             "properties": [
                 {
                     "name": "plop4",

@@ -1,0 +1,16 @@
+<manifest version="3.0" is_serializable="1">
+  <types>
+    <type name="Itself">
+      <extends>
+        <type>\Test\Extends\Valid\Itself</type>
+      </extends>
+      <properties>
+        <property type="float" name="floatProperty"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="integer" is_id="1" name="id"/>
+    <property type="string" name="stringProperty"/>
+  </properties>
+</manifest>

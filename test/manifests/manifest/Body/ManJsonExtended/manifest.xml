@@ -1,6 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest extends="\Test\Body\ManJson" version="2.0" is_serializable="1">
-	<properties>
-		<property type="string" name="value"/>
-	</properties>
+<manifest version="3.0" is_serializable="1">
+  <extends>
+    <type>\Test\Body\ManJson</type>
+  </extends>
+  <properties>
+    <property type="string" name="value"/>
+  </properties>
 </manifest>

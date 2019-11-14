@@ -2,9 +2,15 @@
 
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
+use Test\Comhon\Data;
+use Comhon\Object\Config\Config;
 
 class MultipleInheritanceTest extends TestCase
 {
+	public static function setUpBeforeClass()
+	{
+		Config::setLoadPath(Data::$config);
+	}
 	
 	public function testModelWithMultipleInheritance()
 	{

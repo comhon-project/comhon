@@ -1,12 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0" is_serializable="1">
-	<properties>
-		<property type="string" is_id="1" name="id"/>
-		<property type="string" name="DBMS"/>
-		<property type="string" name="host"/>
-		<property type="string" name="name"/>
-		<property type="string" name="user"/>
-		<property type="string" is_private="1" name="password"/>
-		<property type="integer" name="port"/>
-	</properties>
+<manifest version="3.0" is_serializable="1">
+  <properties>
+    <property type="string" is_id="1" name="id"/>
+    <property type="string" name="DBMS"/>
+    <property type="string" name="host"/>
+    <property type="string" name="name"/>
+    <property type="string" name="user"/>
+    <property type="string" is_private="1" name="password"/>
+    <property type="integer" name="port"/>
+  </properties>
 </manifest>

@@ -1,0 +1,28 @@
+<manifest version="3.0" is_serializable="1">
+  <extends>
+    <type>Itself</type>
+  </extends>
+  <types>
+    <type name="One">
+      <extends>
+        <type>Two</type>
+      </extends>
+      <properties>
+        <property type="boolean" name="booleanProperty"/>
+      </properties>
+    </type>
+    <type name="Two">
+      <extends>
+        <type>Itself\Itself</type>
+      </extends>
+      <properties>
+        <property type="integer" is_id="1" name="id"/>
+        <property type="integer" name="integerProperty"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="integer" is_id="1" name="id"/>
+    <property type="float" name="floatProperty"/>
+  </properties>
+</manifest>

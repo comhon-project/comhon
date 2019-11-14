@@ -7,6 +7,8 @@ use Comhon\Object\ComhonArray;
 use Comhon\Model\ModelArray;
 use Comhon\Model\ModelForeign;
 use Comhon\Interfacer\XMLInterfacer;
+use Test\Comhon\Data;
+use Comhon\Object\Config\Config;
 
 /**
  * 
@@ -18,6 +20,7 @@ class NotMainImportExportTest extends TestCase
 {
 	public static function setUpBeforeClass()
 	{
+		Config::setLoadPath(Data::$config);
 		ModelManager::resetSingleton();
 	}
 	

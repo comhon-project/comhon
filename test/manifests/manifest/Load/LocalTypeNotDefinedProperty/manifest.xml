@@ -1,15 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0" is_main="1">
-	<types>
-		<type name="MalformedLocalType">
-			<properties>
-				<property type="wrong-type-in-local" name="malformedPropertyInLocal"/>
-			</properties>
-		</type>
-	</types>
-	<properties>
-		<property type="integer" is_id="1" name="id"/>
-		<property type="MalformedLocalType" name="malformedProperty"/>
-		<property type="\Test\Load\NotDefinedProperty" name="malformedChild"/>
-	</properties>
+<manifest version="3.0" is_main="1">
+  <types>
+    <type name="MalformedLocalType">
+      <properties>
+        <property type="wrong-type-in-local" name="malformedPropertyInLocal"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="integer" is_id="1" name="id"/>
+    <property type="MalformedLocalType" name="malformedProperty"/>
+    <property type="\Test\Load\NotDefinedProperty" name="malformedChild"/>
+  </properties>
 </manifest>

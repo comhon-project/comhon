@@ -10,6 +10,11 @@ use Comhon\Model\Singleton\ModelManager;
 
 class ConfigTest extends TestCase
 {
+	public static function setUpBeforeClass()
+	{
+		Config::resetSingleton();
+		ModelManager::resetSingleton();
+	}
 	
 	public function testNotFoundConfig()
 	{

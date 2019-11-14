@@ -196,7 +196,7 @@ class ModelBinder {
 				throw new ComhonException('file doesn\'t exist : '.$modelInfos['manifestPath']);
 			}
 			$root = $interfacer->read($modelInfos['manifestPath']);
-			if ($interfacer->getValue($root, 'version') !== '2.0') {
+			if ($interfacer->getValue($root, 'version') !== '3.0') {
 				throw new ComhonException(
 					'manifest version \'' . $interfacer->getValue($root, 'version'). '\' not supported '
 						. ' on file \'' . $modelInfos['manifestPath'] . '\''

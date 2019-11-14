@@ -22,10 +22,8 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::getExtends()
 	 */
 	public function getExtends() {
-		$currentNode = $this->focusLocalTypes ? current($this->localTypes) : $this->manifest;
-		
-		if ($this->interfacer->hasValue($currentNode, self::_EXTENDS, true)) {
-			$extends = $this->interfacer->getTraversableNode($this->interfacer->getValue($currentNode, self::_EXTENDS, true));
+		if ($this->interfacer->hasValue($this->manifest, self::_EXTENDS, true)) {
+			$extends = $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, self::_EXTENDS, true));
 			if ($this->interfacer instanceof XMLInterfacer) {
 				foreach ($extends as $key => $domNode) {
 					$extends[$key] = $this->interfacer->extractNodeText($domNode);

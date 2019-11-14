@@ -1,41 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0" is_serializable="1">
-
-	<types>
-		<type name="ObjectContainer">
-			<properties>
-				<property is_foreign="1" type="Object" name="foreignObjectValue"/>
-				<property type="ObjectTwo" name="objectValueTwo"/>
-				<property type="PersonLocal" name="person"/>
-			</properties>
-		</type>
-		<type name="Object">
-			<properties>
-				<property type="string" is_id="1" name="id"/>
-				<property type="string" name="propertyOne"/>
-				<property type="string" name="propertyTwo"/>
-			</properties>
-		</type>
-		<type name="ObjectTwo">
-			<properties>
-				<property type="string" is_id="1" name="id"/>
-				<property type="string" name="propertyTwoOne"/>
-				<property type="string" name="propertyTwoTwo"/>
-			</properties>
-		</type>
-	</types>
-	
-	<properties>
-		<property type="string" is_id="1" xml="node" name="name"/>
-		<property type="string" xml="node" name="textNode"/>
-		<property type="string" xml="attribute" name="textAttribute"/>
-		<property type="Object" name="objectValue"/>
-		<property type="array" name="objectValues">
-			<values type="Object" name="objectValue"/>
-		</property>
-		<property type="ObjectContainer" name="objectContainer"/>
-		<property is_foreign="1" type="array" name="foreignObjectValues">
-			<values type="Object" name="foreignObjectValue"/>
-		</property>
-	</properties>
+<manifest version="3.0" is_serializable="1">
+  <types>
+    <type name="ObjectContainer">
+      <properties>
+        <property is_foreign="1" type="Object" name="foreignObjectValue"/>
+        <property type="ObjectTwo" name="objectValueTwo"/>
+        <property type="PersonLocal" name="person"/>
+      </properties>
+    </type>
+    <type name="Object">
+      <properties>
+        <property type="string" is_id="1" name="id"/>
+        <property type="string" name="propertyOne"/>
+        <property type="string" name="propertyTwo"/>
+      </properties>
+    </type>
+    <type name="ObjectTwo">
+      <properties>
+        <property type="string" is_id="1" name="id"/>
+        <property type="string" name="propertyTwoOne"/>
+        <property type="string" name="propertyTwoTwo"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="string" is_id="1" xml="node" name="name"/>
+    <property type="string" xml="node" name="textNode"/>
+    <property type="string" xml="attribute" name="textAttribute"/>
+    <property type="Object" name="objectValue"/>
+    <property type="array" name="objectValues">
+      <values type="Object" name="objectValue"/>
+    </property>
+    <property type="ObjectContainer" name="objectContainer"/>
+    <property is_foreign="1" type="array" name="foreignObjectValues">
+      <values type="Object" name="foreignObjectValue"/>
+    </property>
+  </properties>
 </manifest>

@@ -20,7 +20,7 @@ class NotDefinedModelException extends ComhonException {
 	 * @param string $modelName
 	 */
 	public function __construct($modelName) {
-		parent::__construct("model $modelName doesn't exist", ConstantException::NOT_DEFINED_MODEL_EXCEPTION);
+		parent::__construct("manifest not found for model $modelName", ConstantException::NOT_DEFINED_MODEL_EXCEPTION);
 	}
 	
 }

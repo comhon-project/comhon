@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest extends="\Test\Person" version="2.0" object="Test\Comhon\Object\Woman" is_serializable="1">
-	<properties>
-		<property is_foreign="1" type="array" name="bodies">
-			<values type="\Test\Body\Woman" name="body"/>
-		</property>
-	</properties>
+<manifest version="3.0" object="Test\Comhon\Object\Woman" is_serializable="1">
+  <extends>
+    <type>\Test\Person</type>
+  </extends>
+  <properties>
+    <property is_foreign="1" type="array" name="bodies">
+      <values type="\Test\Body\Woman" name="body"/>
+    </property>
+  </properties>
 </manifest>

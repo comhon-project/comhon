@@ -1,28 +1,26 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0" is_main="1">
-	<types>
-		<type name="Object">
-			<properties>
-				<property type="integer" is_id="1" is_private="1" name="id1"/>
-				<property type="integer" is_id="1" name="id2"/>
-				<property type="string" name="propertyOne"/>
-			</properties>
-		</type>
-	</types>
-	
-	<properties>
-		<property type="string" is_id="1" is_private="1" name="id"/>
-		<property type="string" name="name"/>
-		<property type="array" name="objectValues">
-			<values type="Object" name="objectValue"/>
-		</property>
-		<property is_foreign="1" type="Object" name="foreignObjectValue"/>
-		<property is_foreign="1" type="array" name="foreignObjectValues">
-			<values type="Object" name="foreignObjectValue"/>
-		</property>
-		<property is_foreign="1" type="\Test\TestPrivateId" name="foreignTestPrivateId"/>
-		<property is_foreign="1" type="array" name="foreignTestPrivateIds">
-			<values type="\Test\TestPrivateId" name="foreignTestPrivateId"/>
-		</property>
-	</properties>
+<manifest version="3.0" is_main="1">
+  <types>
+    <type name="Object">
+      <properties>
+        <property type="integer" is_id="1" is_private="1" name="id1"/>
+        <property type="integer" is_id="1" name="id2"/>
+        <property type="string" name="propertyOne"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="string" is_id="1" is_private="1" name="id"/>
+    <property type="string" name="name"/>
+    <property type="array" name="objectValues">
+      <values type="Object" name="objectValue"/>
+    </property>
+    <property is_foreign="1" type="Object" name="foreignObjectValue"/>
+    <property is_foreign="1" type="array" name="foreignObjectValues">
+      <values type="Object" name="foreignObjectValue"/>
+    </property>
+    <property is_foreign="1" type="\Test\TestPrivateId" name="foreignTestPrivateId"/>
+    <property is_foreign="1" type="array" name="foreignTestPrivateIds">
+      <values type="\Test\TestPrivateId" name="foreignTestPrivateId"/>
+    </property>
+  </properties>
 </manifest>

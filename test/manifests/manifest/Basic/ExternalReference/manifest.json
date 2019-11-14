@@ -1,0 +1,13 @@
+{
+    "version": "3.0",
+    "properties": [
+        {
+            "name": "basicPropertyWithId",
+            "type": "\\Test\\Basic\\Id"
+        },
+        {
+            "name": "basicNoIdObjectContainerProperty",
+            "type": "\\Test\\Basic\\NoId\\ObjectContainer"
+        }
+    ]
+}
