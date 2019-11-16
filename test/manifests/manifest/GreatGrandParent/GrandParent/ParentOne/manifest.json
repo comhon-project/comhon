@@ -9,9 +9,5 @@
             "name": "parentOne",
             "type": "string"
         }
-    ],
-    "inheritance_requestables": [
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild"
     ]
 }

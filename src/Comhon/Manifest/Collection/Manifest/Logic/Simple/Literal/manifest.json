@@ -1,0 +1,17 @@
+{
+    "version": "3.0",
+    "share_parent_id": true,
+    "extends": [
+        "\\Comhon\\Logic\\Simple\\Formula"
+    ],
+    "properties": [
+        {
+            "name": "node",
+            "type": "string"
+        },
+        {
+            "name": "property",
+            "type": "string"
+        }
+    ]
+}

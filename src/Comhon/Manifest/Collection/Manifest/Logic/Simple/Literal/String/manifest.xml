@@ -1,0 +1,14 @@
+<manifest version="3.0" share_parent_id="1">
+  <extends>
+    <type>\Comhon\Logic\Simple\Literal</type>
+  </extends>
+  <properties>
+    <property name="operator" type="string">
+      <enum>
+        <value>=</value>
+        <value>&lt;&gt;</value>
+      </enum>
+    </property>
+    <property name="value" type="string"/>
+  </properties>
+</manifest>

@@ -1,0 +1,6 @@
+<manifest version="3.0" is_serializable="1">
+  <properties>
+    <property type="string" name="id" is_id="1"/>
+    <property type="string" name="grandParent"/>
+  </properties>
+</manifest>

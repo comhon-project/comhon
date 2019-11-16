@@ -1,0 +1,13 @@
+{
+    "version": "3.0",
+    "share_parent_id": true,
+    "extends": [
+        "\\Test\\Extends\\ShareId\\GrandParent\\ParentOne"
+    ],
+    "properties": [
+        {
+            "name": "childOne",
+            "type": "string"
+        }
+    ]
+}

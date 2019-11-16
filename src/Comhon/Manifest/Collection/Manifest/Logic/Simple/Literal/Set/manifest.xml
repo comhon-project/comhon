@@ -1,0 +1,13 @@
+<manifest version="3.0" share_parent_id="1">
+  <extends>
+    <type>\Comhon\Logic\Simple\Literal</type>
+  </extends>
+  <properties>
+    <property name="operator" type="string">
+      <enum>
+        <value>IN</value>
+        <value>NOT IN</value>
+      </enum>
+    </property>
+  </properties>
+</manifest>

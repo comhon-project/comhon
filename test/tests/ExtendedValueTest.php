@@ -579,27 +579,5 @@ if (!compareJson(json_encode($man->export($stdPrivateInterfacer)), '{"firstName"
 	throw new \Exception('bad value');
 }
 
-/** ****************** test extended local model from main model ********************* **/
-
-$localExtendsMainModel = ModelManager::getInstance()->getInstanceModel('Test\LocalExtendsMain');
-$localPlaceModel = ModelManager::getInstance()->getInstanceModel('Test\LocalExtendsMain\LocalPlace');
-$object = $localExtendsMainModel->getObjectInstance();
-
-$object->initValue('localExtendsMainObj');
-$object->getValue('localExtendsMainObj')->setValue('id', 12);
-$object->getValue('localExtendsMainObj')->cast($localPlaceModel);
-$object->getValue('localExtendsMainObj')->setValue('stringValue', 'aze');
-$object->setValue('localExtendsMainObjForeign', $object->getValue('localExtendsMainObj'));
-
-$object->fill($object->export($stdPrivateInterfacer), $stdPrivateInterfacer);
-
-if ($object->getValue('localExtendsMainObj') !== $object->getValue('localExtendsMainObjForeign')) {
-	throw new \Exception('not same instance model');
-}
-if (!compareJson(json_encode($object->export($stdPrivateInterfacer)), '{"stringValue":"plop","floatValue":1.5,"booleanValue":true,"indexValue":0,"percentageValue":1,"dateValue":"2016-11-13T20:04:05+01:00","localExtendsMainObj":{"id":12,"stringValue":"aze","__inheritance__":"Test\\\\LocalExtendsMain\\\\LocalPlace"},"localExtendsMainObjForeign":{"id":12,"__inheritance__":"Test\\\\LocalExtendsMain\\\\LocalPlace"}}')) {
-	throw new \Exception('bad value');
-}
-
-
 $time_end = microtime(true);
 var_dump('extended value test exec time '.($time_end - $time_start));

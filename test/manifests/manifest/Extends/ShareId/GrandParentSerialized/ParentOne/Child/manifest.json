@@ -1,0 +1,13 @@
+{
+    "version": "3.0",
+    "extends": [
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne"
+    ],
+    "is_serializable": true,
+    "properties": [
+        {
+            "name": "childOne",
+            "type": "string"
+        }
+    ]
+}

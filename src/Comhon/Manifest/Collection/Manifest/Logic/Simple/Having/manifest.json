@@ -1,0 +1,26 @@
+{
+    "version": "3.0",
+    "share_parent_id": true,
+    "extends": [
+        "\\Comhon\\Logic\\Simple\\Formula"
+    ],
+    "properties": [
+        {
+            "name": "node",
+            "type": "string"
+        },
+        {
+            "name": "queue",
+            "type": "array",
+            "values": {
+                "type": "string",
+                "name": "property"
+            }
+        },
+        {
+            "name": "having",
+            "type": "\\Comhon\\Logic\\Having\\Formula",
+            "is_foreign": true
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+<manifest version="3.0" share_parent_id="1">
+  <extends>
+    <type>\Comhon\Logic\Simple\Literal\Set</type>
+  </extends>
+  <properties>
+    <property name="values" type="array">
+      <values name="value" type="string"/>
+    </property>
+  </properties>
+</manifest>

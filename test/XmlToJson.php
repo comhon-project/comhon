@@ -11,7 +11,7 @@ foreach ($folders as $folder) {
 	
 	foreach ($files as $file) {
 		$dir = dirname($file);
-		if (basename($file) == 'manifest.xml' && !file_exists($dir.'/manifest.json')) {
+		if (basename($file) == 'manifest.xml' /*&& !file_exists($dir.'/manifest.json')*/) {
 			$xml = simplexml_load_file($file);
 			transformManifest($xml, $dir);
 		}
@@ -86,6 +86,15 @@ function transformManifest($xml, $dir) {
 	if (isset($xml['object'])) {
 		$json->object = (string) $xml['object'];
 	}
+	if (isset($xml['forbid_interfacing'])) {
+		$json->forbid_interfacing = (boolean) ((string) $xml['forbid_interfacing']);
+	}
+	if (isset($xml['share_parent_id'])) {
+		$json->share_parent_id = (boolean) ((string) $xml['share_parent_id']);
+	}
+	if (isset($xml['shared_id'])) {
+		$json->shared_id = (string) $xml['shared_id'];
+	}
 	
 	if (isset($xml->extends)) {
 		$json->extends = [];
@@ -117,6 +126,15 @@ function transformManifest($xml, $dir) {
 			$typeObj->name = (string) $type['name'];
 			if (isset($type['object'])) {
 				$typeObj->object = (string) $type['object'];
+			}
+			if (isset($type['forbid_interfacing'])) {
+				$typeObj->forbid_interfacing = (boolean) ((string) $type['forbid_interfacing']);
+			}
+			if (isset($type['share_parent_id'])) {
+				$typeObj->share_parent_id = (boolean) ((string) $type['share_parent_id']);
+			}
+			if (isset($type['shared_id'])) {
+				$typeObj->shared_id = (string) $type['shared_id'];
 			}
 			if (isset($type->extends)) {
 				$typeObj->extends = [];

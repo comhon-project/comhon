@@ -1,0 +1,21 @@
+{
+    "version": "3.0",
+    "share_parent_id": true,
+    "extends": [
+        "\\Comhon\\Logic\\Simple\\Literal"
+    ],
+    "properties": [
+        {
+            "name": "operator",
+            "type": "string",
+            "enum": [
+                "=",
+                "<>",
+                "<",
+                "<=",
+                ">",
+                ">="
+            ]
+        }
+    ]
+}

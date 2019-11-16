@@ -124,8 +124,15 @@ foreach ($result->result as $index => $stdObject) {
 
 	$object2 = new FinalObject('Test\TestDb');
 	$object2->fill($object->export($xmlSerialInterfacer), $xmlSerialInterfacer);
+	
+	$original = MainObjectCollection::getInstance()->getObject(json_encode([$id1, $id2]), $object2->getModel()->getName());
+	MainObjectCollection::getInstance()->removeObject($original);
+	
 	$object2->setValue('id1', $id1);
 	$object2->setValue('id2', $id2);
+	
+	MainObjectCollection::getInstance()->removeObject($object2);
+	MainObjectCollection::getInstance()->addObject($original);
 	
 	if (!compareJson(json_encode($object2->export($stdPrivateInterfacer)), json_encode($basedObjects[$index]))) {
 		throw new \Exception('bad object');

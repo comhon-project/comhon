@@ -1,0 +1,8 @@
+<manifest version="3.0" is_serializable="0">
+  <extends>
+    <type>\Test\Extends\ShareId\GrandParentSerialized</type>
+  </extends>
+  <properties>
+    <property type="string" name="parentTwo"/>
+  </properties>
+</manifest>

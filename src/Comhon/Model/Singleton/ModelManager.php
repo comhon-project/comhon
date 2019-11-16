@@ -31,6 +31,7 @@ use Comhon\Model\ModelUnique;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Serialization\Serialization;
 use Comhon\Manifest\Parser\SerializationManifestParser;
+use Comhon\Object\Collection\ObjectCollection;
 
 class ModelManager {
 
@@ -50,7 +51,10 @@ class ModelManager {
 	const IS_MAIN_MODEL   = 'isMainModel';
 	
 	/** @var string */
-	const IS_SERIALIZABLE = 'isSerializable';
+	const FORBID_INTERFACING = 'forbid_interfacing';
+	
+	/** @var string */
+	const SHARED_ID_MODEL = 'shared_id_model';
 	
 	/**
 	 * @var \Comhon\Model\AbstractModel[]
@@ -225,6 +229,9 @@ class ModelManager {
 	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
 	 */
 	private function _getInstanceModel($modelName, $loadModel) {
+		if (!is_string($modelName)) {
+			throw new \InvalidArgumentException('first argument must be a string');
+		}
 		if (!array_key_exists($modelName, $this->instanceModels)) {
 			$this->_addInstanceModel(new Model($modelName));
 		}
@@ -377,6 +384,7 @@ class ModelManager {
 			$return = [
 				self::PARENT_MODELS => $parentModels,
 				self::OBJECT_CLASS => $manifestParser->getObjectClass(),
+				self::FORBID_INTERFACING => $manifestParser->isForbidenInterfacing(),
 				self::PROPERTIES => $this->_buildProperties($parentModels, $model, $manifestParser),
 			];
 			
@@ -386,6 +394,7 @@ class ModelManager {
 				$manifestParser->isSerializable(), 
 				$parentModels
 			);
+			$return[self::SHARED_ID_MODEL] = $this->_getSharedIdModel($model, $manifestParser, $return[self::SERIALIZATION], $parentModels); 
 			$return[self::IS_MAIN_MODEL] = $return[self::SERIALIZATION] ? true : $manifestParser->isMain();
 			
 			if ($isOriginalModel) {
@@ -581,4 +590,67 @@ class ModelManager {
 		return $same ? $parentSerializationSettings : $serializationSettings;
 	}
 	
+	/**
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Manifest\Parser\ManifestParser $manifestParser
+	 * @param \Comhon\Serialization\Serialization $serialization
+	 * @param \Comhon\Model\Model[] $parentModels
+	 * @throws ComhonException
+	 */
+	private function _getSharedIdModel(Model $model, ManifestParser $manifestParser, Serialization $serialization = null, $parentModels = null) {
+		$parentModel = isset($parentModels[0]) ? $parentModels[0] : null;
+		$sharedIdType = $manifestParser->sharedId();
+		$shareParentId = $manifestParser->isSharedParentId();
+		$sharedIdModel = null;
+		$sharedIdModelTemp = null;
+		
+		if (is_null($parentModel)) {
+			if ($shareParentId) {
+				throw new ComhonException("Invalid manifest that define model '{$model->getName()}' : '"
+					.ManifestParser::SHARE_PARENT_ID."' is set to true but there is no defined extends."
+				);
+			}
+			if (!is_null($sharedIdType)) {
+				throw new ComhonException("Invalid manifest that define model '{$model->getName()}' : '"
+					.ManifestParser::SHARED_ID."' is set but there is no defined extends."
+				);
+			}
+		}
+		
+		if (!is_null($serialization)) {
+			while (!is_null($parentModel) && (is_null($parentModel->getSerialization()) ||  $parentModel->getSerialization()->getSettings() !== $serialization->getSettings())) {
+				$parentModel = $parentModel->getParent();
+			}
+			if (!is_null($parentModel)) {
+				$sharedIdModel = ObjectCollection::getModelKey($parentModel);
+			}
+		}
+		
+		if ($shareParentId && !is_null($sharedIdType)) {
+			throw new ComhonException("Conflict in manifest that define model '{$model->getName()}' : '"
+				.ManifestParser::SHARED_ID."' and ".ManifestParser::SHARE_PARENT_ID." cannot be defined together."
+			);
+		}
+		if (!is_null($parentModel) && $shareParentId) {
+			$sharedIdModelTemp = ObjectCollection::getModelKey($parentModel);
+		}
+		if (!is_null($sharedIdType)) {
+			$modelName = $sharedIdType[0] == '\\' ? substr($sharedIdType, 1) : $manifestParser->getNamespace(). '\\' . $sharedIdType;
+			
+			$sharedIdModelTemp = $this->_getInstanceModel($modelName, true);
+			// cannot call isInheritedFrom() on $model because parent model is not currently set
+			if (is_null($parentModel) || ($parentModel !== $sharedIdModelTemp && !$parentModel->isInheritedFrom($sharedIdModelTemp))) {
+				throw new ComhonException("Invalid shared id type in manifest that define '{$model->getName()}'. shared id type must be a parent model.");
+			}
+			$sharedIdModelTemp = ObjectCollection::getModelKey($sharedIdModelTemp);
+		}
+		if (!is_null($sharedIdModelTemp)) {
+			if (!is_null($sharedIdModel) && $sharedIdModelTemp !== $sharedIdModel) {
+				throw new ComhonException("Conflict on model '{$model->getName()}' beween shared id and serialization");
+			}
+			$sharedIdModel = $sharedIdModelTemp;
+		}
+		return $sharedIdModel;
+	}
 }

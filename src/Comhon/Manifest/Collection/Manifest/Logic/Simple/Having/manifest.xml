@@ -1,0 +1,12 @@
+<manifest version="3.0" share_parent_id="1">
+  <extends>
+    <type>\Comhon\Logic\Simple\Formula</type>
+  </extends>
+  <properties>
+    <property name="node" type="string"/>
+    <property name="queue" type="array">
+      <values name="property" type="string"/>
+    </property>
+    <property name="having" type="\Comhon\Logic\Having\Formula" is_foreign="1"/>
+  </properties>
+</manifest>

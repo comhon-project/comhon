@@ -1,0 +1,13 @@
+<manifest version="3.0">
+  <properties>
+    <property is_foreign="1" type="array" name="foreignCollectionOne">
+      <values type="\Test\Extends\ShareId\GrandParent" name="element"/>
+    </property>
+    <property type="array" name="collection">
+      <values type="\Test\Extends\ShareId\GrandParent" name="element"/>
+    </property>
+    <property is_foreign="1" type="array" name="foreignCollectionTwo">
+      <values type="\Test\Extends\ShareId\GrandParent" name="element"/>
+    </property>
+  </properties>
+</manifest>

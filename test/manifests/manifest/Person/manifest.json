@@ -58,9 +58,5 @@
             },
             "is_foreign": true
         }
-    ],
-    "inheritance_requestables": [
-        "\\Test\\Person\\Man",
-        "\\Test\\Person\\Woman"
     ]
 }

@@ -19,7 +19,7 @@ class ConflictPropertiesException extends ComhonException {
 	
 	/**
 	 * 
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 * @param string[] $propertiesNames
 	 */
 	public function __construct(Model $model, array $propertiesNames) {

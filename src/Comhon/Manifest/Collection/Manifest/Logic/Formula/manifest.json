@@ -1,0 +1,10 @@
+{
+    "version": "3.0",
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        }
+    ]
+}

@@ -742,7 +742,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	
 	/**
 	 *
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 * @param string $messageColumns
 	 * @return string[]
 	 */

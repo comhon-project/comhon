@@ -1,0 +1,8 @@
+<manifest version="3.0" share_parent_id="1">
+  <extends>
+    <type>\Comhon\Logic\Simple\Literal\Numeric</type>
+  </extends>
+  <properties>
+    <property name="value" type="integer"/>
+  </properties>
+</manifest>

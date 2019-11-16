@@ -61,6 +61,15 @@ abstract class ManifestParser {
 	const IS_ASSOCIATIVE  = 'is_associative';
 	
 	/** @var string */
+	const FORBID_INTERFACING = 'forbid_interfacing';
+	
+	/** @var string */
+	const SHARE_PARENT_ID = 'share_parent_id';
+	
+	/** @var string */
+	const SHARED_ID       = 'shared_id';
+	
+	/** @var string */
 	const XML_NODE        = 'node';
 	
 	/** @var string */
@@ -123,6 +132,31 @@ abstract class ManifestParser {
 	 * @return string|null null if no associated class
 	 */
 	abstract public function getObjectClass();
+	
+	/**
+	 * verify if manifest describe a model that forbid interfacing.
+	 * if true, object with this kind of model cannot be interfaced
+	 *
+	 * @return boolean
+	 */
+	abstract public function isForbidenInterfacing();
+	
+	/**
+	 * verify if manifest describe a model that share id with its direct parent model.
+	 * if true, that mean it share id with first extends element.
+	 * object with model that share id may be found in object collection with object model name or parent model name
+	 *
+	 * @return boolean
+	 */
+	abstract public function isSharedParentId();
+	
+	/**
+	 * verify if manifest describe a model that share id with any parent model and get its parent model name.
+	 * object with model that share id may be found in object collection with object model name or parent model name
+	 *
+	 * @return string|null if no model to share id with
+	 */
+	abstract public function sharedId();
 	
 	/**
 	 * get manifest parsers that will permit to build all local models
@@ -262,6 +296,24 @@ abstract class ManifestParser {
 	}
 	
 	/**
+	 * get boolean value from manifest (cast if necessary)
+	 * 
+	 * @param mixed $property property node
+	 * @param string $name value's name
+	 * @param boolean $defaultValue used if value not found
+	 * @return boolean
+	 */
+	protected function _getBooleanValue($property, $name, $defaultValue) {
+		return $this->interfacer->hasValue($property, $name)
+			? (
+				$this->castValues
+					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($property, $name))
+					: $this->interfacer->getValue($property, $name)
+			)
+			: $defaultValue;
+	}
+	
+	/**
 	 * get current property
 	 * 
 	 * @param \Comhon\Model\AbstractModel $propertyModel unique model associated to property
@@ -269,13 +321,13 @@ abstract class ManifestParser {
 	 * @return \Comhon\Model\Property\Property
 	 */
 	public function getCurrentProperty(AbstractModel $propertyModel) {
+		list($name, $model, $isId, $isPrivate, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
+		list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
+		
+		if ($name === Interfacer::INHERITANCE_KEY || $serializationName === Interfacer::INHERITANCE_KEY) {
+			throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
+		}
 		if ($this->_isCurrentPropertyForeign()) {
-			list($name, $model, $isId, $isPrivate, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
-			list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
-			
-			if ($name === Interfacer::INHERITANCE_KEY || $serializationName === Interfacer::INHERITANCE_KEY) {
-				throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
-			}
 			$modelForeign = new ModelForeign($model);
 			if (!empty($serializationNames)) {
 				if (count($serializationNames) < 2) {
@@ -294,12 +346,6 @@ abstract class ManifestParser {
 			}
 		}
 		else {
-			list($name, $model, $isId, $isPrivate, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
-			list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
-			
-			if ($name === Interfacer::INHERITANCE_KEY || $serializationName === Interfacer::INHERITANCE_KEY) {
-				throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
-			}
 			$default = $this->_getDefaultValue($model);
 			$restriction = $this->_getRestriction($this->_getCurrentPropertyNode(), $model);
 			

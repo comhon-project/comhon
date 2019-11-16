@@ -1,0 +1,44 @@
+<manifest version="3.0" share_parent_id="1">
+  <extends>
+    <type>\Comhon\Logic\Having\Formula</type>
+  </extends>
+  <types>
+    <type name="Count" share_parent_id="1">
+      <extends>
+        <type>\Comhon\Logic\Having\Literal</type>
+      </extends>
+      <properties>
+        <property name="value" type="integer"/>
+      </properties>
+    </type>
+    <type name="Function" share_parent_id="1">
+      <extends>
+        <type>\Comhon\Logic\Having\Literal</type>
+      </extends>
+      <properties>
+        <property name="property" type="string"/>
+        <property name="function" type="string">
+          <enum>
+            <value>SUM</value>
+            <value>AVG</value>
+            <value>MIN</value>
+            <value>MAX</value>
+          </enum>
+        </property>
+        <property name="value" type="float"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property name="operator" type="string">
+      <enum>
+        <value>=</value>
+        <value>&lt;&gt;</value>
+        <value>&lt;</value>
+        <value>&lt;=</value>
+        <value>&gt;</value>
+        <value>&gt;=</value>
+      </enum>
+    </property>
+  </properties>
+</manifest>

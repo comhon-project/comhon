@@ -56,10 +56,10 @@ class MainObjectCollection extends ObjectCollection {
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
-	public function removeObject(UniqueObject $object) {
+	public function removeObject(UniqueObject $object, $throwException = true) {
 		if (!$object->getModel()->isMain()) {
 			throw new ComhonException('model of given UniqueObject must be a main Model');
 		}
-		return parent::removeObject($object);
+		return parent::removeObject($object, $throwException);
 	}
 }

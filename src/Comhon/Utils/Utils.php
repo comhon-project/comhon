@@ -52,7 +52,7 @@ class Utils {
 	public static function printStack() {
         $nodes = debug_backtrace();
         for ($i = 1; $i < count($nodes); $i++) {
-        	trigger_error("$i. ".basename($nodes[$i]['file']) .' : ' .$nodes[$i]['function'] .'(' .$nodes[$i]['line'].')');
+        	var_dump("$i. ".basename($nodes[$i]['file']) .' : ' .$nodes[$i]['function'] .'(' .$nodes[$i]['line'].')');
         }
     } 
     

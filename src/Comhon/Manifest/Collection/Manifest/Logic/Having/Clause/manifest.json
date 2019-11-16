@@ -1,0 +1,37 @@
+{
+    "version": "3.0",
+    "forbid_interfacing": true,
+    "share_parent_id": true,
+    "extends": [
+        "\\Comhon\\Logic\\Having\\Formula"
+    ],
+    "types": [
+        {
+            "name": "Conjunction",
+            "share_parent_id": true,
+            "extends": [
+                "\\Comhon\\Logic\\Having\\Clause"
+            ],
+            "properties": []
+        },
+        {
+            "name": "Disjunction",
+            "share_parent_id": true,
+            "extends": [
+                "\\Comhon\\Logic\\Having\\Clause"
+            ],
+            "properties": []
+        }
+    ],
+    "properties": [
+        {
+            "name": "elements",
+            "type": "array",
+            "values": {
+                "type": "\\Comhon\\Logic\\Having\\Formula",
+                "name": "element"
+            },
+            "is_foreign": true
+        }
+    ]
+}

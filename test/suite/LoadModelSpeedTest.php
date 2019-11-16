@@ -43,7 +43,7 @@ class LoadModelSpeedTest extends TestCase
 			ModelManager::getInstance()->getInstanceModel('Test\Home');
 			ModelManager::getInstance()->getInstanceModel('Test\House');
 			ModelManager::getInstance()->getInstanceModel('Test\LocatedHouse');
-			ModelManager::getInstance()->getInstanceModel('Test\MultipleInheritance\InheritedFinal');
+			ModelManager::getInstance()->getInstanceModel('Test\Extends\Multiple\InheritedFinal');
 			ModelManager::getInstance()->getInstanceModel('Test\Person\Man');
 			ModelManager::getInstance()->getInstanceModel('Test\Person\Woman');
 			ModelManager::getInstance()->getInstanceModel('Test\Test');
@@ -62,8 +62,8 @@ class LoadModelSpeedTest extends TestCase
 		}
 		
 		$exectTime = microtime(true) - $timeStart;
-		$averageTimeXml = 0.406;
-		$averageTimeJson = 0.27;
+		$averageTimeXml = 0.42;
+		$averageTimeJson = 0.282;
 		$errorMargin = 0.01;
 		
 		$this->assertContains(Config::getInstance()->getManifestFormat(), ['xml', 'json']);

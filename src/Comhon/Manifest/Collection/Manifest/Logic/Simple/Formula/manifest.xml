@@ -1,0 +1,5 @@
+<manifest version="3.0" share_parent_id="1">
+  <extends>
+    <type>\Comhon\Logic\Formula</type>
+  </extends>
+</manifest>

@@ -17,6 +17,33 @@ use Comhon\Interfacer\XMLInterfacer;
 class ManifestParser extends ParentManifestParser {
 
 	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\V_2_0\ManifestParser::isForbidenInterfacing()
+	 */
+	public function isForbidenInterfacing() {
+		return $this->_getBooleanValue($this->manifest, self::FORBID_INTERFACING, false);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\V_2_0\ManifestParser::isSharedParentId()
+	 */
+	public function isSharedParentId() {
+		return $this->_getBooleanValue($this->manifest, self::SHARE_PARENT_ID, false);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\V_2_0\ManifestParser::sharedId()
+	 */
+	public function sharedId() {
+		return $this->interfacer->getValue($this->manifest, self::SHARED_ID);
+	}
+	
+	/**
 	 *
 	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\ManifestParser::getExtends()

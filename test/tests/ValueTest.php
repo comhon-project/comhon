@@ -29,14 +29,13 @@ if (!is_null($testDbFromCollection)) {
 /** ****************************** test load new value ****************************** **/
 
 $dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
-/** @var AbstractComhonObject $testDb */
 $testDb = $dbTestModel->loadObject('[1,"50"]');
 $mainParentTestDb = $testDb->getValue('mainParentTestDb');
 $object = $testDb->getValue('object');
 $objectId = $testDb->getValue('objectWithId');
 
 if ($testDb->isUpdated()) {
-	throw new \Exception('should not be updated');
+	throw new \Exception('should not be updated 0');
 }
 if ($testDb->isIdUpdated()) {
 	throw new \Exception('id should not be updated');
@@ -132,7 +131,7 @@ if ($testDb !== $testDb3 || $mainParentTestDb !== $mainParentTestDb3 || $object 
 }
 
 if ($testDb->isUpdated()) {
-	throw new \Exception('should not be updated');
+	throw new \Exception('should not be updated 1');
 }
 if ($testDb->isIdUpdated()) {
 	throw new \Exception('id should not be updated');
@@ -160,10 +159,10 @@ if (!$mainParentTestDb->isLoaded()) {
 }
 
 if ($testDb->isUpdated()) {
-	throw new \Exception('should not be updated');
+	throw new \Exception('should not be updated 2');
 }
 if ($mainParentTestDb->isUpdated()) {
-	throw new \Exception('should not be updated');
+	throw new \Exception('should not be updated 3');
 }
 if ($mainParentTestDb->isIdUpdated()) {
 	throw new \Exception('id should not be updated');
@@ -235,10 +234,10 @@ foreach ($mainParentTestDb->getModel()->getProperties() as $property) {
 $mainParentTestDb->resetUpdatedStatus();
 
 if ($mainParentTestDb->isUpdated()) {
-	throw new \Exception('should not be updated');
+	throw new \Exception('should not be updated 4');
 }
 if ($testDb->isUpdated()) {
-	throw new \Exception('should not be updated');
+	throw new \Exception('should not be updated 5');
 }
 
 /** ****************************** test load ids aggregation value ****************************** **/
@@ -263,19 +262,19 @@ if ($mainParentTestDb->getValue('childrenTestDb')->count() != 6) {
 	throw new \Exception('bad children count : '.count($mainParentTestDb->getValue('childrenTestDb')->getValues()));
 }
 if ($mainParentTestDb->isUpdated()) {
-	throw new \Exception('should not be updated');
+	throw new \Exception('should not be updated 10');
 }
 if ($mainParentTestDb->isFlagedAsUpdated()) {
-	throw new \Exception('should not be updated');
+	throw new \Exception('should not be updated 11');
 }
 if ($mainParentTestDb->getValue('childrenTestDb')->isFlagedAsUpdated()) {
-	throw new \Exception('should not be updated');
+	throw new \Exception('should not be updated 12');
 }
 if ($mainParentTestDb->getValue('childrenTestDb')->isIdUpdated()) {
 	throw new \Exception('id should not be updated');
 }
 if ($mainParentTestDb->getValue('childrenTestDb')->isUpdated()) {
-	throw new \Exception('should not be updated');
+	throw new \Exception('should not be updated 13');
 }
 
 foreach ($mainParentTestDb->getValue('childrenTestDb') as $value) {
@@ -353,15 +352,8 @@ $test->getValue('enumFloatArray')->pushValue(3.5);
 /** ****************************** test import with no merge and reference to root object ****************************** **/
 
 $test->setId('plopplop');
-try {
-	MainObjectCollection::getInstance()->addObject($test);
-	$throw = true;
-} catch (ComhonException $e) {
-	$throw = false;
-}
-if ($throw) {
-	throw new \Exception('should be already added');
-}
+// test add object already added in MainObjectCollection must not fail
+MainObjectCollection::getInstance()->addObject($test);
 
 $objectRefParent = $test->initValue('objectRefParent');
 $objectRefParent->setValue('name', 'hahahahaha');
@@ -498,6 +490,8 @@ if (MainObjectCollection::getInstance()->getObject(8541, 'Test\MainTestDb') !== 
 }
 
 MainObjectCollection::getInstance()->removeObject($mainTestDb);
+MainObjectCollection::getInstance()->removeObject($mainTestDb3);
+MainObjectCollection::getInstance()->addObject($mainTestDb2);
 $stdPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
 $array->fill($array->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 

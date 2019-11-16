@@ -1,0 +1,8 @@
+<manifest version="3.0" shared_id="\Test\Extends\ShareId\GrandParent">
+  <extends>
+    <type>\Test\Extends\ShareId\GrandParent</type>
+  </extends>
+  <properties>
+    <property type="string" name="parentTwo"/>
+  </properties>
+</manifest>

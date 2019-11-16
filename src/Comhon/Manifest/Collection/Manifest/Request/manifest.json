@@ -1,0 +1,54 @@
+{
+    "version": "3.0",
+    "types": [
+        {
+            "name": "order",
+            "properties": [
+                {
+                    "name": "property",
+                    "type": "string"
+                },
+                {
+                    "name": "type",
+                    "type": "string",
+                    "enum": [
+                        "DESC",
+                        "ASC"
+                    ],
+                    "default": "ASC"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "limit",
+            "type": "integer"
+        },
+        {
+            "name": "offset",
+            "type": "integer"
+        },
+        {
+            "name": "order",
+            "type": "array",
+            "values": {
+                "type": "order",
+                "name": "element"
+            }
+        },
+        {
+            "name": "collection",
+            "type": "array",
+            "values": {
+                "type": "\\Comhon\\Logic\\Formula",
+                "name": "formula"
+            }
+        },
+        {
+            "name": "filter",
+            "type": "\\Comhon\\Logic\\Simple\\Formula",
+            "is_foreign": true
+        }
+    ]
+}

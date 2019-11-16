@@ -1,0 +1,9 @@
+<manifest version="3.0" share_parent_id="1">
+  <extends>
+    <type>\Comhon\Logic\Simple\Formula</type>
+  </extends>
+  <properties>
+    <property name="node" type="string"/>
+    <property name="property" type="string"/>
+  </properties>
+</manifest>

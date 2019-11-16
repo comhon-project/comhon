@@ -207,11 +207,4 @@ echo $request->getValue('collection')->getValue(8);
 var_dump($xmlInterfacer->toString($xmlInterfacer->export($request), true));
 
 
-$model = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal\String');
-var_dump($model->getPropertiesNames());
-var_dump($model->getProperty('value')->getModel()->getName());
-
-$model = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause\Conjunction');
-var_dump($model->getPropertiesNames());
-
 die();*/

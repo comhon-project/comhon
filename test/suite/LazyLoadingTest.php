@@ -24,7 +24,7 @@ class LazyLoadingTest extends TestCase
 	 * - first model intanciation
 	 * - import/export with null or empty values
 	 * 
-	 * @dataProvider LazyLoadingData
+	 * @dataProvider lazyLoadingData
 	 */
 	public function testLazyLoading($interfacedObject, $interfacer, $verifValues)
 	{
@@ -43,7 +43,7 @@ class LazyLoadingTest extends TestCase
 		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Place'));
 	}
 	
-	public function LazyLoadingData() {
+	public function lazyLoadingData() {
 		return [
 			[ // test without values json
 				json_decode('{"firstName": "hehe","father": 1}'),

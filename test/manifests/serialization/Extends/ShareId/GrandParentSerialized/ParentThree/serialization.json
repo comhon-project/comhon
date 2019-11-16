@@ -1,0 +1,11 @@
+{
+    "version": "2.0",
+    "serialization": {
+        "type": "Comhon\\File\\JsonFile",
+        "inheritanceKey": "grand_parent",
+        "value": {
+            "saticPath": ".\/data\/inherited_serialization_three",
+            "staticName": "file.json"
+        }
+    }
+}

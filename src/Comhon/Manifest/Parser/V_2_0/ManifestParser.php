@@ -67,14 +67,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::isMain()
 	 */
 	public function isMain() {
-		$isMain = $this->interfacer->hasValue($this->manifest, self::IS_MAIN)
-			? (
-				$this->castValues
-					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($this->manifest, self::IS_MAIN))
-					: $this->interfacer->getValue($this->manifest, self::IS_MAIN)
-			)
-			: false;
-		return $isMain;
+		return $this->_getBooleanValue($this->manifest, self::IS_MAIN, false);
 	}
 	
 	/**
@@ -83,13 +76,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::isSerializable()
 	 */
 	public function isSerializable() {
-		return $this->interfacer->hasValue($this->manifest, self::IS_SERIALIZABLE)
-			? (
-				$this->castValues
-					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($this->manifest, self::IS_SERIALIZABLE))
-					: $this->interfacer->getValue($this->manifest, self::IS_SERIALIZABLE)
-			)
-			: false;
+		return $this->_getBooleanValue($this->manifest, self::IS_SERIALIZABLE, false);
 	}
 	
 	/**
@@ -99,6 +86,33 @@ class ManifestParser extends ParentManifestParser {
 	 */
 	public function getObjectClass() {
 		return $this->interfacer->getValue($this->manifest, self::_OBJECT);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::isForbidenInterfacing()
+	 */
+	public function isForbidenInterfacing() {
+		return false;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::isSharedParentId()
+	 */
+	public function isSharedParentId() {
+		return false;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::sharedId()
+	 */
+	public function sharedId() {
+		return null;
 	}
 	
 	/**
@@ -170,15 +184,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_isCurrentPropertyForeign()
 	 */
 	protected function _isCurrentPropertyForeign() {
-		$currentProperty = $this->_getCurrentPropertyNode();
-		
-		return $this->interfacer->hasValue($currentProperty, self::IS_FOREIGN)
-			? (
-				$this->castValues
-					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($currentProperty, self::IS_FOREIGN))
-					: $this->interfacer->getValue($currentProperty, self::IS_FOREIGN)
-			)
-			: false;
+		return $this->_getBooleanValue($this->_getCurrentPropertyNode(), self::IS_FOREIGN, false);
 	}
 	
 	/**
@@ -189,22 +195,8 @@ class ManifestParser extends ParentManifestParser {
 	protected function _getBaseInfosProperty(AbstractModel $propertyModel) {
 		$currentProperty = $this->_getCurrentPropertyNode();
 	
-		$isId = $this->interfacer->hasValue($currentProperty, self::IS_ID)
-			? (
-				$this->castValues
-					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($currentProperty, self::IS_ID))
-					: $this->interfacer->getValue($currentProperty, self::IS_ID)
-			)
-			: false;
-		
-		$isPrivate = $this->interfacer->hasValue($currentProperty, self::IS_PRIVATE)
-			? (
-				$this->castValues
-					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($currentProperty, self::IS_PRIVATE))
-					: $this->interfacer->getValue($currentProperty, self::IS_PRIVATE)
-			)
-			: false;
-		
+		$isId      = $this->_getBooleanValue($currentProperty, self::IS_ID, false);
+		$isPrivate = $this->_getBooleanValue($currentProperty, self::IS_PRIVATE, false);
 		$name      = $this->interfacer->getValue($currentProperty, self::NAME);
 		$model     = $this->_completePropertyModel($currentProperty, $propertyModel);
 		
@@ -312,13 +304,7 @@ class ManifestParser extends ParentManifestParser {
 				throw new ManifestException('type array must have a values name property');
 			}
 			
-			$isAssociative = $this->interfacer->hasValue($propertyNode, self::IS_ASSOCIATIVE)
-				? (
-					$this->castValues
-						? $this->interfacer->castValueToBoolean($this->interfacer->getValue($propertyNode, self::IS_ASSOCIATIVE))
-						: $this->interfacer->getValue($propertyNode, self::IS_ASSOCIATIVE)
-				)
-				: false;
+			$isAssociative = $this->_getBooleanValue($propertyNode, self::IS_ASSOCIATIVE, false);
 			
 			$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
 			$restriction = $this->_getRestriction($valuesNode, $uniqueModel);

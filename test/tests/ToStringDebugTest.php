@@ -15,11 +15,11 @@ $testDb->unsetValue('childrenTestDb', false);
 $testDb->unsetValue('defaultValue', false);
 
 if (Config::getInstance()->getManifestFormat() == 'json') {
-	$first = '#1014';
-	$second = '#1002';
+	$first = '#1005';
+	$second = '#993';
 } else {
-	$first = '#1015';
-	$second = '#903';
+	$first = '#1006';
+	$second = '#894';
 }
 $varDumpContent = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'object_var_dump.txt');
 $varDumpContent = str_replace(['#_1', '#_2'], [$first, $second], $varDumpContent);

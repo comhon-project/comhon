@@ -1,0 +1,26 @@
+<manifest version="3.0">
+  <types>
+    <type name="order">
+      <properties>
+        <property name="property" type="string"/>
+        <property name="type" type="string" default="ASC">
+          <enum>
+            <value>DESC</value>
+            <value>ASC</value>
+          </enum>
+        </property>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property name="limit" type="integer"/>
+    <property name="offset" type="integer"/>
+    <property name="order" type="array">
+      <values name="element" type="order"/>
+    </property>
+    <property name="collection" type="array">
+      <values name="formula" type="\Comhon\Logic\Formula"/>
+    </property>
+    <property name="filter" type="\Comhon\Logic\Simple\Formula" is_foreign="1"/>
+  </properties>
+</manifest>

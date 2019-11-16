@@ -1,0 +1,17 @@
+{
+    "version": "3.0",
+    "share_parent_id": true,
+    "extends": [
+        "\\Comhon\\Logic\\Simple\\Literal\\Set\\Numeric"
+    ],
+    "properties": [
+        {
+            "name": "values",
+            "type": "array",
+            "values": {
+                "type": "integer",
+                "name": "value"
+            }
+        }
+    ]
+}

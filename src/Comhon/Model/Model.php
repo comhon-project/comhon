@@ -53,6 +53,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	private $parents;
 	
+	private $sharedIdModel;
+	
 	/** @var string */
 	private $objectClass = ComhonObject::class;
 	
@@ -130,6 +132,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$result = ModelManager::getInstance()->getProperties($this, $this->manifestParser);
 			$this->isMain = $result[ModelManager::IS_MAIN_MODEL];
 			$this->parents = $result[ModelManager::PARENT_MODELS];
+			$this->sharedIdModel = $result[ModelManager::SHARED_ID_MODEL];
 			$this->_setProperties($result[ModelManager::PROPERTIES]);
 			$this->serialization = $result[ModelManager::SERIALIZATION];
 			$this->_verifyIdSerialization();
@@ -170,7 +173,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * set manifest parser to populate model attributes.
 	 * should be called only during model loading.
 	 * 
-	 * @param ManifestParser $manifestParser
+	 * @param \Comhon\Manifest\Parser\ManifestParser $manifestParser
 	 * @throws ComhonException
 	 */
 	public function setManifestParser(ManifestParser $manifestParser) {
@@ -307,6 +310,17 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
+	 * get model that share id with current model.
+	 * if a model is return it is inevitably a parent of current model. 
+	 * it may be the direct parent or the parent of parent, etc...
+	 *
+	 * @return Model|null null if there is no parent model that share id with current model.
+	 */
+	public function getSharedIdModel() {
+		return $this->sharedIdModel;
+	}
+	
+	/**
 	 * get parent models. Comhon inheriance manage multiple inheritance so it may return several models.
 	 * 
 	 * @return Model[] if current model doesn't extend from any models, an empty array is returned.
@@ -397,7 +411,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * verify if current model inherit from specified model
 	 * 
-	 * @param Model $model
+	 * @param \Comhon\Model\Model $model
 	 * @return boolean
 	 */
 	public function isInheritedFrom(Model $model) {
@@ -980,15 +994,18 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				. 'You MUST define foreign property as private if related model has private id.'
 			);
 		}
-		if ($model !== $this) {
+		// for object model different than current model but that share id with current model 
+		// we may export only id whitout inheritance
+		// but for main model we keep inheritance because it can be a usefull information
+		if ($model === $this || (!$model->isMain() && ObjectCollection::getModelKey($this) === ObjectCollection::getModelKey($model))) {
+			$exportedId = self::_toInterfacedId($object, $interfacer);
+		} else {
 			if (!$model->isInheritedFrom($this)) {
 				throw new UnexpectedModelException($this, $model);
 			}
 			$exportedId = $interfacer->createNode($nodeName);
 			$interfacer->setValue($exportedId, self::_toInterfacedId($object, $interfacer), Interfacer::COMPLEX_ID_KEY);
 			$interfacer->setValue($exportedId, $model->getName(), Interfacer::INHERITANCE_KEY);
-		} else {
-			$exportedId = self::_toInterfacedId($object, $interfacer);
 		}
 		
 		if ($model->isMain() && $interfacer->hasToExportMainForeignObjects()) {
@@ -1122,13 +1139,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				$localObjectCollection->addObject($object);
 			}
 			else {
-				if ($this->isMain) {
-					$localObjectCollection->addObject($object, false);
-					if (!$localObjectCollection->hasObject($id, $this->modelName, false)) {
-						$object->cast($this);
-						$localObjectCollection->addObject($object, false);
-					}
+				if ($this->isInheritedFrom($object->getModel()) && ObjectCollection::getModelKey($this) === ObjectCollection::getModelKey($object->getModel())) {
+					$object->cast($this);
 				}
+				$localObjectCollection->addObject($object, false);
 				if ($isloaded || ($isFirstLevel && $interfacer->getMergeType() !== Interfacer::MERGE)) {
 					$object->setIsLoaded($isloaded);
 				}

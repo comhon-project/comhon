@@ -91,7 +91,7 @@ abstract class AbstractComhonObject {
 		}
 		if ($this->_hasToUpdateMainObjectCollection($name)) {
 			if ($this->hasCompleteId() && MainObjectCollection::getInstance()->getObject($this->getId(), $this->model->getName()) === $this) {
-				MainObjectCollection::getInstance()->removeObject($this);
+				MainObjectCollection::getInstance()->removeObject($this, false);
 			}
 			$this->values[$name] = $value;
 			MainObjectCollection::getInstance()->addObject($this, false);

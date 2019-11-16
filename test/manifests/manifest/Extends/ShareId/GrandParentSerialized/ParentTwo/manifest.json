@@ -1,0 +1,13 @@
+{
+    "version": "3.0",
+    "extends": [
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized"
+    ],
+    "is_serializable": false,
+    "properties": [
+        {
+            "name": "parentTwo",
+            "type": "string"
+        }
+    ]
+}

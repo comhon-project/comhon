@@ -1,0 +1,9 @@
+<manifest version="3.0" is_serializable="0">
+  <extends>
+    <type>\Test\Extends\Multiple\InheritedTwo</type>
+    <type>\Test\Extends\Multiple\InheritedFourth</type>
+  </extends>
+  <properties>
+    <property type="string" name="final"/>
+  </properties>
+</manifest>

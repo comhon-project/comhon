@@ -39,7 +39,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 */
 	final public function reset() {
 		if ($this->getModel()->hasIdProperties() && $this->getModel()->isMain()) {
-			MainObjectCollection::getInstance()->removeObject($this);
+			MainObjectCollection::getInstance()->removeObject($this, false);
 		}
 		$this->_reset();
 		foreach ($this->getModel()->getPropertiesWithDefaultValues() as $property) {
@@ -55,6 +55,9 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 * @throws \Exception
 	 */
 	final public function setId($id, $flagAsUpdated = true) {
+		if (!$this->getModel()->hasIdProperties()) {
+			throw new ComhonException("cannot set id. model {$this->getModel()->getName()} doesn't have id property");
+		}
 		if ($this->getModel()->hasUniqueIdProperty()) {
 			$this->setValue($this->getModel()->getUniqueIdProperty()->getName(), $id, $flagAsUpdated);
 		}
@@ -319,6 +322,9 @@ abstract class UniqueObject extends AbstractComhonObject {
 					throw new ComhonException("Cannot cast object to '{$model->getName()}'. ComhonObject with id '{$this->getId()}' and model '{$model->getName()}' already exists in MainObjectCollection");
 				}
 			}
+		}
+		if ($this->getModel()->isMain() && $addObject) {
+			MainObjectCollection::getInstance()->removeObject($this);
 		}
 		$originalModel = $this->getModel();
 		$this->_setModel($model);

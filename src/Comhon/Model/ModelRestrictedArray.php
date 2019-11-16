@@ -27,7 +27,7 @@ class ModelRestrictedArray extends ModelArray {
 	
 	/**
 	 * 
-	 * @param ModelUnique $model
+	 * @param \Comhon\Model\ModelUnique $model
 	 * @param \Comhon\Model\Restriction\Restriction $restriction
 	 * @param boolean $isAssociative
 	 * @param string $elementName

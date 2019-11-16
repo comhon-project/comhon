@@ -1,0 +1,14 @@
+{
+    "version": "3.0",
+    "extends": [
+        "\\Test\\Extends\\Multiple\\InheritedTwo",
+        "\\Test\\Extends\\Multiple\\InheritedFourth"
+    ],
+    "is_serializable": false,
+    "properties": [
+        {
+            "name": "final",
+            "type": "string"
+        }
+    ]
+}

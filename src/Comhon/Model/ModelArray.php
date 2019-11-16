@@ -36,7 +36,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	
 	/**
 	 * 
-	 * @param ModelUnique $model
+	 * @param \Comhon\Model\ModelUnique $model
 	 * @param boolean $isAssociative
 	 * @param string $elementName
 	 */

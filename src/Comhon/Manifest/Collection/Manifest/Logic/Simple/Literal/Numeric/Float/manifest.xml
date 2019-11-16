@@ -1,0 +1,11 @@
+<manifest version="3.0" share_parent_id="1">
+  <extends>
+    <type>\Comhon\Logic\Simple\Literal\Numeric</type>
+  </extends>
+  <extends>
+    <type>\Comhon\Logic\Literal</type>
+  </extends>
+  <properties>
+    <property name="value" type="float"/>
+  </properties>
+</manifest>

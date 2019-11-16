@@ -18,11 +18,11 @@ class MultipleInheritanceTest extends TestCase
 		 * 
 		 * @var \Comhon\Model\Model $model
 		 */
-		$model = ModelManager::getInstance()->getInstanceModel('Test\MultipleInheritance\InheritedFinal');
-		$modelParentOne = ModelManager::getInstance()->getInstanceModel('Test\MultipleInheritance\InheritedOne');
-		$modelParentTwo = ModelManager::getInstance()->getInstanceModel('Test\MultipleInheritance\InheritedTwo');
-		$modelParentThree = ModelManager::getInstance()->getInstanceModel('Test\MultipleInheritance\InheritedThree');
-		$modelParentFourth = ModelManager::getInstance()->getInstanceModel('Test\MultipleInheritance\InheritedFourth');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Extends\Multiple\InheritedFinal');
+		$modelParentOne = ModelManager::getInstance()->getInstanceModel('Test\Extends\Multiple\InheritedOne');
+		$modelParentTwo = ModelManager::getInstance()->getInstanceModel('Test\Extends\Multiple\InheritedTwo');
+		$modelParentThree = ModelManager::getInstance()->getInstanceModel('Test\Extends\Multiple\InheritedThree');
+		$modelParentFourth = ModelManager::getInstance()->getInstanceModel('Test\Extends\Multiple\InheritedFourth');
 		
 		$this->assertCount(2, $model->getParents());
 		$this->assertSame($modelParentTwo, $model->getParent());

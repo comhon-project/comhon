@@ -1,0 +1,31 @@
+{
+    "version": "3.0",
+    "properties": [
+        {
+            "name": "foreignCollectionOne",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\Extends\\ShareId\\GrandParent",
+                "name": "element"
+            },
+            "is_foreign": true
+        },
+        {
+            "name": "collection",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\Extends\\ShareId\\GrandParent",
+                "name": "element"
+            }
+        },
+        {
+            "name": "foreignCollectionTwo",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\Extends\\ShareId\\GrandParent",
+                "name": "element"
+            },
+            "is_foreign": true
+        }
+    ]
+}

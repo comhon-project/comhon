@@ -35,8 +35,5 @@
             "name": "baldness",
             "type": "boolean"
         }
-    ],
-    "inheritance_requestables": [
-        "\\Test\\Body\\ManJsonExtended"
     ]
 }

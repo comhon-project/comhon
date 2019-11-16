@@ -1,0 +1,63 @@
+{
+    "version": "3.0",
+    "share_parent_id": true,
+    "extends": [
+        "\\Comhon\\Logic\\Having\\Formula"
+    ],
+    "types": [
+        {
+            "name": "Count",
+            "share_parent_id": true,
+            "extends": [
+                "\\Comhon\\Logic\\Having\\Literal"
+            ],
+            "properties": [
+                {
+                    "name": "value",
+                    "type": "integer"
+                }
+            ]
+        },
+        {
+            "name": "Function",
+            "share_parent_id": true,
+            "extends": [
+                "\\Comhon\\Logic\\Having\\Literal"
+            ],
+            "properties": [
+                {
+                    "name": "property",
+                    "type": "string"
+                },
+                {
+                    "name": "function",
+                    "type": "string",
+                    "enum": [
+                        "SUM",
+                        "AVG",
+                        "MIN",
+                        "MAX"
+                    ]
+                },
+                {
+                    "name": "value",
+                    "type": "float"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "operator",
+            "type": "string",
+            "enum": [
+                "=",
+                "<>",
+                "<",
+                "<=",
+                ">",
+                ">="
+            ]
+        }
+    ]
+}
