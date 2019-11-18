@@ -43,7 +43,7 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 	 * @return string
 	 */
 	protected function _getPath(UniqueObject $object) {
-		return $object->getModel()->getSerializationSettings()->getValue('saticPath') 
+		return $object->getModel()->getSerializationSettings()->getValue('staticPath') 
 			. DIRECTORY_SEPARATOR 
 			. $object->getId() 
 			. DIRECTORY_SEPARATOR 

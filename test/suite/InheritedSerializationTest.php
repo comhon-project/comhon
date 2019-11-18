@@ -20,7 +20,7 @@ class InheritedSerializationTest extends TestCase
 		$this->assertInstanceOf(ComhonObject::class, $currentModel->getSerializationSettings());
 		$this->assertSame($currentModel->getSerializationSettings(), $currentModel->getParent()->getSerializationSettings());
 		$this->assertEquals(
-			'{"saticPath":".\/data\/inherited_serialization","staticName":"file.json"}',
+			'{"staticPath":".\/data\/inherited_serialization","staticName":"file.json"}',
 			json_encode($currentModel->getSerializationSettings()->getValues())
 		);
 		
@@ -42,7 +42,7 @@ class InheritedSerializationTest extends TestCase
 		$currentModel = $currentModel->getParent();
 		$this->assertInstanceOf(ComhonObject::class, $currentModel->getSerializationSettings());
 		$this->assertEquals(
-			'{"saticPath":".\/data\/inherited_serialization_two","staticName":"file.json"}',
+			'{"staticPath":".\/data\/inherited_serialization_two","staticName":"file.json"}',
 			json_encode($currentModel->getSerializationSettings()->getValues())
 		);
 		

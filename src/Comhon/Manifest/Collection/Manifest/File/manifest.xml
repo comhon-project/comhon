@@ -1,6 +1,6 @@
 <manifest version="3.0" is_main="1">
   <properties>
-    <property type="string" name="saticPath"/>
+    <property type="string" name="staticPath"/>
     <property type="string" name="staticName"/>
   </properties>
 </manifest>

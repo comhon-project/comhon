@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<serialization type="Comhon\File\JsonFile" inheritanceKey="key">
-		<value saticPath="./data/man_body_json" staticName="man_body.json"/>
+		<value staticPath="./data/man_body_json" staticName="man_body.json"/>
 	</serialization>
 </manifest>

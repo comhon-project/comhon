@@ -4,7 +4,7 @@
         "type": "Comhon\\File\\JsonFile",
         "inheritanceKey": "inheritance_two",
         "value": {
-            "saticPath": ".\/data\/multiple_inheritance_two_serialization",
+            "staticPath": ".\/data\/multiple_inheritance_two_serialization",
             "staticName": "file.json"
         }
     }

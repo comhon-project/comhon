@@ -3,7 +3,7 @@
     "serialization": {
         "type": "Comhon\\File\\JsonFile",
         "value": {
-            "saticPath": ".\/data\/inherited_serialization_two",
+            "staticPath": ".\/data\/inherited_serialization_two",
             "staticName": "file.json"
         }
     }

@@ -3,7 +3,7 @@
     "serialization": {
         "type": "Comhon\\File\\JsonFile",
         "value": {
-            "saticPath": ".\/table",
+            "staticPath": ".\/table",
             "staticName": "table.json"
         }
     }

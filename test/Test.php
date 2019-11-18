@@ -448,7 +448,7 @@ try {
 }*/
 
 // TODO for version > 3.0
-// saticPath to staticPath
+// staticPath to staticPath
 // verify main, serializable, abstract, sharedId, shareParentId in local types
 
 // during import/export verify mandatory properties

@@ -4,7 +4,7 @@
         "type": "Comhon\\File\\XmlFile",
         "inheritanceKey": "attribute",
         "value": {
-            "saticPath": ".\/data\/woman_xml",
+            "staticPath": ".\/data\/woman_xml",
             "staticName": "woman.xml"
         }
     }

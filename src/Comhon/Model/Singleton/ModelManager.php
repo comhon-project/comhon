@@ -132,14 +132,14 @@ class ModelManager {
 				if (!is_dir($path)) {
 					throw new ConfigFileNotFoundException('sqlTable', 'directory', Config::getInstance()->getSerializationSqlTablePath(false));
 				}
-				$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('saticPath', $path);
+				$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('staticPath', $path);
 			}
 			if (Config::getInstance()->hasValue('sqlDatabase')) {
 				$path = Config::getInstance()->getSerializationSqlDatabasePath();
 				if (!is_dir($path)) {
 					throw new ConfigFileNotFoundException('sqlDatabase', 'directory', Config::getInstance()->getSerializationSqlDatabasePath(false));
 				}
-				$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('saticPath', $path);
+				$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('staticPath', $path);
 			}
 			if (!is_null(Config::getInstance()->getValue('manifestFormat'))) {
 				$this->manifestExtension = Config::getInstance()->getValue('manifestFormat');

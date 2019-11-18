@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
 	<serialization type="Comhon\File\XmlFile">
-		<value saticPath="./data/test_xml" staticName="test.xml"/>
+		<value staticPath="./data/test_xml" staticName="test.xml"/>
 	</serialization>
 </manifest>

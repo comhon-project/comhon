@@ -32,7 +32,7 @@ class MultipleInheritanceTest extends TestCase
 		$this->assertEquals(['id', 'two', 'three', 'fourth', 'final'], $model->getPropertiesNames());
 		
 		$this->assertNotNull($model->getSerializationSettings());
-		$this->assertEquals($model->getSerializationSettings()->getValue('saticPath'), './data/multiple_inheritance_one_serialization');
+		$this->assertEquals($model->getSerializationSettings()->getValue('staticPath'), './data/multiple_inheritance_one_serialization');
 		$this->assertSame($model->getSerializationSettings(), $modelParentTwo->getSerializationSettings());
 		$this->assertNotSame($model->getSerializationSettings(), $modelParentFourth->getSerializationSettings());
 		
