@@ -448,14 +448,8 @@ try {
 }*/
 
 // TODO for version > 3.0
-// shared id for extended model
-// if cast object with main model to NOT main model should remove object from mainMbjectCollection
-// + test
-
-// put having literals in simple/having model with a new property collection
 // saticPath to staticPath
 // verify main, serializable, abstract, sharedId, shareParentId in local types
-// mainobject collection use param to throw execption or not
 
 // during import/export verify mandatory properties
 // during import test if several objects (not foreign) have same id. if they have, throw exception

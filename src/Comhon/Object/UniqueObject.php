@@ -316,7 +316,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 		$addObject = false;
 		if ($this->hasCompleteId() && $this->getModel()->hasIdProperties()) {
 			$object = MainObjectCollection::getInstance()->getObject($this->getId(), $model->getName());
-			if ($object === $this) {
+			if (is_null($object) || $object === $this) {
 				$addObject = true;
 				if (MainObjectCollection::getInstance()->hasObject($this->getId(), $model->getName(), false)) {
 					throw new ComhonException("Cannot cast object to '{$model->getName()}'. ComhonObject with id '{$this->getId()}' and model '{$model->getName()}' already exists in MainObjectCollection");

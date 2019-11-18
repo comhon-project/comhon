@@ -11,7 +11,7 @@ foreach ($folders as $folder) {
 	
 	foreach ($files as $file) {
 		$dir = dirname($file);
-		if (basename($file) == 'manifest.xml' /*&& !file_exists($dir.'/manifest.json')*/) {
+		if (basename($file) == 'manifest.xml' && !file_exists($dir.'/manifest.json')) {
 			$xml = simplexml_load_file($file);
 			transformManifest($xml, $dir);
 		}

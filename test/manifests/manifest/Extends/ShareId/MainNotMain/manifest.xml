@@ -1,0 +1,22 @@
+<manifest version="3.0" is_main="1">
+  <types>
+    <type name="Main" share_parent_id="1" is_main="1">
+      <extends>
+        <type>\Test\Extends\ShareId\MainNotMain</type>
+      </extends>
+    </type>
+    <type name="NotMain" share_parent_id="1">
+      <extends>
+        <type>\Test\Extends\ShareId\MainNotMain</type>
+      </extends>
+    </type>
+    <type name="NotMain\Main" share_parent_id="1" is_main="1">
+      <extends>
+        <type>NotMain</type>
+      </extends>
+    </type>
+  </types>
+  <properties>
+    <property type="integer" name="id" is_id="1"/>
+  </properties>
+</manifest>

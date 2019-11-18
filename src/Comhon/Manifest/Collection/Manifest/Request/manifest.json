@@ -38,10 +38,18 @@
             }
         },
         {
-            "name": "collection",
+            "name": "simpleCollection",
             "type": "array",
             "values": {
-                "type": "\\Comhon\\Logic\\Formula",
+                "type": "\\Comhon\\Logic\\Simple\\Formula",
+                "name": "formula"
+            }
+        },
+        {
+            "name": "havingCollection",
+            "type": "array",
+            "values": {
+                "type": "\\Comhon\\Logic\\Having\\Formula",
                 "name": "formula"
             }
         },

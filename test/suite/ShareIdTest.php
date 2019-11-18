@@ -6,6 +6,7 @@ use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Object\ComhonObject;
 use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Object\Collection\MainObjectCollection;
 
 class ShareIdTest extends TestCase
 {
@@ -54,9 +55,9 @@ class ShareIdTest extends TestCase
 
 	/**
 	 * 
-	 * @dataProvider shareIdObjectCollectionData
+	 * @dataProvider shareIdImportExportData
 	 */
-	public function testShareIdObjectCollection($json)
+	public function testShareIdImportExport($json)
 	{
 		$shardId = ModelManager::getInstance()->getInstanceModel('Test\Extends\ShareId');
 		$interfacer = new StdObjectInterfacer();
@@ -82,7 +83,7 @@ class ShareIdTest extends TestCase
 		$this->assertEquals(json_encode($stdObj), $interfacer->toString($obj->export($interfacer)));
 	}
 	
-	public function shareIdObjectCollectionData()
+	public function shareIdImportExportData()
 	{
 		return [
 			[
@@ -131,7 +132,7 @@ class ShareIdTest extends TestCase
 		];
 	}
 	
-	public function testShareIdObjectCollectionMain()
+	public function testShareIdExportMain()
 	{
 		$man = new ComhonObject('Test\Person\Man');
 		$man->setId(1);
@@ -148,6 +149,50 @@ class ShareIdTest extends TestCase
 			'{"id":1,"children":[{"id":2,"__inheritance__":"Test\\\\Person\\\\Woman"}]}', 
 			$interfacer->toString($interfacer->export($man))
 		);
+	}
+	
+	public function testMainObjectCollection()
+	{
+		$modelMain = ModelManager::getInstance()->getInstanceModel('Test\Extends\ShareId\MainNotMain\Main');
+		$modelNotMain = ModelManager::getInstance()->getInstanceModel('Test\Extends\ShareId\MainNotMain\NotMain');
+		$modelNotMainMain = ModelManager::getInstance()->getInstanceModel('Test\Extends\ShareId\MainNotMain\NotMain\Main');
+		
+		$obj = new ComhonObject('Test\Extends\ShareId\MainNotMain');
+		$obj->setId(1);
+		$this->assertTrue($obj->getModel()->isMain());
+		$this->assertSame($obj, MainObjectCollection::getInstance()->getObject(1, 'Test\Extends\ShareId\MainNotMain', false));
+		
+		$obj->cast($modelMain);
+		$this->assertTrue($obj->getModel()->isMain());
+		$this->assertSame($obj, MainObjectCollection::getInstance()->getObject(1, 'Test\Extends\ShareId\MainNotMain\Main', false));
+		
+		$id = 2;
+		$obj2 = new ComhonObject('Test\Extends\ShareId\MainNotMain');
+		$obj2->setId($id);
+		$this->assertSame($obj2, MainObjectCollection::getInstance()->getObject($id, 'Test\Extends\ShareId\MainNotMain', false));
+		
+		$obj2->cast($modelNotMain);
+		$this->assertFalse($obj2->getModel()->isMain());
+		$this->assertFalse(MainObjectCollection::getInstance()->hasObject($id, 'Test\Extends\ShareId\MainNotMain', false));
+		$this->assertFalse(MainObjectCollection::getInstance()->hasObject($id, 'Test\Extends\ShareId\MainNotMain\NotMain', false));
+		
+		$obj2->cast($modelNotMainMain);
+		$this->assertTrue($obj2->getModel()->isMain());
+		$this->assertSame($obj2, MainObjectCollection::getInstance()->getObject($id, 'Test\Extends\ShareId\MainNotMain\NotMain\Main', false));
+		$this->assertSame($obj2, MainObjectCollection::getInstance()->getObject($id, 'Test\Extends\ShareId\MainNotMain', false));
+		
+		$obj3 = new ComhonObject('Test\Extends\ShareId\MainNotMain');
+		$obj3->setId($id);
+		$this->assertNotSame($obj3, MainObjectCollection::getInstance()->getObject($id, 'Test\Extends\ShareId\MainNotMain', false));
+		$this->assertNotSame($obj3, MainObjectCollection::getInstance()->getObject($id, 'Test\Extends\ShareId\MainNotMain\NotMain\Main', false));
+		
+		$obj3->cast($modelNotMain);
+		$this->assertNotSame($obj3, MainObjectCollection::getInstance()->getObject($id, 'Test\Extends\ShareId\MainNotMain', false));
+		$this->assertNotSame($obj3, MainObjectCollection::getInstance()->getObject($id, 'Test\Extends\ShareId\MainNotMain\NotMain\Main', false));
+		
+		$obj3->cast($modelNotMainMain);
+		$this->assertNotSame($obj3, MainObjectCollection::getInstance()->getObject($id, 'Test\Extends\ShareId\MainNotMain', false));
+		$this->assertNotSame($obj3, MainObjectCollection::getInstance()->getObject($id, 'Test\Extends\ShareId\MainNotMain\NotMain\Main', false));
 	}
 	
 }

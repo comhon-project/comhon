@@ -1,0 +1,37 @@
+{
+    "version": "3.0",
+    "is_main": true,
+    "types": [
+        {
+            "name": "Main",
+            "share_parent_id": true,
+            "extends": [
+                "\\Test\\Extends\\ShareId\\MainNotMain"
+            ],
+            "properties": []
+        },
+        {
+            "name": "NotMain",
+            "share_parent_id": true,
+            "extends": [
+                "\\Test\\Extends\\ShareId\\MainNotMain"
+            ],
+            "properties": []
+        },
+        {
+            "name": "NotMain\\Main",
+            "share_parent_id": true,
+            "extends": [
+                "NotMain"
+            ],
+            "properties": []
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        }
+    ]
+}

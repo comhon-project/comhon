@@ -18,8 +18,11 @@
     <property name="order" type="array">
       <values name="element" type="order"/>
     </property>
-    <property name="collection" type="array">
-      <values name="formula" type="\Comhon\Logic\Formula"/>
+    <property name="simpleCollection" type="array">
+      <values name="formula" type="\Comhon\Logic\Simple\Formula"/>
+    </property>
+    <property name="havingCollection" type="array">
+      <values name="formula" type="\Comhon\Logic\Having\Formula"/>
     </property>
     <property name="filter" type="\Comhon\Logic\Simple\Formula" is_foreign="1"/>
   </properties>
