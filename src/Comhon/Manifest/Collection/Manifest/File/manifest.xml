@@ -1,4 +1,4 @@
-<manifest version="3.0" is_main="1">
+<manifest version="3.0" is_abstract="1" is_main="1">
   <properties>
     <property type="string" name="staticPath"/>
     <property type="string" name="staticName"/>

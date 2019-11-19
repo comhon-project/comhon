@@ -455,7 +455,7 @@ abstract class AbstractComhonObject {
 	 * 
 	 * @param boolean $isLoaded
 	 */
-	final public function setIsLoaded($isLoaded) {
+	public function setIsLoaded($isLoaded) {
 		$this->isLoaded = $isLoaded;
 	}
 	

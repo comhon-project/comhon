@@ -22,7 +22,7 @@ class AllSettingsTest extends TestCase
 	public function testAllSettings($modelName, $class, $isMain, $isAbstract, $sharedId)
 	{
 		$model = ModelManager::getInstance()->getInstanceModel($modelName);
-		$this->assertInstanceOf($class, $model->getObjectInstance());
+		$this->assertInstanceOf($class, $model->getObjectInstance(false));
 		
 		$this->assertEquals($isMain, $model->isMain());
 		$this->assertEquals($isAbstract, $model->isAbstract());

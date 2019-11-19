@@ -1,4 +1,4 @@
-<manifest version="3.0">
+<manifest version="3.0" is_abstract="1">
   <properties>
     <property name="id" type="integer" is_id="1"/>
   </properties>

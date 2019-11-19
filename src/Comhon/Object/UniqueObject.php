@@ -17,6 +17,7 @@ use Comhon\Exception\Model\CastComhonObjectException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Model\Model;
+use Comhon\Exception\Object\AbstractObjectException;
 
 abstract class UniqueObject extends AbstractComhonObject {
 	
@@ -175,6 +176,18 @@ abstract class UniqueObject extends AbstractComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::setIsLoaded()
+	 */
+	final public function setIsLoaded($isLoaded) {
+		if ($isLoaded && $this->getModel()->isAbstract()) {
+			throw new AbstractObjectException($this);
+		}
+		parent::setIsLoaded($isLoaded);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \Comhon\Object\AbstractComhonObject::isUpdated()
 	 */
 	final public function isUpdated() {
@@ -323,20 +336,24 @@ abstract class UniqueObject extends AbstractComhonObject {
 				}
 			}
 		}
-		if ($this->getModel()->isMain() && $addObject) {
-			MainObjectCollection::getInstance()->removeObject($this);
-		}
-		$originalModel = $this->getModel();
-		$this->_setModel($model);
-		$this->isCasted = true;
-		if ($this->getModel()->isMain() && $addObject) {
-			try {
-				MainObjectCollection::getInstance()->addObject($this);
-			} catch (\Exception $e) {
-				$this->_setModel($originalModel);
-				throw $e;
+		try {
+			if ($this->getModel()->isMain() && $addObject) {
+				MainObjectCollection::getInstance()->removeObject($this);
 			}
+			$originalModel = $this->getModel();
+			$this->_setModel($model);
+
+			if ($this->getModel()->isAbstract() && $this->isLoaded()) {
+				throw new AbstractObjectException($this);
+			}
+			if ($this->getModel()->isMain() && $addObject) {
+				MainObjectCollection::getInstance()->addObject($this);
+			}
+		} catch (\Exception $e) {
+			$this->_setModel($originalModel);
+			throw $e;
 		}
+		$this->isCasted = true;
 	}
 	
 	/**

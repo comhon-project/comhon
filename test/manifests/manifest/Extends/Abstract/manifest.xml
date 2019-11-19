@@ -1,0 +1,14 @@
+<manifest version="3.0">
+  <types>
+    <type name="IsAbstract" is_abstract="1">
+      <extends>
+        <type>IsNotAbstract</type>
+      </extends>
+    </type>
+    <type name="IsNotAbstract" is_abstract="0">
+      <extends>
+        <type>\Test\Basic\Id\Simple</type>
+      </extends>
+    </type>
+  </types>
+</manifest>

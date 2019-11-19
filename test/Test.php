@@ -449,7 +449,6 @@ try {
 
 // TODO for version > 3.0
 
-// model binder add local management INHERITANCE_REQUESTABLES INHERITANCE_VALUES
 // is abstract
 // during import/export verify mandatory properties
 // during import test if several objects (not foreign) have same id. if they have, throw exception

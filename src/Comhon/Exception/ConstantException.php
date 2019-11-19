@@ -23,10 +23,11 @@ abstract class ConstantException {
 	const CAST_EXCEPTION                    = 107;
 	const PROPERTY_VISIBILITY_EXCEPTION     = 108;
 	
-	// value exception
+	// object/value exception
 	const NOT_SATISFIED_RESTRICTION_EXCEPTION = 201;
 	const ENUMERATION_EXCEPTION               = 202;
 	const UNEXPECTED_VALUE_TYPE_EXCEPTION     = 203;
+	const ABSTRACT_OBJECT_EXCEPTION           = 204;
 	
 	// visitor exception
 	const VISITOR_PARAMETER_EXCEPTION = 301;
