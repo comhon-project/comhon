@@ -3,4 +3,11 @@
     <property type="string" name="id" is_id="1"/>
     <property type="string" name="grandParent"/>
   </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child</inheritance_requestable>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentOne</inheritance_requestable>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</inheritance_requestable>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentTwo</inheritance_requestable>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child</inheritance_requestable>
+  </inheritance_requestables>
 </manifest>

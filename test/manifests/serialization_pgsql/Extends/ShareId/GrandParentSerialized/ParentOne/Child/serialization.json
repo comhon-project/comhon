@@ -7,5 +7,8 @@
             "staticPath": ".\/data\/inherited_serialization",
             "staticName": "file.json"
         }
-    }
+    },
+    "inheritance_values": [
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne\\Child"
+    ]
 }

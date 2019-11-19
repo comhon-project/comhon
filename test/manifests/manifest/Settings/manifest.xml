@@ -1,0 +1,17 @@
+<manifest version="3.0" is_main="0" is_abstract="0" share_parent_id="1" object="Test\Comhon\Object\Settings">
+  <extends>
+    <type>\Test\Basic\Id\Main</type>
+  </extends>
+  <types>
+    <type name="Local" is_main="1" is_abstract="1" share_parent_id="1" object="Test\Comhon\Object\SettingsLocal">
+      <extends>
+        <type>\Test\Basic\Id\Simple</type>
+      </extends>
+    </type>
+    <type name="LocalTwo" is_main="0" is_abstract="0" shared_id="\Test\Basic\Id\Simple">
+      <extends>
+        <type>\Test\Basic\Id\Simple</type>
+      </extends>
+    </type>
+  </types>
+</manifest>

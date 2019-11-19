@@ -1,6 +1,6 @@
 <manifest version="3.0">
   <properties>
-    <property type="\Test\Basic\Id" name="basicPropertyWithId"/>
+    <property type="\Test\Basic\Standard" name="basicPropertyWithId"/>
     <property type="\Test\Basic\NoId\ObjectContainer" name="basicNoIdObjectContainerProperty"/>
   </properties>
 </manifest>

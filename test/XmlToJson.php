@@ -83,11 +83,17 @@ function transformManifest($xml, $dir) {
 	$json = new stdClass();
 	$json->version = (string) $xml['version'];
 	
+	if (isset($xml['is_main'])) {
+		$json->is_main = (boolean) ((string) $xml['is_main']);
+	}
+	if (isset($xml['is_serializable'])) {
+		$json->is_serializable = (boolean) ((string) $xml['is_serializable']);
+	}
+	if (isset($xml['is_abstract'])) {
+		$json->is_abstract = (boolean) ((string) $xml['is_abstract']);
+	}
 	if (isset($xml['object'])) {
 		$json->object = (string) $xml['object'];
-	}
-	if (isset($xml['forbid_interfacing'])) {
-		$json->forbid_interfacing = (boolean) ((string) $xml['forbid_interfacing']);
 	}
 	if (isset($xml['share_parent_id'])) {
 		$json->share_parent_id = (boolean) ((string) $xml['share_parent_id']);
@@ -103,14 +109,6 @@ function transformManifest($xml, $dir) {
 		}
 	}
 	
-	if (isset($xml['is_main'])) {
-		$json->is_main = (boolean) ((string) $xml['is_main']);
-	}
-	
-	if (isset($xml['is_serializable'])) {
-		$json->is_serializable = (boolean) ((string) $xml['is_serializable']);
-	}
-	
 	if (isset($xml->manifests)) {
 		$json->manifests = new stdClass();
 		foreach ($xml->manifests->children() as $manifest) {
@@ -124,11 +122,17 @@ function transformManifest($xml, $dir) {
 		foreach ($xml->types->children() as $type) {
 			$typeObj = new stdClass();
 			$typeObj->name = (string) $type['name'];
+			if (isset($type['is_main'])) {
+				$typeObj->is_main = (boolean) ((string) $type['is_main']);
+			}
+			if (isset($type['is_serializable'])) {
+				$typeObj->is_serializable = (boolean) ((string) $type['is_serializable']);
+			}
+			if (isset($type['is_abstract'])) {
+				$typeObj->is_abstract = (boolean) ((string) $type['is_abstract']);
+			}
 			if (isset($type['object'])) {
 				$typeObj->object = (string) $type['object'];
-			}
-			if (isset($type['forbid_interfacing'])) {
-				$typeObj->forbid_interfacing = (boolean) ((string) $type['forbid_interfacing']);
 			}
 			if (isset($type['share_parent_id'])) {
 				$typeObj->share_parent_id = (boolean) ((string) $type['share_parent_id']);

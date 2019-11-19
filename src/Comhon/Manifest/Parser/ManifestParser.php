@@ -61,7 +61,7 @@ abstract class ManifestParser {
 	const IS_ASSOCIATIVE  = 'is_associative';
 	
 	/** @var string */
-	const FORBID_INTERFACING = 'forbid_interfacing';
+	const IS_ABSTRACT = 'is_abstract';
 	
 	/** @var string */
 	const SHARE_PARENT_ID = 'share_parent_id';
@@ -79,7 +79,13 @@ abstract class ManifestParser {
 	protected $manifest;
 	
 	/** @var SerializationManifestParser */
-	protected $serializationManifestParser;
+	private $serializationManifestParser;
+	
+	/** @var boolean */
+	private $serializationManifestParserInitialized = false;
+	
+	/** @var string */
+	protected $serializationManifestPath_afe;
 	
 	/** @var \Comhon\Interfacer\Interfacer */
 	protected $interfacer;
@@ -134,12 +140,12 @@ abstract class ManifestParser {
 	abstract public function getObjectClass();
 	
 	/**
-	 * verify if manifest describe a model that forbid interfacing.
-	 * if true, object with this kind of model cannot be interfaced
+	 * verify if manifest describe a model is abstract.
+	 * object with abstract model may be instanciated instanciated but cannot be loaded and cannot be interfaced
 	 *
 	 * @return boolean
 	 */
-	abstract public function isForbidenInterfacing();
+	abstract public function isAbstract();
 	
 	/**
 	 * verify if manifest describe a model that share id with its direct parent model.
@@ -224,12 +230,10 @@ abstract class ManifestParser {
 		$this->manifest = $manifest;
 		$this->isLocal = $isLocal;
 		$this->namespace = $namespace;
+		$this->serializationManifestPath_afe = $serializationManifestPath_afe;
 		
 		if ($init) {
 			$this->_init();
-		}
-		if (!is_null($serializationManifestPath_afe)) {
-			$this->serializationManifestParser = SerializationManifestParser::getInstance($serializationManifestPath_afe);
 		}
 	}
 	
@@ -253,6 +257,12 @@ abstract class ManifestParser {
 	 * @return SerializationManifestParser
 	 */
 	public function getSerializationManifestParser() {
+		if (!$this->serializationManifestParserInitialized) {
+			if (file_exists($this->serializationManifestPath_afe)) {
+				$this->serializationManifestParser = SerializationManifestParser::getInstance($this->serializationManifestPath_afe);
+			}
+			$this->serializationManifestParserInitialized = true;
+		}
 		return $this->serializationManifestParser;
 	}
 	
@@ -377,8 +387,8 @@ abstract class ManifestParser {
 	 *     3 : true if property is serialized in several properties
 	 */
 	private function _getBaseSerializationInfosProperty($propertyName) {
-		if (!is_null($this->serializationManifestParser)) {
-			return $this->serializationManifestParser->getPropertySerializationInfos($propertyName);
+		if (!is_null($this->getSerializationManifestParser())) {
+			return $this->getSerializationManifestParser()->getPropertySerializationInfos($propertyName);
 		}
 		return [null, null, true, []];
 	}

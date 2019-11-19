@@ -91,9 +91,9 @@ class ManifestParser extends ParentManifestParser {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\ManifestParser::isForbidenInterfacing()
+	 * @see \Comhon\Manifest\Parser\ManifestParser::isAbstract()
 	 */
-	public function isForbidenInterfacing() {
+	public function isAbstract() {
 		return false;
 	}
 	
@@ -125,6 +125,9 @@ class ManifestParser extends ParentManifestParser {
 		$types = !$this->isLocal && $this->interfacer->hasValue($this->manifest, 'types', true)
 			? $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, 'types', true))
 			: []; 
+			
+		$dirname = dirname($this->serializationManifestPath_afe);
+		$basename = basename($this->serializationManifestPath_afe);
 		
 		foreach ($types as $type) {
 			if (!$this->interfacer->hasValue($type, self::NAME)) {
@@ -134,12 +137,15 @@ class ManifestParser extends ParentManifestParser {
 			if (!is_string($name) || $name == '') {
 				throw new ManifestException("local type name invalid");
 			}
-			$modelName = $this->namespace. '\\' . $name;
 			
-			$manifestParser = new static($type, true, $this->namespace, null, false);
+			$serializationManifest_afe = $dirname
+				. DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $name)
+				. DIRECTORY_SEPARATOR . $basename;
+			
+			$manifestParser = new static($type, true, $this->namespace, $serializationManifest_afe, false);
 			$manifestParser->interfacer = $this->interfacer;
 			$manifestParser->castValues = $this->castValues;
-			$manifestParsers[$modelName] = $manifestParser;
+			$manifestParsers[$this->namespace. '\\' . $name] = $manifestParser;
 		}
 		
 		return $manifestParsers;

@@ -79,35 +79,35 @@ class LazyLoadingTest extends TestCase
 	}
 	
 	/**
-	 * test model that has properties with models that must not be loaded during :
+	 * test model that has properties with models that must not be loaded
 	 */
 	public function testLazyLoadingManifest()
 	{
 		// load model that have properties that reference external models  
 		ModelManager::getInstance()->getInstanceModel('Test\Basic\ExternalReference');
-		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Test\Basic\Id'));
-		$this->assertFalse(ModelManager::getInstance()->hasInstanceModel('Test\Basic\Id\ObjectContainer'));
-		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Id'));
+		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Test\Basic\Standard'));
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModel('Test\Basic\Standard\ObjectContainer'));
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Standard'));
 		
 		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Test\Basic\NoId\ObjectContainer'));
 		$this->assertFalse(ModelManager::getInstance()->hasInstanceModel('Test\Basic\NoId'));
 		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\NoId\ObjectContainer'));
 		
-		// load model defined by local type in manifest (principal manifest model must not be loaded not loaded)
-		ModelManager::getInstance()->getInstanceModel('Test\Basic\Id\ObjectContainer');
-		$this->assertTrue(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Id\ObjectContainer'));
-		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Test\Basic\Id\Object'));
-		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Id'));
-		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Id\Object'));
+		// load model defined by local type in manifest (principal manifest model must not be loaded)
+		ModelManager::getInstance()->getInstanceModel('Test\Basic\Standard\ObjectContainer');
+		$this->assertTrue(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Standard\ObjectContainer'));
+		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Test\Basic\Standard\Object'));
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Standard'));
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Standard\Object'));
 		
 		// load principal model defined in manifest with "local" model already loaded
-		ModelManager::getInstance()->getInstanceModel('Test\Basic\Id');
-		$this->assertTrue(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Id'));
-		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Id\Object'));
+		ModelManager::getInstance()->getInstanceModel('Test\Basic\Standard');
+		$this->assertTrue(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Standard'));
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Standard\Object'));
 		
 		// load last local model
-		ModelManager::getInstance()->getInstanceModel('Test\Basic\Id\Object');
-		$this->assertTrue(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Id\Object'));
+		ModelManager::getInstance()->getInstanceModel('Test\Basic\Standard\Object');
+		$this->assertTrue(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Basic\Standard\Object'));
 		
 		// other tests
 		ModelManager::getInstance()->getInstanceModel('Test\Basic\NoId');

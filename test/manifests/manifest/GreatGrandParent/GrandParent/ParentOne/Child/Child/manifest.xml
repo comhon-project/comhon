@@ -1,0 +1,8 @@
+<manifest version="3.0" is_serializable="1">
+  <extends>
+    <type>\Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</type>
+  </extends>
+  <properties>
+    <property type="string" name="childChildOne"/>
+  </properties>
+</manifest>

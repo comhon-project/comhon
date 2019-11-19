@@ -1,6 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <manifest version="2.0">
-	<serialization type="Comhon\File\JsonFile" inheritanceKey="grand_parent">
-		<value staticPath="./data/inherited_serialization" staticName="file.json"/>
-	</serialization>
+  <serialization type="Comhon\File\JsonFile" inheritanceKey="grand_parent">
+    <value staticPath="./data/inherited_serialization" staticName="file.json"/>
+  </serialization>
+  <inheritance_values>
+    <inheritance_value>\Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child</inheritance_value>
+  </inheritance_values>
 </manifest>

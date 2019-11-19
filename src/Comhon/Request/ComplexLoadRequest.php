@@ -525,7 +525,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 				$rightModelName = $rightModel->getName();
 				
 				$higherRightModelName = $rightModelName;
-				if (!is_null($lastParentModel = $rightModel->getLastMainParentMatch(true))) {
+				if (!is_null($lastParentModel = $rightModel->getLastSharedIdParentMatch(true))) {
 					$higherRightModelName = $lastParentModel->getName();
 				}
 				
@@ -617,7 +617,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		];
 		
 		$higherRightModelName = $model->getName();
-		if (!is_null($lastParentModel = $model->getLastMainParentMatch(true))) {
+		if (!is_null($lastParentModel = $model->getLastSharedIdParentMatch(true))) {
 			$higherRightModelName = $lastParentModel->getName();
 		}
 		

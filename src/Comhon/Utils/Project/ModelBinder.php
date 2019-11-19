@@ -68,7 +68,7 @@ class ModelBinder {
 			
 			$serialization_ad = array_key_exists($namespace, $serializations)
 				? Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $serializations[$namespace]
-				: Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $path;
+				: $manifest_ad;
 			
 			/**@var \SplFileInfo $object */
 			foreach($objects as $name => $object) {
@@ -86,6 +86,38 @@ class ModelBinder {
 				$modelName = $namespace . '\\' . substr(str_replace(DIRECTORY_SEPARATOR, '\\', str_replace($manifest_ad, '', dirname($name))), 1);
 				try {
 					$model = ModelManager::getInstance()->getInstanceModel($modelName);
+					$serializationPath_af = str_replace($manifest_ad, $serialization_ad, dirname($name)) 
+						. DIRECTORY_SEPARATOR . 'serialization.' . $object->getExtension();
+					
+					$modelsInfos[$model->getName()] = [
+						'manifestPath' => $path_af,
+						'serializationPath' => $serializationPath_af,
+						'model' => $model,
+						'localType' => null,
+						'inheritanceRequestables' => [],
+						'inheritanceSerializables' => []
+					];
+					$dirname = dirname($serializationPath_af);
+					$basename = basename($serializationPath_af);
+					$manifestParser = ManifestParser::getInstance($path_af, null, $model->getName());
+					
+					foreach ($manifestParser->getLocalModelManifestParsers(false) as $modelName => $parser) {
+						$localModel = ModelManager::getInstance()->getInstanceModel($modelName);
+						$localModelNameWithoutNamespace = str_replace($model->getName().'\\', '', $modelName);
+						
+						$serializationPath_af = $dirname
+							. DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $localModelNameWithoutNamespace)
+							. DIRECTORY_SEPARATOR . $basename;
+						
+						$modelsInfos[$localModel->getName()] = [
+							'manifestPath' => $path_af,
+							'serializationPath' => $serializationPath_af,
+							'model' => $localModel,
+							'localType' => $localModelNameWithoutNamespace,
+							'inheritanceRequestables' => [],
+							'inheritanceSerializables' => []
+						];
+					}
 				} catch(\Exception $e) {
 					if ($interactive) {
 						self::displayContinue($e, $modelName);
@@ -94,16 +126,6 @@ class ModelBinder {
 					}
 					continue;
 				}
-				$serializationPath = str_replace($manifest_ad, $serialization_ad, dirname($name)) 
-					. DIRECTORY_SEPARATOR . 'serialization.' . $object->getExtension();
-				
-				$modelsInfos[$model->getName()] = [
-					'manifestPath' => $path_af,
-					'serializationPath' => $serializationPath,
-					'model' => $model,
-					'inheritanceRequestables' => [],
-					'inheritanceSerializables' => []
-				];
 			}
 		}
 		
@@ -117,7 +139,7 @@ class ModelBinder {
 			}
 			$serializationAllowed = $model->getSerialization()->isSerializationAllowed();
 			
-			while (!is_null($model = $model->getFirstMainParentMatch(true))) {
+			while (!is_null($model = $model->getFirstSharedIdParentMatch(true))) {
 				if (!array_key_exists($model->getName(), $modelsInfos)) {
 					throw new ComhonException('model not found : ' . $model->getName());
 				}
@@ -158,7 +180,7 @@ class ModelBinder {
 			/** @var \Comhon\Model\Model $currentModel */
 			$currentModel = $modelInfos['model'];
 			$model = $currentModel;
-			$parentModel = $model->getFirstMainParentMatch(true);
+			$parentModel = $model->getFirstSharedIdParentMatch(true);
 			
 			while (!is_null($parentModel) && !$addFilter) {
 				if (is_null($parentModel->getSerialization())) {
@@ -175,7 +197,7 @@ class ModelBinder {
 					}
 				}
 				$model = $parentModel;
-				$parentModel = $model->getFirstMainParentMatch(true);
+				$parentModel = $model->getFirstSharedIdParentMatch(true);
 			}
 			
 			if ($addFilter) {
@@ -196,14 +218,34 @@ class ModelBinder {
 				throw new ComhonException('file doesn\'t exist : '.$modelInfos['manifestPath']);
 			}
 			$root = $interfacer->read($modelInfos['manifestPath']);
-			if ($interfacer->getValue($root, 'version') !== '3.0') {
+			if (!in_array($interfacer->getValue($root, 'version'), ['3.0', '2.0'])) {
 				throw new ComhonException(
 					'manifest version \'' . $interfacer->getValue($root, 'version'). '\' not supported '
 						. ' on file \'' . $modelInfos['manifestPath'] . '\''
 				);
 			}
-			if ($interfacer->hasValue($root, ManifestParser::INHERITANCE_REQUESTABLES, true)) {
-				$existingNode = $interfacer->getValue($root, ManifestParser::INHERITANCE_REQUESTABLES, true);
+			$containerNode = null;
+			if (is_null($modelInfos['localType'])) {
+				$containerNode = $root;
+			} else {
+				$types = $interfacer->getValue($root, 'types', true);
+				
+				if (is_null($types)) {
+					var_dump($interfacer->toString($types));
+					throw new ComhonException('types node doesn\' t exist : '.$modelInfos['manifestPath']);
+				}
+				foreach ($interfacer->getTraversableNode($types) as $type) {
+					if ($interfacer->getValue($type, 'name') == $modelInfos['localType']) {
+						$containerNode = $type;
+						break;
+					}
+				}
+			}
+			if (is_null($containerNode)) {
+				throw new ComhonException("type node '{$modelInfos['localType']}' doesn' t exist : {$modelInfos['manifestPath']}");
+			}
+			if ($interfacer->hasValue($containerNode, ManifestParser::INHERITANCE_REQUESTABLES, true)) {
+				$existingNode = $interfacer->getValue($containerNode, ManifestParser::INHERITANCE_REQUESTABLES, true);
 				
 				$types = $interfacer->getTraversableNode($existingNode);
 				if ($interfacer instanceof XMLInterfacer) {
@@ -212,7 +254,7 @@ class ModelBinder {
 					}
 				}
 				$types = array_flip($types);
-				$interfacer->unsetValue($root, ManifestParser::INHERITANCE_REQUESTABLES, true);
+				$interfacer->unsetValue($containerNode, ManifestParser::INHERITANCE_REQUESTABLES, true);
 			} else {
 				$types = [];
 			}
@@ -233,7 +275,7 @@ class ModelBinder {
 			foreach ($modelInfos['inheritanceRequestables'] as $modelName => $isSerializable) {
 				$interfacer->addValue($node, '\\' . $modelName, 'inheritance_requestable');
 			}
-			$interfacer->setValue($root, $node, ManifestParser::INHERITANCE_REQUESTABLES);
+			$interfacer->setValue($containerNode, $node, ManifestParser::INHERITANCE_REQUESTABLES);
 			if (!$interfacer->write($root, $modelInfos['manifestPath'], true)) {
 				throw new ComhonException('failure when trying to save file : '.$modelInfos['manifestPath']);
 			}

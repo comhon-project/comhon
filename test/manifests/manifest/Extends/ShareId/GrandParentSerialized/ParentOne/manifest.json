@@ -9,5 +9,8 @@
             "name": "parentOne",
             "type": "string"
         }
+    ],
+    "inheritance_requestables": [
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne\\Child"
     ]
 }

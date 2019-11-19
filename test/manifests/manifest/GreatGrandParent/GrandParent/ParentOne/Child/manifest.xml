@@ -2,10 +2,32 @@
   <extends>
     <type>\Test\GreatGrandParent\GrandParent\ParentOne</type>
   </extends>
+  <types>
+    <type name="ChildLocalSerializable" is_serializable="1">
+      <extends>
+        <type>\Test\GreatGrandParent\GrandParent\ParentOne\Child</type>
+      </extends>
+      <properties>
+        <property type="string" name="localChildOne"/>
+      </properties>
+      <inheritance_requestables>
+        <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</inheritance_requestable>
+      </inheritance_requestables>
+    </type>
+    <type name="ChildLocalNotSerializable" is_serializable="0">
+      <extends>
+        <type>\Test\GreatGrandParent\GrandParent\ParentOne\Child</type>
+      </extends>
+    </type>
+  </types>
   <properties>
     <property type="string" name="childOne"/>
   </properties>
   <inheritance_values>
     <inheritance_value>\Test\GreatGrandParent\GrandParent\ParentOne\Child</inheritance_value>
   </inheritance_values>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</inheritance_requestable>
+    <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</inheritance_requestable>
+  </inheritance_requestables>
 </manifest>

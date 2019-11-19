@@ -51,7 +51,7 @@ class ModelManager {
 	const IS_MAIN_MODEL   = 'isMainModel';
 	
 	/** @var string */
-	const FORBID_INTERFACING = 'forbid_interfacing';
+	const IS_ABSTRACT = 'is_abstract';
 	
 	/** @var string */
 	const SHARED_ID_MODEL = 'shared_id_model';
@@ -273,7 +273,7 @@ class ModelManager {
 		} else {
 			$manifest_af = dirname($manifest_af) . DIRECTORY_SEPARATOR .'serialization.' . $this->manifestExtension;
 		}
-		return file_exists($manifest_af) ? $manifest_af : null;
+		return $manifest_af;
 	}
 	
 	/**
@@ -384,7 +384,7 @@ class ModelManager {
 			$return = [
 				self::PARENT_MODELS => $parentModels,
 				self::OBJECT_CLASS => $manifestParser->getObjectClass(),
-				self::FORBID_INTERFACING => $manifestParser->isForbidenInterfacing(),
+				self::IS_ABSTRACT => $manifestParser->isAbstract(),
 				self::PROPERTIES => $this->_buildProperties($parentModels, $model, $manifestParser),
 			];
 			
@@ -653,4 +653,5 @@ class ModelManager {
 		}
 		return $sharedIdModel;
 	}
+	
 }

@@ -4,6 +4,7 @@
     "types": [
         {
             "name": "Main",
+            "is_main": true,
             "share_parent_id": true,
             "extends": [
                 "\\Test\\Extends\\ShareId\\MainNotMain"
@@ -20,6 +21,7 @@
         },
         {
             "name": "NotMain\\Main",
+            "is_main": true,
             "share_parent_id": true,
             "extends": [
                 "NotMain"

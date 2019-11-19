@@ -1,6 +1,6 @@
 {
     "version": "3.0",
-    "forbid_interfacing": true,
+    "is_abstract": true,
     "share_parent_id": true,
     "extends": [
         "\\Comhon\\Logic\\Simple\\Formula"

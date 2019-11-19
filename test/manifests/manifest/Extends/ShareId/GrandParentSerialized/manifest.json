@@ -11,5 +11,12 @@
             "name": "grandParent",
             "type": "string"
         }
+    ],
+    "inheritance_requestables": [
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentThree\\Child",
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne\\Child",
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne",
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo\\Child",
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo"
     ]
 }

@@ -5,4 +5,7 @@
   <properties>
     <property type="string" name="parentTwo"/>
   </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child</inheritance_requestable>
+  </inheritance_requestables>
 </manifest>

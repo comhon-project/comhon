@@ -1,6 +1,8 @@
 <manifest version="2.0">
   <inheritance_values>
     <inheritance_value>\Test\GreatGrandParent\GrandParent\ParentOne\Child</inheritance_value>
+    <inheritance_value>\Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</inheritance_value>
+    <inheritance_value>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</inheritance_value>
     <inheritance_value>\Test\GreatGrandParent\GrandParent\ParentOne\AnotherChild</inheritance_value>
   </inheritance_values>
 </manifest>

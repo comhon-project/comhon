@@ -3,7 +3,7 @@
     "properties": [
         {
             "name": "basicPropertyWithId",
-            "type": "\\Test\\Basic\\Id"
+            "type": "\\Test\\Basic\\Standard"
         },
         {
             "name": "basicNoIdObjectContainerProperty",

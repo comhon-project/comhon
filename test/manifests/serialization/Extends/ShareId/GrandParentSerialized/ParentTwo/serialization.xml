@@ -1,0 +1,5 @@
+<manifest version="2.0">
+  <inheritance_values>
+    <inheritance_value>\Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child</inheritance_value>
+  </inheritance_values>
+</manifest>

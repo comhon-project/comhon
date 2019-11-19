@@ -1,0 +1,33 @@
+{
+    "version": "3.0",
+    "is_main": false,
+    "is_abstract": false,
+    "object": "Test\\Comhon\\Object\\Settings",
+    "share_parent_id": true,
+    "extends": [
+        "\\Test\\Basic\\Id\\Main"
+    ],
+    "types": [
+        {
+            "name": "Local",
+            "is_main": true,
+            "is_abstract": true,
+            "object": "Test\\Comhon\\Object\\SettingsLocal",
+            "share_parent_id": true,
+            "extends": [
+                "\\Test\\Basic\\Id\\Simple"
+            ],
+            "properties": []
+        },
+        {
+            "name": "LocalTwo",
+            "is_main": false,
+            "is_abstract": false,
+            "shared_id": "\\Test\\Basic\\Id\\Simple",
+            "extends": [
+                "\\Test\\Basic\\Id\\Simple"
+            ],
+            "properties": []
+        }
+    ]
+}

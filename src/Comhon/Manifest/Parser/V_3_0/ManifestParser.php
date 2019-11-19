@@ -19,10 +19,10 @@ class ManifestParser extends ParentManifestParser {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\V_2_0\ManifestParser::isForbidenInterfacing()
+	 * @see \Comhon\Manifest\Parser\V_2_0\ManifestParser::isAbstract()
 	 */
-	public function isForbidenInterfacing() {
-		return $this->_getBooleanValue($this->manifest, self::FORBID_INTERFACING, false);
+	public function isAbstract() {
+		return $this->_getBooleanValue($this->manifest, self::IS_ABSTRACT, false);
 	}
 	
 	/**

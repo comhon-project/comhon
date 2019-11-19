@@ -64,6 +64,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var boolean */
 	private $isMain;
 	
+	/** @var boolean */
+	private $isAbstract;
+	
 	/** @var Serialization */
 	private $serialization = null;
 	
@@ -135,6 +138,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$this->sharedIdModel = $result[ModelManager::SHARED_ID_MODEL];
 			$this->_setProperties($result[ModelManager::PROPERTIES]);
 			$this->serialization = $result[ModelManager::SERIALIZATION];
+			$this->isAbstract = $result[ModelManager::IS_ABSTRACT];
 			$this->_verifyIdSerialization();
 			
 			if (!is_null($result[ModelManager::OBJECT_CLASS]) && ($this->objectClass !== $result[ModelManager::OBJECT_CLASS])) {
@@ -258,17 +262,22 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * verify if ids are compatible with parent (if current and parent have same serialization)
+	 * verify if ids are compatible with parent that share id
+	 *
+	 * @param Model $model
+	 * @param Model $sharedIdModel
+	 * @throws ComhonException
 	 */
-	final protected function _verifyIdSerialization() {
-		if (!is_null($this->serialization) && !is_null($parentMatchModel = $this->getFirstMainParentMatch(true))) {
-			if (count($this->getIdProperties()) != count($parentMatchModel->getIdProperties())) {
-				throw new ComhonException("model {$this->getName()} extended from model {$parentMatchModel->getName()} and with same serialization must have same id(s)");
-			}
-			foreach ($parentMatchModel->getIdProperties() as $propertyName => $property) {
-				if (!$this->hasIdProperty($propertyName) || !$property->isEqual($this->getIdProperty($propertyName))) {
-					throw new ComhonException("model {$this->getName()} extended from model {$parentMatchModel->getName()} and with same serialization must have same id(s)");
-				}
+	private function _verifyIdSerialization() {
+		if (is_null($this->sharedIdModel)) {
+			return;
+		}
+		if (count($this->getIdProperties()) != count($this->sharedIdModel->getIdProperties())) {
+			throw new ComhonException("model {$this->getName()} share id with model {$this->sharedIdModel->getName()} so they must have same id(s)");
+		}
+		foreach ($this->sharedIdModel->getIdProperties() as $propertyName => $property) {
+			if (!$this->hasIdProperty($propertyName) || !$property->isEqual($this->getIdProperty($propertyName))) {
+				throw new ComhonException("model {$this->getName()} share id with model {$this->sharedIdModel->getName()} so they must have same id(s)");
 			}
 		}
 	}
@@ -310,6 +319,16 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
+	 * verify if model is abstract.
+	 * object with abstract model may be instanciated instanciated but cannot be set as loaded and cannot be interfaced
+	 *
+	 * @return boolean
+	 */
+	public function isAbstract() {
+		return $this->isAbstract;
+	}
+	
+	/**
 	 * get model that share id with current model.
 	 * if a model is return it is inevitably a parent of current model. 
 	 * it may be the direct parent or the parent of parent, etc...
@@ -339,33 +358,31 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * get first main parent model that match with all specified parameters.
-	 * the main parent is the parent model at index 0 if exists.
+	 * get first shared id parent model that match with all specified parameters.
 	 * if a parameter is null, it is not taken in account in match.
 	 *
 	 * @param bool $sameSerializationSettings
 	 * @param bool $isSerializable
 	 * @return Model|null null if no parent model matches
 	 */
-	public function getFirstMainParentMatch($sameSerializationSettings = null, $isSerializable = null) {
-		return $this->_getMainParentMatch($sameSerializationSettings, $isSerializable, true);
+	public function getFirstSharedIdParentMatch($sameSerializationSettings = null, $isSerializable = null) {
+		return $this->_getSharedIdParentMatch($sameSerializationSettings, $isSerializable, true);
 	}
 	
 	/**
-	 * get last main parent model that match with all specified parameters.
-	 * the main parent is the parent model at index 0 if exists.
+	 * get last shared id parent model that match with all specified parameters.
 	 * if a parameter is null, it is not taken in account in match.
 	 *
 	 * @param bool $sameSerializationSettings
 	 * @param bool $isSerializable
 	 * @return Model|null null if no parent model matches
 	 */
-	public function getLastMainParentMatch($sameSerializationSettings = null, $isSerializable = null) {
-		return $this->_getMainParentMatch($sameSerializationSettings, $isSerializable, false);
+	public function getLastSharedIdParentMatch($sameSerializationSettings = null, $isSerializable = null) {
+		return $this->_getSharedIdParentMatch($sameSerializationSettings, $isSerializable, false);
 	}
 	
 	/**
-	 * get first parent model that match with all specified parameters.
+	 * get shared id model that match with all specified parameters.
 	 * if a parameter is null, it is not taken in account in match.
 	 * 
 	 * @param bool $sameSerializationSettings
@@ -373,7 +390,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param bool $first if true stop at first parent match otherwise coninue to last parent match
 	 * @return Model|null null if no parent model matches
 	 */
-	private function _getMainParentMatch($sameSerializationSettings, $isSerializable, $first) {
+	private function _getSharedIdParentMatch($sameSerializationSettings, $isSerializable, $first) {
 		$model = $this;
 		$parentMatch = null;
 		$serializationSettings = $this->getSerializationSettings();

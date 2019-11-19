@@ -448,9 +448,9 @@ try {
 }*/
 
 // TODO for version > 3.0
-// staticPath to staticPath
-// verify main, serializable, abstract, sharedId, shareParentId in local types
 
+// model binder add local management INHERITANCE_REQUESTABLES INHERITANCE_VALUES
+// is abstract
 // during import/export verify mandatory properties
 // during import test if several objects (not foreign) have same id. if they have, throw exception
 // during import (at the end) verify if all foreign (not main) are loaded (verify setting throw exception)
