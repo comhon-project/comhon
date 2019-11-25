@@ -12,7 +12,6 @@
 namespace Comhon\Exception\Visitor;
 
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\ConstantException;
 
 class VisitorParameterException extends ComhonException {
 	
@@ -23,7 +22,7 @@ class VisitorParameterException extends ComhonException {
 		$message = is_null($parameterName) ? 'Bad parameters definition : must be an array or null'
 											 : "Missing parameter : '$parameterName' must be specified";
 		
-		parent::__construct($message, ConstantException::VISITOR_PARAMETER_EXCEPTION);
+		parent::__construct($message);
 	}
 	
 }

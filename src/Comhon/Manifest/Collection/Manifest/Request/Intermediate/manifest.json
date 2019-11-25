@@ -2,5 +2,20 @@
     "version": "3.0",
     "extends": [
         "\\Comhon\\Request"
+    ],
+    "properties": [
+        {
+            "name": "root",
+            "type": "\\Comhon\\Model\\Simple",
+            "is_foreign": true
+        },
+        {
+            "name": "models",
+            "type": "array",
+            "values": {
+                "type": "\\Comhon\\Model\\Simple",
+                "name": "model"
+            }
+        }
     ]
 }

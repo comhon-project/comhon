@@ -1,4 +1,4 @@
-<manifest version="3.0">
+<manifest version="3.0" is_abstract="1">
   <types>
     <type name="order">
       <properties>

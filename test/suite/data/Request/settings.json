@@ -1,0 +1,15 @@
+{
+    "limit": 1,
+    "offset": 0,
+    "order": [
+        {
+            "type": "ASC",
+            "property": "age"
+        },
+        {
+            "type": "ASC",
+            "property": "name"
+        }
+    ],
+    "__inheritance__": "Comhon\\Request\\Intermediate"
+}

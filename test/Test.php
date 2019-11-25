@@ -449,11 +449,9 @@ try {
 
 // TODO for version > 3.0
 
-// is abstract
 // during import/export verify mandatory properties
-// during import test if several objects (not foreign) have same id. if they have, throw exception
+// during export test if several objects (not foreign) have same id. if they have, throw exception
 // during import (at the end) verify if all foreign (not main) are loaded (verify setting throw exception)
-// request defined by comhon manifest
 
 // add selectquery select count(*) on query and func(*) on table
 // restriction string length (perhaps several restrictions same time)

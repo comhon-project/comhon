@@ -53,7 +53,7 @@ class AbstractModelTest extends TestCase
 		
 		$this->expectException(AbstractObjectException::class);
 		$this->expectExceptionCode(ConstantException::ABSTRACT_OBJECT_EXCEPTION);
-		$this->expectExceptionMessage('model \'Test\Basic\Id\Simple\' is abstract. Objects with abstract model cannot be flagged ase loaded');
+		$this->expectExceptionMessage('model \'Test\Basic\Id\Simple\' is abstract. Objects with abstract model cannot be flagged as loaded');
 		
 		new ComhonObject('Test\Basic\Id\Simple', true);
 	}
@@ -64,7 +64,7 @@ class AbstractModelTest extends TestCase
 		$model->getObjectInstance(false);
 		
 		$this->expectException(AbstractObjectException::class);
-		$this->expectExceptionMessage('model \'Test\Basic\Id\Simple\' is abstract. Objects with abstract model cannot be flagged ase loaded');
+		$this->expectExceptionMessage('model \'Test\Basic\Id\Simple\' is abstract. Objects with abstract model cannot be flagged as loaded');
 		
 		$model->getObjectInstance(true);
 	}
@@ -74,7 +74,7 @@ class AbstractModelTest extends TestCase
 		$obj = new ComhonObject('Test\Basic\Id\Simple', false);
 		
 		$this->expectException(AbstractObjectException::class);
-		$this->expectExceptionMessage('model \'Test\Basic\Id\Simple\' is abstract. Objects with abstract model cannot be flagged ase loaded');
+		$this->expectExceptionMessage('model \'Test\Basic\Id\Simple\' is abstract. Objects with abstract model cannot be flagged as loaded');
 		
 		$obj->setIsLoaded(true);
 	}
@@ -91,7 +91,7 @@ class AbstractModelTest extends TestCase
 		$obj->cast($modelNotAbstract);
 		
 		$this->expectException(AbstractObjectException::class);
-		$this->expectExceptionMessage('model \'Test\Extends\Abstract\IsAbstract\' is abstract. Objects with abstract model cannot be flagged ase loaded');
+		$this->expectExceptionMessage('model \'Test\Extends\Abstract\IsAbstract\' is abstract. Objects with abstract model cannot be flagged as loaded');
 		$obj->cast($modelAbstract);
 	}
 	
@@ -101,24 +101,24 @@ class AbstractModelTest extends TestCase
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Formula');
 		
 		$this->expectException(ImportException::class);
-		$this->expectExceptionMessage('model \'Comhon\Logic\Having\Formula\' is abstract. Objects with abstract model cannot be flagged ase loaded');
+		$this->expectExceptionMessage('model \'Comhon\Logic\Having\Formula\' is abstract. Objects with abstract model cannot be flagged as loaded');
 		$interfacer->import([], $model);
 	}
 	
 	public function testImportInvalidTwo()
 	{
 		$interfacer = new AssocArrayInterfacer();
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
 		
 		$this->expectException(ImportException::class);
-		$this->expectExceptionMessage('model \'Comhon\Logic\Simple\Formula\' is abstract. Objects with abstract model cannot be flagged ase loaded');
+		$this->expectExceptionMessage('model \'Comhon\Logic\Simple\Formula\' is abstract. Objects with abstract model cannot be flagged as loaded');
 		$interfacer->import(['simpleCollection' => [[Interfacer::COMPLEX_ID_KEY => 1, Interfacer::INHERITANCE_KEY => 'Comhon\Logic\Simple\Formula']]], $model);
 	}
 	
 	public function testImportValid()
 	{
 		$interfacer = new AssocArrayInterfacer();
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
 		
 		// filter property is foreign so object is NOT loaded and may be instanciated
 		$obj = $interfacer->import(['filter' => [Interfacer::COMPLEX_ID_KEY => 2, Interfacer::INHERITANCE_KEY => 'Comhon\Logic\Simple\Formula']], $model);

@@ -29,8 +29,8 @@ abstract class ConstantException {
 	const UNEXPECTED_VALUE_TYPE_EXCEPTION     = 203;
 	const ABSTRACT_OBJECT_EXCEPTION           = 204;
 	
-	// visitor exception
-	const VISITOR_PARAMETER_EXCEPTION = 301;
+	// interfacing exception
+	const DUPLICATED_ID_EXCEPTION = 301;
 	
 	// restriction exception
 	const MALFORMED_INTERVAL_EXCEPTION           = 401;

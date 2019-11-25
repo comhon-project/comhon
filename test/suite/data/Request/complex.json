@@ -1,0 +1,41 @@
+{
+    "simpleCollection": [
+        {
+            "id": 0,
+            "node": 1,
+            "property": "name",
+            "operator": ">",
+            "value": 200,
+            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+        },
+        {
+            "id": 1,
+            "node": 4,
+            "property": "adresse",
+            "operator": "<>",
+            "value": "lalala",
+            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+        }
+    ],
+    "tree": {
+        "id": 1,
+        "model": "person",
+        "nodes": [
+	        {
+	            "id": 2,
+	            "property": "children"
+	        },
+			{
+	            "id": 3,
+	            "property": "houses",
+				"nodes": [
+			        {
+			            "id": 4,
+			            "property": "rooms"
+			        }
+				]
+	        }
+		]
+    },
+    "__inheritance__": "Comhon\\Request\\Complex"
+}

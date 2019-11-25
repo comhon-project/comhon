@@ -1,0 +1,36 @@
+<manifest version="3.0" is_abstract="1">
+  <types>
+    <type name="Simple" share_parent_id="1">
+      <extends>
+        <type>\Comhon\Model</type>
+      </extends>
+      <properties>
+        <property name="model" type="string"/>
+      </properties>
+    </type>
+    <type name="Root" share_parent_id="1">
+      <extends>
+        <type>Simple</type>
+      </extends>
+      <properties>
+        <property name="nodes" type="array">
+          <values name="node" type="Node"/>
+        </property>
+      </properties>
+    </type>
+    <type name="Node" share_parent_id="1">
+      <extends>
+        <type>\Comhon\Model</type>
+      </extends>
+      <properties>
+        <property name="property" type="string"/>
+        <property name="nodes" type="array">
+          <values name="node" type="Node"/>
+        </property>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property name="id" type="integer" is_id="1"/>
+  </properties>
+</manifest>

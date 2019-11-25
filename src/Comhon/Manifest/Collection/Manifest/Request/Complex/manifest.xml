@@ -2,4 +2,7 @@
   <extends>
     <type>\Comhon\Request</type>
   </extends>
+  <properties>
+    <property name="tree" type="\Comhon\Model\Root"/>
+  </properties>
 </manifest>

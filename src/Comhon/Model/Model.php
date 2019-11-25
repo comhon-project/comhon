@@ -36,7 +36,7 @@ use Comhon\Exception\Model\CastComhonObjectException;
 use Comhon\Serialization\Serialization;
 use Comhon\Manifest\Parser\ManifestParser;
 use Comhon\Exception\Model\NotDefinedModelException;
-use Comhon\Exception\Model\AlreadyUsedModelNameException;
+use Comhon\Exception\Interfacer\DuplicatedIdException;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -1147,7 +1147,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$object = $this->getObjectInstance($isloaded);
 		}
 		else {
-			$object = $localObjectCollection->getObject($id, $this->modelName);
+			$object = $localObjectCollection->getObject($id, ObjectCollection::getModelKey($this)->getName());
+			/*if (!$isForeign && !is_null($object) && $object->isLoaded()) {
+				throw new DuplicatedIdException($id);
+			}*/
 			if ($this->isMain && is_null($object)) {
 				$object = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
 			}
@@ -1492,7 +1495,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			}
 		}
 		if ($interfacer instanceof NoScalarTypedInterfacer) {
-			/** @var SimpleModel $model */
 			if ($model->hasUniqueIdProperty()) {
 				$id = $model->getUniqueIdProperty()->getModel()->importSimple($id, $interfacer, $isFirstLevel);
 			} else if (!is_string($id)) {

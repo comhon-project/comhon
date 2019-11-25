@@ -2,5 +2,11 @@
     "version": "3.0",
     "extends": [
         "\\Comhon\\Request"
+    ],
+    "properties": [
+        {
+            "name": "tree",
+            "type": "\\Comhon\\Model\\Root"
+        }
     ]
 }

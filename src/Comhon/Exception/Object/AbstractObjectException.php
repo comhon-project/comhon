@@ -24,7 +24,7 @@ class AbstractObjectException extends ComhonException {
 	public function __construct(UniqueObject $ComhonObject) {
 		$modelName = $ComhonObject->getModel()->getName();
 		$message = $ComhonObject->getModel()->isAbstract() 
-			? "model '$modelName' is abstract. Objects with abstract model cannot be flagged ase loaded"
+			? "model '$modelName' is abstract. Objects with abstract model cannot be flagged as loaded"
 			: "error AbstractObjectException instanciated but model '$modelName' is not abstract";
 		parent::__construct($message, ConstantException::ABSTRACT_OBJECT_EXCEPTION);
 	}

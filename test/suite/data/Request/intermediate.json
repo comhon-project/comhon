@@ -1,0 +1,32 @@
+{
+    "simpleCollection": [
+        {
+            "id": 0,
+            "node": 1,
+            "property": "name",
+            "operator": ">",
+            "value": 200,
+            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+        },
+        {
+            "id": 1,
+            "node": 2,
+            "property": "adresse",
+            "operator": "<>",
+            "value": "lalala",
+            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+        }
+    ],
+    "root": 1,
+    "models": [
+        {
+            "id": 1,
+            "model": "person"
+        },
+        {
+            "id": 2,
+            "model": "house"
+        }
+	],
+    "__inheritance__": "Comhon\\Request\\Intermediate"
+}

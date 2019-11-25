@@ -3,7 +3,7 @@
     <type>\Comhon\Logic\Simple\Formula</type>
   </extends>
   <properties>
-    <property name="node" type="string"/>
+    <property name="node" type="\Comhon\Model" is_foreign="1"/>
     <property name="queue" type="array">
       <values name="property" type="string"/>
     </property>

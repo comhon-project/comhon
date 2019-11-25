@@ -125,9 +125,11 @@ class ManifestParser extends ParentManifestParser {
 		$types = !$this->isLocal && $this->interfacer->hasValue($this->manifest, 'types', true)
 			? $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, 'types', true))
 			: []; 
-			
-		$dirname = dirname($this->serializationManifestPath_afe);
-		$basename = basename($this->serializationManifestPath_afe);
+		
+		// don't you basename() because very slow compare to strrpos() + substr()
+		$pos = strrpos($this->serializationManifestPath_afe, DIRECTORY_SEPARATOR);
+		$dirname = substr($this->serializationManifestPath_afe, 0, $pos);
+		$basename = substr($this->serializationManifestPath_afe, $pos + 1);
 		
 		foreach ($types as $type) {
 			if (!$this->interfacer->hasValue($type, self::NAME)) {

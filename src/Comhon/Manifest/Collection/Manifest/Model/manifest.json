@@ -1,0 +1,64 @@
+{
+    "version": "3.0",
+    "is_abstract": true,
+    "types": [
+        {
+            "name": "Simple",
+            "share_parent_id": true,
+            "extends": [
+                "\\Comhon\\Model"
+            ],
+            "properties": [
+                {
+                    "name": "model",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "Root",
+            "share_parent_id": true,
+            "extends": [
+                "Simple"
+            ],
+            "properties": [
+                {
+                    "name": "nodes",
+                    "type": "array",
+                    "values": {
+                        "type": "Node",
+                        "name": "node"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Node",
+            "share_parent_id": true,
+            "extends": [
+                "\\Comhon\\Model"
+            ],
+            "properties": [
+                {
+                    "name": "property",
+                    "type": "string"
+                },
+                {
+                    "name": "nodes",
+                    "type": "array",
+                    "values": {
+                        "type": "Node",
+                        "name": "node"
+                    }
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        }
+    ]
+}

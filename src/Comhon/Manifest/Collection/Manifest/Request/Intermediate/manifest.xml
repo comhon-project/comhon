@@ -2,4 +2,10 @@
   <extends>
     <type>\Comhon\Request</type>
   </extends>
+  <properties>
+    <property name="root" type="\Comhon\Model\Simple" is_foreign="1"/>
+    <property name="models" type="array">
+      <values name="model" type="\Comhon\Model\Simple"/>
+    </property>
+  </properties>
 </manifest>
