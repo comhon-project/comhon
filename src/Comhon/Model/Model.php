@@ -1117,16 +1117,18 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 *
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
+	 * @param \Comhon\Object\UniqueObject[] $unloadedObjs
+	 * @param \Comhon\Object\Collection\ObjectCollection $newObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	protected function _getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel = false) {
+	protected function _getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
 		$inheritance = $this->_getInheritedModelName($interfacedObject, $interfacer, $isFirstLevel);
 		$model = is_null($inheritance) ? $this : $this->_getInheritedModel($inheritance);
 		$id = $model->getIdFromInterfacedObject($interfacedObject, $interfacer, $isFirstLevel);
 		
-		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, $isFirstLevel);
+		return $model->_getOrCreateObjectInstance($id, $interfacer, $isFirstLevel, false, $unloadedObjs, $newObjCol, $startObjCol);
 	}
 	
 	/**
@@ -1134,35 +1136,45 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 *
 	 * @param integer|string $id
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
 	 * @param boolean $isForeign
+	 * @param \Comhon\Object\UniqueObject[] $unloadedObjs
+	 * @param \Comhon\Object\Collection\ObjectCollection $newObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
 	 * @throws \Exception
 	 * @return \Comhon\Object\AbstractComhonObject
 	 */
-	protected function _getOrCreateObjectInstance($id, Interfacer $interfacer, $localObjectCollection, $isFirstLevel, $isForeign = false) {
+	protected function _getOrCreateObjectInstance($id, Interfacer $interfacer, $isFirstLevel, $isForeign, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
 		$isloaded = !$isForeign && (!$isFirstLevel || $interfacer->hasToFlagObjectAsLoaded());
 		
 		if (is_null($id) || !$this->hasIdProperties()) {
 			$object = $this->getObjectInstance($isloaded);
 		}
 		else {
-			$object = $localObjectCollection->getObject($id, ObjectCollection::getModelKey($this)->getName());
-			/*if (!$isForeign && !is_null($object) && $object->isLoaded()) {
+			$object = $newObjCol->getObject($id, ObjectCollection::getModelKey($this)->getName());
+			if (is_null($object)) {
+				if (!is_null($startObjCol)) {
+					$object = $startObjCol->getObject($id, ObjectCollection::getModelKey($this)->getName());
+					if ($isForeign && !is_null($object) && $object->isLoaded()) {
+						$object->setIsLoaded(false);
+						$unloadedObjs[] = $object;
+					}
+				}
+			} elseif (!$isForeign && $object->isLoaded()) {
 				throw new DuplicatedIdException($id);
-			}*/
+			}
 			if ($this->isMain && is_null($object)) {
 				$object = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
 			}
 			if (is_null($object)) {
 				$object = $this->_buildObjectFromId($id, $isloaded, $interfacer->hasToFlagValuesAsUpdated());
-				$localObjectCollection->addObject($object);
+				$newObjCol->addObject($object);
 			}
 			else {
 				if ($this->isInheritedFrom($object->getModel()) && ObjectCollection::getModelKey($this) === ObjectCollection::getModelKey($object->getModel())) {
 					$object->cast($this);
 				}
-				$localObjectCollection->addObject($object, false);
+				$newObjCol->addObject($object);
 				if ($isloaded || ($isFirstLevel && $interfacer->getMergeType() !== Interfacer::MERGE)) {
 					$object->setIsLoaded($isloaded);
 				}
@@ -1191,7 +1203,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 		}
 		try {
-			return $this->_importRoot($interfacedObject, $interfacer, new ObjectCollection());
+			return $this->_importRoot($interfacedObject, $interfacer);
 		}
 		catch (ComhonException $e) {
 			throw new ImportException($e);
@@ -1203,11 +1215,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 *
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
+	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
+	 * @param \Comhon\Object\UniqueObject $startObject
 	 * @throws \Exception
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection) {
+	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollection $startObjCol = null, UniqueObject $startObject = null) {
 		$this->load();
 		if (!$interfacer->isNodeValue($interfacedObject)) {
 			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
@@ -1216,25 +1229,39 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getNodeClasses()));
 			}
 		}
+		if (!is_null($startObjCol) && !is_null($startObject)) {
+			throw new ComhonException('$startObjCol and $startObject cannot be set in same time');
+		}
+		/** @var \Comhon\Object\UniqueObject[] $unloadedObjs */
+		$unloadedObjs = [];
+		$newObjCol = new ObjectCollection();
 		
 		switch ($interfacer->getMergeType()) {
 			case Interfacer::MERGE:
-				$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, true);
-				$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), true);
+				$object = is_null($startObject) 
+					? $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, true, $unloadedObjs, $newObjCol, $startObjCol)
+					: $startObject;
+				$this->_fillObject($object, $interfacedObject, $interfacer, true, $unloadedObjs, $newObjCol, $this->_loadLocalObjectCollection($object));
 				break;
 			case Interfacer::OVERWRITE:
-				$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, true);
+				$object = is_null($startObject)
+					? $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, true, $unloadedObjs, $newObjCol, $startObjCol)
+					: $startObject;
 				$object->reset();
-				$this->_fillObject($object, $interfacedObject, $interfacer, new ObjectCollection(), true);
+				$this->_fillObject($object, $interfacedObject, $interfacer, true, $unloadedObjs, $newObjCol);
 				break;
 			case Interfacer::NO_MERGE:
+				if (!is_null($startObject)) {
+					throw new ComhonException('$startObject cannot be set with Interfacer::NO_MERGE setting');
+				}
+				$existingObject = null;
 				if ($this->isMain) {
 					$existingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $this->modelName);
 					if (!is_null($existingObject)) {
 						MainObjectCollection::getInstance()->removeObject($existingObject);
 					}
 				}
-				$object = $this->_import($interfacedObject, $interfacer, new ObjectCollection(), true);
+				$object = $this->_import($interfacedObject, $interfacer, true, $unloadedObjs, $newObjCol);
 				
 				if (!is_null($existingObject)) {
 					MainObjectCollection::getInstance()->removeObject($object);
@@ -1244,6 +1271,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			default:
 				throw new ComhonException('undefined merge type '.$interfacer->getMergeType());
 		}
+		foreach ($unloadedObjs as $obj) {
+			$obj->setIsLoaded(true);
+		}
 		return $object;
 	}
 	
@@ -1252,11 +1282,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * 
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
+	 * @param \Comhon\Object\UniqueObject[] $unloadedObjs
+	 * @param \Comhon\Object\Collection\ObjectCollection $newObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
 	 * @return \Comhon\Object\UniqueObject|null
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
+	protected function _import($interfacedObject, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
 		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
@@ -1267,8 +1299,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getNodeClasses()));
 			}
 		}
-		$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $localObjectCollection, $isFirstLevel);
-		$this->_fillObject($object, $interfacedObject, $interfacer, $localObjectCollection, $isFirstLevel);
+		$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $isFirstLevel, $unloadedObjs, $newObjCol, $startObjCol);
+		$this->_fillObject($object, $interfacedObject, $interfacer, $isFirstLevel, $unloadedObjs, $newObjCol, $startObjCol);
 		return $object;
 	}
 	
@@ -1287,33 +1319,38 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if ($interfacedObject instanceof \SimpleXMLElement) {
 			$interfacedObject = dom_import_simplexml($interfacedObject);
 		}
-		if (!$interfacer->isNodeValue($interfacedObject)) {
-			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
-				$interfacedObject = new \stdClass();
-			} else {
-				$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
-				throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
-			}
-		}
 		
 		try {
+			$noMerge = false;
+			if ($interfacer->getMergeType() === Interfacer::NO_MERGE) {
+				$interfacer->setMergeType(Interfacer::OVERWRITE);
+				$noMerge = true;
+			}
 			$inheritance = $this->_getInheritedModelName($interfacedObject, $interfacer, true);
 			if (!is_null($inheritance)) {
 				$object->cast(ModelManager::getInstance()->getInstanceModel($inheritance));
 			}
 			$model = $object->getModel();
 			$model->_verifIdBeforeFillObject($object, $model->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $interfacer->hasToFlagValuesAsUpdated());
-			if ($model->isMain) {
-				MainObjectCollection::getInstance()->addObject($object, false);
-			}
-			$this->_fillObject($object, $interfacedObject, $interfacer, $this->_loadLocalObjectCollection($object), true);
 			
+			$startObject = null;
+			$startObjCol = new ObjectCollection();
+			
+			if (!$startObjCol->addObject($object)) {
+				$startObjCol = null;
+				$startObject = $object;
+			}
+			$model->_importRoot($interfacedObject, $interfacer, $startObjCol, $startObject);
 			if ($interfacer->hasToFlagObjectAsLoaded()) {
 				$object->setIsLoaded(true);
 			}
 		}
 		catch (ComhonException $e) {
 			throw new ImportException($e);
+		} finally {
+			if ($noMerge) {
+				$interfacer->setMergeType(Interfacer::NO_MERGE);
+			}
 		}
 	}
 	
@@ -1340,19 +1377,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if (!$object->hasCompleteId()) {
 			return ;
 		}
-		$objectId = $object->getId();
-		if ($id === 0) {
-			if ($objectId !== 0 && $objectId !== '0') {
-				$messageId = is_null($id) ? 'null' : $id;
-				throw new ComhonException("id must be the same as imported value id : {$object->getId()} !== $messageId");
-			}
-		} else if ($objectId === 0) {
-			if ($id !== 0 && $id !== '0') {
-				$messageId = is_null($id) ? 'null' : $id;
-				throw new ComhonException("id must be the same as imported value id : {$object->getId()} !== $messageId");
-			}
-		}
-		else if ($object->getId() != $id) {
+		if ($object->getId() !== $id) {
 			$messageId = is_null($id) ? 'null' : $id;
 			throw new ComhonException("id must be the same as imported value id : {$object->getId()} !== $messageId");
 		}
@@ -1372,11 +1397,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param \Comhon\Object\UniqueObject $object
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
+	 * @param \Comhon\Object\UniqueObject[] $unloadedObjs
+	 * @param \Comhon\Object\Collection\ObjectCollection $newObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
 	 * @throws \Exception
 	 */
-	protected function _fillObject(UniqueObject $object, $interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
+	protected function _fillObject(UniqueObject $object, $interfacedObject, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
 		$model = $object->getModel();
 		if ($model !== $this && !$model->isInheritedFrom($this)) {
 			throw new UnexpectedModelException($this, $model);
@@ -1397,7 +1424,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					if ($interfacer->hasValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml())) {
 						$interfacedValue = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
 						$value =  $interfacer->isNullValue($interfacedValue) ? null
-							: $property->getModel()->_import($interfacedValue, $interfacer, $localObjectCollection, $property->getModel()->_isNextLevelFirstLevel($isFirstLevel));
+							: $property->getModel()->_import($interfacedValue, $interfacer, $property->getModel()->_isNextLevelFirstLevel($isFirstLevel), $unloadedObjs, $newObjCol, $startObjCol);
 						
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 					}
@@ -1425,7 +1452,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 						throw new ComhonException('not complete multiple id foreign value');
 					}
 					if (!$allNull) {
-						$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, $localObjectCollection, false);
+						$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, false, $unloadedObjs, $newObjCol, $startObjCol);
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 					}
 				}
@@ -1461,11 +1488,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 *
 	 * @param mixed $interfacedId
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
+	 * @param \Comhon\Object\UniqueObject[] $unloadedObjs
+	 * @param \Comhon\Object\Collection\ObjectCollection $newObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	protected function _importId($interfacedId, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
+	protected function _importId($interfacedId, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
 		if (!$this->hasIdProperties()) {
 			throw new ComhonException("cannot import id, actual model '{$this->getUniqueModel()->getName()}' doesn't have id");
 		}
@@ -1509,7 +1538,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			throw new ComhonException("malformed id '$id' for model '{$this->modelName}'");
 		}
 		
-		return $model->_getOrCreateObjectInstance($id, $interfacer, $localObjectCollection, false, true);
+		return $model->_getOrCreateObjectInstance($id, $interfacer, false, true, $unloadedObjs, $newObjCol, $startObjCol);
 	}
 	
 	/**

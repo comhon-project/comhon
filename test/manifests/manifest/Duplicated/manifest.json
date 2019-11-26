@@ -1,0 +1,82 @@
+{
+    "version": "3.0",
+    "types": [
+        {
+            "name": "ObjectMain",
+            "is_main": true,
+            "share_parent_id": true,
+            "extends": [
+                "\\Test\\Duplicated"
+            ],
+            "properties": [
+                {
+                    "name": "localMain",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "ObjectOne",
+            "share_parent_id": true,
+            "extends": [
+                "\\Test\\Duplicated"
+            ],
+            "properties": [
+                {
+                    "name": "localOne",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "ObjectTwo",
+            "extends": [
+                "\\Test\\Duplicated"
+            ],
+            "properties": [
+                {
+                    "name": "localTwo",
+                    "type": "string"
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "duplicatedForeignProperty",
+            "type": "\\Test\\Duplicated",
+            "is_foreign": true
+        },
+        {
+            "name": "id",
+            "type": "integer",
+            "is_id": true
+        },
+        {
+            "name": "duplicatedProperty",
+            "type": "\\Test\\Duplicated"
+        },
+        {
+            "name": "objectOneProperty",
+            "type": "ObjectOne"
+        },
+        {
+            "name": "objectTwoProperty",
+            "type": "ObjectTwo"
+        },
+        {
+            "name": "objectOneForeignProperty",
+            "type": "ObjectOne",
+            "is_foreign": true
+        },
+        {
+            "name": "objectMainProperty",
+            "type": "ObjectMain"
+        },
+        {
+            "name": "objectMainForeignProperty",
+            "type": "ObjectMain",
+            "is_foreign": true
+        }
+    ]
+}

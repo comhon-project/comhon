@@ -1,0 +1,38 @@
+<manifest version="3.0">
+  <types>
+    <type name="ObjectMain" share_parent_id="1" is_main="1">
+      <extends>
+        <type>\Test\Duplicated</type>
+      </extends>
+      <properties>
+        <property type="string" name="localMain"/>
+      </properties>
+    </type>
+    <type name="ObjectOne" share_parent_id="1">
+      <extends>
+        <type>\Test\Duplicated</type>
+      </extends>
+      <properties>
+        <property type="string" name="localOne"/>
+      </properties>
+    </type>
+    <type name="ObjectTwo">
+      <extends>
+        <type>\Test\Duplicated</type>
+      </extends>
+      <properties>
+        <property type="string" name="localTwo"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="\Test\Duplicated" name="duplicatedForeignProperty" is_foreign="1"/>
+    <property type="integer" is_id="1" name="id"/>
+    <property type="\Test\Duplicated" name="duplicatedProperty"/>
+    <property type="ObjectOne" name="objectOneProperty"/>
+    <property type="ObjectTwo" name="objectTwoProperty"/>
+    <property type="ObjectOne" name="objectOneForeignProperty" is_foreign="1"/>
+    <property type="ObjectMain" name="objectMainProperty"/>
+    <property type="ObjectMain" name="objectMainForeignProperty" is_foreign="1"/>
+  </properties>
+</manifest>

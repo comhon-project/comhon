@@ -457,6 +457,7 @@ $testDb = $testModel->getObjectInstance();
 $testDb->setId('[4567,"74107"]');
 $testDb->setValue('mainParentTestDb', $mainTestDb);
 
+$stdPrivateInterfacer->setMergeType(Interfacer::MERGE);
 $testDb->fill($testDb->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 
 if ($mainTestDb !== $testDb->getValue('mainParentTestDb')) {
@@ -474,7 +475,6 @@ $array->pushValue($mainTestDb2);
 
 MainObjectCollection::getInstance()->removeObject($mainTestDb2);
 MainObjectCollection::getInstance()->removeObject($mainTestDb);
-$stdPrivateInterfacer->setMergeType(Interfacer::MERGE);
 $array->fill($array->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 
 if ($mainTestDb !== $array->getValue(0) || $mainTestDb2 !== $array->getValue(1)) {

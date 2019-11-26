@@ -92,22 +92,24 @@ abstract class ModelComplex extends AbstractModel {
 	 *
 	 * @param mixed $interfacedId
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
+	 * @param \Comhon\Object\UniqueObject[] $unloadedObjs
+	 * @param \Comhon\Object\Collection\ObjectCollection $newObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	abstract protected function _importId($interfacedId, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel);
+	abstract protected function _importId($interfacedId, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null);
 	
 	/**
 	 * import interfaced object related to a main model
 	 *
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
+	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
 	 * @throws \Exception
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection) {
+	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollection $startObjCol = null) {
 		throw new ComhonException('can call _importRoot only via Model');
 	}
 	

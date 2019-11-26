@@ -449,6 +449,7 @@ try {
 
 // TODO for version > 3.0
 
+// when import build objectCollection via model not via visitor. verify if faster
 // during import/export verify mandatory properties
 // during export test if several objects (not foreign) have same id. if they have, throw exception
 // during import (at the end) verify if all foreign (not main) are loaded (verify setting throw exception)

@@ -185,7 +185,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * 
 	 * @return \Comhon\Object\ComhonArray|null
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
+	protected function _import($interfacedObject, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
 		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
@@ -196,9 +196,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			try {
 				if ($this->isAssociative) {
-					$objectArray->setValue($key, $this->getModel()->_import($element, $interfacer, $localObjectCollection, false), $interfacer->hasToFlagValuesAsUpdated());
+					$objectArray->setValue($key, $this->getModel()->_import($element, $interfacer, false, $unloadedObjs, $newObjCol, $startObjCol), $interfacer->hasToFlagValuesAsUpdated());
 				} else {
-					$objectArray->pushValue($this->getModel()->_import($element, $interfacer, $localObjectCollection, false), $interfacer->hasToFlagValuesAsUpdated());
+					$objectArray->pushValue($this->getModel()->_import($element, $interfacer, false, $unloadedObjs, $newObjCol, $startObjCol), $interfacer->hasToFlagValuesAsUpdated());
 				}
 			} catch (ComhonException $e) {
 				throw new ImportException($e, $key);
@@ -212,20 +212,22 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 *
 	 * @param mixed $interfacedId
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
+	 * @param \Comhon\Object\UniqueObject[] $unloadedObjs
+	 * @param \Comhon\Object\Collection\ObjectCollection $newObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	protected function _importId($interfacedObject, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel) {
+	protected function _importId($interfacedObject, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
 		if (is_null($interfacedObject)) {
 			return null;
 		}
 		$objectArray = $this->getObjectInstance();
 		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			if ($this->isAssociative) {
-				$objectArray->setValue($key, $this->getModel()->_importId($element, $interfacer, $localObjectCollection, false), $interfacer->hasToFlagValuesAsUpdated());
+				$objectArray->setValue($key, $this->getModel()->_importId($element, $interfacer, false, $unloadedObjs, $newObjCol, $startObjCol), $interfacer->hasToFlagValuesAsUpdated());
 			} else {
-				$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, $localObjectCollection, false), $interfacer->hasToFlagValuesAsUpdated());
+				$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, false, $unloadedObjs, $newObjCol, $startObjCol), $interfacer->hasToFlagValuesAsUpdated());
 			}
 		}
 		return $objectArray;
@@ -285,16 +287,18 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
 			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 		}
-		$localObjectCollection = new ObjectCollection();
-		if ($interfacer->getMergeType() !== Interfacer::NO_MERGE) {
+		if ($interfacer->getMergeType() === Interfacer::NO_MERGE || !$this->getUniqueModel()->hasIdProperties()) {
+			$startObjCol = null;
+		} else {
+			$startObjCol = new ObjectCollection();
 			foreach ($objectArray->getValues() as $value) {
-				$localObjectCollection->addObject($value);
+				$startObjCol->addObject($value);
 			}
 		}
 		$objectArray->reset();
 		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			try {
-				$value = $interfacer->isNullValue($element) ? null : $this->getModel()->_importRoot($element, $interfacer, $localObjectCollection);
+				$value = $interfacer->isNullValue($element) ? null : $this->getModel()->_importRoot($element, $interfacer, $startObjCol);
 				
 				if ($this->isAssociative) {
 					$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());

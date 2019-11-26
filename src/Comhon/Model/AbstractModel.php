@@ -74,11 +74,14 @@ abstract class AbstractModel {
 	 * 
 	 * @param mixed $interfacedValue
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $localObjectCollection
 	 * @param boolean $isFirstLevel
+	 * @param \Comhon\Object\UniqueObject
+	 * @param \Comhon\Object\UniqueObject[] $unloadedObjs
+	 * @param \Comhon\Object\Collection\ObjectCollection $newObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
 	 * @return mixed|null
 	 */
-	abstract protected function _import($interfacedValue, Interfacer $interfacer, ObjectCollection $localObjectCollection, $isFirstLevel);
+	abstract protected function _import($interfacedValue, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null);
 	
 	/**
 	 * verify if value is correct according current model
