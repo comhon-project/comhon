@@ -16,6 +16,9 @@ use Comhon\Object\ComhonArray;
 use Comhon\Model\ModelCustom;
 use Comhon\Model\Property\ForeignProperty;
 use Comhon\Exception\Visitor\VisitorParameterException;
+use Comhon\Model\ModelForeign;
+use Comhon\Model\Property\Property;
+use Comhon\Object\UniqueObject;
 
 abstract class Visitor {
 	
@@ -48,13 +51,13 @@ abstract class Visitor {
 		
 		if ($this->_isVisitRootObject()) {
 			$modelName   = $object->getModel()->getName();
-			$property    = new ForeignProperty($object->getModel(), $modelName);
+			$property    = new Property($object->getModel(), $modelName);
 			$customModel = new ModelCustom('modelCustom', [$property]);
 			$rootObject  = $customModel->getObjectInstance();
 			$rootObject->setValue($modelName, $object);
-			$this->_accept($rootObject, $modelName, $modelName);
+			$this->_accept($rootObject, $modelName, $modelName, false);
 		} else {
-			$this->_acceptChildren($object);
+			$this->_acceptChildren($object, false);
 		}
 		
 		return $this->_finalize($object);
@@ -67,13 +70,14 @@ abstract class Visitor {
 	 * @param \Comhon\Object\AbstractComhonObject $parentObject
 	 * @param string $key
 	 * @param string $propertyName
+	 * @param boolean $isForeign
 	 */
-	private function _accept($parentObject, $key, $propertyName) {
+	private function _accept($parentObject, $key, $propertyName, $isForeign) {
 		if (!is_null($parentObject->getValue($key))) {
 			$this->propertyNameStack[] = $propertyName;
 			$visitChild = $this->_visit($parentObject, $key, $this->propertyNameStack);
-			if ($visitChild) {
-				$this->_acceptChildren($parentObject->getValue($key));
+			if ($visitChild && !$isForeign) {
+				$this->_acceptChildren($parentObject->getValue($key), $isForeign);
 			}
 			$this->_postVisit($parentObject, $key, $this->propertyNameStack);
 			array_pop($this->propertyNameStack);
@@ -84,22 +88,23 @@ abstract class Visitor {
 	 * accept to visit children of specified object
 	 * 
 	 * @param \Comhon\Object\AbstractComhonObject $object
+	 * @param boolean $isForeign
 	 */
-	private function _acceptChildren($object) {
+	private function _acceptChildren($object, $isForeign) {
 		if (is_null($object)) {
 			return;
 		}
 		if ($object instanceof ComhonArray) {
 			$propertyName = $object->getModel()->getElementName();
 			foreach ($object->getValues() as $key => $value) {
-				$this->_accept($object, $key, $propertyName);
+				$this->_accept($object, $key, $propertyName, $isForeign);
 			}
 		}
 		else if (!array_key_exists(spl_object_hash($object), $this->instanceObjectHash)) {
 			$this->instanceObjectHash[spl_object_hash($object)] = $object;
 			foreach ($object->getModel()->getProperties() as $propertyName => $property) {
 				if (! $property->isUniqueModelSimple()) {
-					$this->_accept($object, $propertyName, $propertyName);
+					$this->_accept($object, $propertyName, $propertyName, $property->isForeign());
 				}
 			}
 			unset($this->instanceObjectHash[spl_object_hash($object)]);

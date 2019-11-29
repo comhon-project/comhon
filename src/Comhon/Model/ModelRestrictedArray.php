@@ -19,6 +19,7 @@ use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
+use Comhon\Object\Collection\ObjectCollectionInterfacer;
 
 class ModelRestrictedArray extends ModelArray {
 	
@@ -56,8 +57,8 @@ class ModelRestrictedArray extends ModelArray {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelArray::_import()
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
-		$objectArray = parent::_import($interfacedObject, $interfacer, $isFirstLevel, $unloadedObjs, $newObjCol, $startObjCol);
+	protected function _import($interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+		$objectArray = parent::_import($interfacedObject, $interfacer, $isFirstLevel, $objectCollectionInterfacer);
 		if (!is_null($objectArray)) {
 			foreach ($objectArray->getValues() as $value) {
 				if (!$this->restriction->satisfy($value)) {

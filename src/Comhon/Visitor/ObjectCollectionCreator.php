@@ -35,7 +35,7 @@ class ObjectCollectionCreator extends Visitor {
 	 * @see \Comhon\Visitor\Visitor::_isVisitRootObject()
 	 */
 	protected function _isVisitRootObject() {
-		return false;
+		return true;
 	}
 	
 	/**
@@ -53,14 +53,11 @@ class ObjectCollectionCreator extends Visitor {
 	protected function _visit($parentObject, $key, $propertyNameStack) {
 		$value = $parentObject->getValue($key);
 		
-		// each element will be visited if return true
-		if ($value->getModel() instanceof ModelArray) {
-			return true;
+		if (!($value->getModel() instanceof ModelArray)) {
+			$this->localObjectCollection->addObject($value, false);
 		}
-		$this->localObjectCollection->addObject($value, false);
 		
-		// we don't want to visit child object with main model because they can't share LocalObjectCollection
-		return !$value->getModel()->isMain();
+		return true;
 	}
 	
 	/**

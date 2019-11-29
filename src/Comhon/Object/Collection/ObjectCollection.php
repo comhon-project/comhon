@@ -16,6 +16,8 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\Model;
+use Comhon\Object\AbstractComhonObject;
+use Comhon\Visitor\ObjectCollectionCreator;
 
 class ObjectCollection {
 	
@@ -37,11 +39,22 @@ class ObjectCollection {
 	}
 	
 	/**
+	 * build object collection that will store given object itslef (if UniqueObject given) and all its contained unique objects
+	 *
+	 * @param \Comhon\Object\AbstractComhonObject $object
+	 * @return \Comhon\Object\Collection\ObjectCollection
+	 */
+	public static function build(AbstractComhonObject $object) {
+		$objectCollectionCreator = new ObjectCollectionCreator();
+		return $objectCollectionCreator->execute($object);
+	}
+	
+	/**
 	 * get comhon object with specified model name (if exists in ObjectCollection)
 	 * 
 	 * @param string|integer $id
 	 * @param string $modelName
-	 * @param boolean $inlcudeInheritance if true, search in extended model with same serialization too
+	 * @param boolean $inlcudeInheritance if true, search in extended model that share same id
 	 * @return \Comhon\Object\UniqueObject|null null if not found
 	 */
 	public function getObject($id, $modelName, $inlcudeInheritance = true) {
@@ -68,7 +81,7 @@ class ObjectCollection {
 	 * 
 	 * @param string|integer $id
 	 * @param string $modelName
-	 * @param boolean $inlcudeInheritance if true, search in extended model with same serialization too
+	 * @param boolean $inlcudeInheritance if true, search in extended model that share same id
 	 * @return boolean true if exists
 	 */
 	public function hasObject($id, $modelName, $inlcudeInheritance = true) {

@@ -16,6 +16,7 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Interfacer\ExportException;
+use Comhon\Object\Collection\ObjectCollectionInterfacer;
 
 abstract class ModelComplex extends AbstractModel {
 	
@@ -93,23 +94,21 @@ abstract class ModelComplex extends AbstractModel {
 	 * @param mixed $interfacedId
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param boolean $isFirstLevel
-	 * @param \Comhon\Object\UniqueObject[] $unloadedObjs
-	 * @param \Comhon\Object\Collection\ObjectCollection $newObjCol
-	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	abstract protected function _importId($interfacedId, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null);
+	abstract protected function _importId($interfacedId, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer);
 	
 	/**
 	 * import interfaced object related to a main model
 	 *
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
 	 * @throws \Exception
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollection $startObjCol = null) {
+	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer = null) {
 		throw new ComhonException('can call _importRoot only via Model');
 	}
 	

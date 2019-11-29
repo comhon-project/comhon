@@ -13,6 +13,7 @@ namespace Comhon\Model;
 
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
+use Comhon\Object\Collection\ObjectCollectionInterfacer;
 
 abstract class AbstractModel {
 	
@@ -75,13 +76,10 @@ abstract class AbstractModel {
 	 * @param mixed $interfacedValue
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param boolean $isFirstLevel
-	 * @param \Comhon\Object\UniqueObject
-	 * @param \Comhon\Object\UniqueObject[] $unloadedObjs
-	 * @param \Comhon\Object\Collection\ObjectCollection $newObjCol
-	 * @param \Comhon\Object\Collection\ObjectCollection $startObjCol
+	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
 	 * @return mixed|null
 	 */
-	abstract protected function _import($interfacedValue, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null);
+	abstract protected function _import($interfacedValue, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer);
 	
 	/**
 	 * verify if value is correct according current model

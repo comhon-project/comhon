@@ -136,7 +136,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 		foreach ($this->getModel()->getIdProperties() as $propertyName => $property) {
 			$values[] = $this->getValue($propertyName);
 		}
-		return $this->getModel()->encodeId($values);
+		return Model::encodeId($values);
 	}
 	
 	/**

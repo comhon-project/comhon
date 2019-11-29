@@ -15,6 +15,7 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ComhonException;
+use Comhon\Object\Collection\ObjectCollectionInterfacer;
 
 abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	
@@ -83,7 +84,7 @@ abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_import()
 	 */
-	final protected function _import($value, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
+	final protected function _import($value, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		return $this->importSimple($value, $interfacer, $isFirstLevel);
 	}
 	

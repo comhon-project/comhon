@@ -16,6 +16,7 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Interfacer\ExportException;
+use Comhon\Object\Collection\ObjectCollectionInterfacer;
 
 class ModelForeign extends ModelContainer {
 
@@ -134,8 +135,7 @@ class ModelForeign extends ModelContainer {
 		if ($interfacedObject instanceof \SimpleXMLElement) {
 			$interfacedObject = dom_import_simplexml($interfacedObject);
 		}
-		$unloadedObjs = [];
-		return $this->_import($interfacedObject, $interfacer, true, $unloadedObjs, new ObjectCollection(), null);
+		return $this->_import($interfacedObject, $interfacer, true, new ObjectCollectionInterfacer());
 	}
 	
 	/**
@@ -144,8 +144,8 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelContainer::_import()
 	 */
-	protected function _import($value, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
-		return $this->getModel()->_importId($value, $interfacer, $isFirstLevel, $unloadedObjs, $newObjCol, $startObjCol);
+	protected function _import($value, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+		return $this->getModel()->_importId($value, $interfacer, $isFirstLevel, $objectCollectionInterfacer);
 	}
 	
 	/**
@@ -153,7 +153,7 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_importId()
 	 */
-	protected function _importId($interfacedId, Interfacer $interfacer, $isFirstLevel, array &$unloadedObjs, ObjectCollection $newObjCol, ObjectCollection $startObjCol = null) {
+	protected function _importId($interfacedId, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		throw new ComhonException('cannot call _importId via ModelForeign');
 	}
 	

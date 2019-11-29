@@ -19,6 +19,11 @@ class ImportExportTest extends TestCase
 		Config::setLoadPath(Data::$config);
 	}
 	
+	public function setUp()
+	{
+		MainObjectCollection::getInstance()->reset();
+	}
+	
 	public function testNoMergeFillObject()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Duplicated');
@@ -115,6 +120,7 @@ class ImportExportTest extends TestCase
 		$this->assertTrue($test->getValue('objectMainForeignProperty')->isLoaded());
 		$this->assertNull($test->getValue('objectOneProperty'));
 		$this->assertTrue($test->getValue('objectOneForeignProperty')->isLoaded());
+		$this->assertSame($test, $test->getValue('objectOneForeignProperty'));
 		
 		// test import object with main model that has been previously added in MainObjectCollection
 		$test = $model->import(json_decode($jsonValue), $stdInterfacer);
