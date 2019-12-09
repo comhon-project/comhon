@@ -27,7 +27,7 @@ class RequestTest extends TestCase
 		$interfacer = new AssocArrayInterfacer();
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
 		
-		$interfacedObject = $interfacer->read($json);
+		$interfacedObject = $interfacer->read(self::$data_ad . $json);
 		$this->assertTrue(is_array($interfacedObject));
 		$obj = $model->import($interfacedObject, $interfacer);
 		
@@ -41,16 +41,16 @@ class RequestTest extends TestCase
 	{
 		return [
 			[
-				self::$data_ad . 'literals.json'
+				'literals.json'
 			],
 			[
-				self::$data_ad . 'settings.json'
+				'settings.json'
 			],
 			[
-				self::$data_ad . 'intermediate.json'
+				'intermediate.json'
 			],
 			[
-				self::$data_ad . 'complex.json'
+				'complex.json'
 			]
 		];
 	}

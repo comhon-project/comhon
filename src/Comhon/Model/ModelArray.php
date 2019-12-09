@@ -218,8 +218,11 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @return \Comhon\Object\UniqueObject
 	 */
 	protected function _importId($interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
-		if (is_null($interfacedObject)) {
+		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
+		}
+		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
+			throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getArrayNodeClasses()));
 		}
 		$objectArray = $this->getObjectInstance();
 		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {

@@ -20,6 +20,7 @@ use Comhon\Exception\Value\EnumerationException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Interfacer\ExportException;
+use Comhon\Model\Property\ForeignProperty;
 
 abstract class Interfacer {
 	
@@ -84,6 +85,12 @@ abstract class Interfacer {
 	const FLAG_OBJECT_AS_LOADED = 'flagObjectAsUpdated';
 	
 	/**
+	 * @var string preference name that define if interfacer must verify if foreign values are referenced 
+	 * (i.e. if there is an existing value not foreign with same id) in interfaced object.
+	 */
+	const VERIFY_REFERENCES = 'verifyReferences';
+	
+	/**
 	 * @var string preference name that define merge type during import
 	 */
 	const MERGE_TYPE = 'mergeType';
@@ -142,6 +149,9 @@ abstract class Interfacer {
 	
 	/** @var boolean */
 	private $flagObjectAsLoaded = true;
+	
+	/** @var boolean */
+	private $verifyReferences = true;
 	
 	/** @var boolean */
 	private $exportMainForeignObjects = false;
@@ -468,6 +478,28 @@ abstract class Interfacer {
 	 */
 	public function hasToFlagObjectAsLoaded() {
 		return $this->flagObjectAsLoaded;
+	}
+	
+	/**
+	 * define if interfacing must verify if foreign values are referenced 
+	 * (i.e. if there is an existing value not foreign with same id) in interfaced object.
+	 * if true given, when interfacing foreign value without reference, an exception is thrown.
+	 * values with main model are not concerned.
+	 *
+	 * @param boolean $boolean
+	 */
+	public function setVerifyReferences($boolean) {
+		$this->verifyReferences = $boolean;
+	}
+	
+	/**
+	 * verify if interfacing must verify if foreign values are referenced 
+	 * (i.e. if there is an existing value not foreign with same id) in interfaced object.
+	 *
+	 * @return boolean
+	 */
+	public function hasToVerifyReferences() {
+		return $this->verifyReferences;
 	}
 	
 	/**
@@ -820,6 +852,14 @@ abstract class Interfacer {
 				throw new UnexpectedValueTypeException($preferences[self::FLAG_OBJECT_AS_LOADED], 'boolean', self::FLAG_OBJECT_AS_LOADED);
 			}
 			$this->setFlagObjectAsLoaded($preferences[self::FLAG_OBJECT_AS_LOADED]);
+		}
+		
+		// verify foreign values references
+		if (array_key_exists(self::VERIFY_REFERENCES, $preferences)) {
+			if (!is_bool($preferences[self::VERIFY_REFERENCES])) {
+				throw new UnexpectedValueTypeException($preferences[self::VERIFY_REFERENCES], 'boolean', self::VERIFY_REFERENCES);
+			}
+			$this->setVerifyReferences($preferences[self::VERIFY_REFERENCES]);
 		}
 		
 		// merge type

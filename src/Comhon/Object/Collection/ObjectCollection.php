@@ -17,13 +17,13 @@ use Comhon\Object\UniqueObject;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\Model;
 use Comhon\Object\AbstractComhonObject;
-use Comhon\Visitor\ObjectCollectionCreator;
+use Comhon\Object\ComhonArray;
 
 class ObjectCollection {
 	
 	/**
 	 * 
-	 * @var UniqueObject[]
+	 * @var \Comhon\Object\UniqueObject[][]
 	 */
 	protected $map = [];
 	
@@ -42,11 +42,44 @@ class ObjectCollection {
 	 * build object collection that will store given object itslef (if UniqueObject given) and all its contained unique objects
 	 *
 	 * @param \Comhon\Object\AbstractComhonObject $object
+	 * @param boolean $addForeignObjects
 	 * @return \Comhon\Object\Collection\ObjectCollection
 	 */
-	public static function build(AbstractComhonObject $object) {
-		$objectCollectionCreator = new ObjectCollectionCreator();
-		return $objectCollectionCreator->execute($object);
+	public static function build(AbstractComhonObject $object, $addForeignObjects = true) {
+		$objectCollection = new ObjectCollection();
+		$stack = [[$object, false]];
+		
+		while (!empty($stack)) {
+			list($object, $isForeign) = array_pop($stack);
+			if ($object instanceof ComhonArray) {
+				if ($object->getUniqueModel() instanceof Model) {
+					foreach ($object as $element) {
+						if (!is_null($element)) {
+							$stack[] = [$element, $isForeign];
+						}
+					}
+				}
+			} elseif (!$objectCollection->hasObject($object->getId(), $object->getModel()->getName())) {
+				$objectCollection->addObject($object);
+				if (!$isForeign) {
+					foreach ($object->getModel()->getComplexProperties() as $name => $complexeProperty) {
+						if ($object->issetValue($name) && ($addForeignObjects || !$complexeProperty->isForeign())) {
+							$stack[] = [$object->getValue($name), $complexeProperty->isForeign()];
+						}
+					}
+				}
+			}
+		}
+		
+		return $objectCollection;
+	}
+	
+	/**
+	 * 
+	 * @return \Comhon\Object\UniqueObject[][]
+	 */
+	public function getCollection() {
+		return $this->map;
 	}
 	
 	/**
@@ -58,6 +91,9 @@ class ObjectCollection {
 	 * @return \Comhon\Object\UniqueObject|null null if not found
 	 */
 	public function getObject($id, $modelName, $inlcudeInheritance = true) {
+		if (is_null($id)) {
+			return null;
+		}
 		$object = null;
 		$model = ModelManager::getInstance()->getInstanceModel($modelName);
 		$key = self::getModelKey($model)->getName();

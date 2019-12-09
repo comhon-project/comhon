@@ -24,15 +24,29 @@
         <property type="string" name="localTwo"/>
       </properties>
     </type>
+    <type name="ContainerOne">
+      <properties>
+        <property type="integer" is_id="1" name="id"/>
+        <property type="\Test\Duplicated" name="dupliProp"/>
+        <property type="ObjectOne" name="objOneProp"/>
+        <property type="ObjectTwo" name="objTwoProp"/>
+        <property type="ObjectMain" name="objMainProp"/>
+      </properties>
+    </type>
+    <type name="ContainerTwo">
+      <properties>
+        <property type="integer" is_id="1" name="id"/>
+        <property type="array" name="objOneForeignProp" is_foreign="1">
+          <values type="ObjectOne" name="objOneForeign"/>
+        </property>
+        <property type="ObjectMain" name="objMainForeignProp" is_foreign="1"/>
+      </properties>
+    </type>
   </types>
   <properties>
-    <property type="\Test\Duplicated" name="duplicatedForeignProperty" is_foreign="1"/>
     <property type="integer" is_id="1" name="id"/>
-    <property type="\Test\Duplicated" name="duplicatedProperty"/>
-    <property type="ObjectOne" name="objectOneProperty"/>
-    <property type="ObjectTwo" name="objectTwoProperty"/>
-    <property type="ObjectOne" name="objectOneForeignProperty" is_foreign="1"/>
-    <property type="ObjectMain" name="objectMainProperty"/>
-    <property type="ObjectMain" name="objectMainForeignProperty" is_foreign="1"/>
+    <property type="\Test\Duplicated" name="dupliForeignProp" is_foreign="1"/>
+    <property type="ContainerOne" name="containerOne"/>
+    <property type="ContainerTwo" name="containerTwo"/>
   </properties>
 </manifest>

@@ -13,11 +13,7 @@ namespace Comhon\Visitor;
 
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\ComhonArray;
-use Comhon\Model\ModelCustom;
-use Comhon\Model\Property\ForeignProperty;
 use Comhon\Exception\Visitor\VisitorParameterException;
-use Comhon\Model\ModelForeign;
-use Comhon\Model\Property\Property;
 use Comhon\Object\UniqueObject;
 
 abstract class Visitor {
@@ -44,24 +40,13 @@ abstract class Visitor {
 	final public function execute(AbstractComhonObject $object, $params = []) {
 		$this->_verifParameters($params);
 		$this->propertyNameStack = [];
-		$this->mainObject        = $object;
-		$this->params            = $params;	
+		$this->mainObject = $object;
+		$this->params = $params;
 
 		$this->_init($object);
-		
-		if ($this->_isVisitRootObject()) {
-			$modelName   = $object->getModel()->getName();
-			$property    = new Property($object->getModel(), $modelName);
-			$customModel = new ModelCustom('modelCustom', [$property]);
-			$rootObject  = $customModel->getObjectInstance();
-			$rootObject->setValue($modelName, $object);
-			$this->_accept($rootObject, $modelName, $modelName, false);
-		} else {
-			$this->_acceptChildren($object, false);
-		}
+		$this->_acceptChildren($object, false);
 		
 		return $this->_finalize($object);
-		return false;
 	}
 	
 	/**
@@ -69,17 +54,17 @@ abstract class Visitor {
 	 * 
 	 * @param \Comhon\Object\AbstractComhonObject $parentObject
 	 * @param string $key
-	 * @param string $propertyName
 	 * @param boolean $isForeign
 	 */
-	private function _accept($parentObject, $key, $propertyName, $isForeign) {
-		if (!is_null($parentObject->getValue($key))) {
-			$this->propertyNameStack[] = $propertyName;
-			$visitChild = $this->_visit($parentObject, $key, $this->propertyNameStack);
-			if ($visitChild && !$isForeign) {
-				$this->_acceptChildren($parentObject->getValue($key), $isForeign);
+	private function _accept($parentObject, $key, $isForeign) {
+		$object = $parentObject->getValue($key);
+		if (!is_null($object)) {
+			$this->propertyNameStack[] = $key;
+			$visitChild = $this->_visit($parentObject, $key, $this->propertyNameStack, $isForeign);
+			if ($visitChild && (!$isForeign || ($object instanceof ComhonArray))) {
+				$this->_acceptChildren($object, $isForeign);
 			}
-			$this->_postVisit($parentObject, $key, $this->propertyNameStack);
+			$this->_postVisit($parentObject, $key, $this->propertyNameStack, $isForeign);
 			array_pop($this->propertyNameStack);
 		}
 	}
@@ -97,14 +82,14 @@ abstract class Visitor {
 		if ($object instanceof ComhonArray) {
 			$propertyName = $object->getModel()->getElementName();
 			foreach ($object->getValues() as $key => $value) {
-				$this->_accept($object, $key, $propertyName, $isForeign);
+				$this->_accept($object, $key, $isForeign);
 			}
 		}
 		else if (!array_key_exists(spl_object_hash($object), $this->instanceObjectHash)) {
 			$this->instanceObjectHash[spl_object_hash($object)] = $object;
 			foreach ($object->getModel()->getProperties() as $propertyName => $property) {
-				if (! $property->isUniqueModelSimple()) {
-					$this->_accept($object, $propertyName, $propertyName, $property->isForeign());
+				if (!$property->isUniqueModelSimple()) {
+					$this->_accept($object, $propertyName, $property->isForeign());
 				}
 			}
 			unset($this->instanceObjectHash[spl_object_hash($object)]);
@@ -112,15 +97,6 @@ abstract class Visitor {
 	}
 	
 
-	/**
-	 * verify if visitor has to visit root object
-	 * 
-	 * @return boolean
-	 */
-	protected function _isVisitRootObject() {
-		return true;
-	}
-	
 	/**
 	 * verify parameters
 	 * 
@@ -168,8 +144,9 @@ abstract class Visitor {
 	 * @param \Comhon\Object\AbstractComhonObject $parentObject
 	 * @param string $key
 	 * @param string $propertyNameStack
+	 * @param boolean $isForeign
 	 */
-	abstract protected function _visit($parentObject, $key, $propertyNameStack);
+	abstract protected function _visit($parentObject, $key, $propertyNameStack, $isForeign);
 	
 	/**
 	 * called after visting all children of current object
@@ -177,8 +154,9 @@ abstract class Visitor {
 	 * @param \Comhon\Object\AbstractComhonObject $parentObject
 	 * @param string $key
 	 * @param string $propertyNameStack
+	 * @param boolean $isForeign
 	 */
-	abstract protected function _postVisit($parentObject, $key, $propertyNameStack);
+	abstract protected function _postVisit($parentObject, $key, $propertyNameStack, $isForeign);
 	
 	/**
 	 * finalize visit

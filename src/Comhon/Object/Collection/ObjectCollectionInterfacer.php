@@ -95,6 +95,18 @@ class ObjectCollectionInterfacer {
 	}
 	
 	/**
+	 * verify if comhon object with specified model name and id exists in start object collection
+	 *
+	 * @param string|integer $id
+	 * @param string $modelName
+	 * @param boolean $inlcudeInheritance if true, search in extended model that share same id
+	 * @return boolean true if exists
+	 */
+	public function hasStartObject($id, $modelName, $inlcudeInheritance = true) {
+		return $this->startObjectCollection->hasObject($id, $modelName, $inlcudeInheritance);
+	}
+	
+	/**
 	 * add comhon object (if not already added) start object collection
 	 *
 	 * @param \Comhon\Object\UniqueObject $object
@@ -104,6 +116,37 @@ class ObjectCollectionInterfacer {
 	 */
 	public function addStartObject(UniqueObject $object, $throwException = true) {
 		return $this->startObjectCollection->addObject($object, $throwException);
+	}
+	
+	/**
+	 * replace new object collection
+	 * 
+	 * @param \Comhon\Object\Collection\ObjectCollection $newObjectCollection
+	 */
+	public function replaceNewObjectCollection(ObjectCollection $newObjectCollection) {
+		$this->newObjectCollection = $newObjectCollection;
+	}
+	
+	/**
+	 * get objects in $newForeignObjectCollection that are not referenced in $newObjectCollection.
+	 * if object has a main model, it is not taken in account.
+	 * 
+	 * @return  \Comhon\Object\UniqueObject[]
+	 */
+	public function getNotReferencedObjects() {
+		$notReferencedObjects = [];
+		// var_dump('-------------');
+		// var_dump($this->newForeignObjectCollection->toString());
+		// var_dump($this->newObjectCollection->toString());
+		foreach ($this->newForeignObjectCollection->getCollection() as $modelName => $objects) {
+			foreach ($objects as $id => $object) {
+				if (!$object->getModel()->isMain() && !$this->newObjectCollection->hasObject($id, $modelName)) {
+					// echo $object;
+					$notReferencedObjects[] = $object;
+				}
+			}
+		}
+		return $notReferencedObjects;
 	}
 	
 }

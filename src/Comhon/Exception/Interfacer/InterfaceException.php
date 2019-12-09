@@ -44,6 +44,20 @@ class InterfaceException extends ComhonException {
 	}
 	
 	/**
+	 * get InterfaceException instance with specified properies
+	 * stack must begin (index 0) by the last encountered property,
+	 * stack must end with the first encountered property
+	 * 
+	 * @param \Comhon\Exception\ComhonException $exception
+	 * @param string[] $stackProperties
+	 */
+	public static function getInstanceWithProperties(ComhonException $exception, array $stackProperties) {
+		$e = new InterfaceException($exception);
+		$e->stackProperties = $stackProperties;
+		return $e;
+	}
+	
+	/**
 	 * get original thrown exception
 	 * 
 	 * @return \Comhon\Exception\ComhonException

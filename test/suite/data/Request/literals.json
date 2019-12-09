@@ -127,5 +127,15 @@
             "__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Clause\\\\Conjunction"
         }
     ],
+    "models": [
+        {
+            "id": 1,
+            "model": "person"
+        },
+        {
+            "id": 2,
+            "model": "house"
+        }
+	],
     "__inheritance__": "Comhon\\Request\\Intermediate"
 }

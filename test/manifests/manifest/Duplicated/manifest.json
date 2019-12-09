@@ -39,44 +39,76 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "ContainerOne",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "is_id": true
+                },
+                {
+                    "name": "dupliProp",
+                    "type": "\\Test\\Duplicated"
+                },
+                {
+                    "name": "objOneProp",
+                    "type": "ObjectOne"
+                },
+                {
+                    "name": "objTwoProp",
+                    "type": "ObjectTwo"
+                },
+                {
+                    "name": "objMainProp",
+                    "type": "ObjectMain"
+                }
+            ]
+        },
+        {
+            "name": "ContainerTwo",
+            "properties": [
+                {
+                    "name": "id",
+                    "type": "integer",
+                    "is_id": true
+                },
+                {
+                    "name": "objOneForeignProp",
+                    "type": "array",
+                    "values": {
+                        "type": "ObjectOne",
+                        "name": "objOneForeign"
+                    },
+                    "is_foreign": true
+                },
+                {
+                    "name": "objMainForeignProp",
+                    "type": "ObjectMain",
+                    "is_foreign": true
+                }
+            ]
         }
     ],
     "properties": [
-        {
-            "name": "duplicatedForeignProperty",
-            "type": "\\Test\\Duplicated",
-            "is_foreign": true
-        },
         {
             "name": "id",
             "type": "integer",
             "is_id": true
         },
         {
-            "name": "duplicatedProperty",
-            "type": "\\Test\\Duplicated"
-        },
-        {
-            "name": "objectOneProperty",
-            "type": "ObjectOne"
-        },
-        {
-            "name": "objectTwoProperty",
-            "type": "ObjectTwo"
-        },
-        {
-            "name": "objectOneForeignProperty",
-            "type": "ObjectOne",
+            "name": "dupliForeignProp",
+            "type": "\\Test\\Duplicated",
             "is_foreign": true
         },
         {
-            "name": "objectMainProperty",
-            "type": "ObjectMain"
+            "name": "containerOne",
+            "type": "ContainerOne"
         },
         {
-            "name": "objectMainForeignProperty",
-            "type": "ObjectMain",
-            "is_foreign": true
+            "name": "containerTwo",
+            "type": "ContainerTwo"
         }
     ]
 }

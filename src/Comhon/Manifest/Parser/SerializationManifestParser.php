@@ -96,15 +96,19 @@ abstract class SerializationManifestParser {
 	 */
 	public function _getInterfacer($manifest) {
 		if (is_array($manifest)) {
-			return new AssocArrayInterfacer();
+			$interfacer = new AssocArrayInterfacer();
 		}
-		if ($manifest instanceof \stdClass) {
-			return new StdObjectInterfacer();
+		elseif ($manifest instanceof \stdClass) {
+			$interfacer =  new StdObjectInterfacer();
 		}
-		if ($manifest instanceof \DOMElement) {
-			return new XMLInterfacer();
+		elseif ($manifest instanceof \DOMElement) {
+			$interfacer =  new XMLInterfacer();
+		} else {
+			throw new ManifestException('not recognized manifest format');
 		}
-		throw new ManifestException('not recognized manifest format');
+		$interfacer->setMergeType(Interfacer::OVERWRITE);
+		$interfacer->setVerifyReferences(false);
+		return $interfacer;
 	}
 	
 	/**

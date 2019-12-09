@@ -52,36 +52,45 @@ function testImportPrivateIdPublicContext($model, $interfacedPrivateObject, $pub
 
 $stdPrivateInterfacer = new StdObjectInterfacer();
 $stdPrivateInterfacer->setPrivateContext(true);
+$stdPrivateInterfacer->setVerifyReferences(false);
 
 $stdPublicInterfacer = new StdObjectInterfacer();
 $stdPublicInterfacer->setPrivateContext(false);
+$stdPublicInterfacer->setVerifyReferences(false);
 
 $stdSerialInterfacer = new StdObjectInterfacer();
 $stdSerialInterfacer->setPrivateContext(true);
 $stdSerialInterfacer->setSerialContext(true);
+$stdSerialInterfacer->setVerifyReferences(false);
 
 $xmlPrivateInterfacer = new XMLInterfacer();
 $xmlPrivateInterfacer->setPrivateContext(true);
+$xmlPrivateInterfacer->setVerifyReferences(false);
 
 $xmlPublicInterfacer= new XMLInterfacer();
 $xmlPublicInterfacer->setPrivateContext(false);
+$xmlPublicInterfacer->setVerifyReferences(false);
 
 $xmlSerialInterfacer = new XMLInterfacer();
 $xmlSerialInterfacer->setPrivateContext(true);
 $xmlSerialInterfacer->setSerialContext(true);
+$xmlSerialInterfacer->setVerifyReferences(false);
 
 $flattenArrayPrivateInterfacer = new AssocArrayInterfacer();
 $flattenArrayPrivateInterfacer->setPrivateContext(true);
 $flattenArrayPrivateInterfacer->setFlattenValues(true);
+$flattenArrayPrivateInterfacer->setVerifyReferences(false);
 
 $flattenArrayPublicInterfacer = new AssocArrayInterfacer();
 $flattenArrayPublicInterfacer->setPrivateContext(false);
 $flattenArrayPublicInterfacer->setFlattenValues(true);
+$flattenArrayPublicInterfacer->setVerifyReferences(false);
 
 $flattenArraySerialInterfacer = new AssocArrayInterfacer();
 $flattenArraySerialInterfacer->setPrivateContext(true);
 $flattenArraySerialInterfacer->setFlattenValues(true);
 $flattenArraySerialInterfacer->setSerialContext(true);
+$flattenArraySerialInterfacer->setVerifyReferences(false);
 
 $stdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
 $stdPublicInterfacer->setMergeType(Interfacer::NO_MERGE);

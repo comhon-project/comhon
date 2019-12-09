@@ -31,13 +31,15 @@ use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\Collection\MainObjectCollection;
-use Comhon\Visitor\ObjectCollectionCreator;
 use Comhon\Exception\Model\CastComhonObjectException;
 use Comhon\Serialization\Serialization;
 use Comhon\Manifest\Parser\ManifestParser;
 use Comhon\Exception\Model\NotDefinedModelException;
 use Comhon\Exception\Interfacer\DuplicatedIdException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
+use Comhon\Exception\Interfacer\NotReferencedValueException;
+use Comhon\Visitor\ObjectFinder;
+use Comhon\Exception\Interfacer\InterfaceException;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -1194,12 +1196,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 *
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
+	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $startObjColInterfacer
 	 * @param \Comhon\Object\UniqueObject $startObject
 	 * @throws \Exception
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer = null, UniqueObject $startObject = null) {
+	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollectionInterfacer $startObjColInterfacer = null, UniqueObject $startObject = null) {
 		$this->load();
 		if (!$interfacer->isNodeValue($interfacedObject)) {
 			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
@@ -1208,25 +1210,34 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getNodeClasses()));
 			}
 		}
-		if (!is_null($objectCollectionInterfacer) && !is_null($startObject)) {
+		if (!is_null($startObjColInterfacer) && !is_null($startObject)) {
 			throw new ComhonException('$startObjCol and $startObject cannot be set in same time');
 		}
-		if (is_null($objectCollectionInterfacer)) {
-			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+		if (is_null($startObjColInterfacer)) {
+			$startObjColInterfacer = new ObjectCollectionInterfacer();
 		}
 		
 		switch ($interfacer->getMergeType()) {
 			case Interfacer::MERGE:
 				$object = is_null($startObject) 
-					? $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, true, $objectCollectionInterfacer)
+					? $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, true, $startObjColInterfacer)
 					: $startObject;
 				$objectCollectionInterfacer = new ObjectCollectionInterfacer($object);
 				$objectCollectionInterfacer->addObject($object, false);
 				$this->_fillObject($object, $interfacedObject, $interfacer, true, $objectCollectionInterfacer);
+				
+				if ($interfacer->hasToVerifyReferences()) {
+					// if object already exists (for exemple during fill object) some property might be not visited
+					// because they are not in object to import. so we have to visit filled object to collect all objects present
+					// and we will be able to compare foeriegn and not foreign values
+					if ($startObject || $startObjColInterfacer->hasStartObject($object->getId(), $object->getModel()->getName())) {
+						$objectCollectionInterfacer->replaceNewObjectCollection(ObjectCollection::build($object, false));
+					}
+				}
 				break;
 			case Interfacer::OVERWRITE:
 				$object = is_null($startObject)
-					? $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, true, $objectCollectionInterfacer)
+					? $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, true, $startObjColInterfacer)
 					: $startObject;
 				$objectCollectionInterfacer = new ObjectCollectionInterfacer();
 				$objectCollectionInterfacer->addObject($object, false);
@@ -1244,7 +1255,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 						MainObjectCollection::getInstance()->removeObject($existingObject);
 					}
 				}
-				$object = $this->_import($interfacedObject, $interfacer, true, new ObjectCollectionInterfacer());
+				$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+				$object = $this->_import($interfacedObject, $interfacer, true, $objectCollectionInterfacer);
 				
 				if (!is_null($existingObject)) {
 					MainObjectCollection::getInstance()->removeObject($object);
@@ -1253,6 +1265,31 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				break;
 			default:
 				throw new ComhonException('undefined merge type '.$interfacer->getMergeType());
+		}
+		if ($interfacer->hasToVerifyReferences()) {
+			$objects = $objectCollectionInterfacer->getNotReferencedObjects();
+			if (!empty($objects)) {
+				$objectFinder = new ObjectFinder();
+				foreach ($objects as $obj) {
+					$statck = $objectFinder->execute(
+						$object, 
+						[
+							ObjectFinder::ID => $obj->getId(),
+							ObjectFinder::MODEL => $obj->getModel(),
+							ObjectFinder::SEARCH_FOREIGN => true
+						]
+					);
+					if (is_null($statck)) {
+						throw new ComhonException('value should not be null');
+					}
+					// for the moment InterfaceException manage only one error 
+					// so we throw exception at the first loop
+					throw InterfaceException::getInstanceWithProperties(
+						new NotReferencedValueException($obj),
+						array_reverse($statck)
+					);
+				}
+			}
 		}
 		
 		return $object;

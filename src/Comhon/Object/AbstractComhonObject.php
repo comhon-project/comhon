@@ -282,13 +282,25 @@ abstract class AbstractComhonObject {
 	}
 	
 	/**
-	 * verify if comhon object has specified value set
+	 * verify if comhon object has specified value set.
+	 * if value is set and null, return true.
 	 * 
 	 * @param string $name
 	 * @return boolean
 	 */
 	final public function hasValue($name) {
 		return array_key_exists($name, $this->values);
+	}
+	
+	/**
+	 * verify if comhon object has specified value set and not null.
+	 * if value is set and null, return false.
+	 *
+	 * @param string $name
+	 * @return boolean
+	 */
+	final public function issetValue($name) {
+		return isset($this->values[$name]);
 	}
 	
 	/**
