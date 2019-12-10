@@ -13,6 +13,7 @@ namespace Comhon\Serialization\File;
 
 use Comhon\Serialization\SerializationFile;
 use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Interfacer\Interfacer;
 
 class XmlFile extends SerializationFile {
 	
@@ -60,6 +61,7 @@ class XmlFile extends SerializationFile {
 		$interfacer->setSerialContext(true);
 		$interfacer->setPrivateContext(true);
 		$interfacer->setFlagValuesAsUpdated(false);
+		$interfacer->setMergeType(Interfacer::OVERWRITE);
 		
 		return $interfacer;
 	}

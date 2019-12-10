@@ -25,42 +25,6 @@ class ImportExportTest extends TestCase
 		MainObjectCollection::getInstance()->reset();
 	}
 	
-	public function testNoMergeFillObject()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Duplicated');
-		$test = $model->getObjectInstance();
-		$stdInterfacer = new StdObjectInterfacer();
-		
-		$jsonValue = '{
-			"id":1,
-			"containerOne":{
-				"id":1,
-				"objOneProp":{"id":3}
-			}
-		}';
-		
-		$stdInterfacer->setMergeType(Interfacer::NO_MERGE);
-		$test->fill(json_decode($jsonValue), $stdInterfacer);
-		
-		// during fillObject Interfacer::NO_MERGE is not persistent
-		// so it is implicitely transformed at the beginning to Interfacer::OVERWRITE and reset to Interfacer::NO_MERGE at the end
-		// we verify that at the end we still have Interfacer::NO_MERGE
-		$this->assertEquals(Interfacer::NO_MERGE, $stdInterfacer->getMergeType());
-		
-		$this->assertEquals(1, $test->getId());
-		$this->assertTrue($test->hasValue('containerOne'));
-		$this->assertTrue($test->getValue('containerOne')->hasValue('objOneProp'));
-		$this->assertEquals(3, $test->getValue('containerOne')->getValue('objOneProp')->getId());
-		
-		$jsonValue = '{
-			"id":1
-		}';
-		
-		$test->fill(json_decode($jsonValue), $stdInterfacer);
-		$this->assertEquals(1, $test->getId());
-		$this->assertFalse($test->hasValue('containerOne'));
-	}
-	
 	/**
 	 * test a fill function (with interfacer merge type set to Interfacer::MERGE by default).
 	 * 

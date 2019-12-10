@@ -118,6 +118,7 @@ if (json_encode($object->getUpdatedValues()) !== '[]') {
 	throw new \Exception('should not have updated Value');
 }
 $object = $dbTestModel->loadObject('[1,"1501774389"]', null, true);
+$object->loadValue('childrenTestDb');
 if (json_encode($object->getUpdatedValues()) !== '[]') {
 	throw new \Exception('should not have updated Value');
 }
@@ -127,7 +128,7 @@ if ($object->isUpdated()) {
 $object->unsetValue('manBodyJson', false);
 $object->unsetValue('womanXml', false);
 if (!compareJson(json_encode($object->export($stdPrivateInterfacer)), $privateStdObject)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 0');
 }
 
 /** ----------------------------- import/export stdObject --------------------------------- **/
@@ -146,7 +147,7 @@ if (!$object->isUpdated()) {
 	throw new \Exception('should be updated');
 }
 if (!compareJson(json_encode($object->export($stdPrivateUpdatedInterfacer)), $privateStdObject)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 1');
 }
 $object->fill($object->export($stdPrivateInterfacer), $stdPrivateUpdatedInterfacer);
 if (json_encode($object->getUpdatedValues()) !== '[]') {
@@ -156,7 +157,7 @@ if ($object->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
 if (!compareJson(json_encode($object->export($stdPrivateUpdatedInterfacer)), '{"id1":1,"id2":"1501774389"}')) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 2');
 }
 
 // -- public
@@ -168,7 +169,7 @@ if (!$object->isUpdated()) {
 	throw new \Exception('should be updated');
 }
 if (!compareJson(json_encode($object->export($stdPublicUpdatedInterfacer)), $publicStdObject)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 3');
 }
 $object->fill($object->export($stdPublicInterfacer), $stdPublicUpdatedInterfacer);
 if (json_encode($object->getUpdatedValues()) !== '[]') {
@@ -178,7 +179,7 @@ if ($object->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
 if (json_encode($object->export($stdPublicUpdatedInterfacer)) !== '{"id1":1,"id2":"1501774389"}') {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 4');
 }
 
 // -- serial
@@ -190,10 +191,10 @@ if ($object->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
 if (json_encode($object->export($stdSerialInterfacer)) !== $serializedObject) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 6');
 }
 if (json_encode($object->export($stdSerialUpdatedInterfacer)) !== '{"id_1":1,"id_2":"1501774389"}') {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 7');
 }
 
 /** ----------------------------- import/export xml --------------------------------- **/
@@ -212,7 +213,7 @@ if (!$object->isUpdated()) {
 	throw new \Exception('should be updated');
 }
 if (!compareXML($xmlPrivateUpdatedInterfacer->toString($object->export($xmlPrivateUpdatedInterfacer)), $privateXml)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 8');
 }
 $object->fill($object->export($xmlPrivateInterfacer), $xmlPrivateUpdatedInterfacer);
 if (json_encode($object->getUpdatedValues()) !== '[]') {
@@ -222,7 +223,7 @@ if ($object->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
 if (!compareXML($xmlPrivateUpdatedInterfacer->toString($object->export($xmlPrivateUpdatedInterfacer)), '<root id1="1" id2="1501774389"/>')) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 9');
 }
 
 // -- public
@@ -234,7 +235,7 @@ if (!$object->isUpdated()) {
 	throw new \Exception('should be updated');
 }
 if (!compareXML($xmlPublicUpdatedInterfacer->toString($object->export($xmlPublicUpdatedInterfacer)), $publicXml)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 10');
 }
 $object->fill($object->export($xmlPublicInterfacer), $xmlPublicUpdatedInterfacer);
 if (json_encode($object->getUpdatedValues()) !== '[]') {
@@ -244,7 +245,7 @@ if ($object->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
 if (!compareXML($xmlPublicUpdatedInterfacer->toString($object->export($xmlPublicUpdatedInterfacer)), '<root id1="1" id2="1501774389"/>')) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 11');
 }
 
 // -- serial
@@ -256,10 +257,10 @@ if ($object->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
 if (!compareXML($xmlSerialInterfacer->toString($object->export($xmlSerialInterfacer)), $serializedXML)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 12');
 }
 if (!compareXML($xmlSerialUpdatedInterfacer->toString($object->export($xmlSerialUpdatedInterfacer)), '<root id_1="1" id_2="1501774389"/>')) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 13');
 }
 
 /** ----------------------------- import/export flattened array --------------------------------- **/
@@ -278,7 +279,7 @@ if (!$object->isUpdated()) {
 	throw new \Exception('should be updated');
 }
 if (!compareJson(json_encode($object->export($flattenArrayPrivateUpdatedInterfacer)), $privateFlattened)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 14');
 }
 $object->fill($object->export($flattenArrayPrivateInterfacer), $flattenArrayPrivateUpdatedInterfacer);
 if (json_encode($object->getUpdatedValues()) !== '[]') {
@@ -288,7 +289,7 @@ if ($object->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
 if (json_encode($object->export($flattenArrayPrivateUpdatedInterfacer)) !== '{"id1":1,"id2":"1501774389"}') {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 15');
 }
 
 // -- public
@@ -300,7 +301,7 @@ if (!$object->isUpdated()) {
 	throw new \Exception('should be updated');
 }
 if (!compareJson(json_encode($object->export($flattenArrayPublicUpdatedInterfacer)), $publicFlattened)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 16');
 }
 $object->fill($object->export($flattenArrayPublicInterfacer), $flattenArrayPublicUpdatedInterfacer);
 if (json_encode($object->getUpdatedValues()) !== '[]') {
@@ -310,7 +311,7 @@ if ($object->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
 if (json_encode($object->export($flattenArrayPublicUpdatedInterfacer)) !== '{"id1":1,"id2":"1501774389"}') {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 17');
 }
 
 // -- serial
@@ -322,10 +323,10 @@ if ($object->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
 if (json_encode($object->export($flattenArraySerialInterfacer)) !== $sqlArray) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 18');
 }
 if (json_encode($object->export($flattenArraySerialUpdatedInterfacer)) !== '{"id_1":1,"id_2":"1501774389"}') {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 19');
 }
 
 /** ----------------------------- import/export with some updated values --------------------------------- **/
@@ -348,28 +349,29 @@ $serialFlattened = '{"id_1":1,"id_2":"1501774389","object":"{\"plop\":\"plop\",\
 
 // -- public
 if (json_encode($object->export($stdPublicUpdatedInterfacer)) !== $publicStdObject) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 20');
 }
 if (!compareXML($xmlPublicUpdatedInterfacer->toString($object->export($xmlPublicUpdatedInterfacer)), $publicXml)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 21');
 }
 if (json_encode($object->export($flattenArrayPublicUpdatedInterfacer)) !== $publicFlattened) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 22');
 }
 
 // -- private
 if (json_encode($object->export($stdPrivateUpdatedInterfacer)) !== $privateStdObject) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 23');
 }
 if (!compareXML($xmlPrivateUpdatedInterfacer->toString($object->export($xmlPrivateUpdatedInterfacer)), $privateXml)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 24');
 }
 if (json_encode($object->export($flattenArrayPrivateUpdatedInterfacer)) !== $privateFlattened) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 25');
 }
 
 // -- serial with foreign main object export
 $object->getValue('mainParentTestDb')->loadValue('childrenTestDb', null, true);
+$object->loadValue('childrenTestDb');
 $object->getValue('childrenTestDb')->getValue(0)->setValue('name', 'test_name');
 $object->flagValueAsUpdated('id1');
 $object->getValue('objectsWithId')->getValue(0)->setValue('plop3', $object->getValue('objectsWithId')->getValue(0)->getValue('plop3'));
@@ -406,7 +408,7 @@ $object->getValue('mainParentTestDb')->getValue('childrenTestDb')->getValue(0)->
 
 $stdSerialUpdatedInterfacer->setExportMainForeignObjects(true);
 if (!compareJson(json_encode($object->export($stdSerialUpdatedInterfacer)), $serialStdObject)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 26');
 }
 if (!compareJson(json_encode($stdSerialUpdatedInterfacer->getMainForeignObjects()), '{"Test\\\\TestDb":{"[1,\"23\"]":{"id_1":1,"id_2":"23","integer":1},"[1,\"50\"]":{"id_1":1,"id_2":"50"},"[1,\"101\"]":{"id_1":1,"id_2":"101"},"[2,\"50\"]":{"id_1":2,"id_2":"50"},"[2,\"102\"]":{"id_1":2,"id_2":"102"}},"Test\\\\MainTestDb":{"1":{"id":1}},"Test\\\\ChildTestDb":{"1":{"id":1,"name":"test_name","parent_id_1":1},"2":{"id":2,"parent_id_1":1}}}')) {
 	throw new \Exception('bad foreign objects Values 1');
@@ -414,7 +416,7 @@ if (!compareJson(json_encode($stdSerialUpdatedInterfacer->getMainForeignObjects(
 
 $xmlSerialUpdatedInterfacer->setExportMainForeignObjects(true);
 if (!compareXML($xmlSerialUpdatedInterfacer->toString($object->export($xmlSerialUpdatedInterfacer)), $serialXml)) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 27');
 }
 if (!compareXML($xmlSerialUpdatedInterfacer->toString($xmlSerialUpdatedInterfacer->getMainForeignObjects()), '<objects><TestDb namespace="Test\"><root id_1="1" id_2="23" integer="1"/><root id_1="1" id_2="50"/><root id_1="1" id_2="101"/><root id_1="2" id_2="50"/><root id_1="2" id_2="102"/></TestDb><ChildTestDb namespace="Test\"><root id="1" name="test_name" parent_id_1="1"/><root id="2" parent_id_1="1"/></ChildTestDb><MainTestDb namespace="Test\"><root id="1"/></MainTestDb></objects>')) {
 	throw new \Exception('bad foreign objects Values 2');
@@ -422,7 +424,7 @@ if (!compareXML($xmlSerialUpdatedInterfacer->toString($xmlSerialUpdatedInterface
 
 $flattenArraySerialUpdatedInterfacer->setExportMainForeignObjects(true);
 if (json_encode($object->export($flattenArraySerialUpdatedInterfacer)) !== $serialFlattened) {
-	throw new \Exception('bad object Values');
+	throw new \Exception('bad object Values 28');
 }
 if (!compareJson(json_encode($flattenArraySerialUpdatedInterfacer->getMainForeignObjects()), '{"Test\\\\TestDb":{"[1,\"23\"]":{"id_1":1,"id_2":"23","integer":1},"[1,\"50\"]":{"id_1":1,"id_2":"50"},"[1,\"101\"]":{"id_1":1,"id_2":"101"},"[2,\"50\"]":{"id_1":2,"id_2":"50"},"[2,\"102\"]":{"id_1":2,"id_2":"102"}},"Test\\\\MainTestDb":{"1":{"id":1}},"Test\\\\ChildTestDb":{"1":{"id":1,"name":"test_name","parent_id_1":1},"2":{"id":2,"parent_id_1":1}}}')) {
 	throw new \Exception('bad foreign objects Values 3');

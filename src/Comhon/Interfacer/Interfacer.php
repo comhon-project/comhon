@@ -101,9 +101,6 @@ abstract class Interfacer {
 	/** @var integer */
 	const OVERWRITE = 2;
 	
-	/** @var integer */
-	const NO_MERGE = 3;
-	
 	/** @var string */
 	const INHERITANCE_KEY = '__inheritance__';
 	
@@ -113,8 +110,7 @@ abstract class Interfacer {
 	/** @var string[] */
 	private static $allowedMergeTypes = [
 		self::MERGE,
-		self::OVERWRITE,
-		self::NO_MERGE
+		self::OVERWRITE
 	];
 	
 	/** @var boolean */
@@ -505,7 +501,7 @@ abstract class Interfacer {
 	/**
 	 * define merge type to apply during import
 	 * 
-	 * @param integer $mergeType possible values are [self::MERGE, self::OVERWRITE, self::NO_MERGE]
+	 * @param integer $mergeType possible values are [self::MERGE, self::OVERWRITE]
 	 */
 	public function setMergeType($mergeType) {
 		if (!in_array($mergeType, self::$allowedMergeTypes, true)) {

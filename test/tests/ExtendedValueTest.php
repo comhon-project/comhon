@@ -156,8 +156,10 @@ $body->getValue('arts')->pushValue($body->getValue('piercings')->getValue(0));
 if (!compareJson(json_encode($body->getValue('arts')->export($stdPrivateInterfacer)), '[{"type":"sentence","location":"shoulder","tatooArtist":{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"},"__inheritance__":"Test\\\\Body\\\\Tatoo"},{"type":"earring","location":"ear","piercer":{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"},"__inheritance__":"Test\\\\Body\\\\Piercing"}]')) {
 	throw new \Exception('not same object values');
 }
-$xmlPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$bodyTwo = $body->getModel()->import($body->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
+
+$bodyTwo = $body->getModel()->getObjectInstance();
+$xmlPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$bodyTwo->fill($body->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
 $xmlPrivateInterfacer->setMergeType(Interfacer::MERGE);
 if ($bodyTwo === $body) {
 	throw new \Exception('same object instance');
@@ -320,8 +322,9 @@ if ($object->getValue('lonelyForeignObjectTwo') !== $object->getValue('lonelyFor
 }
 
 $objectOne = $object;
-$stdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$object = $dbTestModel->import($object->export($stdPrivateInterfacer), $stdPrivateInterfacer);
+$object = $dbTestModel->getObjectInstance();
+$stdPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$object->fill($objectOne->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 $stdPrivateInterfacer->setMergeType(Interfacer::MERGE);
 if ($objectOne === $object) {
 	throw new \Exception('same object instance');
@@ -354,8 +357,10 @@ if ($object->getValue('lonelyForeignObjectTwo') !== $object->getValue('lonelyFor
 	throw new \Exception('not same object instance');
 }
 
-$xmlPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$object = $dbTestModel->import($object->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
+$objectTemp = $object;
+$object = $dbTestModel->getObjectInstance();
+$xmlPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$object->fill($objectTemp->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
 $xmlPrivateInterfacer->setMergeType(Interfacer::MERGE);
 if ($objectOne === $object) {
 	throw new \Exception('same object instance');

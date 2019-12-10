@@ -1244,25 +1244,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				$object->reset();
 				$this->_fillObject($object, $interfacedObject, $interfacer, true, $objectCollectionInterfacer);
 				break;
-			case Interfacer::NO_MERGE:
-				if (!is_null($startObject)) {
-					throw new ComhonException('$startObject cannot be set with Interfacer::NO_MERGE setting');
-				}
-				$existingObject = null;
-				if ($this->isMain) {
-					$existingObject = MainObjectCollection::getInstance()->getObject($this->getIdFromInterfacedObject($interfacedObject, $interfacer, true), $this->modelName);
-					if (!is_null($existingObject)) {
-						MainObjectCollection::getInstance()->removeObject($existingObject);
-					}
-				}
-				$objectCollectionInterfacer = new ObjectCollectionInterfacer();
-				$object = $this->_import($interfacedObject, $interfacer, true, $objectCollectionInterfacer);
-				
-				if (!is_null($existingObject)) {
-					MainObjectCollection::getInstance()->removeObject($object);
-					MainObjectCollection::getInstance()->addObject($existingObject);
-				}
-				break;
 			default:
 				throw new ComhonException('undefined merge type '.$interfacer->getMergeType());
 		}
@@ -1337,11 +1318,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		}
 		
 		try {
-			$noMerge = false;
-			if ($interfacer->getMergeType() === Interfacer::NO_MERGE) {
-				$interfacer->setMergeType(Interfacer::OVERWRITE);
-				$noMerge = true;
-			}
 			$inheritance = $this->_getInheritedModelName($interfacedObject, $interfacer, true);
 			if (!is_null($inheritance)) {
 				$object->cast(ModelManager::getInstance()->getInstanceModel($inheritance));
@@ -1363,10 +1339,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		}
 		catch (ComhonException $e) {
 			throw new ImportException($e);
-		} finally {
-			if ($noMerge) {
-				$interfacer->setMergeType(Interfacer::NO_MERGE);
-			}
 		}
 	}
 	
@@ -1396,14 +1368,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if ($object->getId() !== $id) {
 			$messageId = is_null($id) ? 'null' : $id;
 			throw new ComhonException("id must be the same as imported value id : {$object->getId()} !== $messageId");
-		}
-		
-		if ($this->isMain) {
-			$storedObject = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
-			if (!is_null($storedObject) && $storedObject!== $object) {
-				throw new ComhonException("A different instance object with same id '$id' already exists in MainObjectCollection.\n"
-						.'If you want to build a new instance with this id, you must go through Model and specify merge type as '.Interfacer::NO_MERGE.' (no merge)');
-			}
 		}
 	}
 	

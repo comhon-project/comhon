@@ -289,7 +289,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
 			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 		}
-		if ($interfacer->getMergeType() === Interfacer::NO_MERGE || !$this->getUniqueModel()->hasIdProperties()) {
+		if (!$this->getUniqueModel()->hasIdProperties()) {
 			$objectCollectionInterfacer = null;
 		} else {
 			$objectCollectionInterfacer = new ObjectCollectionInterfacer();

@@ -92,15 +92,15 @@ $flattenArraySerialInterfacer->setFlattenValues(true);
 $flattenArraySerialInterfacer->setSerialContext(true);
 $flattenArraySerialInterfacer->setVerifyReferences(false);
 
-$stdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$stdPublicInterfacer->setMergeType(Interfacer::NO_MERGE);
-$stdSerialInterfacer->setMergeType(Interfacer::NO_MERGE);
-$xmlPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$xmlPublicInterfacer->setMergeType(Interfacer::NO_MERGE);
-$xmlSerialInterfacer->setMergeType(Interfacer::NO_MERGE);
-$flattenArrayPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$flattenArrayPublicInterfacer->setMergeType(Interfacer::NO_MERGE);
-$flattenArraySerialInterfacer->setMergeType(Interfacer::NO_MERGE);
+$stdPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$stdPublicInterfacer->setMergeType(Interfacer::OVERWRITE);
+$stdSerialInterfacer->setMergeType(Interfacer::OVERWRITE);
+$xmlPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$xmlPublicInterfacer->setMergeType(Interfacer::OVERWRITE);
+$xmlSerialInterfacer->setMergeType(Interfacer::OVERWRITE);
+$flattenArrayPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$flattenArrayPublicInterfacer->setMergeType(Interfacer::OVERWRITE);
+$flattenArraySerialInterfacer->setMergeType(Interfacer::OVERWRITE);
 
 $dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 $objectTestDb = $dbTestModel->loadObject('[1,"1501774389"]');
@@ -144,15 +144,7 @@ if (json_encode($dbTestModel->import($copiedObject->export($stdPrivateInterfacer
 }
 
 $newObject = new FinalObject('Test\TestDb');
-try {
-	$dbTestModel->fillObject($newObject, $copiedObject->export($stdPrivateInterfacer), $stdPrivateInterfacer);
-	$throw = true;
-} catch (ComhonException $e) {
-	$throw = false;
-}
-if ($throw) {
-	throw new \Exception('instance with same id already exists');
-}
+$dbTestModel->fillObject($newObject, $copiedObject->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 
 $newObject = $objectTestDb;
 $newObject->reset();

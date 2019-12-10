@@ -48,6 +48,7 @@ foreach ($property->getMultipleIdProperties() as $serializationName => $idProper
 }
 $dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 $parentObject = $dbTestModel->loadObject('[1,"1501774389"]');
+$parentObject->resetUpdatedStatus();
 $object->setValue('parentTestDb', $parentObject);
 
 /************************************************** export **********************************************/
@@ -101,7 +102,7 @@ if ($object->getValue('parentTestDb') !== $parentObject) {
 $parentObject->initValue('childrenTestDb', false, false);
 $parentObject->loadValue('childrenTestDb');
 
-if (json_encode($parentObject->getValue('childrenTestDb')->export($stdPrivateInterfacer)) !== '[{"id":1,"parentTestDb":"[1,\"1501774389\"]","name":"plop"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]') {
+if (json_encode($parentObject->getValue('childrenTestDb')->export($stdPrivateInterfacer)) !== '[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]') {
 	var_dump(json_encode($parentObject->getValue('childrenTestDb')->export($stdPrivateInterfacer)));
 	throw new \Exception('bad value');
 }

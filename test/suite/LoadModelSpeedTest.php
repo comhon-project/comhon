@@ -62,8 +62,8 @@ class LoadModelSpeedTest extends TestCase
 		}
 		
 		$exectTime = microtime(true) - $timeStart;
-		$averageTimeXml = 0.435;
-		$averageTimeJson = 0.29;
+		$averageTimeXml = 0.437;
+		$averageTimeJson = 0.294;
 		$errorMargin = 0.01;
 		
 		$this->assertContains(Config::getInstance()->getManifestFormat(), ['xml', 'json']);

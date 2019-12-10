@@ -13,6 +13,7 @@ namespace Comhon\Serialization\File;
 
 use Comhon\Serialization\SerializationFile;
 use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Interfacer\Interfacer;
 
 class JsonFile extends SerializationFile {
 	
@@ -60,6 +61,7 @@ class JsonFile extends SerializationFile {
 		$interfacer->setSerialContext(true);
 		$interfacer->setPrivateContext(true);
 		$interfacer->setFlagValuesAsUpdated(false);
+		$interfacer->setMergeType(Interfacer::OVERWRITE);
 		
 		return $interfacer;
 	}

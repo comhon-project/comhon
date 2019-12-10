@@ -1,6 +1,7 @@
 <?php
 
 use Test\Comhon\Service\ObjectService;
+use Comhon\Object\Config\Config;
 
 $time_start = microtime(true);
 
@@ -51,8 +52,12 @@ $Json = '{
 // GROUP  BY main_test.id 
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[1,\"1501774389\"]","[2,\"50\"]","[2,\"102\"]"]}]}')) {
-	throw new \Exception('bad result');
+$expected = Config::getInstance()->getManifestFormat() === 'json'
+	? '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[2,\"50\"]","[2,\"102\"]","[1,\"1501774389\"]"]}]}'
+	: '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"101\"]","[1,\"1501774389\"]","[1,\"23\"]","[1,\"50\"]","[2,\"102\"]","[2,\"50\"]"]}]}';
+
+if (!compareJson(json_encode($result), $expected)) {
+	throw new \Exception('bad result 1');
 }
 
 $Json = '{
@@ -103,8 +108,8 @@ $Json = '{
 
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[1,\"1501774389\"]","[2,\"50\"]","[2,\"102\"]"]}]}')) {
-	throw new \Exception('bad result');
+if (!compareJson(json_encode($result), $expected)) {
+	throw new \Exception('bad result 2');
 }
 
 $Json = '{
@@ -136,7 +141,7 @@ $Json = '{
 
 $result = ObjectService::getObjects(json_decode($Json), true);
 if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]}')) {
-	throw new \Exception('bad result');
+	throw new \Exception('bad result 3');
 }
 
 $time_end = microtime(true);

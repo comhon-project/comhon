@@ -105,15 +105,8 @@ $xmlSerialInterfacer->setSerialContext(true);
 $object = null;
 foreach ($result->result as $index => $stdObject) {
 	$object = new FinalObject('Test\TestDb');
-	try {
-		$object->fill($stdObject, $stdPrivateInterfacer);
-		$throw = true;
-	} catch (ComhonException $e) {
-		$throw = false;
-	}
-	if ($throw) {
-		throw new \Exception('import should works other instance already exists');
-	}
+	$object->fill($stdObject, $stdPrivateInterfacer);
+		
 	$id1 = $stdObject->id1;
 	$id2 = $stdObject->id2;
 	unset($stdObject->id1);
@@ -380,13 +373,14 @@ if ($testDb !== MainObjectCollection::getInstance()->getObject('[1,"1501774389"]
 $testDb->setValue('childrenTestDb', $children, false);
 $testDb->getValue('childrenTestDb')->getValue(0)->setValue('parentTestDb', $testDb);
 $testDb->getValue('childrenTestDb')->getValue(0)->loadValue('parentTestDb', ['integer']);
+$testDb->loadAggregationIds('childrenTestDb');
 $testDb->getValue('childrenTestDb')->getValue(1)->unsetValue('parentTestDb');
 
 if (!compareJson(json_encode($testDb->getValue('childrenTestDb')->export($stdPrivateInterfacer)),'[{"id":1,"parentTestDb":"[1,\"1501774389\"]"},{"id":2}]')) {
-	throw new \Exception('bad object : '.json_encode($testDb->getValue('childrenTestDb')->export($stdPrivateInterfacer)));
+	throw new \Exception('bad object 0 : '.json_encode($testDb->getValue('childrenTestDb')->export($stdPrivateInterfacer)));
 }
 if (!compareJson(json_encode($testDb->export($stdPrivateInterfacer)), '{"defaultValue":"default","id1":1,"id2":"1501774389","childrenTestDb":[1,2],"integer":2}')) {
-	throw new \Exception('bad object : '.json_encode($testDb->export($stdPrivateInterfacer)));
+	throw new \Exception('bad object 1 : '.json_encode($testDb->export($stdPrivateInterfacer)));
 }
 
 

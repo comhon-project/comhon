@@ -90,7 +90,7 @@ if (is_null($testDbFromCollection) || $testDbFromCollection !== $testDb) {
 
 // $testDb2 must be same instance than $testDb and not modified
 if ($testDb !== $testDb2 || !is_null($mainParentTestDb2) || $object !== $object2 || $objectId !== $objectId2) {
-	throw new \Exception(' not same object');
+	throw new \Exception(' not same object 0');
 }
 
 if (!$testDb->isUpdated()) {
@@ -126,8 +126,17 @@ if (is_null($testDbFromCollection) || $testDbFromCollection !== $testDb) {
 }
 
 // $testDb3 must be same instance than $testDb with restored 'mainParentTestDb' and not same instance of 'object' due to database reload
-if ($testDb !== $testDb3 || $mainParentTestDb !== $mainParentTestDb3 || $object === $object3 || $objectId !== $objectId3) {
-	throw new \Exception(' not same object');
+if ($testDb !== $testDb3) {
+	throw new \Exception(' not same object 10');
+}
+if ($testDb !== $testDb3 || $mainParentTestDb !== $mainParentTestDb3) {
+	throw new \Exception(' not same object 11');
+}
+if ($testDb !== $testDb3 || $mainParentTestDb !== $mainParentTestDb3 || $object === $object3) {
+	throw new \Exception(' not same object 12');
+}
+if ($testDb !== $testDb3 || $mainParentTestDb !== $mainParentTestDb3 || $object === $object3 || $objectId === $objectId3) {
+	throw new \Exception(' not same object 13');
 }
 
 if ($testDb->isUpdated()) {
@@ -363,8 +372,9 @@ $test2 = $testModel->import($test->export($stdPrivateInterfacer), $stdPrivateInt
 if ($test2 !== $test || $test2 !== $test2->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
-$stdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$test3 = $testModel->import($test->export($stdPrivateInterfacer), $stdPrivateInterfacer);
+$test3 = $testModel->getObjectInstance();
+$stdPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$test3->fill($test->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 if ($test3 === $test) {
 	throw new \Exception('same instance');
 }
@@ -383,8 +393,9 @@ $test2 = $testModel->import($test->export($xmlPrivateInterfacer), $xmlPrivateInt
 if ($test2 !== $test || $test2 !== $test2->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
-$xmlPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$test3 = $testModel->import($test->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
+$test3 = $testModel->getObjectInstance();
+$xmlPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$test3->fill($test->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
 if ($test3 === $test) {
 	throw new \Exception('same instance');
 }
@@ -403,8 +414,9 @@ $test2 = $testModel->import($test->export($arrayPrivateInterfacer), $arrayPrivat
 if ($test2 !== $test || $test2 !== $test2->getValue('objectRefParent')->getValue('parent')) {
 	throw new \Exception('not same instance');
 }
-$arrayPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$test3 = $testModel->import($test->export($arrayPrivateInterfacer), $arrayPrivateInterfacer);
+$test3 = $testModel->getObjectInstance();
+$arrayPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
+$test3->fill($test->export($arrayPrivateInterfacer), $arrayPrivateInterfacer);
 if ($test3 === $test) {
 	throw new \Exception('same instance');
 }
@@ -496,15 +508,6 @@ $stdPrivateInterfacer->setMergeType(Interfacer::OVERWRITE);
 $array->fill($array->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 
 if ($mainTestDb !== $array->getValue(0) || $mainTestDb2 !== $array->getValue(1)) {
-	throw new \Exception('bad object instance');
-}
-
-MainObjectCollection::getInstance()->removeObject($mainTestDb2);
-MainObjectCollection::getInstance()->removeObject($mainTestDb);
-$stdPrivateInterfacer->setMergeType(Interfacer::NO_MERGE);
-$array->fill($array->export($stdPrivateInterfacer), $stdPrivateInterfacer);
-
-if ($mainTestDb === $array->getValue(0) || $mainTestDb2 === $array->getValue(1)) {
 	throw new \Exception('bad object instance');
 }
 

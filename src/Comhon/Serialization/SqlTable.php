@@ -31,6 +31,7 @@ use Comhon\Exception\ComhonException;
 use Comhon\Exception\Serialization\UniqueException;
 use Comhon\Exception\Serialization\ForeignValueException;
 use Comhon\Exception\Serialization\NotNullException;
+use Comhon\Interfacer\Interfacer;
 
 class SqlTable extends ValidatedSerializationUnit {
 	
@@ -262,6 +263,7 @@ class SqlTable extends ValidatedSerializationUnit {
 			$this->interfacer->setDateTimeZone(Config::getInstance()->getDataBaseTimezone());
 			$this->interfacer->setFlattenValues(true);
 			$this->interfacer->setStringifiedValues(true);
+			$this->interfacer->setMergeType(Interfacer::OVERWRITE);
 		}
 		$this->interfacer->setFlagObjectAsLoaded($flagObjectAsLoaded);
 		return $this->interfacer;

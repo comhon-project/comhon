@@ -129,7 +129,7 @@ $preferences = [
 	Interfacer::EXPORT_MAIN_FOREIGN_OBJECTS   => true,
 	Interfacer::FLAG_VALUES_AS_UPDATED => false,
 	Interfacer::FLAG_OBJECT_AS_LOADED  => false,
-	Interfacer::MERGE_TYPE             => Interfacer::NO_MERGE
+	Interfacer::MERGE_TYPE             => Interfacer::OVERWRITE
 ];
 
 $interfacer->setPreferences($preferences);
@@ -167,7 +167,7 @@ if ($interfacer->hasToFlagValuesAsUpdated() !== false) {
 if ($interfacer->hasToFlagObjectAsLoaded() !== false) {
 	throw new \Exception('bad value');
 }
-if ($interfacer->getMergeType() !== Interfacer::NO_MERGE) {
+if ($interfacer->getMergeType() !== Interfacer::OVERWRITE) {
 	throw new \Exception('bad value');
 }
 
