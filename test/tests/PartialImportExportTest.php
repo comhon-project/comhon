@@ -182,6 +182,10 @@ if (json_encode($object->export($stdPublicUpdatedInterfacer)) !== '{"id1":1,"id2
 	throw new \Exception('bad object Values 4');
 }
 
+$object->getValue('objectsWithId')->getValue(0)->setValue('plop3', 'heyplop3');
+$object->getValue('objectsWithId')->getValue(1)->setValue('plop3', 'heyplop3');
+$object->getValue('objectsWithId')->getValue(4)->setValue('plop3', 'heyplop33');
+
 // -- serial
 $object->fill($object->export($stdSerialInterfacer), $stdSerialUpdatedInterfacer);
 if (json_encode($object->getUpdatedValues()) !== '[]') {
@@ -248,6 +252,10 @@ if (!compareXML($xmlPublicUpdatedInterfacer->toString($object->export($xmlPublic
 	throw new \Exception('bad object Values 11');
 }
 
+$object->getValue('objectsWithId')->getValue(0)->setValue('plop3', 'heyplop3');
+$object->getValue('objectsWithId')->getValue(1)->setValue('plop3', 'heyplop3');
+$object->getValue('objectsWithId')->getValue(4)->setValue('plop3', 'heyplop33');
+
 // -- serial
 $object->fill($object->export($xmlSerialInterfacer), $xmlSerialUpdatedInterfacer);
 if (json_encode($object->getUpdatedValues()) !== '[]') {
@@ -313,6 +321,10 @@ if ($object->isUpdated()) {
 if (json_encode($object->export($flattenArrayPublicUpdatedInterfacer)) !== '{"id1":1,"id2":"1501774389"}') {
 	throw new \Exception('bad object Values 17');
 }
+
+$object->getValue('objectsWithId')->getValue(0)->setValue('plop3', 'heyplop3');
+$object->getValue('objectsWithId')->getValue(1)->setValue('plop3', 'heyplop3');
+$object->getValue('objectsWithId')->getValue(4)->setValue('plop3', 'heyplop33');
 
 // -- serial
 $object->fill($object->export($flattenArraySerialInterfacer), $flattenArraySerialUpdatedInterfacer);

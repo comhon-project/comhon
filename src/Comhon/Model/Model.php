@@ -1155,6 +1155,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				if ($this->isInheritedFrom($object->getModel()) && ObjectCollection::getModelKey($this) === ObjectCollection::getModelKey($object->getModel())) {
 					$object->cast($this);
 				}
+				if (!$isForeign && !$isFirstLevel) {
+					$object->reset(false);
+				}
 				$objectCollectionInterfacer->addObject($object, $isForeign);
 				if ($isloaded || ($isFirstLevel && $interfacer->getMergeType() !== Interfacer::MERGE)) {
 					$object->setIsLoaded($isloaded);

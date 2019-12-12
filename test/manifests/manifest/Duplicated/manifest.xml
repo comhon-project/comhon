@@ -26,16 +26,22 @@
     </type>
     <type name="ContainerOne">
       <properties>
-        <property type="integer" is_id="1" name="id"/>
         <property type="\Test\Duplicated" name="dupliProp"/>
-        <property type="ObjectOne" name="objOneProp"/>
         <property type="ObjectTwo" name="objTwoProp"/>
-        <property type="ObjectMain" name="objMainProp"/>
       </properties>
     </type>
     <type name="ContainerTwo">
       <properties>
-        <property type="integer" is_id="1" name="id"/>
+        <property type="ObjectOne" name="objOneProp"/>
+      </properties>
+    </type>
+    <type name="ContainerMain">
+      <properties>
+        <property type="ObjectMain" name="objMainProp"/>
+      </properties>
+    </type>
+    <type name="ContainerForeign">
+      <properties>
         <property type="array" name="objOneForeignProp" is_foreign="1">
           <values type="ObjectOne" name="objOneForeign"/>
         </property>
@@ -48,5 +54,7 @@
     <property type="\Test\Duplicated" name="dupliForeignProp" is_foreign="1"/>
     <property type="ContainerOne" name="containerOne"/>
     <property type="ContainerTwo" name="containerTwo"/>
+    <property type="ContainerMain" name="containerMain"/>
+    <property type="ContainerForeign" name="containerForeign"/>
   </properties>
 </manifest>

@@ -37,15 +37,29 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Object\AbstractComhonObject::reset()
+	 * 
+	 * @param boolean $resetId if false and object has id, object is reset except id
 	 */
-	final public function reset() {
-		if ($this->getModel()->hasIdProperties() && $this->getModel()->isMain()) {
-			MainObjectCollection::getInstance()->removeObject($this, false);
+	final public function reset($resetId = true) {
+		$values = [];
+		if ($this->getModel()->hasIdProperties())  {
+			if ($resetId) {
+				if ($this->getModel()->isMain()) {
+					MainObjectCollection::getInstance()->removeObject($this, false);
+				}
+			} else {
+				foreach ($this->getModel()->getIdProperties() as $property) {
+					if ($this->issetValue($property->getName())) {
+						$values[$property->getName()] = $this->getValue($property->getName());
+					}
+				}
+			}
+		}
+		foreach ($this->getModel()->getPropertiesWithDefaultValues() as $property) {
+			$values[$property->getName()] = $property->getDefaultValue();
 		}
 		$this->_reset();
-		foreach ($this->getModel()->getPropertiesWithDefaultValues() as $property) {
-			$this->setValue($property->getName(), $property->getDefaultValue(), false);
-		}
+		$this->_setValues($values, false);
 	}
 	
 	/**

@@ -103,7 +103,7 @@ $flattenArrayPublicInterfacer->setMergeType(Interfacer::OVERWRITE);
 $flattenArraySerialInterfacer->setMergeType(Interfacer::OVERWRITE);
 
 $dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
-$objectTestDb = $dbTestModel->loadObject('[1,"1501774389"]');
+$objectTestDb = $dbTestModel->loadObject('[1,"1501774389"]', null, true);
 
 $copiedObject = new FinalObject('Test\TestDb');
 foreach ($objectTestDb->getValues() as $key => $value) {

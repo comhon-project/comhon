@@ -44,25 +44,12 @@
             "name": "ContainerOne",
             "properties": [
                 {
-                    "name": "id",
-                    "type": "integer",
-                    "is_id": true
-                },
-                {
                     "name": "dupliProp",
                     "type": "\\Test\\Duplicated"
                 },
                 {
-                    "name": "objOneProp",
-                    "type": "ObjectOne"
-                },
-                {
                     "name": "objTwoProp",
                     "type": "ObjectTwo"
-                },
-                {
-                    "name": "objMainProp",
-                    "type": "ObjectMain"
                 }
             ]
         },
@@ -70,10 +57,23 @@
             "name": "ContainerTwo",
             "properties": [
                 {
-                    "name": "id",
-                    "type": "integer",
-                    "is_id": true
-                },
+                    "name": "objOneProp",
+                    "type": "ObjectOne"
+                }
+            ]
+        },
+        {
+            "name": "ContainerMain",
+            "properties": [
+                {
+                    "name": "objMainProp",
+                    "type": "ObjectMain"
+                }
+            ]
+        },
+        {
+            "name": "ContainerForeign",
+            "properties": [
                 {
                     "name": "objOneForeignProp",
                     "type": "array",
@@ -109,6 +109,14 @@
         {
             "name": "containerTwo",
             "type": "ContainerTwo"
+        },
+        {
+            "name": "containerMain",
+            "type": "ContainerMain"
+        },
+        {
+            "name": "containerForeign",
+            "type": "ContainerForeign"
         }
     ]
 }

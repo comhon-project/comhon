@@ -449,21 +449,10 @@ try {
 
 // TODO for version > 3.0
 
-// add $this->interfacer->setMergeType(Interfacer::OVERWRITE); in json, xml, sqlTable serialization (_getinterfacer())
-
-// overwrite change totally merge objects
-
-// partial merge
-// no id : replace totaly object present (new instance)
-// id : get object with same id if exists but reset object
-
-// total merge
-// no id : get object present at same place and merge
-// id : get object with same id if exists and merge
-
 // during import/export verify mandatory properties
 // during export test if several objects (not foreign) have same id. if they have, throw exception
-// during import (at the end) verify if all foreign (not main) are loaded (verify setting throw exception)
+// during export (at the end) verify if all foreign (not main) are loaded (verify setting throw exception)
+// add patch method
 
 // add selectquery select count(*) on query and func(*) on table
 // restriction string length (perhaps several restrictions same time)
