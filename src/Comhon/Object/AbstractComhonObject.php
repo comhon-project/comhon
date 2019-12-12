@@ -586,6 +586,7 @@ abstract class AbstractComhonObject {
 		try {
 			$interfacer = new StdObjectInterfacer();
 			$interfacer->setPrivateContext(true);
+			$interfacer->setVerifyReferences(false);
 			return json_encode($interfacer->export($this), JSON_PRETTY_PRINT)."\n";
 		} catch (\Exception $e) {
 			trigger_error($e->getMessage());

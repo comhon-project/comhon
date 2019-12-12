@@ -22,7 +22,7 @@ class NotReferencedValueException extends ComhonException {
 	 * @param UniqueObject $object
 	 */
 	public function __construct(UniqueObject $object) {
-		$message = "foreign value with model '{$object->getModel()->getName()}' and id '{$object->getId()}' not referenced in  interfaced object";
+		$message = "foreign value with model '{$object->getModel()->getName()}' and id '{$object->getId()}' not referenced in interfaced object";
 		parent::__construct($message, ConstantException::NOT_REFERENCED_VALUE_EXCEPTION);
 	}
 	

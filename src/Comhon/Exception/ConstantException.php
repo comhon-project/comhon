@@ -30,8 +30,10 @@ abstract class ConstantException {
 	const ABSTRACT_OBJECT_EXCEPTION           = 204;
 	
 	// interfacing exception
-	const DUPLICATED_ID_EXCEPTION = 301;
+	const DUPLICATED_ID_EXCEPTION        = 301;
 	const NOT_REFERENCED_VALUE_EXCEPTION = 302;
+	const CONTEXT_ID_EXCEPTION           = 303;
+	const OBJECT_LOOP_EXCEPTION          = 304;
 	
 	// restriction exception
 	const MALFORMED_INTERVAL_EXCEPTION           = 401;

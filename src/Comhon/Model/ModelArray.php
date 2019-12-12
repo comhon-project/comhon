@@ -135,9 +135,36 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::_exportRoot()
+	 */
+	protected function _exportRoot(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
+		if ($this->getModel() instanceof SimpleModel) {
+			$nodeArray = $this->_export($objectArray, $nodeName, $interfacer, true, new ObjectCollectionInterfacer());
+		} else {
+			$nodeArray = $interfacer->createArrayNode($nodeName);
+			
+			foreach ($objectArray->getValues() as $key => $value) {
+				try {
+					if ($this->isAssociative) {
+						$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_exportRoot($value, $key, $interfacer), $key);
+					} else {
+						$interfacer->addValue($nodeArray, $this->getModel()->_exportRoot($value, $this->elementName, $interfacer), $this->elementName);
+					}
+				} catch (ComhonException $e) {
+					throw new ExportException($e, $key);
+				}
+			}
+		}
+		
+		return $nodeArray;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_export()
 	 */
-	protected function _export($objectArray, $nodeName, Interfacer $interfacer, $isFirstLevel) {
+	protected function _export($objectArray, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		if (is_null($objectArray)) {
 			return null;
 		}
@@ -146,9 +173,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		foreach ($objectArray->getValues() as $key => $value) {
 			try {
 				if ($this->isAssociative) {
-					$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_export($value, $key, $interfacer, $isFirstLevel), $key);
+					$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_export($value, $key, $interfacer, $isFirstLevel, $objectCollectionInterfacer), $key);
 				} else {
-					$interfacer->addValue($nodeArray, $this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel), $this->elementName);
+					$interfacer->addValue($nodeArray, $this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel, $objectCollectionInterfacer), $this->elementName);
 				}
 			} catch (ComhonException $e) {
 				throw new ExportException($e, $key);
@@ -162,16 +189,16 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
-	protected function _exportId(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
+	protected function _exportId(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		$nodeArray = $interfacer->createArrayNode($nodeName);
 		foreach ($objectArray->getValues() as $key => $value) {
 			if (is_null($value)) {
 				$interfacer->addValue($nodeArray, null, $this->elementName);
 			} else {
 				if ($this->isAssociative) {
-					$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_exportId($value, $key, $interfacer), $key);
+					$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_exportId($value, $key, $interfacer, $objectCollectionInterfacer), $key);
 				} else {
-					$interfacer->addValue($nodeArray, $this->getModel()->_exportId($value, $this->elementName, $interfacer), $this->elementName);
+					$interfacer->addValue($nodeArray, $this->getModel()->_exportId($value, $this->elementName, $interfacer, $objectCollectionInterfacer), $this->elementName);
 				}
 			}
 		}
@@ -258,9 +285,14 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 		}
 		$objectArray = $this->getObjectInstance();
+		$isSimple = $this->getModel() instanceof SimpleModel;
 		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			try {
-				$value = $interfacer->isNullValue($element) ? null : $this->getModel()->import($element, $interfacer);
+				if ($isSimple) {
+					$value = $interfacer->isNullValue($element) ? null : $this->getModel()->importSimple($element, $interfacer, true);
+				} else {
+					$value = $interfacer->isNullValue($element) ? null : $this->getModel()->import($element, $interfacer);
+				}
 				
 				if ($this->isAssociative) {
 					$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
@@ -289,7 +321,8 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
 			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 		}
-		if (!$this->getUniqueModel()->hasIdProperties()) {
+		$isSimple = $this->getModel() instanceof SimpleModel;
+		if (!$isSimple && !$this->getUniqueModel()->hasIdProperties()) {
 			$objectCollectionInterfacer = null;
 		} else {
 			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
@@ -300,7 +333,11 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		$objectArray->reset();
 		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			try {
-				$value = $interfacer->isNullValue($element) ? null : $this->getModel()->_importRoot($element, $interfacer, $objectCollectionInterfacer);
+				if ($isSimple) {
+					$value = $interfacer->isNullValue($element) ? null : $this->getModel()->importSimple($element, $interfacer, true);
+				} else {
+					$value = $interfacer->isNullValue($element) ? null : $this->getModel()->_importRoot($element, $interfacer, $objectCollectionInterfacer);
+				}
 				
 				if ($this->isAssociative) {
 					$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());

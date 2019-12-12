@@ -14,13 +14,10 @@ namespace Comhon\Exception\Interfacer;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\ConstantException;
 
-class DuplicatedIdException extends ComhonException {
+class ContextIdException extends ComhonException {
 	
-	/**
-	 * @param string $id
-	 */
-	public function __construct($id) {
-		parent::__construct("Duplicated id '$id'", ConstantException::DUPLICATED_ID_EXCEPTION);
+	public function __construct() {
+		parent::__construct('Cannot interface foreign value with private id in public context', ConstantException::CONTEXT_ID_EXCEPTION);
 	}
 	
 }

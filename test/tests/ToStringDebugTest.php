@@ -16,10 +16,10 @@ $testDb->unsetValue('defaultValue', false);
 
 if (Config::getInstance()->getManifestFormat() == 'json') {
 	$first = '#995';
-	$second = '#886';
+	$second = '#885';
 } else {
 	$first = '#996';
-	$second = '#822';
+	$second = '#818';
 }
 $varDumpContent = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'object_var_dump.txt');
 $varDumpContent = str_replace(['#_1', '#_2'], [$first, $second], $varDumpContent);

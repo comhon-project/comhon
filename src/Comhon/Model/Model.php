@@ -40,6 +40,8 @@ use Comhon\Object\Collection\ObjectCollectionInterfacer;
 use Comhon\Exception\Interfacer\NotReferencedValueException;
 use Comhon\Visitor\ObjectFinder;
 use Comhon\Exception\Interfacer\InterfaceException;
+use Comhon\Exception\Interfacer\ContextIdException;
+use Comhon\Exception\Interfacer\ObjectLoopException;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -886,16 +888,30 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * export comhon object in specified format
 	 * 
-	 * @param \Comhon\Object\AbstractComhonObject|null $object
-	 * @param string $nodeName
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param boolean $isFirstLevel
-	 * @throws \Exception
-	 * @return mixed|null
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::_exportRoot()
 	 */
-	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel) {
+	protected function _exportRoot(AbstractComhonObject $object, $nodeName, Interfacer $interfacer) {
+		try {
+			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+			$node = $this->_export($object, $nodeName, $interfacer, true, $objectCollectionInterfacer);
+			if ($interfacer->hasToVerifyReferences()) {
+				$this->_verifyReferences($object, $objectCollectionInterfacer);
+			}
+		} catch (ComhonException $e) {
+			throw new ExportException($e);
+		}
+		return $node;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\AbstractModel::_export()
+	 */
+	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+		/** @var \Comhon\Object\ComhonObject $object */
 		if (is_null($object)) {
 			return null;
 		}
@@ -907,12 +923,20 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		
 		if (array_key_exists(spl_object_hash($object), self::$instanceObjectHash)) {
 			if (self::$instanceObjectHash[spl_object_hash($object)] > 0) {
-				throw new ComhonException("Loop detected. ComhonObject '{$object->getModel()->getName()}' can't be exported");
+				throw new ObjectLoopException();
 			}
 		} else {
 			self::$instanceObjectHash[spl_object_hash($object)] = 0;
 		}
 		self::$instanceObjectHash[spl_object_hash($object)]++;
+		
+		if ($object->getModel()->hasIdProperties()) {
+			if ($objectCollectionInterfacer->hasNewObject($object->getId(), $object->getModel()->getName())) {
+				throw new DuplicatedIdException($object->getId());
+			}
+			$objectCollectionInterfacer->addObject($object, false);
+		}
+		
 		$properties = $object->getModel()->_getContextProperties($private);
 		foreach ($object->getValues() as $propertyName => $value) {
 			try {
@@ -923,15 +947,15 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 						if ((!$onlyUpdatedValues || $property->isId() || $object->isUpdatedValue($propertyName))
 							&& (is_null($propertiesFilter) || array_key_exists($propertyName, $propertiesFilter))) {
 							$propertyName  = $isSerialContext ? $property->getSerializationName() : $propertyName;
-							$exportedValue = $property->getModel()->_export($value, $propertyName, $interfacer, false);
+							$exportedValue = $property->getModel()->_export($value, $propertyName, $interfacer, false, $objectCollectionInterfacer);
 							$interfacer->setValue($node, $exportedValue, $propertyName, $property->isInterfacedAsNodeXml());
 						}
 						else if ($property->isForeign() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
-							$property->getModel()->_export($value, $value->getUniqueModel()->getShortName(), $interfacer, false);
+							$property->getModel()->_export($value, $value->getUniqueModel()->getShortName(), $interfacer, false, $objectCollectionInterfacer);
 						}
 					}
 					else if ($isSerialContext && $property->isAggregation() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
-						$property->getModel()->_export($value, $value->getUniqueModel()->getShortName(), $interfacer, false);
+						$property->getModel()->_export($value, $value->getUniqueModel()->getShortName(), $interfacer, false, $objectCollectionInterfacer);
 					}
 				}
 			} catch (ComhonException $e) {
@@ -949,7 +973,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 						foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
 							if (!$onlyUpdatedValues || $foreignObject->isUpdatedValue($idProperty->getName())) {
 								$idValue = $foreignObject->getValue($idProperty->getName());
-								$idValue = $idProperty->getModel()->_export($idValue, $serializationName, $interfacer, false);
+								$idValue = $idProperty->getModel()->_export($idValue, $serializationName, $interfacer, false, $objectCollectionInterfacer);
 								$interfacer->setValue($node, $idValue, $serializationName);
 							}
 						}
@@ -1003,17 +1027,15 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
-	protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer) {
+	protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		$model = $object->getModel();
 		if (!$model->hasIdProperties()) {
 			throw new ComhonException("cannot export id, actual model '{$model->getName()}' doesn't have id");
 		}
 		if (!$interfacer->isPrivateContext() && $model->hasPrivateIdProperty()) {
-			throw new ComhonException(
-				'Cannot export private id in public context. '
-				. 'You MUST define foreign property as private if related model has private id.'
-			);
+			throw new ContextIdException();
 		}
+		$objectCollectionInterfacer->addObject($object, true);
 		// for object model different than current model but that share id with current model 
 		// we may export only id whitout inheritance
 		// but for main model we keep inheritance because it can be a usefull information
@@ -1033,7 +1055,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			
 			if (!$interfacer->hasMainForeignObject($model->getName(), $valueId)) {
 				$interfacer->addMainForeignObject($interfacer->createNode('empty'), $valueId, $model);
-				$interfacer->addMainForeignObject($model->_export($object, 'root', $interfacer, true), $valueId, $model);
+				$interfacer->addMainForeignObject($model->_export($object, 'root', $interfacer, true, $objectCollectionInterfacer), $valueId, $model);
 			}
 		}
 		return $exportedId;
@@ -1195,7 +1217,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * import interfaced object related to a main model
+	 * import interfaced object
 	 *
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
@@ -1251,42 +1273,48 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				throw new ComhonException('undefined merge type '.$interfacer->getMergeType());
 		}
 		if ($interfacer->hasToVerifyReferences()) {
-			$objects = $objectCollectionInterfacer->getNotReferencedObjects();
-			if (!empty($objects)) {
-				$objectFinder = new ObjectFinder();
-				foreach ($objects as $obj) {
-					$statck = $objectFinder->execute(
-						$object, 
-						[
-							ObjectFinder::ID => $obj->getId(),
-							ObjectFinder::MODEL => $obj->getModel(),
-							ObjectFinder::SEARCH_FOREIGN => true
-						]
-					);
-					if (is_null($statck)) {
-						throw new ComhonException('value should not be null');
-					}
-					// for the moment InterfaceException manage only one error 
-					// so we throw exception at the first loop
-					throw InterfaceException::getInstanceWithProperties(
-						new NotReferencedValueException($obj),
-						array_reverse($statck)
-					);
-				}
-			}
+			$this->_verifyReferences($object, $objectCollectionInterfacer);
 		}
 		
 		return $object;
 	}
 	
 	/**
-	 * import interfaced object
-	 * 
-	 * @param mixed $interfacedObject
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param boolean $isFirstLevel
+	 *
+	 * @param \Comhon\Object\UniqueObject $object
 	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
-	 * @return \Comhon\Object\UniqueObject|null
+	 * @throws \Comhon\Exception\ComhonException
+	 */
+	private function _verifyReferences(UniqueObject $object, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+		$objects = $objectCollectionInterfacer->getNotReferencedObjects();
+		if (!empty($objects)) {
+			$objectFinder = new ObjectFinder();
+			foreach ($objects as $obj) {
+				$statck = $objectFinder->execute(
+					$object,
+					[
+						ObjectFinder::ID => $obj->getId(),
+						ObjectFinder::MODEL => $obj->getModel(),
+						ObjectFinder::SEARCH_FOREIGN => true
+					]
+				);
+				if (is_null($statck)) {
+					throw new ComhonException('value should not be null');
+				}
+				// for the moment InterfaceException manage only one error
+				// so we throw exception at the first loop
+				throw InterfaceException::getInstanceWithProperties(
+					new NotReferencedValueException($obj),
+					array_reverse($statck)
+				);
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\AbstractModel::_import()
 	 */
 	protected function _import($interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		if ($interfacer->isNullValue($interfacedObject)) {
@@ -1478,10 +1506,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			throw new ComhonException("cannot import id, actual model '{$this->getUniqueModel()->getName()}' doesn't have id");
 		}
 		if (!$interfacer->isPrivateContext() && $this->hasPrivateIdProperty()) {
-			throw new ComhonException(
-				'Cannot import private id in public context. '
-				. 'You MUST define foreign property as private if related model has private id.'
-			);
+			throw new ContextIdException();
 		}
 		if ($interfacer->isNullValue($interfacedId)) {
 			return null;

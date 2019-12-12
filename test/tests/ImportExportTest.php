@@ -19,7 +19,7 @@ function testExportPrivateIdPublicContext($comhonObject, $publicInterfacer, $exc
 	try {
 		$comhonObject->export($publicInterfacer);
 	} catch (ExportException $e) {
-		if ($e->getMessage() !== 'Cannot export private id in public context. You MUST define foreign property as private if related model has private id.') {
+		if ($e->getMessage() !== 'Cannot interface foreign value with private id in public context') {
 			throw new \Exception('bad exception message : ' . $e->getMessage());
 		}
 		if ($e->getStringifiedProperties() !== $exceptionProperties) {
@@ -37,7 +37,7 @@ function testImportPrivateIdPublicContext($model, $interfacedPrivateObject, $pub
 		$throw = true;
 		$model->import($interfacedPrivateObject, $publicInterfacer);
 	} catch (ImportException $e) {
-		if ($e->getMessage() !== 'Cannot import private id in public context. You MUST define foreign property as private if related model has private id.') {
+		if ($e->getMessage() !== 'Cannot interface foreign value with private id in public context') {
 			throw new \Exception('bad exception message : ' . $e->getMessage());
 		}
 		if ($e->getStringifiedProperties() !== $exceptionProperties) {

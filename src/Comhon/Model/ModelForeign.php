@@ -89,7 +89,8 @@ class ModelForeign extends ModelContainer {
 		try {
 			$this->verifValue($object);
 			$interfacer->initializeExport();
-			$node = $this->_export($object, 'root', $interfacer, true);
+			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+			$node = $this->_export($object, 'root', $interfacer, true, $objectCollectionInterfacer);
 			if (is_object($node)) {
 				$interfacer->finalizeExport($node);
 			}
@@ -105,11 +106,11 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelContainer::_export()
 	 */
-	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel) {
+	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		if (is_null($object)) {
 			return null;
 		}
-		return $this->getModel()->_exportId($object, $nodeName, $interfacer);
+		return $this->getModel()->_exportId($object, $nodeName, $interfacer, $objectCollectionInterfacer);
 	}
 	
 	/**
@@ -117,7 +118,7 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
-	protected function _exportId(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
+	protected function _exportId(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		throw new ComhonException('should not call _exportId via ModelForeign');
 	}
 	

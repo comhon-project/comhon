@@ -21,6 +21,9 @@ use Comhon\Object\ComhonArray;
 
 class ObjectCollection {
 	
+	/** @var array instances of all visisted objects to avoid infinite loop */
+	private static $instanceObjectHash = [];
+	
 	/**
 	 * 
 	 * @var \Comhon\Object\UniqueObject[][]
@@ -51,6 +54,12 @@ class ObjectCollection {
 		
 		while (!empty($stack)) {
 			list($object, $isForeign) = array_pop($stack);
+			$hash = spl_object_hash($object);
+			if (array_key_exists($hash, self::$instanceObjectHash)) {
+				continue;
+			}
+			self::$instanceObjectHash[$hash] = null;
+			
 			if ($object instanceof ComhonArray) {
 				if ($object->getUniqueModel() instanceof Model) {
 					foreach ($object as $element) {
@@ -70,6 +79,7 @@ class ObjectCollection {
 				}
 			}
 		}
+		self::$instanceObjectHash = [];
 		
 		return $objectCollection;
 	}
@@ -201,6 +211,7 @@ class ObjectCollection {
 		$array = [];
 		$interfacer = new StdObjectInterfacer();
 		$interfacer->setPrivateContext(true);
+		$interfacer->setVerifyReferences(false);
 		foreach ($this->map as $modelName => $objectById) {
 			$array[$modelName] = [];
 			foreach ($objectById as $id => $object) {

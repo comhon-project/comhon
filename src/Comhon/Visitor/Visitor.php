@@ -25,10 +25,10 @@ abstract class Visitor {
 	protected $params;
 	
 	/** @var array instances of all visisted objects to avoid infinite loop */
-	private   $instanceObjectHash = [];
+	private $instanceObjectHash = [];
 	
 	/** @var string[] stack of all properies names  already visited */
-	private   $propertyNameStack;
+	private $propertyNameStack;
 	
 	/**
 	 * execute visitor
@@ -85,7 +85,7 @@ abstract class Visitor {
 				$this->_accept($object, $key, $isForeign);
 			}
 		}
-		else if (!array_key_exists(spl_object_hash($object), $this->instanceObjectHash)) {
+		elseif (!array_key_exists(spl_object_hash($object), $this->instanceObjectHash)) {
 			$this->instanceObjectHash[spl_object_hash($object)] = $object;
 			foreach ($object->getModel()->getProperties() as $propertyName => $property) {
 				if (!$property->isUniqueModelSimple()) {

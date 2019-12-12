@@ -14,13 +14,10 @@ namespace Comhon\Exception\Interfacer;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\ConstantException;
 
-class DuplicatedIdException extends ComhonException {
+class ObjectLoopException extends ComhonException {
 	
-	/**
-	 * @param string $id
-	 */
-	public function __construct($id) {
-		parent::__construct("Duplicated id '$id'", ConstantException::DUPLICATED_ID_EXCEPTION);
+	public function __construct() {
+		parent::__construct('Object loop detected, object contain itself', ConstantException::OBJECT_LOOP_EXCEPTION);
 	}
 	
 }

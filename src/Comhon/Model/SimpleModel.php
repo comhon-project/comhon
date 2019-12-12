@@ -64,7 +64,7 @@ abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_export()
 	 */
-	final protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel) {
+	final protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		return $this->exportSimple($value, $interfacer);
 	}
 	

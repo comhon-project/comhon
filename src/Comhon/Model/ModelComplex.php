@@ -13,7 +13,6 @@ namespace Comhon\Model;
 
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
@@ -56,15 +55,25 @@ abstract class ModelComplex extends AbstractModel {
 		$interfacer->initializeExport();
 		self::$instanceObjectHash = [];
 		$this->_addMainCurrentObject($object, $interfacer);
-		try {
-			$node = $this->_export($object, 'root', $interfacer, true);
-		} catch (ComhonException $e) {
-			throw new ExportException($e);
-		}
+		
+		$node = $this->_exportRoot($object, 'root', $interfacer);
+		
 		$this->_removeMainCurrentObject($object, $interfacer);
 		self::$instanceObjectHash = [];
 		$interfacer->finalizeExport($node);
 		return $node;
+	}
+	
+	/**
+	 * export comhon object in specified format
+	 *
+	 * @param \Comhon\Object\AbstractComhonObject $object
+	 * @param string $nodeName
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @return mixed
+	 */
+	protected function _exportRoot(AbstractComhonObject $object, $nodeName, Interfacer $interfacer) {
+		throw new ComhonException('cannot call _importRoot on '.get_class($this));
 	}
 	
 	/**
@@ -73,13 +82,14 @@ abstract class ModelComplex extends AbstractModel {
 	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param string $nodeName
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	abstract protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer);
+	abstract protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer);
 	
 	/**
-	 * import interfaced comhon object
+	 * import interfaced object
 	 *
 	 * @param mixed $interfacedValue
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
@@ -100,7 +110,7 @@ abstract class ModelComplex extends AbstractModel {
 	abstract protected function _importId($interfacedId, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer);
 	
 	/**
-	 * import interfaced object related to a main model
+	 * import interfaced object
 	 *
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer

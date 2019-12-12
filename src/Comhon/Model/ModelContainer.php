@@ -28,7 +28,7 @@ abstract class ModelContainer extends ModelComplex {
 	/**
 	 * get contained model
 	 * 
-	 * @return \Comhon\Model\Model
+	 * @return \Comhon\Model\Model|\Comhon\Model\ModelArray|\Comhon\Model\SimpleModel
 	 */
 	public function getModel() {
 		$this->model->load();

@@ -65,10 +65,11 @@ abstract class AbstractModel {
 	 * @param string $nodeName
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param boolean $isFirstLevel
+	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	abstract protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel);
+	abstract protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer);
 	
 	/**
 	 * import interfaced object

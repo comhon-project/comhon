@@ -14,7 +14,7 @@ use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Exception\Interfacer\NotReferencedValueException;
 use Comhon\Interfacer\AssocArrayInterfacer;
 
-class ImportExportTest extends TestCase
+class ImportTest extends TestCase
 {
 	public static function setUpBeforeClass()
 	{
@@ -343,7 +343,7 @@ class ImportExportTest extends TestCase
 				'.containerForeign.objOneForeignProp.0',
 				NotReferencedValueException::class,
 				ConstantException::NOT_REFERENCED_VALUE_EXCEPTION,
-				'foreign value with model \'Test\Duplicated\ObjectOne\' and id \'6\' not referenced in  interfaced object',
+				'foreign value with model \'Test\Duplicated\ObjectOne\' and id \'6\' not referenced in interfaced object',
 			]
 		];
 	}
