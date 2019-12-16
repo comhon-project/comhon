@@ -19,6 +19,9 @@ use Comhon\Object\ComhonDateTime;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\AbstractModel;
+use Comhon\Model\Restriction\Restriction;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
+use Comhon\Model\Restriction\NotNull;
 
 class Property {
 
@@ -39,6 +42,9 @@ class Property {
 	protected $isPrivate;
 	
 	/** @var boolean */
+	protected $isRequired;
+	
+	/** @var boolean */
 	protected $isSerializable;
 	
 	/** @var mixed */
@@ -47,6 +53,9 @@ class Property {
 	/** @var boolean */
 	protected $interfaceAsNodeXml;
 	
+	/** @var \Comhon\Model\Restriction\Restriction[] */
+	protected $restrictions = [];
+	
 	/**
 	 * 
 	 * @param \Comhon\Model\AbstractModel $model
@@ -54,20 +63,30 @@ class Property {
 	 * @param string $serializationName
 	 * @param boolean $isId
 	 * @param boolean $isPrivate
+	 * @param boolean $isRequired
 	 * @param boolean $isSerializable
 	 * @param mixed $default
 	 * @param boolean $isInterfacedAsNodeXml
+	 * @param \Comhon\Model\Restriction\Restriction[] $restrictions
 	 * @throws \Exception
 	 */
-	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null) {
+	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isRequired = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null, $restrictions = []) {
 		$this->model = $model;
 		$this->name = $name;
 		$this->hasDefinedSerializationName = !is_null($serializationName);
 		$this->serializationName = $this->hasDefinedSerializationName ? $serializationName : $this->name;
 		$this->isId = $isId;
 		$this->isPrivate = $isPrivate;
+		$this->isRequired = $isRequired;
 		$this->isSerializable = $isSerializable;
 		$this->default = $default;
+		
+		foreach ($restrictions as $restriction) {
+			if (!$restriction->isAllowedModel($this->model)) {
+				throw new ComhonException('restriction doesn\'t allow specified model'.get_class($this->model));
+			}
+			$this->restrictions[get_class($restriction)] = $restriction;
+		}
 		
 		if ($this->model instanceof SimpleModel) {
 			$this->interfaceAsNodeXml = is_null($isInterfacedAsNodeXml) ? false : $isInterfacedAsNodeXml;
@@ -166,6 +185,16 @@ class Property {
 	}
 	
 	/**
+	 * verify if property value is required. 
+	 * A loaded comhon object must have all its required values set (and not null).
+	 *
+	 * @return boolean
+	 */
+	public function isRequired() {
+		return $this->isRequired;
+	}
+	
+	/**
 	 * verify if property is serializable
 	 *
 	 * @return boolean
@@ -241,6 +270,15 @@ class Property {
 	}
 	
 	/**
+	 * get restrictions
+	 *
+	 * @return \Comhon\Model\Restriction\Restriction[]
+	 */
+	public function getRestrictions() {
+		return $this->restrictions;
+	}
+	
+	/**
 	 * verify if property is interfaceable for export/import in public/private/serialization mode
 	 * 
 	 * @param boolean $private if true private mode, otherwise public mode
@@ -264,14 +302,32 @@ class Property {
 	}
 	
 	/**
-	 * verify if value is satisfiable regarding restriction property
+	 * verify if value is satisfiable regarding restrictions property
 	 *
 	 * @param mixed $value
 	 * @param boolean $throwException
 	 * @return boolean true if property is satisfiable
 	 */
 	public function isSatisfiable($value, $throwException = false) {
-		return true;
+		if (empty($this->restrictions)) {
+			return true;
+		}
+		if (is_null($value)) {
+			if (isset($this->restrictions[NotNull::class])) {
+				if ($throwException) {
+					throw new NotSatisfiedRestrictionException($value, $this->restrictions[NotNull::class]);
+				}
+				$restriction = $this->restrictions[NotNull::class];
+			} else {
+				$restriction = null;
+			}
+		} else {
+			$restriction = Restriction::getFirstNotSatisifed($this->restrictions, $value);
+			if (!is_null($restriction) && $throwException) {
+				throw new NotSatisfiedRestrictionException($value, $restriction);
+			}
+		}
+		return is_null($restriction);
 	}
 	
 	/**
@@ -330,10 +386,12 @@ class Property {
 			$this->name              === $property->getName() &&
 			$this->isId              === $property->isId() &&
 			$this->isPrivate         === $property->isPrivate() &&
+			$this->isRequired        === $property->isRequired() &&
 			$this->default           === $property->getDefaultValue() &&
 			$this->isSerializable    === $property->isSerializable() &&
 			$this->serializationName === $property->getSerializationName() &&
-			$this->model->isEqual($property->getModel())
+			$this->model->isEqual($property->getModel()) && 
+			Restriction::compare($this->restrictions, $property->getRestrictions())
 		);
 	}
 	

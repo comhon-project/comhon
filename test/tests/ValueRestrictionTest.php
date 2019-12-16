@@ -80,7 +80,6 @@ function testUnshiftBadValue(AbstractComhonObject $object, $value) {
 }
 
 testSetBadValue($testRestricted, 'enumValue', 'a_string');
-testSetBadValue($testRestricted, 'enumValue', true);
 
 $objectArray = $testRestricted->initValue('enumIntArray');
 testPushBadValue($objectArray, 10);
@@ -91,7 +90,6 @@ $objectArray = $testRestricted->initValue('enumFloatArray');
 testSetBadValue($objectArray, 0, 1.6);
 testUnshiftBadValue($objectArray, 3.55);
 testPushBadValue($objectArray, 3.55);
-testPushBadValue($objectArray, null);
 
 testSetBadValue($testRestricted, 'color', 'rgb(aze,)');
 
@@ -108,7 +106,6 @@ $objectArray = $testRestricted->initValue('intervalInArray');
 testSetBadValue($objectArray, 0, 11.6);
 testUnshiftBadValue($objectArray, -3.55);
 testPushBadValue($objectArray, -3.55);
-testPushBadValue($objectArray, null);
 
 /** ********************** test set success *********************** **/
 
@@ -166,17 +163,17 @@ $modelString = ModelManager::getInstance()->getInstanceModel('string');
 /** ************** test set value array with good restriction but not same instance *************** **/
 
 $restriction = new Interval(']-1.50, 2[', $modelFloat);
-$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, false, 'intervalValue');
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, [$restriction], false, 'intervalValue');
 $objectArray = new ComhonArray($modelRestrictedArray);
 $testRestricted->setValue('intervalInArray', $objectArray);
 
 $restriction = new Regex('email');
-$modelRestrictedArray = new ModelRestrictedArray($modelString, $restriction, false, 'email');
+$modelRestrictedArray = new ModelRestrictedArray($modelString, [$restriction], false, 'email');
 $objectArray = new ComhonArray($modelRestrictedArray);
 $testRestricted->setValue('emails', $objectArray);
 
 $restriction = new Enum([3.5, 1.5]);
-$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, false, 'enumArrayValue');
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, [$restriction], false, 'enumArrayValue');
 $objectArray = new ComhonArray($modelRestrictedArray);
 $testRestricted->setValue('enumFloatArray', $objectArray);
 
@@ -184,24 +181,24 @@ $testRestricted->setValue('enumFloatArray', $objectArray);
 
 // Interval should be ']-1.50, 2['
 $restriction = new Interval(']-1.50, 2]', $modelFloat);
-$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, false, 'intervalValue');
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, [$restriction], false, 'intervalValue');
 $objectArray = new ComhonArray($modelRestrictedArray);
 testSetBadArrayValue($testRestricted, 'intervalInArray', $objectArray);
 
 // Regex should be 'email'
 $restriction = new Regex('color');
-$modelRestrictedArray = new ModelRestrictedArray($modelString, $restriction, false, 'email');
+$modelRestrictedArray = new ModelRestrictedArray($modelString, [$restriction], false, 'email');
 $objectArray = new ComhonArray($modelRestrictedArray);
 testSetBadArrayValue($testRestricted, 'emails', $objectArray);
 
 // Enumshould be [3.5, 1.5]
 $restriction = new Enum([30.5, 1.5]);
-$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, false, 'enumArrayValue');
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, [$restriction], false, 'enumArrayValue');
 $objectArray = new ComhonArray($modelRestrictedArray);
 testSetBadArrayValue($testRestricted, 'enumFloatArray', $objectArray);
 
 $restriction = new Interval(']-1.50, 2]', $modelFloat);
-$modelRestrictedArray = new ModelRestrictedArray($modelFloat, $restriction, false, 'enumArrayValue');
+$modelRestrictedArray = new ModelRestrictedArray($modelFloat, [$restriction], false, 'enumArrayValue');
 $objectArray = new ComhonArray($modelRestrictedArray);
 testSetBadArrayValue($testRestricted, 'enumFloatArray', $objectArray);
 

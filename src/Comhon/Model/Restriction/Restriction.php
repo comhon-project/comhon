@@ -13,7 +13,7 @@ namespace Comhon\Model\Restriction;
 
 use Comhon\Model\AbstractModel;
 
-interface Restriction {
+abstract class Restriction {
 	
 	/**
 	 * verify if specified value satisfy restriction
@@ -21,7 +21,7 @@ interface Restriction {
 	 * @param mixed $value
 	 * @return boolean
 	 */
-	public function satisfy($value);
+	abstract public function satisfy($value);
 	
 	/**
 	 * verify if specified restriction is equal to $this
@@ -29,7 +29,7 @@ interface Restriction {
 	 * @param Restriction $restriction
 	 * @return boolean
 	 */
-	public function isEqual(Restriction $restriction);
+	abstract public function isEqual(Restriction $restriction);
 	
 	/**
 	 * verify if specified model can use this restriction
@@ -37,7 +37,7 @@ interface Restriction {
 	 * @param \Comhon\Model\AbstractModel $model
 	 * @return boolean
 	 */
-	public function isAllowedModel(AbstractModel $model);
+	abstract public function isAllowedModel(AbstractModel $model);
 	
 	/**
 	 * stringify restriction and value
@@ -45,13 +45,48 @@ interface Restriction {
 	 * @param mixed $value
 	 * @return string
 	 */
-	public function toMessage($value);
+	abstract public function toMessage($value);
 	
 	/**
 	 * stringify restriction
 	 *
 	 * @return string
 	 */
-	public function toString();
+	abstract public function toString();
+	
+	/**
+	 * verify if restrictions given are equals (compare restrictions stored on same keys)
+	 *
+	 * @param Restriction[] $firstRestrictions
+	 * @param Restriction[] $secondRestrictions
+	 * @return boolean if true, all restrictions are equals
+	 */
+	public static function compare(array $firstRestrictions, array $secondRestrictions) {
+		if (count($firstRestrictions) !== count($secondRestrictions)) {
+			return false;
+		}
+		foreach ($firstRestrictions as $key => $restriction) {
+			if (!isset($secondRestrictions[$key]) || !$restriction->isEqual($secondRestrictions[$key])) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * find first restriction that satisfy given value
+	 *
+	 * @param Restriction[] $restrictions
+	 * @param mixed $value
+	 * @return Restriction|null null if all restrictions are satisfied
+	 */
+	public static function getFirstNotSatisifed(array $restrictions, $value) {
+		foreach ($restrictions as $restriction) {
+			if (!$restriction->satisfy($value)) {
+				return $restriction;
+			}
+		}
+		return null;
+	}
 	
 }

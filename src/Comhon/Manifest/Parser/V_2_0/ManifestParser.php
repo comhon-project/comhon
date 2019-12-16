@@ -26,6 +26,7 @@ use Comhon\Manifest\Parser\ManifestParser as ParentManifestParser;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\Manifest\ManifestException;
 use Comhon\Model\AbstractModel;
+use Comhon\Model\Restriction\NotNull;
 
 class ManifestParser extends ParentManifestParser {
 
@@ -202,11 +203,13 @@ class ManifestParser extends ParentManifestParser {
 	 */
 	protected function _getBaseInfosProperty(AbstractModel $propertyModel) {
 		$currentProperty = $this->_getCurrentPropertyNode();
-	
-		$isId      = $this->_getBooleanValue($currentProperty, self::IS_ID, false);
-		$isPrivate = $this->_getBooleanValue($currentProperty, self::IS_PRIVATE, false);
-		$name      = $this->interfacer->getValue($currentProperty, self::NAME);
-		$model     = $this->_completePropertyModel($currentProperty, $propertyModel);
+		
+		$isId       = $this->_getBooleanValue($currentProperty, self::IS_ID, false);
+		$isPrivate  = $this->_getBooleanValue($currentProperty, self::IS_PRIVATE, false);
+		$isNotNull  = $this->_getBooleanValue($currentProperty, self::NOT_NULL, false);
+		$isRequired = $this->_getBooleanValue($currentProperty, self::IS_REQUIRED, false);
+		$name       = $this->interfacer->getValue($currentProperty, self::NAME);
+		$model      = $this->_completePropertyModel($currentProperty, $propertyModel);
 		
 		if ($this->interfacer->hasValue($currentProperty, 'xml')) {
 			$type = $this->interfacer->getValue($currentProperty, 'xml');
@@ -221,49 +224,53 @@ class ManifestParser extends ParentManifestParser {
 			$interfaceAsNodeXml = null;
 		}
 		
-		return [$name, $model, $isId, $isPrivate, $interfaceAsNodeXml];
+		return [$name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $interfaceAsNodeXml];
 	}
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\ManifestParser::_getRestriction()
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_getRestrictions()
 	 */
-	protected function _getRestriction($currentNode, AbstractModel $uniqueModel) {
-		if ($uniqueModel instanceof ModelContainer) {
-			return null;
-		}
-		$restriction  = null;
+	protected function _getRestrictions($currentNode, AbstractModel $model) {
+		$restrictions = [];
 		
-		if ($this->interfacer->hasValue($currentNode, 'enum', true)) {
-			$enumValues = $this->interfacer->getTraversableNode($this->interfacer->getValue($currentNode, 'enum', true));
+		if ($this->_getBooleanValue($currentNode, self::NOT_NULL, false)) {
+			$restrictions[] = new NotNull();
+		}
+		
+		if (!($model instanceof SimpleModel)) {
+			return $restrictions;
+		}
+		
+		if ($this->interfacer->hasValue($currentNode, self::ENUM, true)) {
+			$enumValues = $this->interfacer->getTraversableNode($this->interfacer->getValue($currentNode, self::ENUM, true));
 			if ($this->interfacer instanceof XMLInterfacer) {
-				if ($uniqueModel instanceof ModelInteger) {
+				if ($model instanceof ModelInteger) {
 					foreach ($enumValues as $key => $domNode) {
 						$enumValues[$key] = (integer) $this->interfacer->extractNodeText($domNode);
 					}
-				} elseif (($uniqueModel instanceof ModelString) || ($uniqueModel instanceof ModelFloat)) {
+				} elseif (($model instanceof ModelString) || ($model instanceof ModelFloat)) {
 					foreach ($enumValues as $key => $domNode) {
 						$enumValues[$key] = $this->interfacer->extractNodeText($domNode);
 					}
 				} else {
-					throw new ManifestException('enum cannot be defined on '.$uniqueModel->getName());
+					throw new ManifestException('enum cannot be defined on '.$model->getName());
 				}
 			}
-			$restriction = new Enum($enumValues);
+			$restrictions[] = new Enum($enumValues);
 		}
-		elseif ($this->interfacer->hasValue($currentNode, 'interval')) {
-			$restriction = new Interval($this->interfacer->getValue($currentNode, 'interval'), $uniqueModel);
-			
+		if ($this->interfacer->hasValue($currentNode, self::INTERVAL)) {
+			$restrictions[] = new Interval($this->interfacer->getValue($currentNode, self::INTERVAL), $model);
 		}
-		elseif ($this->interfacer->hasValue($currentNode, 'pattern')) {
-			if (!($uniqueModel instanceof ModelString)) {
-				throw new ManifestException('pattern cannot be defined on '.$uniqueModel->getName());
+		if ($this->interfacer->hasValue($currentNode, self::PATTERN)) {
+			if (!($model instanceof ModelString)) {
+				throw new ManifestException('pattern cannot be defined on '.$model->getName());
 			}
-			$restriction = new Regex($this->interfacer->getValue($currentNode, 'pattern'));
+			$restrictions[] = new Regex($this->interfacer->getValue($currentNode, self::PATTERN));
 		}
 		
-		return $restriction;
+		return $restrictions;
 	}
 	
 	/**
@@ -315,11 +322,11 @@ class ManifestParser extends ParentManifestParser {
 			$isAssociative = $this->_getBooleanValue($propertyNode, self::IS_ASSOCIATIVE, false);
 			
 			$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
-			$restriction = $this->_getRestriction($valuesNode, $uniqueModel);
-			if (is_null($restriction)) {
+			$restrictions = $this->_getRestrictions($valuesNode, $uniqueModel);
+			if (empty($restrictions)) {
 				$propertyModel = new ModelArray($subModel, $isAssociative, $valuesName);
 			} else {
-				$propertyModel = new ModelRestrictedArray($subModel, $restriction, $isAssociative, $valuesName);
+				$propertyModel = new ModelRestrictedArray($subModel, $restrictions, $isAssociative, $valuesName);
 			}
 		}
 		return $propertyModel;

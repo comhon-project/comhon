@@ -11,45 +11,45 @@
 
 namespace Comhon\Model;
 
-use Comhon\Object\ComhonArray;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Model\Restriction\Restriction;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
+use Comhon\Model\Restriction\NotNull;
 
 class ModelRestrictedArray extends ModelArray {
 	
-	/** @var Restriction */
-	private $restriction;
+	/** @var \Comhon\Model\Restriction\Restriction[] */
+	private $restrictions = [];
 	
 	/**
 	 * 
 	 * @param \Comhon\Model\ModelUnique $model
-	 * @param \Comhon\Model\Restriction\Restriction $restriction
+	 * @param \Comhon\Model\Restriction\Restriction[] $restrictions
 	 * @param boolean $isAssociative
 	 * @param string $elementName
 	 * @throws \Exception
 	 */
-	public function __construct(ModelUnique $model, Restriction $restriction, $isAssociative, $elementName) {
+	public function __construct(ModelUnique $model, array $restrictions, $isAssociative, $elementName) {
 		parent::__construct($model, $isAssociative, $elementName);
 		
-		if (!$restriction->isAllowedModel($this->model)) {
-			throw new ComhonException('restriction doesn\'t allow specified model'.get_class($this->model));
+		foreach ($restrictions as $restriction) {
+			if (!$restriction->isAllowedModel($this->model)) {
+				throw new ComhonException('restriction doesn\'t allow specified model'.get_class($this->model));
+			}
+			$this->restrictions[get_class($restriction)] = $restriction;
 		}
-		$this->restriction = $restriction;
 	}
 	
 	/**
-	 * get stringified restriction
+	 * get restrictions
 	 * 
-	 * @return string
+	 * @return \Comhon\Model\Restriction\Restriction[]
 	 */
-	public function getStringifiedRestriction() {
-		return $this->restriction->toString();
+	public function getRestrictions() {
+		return $this->restrictions;
 	}
 	
 	/**
@@ -61,8 +61,10 @@ class ModelRestrictedArray extends ModelArray {
 		$objectArray = parent::_import($interfacedObject, $interfacer, $isFirstLevel, $objectCollectionInterfacer);
 		if (!is_null($objectArray)) {
 			foreach ($objectArray->getValues() as $value) {
-				if (!$this->restriction->satisfy($value)) {
-					throw new NotSatisfiedRestrictionException($value, $this->restriction);
+				foreach ($this->restrictions as $restriction) {
+					if (!$restriction->satisfy($value)) {
+						throw new NotSatisfiedRestrictionException($value, $restriction);
+					}
 				}
 			}
 		}
@@ -75,23 +77,14 @@ class ModelRestrictedArray extends ModelArray {
 	 * @see \Comhon\Model\ModelArray::verifValue()
 	 */
 	public function verifValue($value) {
-		if (
-			!($value instanceof ComhonArray) 
-			|| (
-				$value->getModel() !== $this 
-				&& $value->getModel()->getModel() !== $this->getModel() 
-			)
-		){
-			$Obj = $this->getObjectInstance();
-			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
-		}
-		if ($value->getModel() !== $this 
-			&& (
-				!($value->getModel() instanceof ModelRestrictedArray) 
-				|| !$this->restriction->isEqual($value->getModel()->restriction)
-			)
-		) {
-			throw new UnexpectedRestrictedArrayException($value, $this);
+		parent::verifValue($value);
+		if ($value->getModel() !== $this) {
+			if (!($value->getModel() instanceof ModelRestrictedArray)) {
+				throw new UnexpectedRestrictedArrayException($value, $this);
+			}
+			if (!Restriction::compare($this->restrictions, $value->getModel()->getRestrictions())) {
+				throw new UnexpectedRestrictedArrayException($value, $this);
+			}
 		}
 		return true;
 	}
@@ -103,8 +96,12 @@ class ModelRestrictedArray extends ModelArray {
 	 */
 	public function verifElementValue($value) {
 		parent::verifElementValue($value);
-		if (!$this->restriction->satisfy($value)) {
-			throw new NotSatisfiedRestrictionException($value, $this->restriction);
+		if (is_null($value)) {
+			if (isset($this->restrictions[NotNull::class])) {
+				throw new NotSatisfiedRestrictionException($value, $this->restrictions[NotNull::class]);
+			}
+		} elseif (!is_null($restriction = Restriction::getFirstNotSatisifed($this->restrictions, $value))) {
+			throw new NotSatisfiedRestrictionException($value, $restriction);
 		}
 		return true;
 	}
@@ -117,7 +114,7 @@ class ModelRestrictedArray extends ModelArray {
 	public function isEqual(AbstractModel $model) {
 		return parent::isEqual($model) && 
 			($model instanceof ModelRestrictedArray) &&
-			$this->restriction->isEqual($model->restriction);
+			Restriction::compare($this->restrictions, $model->getRestrictions());
 	}
 	
 }

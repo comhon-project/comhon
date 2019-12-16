@@ -11,21 +11,9 @@
 
 namespace Comhon\Model\Restriction;
 
-use Comhon\Model\ModelString;
 use Comhon\Model\AbstractModel;
 
-class Regex extends Restriction {
-	
-	/** @var string */
-	private $regex;
-	
-	/**
-	 * 
-	 * @param string $name the name of a regex
-	 */
-	public function __construct($name) {
-		$this->regex = RegexCollection::getInstance()->getRegex($name);
-	}
+class NotNull extends Restriction {
 	
 	/**
 	 * 
@@ -33,7 +21,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::satisfy()
 	 */
 	public function satisfy($value) {
-		return preg_match($this->regex, $value) === 1;
+		return !is_null($value);
 	}
 	
 	/**
@@ -42,7 +30,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::isEqual()
 	 */
 	public function isEqual(Restriction $restriction) {
-		return $this === $restriction || (($restriction instanceof Regex) && $this->regex === $restriction->regex);
+		return $this === $restriction || (($restriction instanceof NotNull));
 	}
 	
 	/**
@@ -51,7 +39,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::isAllowedModel()
 	 */
 	public function isAllowedModel(AbstractModel $model) {
-		return $model instanceof ModelString;
+		return true;
 	}
 	
 	/**
@@ -60,12 +48,9 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
 	public function toMessage($value) {
-		if (!is_string($value)) {
-			$class = gettype($value) == 'object' ? get_class($value) : gettype($value);
-			return "Value passed to Regex must be a string, instance of $class given";
-		}
-		return $value . ($this->satisfy($value) ? ' ' : ' doesn\'t ')
-			. 'satisfy regex ' . $this->regex;
+		return $this->satisfy($value) 
+			? 'not null value given' 
+			: 'null value given, value must be not null';
 	}
 	
 	/**
@@ -74,7 +59,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
 	public function toString() {
-		return $this->regex;
+		return 'Not null';
 	}
 	
 }

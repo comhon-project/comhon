@@ -106,13 +106,4 @@ abstract class SimpleModel extends AbstractModel implements ModelUnique {
 		return $value;
 	}
 	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\AbstractModel::verifValue()
-	 */
-	public function verifValue($value) {
-		throw new ComhonException('must be overrided');
-	}
-	
 }

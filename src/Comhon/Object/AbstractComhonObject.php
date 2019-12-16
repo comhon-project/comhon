@@ -21,6 +21,7 @@ use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Model\ModelComhonObject;
 use Comhon\Model\ModelContainer;
+use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
 
 abstract class AbstractComhonObject {
 
@@ -86,6 +87,8 @@ abstract class AbstractComhonObject {
 			$this->_verifyValueBeforeSet($name, $value, $flagAsUpdated);
 		} catch (NotSatisfiedRestrictionException $e) {
 			throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
+		} catch (UnexpectedRestrictedArrayException $e) {
+			throw new UnexpectedRestrictedArrayException($value, $e->getModelRestrictedArray());
 		} catch (UnexpectedValueTypeException $e) {
 			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}

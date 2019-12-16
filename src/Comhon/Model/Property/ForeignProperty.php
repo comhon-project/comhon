@@ -13,6 +13,7 @@ namespace Comhon\Model\Property;
 
 use Comhon\Object\UniqueObject;
 use Comhon\Model\ModelForeign;
+use Comhon\Model\Restriction\NotNull;
 
 class ForeignProperty extends Property {
 	
@@ -22,10 +23,16 @@ class ForeignProperty extends Property {
 	 * @param string $name
 	 * @param string $serializationName
 	 * @param boolean $isPrivate
+	 * @param boolean $isRequired
 	 * @param boolean $isSerializable
+	 * @param boolean $isNotNull
 	 */
-	public function __construct(ModelForeign $model, $name, $serializationName = null, $isPrivate = false, $isSerializable = true) {
-		parent::__construct($model, $name, $serializationName, false, $isPrivate, $isSerializable);
+	public function __construct(ModelForeign $model, $name, $serializationName = null, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false) {
+		if ($isNotNull) {
+			parent::__construct($model, $name, $serializationName, false, $isPrivate, $isRequired, $isSerializable, null, null, [new NotNull()]);
+		} else {
+			parent::__construct($model, $name, $serializationName, false, $isPrivate, $isRequired, $isSerializable);
+		}
 	}
 	
 	/**

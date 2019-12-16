@@ -16,7 +16,7 @@ use Comhon\Model\AbstractModel;
 use Comhon\Model\ModelInteger;
 use Comhon\Model\ModelFloat;
 
-class Enum implements Restriction {
+class Enum extends Restriction {
 	
 	/** @var array */
 	private $enum = [];

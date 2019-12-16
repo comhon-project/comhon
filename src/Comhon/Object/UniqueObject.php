@@ -108,9 +108,9 @@ abstract class UniqueObject extends AbstractComhonObject {
 	protected function _verifyValueBeforeSet($name, $value, &$flagAsUpdated) {
 		$property = $this->getModel()->getProperty($name, true);
 		if (!is_null($value)) {
-			$property->isSatisfiable($value, true);
 			$property->getModel()->verifValue($value);
 		}
+		$property->isSatisfiable($value, true);
 		if ($property->isAggregation()) {
 			$flagAsUpdated = false;
 		}

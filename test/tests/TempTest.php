@@ -7,7 +7,6 @@ use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Model\ModelArray;
 use Comhon\Model\Property\Property;
 use Comhon\Model\Restriction\Enum;
-use Comhon\Model\Property\RestrictedProperty;
 use Comhon\Model\ModelForeign;
 use phpDocumentor\Reflection\Types\Self_;
 

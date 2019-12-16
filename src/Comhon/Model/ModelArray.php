@@ -357,7 +357,17 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @see \Comhon\Model\AbstractModel::verifValue()
 	 */
 	public function verifValue($value) {
-		if (!($value instanceof ComhonArray) || ($value->getModel()->model !== $this->model && !$value->getModel()->getModel()->isInheritedFrom($this->getModel()))) {
+		if (
+			!($value instanceof ComhonArray) 
+			|| (
+				$value->getModel() !== $this 
+				&& $value->getModel()->model !== $this->model 
+				&& (
+					$value->getModel()->model instanceof SimpleModel
+					|| !$value->getModel()->getModel()->isInheritedFrom($this->getModel())
+				)
+			)
+		) {
 			$Obj = $this->getObjectInstance();
 			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
 		}

@@ -210,6 +210,9 @@ function getProperties($xml) {
 			if (isset($child->values['pattern'])) {
 				$json->values->pattern = (string) $child->values['pattern'];
 			}
+			if (isset($child->values['not_null']) && ((string) $child->values['not_null'] == '1')) {
+				$json->values->not_null = true;
+			}
 		}
 		else {
 			if (isset($child->enum)) {
@@ -230,6 +233,9 @@ function getProperties($xml) {
 			if (isset($child['pattern'])) {
 				$json->pattern = (string) $child['pattern'];
 			}
+		}
+		if (isset($child['not_null']) && ((string) $child['not_null'] == '1')) {
+			$json->not_null = true;
 		}
 		if (isset($child['is_foreign']) && ((string) $child['is_foreign'] == '1')) {
 			$json->is_foreign = true;

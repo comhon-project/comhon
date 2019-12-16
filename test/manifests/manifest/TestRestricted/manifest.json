@@ -66,6 +66,25 @@
                     3.5
                 ]
             }
+        },
+        {
+            "name": "notNullArray",
+            "type": "array",
+            "values": {
+                "type": "float",
+                "name": "enumNotNullValue",
+                "enum": [
+                    1.5,
+                    3.5
+                ],
+                "not_null": true
+            },
+            "not_null": true
+        },
+        {
+            "name": "notNullForeign",
+            "type": "\\Test\\Basic\\Standard",
+            "not_null": true
         }
     ]
 }

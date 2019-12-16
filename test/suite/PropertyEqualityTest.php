@@ -7,11 +7,11 @@ use Comhon\Model\Property\AggregationProperty;
 use Comhon\Model\ModelForeign;
 use Comhon\Model\ModelArray;
 use Comhon\Model\Restriction\Enum;
-use Comhon\Model\Property\RestrictedProperty;
 use Comhon\Model\ModelRestrictedArray;
 use Comhon\Model\Restriction\Interval;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
+use Comhon\Model\Restriction\Restriction;
 
 class PropertyEqualityTest extends TestCase
 {
@@ -24,37 +24,40 @@ class PropertyEqualityTest extends TestCase
 	{
 		$modelInt = ModelManager::getInstance()->getInstanceModel('integer');
 		$modelString = ModelManager::getInstance()->getInstanceModel('string');
-		$propertyOne = new Property($modelInt, 'hehe', 'hihi', true, true, true, 'hoho', true);
+		$propertyOne = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, 'hoho', true);
 		
 		$this->assertTrue($propertyOne->isEqual($propertyOne));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, true, 'hoho', true);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, 'hoho', true);
 		$this->assertTrue($propertyOne->isEqual($propertyTwo));
 		
 		// property is equal even if last param ($isInterfacedAsNodeXml) is different
 		// because it doesn't matter on Comhon object instanciation (it is used only during interfacing)
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, true, 'hoho', false);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, 'hoho', false);
 		$this->assertTrue($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, true, 'not_same', true);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, 'not_same', true);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, 'hoho', true);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, false, 'hoho', true);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, false, true, 'hoho', true);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, true, true, 'hoho', true);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', false, true, true, 'hoho', true);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, false, false, true, 'hoho', true);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'not_same', true, true, true, 'hoho', true);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', false, true, false, true, 'hoho', true);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'not_same', 'hihi', true, true, true, 'hoho', true);
+		$propertyTwo = new Property($modelInt, 'hehe', 'not_same', true, true, false, true, 'hoho', true);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelString, 'hehe', 'hihi', true, true, true, 'hoho', true);
+		$propertyTwo = new Property($modelInt, 'not_same', 'hihi', true, true, false, true, 'hoho', true);
+		$this->assertFalse($propertyOne->isEqual($propertyTwo));
+		
+		$propertyTwo = new Property($modelString, 'hehe', 'hihi', true, true, false, true, 'hoho', true);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 	}
 	
@@ -89,30 +92,63 @@ class PropertyEqualityTest extends TestCase
 		$modelInt = ModelManager::getInstance()->getInstanceModel('integer');
 		$modelFloat = ModelManager::getInstance()->getInstanceModel('float');
 		$restrictionOne = new Enum([1, 2]);
-		$propertyOne = new RestrictedProperty($modelInt, 'hehe', $restrictionOne);
+		$propertyOne = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionOne]);
 		
 		$this->assertTrue($propertyOne->isEqual($propertyOne));
 		
-		$propertyTwo = new RestrictedProperty($modelInt, 'hehe', $restrictionOne);
+		$propertyTwo = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionOne]);
 		$this->assertTrue($propertyOne->isEqual($propertyTwo));
 		
 		$restrictionTwo = new Enum([1, 2]);
-		$propertyTwo = new RestrictedProperty($modelInt, 'hehe', $restrictionTwo);
+		$propertyTwo = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionTwo]);
 		$this->assertTrue($propertyOne->isEqual($propertyTwo));
 		
 		$restrictionTwo = new Enum([1, 666]);
-		$propertyTwo = new RestrictedProperty($modelInt, 'hehe', $restrictionTwo);
+		$propertyTwo = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionTwo]);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
 		$restrictionTwo = new Interval('[1,10]', $modelInt);
-		$propertyTwo = new RestrictedProperty($modelInt, 'hehe', $restrictionTwo);
+		$propertyTwo = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionTwo]);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new RestrictedProperty($modelFloat, 'hehe', $restrictionOne);
+		$propertyTwo = new Property($modelFloat, 'hehe', null, false, false, false, true, null, null, [$restrictionOne]);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe');
+		$propertyTwo = new Property($modelInt, 'hehe', null, false, false, false, true, null, null);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
+	}
+	
+	
+	
+	public function testCompareRestrictedProperty()
+	{
+		$modelInt = ModelManager::getInstance()->getInstanceModel('integer');
+		$restrictionOne = new Enum([1, 2]);
+		$restrictionTwo = new Enum([1, 2]);
+		$restrictionThree = new Enum([1, 3]);
+		
+		$this->assertTrue(Restriction::compare([$restrictionOne], [$restrictionTwo]));
+		$this->assertFalse(Restriction::compare([$restrictionOne], [$restrictionThree]));
+		$this->assertFalse(Restriction::compare([$restrictionOne], [$restrictionTwo, $restrictionThree]));
+		// compare same keys, so if same restriction on different keys it return false
+		$this->assertFalse(Restriction::compare(['one' => $restrictionOne], ['two' => $restrictionOne]));
+		
+		// in property constructor, restriction keys are redefined so we don't care about keys
+		$propertyOne = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, ['one' => $restrictionOne]);
+		$propertyTwo = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, ['two' => $restrictionOne]);
+		$this->assertTrue(Restriction::compare($propertyOne->getRestrictions(), $propertyTwo->getRestrictions()));
+		
+		$propertyOne = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionOne]);
+		$propertyTwo = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionTwo]);
+		$this->assertTrue(Restriction::compare($propertyOne->getRestrictions(), $propertyTwo->getRestrictions()));
+		
+		$propertyOne = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionOne]);
+		$propertyTwo = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionThree]);
+		$this->assertFalse(Restriction::compare($propertyOne->getRestrictions(), $propertyTwo->getRestrictions()));
+		
+		$propertyOne = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionOne]);
+		$propertyTwo = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionTwo, $restrictionThree]);
+		$this->assertFalse(Restriction::compare($propertyOne->getRestrictions(), $propertyTwo->getRestrictions()));
 	}
 	
 
@@ -147,26 +183,26 @@ class PropertyEqualityTest extends TestCase
 		$modelInt = ModelManager::getInstance()->getInstanceModel('integer');
 		$modelFloat = ModelManager::getInstance()->getInstanceModel('float');
 		$restrictionOne = new Enum([1, 2]);
-		$propertyOne = new Property(new ModelRestrictedArray($modelInt, $restrictionOne, false, 'child'), 'hehe');
+		$propertyOne = new Property(new ModelRestrictedArray($modelInt, [$restrictionOne], false, 'child'), 'hehe');
 		
 		$this->assertTrue($propertyOne->isEqual($propertyOne));
 		
-		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, $restrictionOne, false, 'child'), 'hehe');
+		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, [$restrictionOne], false, 'child'), 'hehe');
 		$this->assertTrue($propertyOne->isEqual($propertyTwo));
 		
 		$restrictionTwo = new Enum([1, 2]);
-		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, $restrictionTwo, false, 'child'), 'hehe');
+		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, [$restrictionTwo], false, 'child'), 'hehe');
 		$this->assertTrue($propertyOne->isEqual($propertyTwo));
 		
 		$restrictionTwo = new Enum([1, 666]);
-		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, $restrictionTwo, false, 'child'), 'hehe');
+		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, [$restrictionTwo], false, 'child'), 'hehe');
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
 		$restrictionTwo = new Interval('[1,10]', $modelInt);
-		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, $restrictionTwo, false, 'child'), 'hehe');
+		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, [$restrictionTwo], false, 'child'), 'hehe');
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property(new ModelRestrictedArray($modelFloat, $restrictionOne, false, 'child'), 'hehe');
+		$propertyTwo = new Property(new ModelRestrictedArray($modelFloat, [$restrictionOne], false, 'child'), 'hehe');
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
 		$propertyTwo = new Property($modelInt, 'hehe');

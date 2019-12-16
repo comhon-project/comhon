@@ -56,14 +56,14 @@ class LazyLoadingTest extends TestCase
 				[]
 			],
 			[ // test wit null values json
-				json_decode('{"birthPlace": null,"homes": null}'),
+				json_decode('{"birthPlace": null}'),
 				new StdObjectInterfacer(),
-				['birthPlace','homes']
+				['birthPlace']
 			],
-			[ // test wit null values xml
-				simplexml_load_string('<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><birthPlace xsi:nil="true"/><homes xsi:nil="true"/></root>'),
+			[ // test with null values xml
+				simplexml_load_string('<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><birthPlace xsi:nil="true"/></root>'),
 				new XMLInterfacer(),
-				['birthPlace','homes']
+				['birthPlace']
 			],
 			[ // test with empty array values json
 				json_decode('{"firstName": "hehe2","father": 1,"homes": []}'),

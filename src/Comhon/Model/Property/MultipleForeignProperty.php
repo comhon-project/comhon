@@ -28,10 +28,12 @@ class MultipleForeignProperty extends ForeignProperty {
 	 * @param string $name
 	 * @param string[] $serializationNames
 	 * @param boolean $isPrivate
+	 * @param boolean $isRequired
 	 * @param boolean $isSerializable
+	 * @param boolean $isNotNull
 	 */
-	public function __construct(ModelForeign $model, $name, $serializationNames, $isPrivate = false, $isSerializable = true) {
-		parent::__construct($model, $name, null, $isPrivate, $isSerializable);
+	public function __construct(ModelForeign $model, $name, $serializationNames, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false) {
+		parent::__construct($model, $name, null, $isPrivate, $isRequired, $isSerializable, $isNotNull);
 		$this->multipleIdProperties = $serializationNames;
 	}
 	

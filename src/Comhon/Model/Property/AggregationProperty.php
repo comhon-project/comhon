@@ -31,7 +31,7 @@ class AggregationProperty extends ForeignProperty {
 	 * @throws \Exception
 	 */
 	public function __construct(ModelForeign $model, $name, $aggregationProperties, $serializationName = null, $isPrivate = false) {
-		parent::__construct($model, $name, $serializationName, $isPrivate, false);
+		parent::__construct($model, $name, $serializationName, $isPrivate, false, false, true);
 		if (empty($aggregationProperties)) {
 			throw new ComhonException('aggregation must have at least one aggregation property');
 		}
@@ -122,18 +122,9 @@ class AggregationProperty extends ForeignProperty {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Property\ForeignProperty::isInterfaceable()
-	 */
-	public function isInterfaceable($private, $serialization) {
-		return !$serialization && parent::isInterfaceable($private, $serialization);
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
 	 * @see \Comhon\Model\Property\Property::isExportable()
 	 */
 	public function isExportable($private, $serialization, $value) {
-		return parent::isExportable($private, $serialization, $value) && (is_null($value) || $value->isLoaded());
+		return parent::isExportable($private, $serialization, $value) && $value->isLoaded();
 	}
 }

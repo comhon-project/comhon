@@ -19,7 +19,7 @@ use Comhon\Exception\Restriction\MalformedIntervalException;
 use Comhon\Exception\Restriction\NotSupportedModelIntervalException;
 use Comhon\Model\AbstractModel;
 
-class Interval implements Restriction {
+class Interval extends Restriction {
 	
 	// following regexs doesn't verify if left endpoint is inferior than right endpoint
 	// there's no verification on date format only interval structure is checked

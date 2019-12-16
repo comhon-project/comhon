@@ -449,6 +449,12 @@ try {
 
 // TODO for version > 3.0
 
+// not empty string, not empty array (same restriction if possible)
+// array size (min, max, exact)
+// string length (min, max, exact)
+
+// manage is_required
+
 // during import/export verify mandatory properties
 // add patch method
 

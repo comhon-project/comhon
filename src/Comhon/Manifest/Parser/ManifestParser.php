@@ -21,12 +21,12 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
-use Comhon\Model\Property\RestrictedProperty;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Manifest\ReservedWordException;
 use Comhon\Exception\Manifest\ManifestException;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\AbstractModel;
+use Comhon\Model\Restriction\Restriction;
 
 abstract class ManifestParser {
 
@@ -58,6 +58,9 @@ abstract class ManifestParser {
 	const IS_FOREIGN      = 'is_foreign';
 	
 	/** @var string */
+	const IS_REQUIRED  = 'is_required';
+	
+	/** @var string */
 	const IS_ASSOCIATIVE  = 'is_associative';
 	
 	/** @var string */
@@ -74,6 +77,20 @@ abstract class ManifestParser {
 	
 	/** @var string */
 	const XML_ATTRIBUTE   = 'attribute';
+	
+	// list of all restrictions
+	
+	/** @var string */
+	const ENUM  = 'enum';
+	
+	/** @var string */
+	const INTERVAL  = 'interval';
+	
+	/** @var string */
+	const PATTERN  = 'pattern';
+	
+	/** @var string */
+	const NOT_NULL  = 'not_null';
 	
 	/** @var mixed */
 	protected $manifest;
@@ -207,12 +224,13 @@ abstract class ManifestParser {
 	abstract protected function _getDefaultValue(AbstractModel $propertyModel);
 	
 	/**
-	 * get property/ComhonArray restriction
+	 * get Property/ComhonArray restrictions
 	 * 
 	 * @param mixed $currentNode
 	 * @param \Comhon\Model\AbstractModel $propertyModel
+	 * @return \Comhon\Model\Restriction\Restriction[]
 	 */
-	abstract protected function _getRestriction($currentNode, AbstractModel $propertyModel);
+	abstract protected function _getRestrictions($currentNode, AbstractModel $propertyModel);
 	
 	/**
 	 * verify if current property is foreign
@@ -308,17 +326,17 @@ abstract class ManifestParser {
 	/**
 	 * get boolean value from manifest (cast if necessary)
 	 * 
-	 * @param mixed $property property node
+	 * @param mixed $node node
 	 * @param string $name value's name
 	 * @param boolean $defaultValue used if value not found
 	 * @return boolean
 	 */
-	protected function _getBooleanValue($property, $name, $defaultValue) {
-		return $this->interfacer->hasValue($property, $name)
+	protected function _getBooleanValue($node, $name, $defaultValue) {
+		return $this->interfacer->hasValue($node, $name)
 			? (
 				$this->castValues
-					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($property, $name))
-					: $this->interfacer->getValue($property, $name)
+					? $this->interfacer->castValueToBoolean($this->interfacer->getValue($node, $name))
+					: $this->interfacer->getValue($node, $name)
 			)
 			: $defaultValue;
 	}
@@ -331,7 +349,7 @@ abstract class ManifestParser {
 	 * @return \Comhon\Model\Property\Property
 	 */
 	public function getCurrentProperty(AbstractModel $propertyModel) {
-		list($name, $model, $isId, $isPrivate, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
+		list($name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
 		list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
 		
 		if ($name === Interfacer::INHERITANCE_KEY || $serializationName === Interfacer::INHERITANCE_KEY) {
@@ -347,30 +365,25 @@ abstract class ManifestParser {
 				} else if (!is_null($aggregations)) {
 					throw new ManifestException('aggregation and serializationNames cannot coexist');
 				}
-				$property = new MultipleForeignProperty($modelForeign, $name, $serializationNames, $isPrivate, $isSerializable);
+				$property = new MultipleForeignProperty($modelForeign, $name, $serializationNames, $isPrivate, $isRequired, $isSerializable, $isNotNull);
 			}
 			else if (is_null($aggregations)) {
-				$property = new ForeignProperty($modelForeign, $name, $serializationName, $isPrivate, $isSerializable);
+				$property = new ForeignProperty($modelForeign, $name, $serializationName, $isPrivate, $isRequired, $isSerializable, $isNotNull);
 			} else {
 				$property = new AggregationProperty($modelForeign, $name, $aggregations, $serializationName, $isPrivate);
 			}
 		}
 		else {
 			$default = $this->_getDefaultValue($model);
-			$restriction = $this->_getRestriction($this->_getCurrentPropertyNode(), $model);
+			$restrictions = $this->_getRestrictions($this->_getCurrentPropertyNode(), $model);
 			
 			if (!empty($serializationNames)) {
 				throw new ManifestException('several serialization names only allowed for foreign properties');
 			}
-			if (is_null($restriction)) {
-				$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isSerializable, $default, $interfaceAsNodeXml);
-			} else {
-				$property = new RestrictedProperty($model, $name, $restriction, $serializationName, $isId, $isPrivate, $isSerializable, $default, $interfaceAsNodeXml);
-				// verify default value
-				// get it from property due to dateTime that need to instanciate DateTime object
-				if (!is_null($default) && !$restriction->satisfy($property->getDefaultValue())) {
-					throw new NotSatisfiedRestrictionException($property->getDefaultValue(), $restriction);
-				}
+			$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $default, $interfaceAsNodeXml, $restrictions);
+			// verify default value (get it from property due to dateTime that need to instanciate DateTime object)
+			if (!is_null($default) && !is_null($restriction = Restriction::getFirstNotSatisifed($restrictions, $property->getDefaultValue()))) {
+				throw new NotSatisfiedRestrictionException($property->getDefaultValue(), $restriction);
 			}
 		}
 		return $property;
