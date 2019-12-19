@@ -3,6 +3,6 @@
     <type>\Comhon\Request</type>
   </extends>
   <properties>
-    <property name="tree" type="\Comhon\Model\Root"/>
+    <property name="tree" type="\Comhon\Model\Root" is_required="1" not_null="1"/>
   </properties>
 </manifest>

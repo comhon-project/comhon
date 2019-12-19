@@ -1,5 +1,5 @@
 <manifest version="3.0" is_abstract="1">
   <properties>
-    <property name="id" type="integer" is_id="1"/>
+    <property name="id" type="integer" is_id="1" not_null="1"/>
   </properties>
 </manifest>

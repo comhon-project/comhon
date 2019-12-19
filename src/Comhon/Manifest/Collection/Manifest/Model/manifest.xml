@@ -5,7 +5,7 @@
         <type>\Comhon\Model</type>
       </extends>
       <properties>
-        <property name="model" type="string"/>
+        <property name="model" type="string" is_required="1" not_null="1"/>
       </properties>
     </type>
     <type name="Root" share_parent_id="1">
@@ -13,8 +13,8 @@
         <type>Simple</type>
       </extends>
       <properties>
-        <property name="nodes" type="array">
-          <values name="node" type="Node"/>
+        <property name="nodes" type="array" not_null="1">
+          <values name="node" type="Node" not_null="1"/>
         </property>
       </properties>
     </type>
@@ -23,14 +23,14 @@
         <type>\Comhon\Model</type>
       </extends>
       <properties>
-        <property name="property" type="string"/>
-        <property name="nodes" type="array">
-          <values name="node" type="Node"/>
+        <property name="property" type="string" is_required="1" not_null="1"/>
+        <property name="nodes" type="array" not_null="1">
+          <values name="node" type="Node" not_null="1"/>
         </property>
       </properties>
     </type>
   </types>
   <properties>
-    <property name="id" type="integer" is_id="1"/>
+    <property name="id" type="integer" is_id="1" not_null="1"/>
   </properties>
 </manifest>

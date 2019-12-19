@@ -7,7 +7,9 @@
     "properties": [
         {
             "name": "value",
-            "type": "float"
+            "type": "float",
+            "is_required": true,
+            "not_null": true
         }
     ]
 }

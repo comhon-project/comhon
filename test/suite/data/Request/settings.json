@@ -11,5 +11,12 @@
             "property": "name"
         }
     ],
+    "root": 1,
+    "models": [
+        {
+            "id": 1,
+            "model": "person"
+        }
+	],
     "__inheritance__": "Comhon\\Request\\Intermediate"
 }

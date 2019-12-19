@@ -2,12 +2,16 @@
     "version": "3.0",
     "share_parent_id": true,
     "extends": [
-        "\\Comhon\\Logic\\Simple\\Literal\\Numeric"
+        "\\Comhon\\Logic\\Simple\\Literal"
     ],
     "properties": [
         {
-            "name": "value",
-            "type": "integer",
+            "name": "operator",
+            "type": "string",
+            "enum": [
+                "=",
+                "<>"
+            ],
             "is_required": true,
             "not_null": true
         }

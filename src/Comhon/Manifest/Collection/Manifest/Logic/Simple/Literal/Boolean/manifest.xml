@@ -3,12 +3,12 @@
     <type>\Comhon\Logic\Simple\Literal</type>
   </extends>
   <properties>
-    <property name="operator" type="string">
+    <property name="operator" type="string" is_required="1" not_null="1">
       <enum>
         <value>=</value>
         <value>&lt;&gt;</value>
       </enum>
     </property>
-    <property name="value" type="boolean"/>
+    <property name="value" type="boolean" is_required="1" not_null="1"/>
   </properties>
 </manifest>

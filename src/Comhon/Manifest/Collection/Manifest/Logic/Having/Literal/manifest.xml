@@ -8,7 +8,7 @@
         <type>\Comhon\Logic\Having\Literal</type>
       </extends>
       <properties>
-        <property name="value" type="integer"/>
+        <property name="value" type="integer" is_required="1" not_null="1"/>
       </properties>
     </type>
     <type name="Function" share_parent_id="1">
@@ -16,8 +16,8 @@
         <type>\Comhon\Logic\Having\Literal</type>
       </extends>
       <properties>
-        <property name="property" type="string"/>
-        <property name="function" type="string">
+        <property name="property" type="string" is_required="1" not_null="1"/>
+        <property name="function" type="string" is_required="1" not_null="1">
           <enum>
             <value>SUM</value>
             <value>AVG</value>
@@ -25,12 +25,12 @@
             <value>MAX</value>
           </enum>
         </property>
-        <property name="value" type="float"/>
+        <property name="value" type="float" is_required="1" not_null="1"/>
       </properties>
     </type>
   </types>
   <properties>
-    <property name="operator" type="string">
+    <property name="operator" type="string" is_required="1" not_null="1">
       <enum>
         <value>=</value>
         <value>&lt;&gt;</value>

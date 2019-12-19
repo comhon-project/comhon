@@ -5,6 +5,7 @@
         {
             "name": "id",
             "type": "integer",
+            "not_null": true,
             "is_id": true
         }
     ]

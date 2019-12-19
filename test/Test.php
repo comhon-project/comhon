@@ -449,8 +449,10 @@ try {
 
 // TODO for version > 3.0
 
-// remove MainForeignObject for export
+// manage not_null without restriction
+// use comhon object request to interpret request
 // add patch method
+// all comhon objects inherit automaticaly from same empty abstract model (ex ComhonObject) ?
 
 // add selectquery select count(*) on query and func(*) on table
 // restriction string length (perhaps several restrictions same time)

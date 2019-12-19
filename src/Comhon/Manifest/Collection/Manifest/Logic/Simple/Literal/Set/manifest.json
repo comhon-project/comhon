@@ -12,7 +12,9 @@
             "enum": [
                 "IN",
                 "NOT IN"
-            ]
+            ],
+            "is_required": true,
+            "not_null": true
         }
     ]
 }

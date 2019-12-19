@@ -3,11 +3,13 @@
     "is_abstract": true,
     "types": [
         {
-            "name": "order",
+            "name": "Order",
             "properties": [
                 {
                     "name": "property",
-                    "type": "string"
+                    "type": "string",
+                    "is_required": true,
+                    "not_null": true
                 },
                 {
                     "name": "type",
@@ -16,6 +18,8 @@
                         "DESC",
                         "ASC"
                     ],
+                    "is_required": true,
+                    "not_null": true,
                     "default": "ASC"
                 }
             ]
@@ -24,39 +28,48 @@
     "properties": [
         {
             "name": "limit",
-            "type": "integer"
+            "type": "integer",
+            "not_null": true
         },
         {
             "name": "offset",
-            "type": "integer"
+            "type": "integer",
+            "not_null": true
         },
         {
             "name": "order",
             "type": "array",
             "values": {
-                "type": "order",
-                "name": "element"
-            }
+                "type": "Order",
+                "name": "element",
+                "not_null": true
+            },
+            "not_null": true
         },
         {
             "name": "simpleCollection",
             "type": "array",
             "values": {
                 "type": "\\Comhon\\Logic\\Simple\\Formula",
-                "name": "formula"
-            }
+                "name": "formula",
+                "not_null": true
+            },
+            "not_null": true
         },
         {
             "name": "havingCollection",
             "type": "array",
             "values": {
                 "type": "\\Comhon\\Logic\\Having\\Formula",
-                "name": "formula"
-            }
+                "name": "formula",
+                "not_null": true
+            },
+            "not_null": true
         },
         {
             "name": "filter",
             "type": "\\Comhon\\Logic\\Simple\\Formula",
+            "not_null": true,
             "is_foreign": true
         }
     ]

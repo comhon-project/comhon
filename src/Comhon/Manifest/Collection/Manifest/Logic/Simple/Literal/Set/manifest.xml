@@ -3,7 +3,7 @@
     <type>\Comhon\Logic\Simple\Literal</type>
   </extends>
   <properties>
-    <property name="operator" type="string">
+    <property name="operator" type="string" is_required="1" not_null="1">
       <enum>
         <value>IN</value>
         <value>NOT IN</value>

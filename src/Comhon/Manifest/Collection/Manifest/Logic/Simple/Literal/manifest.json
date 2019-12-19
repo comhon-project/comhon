@@ -9,11 +9,15 @@
         {
             "name": "node",
             "type": "\\Comhon\\Model",
+            "is_required": true,
+            "not_null": true,
             "is_foreign": true
         },
         {
             "name": "property",
-            "type": "string"
+            "type": "string",
+            "is_required": true,
+            "not_null": true
         }
     ]
 }

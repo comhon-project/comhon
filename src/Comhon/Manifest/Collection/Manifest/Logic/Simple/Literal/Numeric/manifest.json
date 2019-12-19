@@ -16,7 +16,9 @@
                 "<=",
                 ">",
                 ">="
-            ]
+            ],
+            "is_required": true,
+            "not_null": true
         }
     ]
 }

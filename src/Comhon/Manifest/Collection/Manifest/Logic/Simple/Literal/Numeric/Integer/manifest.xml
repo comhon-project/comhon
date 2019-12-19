@@ -3,6 +3,6 @@
     <type>\Comhon\Logic\Simple\Literal\Numeric</type>
   </extends>
   <properties>
-    <property name="value" type="integer"/>
+    <property name="value" type="integer" is_required="1" not_null="1"/>
   </properties>
 </manifest>

@@ -9,6 +9,9 @@ use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Object\ComhonObject;
 use Comhon\Exception\Interfacer\ImportException;
+use Comhon\Exception\Object\MissingRequiredValueException;
+use Comhon\Exception\ConstantException;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 
 class RequestTest extends TestCase
 {
@@ -65,14 +68,11 @@ class RequestTest extends TestCase
 		$obj = $model->import($interfacedObject, $interfacer);
 		
 		$modelPerson = $obj->getValue('models')->getValue(0);
-		$modelHouse = $obj->getValue('models')->getValue(1);
 		$collection = $obj->getValue('simpleCollection');
 		
 		$this->assertInstanceOf(ComhonObject::class, $modelPerson);
-		$this->assertInstanceOf(ComhonObject::class, $modelHouse);
 		$this->assertSame($modelPerson, $obj->getValue('root'));
 		$this->assertSame($modelPerson, $collection->getValue(0)->getValue('node'));
-		$this->assertSame($modelHouse, $collection->getValue(1)->getValue('node'));
 	}
 	
 	public function testComplex()
@@ -81,13 +81,7 @@ class RequestTest extends TestCase
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
 		
 		$interfacedObject = $interfacer->read(self::$data_ad . 'complex.json');
-		try {
-			$obj = $model->import($interfacedObject, $interfacer);
-		} catch (ImportException $e) {
-			var_dump($e->getStringifiedProperties());
-			var_dump($e->getMessage());
-			var_dump($e->getOriginalException()->getTraceAsString());
-		}
+		$obj = $model->import($interfacedObject, $interfacer);
 		
 		$modelPerson = $obj->getValue('tree');
 		$modelRooms = $modelPerson->getValue('nodes')->getValue(1)->getValue('nodes')->getValue(0);
@@ -98,5 +92,122 @@ class RequestTest extends TestCase
 		$this->assertSame($modelPerson, $collection->getValue(0)->getValue('node'));
 		$this->assertSame($modelRooms, $collection->getValue(1)->getValue('node'));
 	}
+	
+	/** ******************************** import failure ******************************** **/
 
+	/**
+	 *
+	 * @dataProvider importNotNullData
+	 */
+	public function testImportNullFailureRequest($interfacedObjectBase, $modelName)
+	{
+		$interfacer = new AssocArrayInterfacer();
+		$interfacer->setVerifyReferences(false);
+		$model = ModelManager::getInstance()->getInstanceModel($modelName);
+		$obj = $model->import($interfacedObjectBase, $interfacer);
+		
+		foreach (array_keys($interfacedObjectBase) as $value) {
+			$interfacedObject = $interfacedObjectBase; // copy
+			$interfacedObject[$value] = null;
+			
+			$thrown = false;
+			try {
+				$model->import($interfacedObject, $interfacer);
+			} catch (ImportException $e) {
+				$thrown = true;
+				$this->assertEquals($e->getStringifiedProperties(), '.'.$value);
+				$this->assertEquals(get_class($e->getOriginalException()), NotSatisfiedRestrictionException::class);
+				$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::NOT_SATISFIED_RESTRICTION_EXCEPTION);
+				$this->assertEquals($e->getOriginalException()->getMessage(), 'null value given, value must be not null');
+			}
+			$this->assertTrue($thrown, "value '$value' cannot be null");
+		}
+		$this->assertSame(
+			$interfacedObjectBase,
+			$model->export($obj, $interfacer)
+		);
+	}
+	
+	public function importNotNullData()
+	{
+		$interfacer = new AssocArrayInterfacer();
+		
+		$data = $interfacer->read(self::$data_ad . 'required_and_not_null.json');
+		$data[] = [
+			[
+				"limit" => 1,
+				"offset" => 0,
+				"order" => [],
+				"simpleCollection" => [],
+				"havingCollection" => [],
+				"filter" => 1,
+				"root" => 1,
+				"models" => [
+					[
+						"id" => 1,
+						"model" => "my_model"
+					]
+				]
+			],
+			"Comhon\\Request\\Intermediate"
+		];
+		$data[] = [
+			[
+				"id" => 1,
+				"model" => "my_model",
+				"nodes" => []
+			],
+			"Comhon\\Model\\Root"
+		];
+		$data[] = [
+			[
+				"id" => 1,
+				"property" => "my_property",
+				"nodes" => []
+			],
+			"Comhon\\Model\\Node"
+		];
+		return $data;
+	}
+	
+	/**
+	 *
+	 * @dataProvider importRequiredData
+	 */
+	public function testImportRequiredFailureRequest($interfacedObjectBase, $modelName)
+	{
+		$interfacer = new AssocArrayInterfacer();
+		$interfacer->setVerifyReferences(false);
+		$model = ModelManager::getInstance()->getInstanceModel($modelName);
+		$obj = $model->import($interfacedObjectBase, $interfacer);
+		
+		foreach (array_keys($interfacedObjectBase) as $value) {
+			$interfacedObject = $interfacedObjectBase; // copy
+			unset($interfacedObject[$value]);
+			
+			$thrown = false;
+			try {
+				$model->import($interfacedObject, $interfacer);
+			} catch (ImportException $e) {
+				$thrown = true;
+				$this->assertEquals($e->getStringifiedProperties(), '.');
+				$this->assertEquals(get_class($e->getOriginalException()), MissingRequiredValueException::class);
+				$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::MISSING_REQUIRED_VALUE_EXCEPTION);
+				$message = "missing required value '$value' on loaded comhon object with model '$modelName'";
+				$this->assertEquals($e->getOriginalException()->getMessage(), $message);
+			}
+			$this->assertTrue($thrown, "value '$value' should be required");
+		}
+		$this->assertSame(
+			$interfacedObjectBase,
+			$model->export($obj, $interfacer)
+		);
+	}
+	
+	public function importRequiredData()
+	{
+		$interfacer = new AssocArrayInterfacer();
+		
+		return $interfacer->read(self::$data_ad . 'required_and_not_null.json');
+	}
 }

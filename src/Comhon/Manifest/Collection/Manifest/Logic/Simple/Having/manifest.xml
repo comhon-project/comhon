@@ -3,10 +3,10 @@
     <type>\Comhon\Logic\Simple\Formula</type>
   </extends>
   <properties>
-    <property name="node" type="\Comhon\Model" is_foreign="1"/>
-    <property name="queue" type="array">
-      <values name="property" type="string"/>
+    <property name="node" type="\Comhon\Model" is_foreign="1" is_required="1" not_null="1"/>
+    <property name="queue" type="array" is_required="1" not_null="1" not_empty="1">
+      <values name="property" type="string" not_null="1"/>
     </property>
-    <property name="having" type="\Comhon\Logic\Having\Formula" is_foreign="1"/>
+    <property name="having" type="\Comhon\Logic\Having\Formula" is_foreign="1" is_required="1" not_null="1"/>
   </properties>
 </manifest>

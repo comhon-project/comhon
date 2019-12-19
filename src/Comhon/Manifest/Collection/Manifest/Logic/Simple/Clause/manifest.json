@@ -29,8 +29,12 @@
             "type": "array",
             "values": {
                 "type": "\\Comhon\\Logic\\Simple\\Formula",
-                "name": "element"
+                "name": "element",
+                "not_null": true
             },
+            "is_required": true,
+            "not_null": true,
+            "not_empty": true,
             "is_foreign": true
         }
     ]

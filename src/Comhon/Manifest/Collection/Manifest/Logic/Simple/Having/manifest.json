@@ -8,6 +8,8 @@
         {
             "name": "node",
             "type": "\\Comhon\\Model",
+            "is_required": true,
+            "not_null": true,
             "is_foreign": true
         },
         {
@@ -15,12 +17,18 @@
             "type": "array",
             "values": {
                 "type": "string",
-                "name": "property"
-            }
+                "name": "property",
+                "not_null": true
+            },
+            "is_required": true,
+            "not_null": true,
+            "not_empty": true
         },
         {
             "name": "having",
             "type": "\\Comhon\\Logic\\Having\\Formula",
+            "is_required": true,
+            "not_null": true,
             "is_foreign": true
         }
     ]

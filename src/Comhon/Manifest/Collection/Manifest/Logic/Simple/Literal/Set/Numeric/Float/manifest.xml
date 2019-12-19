@@ -2,11 +2,8 @@
   <extends>
     <type>\Comhon\Logic\Simple\Literal\Set\Numeric</type>
   </extends>
-  <extends>
-    <type>\Comhon\Logic\Literal</type>
-  </extends>
   <properties>
-    <property name="values" type="array">
+    <property name="values" type="array" is_required="1" not_null="1" not_empty="1">
       <values name="value" type="float"/>
     </property>
   </properties>

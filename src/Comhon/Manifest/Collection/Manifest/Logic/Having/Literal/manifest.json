@@ -15,7 +15,9 @@
             "properties": [
                 {
                     "name": "value",
-                    "type": "integer"
+                    "type": "integer",
+                    "is_required": true,
+                    "not_null": true
                 }
             ]
         },
@@ -28,7 +30,9 @@
             "properties": [
                 {
                     "name": "property",
-                    "type": "string"
+                    "type": "string",
+                    "is_required": true,
+                    "not_null": true
                 },
                 {
                     "name": "function",
@@ -38,11 +42,15 @@
                         "AVG",
                         "MIN",
                         "MAX"
-                    ]
+                    ],
+                    "is_required": true,
+                    "not_null": true
                 },
                 {
                     "name": "value",
-                    "type": "float"
+                    "type": "float",
+                    "is_required": true,
+                    "not_null": true
                 }
             ]
         }
@@ -58,7 +66,9 @@
                 "<=",
                 ">",
                 ">="
-            ]
+            ],
+            "is_required": true,
+            "not_null": true
         }
     ]
 }

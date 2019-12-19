@@ -70,7 +70,8 @@
             "elements": [
                 0,
                 1,
-                2
+                2,
+                100
             ],
             "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Clause\\\\Disjunction"
         },
@@ -94,6 +95,13 @@
             ],
             "having": 12,
             "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
+        },
+        {
+            "id": 100,
+            "node": 1,
+            "property": "name",
+            "operator": "=",
+            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Null"
         }
     ],
     "havingCollection": [
@@ -127,6 +135,7 @@
             "__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Clause\\\\Conjunction"
         }
     ],
+    "root": 1,
     "models": [
         {
             "id": 1,

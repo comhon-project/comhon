@@ -2,10 +2,7 @@
   <extends>
     <type>\Comhon\Logic\Simple\Literal\Numeric</type>
   </extends>
-  <extends>
-    <type>\Comhon\Logic\Literal</type>
-  </extends>
   <properties>
-    <property name="value" type="float"/>
+    <property name="value" type="float" is_required="1" not_null="1"/>
   </properties>
 </manifest>

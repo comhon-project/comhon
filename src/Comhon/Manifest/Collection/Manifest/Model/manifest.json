@@ -11,7 +11,9 @@
             "properties": [
                 {
                     "name": "model",
-                    "type": "string"
+                    "type": "string",
+                    "is_required": true,
+                    "not_null": true
                 }
             ]
         },
@@ -27,8 +29,10 @@
                     "type": "array",
                     "values": {
                         "type": "Node",
-                        "name": "node"
-                    }
+                        "name": "node",
+                        "not_null": true
+                    },
+                    "not_null": true
                 }
             ]
         },
@@ -41,15 +45,19 @@
             "properties": [
                 {
                     "name": "property",
-                    "type": "string"
+                    "type": "string",
+                    "is_required": true,
+                    "not_null": true
                 },
                 {
                     "name": "nodes",
                     "type": "array",
                     "values": {
                         "type": "Node",
-                        "name": "node"
-                    }
+                        "name": "node",
+                        "not_null": true
+                    },
+                    "not_null": true
                 }
             ]
         }
@@ -58,6 +66,7 @@
         {
             "name": "id",
             "type": "integer",
+            "not_null": true,
             "is_id": true
         }
     ]

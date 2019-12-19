@@ -1,0 +1,144 @@
+[
+	[
+		{
+			"root": 1,
+			"models": [
+				{
+					"id": 1,
+					"model": "my_model"
+				}
+			]
+		},
+		"Comhon\\Request\\Intermediate"
+	],
+	[
+		{
+			"tree": {
+		        "id": 1,
+		        "model": "person"
+		    }
+		},
+		"Comhon\\Request\\Complex"
+	],
+	[
+		{
+			"model": "my_model"
+		},
+		"Comhon\\Model\\Root"
+	],
+	[
+		{
+			"property": "my_property"
+		},
+		"Comhon\\Model\\Node"
+	],
+	[
+		{
+			"node": 1,
+			"property": "my_property",
+			"operator": "=",
+			"value": "aaa"
+		},
+		"Comhon\\Logic\\Simple\\Literal\\String"
+	],
+	[
+		{
+			"node": 1,
+			"property": "my_property",
+			"operator": "=",
+			"value": 0
+		},
+		"Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+	],
+	[
+		{
+			"node": 1,
+			"property": "my_property",
+			"operator": "=",
+			"value": 0
+		},
+		"Comhon\\Logic\\Simple\\Literal\\Numeric\\Float"
+	],
+	[
+		{
+			"node": 1,
+			"property": "my_property",
+			"operator": "=",
+			"value": true
+		},
+		"Comhon\\Logic\\Simple\\Literal\\Boolean"
+	],
+	[
+		{
+            "node": 1,
+            "property": "surfaceInt",
+            "operator": "IN",
+            "values": [200]
+        },
+		"Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Integer"
+	],
+	[
+		{
+            "node": 1,
+            "property": "surfaceInt",
+            "operator": "IN",
+            "values": [200]
+        },
+		"Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Float"
+	],
+	[
+		{
+            "node": 1,
+            "property": "surfaceInt",
+            "operator": "IN",
+            "values": ["aaa"]
+        },
+		"Comhon\\Logic\\Simple\\Literal\\Set\\String"
+	],
+	[
+		{
+			"node": 1,
+			"property": "my_property",
+			"operator": "="
+		},
+		"Comhon\\Logic\\Simple\\Literal\\Null"
+	],
+	[
+		{
+            "node": 1,
+            "queue": [
+                "rooms"
+            ],
+            "having": 1
+        },
+		"Comhon\\\\Logic\\\\Simple\\\\Having"
+	],
+	[
+		{
+            "operator": ">",
+            "property": "surface",
+            "function": "MIN",
+            "value": 12.5
+        },
+		"Comhon\\\\Logic\\\\Having\\\\Literal\\\\Function"
+	],
+	[
+		{
+            "operator": ">",
+            "value": 2
+        },
+		"Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
+	],
+	[
+		{
+            "elements": [10]
+        },
+		"Comhon\\\\Logic\\\\Simple\\\\Clause\\\\Disjunction"
+	],
+	[
+		{
+            "elements": [10]
+        },
+		"Comhon\\\\Logic\\\\Having\\\\Clause\\\\Disjunction"
+	]
+]

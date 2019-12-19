@@ -6,7 +6,9 @@
     "properties": [
         {
             "name": "tree",
-            "type": "\\Comhon\\Model\\Root"
+            "type": "\\Comhon\\Model\\Root",
+            "is_required": true,
+            "not_null": true
         }
     ]
 }

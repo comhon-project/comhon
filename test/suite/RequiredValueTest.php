@@ -55,6 +55,14 @@ class RequiredValueTest extends TestCase
 		$object->unsetValue('valueRequired');
 	}
 	
+	public function testSetNullValue()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$object = $model->getObjectInstance(false);
+		$object->setValue('valueRequired', null); // a required property may be null
+		$this->assertNull($object->getValue('valueRequired'));
+	}
+	
 	public function testImportSuccessful()
 	{
 		$interfacer = new AssocArrayInterfacer();

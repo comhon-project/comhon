@@ -11,7 +11,10 @@
             "values": {
                 "type": "float",
                 "name": "value"
-            }
+            },
+            "is_required": true,
+            "not_null": true,
+            "not_empty": true
         }
     ]
 }

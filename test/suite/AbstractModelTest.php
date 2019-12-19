@@ -120,6 +120,7 @@ class AbstractModelTest extends TestCase
 	{
 		$interfacer = new AssocArrayInterfacer();
 		$interfacer->setVerifyReferences(false);
+		$interfacer->setFlagObjectAsLoaded(false);
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
 		
 		// filter property is foreign so object is NOT loaded and may be instanciated

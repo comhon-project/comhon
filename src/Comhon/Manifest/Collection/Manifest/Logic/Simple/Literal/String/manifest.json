@@ -11,11 +11,15 @@
             "enum": [
                 "=",
                 "<>"
-            ]
+            ],
+            "is_required": true,
+            "not_null": true
         },
         {
             "name": "value",
-            "type": "string"
+            "type": "string",
+            "is_required": true,
+            "not_null": true
         }
     ]
 }
