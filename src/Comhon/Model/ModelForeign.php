@@ -61,24 +61,6 @@ class ModelForeign extends ModelContainer {
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\ModelComplex::_addMainCurrentObject()
-	 */
-	protected function _addMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer) {
-		throw new ComhonException('cannot call _addMainCurrentObject via ModelForeign');
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\ModelComplex::_removeMainCurrentObject()
-	 */
-	protected function _removeMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer) {
-		throw new ComhonException('cannot call _removeMainCurrentObject via ModelForeign');
-	}
-	
-	/**
 	 * export comhon object id in specified format
 	 *
 	 * @param \Comhon\Object\AbstractComhonObject $object

@@ -54,10 +54,10 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * initialize export
 	 */
 	public function initializeExport() {
+		parent::initializeExport();
 		$this->domDocument = new \DOMDocument();
 		$this->domDocument->preserveWhiteSpace = false;
 		$this->nullElements = [];
-		parent::initializeExport();
 	}
 	
 	/**
@@ -67,19 +67,6 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 */
 	public function finalizeExport($rootNode) {
 		parent::finalizeExport($rootNode);
-		
-		if (!empty($this->nullElements) && !is_null($this->mainForeignObjects)) {
-			$this->domDocument->appendChild($this->mainForeignObjects);
-			
-			try {
-				$this->domDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
-				foreach ($this->nullElements as $i => $domElement) {
-					$domElement->setAttributeNS(self::NIL_URI, self::NULL_VALUE, 'true');
-					unset($this->nullElements[$i]);
-				}
-			} catch (\Exception $e) {}
-			$this->domDocument->removeChild($this->mainForeignObjects);
-		}
 		
 		if (!empty($this->nullElements)) {
 			$this->domDocument->appendChild($rootNode);
@@ -554,55 +541,4 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 		return $node->childNodes->item(0)->nodeValue;
 	}
 	
-	/**
-	 *
-	 * @param mixed $node
-	 * @param string|integer $nodeId
-	 * @param \Comhon\Model\Model $model
-	 */
-	public function addMainForeignObject($node, $nodeId, Model $model) {
-		if (!is_null($this->mainForeignObjects)) {
-			$modelName = $model->getName();
-			if (!array_key_exists($modelName, $this->mainForeignIds)) {
-				$container = $this->createNode($model->getShortName());
-				$this->setValue($container, $model->getNameSpace(), 'namespace');
-				$this->setValue($this->mainForeignObjects, $container);
-				$this->mainForeignIds[$modelName] = [
-						$container,
-						[]
-				];
-			}
-			if (isset($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId])) {
-				$this->mainForeignIds[$modelName][self::INDEX_NODE_CONTAINER]->removeChild($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId]);
-			}
-			$this->setValue($this->mainForeignIds[$modelName][self::INDEX_NODE_CONTAINER], $node);
-			$this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId] = $node;
-		}
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Interfacer\Interfacer::removeMainForeignObject()
-	 */
-	public function removeMainForeignObject($nodeId, Model $model) {
-		if (!is_null($this->mainForeignObjects)) {
-			$modelName = $model->getName();
-			if (isset($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId])) {
-				$this->mainForeignIds[$modelName][self::INDEX_NODE_CONTAINER]->removeChild($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId]);
-				unset($this->mainForeignIds[$modelName][self::INDEX_NODES][$nodeId]);
-			}
-		}
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Interfacer\Interfacer::hasMainForeignObject()
-	 */
-	public function hasMainForeignObject($modelName, $id) {
-		return !is_null($this->mainForeignIds)
-			&& array_key_exists($modelName, $this->mainForeignIds)
-			&& array_key_exists($id, $this->mainForeignIds[$modelName][self::INDEX_NODES]);
-	}
 }

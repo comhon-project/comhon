@@ -70,11 +70,6 @@ abstract class Interfacer {
 	const STRINGIFIED_VALUES = 'stringifiedValues';
 	
 	/**
-	 * @var string preference name that define if foreign object with main model have to be exported
-	 */
-	const EXPORT_MAIN_FOREIGN_OBJECTS = 'exportMainForeignObjects';
-	
-	/**
 	 * @var string preference name that define if imported values have to be flagged has updated
 	 */
 	const FLAG_VALUES_AS_UPDATED = 'flagValuesAsUpdated';
@@ -148,15 +143,6 @@ abstract class Interfacer {
 	
 	/** @var boolean */
 	private $verifyReferences = true;
-	
-	/** @var boolean */
-	private $exportMainForeignObjects = false;
-	
-	/** @var mixed */
-	protected $mainForeignObjects = null;
-	
-	/** @var array */
-	protected $mainForeignIds = null;
 	
 	final public function __construct() {
 		$this->dateTimeZone = new \DateTimeZone(date_default_timezone_get());
@@ -352,29 +338,10 @@ abstract class Interfacer {
 	}
 	
 	/**
-	 * verify if has to export main foreign objects
-	 * 
-	 * @return boolean
-	 */
-	public function hasToExportMainForeignObjects() {
-		return $this->exportMainForeignObjects;
-	}
-	
-	/**
-	 * define if has to export main foreign objects
-	 * 
-	 * @param boolean $boolean
-	 */
-	public function setExportMainForeignObjects($boolean) {
-		$this->exportMainForeignObjects = $boolean;
-	}
-	
-	/**
 	 * initialize export
 	 */
 	public function initializeExport() {
-		$this->mainForeignObjects = $this->exportMainForeignObjects ? $this->createNode('objects') : null;
-		$this->mainForeignIds = $this->exportMainForeignObjects ? [] : null;
+		// do nothing (overrided in XMLInterfacer)
 	}
 	
 	/**
@@ -384,60 +351,6 @@ abstract class Interfacer {
 	 */
 	public function finalizeExport($rootNode) {
 		// do nothing (overrided in XMLInterfacer)
-	}
-	
-	/**
-	 * add exported main foreign object
-	 * 
-	 * @param mixed $node
-	 * @param string|integer $nodeId
-	 * @param \Comhon\Model\Model $model
-	 */
-	public function addMainForeignObject($node, $nodeId, Model $model) {
-		if (!is_null($this->mainForeignObjects)) {
-			$modelName = $model->getName();
-			if (!$this->hasValue($this->mainForeignObjects, $modelName, true)) {
-				$this->setValue($this->mainForeignObjects, $this->createNode($modelName), $modelName);
-			}
-			$this->setValue($this->getValue($this->mainForeignObjects, $modelName, true), $node, $nodeId);
-		}
-	}
-	
-	/**
-	 * remove exported main foreign object
-	 *
-	 * @param string|integer $nodeId
-	 * @param \Comhon\Model\Model $model
-	 */
-	public function removeMainForeignObject($nodeId, Model $model) {
-		if (!is_null($this->mainForeignObjects)) {
-			$modelName = $model->getName();
-			if ($this->hasValue($this->mainForeignObjects, $modelName, true)) {
-				$this->unsetValue($this->getValue($this->mainForeignObjects, $modelName, true), $nodeId, true);
-			}
-		}
-	}
-	
-	/**
-	 * get exported main foreign objects
-	 *
-	 * @return array
-	 */
-	public function getMainForeignObjects() {
-		return $this->mainForeignObjects;
-	}
-	
-	/**
-	 * verify if has main foreign objects with specified $modelName and $id
-	 * 
-	 * @param string $modelName
-	 * @param string|integer $id
-	 * @return boolean
-	 */
-	public function hasMainForeignObject($modelName, $id) {
-		return !is_null($this->mainForeignObjects)
-			&& $this->hasValue($this->mainForeignObjects, $modelName, true)
-			&& $this->hasValue($this->getValue($this->mainForeignObjects, $modelName, true), $id, true);
 	}
 	
 	/**
@@ -824,14 +737,6 @@ abstract class Interfacer {
 				throw new UnexpectedValueTypeException($preferences[self::STRINGIFIED_VALUES], 'boolean', self::FLATTEN_VALUES);
 			}
 			$this->setFlattenValues($preferences[self::STRINGIFIED_VALUES]);
-		}
-		
-		// main foreign objects
-		if (array_key_exists(self::EXPORT_MAIN_FOREIGN_OBJECTS, $preferences)) {
-			if (!is_bool($preferences[self::EXPORT_MAIN_FOREIGN_OBJECTS])) {
-				throw new UnexpectedValueTypeException($preferences[self::EXPORT_MAIN_FOREIGN_OBJECTS], 'boolean', self::EXPORT_MAIN_FOREIGN_OBJECTS);
-			}
-			$this->setExportMainForeignObjects($preferences[self::EXPORT_MAIN_FOREIGN_OBJECTS]);
 		}
 		
 		// flag values as updated

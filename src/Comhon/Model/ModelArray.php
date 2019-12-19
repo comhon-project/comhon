@@ -146,42 +146,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\ModelComplex::_addMainCurrentObject()
-	 */
-	protected function _addMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer) {
-		if (!($objectArray instanceof ComhonArray)) {
-			throw new ArgumentException($objectArray, ComhonArray::class, 1);
-		}
-		if ($interfacer->hasToExportMainForeignObjects()) {
-			foreach ($objectArray->getValues() as $object) {
-				if (!is_null($object) && $object->getModel()->isMain() && !is_null($object->getId()) && $object->hasCompleteId()) {
-					$interfacer->addMainForeignObject($interfacer->createNode('empty'), $object->getId(), $object->getModel());
-				}
-			}
-		}
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\ModelComplex::_removeMainCurrentObject()
-	 */
-	protected function _removeMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer) {
-		if (!($objectArray instanceof ComhonArray)) {
-			throw new ArgumentException($objectArray, ComhonArray::class, 1);
-		}
-		if ($interfacer->hasToExportMainForeignObjects()) {
-			foreach ($objectArray->getValues() as $object) {
-				if (!is_null($object) && $object->getModel()->isMain() && !is_null($object->getId()) && $object->hasCompleteId()) {
-					$interfacer->removeMainForeignObject($object->getId(), $object->getModel());
-				}
-			}
-		}
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_exportRoot()
 	 */
 	protected function _exportRoot(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer) {

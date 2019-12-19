@@ -126,7 +126,6 @@ $preferences = [
 	Interfacer::ONLY_UPDATED_VALUES    => true,
 	Interfacer::PROPERTIES_FILTERS     => ['Test\Person' => ['haha', 'hoho'], 'Test\Place' => ['plop1', 'plop2']],
 	Interfacer::FLATTEN_VALUES         => true,
-	Interfacer::EXPORT_MAIN_FOREIGN_OBJECTS   => true,
 	Interfacer::FLAG_VALUES_AS_UPDATED => false,
 	Interfacer::FLAG_OBJECT_AS_LOADED  => false,
 	Interfacer::MERGE_TYPE             => Interfacer::OVERWRITE
@@ -156,9 +155,6 @@ if (json_encode($interfacer->getPropertiesFilter('Test\Person')) !== '{"haha":0,
 	throw new \Exception('bad value');
 }
 if ($interfacer->hasToFlattenValues() !== true) {
-	throw new \Exception('bad value');
-}
-if ($interfacer->hasToExportMainForeignObjects() !== true) {
 	throw new \Exception('bad value');
 }
 if ($interfacer->hasToFlagValuesAsUpdated() !== false) {

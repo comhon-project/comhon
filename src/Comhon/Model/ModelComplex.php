@@ -25,25 +25,6 @@ abstract class ModelComplex extends AbstractModel {
 	protected static $instanceObjectHash = [];
 	
 	/**
-	 * add main current object(s) to main foreign objects list in interfacer
-	 *
-	 * object is added only if it has a main model associated
-	 * avoid to re-export current object via export of main foreign object
-	 *
-	 * @param \Comhon\Object\AbstractComhonObject $object
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 */
-	abstract protected function _addMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer);
-	
-	/**
-	 * remove main current object(s) from main foreign objects list in interfacer previously added
-	 *
-	 * @param \Comhon\Object\AbstractComhonObject $object
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 */
-	abstract protected function _removeMainCurrentObject(AbstractComhonObject $objectArray, Interfacer $interfacer);
-	
-	/**
 	 * export comhon object in specified format
 	 *
 	 * @param \Comhon\Object\AbstractComhonObject $object
@@ -54,11 +35,9 @@ abstract class ModelComplex extends AbstractModel {
 		$this->verifValue($object);
 		$interfacer->initializeExport();
 		self::$instanceObjectHash = [];
-		$this->_addMainCurrentObject($object, $interfacer);
 		
 		$node = $this->_exportRoot($object, 'root', $interfacer);
 		
-		$this->_removeMainCurrentObject($object, $interfacer);
 		self::$instanceObjectHash = [];
 		$interfacer->finalizeExport($node);
 		return $node;

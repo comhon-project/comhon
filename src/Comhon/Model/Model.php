@@ -792,34 +792,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\ModelComplex::_addMainCurrentObject()
-	 */
-	protected function _addMainCurrentObject(AbstractComhonObject $object, Interfacer $interfacer) {
-		if (!($object instanceof UniqueObject)) {
-			throw new ArgumentException($object, UniqueObject::class, 1);
-		}
-		if ($interfacer->hasToExportMainForeignObjects() && $object->getModel()->isMain() && !is_null($object->getId()) && $object->hasCompleteId()) {
-			$interfacer->addMainForeignObject($interfacer->createNode('empty'), $object->getId(), $object->getModel());
-		}
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\ModelComplex::_removeMainCurrentObject()
-	 */
-	protected function _removeMainCurrentObject(AbstractComhonObject $object, Interfacer $interfacer) {
-		if (!($object instanceof UniqueObject)) {
-			throw new ArgumentException($object, UniqueObject::class, 1);
-		}
-		if ($interfacer->hasToExportMainForeignObjects() && $object->getModel()->isMain() && !is_null($object->getId()) && $object->hasCompleteId()) {
-			$interfacer->removeMainForeignObject($object->getId(), $object->getModel());
-		}
-	}
-	
-	/**
 	 * load comhon object
 	 *
 	 * @param string|integer $id
@@ -948,12 +920,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 							$exportedValue = $property->getModel()->_export($value, $propertyName, $interfacer, false, $objectCollectionInterfacer);
 							$interfacer->setValue($node, $exportedValue, $propertyName, $property->isInterfacedAsNodeXml());
 						}
-						else if ($property->isForeign() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
-							$property->getModel()->_export($value, $value->getUniqueModel()->getShortName(), $interfacer, false, $objectCollectionInterfacer);
-						}
-					}
-					else if ($isSerialContext && $property->isAggregation() && $interfacer->hasToExportMainForeignObjects() && !is_null($value)) {
-						$property->getModel()->_export($value, $value->getUniqueModel()->getShortName(), $interfacer, false, $objectCollectionInterfacer);
 					}
 				}
 			} catch (ComhonException $e) {
@@ -1048,14 +1014,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$interfacer->setValue($exportedId, $model->getName(), Interfacer::INHERITANCE_KEY);
 		}
 		
-		if ($model->isMain() && $interfacer->hasToExportMainForeignObjects()) {
-			$valueId   = self::_toInterfacedId($object, $interfacer);
-			
-			if (!$interfacer->hasMainForeignObject($model->getName(), $valueId)) {
-				$interfacer->addMainForeignObject($interfacer->createNode('empty'), $valueId, $model);
-				$interfacer->addMainForeignObject($model->_export($object, 'root', $interfacer, true, $objectCollectionInterfacer), $valueId, $model);
-			}
-		}
 		return $exportedId;
 	}
 	
