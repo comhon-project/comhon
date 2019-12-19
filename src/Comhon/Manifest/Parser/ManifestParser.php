@@ -92,6 +92,15 @@ abstract class ManifestParser {
 	/** @var string */
 	const NOT_NULL  = 'not_null';
 	
+	/** @var string */
+	const NOT_EMPTY  = 'not_empty';
+	
+	/** @var string */
+	const SIZE  = 'size';
+	
+	/** @var string */
+	const LENGTH  = 'length';
+	
 	/** @var mixed */
 	protected $manifest;
 	

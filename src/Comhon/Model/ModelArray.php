@@ -14,13 +14,16 @@ namespace Comhon\Model;
 use Comhon\Object\ComhonArray;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
+use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
+use Comhon\Model\Restriction\Restriction;
+use Comhon\Model\Restriction\NotNull;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 
 class ModelArray extends ModelContainer implements ModelComhonObject {
 	
@@ -36,15 +39,41 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	private $isAssociative;
 	
 	/**
+	 * @var \Comhon\Model\Restriction\Restriction[]
+	 */
+	private $arrayRestrictions = [];
+	
+	/**
+	 * @var \Comhon\Model\Restriction\Restriction[]
+	 */
+	private $elementRestrictions = [];
+	
+	/**
 	 * 
 	 * @param \Comhon\Model\ModelUnique $model
 	 * @param boolean $isAssociative
 	 * @param string $elementName
+	 * @param \Comhon\Model\Restriction\Restriction[] $arrayRestrictions
+	 * @param \Comhon\Model\Restriction\Restriction[] $elementRestrictions
 	 */
-	public function __construct(ModelUnique $model, $isAssociative, $elementName) {
+	public function __construct(ModelUnique $model, $isAssociative, $elementName, array $arrayRestrictions = [], array $elementRestrictions = []) {
 		parent::__construct($model);
 		$this->isAssociative = $isAssociative;
 		$this->elementName = $elementName;
+		
+		foreach ($arrayRestrictions as $restriction) {
+			if (!$restriction->isAllowedModel($this)) {
+				throw new ComhonException('restriction doesn\'t allow specified model'.get_class($this));
+			}
+			$this->arrayRestrictions[get_class($restriction)] = $restriction;
+		}
+		
+		foreach ($elementRestrictions as $restriction) {
+			if (!$restriction->isAllowedModel($this->model)) {
+				throw new ComhonException('restriction doesn\'t allow specified model'.get_class($this->model));
+			}
+			$this->elementRestrictions[get_class($restriction)] = $restriction;
+		}
 	}
 	
 	/**
@@ -68,12 +97,30 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	}
 	
 	/**
+	 * get restrictions applied on comhon array itslef
+	 *
+	 * @return \Comhon\Model\Restriction\Restriction[]
+	 */
+	public function getArrayRestrictions() {
+		return $this->arrayRestrictions;
+	}
+	
+	/**
+	 * get restrictions applied on each comhon array element
+	 *
+	 * @return \Comhon\Model\Restriction\Restriction[]
+	 */
+	public function getElementRestrictions() {
+		return $this->elementRestrictions;
+	}
+	
+	/**
 	 * get full qualified class name of object array
 	 * 
 	 * @return string
 	 */
 	public function getObjectClass() {
-		return 'Comhon\Object\ComhonArray';
+		return ComhonArray::class;
 	}
 	
 	/**
@@ -138,6 +185,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @see \Comhon\Model\ModelComplex::_exportRoot()
 	 */
 	protected function _exportRoot(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
+		$objectArray->validate();
 		if ($this->getModel() instanceof SimpleModel) {
 			$nodeArray = $this->_export($objectArray, $nodeName, $interfacer, true, new ObjectCollectionInterfacer());
 		} else {
@@ -165,9 +213,11 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @see \Comhon\Model\AbstractModel::_export()
 	 */
 	protected function _export($objectArray, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+		/** @var \Comhon\Object\ComhonArray $objectArray */
 		if (is_null($objectArray)) {
 			return null;
 		}
+		$objectArray->validate();
 		$nodeArray = $interfacer->createArrayNode($nodeName);
 		
 		foreach ($objectArray->getValues() as $key => $value) {
@@ -220,7 +270,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
 			throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getArrayNodeClasses()));
 		}
-		$objectArray = $this->getObjectInstance();
+		$objectArray = $this->getObjectInstance(false);
 		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			try {
 				if ($this->isAssociative) {
@@ -232,6 +282,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 				throw new ImportException($e, $key);
 			}
 		}
+		$objectArray->setIsLoaded(true);
 		return $objectArray;
 	}
 	
@@ -251,7 +302,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
 			throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getArrayNodeClasses()));
 		}
-		$objectArray = $this->getObjectInstance();
+		$objectArray = $this->getObjectInstance(false);
 		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			if ($this->isAssociative) {
 				$objectArray->setValue($key, $this->getModel()->_importId($element, $interfacer, false, $objectCollectionInterfacer), $interfacer->hasToFlagValuesAsUpdated());
@@ -259,6 +310,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 				$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, false, $objectCollectionInterfacer), $interfacer->hasToFlagValuesAsUpdated());
 			}
 		}
+		$objectArray->setIsLoaded(true);
 		return $objectArray;
 	}
 	
@@ -284,24 +336,29 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
 			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
 		}
-		$objectArray = $this->getObjectInstance();
+		$objectArray = $this->getObjectInstance(false);
 		$isSimple = $this->getModel() instanceof SimpleModel;
-		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
-			try {
-				if ($isSimple) {
-					$value = $interfacer->isNullValue($element) ? null : $this->getModel()->importSimple($element, $interfacer, true);
-				} else {
-					$value = $interfacer->isNullValue($element) ? null : $this->getModel()->import($element, $interfacer);
+		try {
+			foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
+				try {
+					if ($isSimple) {
+						$value = $interfacer->isNullValue($element) ? null : $this->getModel()->importSimple($element, $interfacer, true);
+					} else {
+						$value = $interfacer->isNullValue($element) ? null : $this->getModel()->import($element, $interfacer);
+					}
+					
+					if ($this->isAssociative) {
+						$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
+					} else {
+						$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
+					}
+				} catch (ComhonException $e) {
+					throw new ImportException($e, $key);
 				}
-				
-				if ($this->isAssociative) {
-					$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
-				} else {
-					$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
-				}
-			} catch (ComhonException $e) {
-				throw new ImportException($e, $key);
 			}
+			$objectArray->setIsLoaded(true);
+		} catch (ComhonException $e) {
+			throw new ImportException($e);
 		}
 		return $objectArray;
 	}
@@ -330,25 +387,29 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 				$objectCollectionInterfacer->addStartObject($value);
 			}
 		}
-		$objectArray->reset();
-		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
-			try {
-				if ($isSimple) {
-					$value = $interfacer->isNullValue($element) ? null : $this->getModel()->importSimple($element, $interfacer, true);
-				} else {
-					$value = $interfacer->isNullValue($element) ? null : $this->getModel()->_importRoot($element, $interfacer, $objectCollectionInterfacer);
+		try {
+			$objectArray->reset();
+			foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
+				try {
+					if ($isSimple) {
+						$value = $interfacer->isNullValue($element) ? null : $this->getModel()->importSimple($element, $interfacer, true);
+					} else {
+						$value = $interfacer->isNullValue($element) ? null : $this->getModel()->_importRoot($element, $interfacer, $objectCollectionInterfacer);
+					}
+					
+					if ($this->isAssociative) {
+						$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
+					} else {
+						$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
+					}
+				} catch (ComhonException $e) {
+					throw new ImportException($e, $key);
 				}
-				
-				if ($this->isAssociative) {
-					$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
-				} else {
-					$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
-				}
-			} catch (ComhonException $e) {
-				throw new ImportException($e, $key);
 			}
+			$objectArray->setIsLoaded(true);
+		} catch (ComhonException $e) {
+			throw new ImportException($e);
 		}
-		$objectArray->setIsLoaded(true);
 	}
 	
 	/**
@@ -368,8 +429,16 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 				)
 			)
 		) {
-			$Obj = $this->getObjectInstance();
+			$Obj = $this->getObjectInstance(false);
 			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
+		}
+		if ($value->getModel() !== $this) {
+			if (!Restriction::compare($this->arrayRestrictions, $value->getModel()->getArrayRestrictions())) {
+				throw new UnexpectedRestrictedArrayException($value, $this);
+			}
+			if (!Restriction::compare($this->elementRestrictions, $value->getModel()->getElementRestrictions())) {
+				throw new UnexpectedRestrictedArrayException($value, $this);
+			}
 		}
 		return true;
 	}
@@ -381,7 +450,58 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @return boolean
 	 */
 	public function verifElementValue($value) {
-		return is_null($value) ? true : $this->getModel()->verifValue($value);
+		if (is_null($value)) {
+			if (isset($this->elementRestrictions[NotNull::class])) {
+				throw new NotSatisfiedRestrictionException($value, $this->elementRestrictions[NotNull::class]);
+			}
+		} else {
+			$this->getModel()->verifValue($value);
+			if (!is_null($restriction = Restriction::getFirstNotSatisifed($this->elementRestrictions, $value))) {
+				throw new NotSatisfiedRestrictionException($value, $restriction);
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * verify if a value may be added to given comhon array
+	 *
+	 * @param \Comhon\Object\ComhonArray $array
+	 * @return boolean
+	 */
+	public function verifAddValue(ComhonArray $array) {
+		foreach ($this->arrayRestrictions as $restriction) {
+			if (!$restriction->satisfy($array, 1)) {
+				throw new NotSatisfiedRestrictionException($array, $restriction, 1);
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * verify if a value may be removed from given comhon array
+	 *
+	 * @param \Comhon\Object\ComhonArray $array
+	 * @return boolean
+	 */
+	public function verifRemoveValue(ComhonArray $array) {
+		foreach ($this->arrayRestrictions as $restriction) {
+			if (!$restriction->satisfy($array, $array->count() == 0 ? 0 : -1)) {
+				throw new NotSatisfiedRestrictionException($array, $restriction, $array->count() == 0 ? 0 : -1);
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelContainer::isEqual()
+	 */
+	public function isEqual(AbstractModel $model) {
+		return parent::isEqual($model) &&
+		Restriction::compare($this->arrayRestrictions, $model->getArrayRestrictions()) &&
+		Restriction::compare($this->elementRestrictions, $model->getElementRestrictions());
 	}
 	
 }

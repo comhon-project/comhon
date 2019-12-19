@@ -85,6 +85,36 @@
             "name": "notNullForeign",
             "type": "\\Test\\Basic\\Standard",
             "not_null": true
+        },
+        {
+            "name": "notEmpty",
+            "type": "string",
+            "not_empty": true
+        },
+        {
+            "name": "notEmptyArray",
+            "type": "array",
+            "values": {
+                "type": "string",
+                "name": "notEmptyArrayValue",
+                "not_empty": true
+            },
+            "not_empty": true
+        },
+        {
+            "name": "length",
+            "type": "string",
+            "length": "[3,5]"
+        },
+        {
+            "name": "sizeArray",
+            "type": "array",
+            "values": {
+                "type": "string",
+                "name": "lengthArrayValue",
+                "length": "[3,4]"
+            },
+            "size": "[3,5]"
         }
     ]
 }

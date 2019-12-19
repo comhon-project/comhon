@@ -86,7 +86,7 @@ class Enum extends Restriction {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Restriction\Restriction::toString()
+	 * @see \Comhon\Model\Restriction\Restriction::toMessage()
 	 */
 	public function toMessage($value) {
 		if (!is_float($value) && !is_integer($value) && !is_string($value)) {

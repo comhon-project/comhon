@@ -12,27 +12,34 @@
 namespace Comhon\Exception\Value;
 
 use Comhon\Exception\ConstantException;
+use Comhon\Model\modelArray;
 use Comhon\Object\ComhonArray;
-use Comhon\Model\ModelRestrictedArray;
 
 class UnexpectedRestrictedArrayException extends UnexpectedValueTypeException {
 	
-	private $modelRestrictedArray;
+	private $modelArray;
 	
 	/**
-	 * @param mixed $value
-	 * @param \Comhon\Model\Restriction\Restriction $restriction
+	 * 
+	 * @param \Comhon\Object\ComhonArray $objectArray
+	 * @param \Comhon\Model\ModelArray $modelArray
 	 */
-	public function __construct(ComhonArray $objectArray, ModelRestrictedArray $modelRestrictedArray) {
-		$this->modelRestrictedArray = $modelRestrictedArray;
+	public function __construct(ComhonArray $objectArray, ModelArray $modelArray) {
+		$this->modelArray = $modelArray;
 		$expectedRestriction = '';
-		foreach ($modelRestrictedArray->getRestrictions() as $restriction) {
-			$expectedRestriction .= ' - ' . $restriction->toString() . PHP_EOL;
+		foreach ($modelArray->getArrayRestrictions() as $restriction) {
+			$expectedRestriction .= ' - ' . $restriction->toString() . '(on comhon array)' . PHP_EOL;
+		}
+		foreach ($modelArray->getElementRestrictions() as $restriction) {
+			$expectedRestriction .= ' - ' . $restriction->toString() . '(on elements)' . PHP_EOL;
 		}
 		$actualRestriction = '';
-		if ($objectArray->getModel() instanceof ModelRestrictedArray ) {
-			foreach ($objectArray->getModel()->getRestrictions() as $restriction) {
-				$actualRestriction .= ' - ' . $restriction->toString() . PHP_EOL;
+		if ($objectArray->getModel() instanceof modelArray ) {
+			foreach ($objectArray->getModel()->getArrayRestrictions() as $restriction) {
+				$actualRestriction .= ' - ' . $restriction->toString() . '(on comhon array)' . PHP_EOL;
+			}
+			foreach ($objectArray->getModel()->getElementRestrictions() as $restriction) {
+				$actualRestriction .= ' - ' . $restriction->toString() . '(on elements)' . PHP_EOL;
 			}
 		}
 		$class = get_class($objectArray);
@@ -44,8 +51,8 @@ class UnexpectedRestrictedArrayException extends UnexpectedValueTypeException {
 		$this->code = ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION;
 	}
 	
-	public function getModelRestrictedArray() {
-		return $this->modelRestrictedArray;
+	public function getModelArray() {
+		return $this->modelArray;
 	}
 	
 }

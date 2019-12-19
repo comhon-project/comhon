@@ -11,29 +11,23 @@
 
 namespace Comhon\Model\Restriction;
 
-use Comhon\Model\ModelString;
 use Comhon\Model\AbstractModel;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Model\ModelString;
 
-class Regex extends Restriction {
+class Length extends Interval {
 	
-	/** @var string */
-	private $regex;
-	
-	/**
-	 * 
-	 * @param string $name the name of a regex
-	 */
-	public function __construct($name) {
-		$this->regex = RegexCollection::getInstance()->getRegex($name);
+	public function __construct($interval) {
+		parent::__construct($interval, ModelManager::getInstance()->getInstanceModel('integer'));
 	}
 	
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::satisfy()
 	 */
 	public function satisfy($value) {
-		return preg_match($this->regex, $value) === 1;
+		return is_string($value) && parent::satisfy(strlen($value));
 	}
 	
 	/**
@@ -42,7 +36,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::isEqual()
 	 */
 	public function isEqual(Restriction $restriction) {
-		return $this === $restriction || (($restriction instanceof Regex) && $this->regex === $restriction->regex);
+		return parent::isEqual($restriction) && ($restriction instanceof Length);
 	}
 	
 	/**
@@ -62,19 +56,17 @@ class Regex extends Restriction {
 	public function toMessage($value) {
 		if (!is_string($value)) {
 			$class = gettype($value) == 'object' ? get_class($value) : gettype($value);
-			return "Value passed to Regex must be a string, instance of $class given";
+			return "Value passed to Length must be a string, instance of $class given";
 		}
-		return $value . ($this->satisfy($value) ? ' ' : ' doesn\'t ')
-			. 'satisfy regex ' . $this->regex;
-	}
-	
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Restriction\Restriction::toString()
-	 */
-	public function toString() {
-		return $this->regex;
+		
+		return 'length ' . strlen($value) . ' of given string'
+			. ' is' . ($this->satisfy($value) ? ' ' : ' not ')
+			. 'in length range '
+			. ($this->isLeftClosed ? '[' : ']')
+			. $this->leftEndPoint
+			. ','
+			. $this->rightEndPoint
+			. ($this->isRightClosed ? ']' : '[');
 	}
 	
 }

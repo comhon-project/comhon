@@ -18,6 +18,7 @@ use Comhon\Object\ComhonDateTime;
 use Comhon\Exception\Restriction\MalformedIntervalException;
 use Comhon\Exception\Restriction\NotSupportedModelIntervalException;
 use Comhon\Model\AbstractModel;
+use Comhon\Model\SimpleModel;
 
 class Interval extends Restriction {
 	
@@ -44,25 +45,28 @@ class Interval extends Restriction {
 	const INTEGER_INTERVAL  = '/^([\\[\\]])\\s*((?:-?\\d+)|(?:\\d*))\\s*,\\s*((?:-?\\d+)|(?:\\d*))\\s*([\\[\\]])$/';
 	
 	/** @var mixed */
-	private $leftEndPoint  = null;
+	protected $leftEndPoint  = null;
 	
 	/** @var mixed */
-	private $rightEndPoint = null;
+	protected $rightEndPoint = null;
 	
 	/** @var boolean */
-	private $isLeftClosed  = true;
+	protected $isLeftClosed  = true;
 	
 	/** @var boolean */
-	private $isRightClosed = true;
+	protected $isRightClosed = true;
+	
+	/** @var \Comhon\Model\SimpleModel */
+	private $model;
 	
 	/**
 	 * 
 	 * @param string $interval
-	 * @param \Comhon\Model\AbstractModel $model
+	 * @param \Comhon\Model\SimpleModel $model
 	 * @throws \Comhon\Exception\Restriction\MalformedIntervalException
 	 * @throws \Comhon\Exception\Restriction\NotSupportedModelIntervalException
 	 */
-	public function __construct($interval, AbstractModel $model) {
+	public function __construct($interval, SimpleModel $model) {
 		$matches = [];
 		if ($model instanceof ModelFloat) {
 			if (!preg_match(self::FLOAT_INTERVAL, $interval, $matches)) {
@@ -93,6 +97,7 @@ class Interval extends Restriction {
 		$this->isRightClosed = $matches[4] === ']';
 		$this->leftEndPoint  = $matches[2];
 		$this->rightEndPoint = $matches[3];
+		$this->model = $model;
 		
 		if ($this->leftEndPoint > $this->rightEndPoint) {
 			throw new MalformedIntervalException($interval);
@@ -139,6 +144,7 @@ class Interval extends Restriction {
 		return $this === $restriction
 			|| (
 				($restriction instanceof Interval)
+				&& $this->model === $restriction->model
 				&& $this->isLeftClosed  === $restriction->isLeftClosed
 				&& $this->isRightClosed === $restriction->isRightClosed
 				&& $this->leftEndPoint  === $restriction->leftEndPoint
@@ -152,15 +158,13 @@ class Interval extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::isAllowedModel()
 	 */
 	public function isAllowedModel(AbstractModel $model) {
-		return ($model instanceof ModelInteger)
-			|| ($model instanceof ModelFloat)
-			|| ($model instanceof ModelDateTime);
+		return $model === $this->model;
 	}
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Restriction\Restriction::toString()
+	 * @see \Comhon\Model\Restriction\Restriction::toMessage()
 	 */
 	public function toMessage($value) {
 		if (!is_float($value) && !is_integer($value) && !($value instanceof ComhonDateTime)) {

@@ -18,13 +18,15 @@ use Comhon\Model\ModelContainer;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
-use Comhon\Model\ModelComhonObject;
+use Comhon\Model\AbstractModel;
+use Comhon\Model\Restriction\Restriction;
+use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
 
 final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	
 	/**
 	 *
-	 * @param string|\Comhon\Model\ModelComhonObject $model can be a model name or an instance of model
+	 * @param string|\Comhon\Model\ModelComhonObject|\Comhon\Model\SimpleModel $model can be a model name or an instance of model
 	 * @param boolean $isLoaded
 	 * @param string $elementName
 	 * @param boolean $isAssociative not used if first parameter is instance of ModelArray
@@ -33,15 +35,15 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 		if ($model instanceof ModelArray) {
 			$objectModel = $model;
 		} else {
-			$elementModel = ($model instanceof ModelComhonObject) ? $model : ModelManager::getInstance()->getInstanceModel($model);
+			$elementModel = ($model instanceof AbstractModel) ? $model : ModelManager::getInstance()->getInstanceModel($model);
 		
 			if ($elementModel instanceof ModelContainer) {
-				throw new ComhonException('ComhonObject cannot have ModelContainer except ModelArray');
+				throw new ComhonException('ComhonArray cannot have ModelContainer except ModelArray');
 			}
 			$objectModel = new ModelArray($elementModel, $isAssociative, is_null($elementName) ? $elementModel->getShortName() : $elementName);
 		}
-		$this->setIsLoaded($isLoaded);
 		$this->_affectModel($objectModel);
+		$this->setIsLoaded($isLoaded);
 	}
 	
 	/**
@@ -72,27 +74,6 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	}
 	
 	/**
-	 * set values
-	 * 
-	 * @param mixed $values
-	 * @param string $flagAsUpdated
-	 */
-	final public function setValues($values, $flagAsUpdated = true) {
-		foreach ($values as $value) {
-			try {
-				$this->getModel()->verifElementValue($value);
-			}
-			catch (NotSatisfiedRestrictionException $e) {
-				throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
-			}
-			catch (UnexpectedValueTypeException $e) {
-				throw new UnexpectedValueTypeException($value, $e->getExpectedType());
-			}
-		}
-		$this->_setValues($values, $flagAsUpdated);
-	}
-	
-	/**
 	 * add value at the end of array self::$values
 	 * 
 	 * @param mixed $value
@@ -100,12 +81,15 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 */
 	final public function pushValue($value, $flagAsUpdated = true) {
 		try {
+			if ($this->isLoaded()) {
+				$this->getModel()->verifAddValue($this);
+			}
 			$this->getModel()->verifElementValue($value);
-		}
-		catch (NotSatisfiedRestrictionException $e) {
-			throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
-		}
-		catch (UnexpectedValueTypeException $e) {
+		} catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
+		} catch (UnexpectedRestrictedArrayException $e) {
+			throw new UnexpectedRestrictedArrayException($value, $e->getModelArray());
+		} catch (UnexpectedValueTypeException $e) {
 			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
 		$this->_pushValue($value, $flagAsUpdated);
@@ -118,6 +102,13 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 * @return mixed the last value of array. If array is empty,null will be returned.
 	 */
 	final public function popValue($flagAsUpdated = true) {
+		try {
+			if ($this->isLoaded()) {
+				$this->getModel()->verifRemoveValue($this);
+			}
+		} catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
+		}
 		return $this->_popValue($flagAsUpdated);
 	}
 	
@@ -129,12 +120,15 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 */
 	final public function unshiftValue($value, $flagAsUpdated = true) {
 		try {
+			if ($this->isLoaded()) {
+				$this->getModel()->verifAddValue($this);
+			}
 			$this->getModel()->verifElementValue($value);
-		}
-		catch (NotSatisfiedRestrictionException $e) {
-			throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
-		}
-		catch (UnexpectedValueTypeException $e) {
+		} catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
+		} catch (UnexpectedRestrictedArrayException $e) {
+			throw new UnexpectedRestrictedArrayException($value, $e->getModelArray());
+		} catch (UnexpectedValueTypeException $e) {
 			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
 		$this->_unshiftValue($value, $flagAsUpdated);
@@ -147,16 +141,51 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 * @return mixed the first value of array. If array is empty,null will be returned.
 	 */
 	final public function shiftValue($flagAsUpdated = true) {
+		try {
+			if ($this->isLoaded()) {
+				$this->getModel()->verifRemoveValue($this);
+			}
+		} catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
+		}
 		return $this->_shiftValue($flagAsUpdated);
 	}
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\AbstractComhonObject::_verifyValueBeforeSet()
+	 * @see \Comhon\Object\AbstractComhonObject::setValue()
 	 */
-	protected function _verifyValueBeforeSet($name, $value, &$flagAsUpdated) {
-		$this->getModel()->verifElementValue($value);
+	final public function setValue($name, $value, $flagAsUpdated = true) {
+		try {
+			if ($this->isLoaded() && !$this->hasValue($name)) {
+				$this->getModel()->verifAddValue($this);
+			}
+			$this->getModel()->verifElementValue($value);
+		} catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
+		} catch (UnexpectedRestrictedArrayException $e) {
+			throw new UnexpectedRestrictedArrayException($value, $e->getModelArray());
+		} catch (UnexpectedValueTypeException $e) {
+			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
+		}
+		parent::setValue($name, $value, $flagAsUpdated);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::unsetValue()
+	 */
+	final public function unsetValue($name, $flagAsUpdated = true) {
+		try {
+			if ($this->isLoaded() && $this->hasValue($name)) {
+				$this->getModel()->verifRemoveValue($this);
+			}
+		} catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
+		}
+		parent::unsetValue($name, $flagAsUpdated);
 	}
 	
 	/**
@@ -267,6 +296,16 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 		return $this->isFlagedAsUpdated();
 	}
 	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::validate()
+	 */
+	final public function validate() {
+		if (!$this->isLoaded() && !is_null($restriction = Restriction::getFirstNotSatisifed($this->getModel()->getArrayRestrictions(), $this))) {
+			throw new NotSatisfiedRestrictionException($this, $restriction);
+		}
+	}
 	
 	/**
 	 * get count of element in array self::values
@@ -285,7 +324,7 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 		return get_class($this) . "({$this->getModel()->getUniqueModel()->getName()})";
 	}
 	
-	/***********************************************************************************************\
+	 /***********************************************************************************************\
 	 |                                                                                               |
 	 |                                      Model - Properties                                       |
 	 |                                                                                               |

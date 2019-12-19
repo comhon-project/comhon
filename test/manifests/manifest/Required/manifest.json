@@ -1,0 +1,57 @@
+{
+    "version": "3.0",
+    "types": [
+        {
+            "name": "localRestricted",
+            "properties": [
+                {
+                    "name": "value",
+                    "type": "string"
+                },
+                {
+                    "name": "valueRequired",
+                    "type": "string",
+                    "is_required": true
+                },
+                {
+                    "name": "valueNotRequired",
+                    "type": "string",
+                    "is_required": false
+                }
+            ]
+        },
+        {
+            "name": "localRestrictedExtended",
+            "extends": [
+                "\\Test\\Required\\localRestricted"
+            ],
+            "properties": [
+                {
+                    "name": "valueRequiredExtended",
+                    "type": "string",
+                    "is_required": true
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "value",
+            "type": "string"
+        },
+        {
+            "name": "valueRequired",
+            "type": "string",
+            "is_required": true
+        },
+        {
+            "name": "valueNotRequired",
+            "type": "string",
+            "is_required": false
+        },
+        {
+            "name": "valueComplex",
+            "type": "localRestricted"
+        }
+    ]
+}

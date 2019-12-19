@@ -11,29 +11,20 @@
 
 namespace Comhon\Model\Restriction;
 
-use Comhon\Model\ModelString;
 use Comhon\Model\AbstractModel;
+use Comhon\Model\ModelArray;
+use Comhon\Object\ComhonArray;
 
-class Regex extends Restriction {
-	
-	/** @var string */
-	private $regex;
-	
-	/**
-	 * 
-	 * @param string $name the name of a regex
-	 */
-	public function __construct($name) {
-		$this->regex = RegexCollection::getInstance()->getRegex($name);
-	}
+class NotEmptyArray extends Restriction {
 	
 	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::satisfy()
+	 * @param integer $increment
 	 */
-	public function satisfy($value) {
-		return preg_match($this->regex, $value) === 1;
+	public function satisfy($value, $increment = 0) {
+		return ($value instanceof ComhonArray) ?  ($value->count() + $increment > 0) : !empty($value);
 	}
 	
 	/**
@@ -42,7 +33,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::isEqual()
 	 */
 	public function isEqual(Restriction $restriction) {
-		return $this === $restriction || (($restriction instanceof Regex) && $this->regex === $restriction->regex);
+		return $this === $restriction || (($restriction instanceof NotEmptyArray));
 	}
 	
 	/**
@@ -51,21 +42,21 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::isAllowedModel()
 	 */
 	public function isAllowedModel(AbstractModel $model) {
-		return $model instanceof ModelString;
+		return $model instanceof ModelArray;
 	}
 	
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::toMessage()
+	 * @param integer $increment
 	 */
-	public function toMessage($value) {
-		if (!is_string($value)) {
-			$class = gettype($value) == 'object' ? get_class($value) : gettype($value);
-			return "Value passed to Regex must be a string, instance of $class given";
-		}
-		return $value . ($this->satisfy($value) ? ' ' : ' doesn\'t ')
-			. 'satisfy regex ' . $this->regex;
+	public function toMessage($value, $increment = 0) {
+		return $this->satisfy($value, $increment)
+			? 'value is not empty'
+			: ($increment == -1 
+				? 'trying to modify comhon array and make it empty, value must be not empty' 
+				: 'value is empty, value must be not empty');
 	}
 	
 	/**
@@ -74,7 +65,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
 	public function toString() {
-		return $this->regex;
+		return 'Not empty';
 	}
 	
 }

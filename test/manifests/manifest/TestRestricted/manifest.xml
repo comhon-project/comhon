@@ -43,5 +43,13 @@
       </values>
     </property>
     <property type="\Test\Basic\Standard" name="notNullForeign" not_null="1"/>
+    <property type="string" name="notEmpty" not_empty="1"/>
+    <property type="array" name="notEmptyArray" not_empty="1">
+      <values type="string" name="notEmptyArrayValue" not_empty="1"/>
+    </property>
+    <property type="string" name="length" length="[3,5]"/>
+    <property type="array" name="sizeArray" size="[3,5]">
+      <values type="string" name="lengthArrayValue" length="[3,4]"/>
+    </property>
   </properties>
 </manifest>

@@ -8,7 +8,6 @@ use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Exception\ComhonException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Exception\Interfacer\ImportException;
 
@@ -148,36 +147,42 @@ $dbTestModel->fillObject($newObject, $copiedObject->export($stdPrivateInterfacer
 
 $newObject = $objectTestDb;
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $dbTestModel->fillObject($newObject, $copiedObject->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 if (json_encode($newObject->export($stdPrivateInterfacer)) !== $privateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $dbTestModel->fillObject($newObject, $copiedObject->export($stdPublicInterfacer), $stdPublicInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $dbTestModel->fillObject($newObject, $copiedObject->export($stdSerialInterfacer), $stdSerialInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
 	throw new \Exception('bad serial object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $newObject->fill($copiedObject->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 if (json_encode($newObject->export($stdPrivateInterfacer)) !== $privateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $newObject->fill($copiedObject->export($stdPrivateInterfacer), $stdPublicInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $newObject->fill($copiedObject->export($stdSerialInterfacer), $stdSerialInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
@@ -205,36 +210,42 @@ if (json_encode($dbTestModel->import($copiedObject->export($xmlPrivateInterfacer
 	throw new \Exception('bad public object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $dbTestModel->fillObject($newObject, $copiedObject->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
 if (json_encode($newObject->export($stdPrivateInterfacer)) !== $privateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $dbTestModel->fillObject($newObject, $copiedObject->export($xmlPublicInterfacer), $xmlPublicInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $dbTestModel->fillObject($newObject, $copiedObject->export($xmlSerialInterfacer), $xmlSerialInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
 	throw new \Exception('bad serial object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $newObject->fill($copiedObject->export($xmlPrivateInterfacer), $xmlPrivateInterfacer);
 if (json_encode($newObject->export($stdPrivateInterfacer)) !== $privateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $newObject->fill($copiedObject->export($xmlPrivateInterfacer), $xmlPublicInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $newObject->fill($copiedObject->export($xmlSerialInterfacer), $xmlSerialInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
@@ -262,36 +273,42 @@ if (json_encode($dbTestModel->import($copiedObject->export($flattenArrayPrivateI
 	throw new \Exception('bad public object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $dbTestModel->fillObject($newObject, $copiedObject->export($flattenArrayPrivateInterfacer), $flattenArrayPrivateInterfacer);
 if (json_encode($newObject->export($stdPrivateInterfacer)) !== $privateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $dbTestModel->fillObject($newObject, $copiedObject->export($flattenArrayPublicInterfacer), $flattenArrayPublicInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $dbTestModel->fillObject($newObject, $copiedObject->export($flattenArraySerialInterfacer), $flattenArraySerialInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
 	throw new \Exception('bad serial object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $newObject->fill($copiedObject->export($stdPrivateInterfacer), $stdPrivateInterfacer);
 if (json_encode($newObject->export($stdPrivateInterfacer)) !== $privateStdObject) {
 	throw new \Exception('bad private object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $newObject->fill($copiedObject->export($stdPrivateInterfacer), $stdPublicInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
 	throw new \Exception('bad public object value');
 }
 $newObject->reset();
+$newObject->setIsLoaded(true);
 $newObject->setValue('defaultValue', 'plop');
 $newObject->fill($copiedObject->export($stdSerialInterfacer), $stdSerialInterfacer);
 if (json_encode($newObject->export($stdPublicInterfacer)) !== $publicStdObject) {
@@ -346,7 +363,11 @@ foreach ($testDbs as $testDb) {
 	}
 }
 ksort($orderedTestDbs);
-$testDbs->setValues($orderedTestDbs);
+$testDbs->reset();
+$testDbs->setIsLoaded(true);
+foreach ($orderedTestDbs as $orderedTestDb) {
+	$testDbs->pushValue($orderedTestDb);
+}
 
 $privateStdObject = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":null,"objectWithId":null,"string":"aaaa","integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"string":"bbbb","integer":1,"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"cccc","integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"string":"nnnn","integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","plop4":"heyplop4","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","plop3":"heyplop3","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","plop3":"heyplop33","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"string":"dddd","integer":3,"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","mainParentTestDb":1,"date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"objectWithId":null,"string":"eeee","integer":4,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}]';
 $publicStdObject  = '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":null,"objectWithId":null,"integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"50","date":"2016-10-16T20:21:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":1,"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"50","date":"2016-05-01T23:37:18+02:00","timestamp":"2016-10-16T21:50:19+02:00","object":{"plop":"plop","plop2":"plop2222"},"objectWithId":{"plop":"plop","plop2":"plop2222"},"integer":3,"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"boolean":false,"boolean2":true},{"defaultValue":"default","id1":2,"id2":"102","mainParentTestDb":1,"date":"2016-04-01T08:00:00+02:00","timestamp":"2016-10-16T18:21:18+02:00","object":{"plop":"plop10","plop2":"plop20"},"objectWithId":null,"integer":4,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}]';
@@ -414,6 +435,7 @@ function resetValues(ComhonArray $objectArray) {
 	foreach ($objectArray as $object) {
 		$id = $object->getId();
 		$object->reset();
+		$object->setIsLoaded(true);
 		$object->setId($id, false);
 	}
 }

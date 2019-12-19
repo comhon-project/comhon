@@ -213,6 +213,12 @@ function getProperties($xml) {
 			if (isset($child->values['not_null']) && ((string) $child->values['not_null'] == '1')) {
 				$json->values->not_null = true;
 			}
+			if (isset($child->values['not_empty']) && ((string) $child->values['not_empty'] == '1')) {
+				$json->values->not_empty = true;
+			}
+			if (isset($child->values['length'])) {
+				$json->values->length = (string) $child->values['length'];
+			}
 		}
 		else {
 			if (isset($child->enum)) {
@@ -234,8 +240,20 @@ function getProperties($xml) {
 				$json->pattern = (string) $child['pattern'];
 			}
 		}
+		if (isset($child['length'])) {
+			$json->length = (string) $child['length'];
+		}
+		if (isset($child['size'])) {
+			$json->size = (string) $child['size'];
+		}
+		if (isset($child['is_required']) && ((string) $child['is_required'] == '1')) {
+			$json->is_required = true;
+		}
 		if (isset($child['not_null']) && ((string) $child['not_null'] == '1')) {
 			$json->not_null = true;
+		}
+		if (isset($child['not_empty']) && ((string) $child['not_empty'] == '1')) {
+			$json->not_empty = true;
 		}
 		if (isset($child['is_foreign']) && ((string) $child['is_foreign'] == '1')) {
 			$json->is_foreign = true;

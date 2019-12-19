@@ -12,7 +12,6 @@
 namespace Comhon\Model;
 
 use Comhon\Interfacer\Interfacer;
-use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
 
 abstract class AbstractModel {

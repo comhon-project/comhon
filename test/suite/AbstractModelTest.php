@@ -12,6 +12,7 @@ use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Interfacer\Interfacer;
+use Comhon\Exception\Interfacer\ExportException;
 
 class AbstractModelTest extends TestCase
 {
@@ -124,5 +125,25 @@ class AbstractModelTest extends TestCase
 		// filter property is foreign so object is NOT loaded and may be instanciated
 		$obj = $interfacer->import(['filter' => [Interfacer::COMPLEX_ID_KEY => 2, Interfacer::INHERITANCE_KEY => 'Comhon\Logic\Simple\Formula']], $model);
 		$this->assertFalse($obj->getValue('filter')->isLoaded());
+	}
+	
+	public function testExportInvalid() {
+		
+		$interfacer = new AssocArrayInterfacer();
+		
+		$modelAbstract = ModelManager::getInstance()->getInstanceModel('Test\Extends\Abstract\IsAbstract');
+		$obj = new ComhonObject($modelAbstract, false);
+		
+		$thrown = false;
+		try {
+			$obj->export($interfacer);
+		} catch (ExportException $e) {
+			$thrown = true;
+			$this->assertEquals($e->getStringifiedProperties(), '.');
+			$this->assertEquals(get_class($e->getOriginalException()), AbstractObjectException::class);
+			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::ABSTRACT_OBJECT_EXCEPTION);
+			$this->assertEquals($e->getOriginalException()->getMessage(), "model 'Test\Extends\Abstract\IsAbstract' is abstract. Objects with abstract model cannot be flagged as loaded");
+		}
+		$this->assertTrue($thrown);
 	}
 }

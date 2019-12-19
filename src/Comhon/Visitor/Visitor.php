@@ -14,7 +14,6 @@ namespace Comhon\Visitor;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\ComhonArray;
 use Comhon\Exception\Visitor\VisitorParameterException;
-use Comhon\Object\UniqueObject;
 
 abstract class Visitor {
 	

@@ -1,0 +1,25 @@
+<manifest version="3.0">
+  <types>
+    <type name="localRestricted">
+      <properties>
+        <property type="string" name="value"/>
+        <property type="string" name="valueRequired" is_required="1"/>
+        <property type="string" name="valueNotRequired" is_required="0"/>
+      </properties>
+    </type>
+    <type name="localRestrictedExtended">
+      <extends>
+        <type>\Test\Required\localRestricted</type>
+      </extends>
+      <properties>
+        <property type="string" name="valueRequiredExtended" is_required="1"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="string" name="value"/>
+    <property type="string" name="valueRequired" is_required="1"/>
+    <property type="string" name="valueNotRequired" is_required="0"/>
+    <property type="localRestricted" name="valueComplex"/>
+  </properties>
+</manifest>

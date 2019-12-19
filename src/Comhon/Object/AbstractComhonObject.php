@@ -15,13 +15,10 @@ use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\Value\UnexpectedValueTypeException;
-use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Model\ModelComhonObject;
 use Comhon\Model\ModelContainer;
-use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
 
 abstract class AbstractComhonObject {
 
@@ -82,16 +79,7 @@ abstract class AbstractComhonObject {
 	 * @param mixed $value
 	 * @param boolean $flagAsUpdated if true, flag value as updated
 	 */
-	final public function setValue($name, $value, $flagAsUpdated = true) {
-		try {
-			$this->_verifyValueBeforeSet($name, $value, $flagAsUpdated);
-		} catch (NotSatisfiedRestrictionException $e) {
-			throw new NotSatisfiedRestrictionException($value, $e->getRestriction());
-		} catch (UnexpectedRestrictedArrayException $e) {
-			throw new UnexpectedRestrictedArrayException($value, $e->getModelRestrictedArray());
-		} catch (UnexpectedValueTypeException $e) {
-			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
-		}
+	public function setValue($name, $value, $flagAsUpdated = true) {
 		if ($this->_hasToUpdateMainObjectCollection($name)) {
 			if ($this->hasCompleteId() && MainObjectCollection::getInstance()->getObject($this->getId(), $this->model->getName()) === $this) {
 				MainObjectCollection::getInstance()->removeObject($this, false);
@@ -170,7 +158,7 @@ abstract class AbstractComhonObject {
 	 * @param string $name
 	 * @param boolean $flagAsUpdated
 	 */
-	final public function unsetValue($name, $flagAsUpdated = true) {
+	public function unsetValue($name, $flagAsUpdated = true) {
 		if ($this->hasValue($name)) {
 			if ($this->_hasToUpdateMainObjectCollection($name)) {
 				MainObjectCollection::getInstance()->removeObject($this);
@@ -210,28 +198,18 @@ abstract class AbstractComhonObject {
 	}
 	
 	/**
-	 * 
-	 * verify value before set.
-	 * Warning! $flagAsUpdated is a reference so it can be updated
-	 * 
-	 * @param string $name
-	 * @param mixed $value
-	 * @param bool $flagAsUpdated
-	 */
-	abstract protected function _verifyValueBeforeSet($name, $value, &$flagAsUpdated);
-	
-	/**
-	 * reset values and reset update status
+	 * reset values, reset update status and unload object
 	 */
 	abstract public function reset();
 	
 	/**
-	 * reset values and reset update status
+	 * reset values, reset update status and unload object
 	 */
 	final protected function _reset() {
 		$this->values = [];
 		$this->isUpdated = false;
 		$this->updatedValues = [];
+		$this->isLoaded = false;
 	}
 	
 	/***********************************************************************************************\
@@ -470,9 +448,21 @@ abstract class AbstractComhonObject {
 	 * 
 	 * @param boolean $isLoaded
 	 */
-	public function setIsLoaded($isLoaded) {
+	final public function setIsLoaded($isLoaded) {
+		if ($isLoaded && !$this->isLoaded) {
+			$this->validate();
+		}
 		$this->isLoaded = $isLoaded;
 	}
+	
+	/**
+	 * validate object.
+	 * throw exception if object is not valid.
+	 * no need to call validate function on loaded objects, they are already validated.
+	 *
+	 * @param boolean $isLoaded
+	 */
+	abstract  public function validate();
 	
 	/***********************************************************************************************\
 	|                                                                                               |

@@ -42,6 +42,15 @@ abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	}
 	
 	/**
+	 * get short name of model (name without namespace)
+	 *
+	 * @return string
+	 */
+	public function getShortName() {
+		return $this->modelName;
+	}
+	
+	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::isLoaded()

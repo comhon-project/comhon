@@ -102,6 +102,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var \Comhon\Model\Property\Property[] */
 	private $dateTimeProperties = [];
 	
+	/** @var \Comhon\Model\Property\Property[] */
+	private $requiredProperties = [];
+	
 	/** @var Property */
 	private $uniqueIdProperty;
 	
@@ -210,52 +213,36 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	protected function _setProperties($properties) {
 		$publicIdProperties = [];
 		
-		// first we register id properties to be sure to have them in first positions
 		foreach ($properties as $property) {
 			if ($property->isId()) {
 				$this->idProperties[$property->getName()] = $property;
 				if (!$property->isPrivate()) {
 					$publicIdProperties[$property->getName()] = $property;
 				}
-				if ($property->isSerializable()) {
-					$this->serializableProperties[$property->getName()] = $property;
-					if (!$property->isPrivate()) {
-						$this->publicSerializableProperties[$property->getName()] = $property;
-					}
-				}
-				if (!$property->isPrivate()) {
-					$this->publicProperties[$property->getName()] = $property;
-				}
-				$this->properties[$property->getName()] = $property;
 			}
-		}
-		// second we register others properties
-		foreach ($properties as $property) {
-			if (!$property->isId()) {
-				if ($property->hasDefaultValue()) {
-					$this->propertiesWithDefaultValues[$property->getName()] = $property;
-				} else if ($property->isAggregation()) {
-					$this->aggregations[$property->getName()] = $property;
-				} else if ($property->hasMultipleSerializationNames()) {
-					$this->multipleForeignProperties[$property->getName()] = $property;
-				}
-				if ($property->isSerializable()) {
-					$this->serializableProperties[$property->getName()] = $property;
-					if (!$property->isPrivate()) {
-						$this->publicSerializableProperties[$property->getName()] = $property;
-					}
-				}
-				if (!$property->isPrivate()) {
-					$this->publicProperties[$property->getName()] = $property;
-				}
-				if ($property->isComplex()) {
-					$this->complexProperties[$property->getName()] = $property;
-				}
-				if ($property->hasModelDateTime()) {
-					$this->dateTimeProperties[$property->getName()] = $property;
-				}
-				$this->properties[$property->getName()] = $property;
+			if ($property->hasDefaultValue()) {
+				$this->propertiesWithDefaultValues[$property->getName()] = $property;
+			} else if ($property->isAggregation()) {
+				$this->aggregations[$property->getName()] = $property;
+			} else if ($property->hasMultipleSerializationNames()) {
+				$this->multipleForeignProperties[$property->getName()] = $property;
 			}
+			if ($property->isSerializable()) {
+				$this->serializableProperties[$property->getName()] = $property;
+			}
+			if (!$property->isPrivate()) {
+				$this->publicProperties[$property->getName()] = $property;
+			}
+			if ($property->isComplex()) {
+				$this->complexProperties[$property->getName()] = $property;
+			}
+			if ($property->hasModelDateTime()) {
+				$this->dateTimeProperties[$property->getName()] = $property;
+			}
+			if ($property->isRequired()) {
+				$this->requiredProperties[$property->getName()] = $property;
+			}
+			$this->properties[$property->getName()] = $property;
 		}
 		if (count($this->idProperties) == 1) {
 			reset($this->idProperties);
@@ -689,11 +676,20 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	
 	/**
 	 * get aggregation proprties
-	 * 
+	 *
 	 * @return \Comhon\Model\Property\AggregationProperty[]:
 	 */
 	public function getAggregationProperties() {
 		return $this->aggregations;
+	}
+	
+	/**
+	 * get required proprties
+	 *
+	 * @return \Comhon\Model\Property\Property[]:
+	 */
+	public function getRequiredProperties() {
+		return $this->requiredProperties;
 	}
 	
 	/**
@@ -911,10 +907,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @see \Comhon\Model\AbstractModel::_export()
 	 */
 	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
-		/** @var \Comhon\Object\ComhonObject $object */
+		/** @var \Comhon\Object\UniqueObject $object */
 		if (is_null($object)) {
 			return null;
 		}
+		$object->validate();
+		
 		$node              = $interfacer->createNode($nodeName);
 		$private           = $interfacer->isPrivateContext();
 		$isSerialContext   = $interfacer->isSerialContext();
@@ -1155,10 +1153,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return \Comhon\Object\AbstractComhonObject
 	 */
 	protected function _getOrCreateObjectInstance($id, Interfacer $interfacer, $isFirstLevel, $isForeign, ObjectCollectionInterfacer $objectCollectionInterfacer) {
-		$isloaded = !$isForeign && (!$isFirstLevel || $interfacer->hasToFlagObjectAsLoaded());
-		
 		if (is_null($id) || !$this->hasIdProperties()) {
-			$object = $this->getObjectInstance($isloaded);
+			$object = $this->getObjectInstance(false);
 		}
 		else {
 			$key = ObjectCollection::getModelKey($this)->getName();
@@ -1170,7 +1166,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				$object = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
 			}
 			if (is_null($object)) {
-				$object = $this->_buildObjectFromId($id, $isloaded, $interfacer->hasToFlagValuesAsUpdated());
+				$object = $this->_buildObjectFromId($id, false, $interfacer->hasToFlagValuesAsUpdated());
 				$objectCollectionInterfacer->addObject($object, $isForeign);
 			}
 			else {
@@ -1181,9 +1177,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					$object->reset(false);
 				}
 				$objectCollectionInterfacer->addObject($object, $isForeign);
-				if ($isloaded || ($isFirstLevel && $interfacer->getMergeType() !== Interfacer::MERGE)) {
-					$object->setIsLoaded($isloaded);
-				}
 			}
 		}
 		return $object;
@@ -1266,11 +1259,16 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					: $startObject;
 				$objectCollectionInterfacer = new ObjectCollectionInterfacer();
 				$objectCollectionInterfacer->addObject($object, false);
+				$isLoaded = $object->isLoaded();
 				$object->reset();
 				$this->_fillObject($object, $interfacedObject, $interfacer, true, $objectCollectionInterfacer);
+				$object->setIsLoaded($isLoaded);
 				break;
 			default:
 				throw new ComhonException('undefined merge type '.$interfacer->getMergeType());
+		}
+		if ($interfacer->hasToFlagObjectAsLoaded()) {
+			$object->setIsLoaded(true);
 		}
 		if ($interfacer->hasToVerifyReferences()) {
 			$this->_verifyReferences($object, $objectCollectionInterfacer);
@@ -1469,6 +1467,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					throw new ImportException($e, $propertyName);
 				}
 			}
+		}
+		if (!$isFirstLevel) {
+			$object->setIsLoaded(true);
 		}
 	}
 	

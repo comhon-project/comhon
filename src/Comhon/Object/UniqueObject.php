@@ -18,6 +18,10 @@ use Comhon\Exception\ComhonException;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Model\Model;
 use Comhon\Exception\Object\AbstractObjectException;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
+use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
+use Comhon\Exception\Object\MissingRequiredValueException;
 
 abstract class UniqueObject extends AbstractComhonObject {
 	
@@ -101,19 +105,46 @@ abstract class UniqueObject extends AbstractComhonObject {
 	}
 	
 	/**
-	 *
+	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Object\AbstractComhonObject::_verifyValueBeforeSet()
+	 * @see \Comhon\Object\AbstractComhonObject::setValue()
 	 */
-	protected function _verifyValueBeforeSet($name, $value, &$flagAsUpdated) {
-		$property = $this->getModel()->getProperty($name, true);
-		if (!is_null($value)) {
-			$property->getModel()->verifValue($value);
+	final public function setValue($name, $value, $flagAsUpdated = true) {
+		try {
+			$property = $this->getModel()->getProperty($name, true);
+			if (!is_null($value)) {
+				$property->getModel()->verifValue($value);
+			}
+			$property->isSatisfiable($value, true);
+			
+			if ($property->isAggregation()) {
+				$flagAsUpdated = false;
+			}
+		} catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction());
+		} catch (UnexpectedRestrictedArrayException $e) {
+			throw new UnexpectedRestrictedArrayException($value, $e->getModelArray());
+		} catch (UnexpectedValueTypeException $e) {
+			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
-		$property->isSatisfiable($value, true);
-		if ($property->isAggregation()) {
-			$flagAsUpdated = false;
+		
+		parent::setValue($name, $value, $flagAsUpdated);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::unsetValue()
+	 */
+	final public function unsetValue($name, $flagAsUpdated = true) {
+		try {
+			if ($this->isLoaded() && $this->hasValue($name) && $this->getModel()->getProperty($name)->isRequired()) {
+				throw new MissingRequiredValueException($this, $name, true);
+			}
+		} catch (NotSatisfiedRestrictionException $e) {
+			throw new NotSatisfiedRestrictionException($this, $e->getRestriction(), $e->getIncrement());
 		}
+		parent::unsetValue($name, $flagAsUpdated);
 	}
 	
 	 /***********************************************************************************************\
@@ -186,18 +217,6 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 |                                      ComhonObject Status                                      |
 	 |                                                                                               |
 	 \***********************************************************************************************/
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Object\AbstractComhonObject::setIsLoaded()
-	 */
-	final public function setIsLoaded($isLoaded) {
-		if ($isLoaded && $this->getModel()->isAbstract()) {
-			throw new AbstractObjectException($this);
-		}
-		parent::setIsLoaded($isLoaded);
-	}
 	
 	/**
 	 * 
@@ -318,6 +337,25 @@ abstract class UniqueObject extends AbstractComhonObject {
 		return $this->isCasted;
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::validate()
+	 */
+	final public function validate() {
+		if ($this->isLoaded()) {
+			return;
+		}
+		if ($this->getModel()->isAbstract()) {
+			throw new AbstractObjectException($this);
+		}
+		foreach ($this->getModel()->getRequiredProperties() as $name => $property) {
+			if (!$this->hasValue($name)) {
+				throw new MissingRequiredValueException($this, $name);
+			}
+		}
+	}
+	
 	 /***********************************************************************************************\
 	 |                                                                                               |
 	 |                                      Model - Properties                                       |
@@ -357,8 +395,10 @@ abstract class UniqueObject extends AbstractComhonObject {
 			$originalModel = $this->getModel();
 			$this->_setModel($model);
 
-			if ($this->getModel()->isAbstract() && $this->isLoaded()) {
-				throw new AbstractObjectException($this);
+			if ($this->isLoaded()) {
+				// force validate by reset load status
+				$this->setIsLoaded(false);
+				$this->setIsLoaded(true);
 			}
 			if ($this->getModel()->isMain() && $addObject) {
 				MainObjectCollection::getInstance()->addObject($this);

@@ -8,6 +8,7 @@ use Comhon\Object\Config\Config;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Object\ComhonObject;
+use Comhon\Exception\Interfacer\ImportException;
 
 class RequestTest extends TestCase
 {
@@ -80,7 +81,13 @@ class RequestTest extends TestCase
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
 		
 		$interfacedObject = $interfacer->read(self::$data_ad . 'complex.json');
-		$obj = $model->import($interfacedObject, $interfacer);
+		try {
+			$obj = $model->import($interfacedObject, $interfacer);
+		} catch (ImportException $e) {
+			var_dump($e->getStringifiedProperties());
+			var_dump($e->getMessage());
+			var_dump($e->getOriginalException()->getTraceAsString());
+		}
 		
 		$modelPerson = $obj->getValue('tree');
 		$modelRooms = $modelPerson->getValue('nodes')->getValue(1)->getValue('nodes')->getValue(0);

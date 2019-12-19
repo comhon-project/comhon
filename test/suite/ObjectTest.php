@@ -1,0 +1,50 @@
+<?php
+
+use PHPUnit\Framework\TestCase;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Interfacer\StdObjectInterfacer;
+use Test\Comhon\Data;
+use Comhon\Object\Config\Config;
+use Comhon\Object\Collection\MainObjectCollection;
+use Comhon\Object\Collection\ObjectCollection;
+
+class ObjectTest extends TestCase
+{
+	public static function setUpBeforeClass()
+	{
+		Config::setLoadPath(Data::$config);
+	}
+	
+	public function setUp()
+	{
+		MainObjectCollection::getInstance()->reset();
+	}
+	
+	public function testResetObject()
+	{
+		// comhon object
+		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
+		$object = $model->getObjectInstance();
+		$this->assertCount(0, $object->getValues());
+		$this->assertTrue($object->isLoaded());
+		$object->setValue('naturalNumber', 10);
+		$this->assertCount(1, $object->getValues());
+		
+		$object->reset();
+		$this->assertFalse($object->isLoaded());
+		$this->assertCount(0, $object->getValues());
+		
+		// comhon array
+		$array = $object->initValue('notEmptyArray', false);
+		$this->assertCount(0, $array->getValues());
+		$array->pushValue('aaa');
+		$array->setIsLoaded(true);
+		$this->assertTrue($array->isLoaded());
+		$this->assertCount(1, $array->getValues());
+		
+		$array->reset();
+		$this->assertFalse($array->isLoaded());
+		$this->assertCount(0, $array->getValues());
+	}
+	
+}

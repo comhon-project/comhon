@@ -347,6 +347,7 @@ foreach ($testDb->getValue('childrenTestDb') as $child) {
 $children = $testDb->getValue('childrenTestDb');
 $testDb1 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb');
 $testDb->reset();
+$testDb->setIsLoaded(true);
 $testDb2 = MainObjectCollection::getInstance()->getObject('[1,"1501774389"]', 'Test\TestDb');
 $testDb->setIsLoaded(false);
 $testDb->setId('[1,"1501774389"]', false);

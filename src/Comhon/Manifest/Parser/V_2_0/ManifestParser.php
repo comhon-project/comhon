@@ -20,13 +20,15 @@ use Comhon\Model\ModelInteger;
 use Comhon\Model\Restriction\Enum;
 use Comhon\Model\Restriction\Interval;
 use Comhon\Model\Restriction\Regex;
-use Comhon\Model\ModelContainer;
-use Comhon\Model\ModelRestrictedArray;
 use Comhon\Manifest\Parser\ManifestParser as ParentManifestParser;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\Manifest\ManifestException;
 use Comhon\Model\AbstractModel;
 use Comhon\Model\Restriction\NotNull;
+use Comhon\Model\Restriction\Size;
+use Comhon\Model\Restriction\Length;
+use Comhon\Model\Restriction\NotEmptyString;
+use Comhon\Model\Restriction\NotEmptyArray;
 
 class ManifestParser extends ParentManifestParser {
 
@@ -238,11 +240,16 @@ class ManifestParser extends ParentManifestParser {
 		if ($this->_getBooleanValue($currentNode, self::NOT_NULL, false)) {
 			$restrictions[] = new NotNull();
 		}
-		
 		if (!($model instanceof SimpleModel)) {
 			return $restrictions;
 		}
 		
+		if ($this->_getBooleanValue($currentNode, self::NOT_EMPTY, false)) {
+			$restrictions[] = new NotEmptyString();
+		}
+		if ($this->interfacer->hasValue($currentNode, self::LENGTH)) {
+			$restrictions[] = new Length($this->interfacer->getValue($currentNode, self::LENGTH));
+		}
 		if ($this->interfacer->hasValue($currentNode, self::ENUM, true)) {
 			$enumValues = $this->interfacer->getTraversableNode($this->interfacer->getValue($currentNode, self::ENUM, true));
 			if ($this->interfacer instanceof XMLInterfacer) {
@@ -322,12 +329,16 @@ class ManifestParser extends ParentManifestParser {
 			$isAssociative = $this->_getBooleanValue($propertyNode, self::IS_ASSOCIATIVE, false);
 			
 			$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
-			$restrictions = $this->_getRestrictions($valuesNode, $uniqueModel);
-			if (empty($restrictions)) {
-				$propertyModel = new ModelArray($subModel, $isAssociative, $valuesName);
-			} else {
-				$propertyModel = new ModelRestrictedArray($subModel, $restrictions, $isAssociative, $valuesName);
+			$elementRestrictions = $this->_getRestrictions($valuesNode, $uniqueModel);
+			$arrayRestrictions = [];
+				
+			if ($this->interfacer->hasValue($propertyNode, self::SIZE)) {
+				$arrayRestrictions[] = new Size($this->interfacer->getValue($propertyNode, self::SIZE));
 			}
+			if ($this->_getBooleanValue($propertyNode, self::NOT_EMPTY, false)) {
+				$arrayRestrictions[] = new NotEmptyArray();
+			}
+			$propertyModel = new ModelArray($subModel, $isAssociative, $valuesName, $arrayRestrictions, $elementRestrictions);
 		}
 		return $propertyModel;
 	}

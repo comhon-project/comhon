@@ -11,21 +11,10 @@
 
 namespace Comhon\Model\Restriction;
 
-use Comhon\Model\ModelString;
 use Comhon\Model\AbstractModel;
+use Comhon\Model\ModelString;
 
-class Regex extends Restriction {
-	
-	/** @var string */
-	private $regex;
-	
-	/**
-	 * 
-	 * @param string $name the name of a regex
-	 */
-	public function __construct($name) {
-		$this->regex = RegexCollection::getInstance()->getRegex($name);
-	}
+class NotEmptyString extends Restriction {
 	
 	/**
 	 * 
@@ -33,7 +22,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::satisfy()
 	 */
 	public function satisfy($value) {
-		return preg_match($this->regex, $value) === 1;
+		return !empty($value);
 	}
 	
 	/**
@@ -42,7 +31,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::isEqual()
 	 */
 	public function isEqual(Restriction $restriction) {
-		return $this === $restriction || (($restriction instanceof Regex) && $this->regex === $restriction->regex);
+		return $this === $restriction || (($restriction instanceof NotEmptyString));
 	}
 	
 	/**
@@ -54,18 +43,17 @@ class Regex extends Restriction {
 		return $model instanceof ModelString;
 	}
 	
+	
+	
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::toMessage()
 	 */
 	public function toMessage($value) {
-		if (!is_string($value)) {
-			$class = gettype($value) == 'object' ? get_class($value) : gettype($value);
-			return "Value passed to Regex must be a string, instance of $class given";
-		}
-		return $value . ($this->satisfy($value) ? ' ' : ' doesn\'t ')
-			. 'satisfy regex ' . $this->regex;
+		return $this->satisfy($value)
+			? 'value is not empty'
+			: 'value is empty, value must be not empty';
 	}
 	
 	/**
@@ -74,7 +62,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
 	public function toString() {
-		return $this->regex;
+		return 'Not empty';
 	}
 	
 }

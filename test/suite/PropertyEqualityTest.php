@@ -7,7 +7,6 @@ use Comhon\Model\Property\AggregationProperty;
 use Comhon\Model\ModelForeign;
 use Comhon\Model\ModelArray;
 use Comhon\Model\Restriction\Enum;
-use Comhon\Model\ModelRestrictedArray;
 use Comhon\Model\Restriction\Interval;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
@@ -183,26 +182,26 @@ class PropertyEqualityTest extends TestCase
 		$modelInt = ModelManager::getInstance()->getInstanceModel('integer');
 		$modelFloat = ModelManager::getInstance()->getInstanceModel('float');
 		$restrictionOne = new Enum([1, 2]);
-		$propertyOne = new Property(new ModelRestrictedArray($modelInt, [$restrictionOne], false, 'child'), 'hehe');
+		$propertyOne = new Property(new ModelArray($modelInt, false, 'child', [], [$restrictionOne]), 'hehe');
 		
 		$this->assertTrue($propertyOne->isEqual($propertyOne));
 		
-		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, [$restrictionOne], false, 'child'), 'hehe');
+		$propertyTwo = new Property(new ModelArray($modelInt, false, 'child', [], [$restrictionOne]), 'hehe');
 		$this->assertTrue($propertyOne->isEqual($propertyTwo));
 		
 		$restrictionTwo = new Enum([1, 2]);
-		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, [$restrictionTwo], false, 'child'), 'hehe');
+		$propertyTwo = new Property(new ModelArray($modelInt, false, 'child', [], [$restrictionTwo]), 'hehe');
 		$this->assertTrue($propertyOne->isEqual($propertyTwo));
 		
 		$restrictionTwo = new Enum([1, 666]);
-		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, [$restrictionTwo], false, 'child'), 'hehe');
+		$propertyTwo = new Property(new ModelArray($modelInt, false, 'child', [], [$restrictionTwo]), 'hehe');
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
 		$restrictionTwo = new Interval('[1,10]', $modelInt);
-		$propertyTwo = new Property(new ModelRestrictedArray($modelInt, [$restrictionTwo], false, 'child'), 'hehe');
+		$propertyTwo = new Property(new ModelArray($modelInt, false, 'child', [], [$restrictionTwo]), 'hehe');
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property(new ModelRestrictedArray($modelFloat, [$restrictionOne], false, 'child'), 'hehe');
+		$propertyTwo = new Property(new ModelArray($modelFloat, false, 'child', [], [$restrictionOne]), 'hehe');
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
 		$propertyTwo = new Property($modelInt, 'hehe');

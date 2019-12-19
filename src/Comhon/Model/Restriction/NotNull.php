@@ -45,7 +45,7 @@ class NotNull extends Restriction {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Restriction\Restriction::toString()
+	 * @see \Comhon\Model\Restriction\Restriction::toMessage()
 	 */
 	public function toMessage($value) {
 		return $this->satisfy($value) 

@@ -17,28 +17,59 @@ use Comhon\Model\Restriction\Restriction;
 class NotSatisfiedRestrictionException extends UnexpectedValueTypeException {
 	
 	/**
+	 * @var mixed
+	 */
+	private $value;
+	
+	/**
 	 * @var \Comhon\Model\Restriction\Restriction
 	 */
 	private $restriction;
 	
 	/**
+	 * @var integer
+	 */
+	private $increment;
+	
+	/**
 	 * @param mixed $value
 	 * @param \Comhon\Model\Restriction\Restriction $restriction
+	 * @param integer $increment
 	 */
-	public function __construct($value, Restriction $restriction) {
+	public function __construct($value, Restriction $restriction, $increment = 0) {
+		$this->value = $value;
 		$this->restriction = $restriction;
-		$message = $restriction->toMessage($value);
+		$this->increment = $increment;
+		$message = $restriction->toMessage($value, $increment);
 		$this->message = $message;
 		$this->code = ConstantException::NOT_SATISFIED_RESTRICTION_EXCEPTION;
 	}
 	
 	/**
+	 * get value
+	 *
+	 * @return mixed
+	 */
+	public function getValue() {
+		return $this->value;
+	}
+	
+	/**
 	 * get restriction
-	 * 
+	 *
 	 * @return \Comhon\Model\Restriction\Restriction
 	 */
 	public function getRestriction() {
 		return $this->restriction;
+	}
+	
+	/**
+	 * get increment
+	 *
+	 * @return integer
+	 */
+	public function getIncrement() {
+		return $this->increment;
 	}
 	
 }
