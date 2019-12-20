@@ -235,14 +235,10 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_getRestrictions()
 	 */
 	protected function _getRestrictions($currentNode, AbstractModel $model) {
-		$restrictions = [];
-		
-		if ($this->_getBooleanValue($currentNode, self::NOT_NULL, false)) {
-			$restrictions[] = new NotNull();
-		}
 		if (!($model instanceof SimpleModel)) {
-			return $restrictions;
+			return [];
 		}
+		$restrictions = [];
 		
 		if ($this->_getBooleanValue($currentNode, self::NOT_EMPTY, false)) {
 			$restrictions[] = new NotEmptyString();
@@ -327,18 +323,19 @@ class ManifestParser extends ParentManifestParser {
 			}
 			
 			$isAssociative = $this->_getBooleanValue($propertyNode, self::IS_ASSOCIATIVE, false);
+			$isNotNullElement = $this->_getBooleanValue($valuesNode, self::NOT_NULL, false);
 			
 			$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
 			$elementRestrictions = $this->_getRestrictions($valuesNode, $uniqueModel);
 			$arrayRestrictions = [];
-				
+			
 			if ($this->interfacer->hasValue($propertyNode, self::SIZE)) {
 				$arrayRestrictions[] = new Size($this->interfacer->getValue($propertyNode, self::SIZE));
 			}
 			if ($this->_getBooleanValue($propertyNode, self::NOT_EMPTY, false)) {
 				$arrayRestrictions[] = new NotEmptyArray();
 			}
-			$propertyModel = new ModelArray($subModel, $isAssociative, $valuesName, $arrayRestrictions, $elementRestrictions);
+			$propertyModel = new ModelArray($subModel, $isAssociative, $valuesName, $arrayRestrictions, $elementRestrictions, $isNotNullElement);
 		}
 		return $propertyModel;
 	}

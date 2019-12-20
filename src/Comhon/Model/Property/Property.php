@@ -47,6 +47,9 @@ class Property {
 	/** @var boolean */
 	protected $isSerializable;
 	
+	/** @var boolean */
+	protected $isNotNull;
+	
 	/** @var mixed */
 	protected $default;
 	
@@ -65,12 +68,13 @@ class Property {
 	 * @param boolean $isPrivate
 	 * @param boolean $isRequired
 	 * @param boolean $isSerializable
+	 * @param boolean $isNotNull
 	 * @param mixed $default
 	 * @param boolean $isInterfacedAsNodeXml
 	 * @param \Comhon\Model\Restriction\Restriction[] $restrictions
 	 * @throws \Exception
 	 */
-	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isRequired = false, $isSerializable = true, $default = null, $isInterfacedAsNodeXml = null, $restrictions = []) {
+	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false, $default = null, $isInterfacedAsNodeXml = null, $restrictions = []) {
 		$this->model = $model;
 		$this->name = $name;
 		$this->hasDefinedSerializationName = !is_null($serializationName);
@@ -79,6 +83,7 @@ class Property {
 		$this->isPrivate = $isPrivate;
 		$this->isRequired = $isRequired;
 		$this->isSerializable = $isSerializable;
+		$this->isNotNull = $isNotNull;
 		$this->default = $default;
 		
 		foreach ($restrictions as $restriction) {
@@ -204,6 +209,15 @@ class Property {
 	}
 	
 	/**
+	 * verify if property must be not null
+	 *
+	 * @return boolean
+	 */
+	public function isNotNull() {
+		return $this->isNotNull;
+	}
+	
+	/**
 	 * verify if property has default value
 	 *
 	 * @return boolean
@@ -309,23 +323,18 @@ class Property {
 	 * @return boolean true if property is satisfiable
 	 */
 	public function isSatisfiable($value, $throwException = false) {
+		if (is_null($value)) {
+			if ($this->isNotNull && $throwException) {
+				throw new NotSatisfiedRestrictionException($value, new NotNull());
+			}
+			return !$this->isNotNull;
+		}
 		if (empty($this->restrictions)) {
 			return true;
 		}
-		if (is_null($value)) {
-			if (isset($this->restrictions[NotNull::class])) {
-				if ($throwException) {
-					throw new NotSatisfiedRestrictionException($value, $this->restrictions[NotNull::class]);
-				}
-				$restriction = $this->restrictions[NotNull::class];
-			} else {
-				$restriction = null;
-			}
-		} else {
-			$restriction = Restriction::getFirstNotSatisifed($this->restrictions, $value);
-			if (!is_null($restriction) && $throwException) {
-				throw new NotSatisfiedRestrictionException($value, $restriction);
-			}
+		$restriction = Restriction::getFirstNotSatisifed($this->restrictions, $value);
+		if (!is_null($restriction) && $throwException) {
+			throw new NotSatisfiedRestrictionException($value, $restriction);
 		}
 		return is_null($restriction);
 	}
@@ -389,6 +398,7 @@ class Property {
 			$this->isRequired        === $property->isRequired() &&
 			$this->default           === $property->getDefaultValue() &&
 			$this->isSerializable    === $property->isSerializable() &&
+			$this->isNotNull         === $property->isNotNull() &&
 			$this->serializationName === $property->getSerializationName() &&
 			$this->model->isEqual($property->getModel()) && 
 			Restriction::compare($this->restrictions, $property->getRestrictions())

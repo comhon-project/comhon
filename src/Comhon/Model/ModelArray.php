@@ -39,6 +39,11 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	private $isAssociative;
 	
 	/**
+	 * @var boolean
+	 */
+	private $isNotNullElement;
+	
+	/**
 	 * @var \Comhon\Model\Restriction\Restriction[]
 	 */
 	private $arrayRestrictions = [];
@@ -55,11 +60,13 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @param string $elementName
 	 * @param \Comhon\Model\Restriction\Restriction[] $arrayRestrictions
 	 * @param \Comhon\Model\Restriction\Restriction[] $elementRestrictions
+	 * @param boolean $isNotNullElement
 	 */
-	public function __construct(ModelUnique $model, $isAssociative, $elementName, array $arrayRestrictions = [], array $elementRestrictions = []) {
+	public function __construct(ModelUnique $model, $isAssociative, $elementName, array $arrayRestrictions = [], array $elementRestrictions = [], $isNotNullElement = false) {
 		parent::__construct($model);
 		$this->isAssociative = $isAssociative;
 		$this->elementName = $elementName;
+		$this->isNotNullElement = $isNotNullElement;
 		
 		foreach ($arrayRestrictions as $restriction) {
 			if (!$restriction->isAllowedModel($this)) {
@@ -94,6 +101,15 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 */
 	public function isAssociative() {
 		return $this->isAssociative;
+	}
+	
+	/**
+	 * verify if elements of comhon array must be not null
+	 *
+	 * @return boolean
+	 */
+	public function isNotNullElement() {
+		return $this->isNotNullElement;
 	}
 	
 	/**
@@ -415,8 +431,8 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 */
 	public function verifElementValue($value) {
 		if (is_null($value)) {
-			if (isset($this->elementRestrictions[NotNull::class])) {
-				throw new NotSatisfiedRestrictionException($value, $this->elementRestrictions[NotNull::class]);
+			if ($this->isNotNullElement) {
+				throw new NotSatisfiedRestrictionException($value, new NotNull());
 			}
 		} else {
 			$this->getModel()->verifValue($value);

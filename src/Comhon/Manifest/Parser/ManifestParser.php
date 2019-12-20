@@ -389,7 +389,7 @@ abstract class ManifestParser {
 			if (!empty($serializationNames)) {
 				throw new ManifestException('several serialization names only allowed for foreign properties');
 			}
-			$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $default, $interfaceAsNodeXml, $restrictions);
+			$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $isNotNull, $default, $interfaceAsNodeXml, $restrictions);
 			// verify default value (get it from property due to dateTime that need to instanciate DateTime object)
 			if (!is_null($default) && !is_null($restriction = Restriction::getFirstNotSatisifed($restrictions, $property->getDefaultValue()))) {
 				throw new NotSatisfiedRestrictionException($property->getDefaultValue(), $restriction);

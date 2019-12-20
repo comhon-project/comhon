@@ -37,7 +37,7 @@ class RestrictionTest extends TestCase
 		
 		$this->assertSame($restrictionTwo, Restriction::getFirstNotSatisifed([$restrictionOne, $restrictionTwo], 2));
 		
-		$property = new Property($modelInt, 'hehe', null, false, false, false, true, null, null, [$restrictionOne, $restrictionTwo]);
+		$property = new Property($modelInt, 'hehe', null, false, false, false, true, false, null, null, [$restrictionOne, $restrictionTwo]);
 		$this->assertSame($restrictionTwo, Restriction::getFirstNotSatisifed($property->getRestrictions(), 2));
 	}
 	
@@ -63,22 +63,14 @@ class RestrictionTest extends TestCase
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
 		
-		$restrictions = $model->getProperty('notNullArray')->getRestrictions();
-		$this->assertCount(1, $restrictions);
-		$this->assertTrue(isset($restrictions[NotNull::class]));
-		$this->assertInstanceOf(NotNull::class, $restrictions[NotNull::class]);
-		$this->assertTrue($restrictions[NotNull::class]->satisfy(1));
-		$this->assertFalse($restrictions[NotNull::class]->satisfy(null));
+		$this->assertCount(0, $model->getProperty('notNullArray')->getRestrictions());
+		$this->assertTrue($model->getProperty('notNullArray')->isNotNull());
 		
 		/** @var \Comhon\Model\ModelArray $modelArray */
 		$modelArray = $model->getProperty('notNullArray')->getModel();
 		$this->assertInstanceOf(ModelArray::class, $modelArray);
-		$restrictions = $modelArray->getElementRestrictions();
-		$this->assertCount(2, $restrictions);
-		$this->assertTrue(isset($restrictions[NotNull::class]));
-		$this->assertInstanceOf(NotNull::class, $restrictions[NotNull::class]);
-		$this->assertTrue($restrictions[NotNull::class]->satisfy(1));
-		$this->assertFalse($restrictions[NotNull::class]->satisfy(null));
+		$this->assertCount(1, $modelArray->getElementRestrictions());
+		$this->assertTrue($modelArray->isNotNullElement());
 	}
 	
 	public function testNotNullRestrictionValue()
