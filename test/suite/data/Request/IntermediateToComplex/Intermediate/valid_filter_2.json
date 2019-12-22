@@ -1,0 +1,40 @@
+{
+    "simpleCollection": [
+        {
+            "id": 0,
+            "elements": [
+                1,
+                2
+            ],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Disjunction"
+        },
+        {
+            "id": 1,
+            "node": 1,
+            "property": "string",
+            "operator": "<>",
+            "value": "aaa",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+        },
+        {
+            "id": 2,
+            "node": 2,
+            "property": "integer",
+            "operator": "<>",
+            "value": 12,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+        }
+    ],
+    "filter": 0,
+    "root": 1,
+    "models": [
+        {
+            "id": 1,
+            "model": "Test\\Request\\Root"
+        },
+        {
+            "id": 2,
+            "model": "Test\\Request\\Two"
+        }
+    ]
+}

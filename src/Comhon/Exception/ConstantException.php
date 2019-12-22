@@ -63,6 +63,7 @@ abstract class ConstantException {
 	const NOT_LINKABLE_LITERAL_EXCEPTION               = 706;
 	const NOT_ALLOWED_REQUEST_EXCEPTION                = 707;
 	const MULTIPLE_PROPERTY_LITERAL_EXCEPTION          = 708;
+	const NOT_ALLOWED_LITERAL_EXCEPTION                = 709;
 	
 	// serialization exception
 	const SERIALIZATION_EXCEPTION       = 800;

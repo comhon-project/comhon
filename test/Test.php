@@ -449,8 +449,6 @@ try {
 
 // TODO for version > 3.0
 
-// manage not_null without restriction
-// use comhon object request to interpret request
 // add patch method
 // all comhon objects inherit automaticaly from same empty abstract model (ex ComhonObject) ?
 

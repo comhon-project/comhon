@@ -19,8 +19,10 @@ class MultiplePropertyDbLiteral extends Literal {
 	
 	/** @var array */
 	protected static $allowedOperators = [
-			self::EQUAL => null,
-			self::DIFF  => null
+			self::EQUAL   => null,
+			self::DIFF    => null,
+			self::IN      => null,
+			self::NOT_IN  => null
 	];
 	
 	/** @var \Comhon\Logic\Clause */
@@ -40,11 +42,12 @@ class MultiplePropertyDbLiteral extends Literal {
 		parent::__construct($operator);
 		$this->value = $value;
 		if (is_array($value)) {
-			$this->clause = $operator === self::EQUAL ? new Clause(Clause::DISJUNCTION) : new Clause(Clause::CONJUNCTION);
+			$subOperator = $operator === self::IN ? self::EQUAL : self::DIFF;
+			$this->clause = $operator === self::IN ? new Clause(Clause::DISJUNCTION) : new Clause(Clause::CONJUNCTION);
 			foreach ($value as $subValue) {
-				$clause = $operator === self::EQUAL ? new Clause(Clause::CONJUNCTION) : new Clause(Clause::DISJUNCTION);
+				$clause = $operator === self::IN ? new Clause(Clause::CONJUNCTION) : new Clause(Clause::DISJUNCTION);
 				$this->clause->addClause($clause);
-				$this->addLiteral($clause, $table, $property, $operator, $subValue);
+				$this->addLiteral($clause, $table, $property, $subOperator, $subValue);
 			}
 		}
 		else {
@@ -62,10 +65,14 @@ class MultiplePropertyDbLiteral extends Literal {
 	 * @param string $value
 	 */
 	private function addLiteral(Clause $clause, $table, MultipleForeignProperty $property, $operator, $value) {
-		$idValues = $property->getUniqueModel()->decodeId($value);
+		$idValues = is_null($value) ? null : $property->getUniqueModel()->decodeId($value);
 		$i = 0;
 		foreach ($property->getMultipleIdProperties() as $idPropertySerializationName => $idProperty) {
-			$clause->addLiteral(new SimpleDbLiteral($table, $idPropertySerializationName, $operator, $idValues[$i]));
+			if (is_null($idValues)) {
+				$clause->addLiteral(new SimpleDbLiteral($table, $idPropertySerializationName, $operator, null));
+			} else {
+				$clause->addLiteral(new SimpleDbLiteral($table, $idPropertySerializationName, $operator, $idValues[$i]));
+			}
 			$i++;
 		}
 	}

@@ -40,10 +40,10 @@ class SimpleDbLiteral extends DbLiteral {
 	 * @throws \Exception
 	 */
 	protected function _verifLiteral() {
-		if (is_null($this->value) && ($this->operator != '=') && ($this->operator != '<>')) {
+		if (is_null($this->value) && ($this->operator != self::EQUAL) && ($this->operator != self::DIFF)) {
 			throw new ComhonException('literal with operator \''.$this->operator.'\' can\'t have null value');
 		}
-		if (is_array($this->value) && ($this->operator != '=') && ($this->operator != '<>')) {
+		if (is_array($this->value) && ($this->operator != self::IN) && ($this->operator != self::NOT_IN)) {
 			throw new ComhonException('literal with operator \''.$this->operator.'\' can\'t have array value');
 		}
 	}
@@ -118,7 +118,7 @@ class SimpleDbLiteral extends DbLiteral {
 	 */
 	public function export(&$values) {
 		$columnTable = (($this->table instanceof TableNode) ? $this->table->getExportName() : $this->table) . '.' . $this->column;
-		if ((($this->operator == '=') || ($this->operator == '<>')) && is_array($this->value)) {
+		if (is_array($this->value)) {
 			$i = 0;
 			$toReplaceValues = [];
 			$hasNullValue = false;
@@ -131,24 +131,24 @@ class SimpleDbLiteral extends DbLiteral {
 				}
 				$i++;
 			}
-			$operator = ($this->operator == '=') ? ' IN ' : ' NOT IN ';
+			$operator = ($this->operator == self::IN) ? ' IN ' : ' NOT IN ';
 			$toReplaceValues = '('.implode(',', $toReplaceValues).')';
 			$stringValue = sprintf('%s %s %s', $columnTable, $operator, $toReplaceValues);
 			if ($hasNullValue) {
-				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
-				$connector = ($this->operator == '=') ? 'or' : 'and';
+				$operator = ($this->operator == self::IN) ? 'is null' : 'is not null';
+				$connector = ($this->operator == self::IN) ? 'or' : 'and';
 				$stringValue = sprintf('(%s %s %s %s)', $stringValue, $connector, $columnTable, $operator);
-			} elseif ($this->operator == '<>') {
+			} elseif ($this->operator == self::NOT_IN) {
 				$stringValue = sprintf('(%s or %s is null)', $stringValue, $columnTable);
 			}
 		} else {
 			if (is_null($this->value)) {
-				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
+				$operator = ($this->operator == self::EQUAL) ? 'is null' : 'is not null';
 				$stringValue = sprintf('%s %s', $columnTable, $operator);
 			} else {
 				$values[] = $this->value;
 				$stringValue = sprintf('%s %s ?', $columnTable, $this->operator);
-				if ($this->operator == '<>') {
+				if ($this->operator == self::DIFF) {
 					$stringValue = sprintf('(%s or %s is null)', $stringValue, $columnTable);
 				}
 			}
@@ -165,7 +165,7 @@ class SimpleDbLiteral extends DbLiteral {
 	 */
 	public function exportDebug() {
 		$columnTable = (($this->table instanceof TableNode) ? $this->table->getExportName() : $this->table) . '.' . $this->column;
-		if ((($this->operator == '=') || ($this->operator == '<>')) && is_array($this->value)) {
+		if (is_array($this->value)) {
 			$i = 0;
 			$toReplaceValues = [];
 			$hasNullValue = false;
@@ -177,23 +177,23 @@ class SimpleDbLiteral extends DbLiteral {
 				}
 				$i++;
 			}
-			$operator = ($this->operator == '=') ? ' IN ' : ' NOT IN ';
+			$operator = ($this->operator == self::IN) ? ' IN ' : ' NOT IN ';
 			$toReplaceValues = '('.implode(',', $toReplaceValues).')';
 			$stringValue = sprintf('%s %s %s', $columnTable, $operator, $toReplaceValues);
 			if ($hasNullValue) {
-				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
-				$connector = ($this->operator == '=') ? 'or' : 'and';
+				$operator = ($this->operator == self::IN) ? 'is null' : 'is not null';
+				$connector = ($this->operator == self::IN) ? 'or' : 'and';
 				$stringValue = sprintf('(%s %s %s %s)', $stringValue, $connector,  $columnTable, $operator);
-			} elseif ($this->operator == '<>') {
+			} elseif ($this->operator == self::NOT_IN) {
 				$stringValue = sprintf('(%s or %s is null)', $stringValue, $columnTable);
 			}
 		} else {
 			if (is_null($this->value)) {
-				$operator = ($this->operator == '=') ? 'is null' : 'is not null';
+				$operator = ($this->operator == self::EQUAL) ? 'is null' : 'is not null';
 				$stringValue = sprintf('%s %s', $columnTable, $operator);
 			} else {
 				$stringValue = sprintf('%s %s %s', $columnTable, $this->operator, $this->value);
-				if ($this->operator == '<>') {
+				if ($this->operator == self::DIFF) {
 					$stringValue = sprintf('(%s or %s is null)', $stringValue, $columnTable);
 				}
 			}

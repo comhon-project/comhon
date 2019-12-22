@@ -366,7 +366,7 @@ class DatabaseHandler {
 	 */
 	public function count(SelectQuery $selectQuery, $fetchStyle = \PDO::FETCH_ASSOC) {
 		list($query, $values) = $selectQuery->exportCount();
-		//var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
+		// var_dump("\n\n".vsprintf(str_replace('?', "%s", $query), $values));
 		$row = $this->execute($query, $values)->fetch($fetchStyle);
 		return (integer) $row[SelectQuery::COL_COUNT];
 	}

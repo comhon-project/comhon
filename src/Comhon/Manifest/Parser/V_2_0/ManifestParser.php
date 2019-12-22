@@ -29,6 +29,7 @@ use Comhon\Model\Restriction\Size;
 use Comhon\Model\Restriction\Length;
 use Comhon\Model\Restriction\NotEmptyString;
 use Comhon\Model\Restriction\NotEmptyArray;
+use Comhon\Model\Restriction\ModelName;
 
 class ManifestParser extends ParentManifestParser {
 
@@ -245,6 +246,9 @@ class ManifestParser extends ParentManifestParser {
 		}
 		if ($this->interfacer->hasValue($currentNode, self::LENGTH)) {
 			$restrictions[] = new Length($this->interfacer->getValue($currentNode, self::LENGTH));
+		}
+		if ($this->_getBooleanValue($currentNode, self::IS_MODEL_NAME, false)) {
+			$restrictions[] = new ModelName();
 		}
 		if ($this->interfacer->hasValue($currentNode, self::ENUM, true)) {
 			$enumValues = $this->interfacer->getTraversableNode($this->interfacer->getValue($currentNode, self::ENUM, true));

@@ -6,14 +6,15 @@
             "property": "name",
             "operator": ">",
             "value": 200,
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
         }
     ],
+	"filter": 0,
     "root": 1,
     "models": [
         {
             "id": 1,
-            "model": "person"
+            "model": "Test\\Person"
         }
 	],
     "__inheritance__": "Comhon\\Request\\Intermediate"

@@ -3,24 +3,28 @@
 use Test\Comhon\Service\ObjectService;
 use Comhon\Object\Config\Config;
 
-$loader = require_once __DIR__ . '/../vendor/autoload.php';
-$loader->addPsr4('Test\\Comhon\\', __DIR__);
+$loader = require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+$loader->addPsr4('Test\\Comhon\\', __DIR__ . DIRECTORY_SEPARATOR . 'classes');
 
 Config::setLoadPath(__DIR__.'/config/config-xml-mysql.json');
 
 $Json = '{
-	"requestChildren" : false,
-	"loadForeignProperties" : false,
 	"tree" : {
 		"model"   : "Test\\\\Person",
-		"id"      : "p1"
+		"id"      : 1
 	},
-	"filter" : {
-		"node"     : "p1",
-		"property" : "firstName",
-		"operator" : "=",
-		"value"    : "Bernard"
-	}
+	"simpleCollection" : [
+		{
+			"id"       : 1,
+			"node"     : 1,
+			"property" : "firstName",
+			"operator" : "=",
+			"value"    : "Bernard",
+        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+		}
+	],
+	"filter" : 1,
+    "__inheritance__": "Comhon\\\\Request\\\\Complex"
 }';
 
 $time_start = microtime(true);
@@ -30,5 +34,5 @@ if (json_encode($result) !== '{"success":true,"result":[{"id":1,"firstName":"Ber
 	throw new \Exception('bad result'.json_encode($result));
 }
 
-// average time : 0.045 s
+// average time : 0.017 s
 var_dump('test exec time '.$time_complex);

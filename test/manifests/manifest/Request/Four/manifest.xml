@@ -1,0 +1,8 @@
+<manifest version="3.0">
+  <properties>
+    <property type="array" name="threes" is_foreign="1">
+      <values type="\Test\Request\Three" name="three"/>
+    </property>
+    <property type="string" name="string"/>
+  </properties>
+</manifest>

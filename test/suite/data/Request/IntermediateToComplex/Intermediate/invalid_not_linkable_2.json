@@ -1,0 +1,24 @@
+{
+    "simpleCollection": [
+        {
+            "id": 1,
+            "node": 2,
+            "property": "integer",
+            "operator": ">",
+            "value": 200,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+        }
+    ],
+    "filter": 1,
+    "root": 1,
+    "models": [
+        {
+            "id": 1,
+            "model": "Test\\Request\\Root"
+        },
+        {
+            "id": 2,
+            "model": "Test\\Request\\Five"
+        }
+	]
+}

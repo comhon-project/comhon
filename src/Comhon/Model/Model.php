@@ -26,7 +26,6 @@ use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Model\UnexpectedModelException;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\ArgumentException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
@@ -1558,7 +1557,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	public function verifValue($value) {
 		if (!($value instanceof UniqueObject) || ($value->getModel() !== $this && !$value->getModel()->isInheritedFrom($this))) {
-			$Obj = $this->getObjectInstance();
+			$Obj = $this->getObjectInstance(false);
 			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
 		}
 		return true;

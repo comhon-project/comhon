@@ -1,0 +1,13 @@
+<manifest version="3.0">
+  <properties>
+    <property type="\Test\Request\One" name="one" is_foreign="1"/>
+    <property type="\Test\Request\Three" name="three" is_foreign="1"/>
+    <property type="\Test\Request\Four" name="four" is_foreign="1"/>
+    <property type="\Test\Request\Five" name="five" is_foreign="1"/>
+    <property type="\Test\Request\Root" name="root" is_foreign="1"/>
+    <property type="string" name="string"/>
+    <property type="integer" name="integer"/>
+    <property type="float" name="float"/>
+    <property type="boolean" name="boolean"/>
+  </properties>
+</manifest>

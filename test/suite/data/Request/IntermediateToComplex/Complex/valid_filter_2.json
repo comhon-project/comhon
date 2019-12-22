@@ -1,0 +1,46 @@
+{
+    "tree": {
+        "model": "Test\\Request\\Root",
+        "nodes": [
+            {
+                "property": "one",
+                "nodes": [
+                    {
+                        "property": "two",
+                        "nodes": [],
+                        "id": 2
+                    }
+                ],
+                "id": 3
+            }
+        ],
+        "id": 1
+    },
+    "simpleCollection": [
+        {
+            "id": 0,
+            "elements": [
+                1,
+                2
+            ],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Disjunction"
+        },
+        {
+            "id": 1,
+            "node": 1,
+            "property": "string",
+            "operator": "<>",
+            "value": "aaa",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+        },
+        {
+            "id": 2,
+            "node": 2,
+            "property": "integer",
+            "operator": "<>",
+            "value": 12,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+        }
+    ],
+    "filter": 0
+}

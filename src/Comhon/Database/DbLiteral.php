@@ -15,13 +15,15 @@ use Comhon\Request\ComplexLoadRequest;
 use Comhon\Model\Model;
 use Comhon\Logic\Clause;
 use Comhon\Logic\Literal;
-use Comhon\Exception\Literal\LiteralNotFoundException;
 use Comhon\Exception\Literal\LiteralPropertyAggregationException;
 use Comhon\Exception\Model\PropertyVisibilityException;
-use Comhon\Exception\Literal\MalformedLiteralException;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Serialization\SerializationException;
-use Comhon\Model\Property\Property;
+use Comhon\Model\Property\MultipleForeignProperty;
+use Comhon\Object\ComhonArray;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Exception\ArgumentException;
+use Comhon\Exception\Request\NotAllowedLiteralException;
 
 abstract class DbLiteral extends Literal {
 	
@@ -62,126 +64,90 @@ abstract class DbLiteral extends Literal {
 	/**
 	 * build instance of Literal 
 	 * 
-	 * @param \stdClass $stdObject
-	 * @param \Comhon\Model\Model $mainModel
-	 * @param DbLiteral[] $literalCollection used if $stdObject contain only an id that reference literal in collection
-	 * @param SelectQuery $selectQuery
+	 * @param \Comhon\Object\UniqueObject $literal
+	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Database\SelectQuery $selectQuery
 	 * @param boolean $allowPrivateProperties
+	 * @param \Comhon\Database\DbLiteral[] $dbLiteralsById do not specify this parameter, it is used implicitly
 	 * @throws \Exception
 	 * @return DbLiteral
 	 */
-	public static function stdObjectToLiteral($stdObject, $mainModel, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
-		if (isset($stdObject->id) && !is_null($literalCollection)) {
-			if (!array_key_exists($stdObject->id, $literalCollection)) {
-				throw new LiteralNotFoundException($stdObject->id);
+	public static function build(UniqueObject $literal, Model $model, $selectQuery = null, $allowPrivateProperties = true, &$dbLiteralsById = []) {
+		if ($literal->getModel()->getName() != 'Comhon\Logic\Simple\Having') {
+			$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal');
+			if (!$literal->getModel()->isInheritedFrom($literalModel)) {
+				$expected = [
+					ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Having')->getObjectInstance(false)->getComhonClass(),
+					$literalModel->getObjectInstance(false)->getComhonClass()
+				];
+				throw new ArgumentException($literal, $expected, 1);
 			}
-			return $literalCollection[$stdObject->id];
 		}
-		self::_verifStdObject($stdObject);
-		$table = $stdObject->node;
+		$literal->validate();
+		if (array_key_exists($literal->getId(), $dbLiteralsById)) {
+			return $dbLiteralsById[$literal->getId()];
+		}
 		
-		if (isset($stdObject->queue)) {
-			list($joinedTables, $on) = self::_getJoinedTablesFromQueue($mainModel, $stdObject->queue, $allowPrivateProperties);
-			$subSelectQuery = self::_setSubSelectQuery($joinedTables, $on, $stdObject, $allowPrivateProperties);
+		$table = ComplexLoadRequest::getTableAliasWithModelNode($literal->getValue('node'));
+		
+		if ($literal->getModel()->getName() == 'Comhon\Logic\Simple\Having') {
+			list($joinedTables, $on) = self::_getJoinedTablesFromQueue($model, $literal->getValue('queue'), $allowPrivateProperties);
+			$subSelectQuery = self::_setSubSelectQuery($joinedTables, $on, $literal, $allowPrivateProperties);
 			$rigthTable  = new TableNode($subSelectQuery, self::_getAlias(), false);
 			
 			if (!is_null($selectQuery)) {
 				$selectQuery->join(SelectQuery::LEFT_JOIN, $rigthTable, self::_getJoinColumns($table, $rigthTable->getExportName(), $on));
 			}
 			if (count($on) == 1) {
-				$literal = new SimpleDbLiteral($rigthTable, $on[0][1], Literal::DIFF, null);
+				$databaseLiteral = new SimpleDbLiteral($rigthTable, $on[0][1], Literal::DIFF, null);
 			} else {
-				$literal = new NotNullJoinLiteral();
+				$databaseLiteral = new NotNullJoinLiteral();
 				foreach ($on as $literalArray) {
-					$literal->addLiteral($rigthTable->getExportName(), $literalArray[1]);
+					$databaseLiteral->addLiteral($rigthTable->getExportName(), $literalArray[1]);
 				}
 			}
 		}
 		else {
-			$property =  $mainModel->getProperty($stdObject->property, true);
+			$property = $model->getProperty($literal->getValue('property'), true);
 			if ($property->isAggregation()) {
 				throw new LiteralPropertyAggregationException($property->getName());
 			}
 			if (!$allowPrivateProperties && $property->isPrivate()) {
 				throw new PropertyVisibilityException($property->getName());
 			}
+			if (!$property->isAllowedLiteral($literal)) {
+				throw new NotAllowedLiteralException($model, $property, $literal);
+			}
 			
-			if ($property->hasMultipleSerializationNames()) {
-				$literal = new MultiplePropertyDbLiteral($table, $property, $stdObject->operator, $stdObject->value);
-			} else {
-				self::verifyLitteralValue($property, $stdObject->value);
-				$literal = new SimpleDbLiteral($table, $property->getSerializationName(), $stdObject->operator, $stdObject->value);
-			}
+			$setModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal\Set');
+			$value = $literal->getModel()->isInheritedFrom($setModel) 
+				? $literal->getValue('values')->getValues() : $literal->getValue('value');
+			
+			$databaseLiteral = ($property instanceof MultipleForeignProperty) 
+				? new MultiplePropertyDbLiteral($table, $property, $literal->getValue('operator'), $value)
+				: new SimpleDbLiteral($table, $property->getSerializationName(), $literal->getValue('operator'), $value);
 		}
-		if (isset($stdObject->id)) {
-			$literal->setId($stdObject->id);
-		}
-		return $literal;
-	}
-	
-	/**
-	 * verify if value is valid according property model
-	 * 
-	 * @param \Comhon\Model\Property\Property $property
-	 * @param mixed $value
-	 */
-	private static function verifyLitteralValue(Property $property, $value) {
-		if (is_array($value)) {
-			foreach ($value as $element) {
-				if (!is_null($element)) {
-					$property->getModel()->verifValue($element);
-				}
-			}
-		} elseif (!is_null($value)) {
-			$property->getModel()->verifValue($value);
-		}
-	}
-	
-	/**
-	 * verify if given object has expected format
-	 * 
-	 * @param \stdClass $stdObject
-	 * @throws \Exception
-	 */
-	private static function _verifStdObject($stdObject) {
-		if (!is_object($stdObject) || !isset($stdObject->node)) {
-			throw new MalformedLiteralException($stdObject);
-		}
-		if (isset($stdObject->queue)) {
-			if (!isset($stdObject->having) || !is_object($stdObject->queue)) {
-				throw new MalformedLiteralException($stdObject);
-			}
-		} elseif (
-			!isset($stdObject->operator)
-			|| !array_key_exists($stdObject->operator, self::$allowedOperators)
-			|| !property_exists($stdObject, 'value')
-			|| is_object($stdObject->value)
-			|| !isset($stdObject->property)
-			|| !is_string($stdObject->property)
-			|| (is_null($stdObject->value) && ($stdObject->operator != self::EQUAL) && ($stdObject->operator != self::DIFF))
-			|| (is_array($stdObject->value) && ($stdObject->operator != self::EQUAL) && ($stdObject->operator != self::DIFF))
-		) {
-			throw new MalformedLiteralException($stdObject);
-		}
+		$databaseLiteral->setId($literal->getId());
+		$dbLiteralsById[$literal->getId()] = $databaseLiteral;
+		
+		return $databaseLiteral;
 	}
 	
 	/**
 	 * 
 	 * @param \Comhon\Model\Model $model
-	 * @param \stdClass $queue
+	 * @param \Comhon\Object\ComhonArray $queue
 	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
 	 * @return [[], []]
 	 * - first element is array of joined tables
 	 * - second element is array of columns that will be use for group, select and joins with principale query
 	 */
-	private static function _getJoinedTablesFromQueue(Model $model, $queue, $allowPrivateProperties) {
+	private static function _getJoinedTablesFromQueue(Model $model, ComhonArray $queue, $allowPrivateProperties) {
 		$firstTable    = new TableNode($model->getSqlTableSettings()->getValue('name'), null, false);
 		$leftTable     = $firstTable;
 		$firstModel    = $model;
 		$leftModel     = $firstModel;
-		$firstNode     = $queue;
-		$currentNode   = $firstNode;
 		$joinedTables  = [];
 		$on            = null;
 		
@@ -194,39 +160,32 @@ abstract class DbLiteral extends Literal {
 		}
 		$databaseId = $database->getId();
 		
-		while (!is_null($currentNode)) {
-			if (!is_object($currentNode) || !isset($currentNode->property)) {
-				throw new MalformedLiteralException($queue);
-			}
-			$property = $leftModel->getProperty($currentNode->property, true);
+		foreach ($queue as $propertyName) {
+			$property = $leftModel->getProperty($propertyName, true);
 			if (!$allowPrivateProperties && $property->isPrivate()) {
 				throw new PropertyVisibilityException($property->getName());
 			}
-			$leftJoin       = ComplexLoadRequest::prepareJoinedTable($leftTable, $property, $databaseId, self::_getAlias());
+			$leftJoin = ComplexLoadRequest::prepareJoinedTable($leftTable, $property, $databaseId, self::_getAlias());
 			$joinedTables[] = $leftJoin;
-			
 			
 			$leftModel   = $leftJoin['model'];
 			$leftTable   = $leftJoin['table'];
-			$currentNode = isset($currentNode->child) ? $currentNode->child : null;
 		}
-		if (!is_null($firstNode)) {
-			$on = [];
-			if (!($joinedTables[0]['join_on'] instanceof Clause) || $joinedTables[0]['join_on']->getType() !== Clause::DISJUNCTION) {
-				$firstJoinedTable = $joinedTables[0];
-				if ($firstJoinedTable['join_on'] instanceof Clause) {
-					foreach ($firstJoinedTable['join_on']->getElements() as $literal) {
-						$on[] = [$literal->getPropertyName(), $literal->getColumnRight()];
-					}
-				} else {
-					$on[] = [$firstJoinedTable['join_on']->getPropertyName(), $firstJoinedTable['join_on']->getColumnRight()];
+		$on = [];
+		if (!($joinedTables[0]['join_on'] instanceof Clause) || $joinedTables[0]['join_on']->getType() !== Clause::DISJUNCTION) {
+			$firstJoinedTable = $joinedTables[0];
+			if ($firstJoinedTable['join_on'] instanceof Clause) {
+				foreach ($firstJoinedTable['join_on']->getElements() as $literal) {
+					$on[] = [$literal->getPropertyName(), $literal->getColumnRight()];
 				}
 			} else {
-				array_unshift($joinedTables, ['table' => $firstTable, 'model' => $firstModel]);
-				foreach ($model->getIdProperties() as $idProperty) {
-					$column = $idProperty->getSerializationName();
-					$on[] = [$column, $column];
-				}
+				$on[] = [$firstJoinedTable['join_on']->getPropertyName(), $firstJoinedTable['join_on']->getColumnRight()];
+			}
+		} else {
+			array_unshift($joinedTables, ['table' => $firstTable, 'model' => $firstModel]);
+			foreach ($model->getIdProperties() as $idProperty) {
+				$column = $idProperty->getSerializationName();
+				$on[] = [$column, $column];
 			}
 		}
 		return [$joinedTables, $on];
@@ -236,11 +195,11 @@ abstract class DbLiteral extends Literal {
 	 * 
 	 * @param array $joinedTables 
 	 * @param array $groupColumns
-	 * @param \stdClass $stdObject
+	 * @param \Comhon\Object\UniqueObject $literal
 	 * @param boolean $allowPrivateProperties
 	 * @return SelectQuery
 	 */
-	private static function _setSubSelectQuery($joinedTables, $groupColumns, $stdObject, $allowPrivateProperties) {
+	private static function _setSubSelectQuery(array $joinedTables, array $groupColumns, UniqueObject $literal, $allowPrivateProperties) {
 		$mainTable   = $joinedTables[0]['table'];
 		$selectQuery = new SelectQuery($mainTable);
 		
@@ -257,12 +216,14 @@ abstract class DbLiteral extends Literal {
 			$mainTable->addSelectedColumn($columns[1]);
 			$selectQuery->addGroup($columns[1]);
 		}
+		$havingClauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Clause');
+		$havingFormula = $literal->getValue('having');
 		
-		if (isset($stdObject->having->type)) {
-			$having = HavingClause::stdObjectToHavingClause($stdObject->having, $mainTable, $lastTable, $lastModel, $allowPrivateProperties);
+		if ($havingFormula->getModel()->isInheritedFrom($havingClauseModel)) {
+			$having = HavingClause::buildHaving($havingFormula, $mainTable, $lastTable, $lastModel, $allowPrivateProperties);
 		} else {
-			$table  = isset($stdObject->having->function) && ($stdObject->having->function == HavingLiteral::COUNT) ? $mainTable : $lastTable;
-			$having = HavingLiteral::stdObjectToHavingLiteral($stdObject->having, $table, $lastModel, $allowPrivateProperties);
+			$table = $havingFormula->getModel()->getName() == 'Comhon\Logic\Having\Literal\Count' ? $mainTable : $lastTable;
+			$having = HavingLiteral::buildHaving($havingFormula, $table, $lastModel, $allowPrivateProperties);
 		}
 		$selectQuery->having($having);
 		return $selectQuery;
@@ -294,7 +255,7 @@ abstract class DbLiteral extends Literal {
 	 * @return string
 	 */
 	private static function _getAlias() {
-		return '__t__'.self::$index++;
+		return 'tq_'.self::$index++;
 	}
 	
 }

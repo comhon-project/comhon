@@ -53,32 +53,23 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 	 * @see \Comhon\Request\ObjectLoadRequest::execute()
 	 */
 	public function execute() {
-		$object = $this->model->loadObject($this->id, $this->propertiesFilter);
-		if (!is_null($object)) {
-			$this->_completeObject($object);
-		}
-		return $object;
+		return $this->model->loadObject($this->id, $this->propertiesFilter);
 	}
 	
 	/**
 	 * build load request
-	 *
-	 * @param \stdClass $settings
+	 * 
+	 * @param string $modelName
+	 * @param mixed $id
+	 * @param string[] $propertiesFilter
 	 * @param boolean $private
-	 * @throws \Exception
 	 * @return \Comhon\Request\SimpleLoadRequest
 	 */
-	public static function buildObjectLoadRequest(\stdClass $settings, $private = false) {
-		if (!isset($settings->model)) {
-			throw new MalformedRequestException('request doesn\'t have model');
-		}
-		if (!isset($settings->id)) {
-			throw new MalformedRequestException('request doesn\'t have id');
-		}
-		$request = new SimpleLoadRequest($settings->model, $private);
-		$request->setRequestedId($settings->id);
-		if (isset($settings->properties) && is_array($settings->properties)) {
-			$request->setPropertiesFilter($settings->properties);
+	public static function build($modelName, $id, $propertiesFilter = [], $private = false) {
+		$request = new SimpleLoadRequest($modelName, $private);
+		$request->setRequestedId($id);
+		if (is_array($propertiesFilter)) {
+			$request->setPropertiesFilter($propertiesFilter);
 		}
 		return $request;
 	}

@@ -1,0 +1,95 @@
+{
+    "tree": {
+        "id": 1,
+        "model": "Test\\Request\\Root"
+    },
+    "simpleCollection": [
+        {
+            "id": 0,
+            "elements": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+            ],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Disjunction"
+        },
+        {
+            "id": 1,
+            "node": 1,
+            "property": "string",
+            "operator": "<>",
+            "value": "aaa",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+        },
+        {
+            "id": 2,
+            "node": 1,
+            "property": "integer",
+            "operator": "<>",
+            "value": 12,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+        },
+        {
+            "id": 3,
+            "node": 1,
+            "property": "float",
+            "operator": "<>",
+            "value": 12.5,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Float"
+        },
+        {
+            "id": 4,
+            "node": 1,
+            "property": "boolean",
+            "operator": "<>",
+            "value": true,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Boolean"
+        },
+        {
+            "id": 5,
+            "node": 1,
+            "property": "null",
+            "operator": "<>",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Null"
+        },
+        {
+            "id": 6,
+            "node": 1,
+            "property": "string",
+            "operator": "NOT IN",
+            "values": [
+                "bbb",
+                "aaa"
+            ],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
+        },
+        {
+            "id": 7,
+            "node": 1,
+            "property": "integer",
+            "operator": "NOT IN",
+            "values": [
+                1,
+                2
+            ],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Integer"
+        },
+        {
+            "id": 8,
+            "node": 1,
+            "property": "float",
+            "operator": "NOT IN",
+            "values": [
+                2,
+                3.5
+            ],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Float"
+        }
+    ],
+    "filter": 0
+}

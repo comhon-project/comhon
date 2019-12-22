@@ -6,6 +6,8 @@ use Comhon\Database\DatabaseHandler;
 use Comhon\Request\ComplexLoadRequest;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Interfacer\StdObjectInterfacer;
 
 class CountRequestTest extends TestCase
 {
@@ -59,31 +61,45 @@ class CountRequestTest extends TestCase
 	
 	public function testCountServiceRequest()
 	{
-		$params = new \stdClass();
-		$params->model = 'Test\Person';
-		$count = ComplexLoadRequest::buildObjectLoadRequest($params)->count();
+		$request = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance(false);
+		$tree = $request->initValue('tree', false);
+		$tree->setId(1);
+		$tree->setValue('model', 'Test\Person');
+		$request->setIsLoaded(true);
+		$tree->setIsLoaded(true);
+		$count = ComplexLoadRequest::build($request)->count();
 		
 		$this->assertSame(9, $count);
 	}
 	
 	public function testCountWithLimitAndFilterServiceRequest()
 	{
-		$params = new \stdClass();
-		$params->model = 'Test\Person';
-		$params->filter = new \stdClass();
-		$params->filter->model = 'Test\Person';
-		$params->filter->property = 'lastName';
-		$params->filter->operator = '=';
-		$params->filter->value = 'Dupond';
-		$params->limit = 1;
-		$order = new \stdClass();
-		$order->property = 'firstName';
-		$params->order = [$order];
+		$request = [
+			"tree" => [
+				"id" => 1,
+				"model" => "Test\Person"
+			],
+			"filter" => 1,
+			"simpleCollection" => [
+				[
+					"id" => 1,
+					"node" => 1,
+					"property" => "lastName",
+					"operator" => "=",
+					"value" => "Dupond",
+					"__inheritance__" => "Comhon\Logic\Simple\Literal\String"
+				]
+			],
+			"limit" => 1,
+			"order" => [["property" => "firstName"]],
+			"__inheritance__" => 'Comhon\Request\Complex'
+		];
 		
-		$objects = ComplexLoadRequest::buildObjectLoadRequest($params)->execute();
+		$objects = ComplexLoadRequest::build($request)->execute();
 		$this->assertCount(1, $objects->getValues());
 		
-		$count = ComplexLoadRequest::buildObjectLoadRequest($params)->count();
+		// no limit for count so we may have count greater than retrieved objects
+		$count = ComplexLoadRequest::build($request)->count();
 		$this->assertSame(2, $count);
 	}
 }

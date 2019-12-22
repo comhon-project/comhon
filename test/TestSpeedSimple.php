@@ -3,14 +3,12 @@
 use Test\Comhon\Service\ObjectService;
 use Comhon\Object\Config\Config;
 
-$loader = require_once __DIR__ . '/../vendor/autoload.php';
-$loader->addPsr4('Test\\Comhon\\', __DIR__);
+$loader = require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+$loader->addPsr4('Test\\Comhon\\', __DIR__ . DIRECTORY_SEPARATOR . 'classes');
 
 Config::setLoadPath(__DIR__.'/config/config-xml-mysql.json');
 
 $Json = '{
-	"requestChildren" : false,
-	"loadForeignProperties" : false,
 	"model" : "Test\\\\Person",
 	"id" : 1
 }';
@@ -22,5 +20,5 @@ if (json_encode($result) !== '{"success":true,"result":{"id":1,"firstName":"Bern
 	throw new \Exception('bad result');
 }
 
-// average time : 0.045 s
+// average time : 0.015 s
 var_dump('test exec time '.$time_complex);

@@ -6,7 +6,7 @@
             "property": "surfaceInt",
             "operator": ">",
             "value": 200,
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
         },
         {
             "id": 1,
@@ -14,7 +14,7 @@
             "property": "surface",
             "operator": ">",
             "value": 200.05,
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Float"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Float"
         },
         {
             "id": 2,
@@ -22,7 +22,7 @@
             "property": "name",
             "operator": "<>",
             "value": "lalala",
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
         },
         {
             "id": 3,
@@ -30,7 +30,7 @@
             "property": "is",
             "operator": "<>",
             "value": true,
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Boolean"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Boolean"
         },
         {
             "id": 4,
@@ -41,7 +41,7 @@
                 200,
                 300
             ],
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\Numeric\\\\Integer"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Integer"
         },
         {
             "id": 5,
@@ -52,7 +52,7 @@
                 200.05555,
                 300
             ],
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\Numeric\\\\Float"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Float"
         },
         {
             "id": 6,
@@ -63,7 +63,7 @@
                 "azeaze",
                 "hehehe"
             ],
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
         },
         {
             "id": 7,
@@ -73,7 +73,7 @@
                 2,
                 100
             ],
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Clause\\\\Disjunction"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Disjunction"
         },
         {
             "id": 8,
@@ -85,7 +85,7 @@
                 6,
                 9
             ],
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Clause\\\\Conjunction"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Conjunction"
         },
         {
             "id": 9,
@@ -94,14 +94,14 @@
                 "rooms"
             ],
             "having": 12,
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
         },
         {
             "id": 100,
             "node": 1,
             "property": "name",
             "operator": "=",
-            "__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Null"
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Null"
         }
     ],
     "havingCollection": [
@@ -111,13 +111,13 @@
             "property": "surface",
             "function": "MIN",
             "value": 12.5,
-            "__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Function"
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Function"
         },
         {
             "id": 11,
             "operator": ">",
             "value": 2,
-            "__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
         },
         {
             "id": 12,
@@ -125,25 +125,25 @@
                 10,
                 11
             ],
-            "__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Clause\\\\Disjunction"
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Disjunction"
         },
         {
             "id": 13,
             "elements": [
                 12
             ],
-            "__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Clause\\\\Conjunction"
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Conjunction"
         }
     ],
     "root": 1,
     "models": [
         {
             "id": 1,
-            "model": "person"
+            "model": "Test\\Person"
         },
         {
             "id": 2,
-            "model": "house"
+            "model": "Test\\House"
         }
 	],
     "__inheritance__": "Comhon\\Request\\Intermediate"

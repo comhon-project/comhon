@@ -64,6 +64,61 @@ class ObjectCollectionTest extends TestCase
 		];
 	}
 	
+	/**
+	 *  @dataProvider buildWithForeignRecursiveData
+	 */
+	public function testBuildWithForeignRecursive($objectJson)
+	{
+		$interfacer = new StdObjectInterfacer();
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Duplicated');
+		$object = $model->getObjectInstance();
+		
+		$interfacer->setVerifyReferences(false);
+		$object->fill(json_decode($objectJson), $interfacer);
+		
+		$objectCollection = ObjectCollection::build($object->getValue('containerOne'), false);
+		$this->assertEquals('{"Test\\\\Duplicated":{"10":{"id":10,"dupliForeignProp":100}}}', $objectCollection->toString());
+		
+		$objectCollection = ObjectCollection::build($object->getValue('containerOne'), false, true);
+		$this->assertEquals(
+			'{"Test\\\\Duplicated":{"10":{"id":10,"dupliForeignProp":100},"1000":{"id":1000}}}', 
+			$objectCollection->toString()
+		);
+		
+		$objectCollection = ObjectCollection::build($object->getValue('containerOne'), true, true);
+		$this->assertEquals(
+			'{"Test\\\\Duplicated":{"10":{"id":10,"dupliForeignProp":100},"100":{"id":100,"containerOne":{"dupliProp":{"id":1000}}},"1000":{"id":1000}}}', 
+			$objectCollection->toString()
+		);
+	}
+	
+	public function buildWithForeignRecursiveData() {
+		return [
+			[
+				'{
+					"id":1,
+					"containerOne":{
+						"dupliProp":{
+							"id":10,
+							"dupliForeignProp":100
+						}
+					},
+					"containerTwo":{
+						"objOneProp":{
+							"id":100,
+							"containerOne":{
+								"dupliProp":{
+									"id":1000
+								}
+							}
+						}
+					}
+				}'
+			]
+				
+		];
+	}
+	
 	public function testBuildWithoutForeign()
 	{
 		$interfacer = new StdObjectInterfacer();

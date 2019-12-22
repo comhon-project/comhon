@@ -415,7 +415,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 * @see \Comhon\Object\AbstractComhonObject::getComhonClass()
 	 */
 	final public function getComhonClass() {
-		return get_class($this) . "({$this->getModel()->getName()})";
+		return UniqueObject::class . "({$this->getModel()->getName()})";
 	}
 	
 	/**

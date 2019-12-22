@@ -14,6 +14,8 @@ namespace Comhon\Exception\Literal;
 use Comhon\Model\Model;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\ConstantException;
+use Comhon\Object\UniqueObject;
+use Comhon\Interfacer\StdObjectInterfacer;
 
 class NotLinkableLiteralException extends ComhonException {
 	
@@ -21,8 +23,12 @@ class NotLinkableLiteralException extends ComhonException {
 	 * @param \Comhon\Model\Model $model
 	 * @param \stdClass $literal
 	 */
-	public function __construct(Model $model, \stdClass $literal) {
-		$message = "model '{$literal->model}' from literal ".json_encode($literal)." is not linked to requested model '{$model->getName()}' or doesn't have compatible serialization";
+	public function __construct(Model $model, UniqueObject $literal) {
+		$interfacer = new StdObjectInterfacer();
+		$interfacer->setVerifyReferences(false);
+		$modelName = $literal->hasValue('node') ? $literal->getValue('node')->getValue('model') : null;
+		
+		$message = "model '$modelName' from literal ".json_encode($interfacer->export($literal))." is not linked to requested model '{$model->getName()}' or doesn't have compatible serialization";
 		parent::__construct($message, ConstantException::NOT_LINKABLE_LITERAL_EXCEPTION);
 	}
 	

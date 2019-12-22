@@ -47,6 +47,16 @@
             "not_null": true
         },
         {
+            "name": "properties",
+            "type": "array",
+            "values": {
+                "type": "string",
+                "name": "property",
+                "not_null": true
+            },
+            "not_null": true
+        },
+        {
             "name": "simpleCollection",
             "type": "array",
             "values": {

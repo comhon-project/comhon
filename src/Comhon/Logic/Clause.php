@@ -13,8 +13,9 @@ namespace Comhon\Logic;
 
 use Comhon\Database\DbLiteral;
 use Comhon\Exception\ArgumentException;
-use Comhon\Exception\Literal\MalformedLiteralException;
-use Comhon\Exception\Literal\MalformedClauseException;
+use Comhon\Object\UniqueObject;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Exception\ComhonException;
 
 /**
  * logical junction is actually a disjunction or a conjunction
@@ -305,35 +306,33 @@ class Clause extends Formula {
 	
 	/**
 	 * 
-	 * @param \stdClass $stdObject
+	 * @param \Comhon\Object\UniqueObject $clause
 	 * @param \Comhon\Model\Model[] $modelByNodeId
-	 * @param Literal[] $literalCollection
 	 * @param \Comhon\Database\SelectQuery $selectQuery
 	 * @param boolean $allowPrivateProperties
+	 * @param \Comhon\Database\DbLiteral[] $dbLiteralsById do not specify this parameter, it is used implicitly
 	 * @throws \Exception
 	 * @return Clause
 	 */
-	public static function stdObjectToClause($stdObject, $modelByNodeId, $literalCollection = null, $selectQuery = null, $allowPrivateProperties = true) {
-		if (!isset($stdObject->type) || (isset($stdObject->elements) && !is_array($stdObject->elements))) {
-			throw new MalformedClauseException($stdObject);
+	public static function build(UniqueObject $clause, $modelByNodeId, $selectQuery = null, $allowPrivateProperties = true, &$dbLiteralsById = []) {
+		$clauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause');
+		if (!$clause->getModel()->isInheritedFrom($clauseModel)) {
+			throw new ArgumentException($clause, $clauseModel->getObjectInstance(false)->getComhonClass(), 1);
 		}
-		$clause = new Clause($stdObject->type);
-		if (isset($stdObject->elements)) {
-			foreach ($stdObject->elements as $stdObjectElement) {
-				if (isset($stdObjectElement->type)) { // clause
-					$clause->addClause(Clause::stdObjectToClause($stdObjectElement, $modelByNodeId, $literalCollection, $selectQuery, $allowPrivateProperties));
-				} else { // literal
-					if (isset($stdObjectElement->id)) {
-						$model = null;
-					} else if (isset($stdObjectElement->node) && array_key_exists($stdObjectElement->node, $modelByNodeId)) {
-						$model = $modelByNodeId[$stdObjectElement->node];
-					} else {
-						throw new MalformedLiteralException($stdObjectElement);
-					}
-					$clause->addLiteral(DbLiteral::stdObjectToLiteral($stdObjectElement, $model, $literalCollection, $selectQuery, $allowPrivateProperties));
+		
+		$type = $clause->getModel()->getName() == 'Comhon\Logic\Simple\Clause\Conjunction' ? Clause::CONJUNCTION : Clause::DISJUNCTION;
+		$newClause = new Clause($type);
+		foreach ($clause->getValue('elements') as $element) {
+			if ($element->getModel()->isInheritedFrom($clauseModel)) { // clause
+				$newClause->addClause(Clause::build($element, $modelByNodeId, $selectQuery, $allowPrivateProperties, $dbLiteralsById));
+			} else { // literal
+				if (!isset($modelByNodeId[$element->getValue('node')->getId()])) {
+					throw new ComhonException("missing key '{$element->getValue('node')->getId()}'");
 				}
+				$model = $modelByNodeId[$element->getValue('node')->getId()];
+				$newClause->addLiteral(DbLiteral::build($element, $model, $selectQuery, $allowPrivateProperties, $dbLiteralsById));
 			}
 		}
-		return $clause;
+		return $newClause;
 	}
 }

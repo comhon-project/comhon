@@ -1,0 +1,6 @@
+<manifest version="3.0">
+  <properties>
+    <property type="\Test\Request\Two" name="two" is_foreign="1"/>
+    <property type="string" name="string"/>
+  </properties>
+</manifest>

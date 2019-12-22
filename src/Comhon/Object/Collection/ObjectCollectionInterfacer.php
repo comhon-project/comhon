@@ -135,7 +135,7 @@ class ObjectCollectionInterfacer {
 	 */
 	public function getNotReferencedObjects() {
 		$notReferencedObjects = [];
-		foreach ($this->newForeignObjectCollection->getCollection() as $modelName => $objects) {
+		foreach ($this->newForeignObjectCollection->getMap() as $modelName => $objects) {
 			foreach ($objects as $id => $object) {
 				if (!$object->getModel()->isMain() && !$this->newObjectCollection->hasObject($id, $modelName)) {
 					$notReferencedObjects[] = $object;

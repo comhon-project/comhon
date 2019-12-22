@@ -1,0 +1,9 @@
+{
+    "version": "3.0",
+    "properties": [
+        {
+            "name": "string",
+            "type": "string"
+        }
+    ]
+}

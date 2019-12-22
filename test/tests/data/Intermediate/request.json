@@ -1,0 +1,144 @@
+{
+    "simpleCollection": [
+        {
+            "id": 0,
+            "elements": [1,2,3,4,5],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Conjunction"
+        },
+        {
+            "id": 1,
+            "node"    : 1,
+            "property" : "firstName",
+            "operator" : "IN",
+            "values"    : ["Paul", "Bernard", null],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
+        },
+        {
+            "id": 2,
+            "node"    : 2,
+            "property" : "surface",
+            "operator" : ">",
+            "value"    : 200,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+        },
+        {
+            "id": 3,
+            "node"     : 1,
+            "queue"     : ["children"],
+            "having" : 0,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+        },
+        {
+            "id": 4,
+            "node"     : 1,
+            "queue"     : ["homes", "house"],
+            "having" : 3,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+        },
+        {
+            "id": 5,
+            "elements": [6,7,8],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Conjunction"
+        },
+        {
+            "id": 6,
+            "node"    : 2,
+            "property" : "surface",
+            "operator" : ">",
+            "value"    : 250,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+        },
+        {
+            "id": 7,
+            "node"     : 1,
+            "queue"     : ["homes"],
+            "having" : 4,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+        },
+		{
+            "id": 8,
+			"node"    : 3,
+			"property" : "name",
+			"operator" : "=",
+			"value"    : "Montpellier",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+		}
+    ],
+    "havingCollection": [
+        {
+            "id": 0,
+            "elements": [1,2],
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Conjunction"
+        },
+        {
+            "id": 1,
+            "operator" : ">",
+            "value"    : 1,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+        },
+        {
+            "id": 2,
+            "operator" : "<=",
+            "value"    : 3,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+        },
+        {
+            "id": 3,
+            "function" : "AVG",
+            "property" : "surface",
+            "operator" : "=",
+            "value"    : 170,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Function"
+        },
+        {
+            "id": 4,
+            "elements" : [5,6,7],
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Disjunction"
+        },
+        {
+            "id": 5,
+            "operator" : ">=",
+            "value"    : 3,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+        },
+        {
+            "id": 6,
+            "operator" : ">",
+            "value"    : 2,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+        },
+        {
+            "id": 7,
+            "type" : "conjunction",
+            "elements" : [8,9],
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Conjunction"
+        },
+        {
+            "id": 8,
+            "operator" : ">=",
+            "value"    : 3,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+        },
+        {
+            "id": 9,
+            "operator" : ">",
+            "value"    : 2,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+        }
+    ],
+    "filter": 0,
+    "root": 1,
+    "models": [
+        {
+            "id": 1,
+            "model": "Test\\Person"
+        },{
+            "id": 2,
+            "model": "Test\\House"
+        },{
+            "id": 3,
+            "model": "Test\\Town"
+        }
+    ],
+    "__inheritance__": "Comhon\\Request\\Intermediate"
+}

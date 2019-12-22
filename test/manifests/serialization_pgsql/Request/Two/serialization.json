@@ -1,0 +1,10 @@
+{
+    "version": "2.0",
+    "serialization": {
+        "type": "Comhon\\SqlTable",
+        "value": {
+            "name": "two",
+            "database": "2"
+        }
+    }
+}

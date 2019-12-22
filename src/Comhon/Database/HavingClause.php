@@ -12,14 +12,16 @@
 namespace Comhon\Database;
 
 use Comhon\Logic\Clause;
-use Comhon\Exception\Literal\MalformedLiteralException;
+use Comhon\Object\UniqueObject;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Exception\ArgumentException;
 
 class HavingClause extends Clause {
 	
 	/**
 	 * build instance of HavingClause 
 	 * 
-	 * @param \stdClass $stdObject
+	 * @param \Comhon\Object\UniqueObject $havingClause
 	 * @param TableNode|string $firstTable table to link with literals with function HavingLiteral::COUNT
 	 * @param TableNode|string $lastTable table to link with literals with other function than HavingLiteral::COUNT
 	 * @param \Comhon\Model\Model $lastModel model linked to $lastTable
@@ -27,21 +29,24 @@ class HavingClause extends Clause {
 	 * @throws \Exception
 	 * @return HavingClause
 	 */
-	public static function stdObjectToHavingClause($stdObject, $firstTable, $lastTable, $lastModel, $allowPrivateProperties) {
-		if (!is_object($stdObject) || !isset($stdObject->type) || (isset($stdObject->elements) && !is_array($stdObject->elements))) {
-			throw new MalformedLiteralException($stdObject);
+	public static function buildHaving(UniqueObject $havingClause, $firstTable, $lastTable, $lastModel, $allowPrivateProperties) {
+		$clauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Clause');
+		if (!$havingClause->getModel()->isInheritedFrom($clauseModel)) {
+			throw new ArgumentException($havingClause, $clauseModel->getObjectInstance(false)->getComhonClass(), 1);
 		}
-		$clause = new HavingClause($stdObject->type);
-		if (isset($stdObject->elements)) {
-			foreach ($stdObject->elements as $stdObjectElement) {
-				if (isset($stdObjectElement->type)) { // clause
-					$clause->addClause(self::stdObjectToHavingClause($stdObjectElement, $firstTable, $lastTable, $lastModel, $allowPrivateProperties));
-				} else { // literal
-					// table is not used anymore for function "COUNT" because we now use COUNT(*) instead of COUNT(table.column)
-					// but we keep condition just in case
-					$table = isset($stdObjectElement->function) && ($stdObjectElement->function == HavingLiteral::COUNT) ? $firstTable : $lastTable;
-					$clause->addLiteral(HavingLiteral::stdObjectToHavingLiteral($stdObjectElement, $table, $lastModel, $allowPrivateProperties));
-				}
+		$havingClause->validate();
+		$type = $havingClause->getModel()->getName() == 'Comhon\Logic\Having\Clause\Conjunction' ? Clause::CONJUNCTION : Clause::DISJUNCTION;
+		$clause = new HavingClause($type);
+		
+		/** @var \Comhon\Object\UniqueObject $element */
+		foreach ($havingClause->getValue('elements') as $element) {
+			if ($element->getModel()->isInheritedFrom($clauseModel)) { // clause
+				$clause->addClause(self::buildHaving($element, $firstTable, $lastTable, $lastModel, $allowPrivateProperties));
+			} else { // literal
+				// table is not used anymore for function "COUNT" because we now use COUNT(*) instead of COUNT(table.column)
+				// but we keep condition just in case
+				$table = $element->getModel()->getName() == 'Comhon\Logic\Having\Literal\Count' ? $firstTable : $lastTable;
+				$clause->addLiteral(HavingLiteral::buildHaving($element, $table, $lastModel, $allowPrivateProperties));
 			}
 		}
 		return $clause;

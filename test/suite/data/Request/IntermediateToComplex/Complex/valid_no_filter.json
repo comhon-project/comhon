@@ -1,0 +1,16 @@
+{
+    "tree": {
+        "id": 1,
+        "model": "Test\\Request\\Root"
+    },
+    "simpleCollection": [
+        {
+            "id": 0,
+            "node": 1,
+            "property": "integer",
+            "operator": ">",
+            "value": 200,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+        }
+    ]
+}

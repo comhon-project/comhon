@@ -16,7 +16,7 @@ $childTable = new TableNode('person');
 $childTable->addSelectedColumn('id', 'child_id');
 $selectQuery = new SelectQuery($personTable);
 $selectQuery->join(SelectQuery::INNER_JOIN, $childTable, new OnLiteral($personTable, 'id', Literal::EQUAL, $childTable, 'father_id'));
-$selectQuery->where(new SimpleDbLiteral($childTable, 'first_name', Literal::EQUAL, ['john', 'Jean']));
+$selectQuery->where(new SimpleDbLiteral($childTable, 'first_name', Literal::IN, ['john', 'Jean']));
 $database  = ModelManager::getInstance()->getInstanceModel('Test\Person')->getSqlTableSettings()->getValue('database');
 $databaseController = DatabaseHandler::getInstanceWithDataBaseObject($database);
 

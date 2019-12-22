@@ -15,7 +15,7 @@
     "models": [
         {
             "id": 1,
-            "model": "person"
+            "model": "Test\\Person"
         }
 	],
     "__inheritance__": "Comhon\\Request\\Intermediate"

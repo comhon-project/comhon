@@ -5,7 +5,7 @@
 			"models": [
 				{
 					"id": 1,
-					"model": "my_model"
+					"model": "Comhon\\SqlTable"
 				}
 			]
 		},
@@ -15,19 +15,21 @@
 		{
 			"tree": {
 		        "id": 1,
-		        "model": "person"
+		        "model": "Test\\Person"
 		    }
 		},
 		"Comhon\\Request\\Complex"
 	],
 	[
 		{
-			"model": "my_model"
+		    "id": 1,
+			"model": "Comhon\\SqlTable"
 		},
 		"Comhon\\Model\\Root"
 	],
 	[
 		{
+		    "id": 1,
 			"property": "my_property"
 		},
 		"Comhon\\Model\\Node"
@@ -111,7 +113,7 @@
             ],
             "having": 1
         },
-		"Comhon\\\\Logic\\\\Simple\\\\Having"
+		"Comhon\\Logic\\Simple\\Having"
 	],
 	[
 		{
@@ -120,25 +122,25 @@
             "function": "MIN",
             "value": 12.5
         },
-		"Comhon\\\\Logic\\\\Having\\\\Literal\\\\Function"
+		"Comhon\\Logic\\Having\\Literal\\Function"
 	],
 	[
 		{
             "operator": ">",
             "value": 2
         },
-		"Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
+		"Comhon\\Logic\\Having\\Literal\\Count"
 	],
 	[
 		{
             "elements": [10]
         },
-		"Comhon\\\\Logic\\\\Simple\\\\Clause\\\\Disjunction"
+		"Comhon\\Logic\\Simple\\Clause\\Disjunction"
 	],
 	[
 		{
             "elements": [10]
         },
-		"Comhon\\\\Logic\\\\Having\\\\Clause\\\\Disjunction"
+		"Comhon\\Logic\\Having\\Clause\\Disjunction"
 	]
 ]

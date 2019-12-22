@@ -50,7 +50,7 @@ class ObjectFinder extends Visitor {
 	 *
 	 * @var string[]
 	 */
-	private $propertyNameStack = null;
+	private $stack = null;
 	
 	/**
 	 * {@inheritDoc}
@@ -78,7 +78,7 @@ class ObjectFinder extends Visitor {
 		$value = $parentObject->getValue($key);
 		
 		if (($this->searchForeign === $isForeign) && ($value instanceof UniqueObject) && $value->getId() === $this->id && $value->getModel() === $this->model) {
-			$this->propertyNameStack = $propertyNameStack;
+			$this->stack = $propertyNameStack;
 			$this->found = true;
 		}
 		
@@ -96,6 +96,6 @@ class ObjectFinder extends Visitor {
 	 * @see \Comhon\Visitor\Visitor::_finalize()
 	 */
 	protected function _finalize($object) {
-		return $this->propertyNameStack;
+		return $this->stack;
 	}
 }

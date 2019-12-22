@@ -14,32 +14,42 @@ $time_start = microtime(true);
 
 /** ****************************** test request objects ****************************** **/
 
-$Json = '{
-	"model" : "Test\\\\TestDb",
-	"requestChildren" : false,
-	"loadForeignProperties" : false,
-	"order" : [{"property":"integer", "type":"ASC"}],
-	"properties" : ["date","timestamp","integer","string"],
-	"filter" : {
-		"type" : "conjunction",
-		"elements" : [
-			{
-				"model"    : "Test\\\\TestDb",
-				"property" : "string",
-				"operator" : "=",
-				"value"    : ["aaaa","cccc","bbbbsdfsdfsdf"]
-			},
-			{
-				"model"    : "Test\\\\TestDb",
-				"property" : "boolean2",
-				"operator" : "=",
-				"value"    : true
-			}
-		]
-	}
-}';
+$request = [
+		"root" => 1,
+		"models" => [[
+			"id" => 1,
+			"model" => 'Test\TestDb'
+		]],
+		"filter" => 0,
+		"simpleCollection" => [
+			[
+				"id" => 0,
+				"elements" => [1,2],
+				"__inheritance__" => "Comhon\Logic\Simple\Clause\Conjunction"
+			],
+			[
+				"id" => 1,
+				"node" => 1,
+				"property" => "string",
+				"operator" => "IN",
+				"values" => ["aaaa","cccc","bbbbsdfsdfsdf"],
+				"__inheritance__" => "Comhon\Logic\Simple\Literal\Set\String"
+			],
+			[
+				"id" => 2,
+				"node" => 1,
+				"property" => "boolean2",
+				"operator" => "=",
+				"value" => true,
+				"__inheritance__" => "Comhon\Logic\Simple\Literal\Boolean"
+			]
+		],
+		"order" => [["property" => "integer", "type" => "ASC"]],
+		"properties" => ["date","timestamp","integer","string"],
+		"__inheritance__" => 'Comhon\Request\Intermediate'
+];
 
-$result = ObjectService::getObjects(json_decode($Json), true);
+$result = ObjectService::getObjects(json_decode(json_encode($request)), true);
 
 if (!is_object($result) || !isset($result->success) || !$result->success || !isset($result->result) || !is_array($result->result)) {
 	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
@@ -49,31 +59,41 @@ if (!compareJson(json_encode($result->result), '[{"date":"2016-05-01T14:53:54+02
 	throw new \Exception('bad objects');
 }
 
-$Json = '{
-	"model" : "Test\\\\TestDb",
-	"requestChildren" : false,
-	"loadForeignProperties" : false,
-	"order" : [{"property":"integer", "type":"ASC"}],
-	"filter" : {
-		"type" : "conjunction",
-		"elements" : [
-			{
-				"model"    : "Test\\\\TestDb",
-				"property" : "string",
-				"operator" : "=",
-				"value"    : ["aaaa","cccc","bbbbsdfsdfsdf"]
-			},
-			{
-				"model"    : "Test\\\\TestDb",
-				"property" : "boolean2",
-				"operator" : "=",
-				"value"    : true
-			}
-		]
-	}
-}';
+$request = [
+		"root" => 1,
+		"models" => [[
+				"id" => 1,
+				"model" => 'Test\TestDb'
+		]],
+		"filter" => 0,
+		"simpleCollection" => [
+				[
+						"id" => 0,
+						"elements" => [1,2],
+						"__inheritance__" => "Comhon\Logic\Simple\Clause\Conjunction"
+				],
+				[
+						"id" => 1,
+						"node" => 1,
+						"property" => "string",
+						"operator" => "IN",
+						"values" => ["aaaa","cccc","bbbbsdfsdfsdf"],
+						"__inheritance__" => "Comhon\Logic\Simple\Literal\Set\String"
+				],
+				[
+						"id" => 2,
+						"node" => 1,
+						"property" => "boolean2",
+						"operator" => "=",
+						"value" => true,
+						"__inheritance__" => "Comhon\Logic\Simple\Literal\Boolean"
+				]
+		],
+		"order" => [["property" => "integer", "type" => "ASC"]],
+		"__inheritance__" => 'Comhon\Request\Intermediate'
+];
 
-$result = ObjectService::getObjects(json_decode($Json), true);
+$result = ObjectService::getObjects(json_decode(json_encode($request)), true);
 
 if (!is_object($result) || !isset($result->success) || !$result->success || !isset($result->result) || !is_array($result->result)) {
 	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));

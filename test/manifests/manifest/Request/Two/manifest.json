@@ -1,0 +1,14 @@
+{
+    "version": "3.0",
+    "properties": [
+        {
+            "name": "one",
+            "type": "\\Test\\Request\\One",
+            "is_foreign": true
+        },
+        {
+            "name": "string",
+            "type": "string"
+        }
+    ]
+}

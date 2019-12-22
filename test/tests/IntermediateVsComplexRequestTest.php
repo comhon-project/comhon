@@ -4,256 +4,20 @@ use Test\Comhon\Service\ObjectService;
 
 $time_start = microtime(true);
 
-$Json = '{
-	"model" : "Test\\\\Person",
-	"requestChildren" : false,
-	"loadForeignProperties" : false,
-	"filter" : {
-		"type" : "conjunction",
-		"elements" : [
-			{
-				"model"    : "Test\\\\Person",
-				"property" : "firstName",
-				"operator" : "=",
-				"value"    : ["Paul", "Bernard", null]
-			},
-			{
-				"model"    : "Test\\\\House",
-				"property" : "surface",
-				"operator" : ">",
-				"value"    : 200
-			},
-			{
-				"model"     : "Test\\\\Person",
-				"queue"     : {"property" : "children"},
-				"having" : {
-					"type" : "conjunction",
-					"elements" : [
-						{
-							"function" : "COUNT",
-							"operator" : ">",
-							"value"    : 1
-						},
-						{
-							"function" : "COUNT",
-							"operator" : "<=",
-							"value"    : 3
-						}
-					]
-				}
-			},
-			{
-				"model"     : "Test\\\\Person",
-				"queue"     : {
-					"property" : "homes", 
-					"child" : {
-						"property" : "house"
-					}
-				},
-				"having" : {
-					"function" : "AVG",
-					"property" : "surface",
-					"operator" : "=",
-					"value"    : 170
-				}
-			},
-			{
-				"type" : "conjunction",
-				"elements" : [
-					{
-						"model"    : "Test\\\\House",
-						"property" : "surface",
-						"operator" : ">",
-						"value"    : 250
-					},
-					{
-						"model"     : "Test\\\\Person",
-						"queue"     : {"property" : "homes"},
-						"having" : {
-							"type" : "disjunction",
-							"elements" : [
-								{
-									"function" : "COUNT",
-									"operator" : ">=",
-									"value"    : 3
-								},
-								{
-									"function" : "COUNT",
-									"operator" : ">",
-									"value"    : 2
-								},
-								{
-									"type" : "conjunction",
-									"elements" : [
-										{
-											"function" : "COUNT",
-											"operator" : ">=",
-											"value"    : 3
-										},
-										{
-											"function" : "COUNT",
-											"operator" : ">",
-											"value"    : 2
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"model"    : "Test\\\\Town",
-						"property" : "name",
-						"operator" : "=",
-						"value"    : "Montpellier"
-					}
-				]
-			}
-		]
-	}
-}';
+/** ********** intermediate ********** **/
+$data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Intermediate' . DIRECTORY_SEPARATOR . 'request.json';
 
 $time_start_intermediaire = microtime(true);
-$result = ObjectService::getObjects(json_decode($Json));
+$result = ObjectService::getObjects(json_decode(file_get_contents($data_ad)));
 $time_intermediaire = microtime(true) - $time_start_intermediaire;
 if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 1');
 }
-
-$Json = '{
-	"requestChildren" : false,
-	"loadForeignProperties" : false,
-	"tree" : {
-		"model"   : "Test\\\\Person",
-		"id"      : "person",
-		"children" : [
-			{
-				"property" : "homes",
-				"id"       : "homes",
-				"children"  : [
-					{
-						"property" : "house",
-						"id"       : "house"
-					}
-				]
-			},
-			{
-				"property" : "birthPlace",
-				"id"       : "birthPlace",
-				"children"  : [
-					{
-						"property" : "town",
-						"id"       : "town"
-					}
-				]
-			}
-		]
-	},
-	"filter" : {
-		"type" : "conjunction",
-		"elements" : [
-			{
-				"node"     : "person",
-				"property" : "firstName",
-				"operator" : "=",
-				"value"    : ["Paul", "Bernard", null]
-			},
-			{
-				"node"     : "house",
-				"property" : "surface",
-				"operator" : ">",
-				"value"    : 200
-			},
-			{
-				"node"      : "person",
-				"queue"     : {"property" : "children"},
-				"having" : {
-					"type" : "conjunction",
-					"elements" : [
-						{
-							"function" : "COUNT",
-							"operator" : ">",
-							"value"    : 1
-						},
-						{
-							"function" : "COUNT",
-							"operator" : "<=",
-							"value"    : 3
-						}
-					]
-				}
-			},
-			{
-				"node"      : "person",
-				"queue"     : {
-					"property" : "homes",
-					"child" : {
-						"property" : "house"
-					}
-				},
-				"having" : {
-					"function" : "AVG",
-					"property" : "surface",
-					"operator" : "=",
-					"value"    : 170
-				}
-			},
-			{
-				"type" : "conjunction",
-				"elements" : [
-					{
-						"node"     : "house",
-						"property" : "surface",
-						"operator" : ">",
-						"value"    : 250
-					},
-					{
-						"node"      : "person",
-						"queue"     : {"property" : "homes"},
-						"having" : {
-							"type" : "disjunction",
-							"elements" : [
-								{
-									"function" : "COUNT",
-									"operator" : ">=",
-									"value"    : 3
-								},
-								{
-									"function" : "COUNT",
-									"operator" : ">",
-									"value"    : 2
-								},
-								{
-									"type" : "conjunction",
-									"elements" : [
-										{
-											"function" : "COUNT",
-											"operator" : ">=",
-											"value"    : 3
-										},
-										{
-											"function" : "COUNT",
-											"operator" : ">",
-											"value"    : 2
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"node"     : "town",
-						"property" : "name",
-						"operator" : "=",
-						"value"    : "Montpellier"
-					}
-				]
-			}
-		]
-	}
-}';
+/** ********** complex ********** **/
+$data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Complex' . DIRECTORY_SEPARATOR . 'request.json';
 
 $time_start_complex = microtime(true);
-$result = ObjectService::getObjects(json_decode($Json));
+$result = ObjectService::getObjects(json_decode(file_get_contents($data_ad)));
 $time_complex = microtime(true) - $time_start_complex;
 if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 2');
@@ -266,15 +30,29 @@ if ($time_complex > $time_intermediaire) {
 /** *************************************************************************************************** **/
 
 $Json = '{
-	"model" : "Test\\\\Person",
-	"requestChildren" : false,
-	"loadForeignProperties" : false,
-	"filter" : {
-		"model" : "Test\\\\Home",
-		"property" : "id",
-		"operator" : "=",
-		"value"    : 1
-	}
+	"root" : 1,
+	"models" : [
+		{
+			"model"   : "Test\\\\Person",
+			"id"      : 1
+		},
+		{
+			"model" : "Test\\\\Home",
+			"id"       : 2
+		}
+	],
+	"simpleCollection" : [
+		{
+			"id"       : 1,
+			"node"     : 2,
+			"property" : "id",
+			"operator" : "=",
+			"value"    : 1,
+        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+		}
+	],
+	"filter" : 1,
+    "__inheritance__": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 $time_start_intermediaire = microtime(true);
@@ -285,24 +63,28 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"first
 }
 
 $Json = '{
-	"requestChildren" : false,
-	"loadForeignProperties" : false,
 	"tree" : {
 		"model"   : "Test\\\\Person",
-		"id"      : "p1",
-		"children" : [
+		"id"      : 1,
+		"nodes" : [
 			{
 				"property" : "homes",
-				"id"       : "homeux"
+				"id"       : 2
 			}
 		]
 	},
-	"filter" : {
-		"node"     : "homeux",
-		"property" : "id",
-		"operator" : "=",
-		"value"    : 1
-	}
+	"simpleCollection" : [
+		{
+			"id"       : 1,
+			"node"     : 2,
+			"property" : "id",
+			"operator" : "=",
+			"value"    : 1,
+        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+		}
+	],
+	"filter" : 1,
+    "__inheritance__": "Comhon\\\\Request\\\\Complex"
 }';
 
 $time_start_complex = microtime(true);

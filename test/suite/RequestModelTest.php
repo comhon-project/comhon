@@ -2,7 +2,6 @@
 
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Interfacer\XMLInterfacer;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Interfacer\StdObjectInterfacer;
@@ -13,7 +12,7 @@ use Comhon\Exception\Object\MissingRequiredValueException;
 use Comhon\Exception\ConstantException;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 
-class RequestTest extends TestCase
+class RequestModelTest extends TestCase
 {
 	private static $data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Request' . DIRECTORY_SEPARATOR;
 	
@@ -93,6 +92,24 @@ class RequestTest extends TestCase
 		$this->assertSame($modelRooms, $collection->getValue(1)->getValue('node'));
 	}
 	
+	public function testNotExistingModel()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
+		$obj = $model->getObjectInstance(false);
+		
+		$thrown = false;
+		try {
+			$obj->fill(['tree' => ['model' => 'my_model']], new AssocArrayInterfacer());
+		} catch (ImportException $e) {
+			$thrown = true;
+			$this->assertEquals($e->getStringifiedProperties(), '.tree.model');
+			$this->assertEquals(get_class($e->getOriginalException()), NotSatisfiedRestrictionException::class);
+			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::NOT_SATISFIED_RESTRICTION_EXCEPTION);
+			$this->assertEquals($e->getOriginalException()->getMessage(), "model 'my_model' doesn't exist");
+		}
+		$this->assertTrue($thrown);
+	}
+	
 	/** ******************************** import failure ******************************** **/
 
 	/**
@@ -138,6 +155,7 @@ class RequestTest extends TestCase
 				"limit" => 1,
 				"offset" => 0,
 				"order" => [],
+				"properties" => [],
 				"simpleCollection" => [],
 				"havingCollection" => [],
 				"filter" => 1,
@@ -145,27 +163,11 @@ class RequestTest extends TestCase
 				"models" => [
 					[
 						"id" => 1,
-						"model" => "my_model"
+						"model" => 'Comhon\SqlTable'
 					]
 				]
 			],
 			"Comhon\\Request\\Intermediate"
-		];
-		$data[] = [
-			[
-				"id" => 1,
-				"model" => "my_model",
-				"nodes" => []
-			],
-			"Comhon\\Model\\Root"
-		];
-		$data[] = [
-			[
-				"id" => 1,
-				"property" => "my_property",
-				"nodes" => []
-			],
-			"Comhon\\Model\\Node"
 		];
 		return $data;
 	}

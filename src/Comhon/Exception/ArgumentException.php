@@ -42,7 +42,7 @@ class ArgumentException extends ComhonException {
 			: $nodes[1]['function'];
 		
 		$expected = is_array($expected)
-			? 'belong to enumeration '.json_encode($expected)
+			? 'be one of '.json_encode($expected)
 			: "be a $expected";
 		
 		$message = "Argument at index $index passed to $function() "

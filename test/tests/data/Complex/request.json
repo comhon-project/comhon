@@ -1,0 +1,159 @@
+{
+    "simpleCollection": [
+    	{
+			"id"       : 100,
+			"node"     : 1,
+			"queue"    : ["children"],
+			"having" : 100,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+		},
+		{
+			"id"       : 200,
+			"node"     : 1,
+			"queue"    : ["children"],
+			"having" : 200,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+		},
+        {
+            "id": 0,
+            "elements": [1,2,3,4,100,5],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Conjunction"
+        },
+        {
+            "id": 1,
+			"node"     : 3,
+			"property" : "firstName",
+			"operator" : "IN",
+			"values"    : ["louise", "mouha", null],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
+		},
+		{
+        	"id": 2,
+			"node"     : 4,
+			"property" : "endDate",
+			"operator" : "NOT IN",
+			"values"    : ["louise", "mouha", null],
+        	"__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
+		},
+		{
+        	"id": 3,
+			"node"    : 5,
+			"property" : "surface",
+			"operator" : ">",
+			"value"    : 200,
+        	"__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+		},
+		{
+        	"id": 4,
+			"node"      : 1,
+			"queue"     : ["homes", "house"],
+			"having" : 0,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+		},
+        {
+            "id": 5,
+            "elements": [6,7,8,100,200],
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Conjunction"
+        },
+        {
+            "id": 6,
+			"node"    : 5,
+			"property" : "surface",
+			"operator" : ">",
+			"value"    : 250,
+        	"__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+		},
+		{
+            "id": 7,
+			"node"     : 1,
+			"queue"    : ["homes"],
+			"having" : 3,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+		},
+		{
+            "id": 8,
+			"node"    : 7,
+			"property" : "name",
+			"operator" : "=",
+			"value"    : "Montpellier",
+        	"__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+		}
+    ],
+    "havingCollection": [
+    	{
+            "id": 100,
+			"operator" : "=",
+			"value"    : 3,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+		},
+		{
+            "id": 200,
+			"operator" : ">=",
+			"value"    : 3,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+		},
+		{
+        	"id": 0,
+			"elements" : [1,2],
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Conjunction"
+		},
+		{
+        	"id": 1,
+			"function" : "AVG",
+			"property" : "surface",
+			"operator" : "=",
+			"value"    : 170,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Function"
+		},
+		{
+        	"id": 2,
+			"operator" : "=",
+			"value"    : 3,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+		},
+		{
+        	"id": 3,
+			"operator" : ">=",
+			"value"    : 3,
+            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+		}
+    ],
+    "filter": 0,
+    "tree" : {
+		"id"      : 1,
+		"model"   : "Test\\Person",
+		"nodes" : [
+			{
+				"id"       : 2,
+				"property" : "children",
+				"nodes"  : [
+					{
+						"id"       : 3,
+						"property" : "children"
+					}
+				]
+			},
+			{
+				"id"       : 4,
+				"property" : "homes",
+				"nodes"  : [
+					{
+						"id"       : 5,
+						"property" : "house"
+					}
+				]
+			},
+			{
+				"id"       : 6,
+				"property" : "birthPlace",
+				"nodes"  : [
+					{
+						"id"       : 7,
+						"property" : "town"
+					}
+				]
+			}
+		]
+	},
+    "__inheritance__": "Comhon\\Request\\Complex"
+}

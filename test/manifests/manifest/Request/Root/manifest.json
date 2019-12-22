@@ -1,0 +1,46 @@
+{
+    "version": "3.0",
+    "properties": [
+        {
+            "name": "one",
+            "type": "\\Test\\Request\\One",
+            "is_foreign": true
+        },
+        {
+            "name": "three",
+            "type": "\\Test\\Request\\Three",
+            "is_foreign": true
+        },
+        {
+            "name": "four",
+            "type": "\\Test\\Request\\Four",
+            "is_foreign": true
+        },
+        {
+            "name": "five",
+            "type": "\\Test\\Request\\Five",
+            "is_foreign": true
+        },
+        {
+            "name": "root",
+            "type": "\\Test\\Request\\Root",
+            "is_foreign": true
+        },
+        {
+            "name": "string",
+            "type": "string"
+        },
+        {
+            "name": "integer",
+            "type": "integer"
+        },
+        {
+            "name": "float",
+            "type": "float"
+        },
+        {
+            "name": "boolean",
+            "type": "boolean"
+        }
+    ]
+}

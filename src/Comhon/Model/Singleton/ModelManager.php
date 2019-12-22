@@ -283,6 +283,9 @@ class ModelManager {
 	 */
 	public function addManifestParser(Model $model) {
 		$fullyQualifiedName = $model->getName();
+		if (strpos($fullyQualifiedName, '\\\\') !== false) {
+			throw new ComhonException('invalid model name, it cannot contain several followed baskslash (\\\\)');
+		}
 		list($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) = $this->_splitModelName($fullyQualifiedName);
 		$separatorOffset = PHP_INT_MAX;
 		$manifestPath_afe = null;

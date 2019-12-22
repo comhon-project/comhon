@@ -18,6 +18,9 @@
     <property name="order" type="array" not_null="1">
       <values name="element" type="Order" not_null="1"/>
     </property>
+    <property name="properties" type="array" not_null="1">
+      <values name="property" type="string" not_null="1"/>
+    </property>
     <property name="simpleCollection" type="array" not_null="1">
       <values name="formula" type="\Comhon\Logic\Simple\Formula" not_null="1"/>
     </property>

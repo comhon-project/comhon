@@ -38,6 +38,9 @@ function transformSerialization($xml, $dir) {
 			foreach ($xml->serialization->value->attributes() as $name => $value) {
 				$json->serialization->value[$name] = (string) $value;
 			}
+			if (isset($xml->serialization->value->database)) {
+				$json->serialization->value['database'] = (string) $xml->serialization->value->database;
+			}
 		} else {
 			$json->serialization->id = (string) $xml->serialization['id'];
 		}
@@ -213,6 +216,9 @@ function getProperties($xml) {
 			if (isset($child->values['not_null']) && ((string) $child->values['not_null'] == '1')) {
 				$json->values->not_null = true;
 			}
+			if (isset($child->values['is_model_name']) && ((string) $child->values['is_model_name'] == '1')) {
+				$json->values->is_model_name = true;
+			}
 			if (isset($child->values['not_empty']) && ((string) $child->values['not_empty'] == '1')) {
 				$json->values->not_empty = true;
 			}
@@ -251,6 +257,9 @@ function getProperties($xml) {
 		}
 		if (isset($child['not_null']) && ((string) $child['not_null'] == '1')) {
 			$json->not_null = true;
+		}
+		if (isset($child['is_model_name']) && ((string) $child['is_model_name'] == '1')) {
+			$json->is_model_name = true;
 		}
 		if (isset($child['not_empty']) && ((string) $child['not_empty'] == '1')) {
 			$json->not_empty = true;

@@ -46,14 +46,16 @@ class ObjectCollection {
 	 *
 	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param boolean $addForeignObjects
+	 * @param boolean $visitForeignObjects
 	 * @return \Comhon\Object\Collection\ObjectCollection
 	 */
-	public static function build(AbstractComhonObject $object, $addForeignObjects = true) {
+	public static function build(AbstractComhonObject $object, $addForeignObjects = true, $visitForeignObjects = false) {
 		$objectCollection = new ObjectCollection();
-		$stack = [[$object, false]];
+		$stack = [[$object, false, true]];
+		self::$instanceObjectHash = [];
 		
 		while (!empty($stack)) {
-			list($object, $isForeign) = array_pop($stack);
+			list($object, $isForeign, $add) = array_pop($stack);
 			$hash = spl_object_hash($object);
 			if (array_key_exists($hash, self::$instanceObjectHash)) {
 				continue;
@@ -64,16 +66,25 @@ class ObjectCollection {
 				if ($object->getUniqueModel() instanceof Model) {
 					foreach ($object as $element) {
 						if (!is_null($element)) {
-							$stack[] = [$element, $isForeign];
+							$stack[] = [$element, $isForeign, $add];
 						}
 					}
 				}
-			} elseif (!$objectCollection->hasObject($object->getId(), $object->getModel()->getName())) {
-				$objectCollection->addObject($object);
-				if (!$isForeign) {
+			} else {
+				if ($add) {
+					$objectCollection->addObject($object);
+				}
+				if (!$isForeign || $visitForeignObjects) {
 					foreach ($object->getModel()->getComplexProperties() as $name => $complexeProperty) {
-						if ($object->issetValue($name) && ($addForeignObjects || !$complexeProperty->isForeign())) {
-							$stack[] = [$object->getValue($name), $complexeProperty->isForeign()];
+						if (!$object->issetValue($name)) {
+							continue;
+						}
+						if ($complexeProperty->isForeign()) {
+							if ($addForeignObjects || $visitForeignObjects) {
+								$stack[] = [$object->getValue($name), $complexeProperty->isForeign(), $addForeignObjects];
+							}
+						} else {
+							$stack[] = [$object->getValue($name), $complexeProperty->isForeign(), true];
 						}
 					}
 				}
@@ -85,10 +96,11 @@ class ObjectCollection {
 	}
 	
 	/**
+	 * get array map that store all objects by model name and by id
 	 * 
 	 * @return \Comhon\Object\UniqueObject[][]
 	 */
-	public function getCollection() {
+	public function getMap() {
 		return $this->map;
 	}
 	

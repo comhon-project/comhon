@@ -33,6 +33,12 @@ abstract class Literal extends Formula {
 	/** @var string */
 	const DIFF       = '<>';
 	
+	/** @var string */
+	const IN  = 'IN';
+	
+	/** @var string */
+	const NOT_IN       = 'NOT IN';
+	
 	/** @var string|integer */
 	protected $id;
 	
@@ -46,7 +52,9 @@ abstract class Literal extends Formula {
 		self::INF        => null,
 		self::SUPP_EQUAL => null,
 		self::INF_EQUAL  => null,
-		self::DIFF       => null
+		self::DIFF       => null,
+		self::IN         => null,
+		self::NOT_IN     => null
 	];
 	
 	/** @var array */
@@ -56,7 +64,9 @@ abstract class Literal extends Formula {
 		self::INF_EQUAL  => self::SUPP,
 		self::SUPP       => self::INF_EQUAL,
 		self::SUPP_EQUAL => self::INF,
-		self::DIFF       => self::EQUAL
+		self::DIFF       => self::EQUAL,
+		self::IN         => self::NOT_IN,
+		self::NOT_IN     => self::IN
 	];
 	
 	/**
@@ -65,7 +75,7 @@ abstract class Literal extends Formula {
 	 */
 	public function __construct($operator) {
 		if (!array_key_exists($operator, static::$allowedOperators)) {
-			throw new ArgumentException($operator, static::$allowedOperators, 1);
+			throw new ArgumentException($operator, array_keys(static::$allowedOperators), 1);
 		}
 		$this->operator  = $operator;
 	}

@@ -21,6 +21,7 @@ use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\ConstantException;
 use Comhon\Exception\Object\MissingRequiredValueException;
 use Comhon\Exception\Interfacer\ExportException;
+use Comhon\Model\Restriction\ModelName;
 
 class RestrictionTest extends TestCase
 {
@@ -506,6 +507,46 @@ class RestrictionTest extends TestCase
 		$array->pushValue('aa');
 	}
 	
+	/** ************************************** model name ************************************** **/
+	
+	public function testModelNameRestrictionInstance()
+	{
+		$modelNameRestriction = new ModelName();
+		$this->assertTrue($modelNameRestriction->isEqual($modelNameRestriction));
+		$this->assertTrue($modelNameRestriction->isEqual(new ModelName()));
+		$this->assertFalse($modelNameRestriction->isEqual(new Length('[3,4]')));
+		
+		$this->assertTrue($modelNameRestriction->satisfy('Test\TestRestricted'));
+		$this->assertFalse($modelNameRestriction->satisfy('my_model'));
+		
+		$this->assertEquals("model 'Test\TestRestricted' exists", $modelNameRestriction->toMessage('Test\TestRestricted'));
+		$this->assertEquals("model 'my_model' doesn't exist", $modelNameRestriction->toMessage('my_model'));
+		
+		$this->assertEquals('Model name', $modelNameRestriction->toString());
+	}
+	
+	public function testModelNameRestrictionProperty()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Simple');
+		
+		$restrictions = $model->getProperty('model')->getRestrictions();
+		$this->assertCount(1, $restrictions);
+		$this->assertTrue(isset($restrictions[ModelName::class]));
+		$this->assertInstanceOf(ModelName::class, $restrictions[ModelName::class]);
+		$this->assertTrue($restrictions[ModelName::class]->satisfy('Test\TestRestricted'));
+		$this->assertFalse($restrictions[ModelName::class]->satisfy('my_model'));
+	}
+	
+	public function testModelNameRestrictionValue()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Simple');
+		$obj = $model->getObjectInstance(false);
+		$obj->setValue('model', 'Comhon\SqlTable');
+		
+		$this->expectException(NotSatisfiedRestrictionException::class);
+		$this->expectExceptionMessage("model 'my_model' doesn't exist");
+		$obj->setValue('model', 'my_model');
+	}
 	
 	/** ************************************** import/export successful ************************************** **/
 	

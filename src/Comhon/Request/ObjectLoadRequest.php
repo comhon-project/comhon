@@ -23,18 +23,6 @@ abstract class ObjectLoadRequest {
 	/** @var \Comhon\Model\Model requested model */
 	protected $model;
 	
-	/**
-	 * @var boolean determine if request has to load children (aggregation)
-	 *     if self::$loadForeignProperties is false load only children ids
-	 */
-	protected $requestChildren          = false;
-	
-	/** 
-	 * @var boolean determine if request has to load foreign properties
-	 *     if self::$requestChildren is true load aggregations too
-	 */
-	protected $loadForeignProperties    = false;
-	
 	/** @var string[] filter that define properties that have to be exported */
 	protected $propertiesFilter;
 	
@@ -62,15 +50,6 @@ abstract class ObjectLoadRequest {
 	abstract public function execute();
 	
 	/**
-	 * build load request 
-	 *
-	 * @param \stdClass $settings
-	 * @param boolean $private
-	 * @return \Comhon\Request\ObjectLoadRequest
-	 */
-	abstract public static function buildObjectLoadRequest(\stdClass $settings, $private = false);
-	
-	/**
 	 * set properties that have to be exported
 	 *
 	 * @param string[] $propertiesFilter
@@ -82,7 +61,9 @@ abstract class ObjectLoadRequest {
 		$this->propertiesFilter = [];
 		// ids have to be in selected columns so if they are not defined in filter, we add them
 		foreach ($this->model->getIdProperties() as $property) {
-			$this->propertiesFilter[] = $property->getName();
+			if ($this->private || !$property->isPrivate()) {
+				$this->propertiesFilter[] = $property->getName();
+			}
 		}
 		// add defined columns
 		foreach ($propertiesFilter as $propertyName) {
@@ -101,66 +82,12 @@ abstract class ObjectLoadRequest {
 	}
 	
 	/**
-	 * define if children will be requested
-	 * 
-	 * @param boolean $boolean
-	 * @return ObjectLoadRequest
-	 */
-	public function requestChildren($boolean) {
-		$this->requestChildren = $boolean;
-		return $this;
-	}
-	
-	/**
-	 * define if foreign properties will be requested
-	 *
-	 * @param boolean $boolean
-	 * @return ObjectLoadRequest
-	 */
-	public function loadForeignProperties($boolean) {
-		$this->loadForeignProperties = $boolean;
-		return $this;
-	}
-	
-	/**
 	 * get model
 	 * 
 	 * @return \Comhon\Model\Model
 	 */
 	public function getModel() {
 		return $this->model;
-	}
-	
-	/**
-	 * complete retrieved comhon object 
-	 * 
-	 * load foreign properties and aggregations according request settings
-	 * 
-	 * @param \Comhon\Object\AbstractComhonObject $object
-	 * @return \Comhon\Object\ComhonArray
-	 */
-	protected function _completeObject(AbstractComhonObject $object) {
-		/** @var \Comhon\Object\UniqueObject[] $objects */
-		$objects = ($object instanceof ComhonArray) ? $object->getValues() : [$object];
-
-		if ($this->requestChildren && !$this->loadForeignProperties) {
-			foreach ($objects as $obj) {
-				foreach ($obj->getModel()->getAggregationProperties() as $propertyName => $aggregation) {
-					$obj->loadAggregationIds($propertyName);
-				}
-			}
-		}
-		else if ($this->loadForeignProperties) {
-			foreach ($objects as $obj) {
-				foreach ($obj->getModel()->getComplexProperties() as $propertyName => $property) {
-					if (($property->isAggregation() && $this->requestChildren) || ($property->isForeign() && !is_null($obj->getValue($propertyName)))) {
-						$obj->loadValue($propertyName);
-					}
-				}
-			}
-		}
-		
-		return $object;
 	}
 	
 }

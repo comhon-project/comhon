@@ -13,6 +13,7 @@ namespace Comhon\Model\Property;
 
 use Comhon\Exception\ComhonException;
 use Comhon\Model\ModelForeign;
+use Comhon\Object\UniqueObject;
 
 class MultipleForeignProperty extends ForeignProperty {
 
@@ -81,6 +82,24 @@ class MultipleForeignProperty extends ForeignProperty {
 	 */
 	public function isInterfaceable($private, $serialization) {
 		return !$serialization && parent::isInterfaceable($private, $serialization);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isAllowedLiteral()
+	 */
+	public function isAllowedLiteral(UniqueObject $literal) {
+		return in_array($literal->getModel()->getName(), self::ALLOWED_STRING_LITERALS);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::getAllowedLiterals()
+	 */
+	public function getAllowedLiterals() {
+		return self::ALLOWED_STRING_LITERALS;
 	}
 	
 }

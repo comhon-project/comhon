@@ -35,6 +35,13 @@ use Comhon\Exception\Literal\NotLinkableLiteralException;
 use Comhon\Exception\Literal\IncompatibleLiteralSerializationException;
 use Comhon\Exception\Request\NotAllowedRequestException;
 use Comhon\Database\SimpleDbLiteral;
+use Comhon\Object\ComhonObject;
+use Comhon\Object\Collection\ObjectCollection;
+use Comhon\Visitor\LoadStatuschecker;
+use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Object\ComhonArray;
+use Comhon\Interfacer\AssocArrayInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	
@@ -132,124 +139,286 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	}*/
 	
 	/**
-	 * set logical junction to apply
-	 * 
-	 * logical junction permit to filter wanted cohmon object.
-	 * replace logical junction or literal previously set
-	 * 
-	 * @param \Comhon\Logic\Formula $filter
+	 * build load request
+	 *
+	 * @param \stdClass|array|\SimpleXMLElement|\DOMNode|\Comhon\Object\UniqueObject $request
+	 * @param boolean $private
+	 * @throws \Exception
 	 * @return \Comhon\Request\ComplexLoadRequest
 	 */
-	public function setFilter($filter) {
-		$this->filter = $filter;
-		return $this;
+	public static function build($request, $private = false) {
+		if (!($request instanceof UniqueObject)) {
+			if ($request instanceof \stdClass) {
+				$interfacer = new StdObjectInterfacer();
+			} elseif (is_array($request)) {
+				$interfacer = new AssocArrayInterfacer();
+			} elseif (($request instanceof \SimpleXMLElement) || $request instanceof \DOMNode) {
+				$interfacer = new XMLInterfacer();
+			} else {
+				$expected = ['\stdClass', 'array', '\SimpleXMLElement', '\DOMNode'];
+				throw new ArgumentException($request, $expected, 1);
+			}
+			$request = $interfacer->import($request, ModelManager::getInstance()->getInstanceModel('Comhon\Request'));
+		}
+		
+		return self::_build($request, $private);
 	}
 	
 	/**
 	 * build load request
 	 *
-	 * @param \stdClass $settings
+	 * @param \Comhon\Object\UniqueObject $request
 	 * @param boolean $private
 	 * @throws \Exception
 	 * @return \Comhon\Request\ComplexLoadRequest
 	 */
-	public static function buildObjectLoadRequest(\stdClass $settings, $private = false) {
-		if (isset($settings->model)) {
-			if (isset($settings->tree)) {
-				throw new MalformedRequestException('request cannot have model property and tree property in same time');
+	private static function _build(UniqueObject $request, $private = false) {
+		if (!$request->getModel()->isInheritedFrom(ModelManager::getInstance()->getInstanceModel('Comhon\Request'))) {
+			$expected = ModelManager::getInstance()->getInstanceModel('Comhon\Request')->getObjectInstance(false)->getComhonClass();
+			throw new ArgumentException($request, $expected, 1);
+		}
+		$visitor = new LoadStatuschecker();
+		$stack = $visitor->execute($request);
+		if (!is_null($stack)) {
+			throw new ComhonException('all objects must be loaded. object not loaded found : .'.implode('.', $stack));
+		}
+		if ($request->getModel()->getName() === 'Comhon\Request\Intermediate') {
+			$request = self::_intermediateToComplexRequest($request);
+		}
+		$objectLoadRequest = new ComplexLoadRequest($request->getValue('tree')->getValue('model'), $private);
+		$objectLoadRequest->_importModelTree($request->getValue('tree'));
+		if ($request->hasValue('filter')) {
+			$objectLoadRequest->_importFilter($request->getValue('filter'));
+		}
+		if ($request->hasValue('limit')) {
+			$objectLoadRequest->setLimit($request->getValue('limit'));
+		}
+		if ($request->hasValue('properties')) {
+			$objectLoadRequest->setPropertiesFilter($request->getValue('properties'));
+		}
+		if ($request->hasValue('offset')) {
+			$objectLoadRequest->setOffset($request->getValue('offset'));
+		}
+		if ($request->hasValue('order')) {
+			foreach ($request->getValue('order') as $orderElement) {
+				$objectLoadRequest->addOrder($orderElement->getValue('property'), $orderElement->getValue('type'));
 			}
-			$objectLoadRequest = new ComplexLoadRequest($settings->model, $private);
-			$objectLoadRequest->initSelectQuery();
-		} else if (isset($settings->tree) && isset($settings->tree->model)) {
-			$objectLoadRequest = new ComplexLoadRequest($settings->tree->model, $private);
-			$objectLoadRequest->importModelTree($settings->tree);
-		} else {
-			throw new MalformedRequestException('request doesn\'t have model');
-		}
-		if (isset($settings->literalCollection)) {
-			$objectLoadRequest->importLiteralCollection($settings->literalCollection);
-		}
-		if (isset($settings->filter)) {
-			if (isset($settings->filter->type)) { // clause
-				$objectLoadRequest->importClause($settings->filter);
-			} else { // literal
-				$objectLoadRequest->importLiteral($settings->filter);
-			}
-		}
-		if (isset($settings->limit)) {
-			$objectLoadRequest->setLimit($settings->limit);
-		}
-		if (isset($settings->properties) && is_array($settings->properties)) {
-			$objectLoadRequest->setPropertiesFilter($settings->properties);
-		}
-		if (isset($settings->offset)) {
-			$objectLoadRequest->setOffset($settings->offset);
-		}
-		if (isset($settings->order)) {
-			if (!is_array($settings->order)) {
-				throw new MalformedRequestException('order parameter must be an array');
-			}
-			foreach ($settings->order as $order) {
-				if (!isset($order->property)) {
-					throw new MalformedRequestException('request order doesn\'t have property');
-				}
-				if (isset($order->type) && !SelectQuery::isAllowedOrderType($order->type)) {
-					throw new MalformedRequestException("request order type '{$order->type}' is not allowed");
-				}
-				$objectLoadRequest->addOrder($order->property, isset($order->type) ? $order->type : SelectQuery::ASC);
-			}
-		}
-		if (isset($settings->requestChildren)) {
-			$objectLoadRequest->requestChildren($settings->requestChildren);
-		}
-		if (isset($settings->loadForeignProperties)) {
-			$objectLoadRequest->loadForeignProperties($settings->loadForeignProperties);
 		}
 		return $objectLoadRequest;
 	}
 	
-	private function initSelectQuery() {
-		$tableNode = new TableNode($this->model->getSqlTableSettings()->getValue('name'));
-		$this->selectQuery = new SelectQuery($tableNode);
+	/**
+	 * transform intermediate request to complex request
+	 *
+	 * @param ComhonObject $request
+	 * @throws ArgumentException
+	 * @throws NotLinkableLiteralException
+	 * @return \Comhon\Object\UniqueObject
+	 */
+	public static function intermediateToComplexRequest(ComhonObject $request) {
+		if ($request->getModel()->getName() != 'Comhon\Request\Intermediate') {
+			$expected = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Intermediate')->getObjectInstance(false)->getComhonClass();
+			throw new ArgumentException($request, $expected, 1);
+		}
+		$visitor = new LoadStatuschecker();
+		$stack = $visitor->execute($request);
+		if (!is_null($stack)) {
+			throw new ComhonException('all objects must be loaded. object not loaded found : .'.implode('.', $stack));
+		}
+		return self::_intermediateToComplexRequest($request);
 	}
 	
 	/**
-	 * import model tree
+	 * transform intermediate request to complex request
 	 * 
+	 * @param ComhonObject $request
+	 * @throws ArgumentException
+	 * @throws NotLinkableLiteralException
+	 * @return \Comhon\Object\UniqueObject
+	 */
+	private static function _intermediateToComplexRequest(ComhonObject $request) {
+		if ($request->hasValue('filter')) {
+			$maxId = 0;
+			$model = ModelManager::getInstance()->getInstanceModel($request->getValue('root')->getValue('model'));
+			$literalsByModelName = self::_getLiteralsByModelName($request->getValue('filter'), $maxId);
+			$key = ObjectCollection::getModelKey($model)->getName();
+			if (count($literalsByModelName) == 1 && array_key_exists($key, $literalsByModelName)) {
+				$root = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Root')->getObjectInstance(false);
+				$root->setId($request->getValue('root')->getId());
+				$root->setValue('model', $request->getValue('root')->getValue('model'));
+				$root->setIsLoaded(true);
+			} else {
+				$root = self::_buildTree($model, $literalsByModelName, $maxId);
+			}
+			if (isset($literalsByModelName[$key])) {
+				/** @var \Comhon\Object\UniqueObject $object */
+				foreach ($literalsByModelName[$key] as $object) {
+					$object->setvalue('node', $root);
+				}
+				unset($literalsByModelName[$key]);
+			}
+			if (count($literalsByModelName) > 0) {
+				$literals = current($literalsByModelName);
+				throw new NotLinkableLiteralException($model, $literals[0]);
+			}
+		} else {
+			$root = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Root')->getObjectInstance(false);
+			$root->setId($request->getValue('root')->getId());
+			$root->setValue('model', $request->getValue('root')->getValue('model'));
+			$root->setIsLoaded(true);
+		}
+		$values = $request->getValues();
+		unset($values['root']);
+		unset($values['models']);
+		
+		$complexRequest = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance(false);
+		$complexRequest->setValue('tree', $root);
+		foreach ($values as $name => $value) {
+			$complexRequest->setValue($name, $value);
+		}
+		$complexRequest->setIsLoaded(true);
+		
+		return $complexRequest;
+	}
+	
+	private function _getLiteralsByModelName(ComhonObject $filter, &$maxId) {
+		$collectionMap = ObjectCollection::build($filter, true, true)->getMap();
+		$literalsByModelName = [];
+		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal');
+		
+		/** @var \Comhon\Object\UniqueObject $object */
+		foreach ($collectionMap['Comhon\Logic\Simple\Formula'] as $object) {
+			if ($object->getModel()->isInheritedFrom($literalModel) || $object->getModel()->getName() == 'Comhon\Logic\Simple\Having') {
+				$modelName = $object->getValue('node')->getValue('model');
+				$key = ObjectCollection::getModelKey(ModelManager::getInstance()->getInstanceModel($modelName))->getName();
+				if (!array_key_exists($key, $literalsByModelName)) {
+					$literalsByModelName[$key] = [];
+				}
+				$literalsByModelName[$key][] = $object;
+				$maxId = max($maxId, $object->getValue('node')->getId());
+			}
+		}
+		
+		return $literalsByModelName;
+	}
+	
+	private function _buildTree(Model $model, array &$literalsByModelName, &$maxId, $propertyName = null, &$visited = [], &$visitedStack = [], $databaseId = null) {
+		$key = ObjectCollection::getModelKey(ModelManager::getInstance()->getInstanceModel($model->getName()))->getName();
+		if (array_key_exists($key, $visitedStack)) {
+			return;
+		}
+		if (array_key_exists($key, $visited)) {
+			if (!is_null($visited[$key])) {
+				throw new UnresolvableLiteralException(ModelManager::getInstance()->getInstanceModel($visited[$key]));
+			}
+			return;
+		}
+		$visitedStack[$key] = null;
+		$visited[$key] = null;
+		$node = null;
+		
+		if (is_null($propertyName)) {
+			if ($model->getSerialization() && $model->getSerialization()->getSerializationUnit() instanceof SqlTable) {
+				$database = $model->getSerializationSettings()->getValue('database');
+				if (!($database instanceof UniqueObject)) {
+					throw new SerializationException('not valid serialization settings, database information is missing');
+				}
+				$databaseId = $database->getId();
+			}
+			$node = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Root')->getObjectInstance(false);
+			$node->setValue('model', $model->getName());
+			$node->initValue('nodes');
+			$id = array_key_exists($key, $literalsByModelName) 
+				? $literalsByModelName[$key][0]->getValue('node')->getId() : ++$maxId;
+			$node->setId($id);
+			$node->setIsLoaded(true);
+		}
+		elseif (array_key_exists($key, $literalsByModelName)) {
+			$node = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Node')->getObjectInstance(false);
+			$node->setValue('property', $propertyName);
+			$node->initValue('nodes');
+			$node->setId($literalsByModelName[$key][0]->getValue('node')->getId());
+			$node->setIsLoaded(true);
+			/** @var \Comhon\Object\UniqueObject $object */
+			foreach ($literalsByModelName[$key] as $object) {
+				$object->setvalue('node', $node);
+			}
+			unset($literalsByModelName[$key]);
+			
+			foreach ($visitedStack as $stackKey => $value) {
+				$visited[$stackKey] = $key;
+			}
+		}
+		
+		foreach ($model->getForeignSerializableProperties('Comhon\SqlTable') as $property) {
+			if (!is_null($databaseId)) {
+				$database = $property->getUniqueModel()->getSqlTableSettings()->getValue('database');
+				if (!($database instanceof UniqueObject)) {
+					throw new SerializationException('not valid serialization settings, database information is missing');
+				}
+				if ($database->getId() !== $databaseId) {
+					continue;
+				}
+			}
+			$propertyNode = self::_buildTree($property->getUniqueModel(), $literalsByModelName, $maxId, $property->getName(), $visited, $visitedStack, $databaseId);
+			if (!is_null($propertyNode)) {
+				if (is_null($node)) {
+					$node = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Node')->getObjectInstance(false);
+					$node->setValue('property', $propertyName);
+					$node->initValue('nodes');
+					$node->setId(++$maxId);
+					$node->setIsLoaded(true);
+				}
+				$node->getValue('nodes')->pushValue($propertyNode);
+			}
+		}
+		unset($visitedStack[$key]);
+		
+		return $node;
+	}
+	
+	/**
+	 * get table alias name according node id. 
+	 * 
+	 * @param \Comhon\Object\UniqueObject $node model object must be a 'Comhon\Model'
+	 * @return string
+	 */
+	public static function getTableAliasWithModelNode(UniqueObject $node) {
+		return 't_' . $node->getValue('id');
+	}
+	
+	/**
+	 * import tree
+	 *
 	 * import requested model and links between differents models
 	 * that are used in logical junction or literal (only for advanced request)
-	 * 
-	 * @param \stdClass $modelTree
+	 *
+	 * @param \stdClass $tree
 	 * @return \Comhon\Request\ComplexLoadRequest
 	 */
-	public function importModelTree(\stdClass $modelTree) {
-		if (!isset($modelTree->model)) {
-			throw new MalformedRequestException('model tree doesn\'t have model');
-		}
-		if ($modelTree->model != $this->model->getName()) {
-			throw new ComhonException('root model in model tree is not the same as model specified in constructor');
-		}
-		
-		$tableNode = new TableNode($this->model->getSqlTableSettings()->getValue('name'), isset($modelTree->id) ? $modelTree->id : null);
+	private function _importModelTree(UniqueObject $tree) {
+		$tableNode = new TableNode($this->model->getSqlTableSettings()->getValue('name'), self::getTableAliasWithModelNode($tree));
 		$this->selectQuery = new SelectQuery($tableNode);
 		
-		$this->modelByNodeId = [$tableNode->getExportName() => $this->model];
+		$this->modelByNodeId = [$tree->getId() => $this->model];
 		
-		$stack = [[$this->model, $tableNode, $modelTree]];
+		$stack = [[$this->model, $tableNode, $tree]];
 		while (!empty($stack)) {
-			$lastElement    = array_pop($stack);
+			$lastElement = array_pop($stack);
 			/** @var Model $leftModel */
-			$leftModel      = $lastElement[0];
-			$leftTable      = $lastElement[1];
+			$leftModel = $lastElement[0];
+			$leftTable = $lastElement[1];
+			/** @var UniqueObject $treeNode */
+			$treeNode = $lastElement[2];
 			
-			if (isset($lastElement[2]->children) && is_array($lastElement[2]->children)) {
-				foreach ($lastElement[2]->children as $childNode) {
-					$rightTableAlias = isset($childNode->id) ? $childNode->id : null;
-					$property        = $leftModel->getProperty($childNode->property, true);
+			if ($treeNode->hasValue('nodes')) {
+				foreach ($treeNode->getValue('nodes') as $childNode) {
+					$rightTableAlias = self::getTableAliasWithModelNode($childNode);
+					$property        = $leftModel->getProperty($childNode->getValue('property'), true);
 					$joinedTable     = self::prepareJoinedTable($leftTable, $property, $this->databaseId, $rightTableAlias);
 					
 					$this->selectQuery->join(SelectQuery::LEFT_JOIN, $joinedTable['table'], $joinedTable['join_on']);
-					$this->modelByNodeId[$joinedTable['table']->getExportName()] = $joinedTable['model'];
+					$this->modelByNodeId[$childNode->getId()] = $joinedTable['model'];
 					$stack[] = [$property->getUniqueModel(), $joinedTable['table'], $childNode];
 				}
 			}
@@ -262,88 +431,26 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * 
 	 * literal collection contain a list of defined literals that are reusable in logical junction
 	 * 
-	 * @param \stdClass[] $stdObjectLiteralCollection
+	 * @param \Comhon\Object\UniqueObject $filter
 	 * @throws \Exception
 	 */
-	private function importLiteralCollection($stdObjectLiteralCollection) {
-		if (is_null($this->modelByNodeId)) {
-			throw new ComhonException('model tree must be set');
+	private function _importFilter(UniqueObject $filter) {
+		$clauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause');
+		if ($filter->getModel()->isInheritedFrom($clauseModel)) { // clause
+			$this->filter = Clause::build(
+				$filter, 
+				$this->modelByNodeId, 
+				$this->selectQuery, 
+				$this->private
+			);
+		} else { // literal
+			$this->filter = DbLiteral::build(
+				$filter, 
+				$this->modelByNodeId[$filter->getValue('node')->getId()], 
+				$this->selectQuery, 
+				$this->private
+			);
 		}
-		if (is_array($stdObjectLiteralCollection)) {
-			foreach ($stdObjectLiteralCollection as $stdObjectLiteral) {
-				if (!isset($stdObjectLiteral->node)) {
-					throw new MalformedLiteralException($stdObjectLiteral);
-				}
-				if (!array_key_exists($stdObjectLiteral->node, $this->modelByNodeId)) {
-					throw new MalformedRequestException('value of property \'node\' not defined in model tree : '.json_encode($stdObjectLiteral));
-				}
-				$this->addliteralToCollection(DbLiteral::stdObjectToLiteral($stdObjectLiteral, $this->modelByNodeId[$stdObjectLiteral->node], null, $this->selectQuery, $this->private));
-			}
-		}
-	}
-	
-	/**
-	 * add a literal into literals collection
-	 * 
-	 * @param \Comhon\Logic\Literal $literal
-	 * @throws \Exception
-	 */
-	public function addliteralToCollection($literal) {
-		if (!$literal->hasId()) {
-			throw new MalformedRequestException('literal defined in collection must have an id');
-		}
-		if (array_key_exists($literal->getId(), $this->literalCollection)) {
-			throw new MalformedRequestException("duplicated literal id '{$literal->getId()}' in literal collection");
-		}
-		$this->literalCollection[$literal->getId()] = $literal;
-	}
-	
-	/**
-	 * import logical junction
-	 * 
-	 * replace logical junction or literal previously set
-	 * 
-	 * @param \stdClass $stdObjectClause
-	 */
-	private function importClause(\stdClass $stdObjectClause) {
-		if (is_null($this->modelByNodeId)) {
-			$mainTableName = $this->model->getSqlTableSettings()->getValue('name');
-			$mainTableNode = new TableNode($mainTableName);
-			$this->selectQuery = new SelectQuery($mainTableNode);
-			$this->modelByNodeId = [$mainTableName => $this->model];
-
-			$litralsByModelName = [];
-			$this->_getLiteralsByModelName($stdObjectClause, $mainTableName, $litralsByModelName);
-			$this->_buildAndAddJoins($litralsByModelName);
-		}
-		$this->setFilter(Clause::stdObjectToClause($stdObjectClause, $this->modelByNodeId, $this->literalCollection, $this->selectQuery, $this->private));
-	}
-	
-	/**
-	 * import literal
-	 * 
-	 * replace logical junction or literal previously set
-	 *
-	 * @param \stdClass $stdObjectLiteral
-	 */
-	private function importLiteral($stdObjectLiteral) {
-		if (is_null($this->modelByNodeId)) {
-			$mainTableName = $this->model->getSqlTableSettings()->getValue('name');
-			$mainTableNode = new TableNode($mainTableName);
-			$this->selectQuery = new SelectQuery($mainTableNode);
-			$this->modelByNodeId = [$mainTableName => $this->model];
-			
-			$litralsByModelName = [];
-			$this->_getLiteralByModelName($stdObjectLiteral, $mainTableName, $litralsByModelName);
-			$this->_buildAndAddJoins($litralsByModelName);
-		}
-		if (!isset($stdObjectLiteral->node)) {
-			throw new MalformedLiteralException($stdObjectLiteral);
-		}
-		if (!array_key_exists($stdObjectLiteral->node, $this->modelByNodeId)) {
-			throw new MalformedRequestException('value of property \'node\' not defined in model tree : '.json_encode($stdObjectLiteral));
-		}
-		$this->setFilter(DbLiteral::stdObjectToLiteral($stdObjectLiteral, $this->modelByNodeId[$stdObjectLiteral->node], $this->literalCollection, $this->selectQuery, $this->private));
 	}
 	
 	/**
@@ -391,15 +498,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$this->_addGroupedColumns();
 		}
 		
-		try {
-			$this->selectQuery->verifyDuplicatedTables();
-		} catch (\Comhon\Exception\Database\DuplicatedTableNameException $e) {
-			if (substr($e->getTableName(), 0, 5) === '__t__') {
-				throw new MalformedRequestException('cannot use reserved node prefix id \'__t__\'');
-			} else {
-				throw $e;
-			}
-		}
+		$this->selectQuery->verifyDuplicatedTables();
 	}
 	
 	/**
@@ -440,189 +539,6 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	public function exportQuery() {
 		$this->_finalize();
 		return $this->selectQuery;
-	}
-	
-	/**
-	 * populate $litralsByModelName parameter (passed by reference)
-	 * 
-	 * regroup literals by their associated model
-	 * 
-	 * @param \stdClass $stdObjectClause
-	 * @param string $mainTableName
-	 * @param array $litralsByModelName
-	 */
-	private function _getLiteralsByModelName($stdObjectClause, $mainTableName, &$litralsByModelName) {
-		if (isset($stdObjectClause->elements)) {
-			foreach ($stdObjectClause->elements as $stdObjectElement) {
-				if (isset($stdObjectElement->type)) { // clause
-					$this->_getLiteralsByModelName($stdObjectElement, $mainTableName, $litralsByModelName);
-				} else { // literal
-					$this->_getLiteralByModelName($stdObjectElement, $mainTableName, $litralsByModelName);
-				}
-			}
-		}
-	}
-	
-	/**
-	 * populate $litralsByModelName parameter (passed by reference)
-	 *
-	 * put literal in its associated model key
-	 *
-	 * @param \stdClass $literal
-	 * @param string $mainTableName
-	 * @param array $litralsByModelName
-	 * @throws \Exception
-	 */
-	private function _getLiteralByModelName($literal, $mainTableName, &$litralsByModelName) {
-		if (!isset($literal->model)) {
-			throw new MalformedLiteralException($literal);
-		}
-		ModelManager::getInstance()->getInstanceModel($literal->model); // verify if model exists
-		if (!array_key_exists($literal->model, $litralsByModelName)) {
-			$litralsByModelName[$literal->model] = [];
-		}
-		if ($literal->model == $this->model->getName()) {
-			$literal->node = $mainTableName;
-		}
-		else {
-			$litralsByModelName[$literal->model][] = $literal;
-		}
-	}
-	
-	/**
-	 * join needed table to select query (only for intermediate request)
-	 * 
-	 * in intermediate request dependencies between tables are not specified
-	 * so we have to find dependencies according literals request
-	 * 
-	 * @param array $litralsByModelName
-	 * @throws \Exception
-	 */
-	private function _buildAndAddJoins($litralsByModelName) {
-		if ((empty($litralsByModelName)) || ((count($litralsByModelName) == 1) && array_key_exists($this->model->getName(), $litralsByModelName))) {
-			return;
-		}
-		$temporaryLeftJoins = [];
-		$stackVisitedModels = [];
-		$arrayVisitedModels = [];
-		$stack              = [];
-		
-		$this->_extendsStacks($this->model, $litralsByModelName, $stack, $stackVisitedModels, $arrayVisitedModels);
-	
-		// Depth-first search to build all left joins
-		while (!empty($stack)) {
-			if ($stack[count($stack) - 1]['current'] != -1) {
-				array_pop($temporaryLeftJoins);
-				$modelName = array_pop($stackVisitedModels);
-				$arrayVisitedModels[$modelName] -= 1;
-			}
-			$stack[count($stack) - 1]['current']++;
-			if ($stack[count($stack) - 1]['current'] < count($stack[count($stack) - 1]['properties'])) {
-				$stackIndex     = count($stack) - 1;
-				/** @var \Comhon\Model\Property\Property $rightProperty */
-				$rightProperty  = $stack[$stackIndex]['properties'][$stack[$stackIndex]['current']];
-				$rightModel     = $rightProperty->getUniqueModel();
-				$rightModelName = $rightModel->getName();
-				
-				$higherRightModelName = $rightModelName;
-				if (!is_null($lastParentModel = $rightModel->getLastSharedIdParentMatch(true))) {
-					$higherRightModelName = $lastParentModel->getName();
-				}
-				
-				if (array_key_exists($higherRightModelName, $arrayVisitedModels) && ($arrayVisitedModels[$higherRightModelName] > 0)) {
-					$stackVisitedModels[] = $higherRightModelName;
-					$arrayVisitedModels[$higherRightModelName] += 1;
-					$temporaryLeftJoins[] = null;
-					continue;
-				}
-				// add temporary leftJoin
-				// add leftjoin if model $rightModel is in literals ($litralsByModelName)
-				$leftModel = $stack[$stackIndex]['left_model'];
-				$temporaryLeftJoins[] = self::prepareJoinedTable($leftModel->getSqlTableSettings()->getValue('name'), $rightProperty, $this->databaseId);
-				if (array_key_exists($rightModelName, $litralsByModelName)) {
-					$this->_joinTables($temporaryLeftJoins, $litralsByModelName[$rightModelName]);
-					$temporaryLeftJoins = [];
-				}
-				// add serializable properties to stack
-				$this->_extendsStacks($rightModel, $litralsByModelName, $stack, $stackVisitedModels, $arrayVisitedModels);
-	
-				// if no added model we can delete last stack element
-				if (empty($stack[count($stack) - 1]['properties'])) {
-					array_pop($stack);
-				}
-			}
-			else {
-				array_pop($stack);
-				array_pop($temporaryLeftJoins);
-			}
-		}
-		foreach ($litralsByModelName as $literals) {
-			foreach ($literals as $literal) {
-				if (!isset($literal->node)) {
-					throw new NotLinkableLiteralException($this->model, $literal);
-				}
-			}
-		}
-	}
-	
-	/**
-	 * join specified tables to select query
-	 * 
-	 * @param array $joinedTables
-	 * @param \stdClass[] $literals
-	 */
-	private function _joinTables($joinedTables, $literals) {
-		if (!empty($literals)) {
-			foreach ($joinedTables as $joinedTable) {
-				$this->selectQuery->join(SelectQuery::LEFT_JOIN, $joinedTable['table'], $joinedTable['join_on']);
-				$this->modelByNodeId[$joinedTable['table']->getExportName()] = $joinedTable['model'];
-			}
-			$nodeId = $joinedTables[count($joinedTables) - 1]['table']->getExportName();
-			foreach ($literals as $literal) {
-				$literal->node = $nodeId;
-			}
-		}
-	}
-	
-	/**
-	 * extends models stack
-	 * 
-	 * @param \Comhon\Model\Model $model
-	 * @param array $literalsByModelName
-	 * @param array $stack
-	 * @param array $stackVisitedModels
-	 * @param array $arrayVisitedModels
-	 * @throws \Exception
-	 */
-	private function _extendsStacks(Model $model, $literalsByModelName, &$stack, &$stackVisitedModels, &$arrayVisitedModels) {
-		if (array_key_exists($model->getName(), $arrayVisitedModels) && array_key_exists($model->getName(), $literalsByModelName)) {
-			throw new UnresolvableLiteralException($model);
-		}
-		
-		$extendablesProperties = [];
-		foreach ($model->getForeignSerializableProperties('Comhon\SqlTable') as $property) {
-			$database = $property->getUniqueModel()->getSqlTableSettings()->getValue('database');
-			if (!($database instanceof UniqueObject)) {
-				throw new SerializationException('not valid serialization settings, database information is missing');
-			}
-			if ($database->getId() === $this->databaseId) {
-				$extendablesProperties[] = $property;
-			}
-		}
-		
-		$stack[] = [
-			'left_model' => $model,
-			'properties' => $extendablesProperties,
-			'current'    => -1
-		];
-		
-		$higherRightModelName = $model->getName();
-		if (!is_null($lastParentModel = $model->getLastSharedIdParentMatch(true))) {
-			$higherRightModelName = $lastParentModel->getName();
-		}
-		
-		$stackVisitedModels[] = $higherRightModelName;
-		$arrayVisitedModels[$higherRightModelName] = array_key_exists($higherRightModelName, $arrayVisitedModels) ? $arrayVisitedModels[$higherRightModelName] + 1 : 1;
 	}
 	
 	/**
@@ -766,9 +682,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	private function _buildObjectsWithRows($rows) {
 		$modelArray = new ModelArray($this->model, false, $this->model->getName());
-		$objectArray = $modelArray->import($rows, SqlTable::getInstance()->getInterfacer());
-		
-		return $this->_completeObject($objectArray);
+		return $modelArray->import($rows, SqlTable::getInstance()->getInterfacer());
 	}
 	
 }

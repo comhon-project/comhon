@@ -1,0 +1,18 @@
+{
+    "version": "3.0",
+    "properties": [
+        {
+            "name": "fours",
+            "type": "array",
+            "values": {
+                "type": "\\Test\\Request\\Four",
+                "name": "four"
+            },
+            "is_foreign": true
+        },
+        {
+            "name": "string",
+            "type": "string"
+        }
+    ]
+}

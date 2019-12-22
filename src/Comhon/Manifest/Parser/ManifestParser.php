@@ -101,6 +101,9 @@ abstract class ManifestParser {
 	/** @var string */
 	const LENGTH  = 'length';
 	
+	/** @var string */
+	const IS_MODEL_NAME  = 'is_model_name';
+	
 	/** @var mixed */
 	protected $manifest;
 	

@@ -1,39 +1,46 @@
 <?php
 
 use Test\Comhon\Service\ObjectService;
-use Comhon\Object\Config\Config;
 
 $time_start = microtime(true);
 
 $Json = '{
-	"model" : "Test\\\\MainTestDb",
-	"requestChildren" : true,
-	"loadForeignProperties" : true,
-	"filter" : {
-		"type" : "conjunction",
-		"elements" : [
-			{
-				"model"    : "Test\\\\MainTestDb",
-				"property" : "name",
-				"operator" : "=",
-				"value"    : ["azeaze", "Bernard", null]
-			},
-			{
-				"model"     : "Test\\\\MainTestDb",
-				"queue"     : {
-					"property" : "childrenTestDb", 
-					"child" : {
-						"property" : "childrenTestDb"
-					}
-				},
-				"having" : {
-					"function" : "COUNT",
-					"operator" : "=",
-					"value"    : 2
-				}
-			}
-		]
-	}
+	"tree" : {
+		"model"   : "Test\\\\MainTestDb",
+		"id"      : 1
+	},
+	"simpleCollection" : [
+		{
+			"id"       : 0,
+			"elements" : [1,2],
+        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Clause\\\\Conjunction"
+		},
+		{
+			"id"       : 1,
+			"node"     : 1,
+			"property" : "name",
+			"operator" : "IN",
+			"values"    : ["azeaze", "Bernard", null],
+        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
+		},
+		{
+			"id"       : 2,
+			"node"     : 1,
+			"queue"     : ["childrenTestDb", "childrenTestDb"],
+			"having" : 1,
+        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
+		}
+	],
+	"havingCollection" : [
+		{
+			"id"       : 1,
+			"operator" : "=",
+			"value"    : 2,
+            "__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
+		}
+	],
+	"filter" : 0,
+    "__inheritance__": "Comhon\\\\Request\\\\Complex"
 }';
 
 // SELECT main_test.* 
@@ -52,40 +59,57 @@ $Json = '{
 // GROUP  BY main_test.id 
 
 $result = ObjectService::getObjects(json_decode($Json));
-$expected = Config::getInstance()->getManifestFormat() === 'json'
-	? '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"23\"]","[1,\"50\"]","[1,\"101\"]","[2,\"50\"]","[2,\"102\"]","[1,\"1501774389\"]"]}]}'
-	: '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1,"childrenTestDb":["[1,\"101\"]","[1,\"1501774389\"]","[1,\"23\"]","[1,\"50\"]","[2,\"102\"]","[2,\"50\"]"]}]}';
+
+$expected = '{"success":true,"result":[{"name":"azeaze","obj":null,"id":1}]}';
 
 if (!compareJson(json_encode($result), $expected)) {
 	throw new \Exception('bad result 1');
 }
 
 $Json = '{
-	"model" : "Test\\\\MainTestDb",
-	"requestChildren" : true,
-	"loadForeignProperties" : true,
-	"filter" : {
-		"type" : "conjunction",
-		"elements" : [
-			{
-				"model"    : "Test\\\\MainTestDb",
-				"property" : "name",
-				"operator" : "=",
-				"value"    : ["azeaze", "Bernard", null]
-			},
-			{
-				"model"     : "Test\\\\TestDb",
-				"queue"     : {
-					"property" : "childrenTestDb"
-				},
-				"having" : {
-					"function" : "COUNT",
-					"operator" : "=",
-					"value"    : 2
-				}
-			}
-		]
-	}
+	"root": 1,
+	"models" : [
+		{
+			"model"   : "Test\\\\MainTestDb",
+			"id"      : 1
+		},
+		{
+			"model"   : "Test\\\\TestDb",
+			"id"      : 2
+		}
+	],
+	"simpleCollection" : [
+		{
+			"id"       : 0,
+			"elements" : [1,2],
+        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Clause\\\\Conjunction"
+		},
+		{
+			"id"       : 1,
+			"node"     : 1,
+			"property" : "name",
+			"operator" : "IN",
+			"values"    : ["azeaze", "Bernard", null],
+        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
+		},
+		{
+			"id"       : 2,
+			"node"     : 2,
+			"queue"     : ["childrenTestDb"],
+			"having" : 1,
+        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
+		}
+	],
+	"havingCollection" : [
+		{
+			"id"       : 1,
+			"operator" : "=",
+			"value"    : 2,
+            "__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
+		}
+	],
+	"filter" : 0,
+    "__inheritance__": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 // SELECT main_test.* 
@@ -113,21 +137,30 @@ if (!compareJson(json_encode($result), $expected)) {
 }
 
 $Json = '{
-	"model" : "Test\\\\ChildTestDb",
-	"requestChildren" : true,
-	"loadForeignProperties" : true,
+	"root": 1,
+	"models" : [
+		{
+			"model"   : "Test\\\\ChildTestDb",
+			"id"      : 1
+		},
+		{
+			"model"   : "Test\\\\TestDb",
+			"id"      : 2
+		}
+	],
 	"order" : [{"property":"id", "type":"ASC"}],
-	"filter" : {
-		"type" : "conjunction",
-		"elements" : [
-			{
-				"model"    : "Test\\\\TestDb",
-				"property" : "string",
-				"operator" : "=",
-				"value"    : ["nnnn", "bbbb", null]
-			}
-		]
-	}
+	"simpleCollection" : [
+		{
+			"id"       : 1,
+			"node"     : 2,
+			"property" : "string",
+			"operator" : "IN",
+			"values"    : ["nnnn", "bbbb", null],
+        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
+		}
+	],
+	"filter" : 1,
+    "__inheritance__": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 // SELECT child_test.* 
@@ -145,4 +178,4 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"name"
 }
 
 $time_end = microtime(true);
-var_dump('intermediate request test exec time '.($time_end - $time_start));
+var_dump('multiple id request test exec time '.($time_end - $time_start));

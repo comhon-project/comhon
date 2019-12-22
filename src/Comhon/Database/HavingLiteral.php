@@ -11,10 +11,12 @@
 
 namespace Comhon\Database;
 
-use Comhon\Exception\Literal\MalformedLiteralException;
 use Comhon\Exception\Model\PropertyVisibilityException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Literal\MultiplePropertyLiteralException;
+use Comhon\Object\UniqueObject;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Exception\ArgumentException;
 
 class HavingLiteral extends DbLiteral {
 
@@ -89,46 +91,29 @@ class HavingLiteral extends DbLiteral {
 	}
 	
 	/**
-	 * verify if given object has expected format
-	 * 
-	 * @param \stdClass $stdObject
-	 * @throws \Exception
-	 */
-	private static function _verifStdObject($stdObject) {
-		if (
-			!is_object($stdObject) 
-			|| !isset($stdObject->operator)
-			|| !array_key_exists($stdObject->operator, self::$allowedOperators)
-			|| !isset($stdObject->value)
-			|| !is_int($stdObject->value)
-			|| !isset($stdObject->function)
-			|| !array_key_exists($stdObject->function, self::$allowedFunctions)
-			|| (($stdObject->function != self::COUNT) && !isset($stdObject->property))
-		) {
-			throw new MalformedLiteralException($stdObject);
-		}
-	}
-	
-	/**
 	 * build HavingLiteral instance
 	 * 
-	 * @param \stdClass $stdObject
-	 * @param TableNode|string $table not necessary if property 'node' is specified in $stdObject
+	 * @param \Comhon\Object\UniqueObject $havingLiteral
+	 * @param TableNode|string $table
 	 * @param \Comhon\Model\Model $model not necessary if function is self::COUNT
 	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
 	 * @return HavingLiteral
 	 */
-	public static function stdObjectToHavingLiteral($stdObject, $table = null, $model = null, $allowPrivateProperties = true) {
-		self::_verifStdObject($stdObject);
+	public static function buildHaving(UniqueObject $havingLiteral, $table, $model = null, $allowPrivateProperties = true) {
+		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Literal');
+		if (!$havingLiteral->getModel()->isInheritedFrom($literalModel)) {
+			throw new ArgumentException($havingLiteral, $literalModel->getObjectInstance(false)->getComhonClass(), 1);
+		}
+		$havingLiteral->validate();
 		
-		if ($stdObject->function == self::COUNT) {
-			$column = null;
+		if ($havingLiteral->getModel()->getName() == 'Comhon\Logic\Having\Literal\Count') {
+			$literal  = new HavingLiteral(HavingLiteral::COUNT, $table, null, $havingLiteral->getValue('operator'), $havingLiteral->getValue('value'));
 		} else {
 			if (is_null($model)) {
 				throw new ComhonException('model can\'t be null if function is different than COUNT');
 			}
-			$property = $model->getProperty($stdObject->property, true);
+			$property = $model->getProperty($havingLiteral->getValue('property'), true);
 			if ($property->hasMultipleSerializationNames()) {
 				throw new MultiplePropertyLiteralException($property);
 			}
@@ -136,15 +121,9 @@ class HavingLiteral extends DbLiteral {
 				throw new PropertyVisibilityException($property->getName());
 			}
 			$column = $property->getSerializationName();
+			$literal  = new HavingLiteral($havingLiteral->getValue('function'), $table, $column, $havingLiteral->getValue('operator'), $havingLiteral->getValue('value'));
 		}
 		
-		if (isset($stdObject->node)) {
-			$table = $stdObject->node;
-		} else if (is_null($table)) {
-			throw new ComhonException('literal dosen\'t have property \'node\' and table is not specified in parameter : '.json_encode($stdObject));
-		}
-		
-		$literal  = new HavingLiteral($stdObject->function, $table, $column, $stdObject->operator, $stdObject->value);
 		return $literal;
 	}
 	

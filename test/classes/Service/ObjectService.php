@@ -17,6 +17,7 @@ use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\ModelComhonObject;
+use Comhon\Exception\Interfacer\ImportException;
 
 class ObjectService {
 	
@@ -29,7 +30,10 @@ class ObjectService {
 	 */
 	public static function getObject(\stdClass $params, $private = false) {
 		try {
-			$object = SimpleLoadRequest::buildObjectLoadRequest($params, $private)->execute();
+			if (!isset($params->properties)) {
+				$params->properties = [];
+			}
+			$object = SimpleLoadRequest::build($params->model, $params->id, $params->properties, $private)->execute();
 			if (is_null($object)) {
 				$result = null;
 			} else {
@@ -53,10 +57,13 @@ class ObjectService {
 	 */
 	public static function getObjects(\stdClass $params, $private = false) {
 		try {
-			$objectArray = ComplexLoadRequest::buildObjectLoadRequest($params, $private)->execute();
+			$objectArray = ComplexLoadRequest::build($params, $private)->execute();
 			$interfacer = new StdObjectInterfacer();
 			$modelFilter = [$objectArray->getUniqueModel()->getName() => self::_getFilterProperties($params, $objectArray->getUniqueModel())];
 			return self::_setSuccessResponse($interfacer->export($objectArray, [Interfacer::PROPERTIES_FILTERS => $modelFilter]));
+		} catch (ImportException $e) {
+			var_dump($e->getStringifiedProperties());
+			return self::_setErrorResponse($e);
 		} catch (\Exception $e) {
 			return self::_setErrorResponse($e);
 		}
@@ -70,7 +77,7 @@ class ObjectService {
 	 * @return \stdClass
 	 */
 	public static function getObjectsCount(\stdClass $params, $private = false) {
-		return ComplexLoadRequest::buildObjectLoadRequest($params, $private)->count();
+		return ComplexLoadRequest::build($params, $private)->count();
 	}
 	
 	/**

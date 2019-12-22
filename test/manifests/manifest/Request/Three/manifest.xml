@@ -1,0 +1,5 @@
+<manifest version="3.0">
+  <properties>
+    <property type="string" name="string"/>
+  </properties>
+</manifest>
