@@ -306,9 +306,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 */
 	public function import($interfacedObject, Interfacer $interfacer) {
 		$this->load();
-		if (is_null($interfacedObject)) {
-			return null;
-		}
 		if ($interfacedObject instanceof \SimpleXMLElement) {
 			$interfacedObject = dom_import_simplexml($interfacedObject);
 		}

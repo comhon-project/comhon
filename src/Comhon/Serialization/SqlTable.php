@@ -489,8 +489,7 @@ class SqlTable extends ValidatedSerializationUnit {
 		if (!empty($selectColumns) && $model->getSerialization()->getInheritanceKey()) {
 			$selectColumns[] = $model->getSerialization()->getInheritanceKey();
 		}
-		$return = $this->_loadObjectFromDatabase($object, $selectColumns, $conjunction, false);
-		return $return;
+		return $this->_loadObjectFromDatabase($object, $selectColumns, $conjunction, false);
 	}
 	
 	/**

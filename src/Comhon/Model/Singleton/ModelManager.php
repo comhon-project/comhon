@@ -32,6 +32,7 @@ use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Serialization\Serialization;
 use Comhon\Manifest\Parser\SerializationManifestParser;
 use Comhon\Object\Collection\ObjectCollection;
+use Comhon\Model\ModelRoot;
 
 class ModelManager {
 
@@ -80,6 +81,11 @@ class ModelManager {
 	private $manifestExtension = 'json';
 	
 	/**
+	 * @var \Comhon\Model\ModelRoot
+	 */
+	private $modelRoot;
+	
+	/**
 	 * @var string[] map namespace prefix to directory to allow manifest autoloading
 	 */
 	private $autoloadManifest = [
@@ -126,6 +132,8 @@ class ModelManager {
 		
 		try {
 			$this->_registerSimpleModelClasses();
+			$this->modelRoot = new ModelRoot();
+			$this->_addInstanceModel($this->modelRoot);
 			
 			if (Config::getInstance()->hasValue('sqlTable')) {
 				$path = Config::getInstance()->getSerializationSqlTablePath();
@@ -214,8 +222,7 @@ class ModelManager {
 	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
 	 */
 	public function getInstanceModel($modelName) {
-		$return = $this->_getInstanceModel($modelName, true);
-		return $return;
+		return $this->_getInstanceModel($modelName, true);
 	}
 	
 	/**
@@ -371,7 +378,7 @@ class ModelManager {
 	 * ]
 	 */
 	public function getProperties(Model $model, ManifestParser $manifestParser) {
-		$return = null;
+		$properties = null;
 		$isOriginalModel = false;
 		
 		try {
@@ -384,21 +391,23 @@ class ModelManager {
 			}
 			$parentModels = $this->_getParentModels($model, $manifestParser);
 			
-			$return = [
-				self::PARENT_MODELS => $parentModels,
+			$properties = [
 				self::OBJECT_CLASS => $manifestParser->getObjectClass(),
 				self::IS_ABSTRACT => $manifestParser->isAbstract(),
 				self::PROPERTIES => $this->_buildProperties($parentModels, $model, $manifestParser),
 			];
-			
-			$return[self::SERIALIZATION] = $this->_getSerializationInstance(
+			$properties[self::SERIALIZATION] = $this->_getSerializationInstance(
 				$manifestParser, 
 				$manifestParser->getSerializationManifestParser(), 
 				$manifestParser->isSerializable(), 
 				$parentModels
 			);
-			$return[self::SHARED_ID_MODEL] = $this->_getSharedIdModel($model, $manifestParser, $return[self::SERIALIZATION], $parentModels); 
-			$return[self::IS_MAIN_MODEL] = $return[self::SERIALIZATION] ? true : $manifestParser->isMain();
+			$properties[self::SHARED_ID_MODEL] = $this->_getSharedIdModel($model, $manifestParser, $properties[self::SERIALIZATION], $parentModels); 
+			$properties[self::IS_MAIN_MODEL] = $properties[self::SERIALIZATION] ? true : $manifestParser->isMain();
+			if (empty($parentModels)) {
+				$parentModels[] = $this->modelRoot;
+			}
+			$properties[self::PARENT_MODELS] = $parentModels;
 			
 			if ($isOriginalModel) {
 				$this->originalModelName = null;
@@ -407,7 +416,7 @@ class ModelManager {
 			$this->originalModelName = null;
 			throw $e;
 		}
-		return $return;
+		return $properties;
 	}
 	
 	/**
@@ -622,11 +631,12 @@ class ModelManager {
 		}
 		
 		if (!is_null($serialization)) {
-			while (!is_null($parentModel) && (is_null($parentModel->getSerialization()) ||  $parentModel->getSerialization()->getSettings() !== $serialization->getSettings())) {
-				$parentModel = $parentModel->getParent();
+			$tempParent = $parentModel;
+			while (!is_null($tempParent) && (is_null($tempParent->getSerialization()) ||  $tempParent->getSerialization()->getSettings() !== $serialization->getSettings())) {
+				$tempParent = $tempParent->getParent();
 			}
-			if (!is_null($parentModel)) {
-				$sharedIdModel = ObjectCollection::getModelKey($parentModel);
+			if (!is_null($tempParent)) {
+				$sharedIdModel = ObjectCollection::getModelKey($tempParent);
 			}
 		}
 		

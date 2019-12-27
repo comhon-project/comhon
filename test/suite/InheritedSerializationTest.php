@@ -108,13 +108,13 @@ class InheritedSerializationTest extends TestCase
 		$this->assertEquals('Test\GreatGrandParent', $model->getFirstSharedIdParentMatch(false)->getName());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentTwo\Child');
-		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentTwo', $model->getFirstSharedIdParentMatch()->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstSharedIdParentMatch()->getName());
 		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstSharedIdParentMatch(true)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentTwo', $model->getFirstSharedIdParentMatch(null, true)->getName());
+		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstSharedIdParentMatch(null, true)->getName());
 		$this->assertEquals('Test\GreatGrandParent\GrandParent', $model->getFirstSharedIdParentMatch(true, true)->getName());
 		$this->assertNull($model->getFirstSharedIdParentMatch(true, false));
 		$this->assertEquals('Test\GreatGrandParent', $model->getFirstSharedIdParentMatch(false, false)->getName());
-		$this->assertEquals('Test\GreatGrandParent\GrandParent\ParentTwo', $model->getFirstSharedIdParentMatch(false)->getName());
+		$this->assertEquals('Test\GreatGrandParent', $model->getFirstSharedIdParentMatch(false)->getName());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParentTwo\Parent\Child');
 		$this->assertEquals('Test\GreatGrandParent\GrandParentTwo\Parent', $model->getFirstSharedIdParentMatch()->getName());

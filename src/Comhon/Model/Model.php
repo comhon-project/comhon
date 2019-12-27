@@ -56,7 +56,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * 
 	 * @var Model[] 
 	 */
-	private $parents;
+	private $parents = [];
 	
 	private $sharedIdModel;
 	
@@ -67,10 +67,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	private $isExtended = false;
 	
 	/** @var boolean */
-	private $isMain;
+	private $isMain = false;
 	
 	/** @var boolean */
-	private $isAbstract;
+	private $isAbstract = true;
 	
 	/** @var Serialization */
 	private $serialization = null;
@@ -386,10 +386,14 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		$model = $this;
 		$parentMatch = null;
 		$serializationSettings = $this->getSerializationSettings();
+		$shareIdModel = ObjectCollection::getModelKey($this);
 		while (!is_null($model->getParent())) {
 			$model = $model->getParent();
 			$parentSerialization = $model->getSerialization();
 			
+			if (ObjectCollection::getModelKey($model) !== $shareIdModel) {
+				continue;
+			}
 			if (!is_null($isSerializable)) {
 				if ((!is_null($parentSerialization) && $parentSerialization->isSerializationAllowed()) !== $isSerializable) {
 					continue;

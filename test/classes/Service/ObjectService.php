@@ -103,14 +103,14 @@ class ObjectService {
 	/**
 	 * build successfull response
 	 * 
-	 * @param mixed $returnValue
+	 * @param mixed $returnedValue
 	 * @return \stdClass
 	 */
-	private static function _setSuccessResponse($returnValue) {
-		$return = new \stdClass();
-		$return->success = true;
-		$return->result  = $returnValue;
-		return $return;
+	private static function _setSuccessResponse($returnedValue) {
+		$res = new \stdClass();
+		$res->success = true;
+		$res->result  = $returnedValue;
+		return $res;
 	}
 	
 	/**
@@ -120,12 +120,12 @@ class ObjectService {
 	 * @return \stdClass
 	 */
 	private static function _setErrorResponse(\Exception $exception) {
-		$return = new \stdClass();
-		$return->success        = false;
-		$return->error          = new \stdClass();
-		$return->error->message = $exception->getMessage();
-		$return->error->code    = $exception->getCode();
-		return $return;
+		$res = new \stdClass();
+		$res->success        = false;
+		$res->error          = new \stdClass();
+		$res->error->message = $exception->getMessage();
+		$res->error->code    = $exception->getCode();
+		return $res;
 	}
 	
 }

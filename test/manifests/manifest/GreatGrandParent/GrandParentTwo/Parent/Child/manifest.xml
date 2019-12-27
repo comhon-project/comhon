@@ -1,4 +1,4 @@
-<manifest version="3.0" is_serializable="0">
+<manifest version="3.0" is_serializable="0" share_parent_id="1">
   <extends>
     <type>\Test\GreatGrandParent\GrandParentTwo\Parent</type>
   </extends>

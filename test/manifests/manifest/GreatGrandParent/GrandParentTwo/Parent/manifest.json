@@ -1,9 +1,10 @@
 {
     "version": "3.0",
+    "is_serializable": false,
+    "shared_id": "\\Test\\GreatGrandParent",
     "extends": [
         "\\Test\\GreatGrandParent\\GrandParentTwo"
     ],
-    "is_serializable": false,
     "properties": [
         {
             "name": "parent",

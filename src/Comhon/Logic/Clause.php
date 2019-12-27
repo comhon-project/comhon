@@ -260,13 +260,13 @@ class Clause extends Formula {
 	 * @return boolean
 	 */
 	public function isSatisfied($predicates) {
-		$return = false;
+		$isSatisfied = false;
 		if ($this->type == self::CONJUNCTION) {
-			$return = $this->_isSatisfiedConjunction($predicates);
+			$isSatisfied = $this->_isSatisfiedConjunction($predicates);
 		}elseif ($this->type == self::DISJUNCTION) {
-			$return = $this->_isSatisfiedDisjunction($predicates);
+			$isSatisfied = $this->_isSatisfiedDisjunction($predicates);
 		}
-		return $return;
+		return $isSatisfied;
 	}
 	
 	/**
