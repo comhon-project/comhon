@@ -26,9 +26,7 @@ use Comhon\Database\OnLiteral;
 use Comhon\Database\DbLiteral;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Exception\ArgumentException;
-use Comhon\Exception\Request\MalformedRequestException;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\Literal\MalformedLiteralException;
 use Comhon\Exception\Literal\UnresolvableLiteralException;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Literal\NotLinkableLiteralException;
@@ -37,11 +35,10 @@ use Comhon\Exception\Request\NotAllowedRequestException;
 use Comhon\Database\SimpleDbLiteral;
 use Comhon\Object\ComhonObject;
 use Comhon\Object\Collection\ObjectCollection;
-use Comhon\Visitor\LoadStatuschecker;
 use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Object\ComhonArray;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Visitor\ObjectValidator;
 
 class ComplexLoadRequest extends ObjectLoadRequest {
 	
@@ -147,7 +144,14 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @return \Comhon\Request\ComplexLoadRequest
 	 */
 	public static function build($request, $private = false) {
-		if (!($request instanceof UniqueObject)) {
+		if ($request instanceof UniqueObject) {
+			if (!$request->getModel()->isInheritedFrom(ModelManager::getInstance()->getInstanceModel('Comhon\Request'))) {
+				$expected = ModelManager::getInstance()->getInstanceModel('Comhon\Request')->getObjectInstance(false)->getComhonClass();
+				throw new ArgumentException($request, $expected, 1);
+			}
+			$visitor = new ObjectValidator();
+			$visitor->execute($request, [ObjectValidator::VERIF_REFERENCES => true, ObjectValidator::VERIF_FOREIGN_ID => true]);
+		} else {
 			if ($request instanceof \stdClass) {
 				$interfacer = new StdObjectInterfacer();
 			} elseif (is_array($request)) {
@@ -173,15 +177,6 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @return \Comhon\Request\ComplexLoadRequest
 	 */
 	private static function _build(UniqueObject $request, $private = false) {
-		if (!$request->getModel()->isInheritedFrom(ModelManager::getInstance()->getInstanceModel('Comhon\Request'))) {
-			$expected = ModelManager::getInstance()->getInstanceModel('Comhon\Request')->getObjectInstance(false)->getComhonClass();
-			throw new ArgumentException($request, $expected, 1);
-		}
-		$visitor = new LoadStatuschecker();
-		$stack = $visitor->execute($request);
-		if (!is_null($stack)) {
-			throw new ComhonException('all objects must be loaded. object not loaded found : .'.implode('.', $stack));
-		}
 		if ($request->getModel()->getName() === 'Comhon\Request\Intermediate') {
 			$request = self::_intermediateToComplexRequest($request);
 		}
@@ -220,11 +215,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$expected = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Intermediate')->getObjectInstance(false)->getComhonClass();
 			throw new ArgumentException($request, $expected, 1);
 		}
-		$visitor = new LoadStatuschecker();
-		$stack = $visitor->execute($request);
-		if (!is_null($stack)) {
-			throw new ComhonException('all objects must be loaded. object not loaded found : .'.implode('.', $stack));
-		}
+		$visitor = new ObjectValidator();
+		$visitor->execute($request, [ObjectValidator::VERIF_REFERENCES => true, ObjectValidator::VERIF_FOREIGN_ID => true]);
+		
 		return self::_intermediateToComplexRequest($request);
 	}
 	

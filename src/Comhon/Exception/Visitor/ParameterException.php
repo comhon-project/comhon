@@ -13,7 +13,7 @@ namespace Comhon\Exception\Visitor;
 
 use Comhon\Exception\ComhonException;
 
-class VisitorParameterException extends ComhonException {
+class ParameterException extends ComhonException {
 	
 	/**
 	 * @param string $parameterName

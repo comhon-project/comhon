@@ -195,7 +195,7 @@ class RequestModelTest extends TestCase
 				$this->assertEquals($e->getStringifiedProperties(), '.');
 				$this->assertEquals(get_class($e->getOriginalException()), MissingRequiredValueException::class);
 				$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::MISSING_REQUIRED_VALUE_EXCEPTION);
-				$message = "missing required value '$value' on loaded comhon object with model '$modelName'";
+				$message = "missing required value '$value' on comhon object with model '$modelName'";
 				$this->assertEquals($e->getOriginalException()->getMessage(), $message);
 			}
 			$this->assertTrue($thrown, "value '$value' should be required");

@@ -24,7 +24,7 @@ class RequiredValueTest extends TestCase
 		$model->getObjectInstance(false);
 		
 		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("missing required value 'valueRequired' on loaded comhon object with model 'Test\Required'");
+		$this->expectExceptionMessage("missing required value 'valueRequired' on comhon object with model 'Test\Required'");
 		$model->getObjectInstance();
 	}
 	
@@ -37,7 +37,7 @@ class RequiredValueTest extends TestCase
 		
 		$object = $model->getObjectInstance(false);
 		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("missing required value 'valueRequired' on loaded comhon object with model 'Test\Required'");
+		$this->expectExceptionMessage("missing required value 'valueRequired' on comhon object with model 'Test\Required'");
 		$object->setIsLoaded(true);
 	}
 	
@@ -51,7 +51,7 @@ class RequiredValueTest extends TestCase
 		$object->setValue('valueRequired', 'aaaa');
 		$object->setIsLoaded(true);
 		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("impossible to unset required value 'valueRequired' on loaded comhon object with model 'Test\Required'");
+		$this->expectExceptionMessage("impossible to unset required value 'valueRequired' on comhon object with model 'Test\Required'");
 		$object->unsetValue('valueRequired');
 	}
 	
@@ -100,7 +100,7 @@ class RequiredValueTest extends TestCase
 			$this->assertEquals($e->getStringifiedProperties(), '.');
 			$this->assertEquals(get_class($e->getOriginalException()), MissingRequiredValueException::class);
 			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::MISSING_REQUIRED_VALUE_EXCEPTION);
-			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on loaded comhon object with model 'Test\Required'");
+			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on comhon object with model 'Test\Required'");
 		}
 		$this->assertTrue($thrown);
 	}
@@ -119,7 +119,7 @@ class RequiredValueTest extends TestCase
 			$this->assertEquals($e->getStringifiedProperties(), '.valueComplex');
 			$this->assertEquals(get_class($e->getOriginalException()), MissingRequiredValueException::class);
 			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::MISSING_REQUIRED_VALUE_EXCEPTION);
-			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on loaded comhon object with model 'Test\Required\localRestricted'");
+			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on comhon object with model 'Test\Required\localRestricted'");
 		}
 		$this->assertTrue($thrown);
 	}
@@ -159,7 +159,7 @@ class RequiredValueTest extends TestCase
 			$this->assertEquals($e->getStringifiedProperties(), $propertyString);
 			$this->assertEquals(get_class($e->getOriginalException()), MissingRequiredValueException::class);
 			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::MISSING_REQUIRED_VALUE_EXCEPTION);
-			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on loaded comhon object with model '$modelName'");
+			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on comhon object with model '$modelName'");
 		}
 		$this->assertTrue($thrown);
 	}
@@ -194,7 +194,7 @@ class RequiredValueTest extends TestCase
 		$obj2->setIsLoaded(true);
 		
 		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("missing required value 'valueRequiredExtended' on loaded comhon object with model 'Test\Required\localRestrictedExtended'");
+		$this->expectExceptionMessage("missing required value 'valueRequiredExtended' on comhon object with model 'Test\Required\localRestrictedExtended'");
 		$obj2->cast(ModelManager::getInstance()->getInstanceModel('Test\Required\localRestrictedExtended'));
 	}
 

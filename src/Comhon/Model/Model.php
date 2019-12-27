@@ -41,6 +41,7 @@ use Comhon\Visitor\ObjectFinder;
 use Comhon\Exception\Interfacer\InterfaceException;
 use Comhon\Exception\Interfacer\ContextIdException;
 use Comhon\Exception\Interfacer\ObjectLoopException;
+use Comhon\Exception\Value\MissingIdForeignValueException;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -931,7 +932,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					$foreignObject = $object->getValue($propertyName);
 					if (!is_null($foreignObject)) {
 						if (!$foreignObject->hasCompleteId()) {
-							throw new ComhonException("cannot export id of foreign property with model '{$this->modelName}' because object doesn't have complete id");
+							throw new MissingIdForeignValueException();
 						}
 						foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
 							if (!$onlyUpdatedValues || $foreignObject->isUpdatedValue($idProperty->getName())) {
@@ -1513,7 +1514,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	private static function _toInterfacedId(UniqueObject $object, Interfacer $interfacer) {
 		if (!$object->hasCompleteId()) {
-			throw new ComhonException("cannot export id of foreign property with model '{$object->getModel()->getName()}' because object doesn't have complete id");
+			throw new MissingIdForeignValueException();
 		}
 		return $object->getId();
 	}

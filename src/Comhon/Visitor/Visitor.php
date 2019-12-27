@@ -13,7 +13,8 @@ namespace Comhon\Visitor;
 
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Object\ComhonArray;
-use Comhon\Exception\Visitor\VisitorParameterException;
+use Comhon\Exception\Visitor\ParameterException;
+use Comhon\Exception\Visitor\VisitException;
 
 abstract class Visitor {
 	
@@ -41,11 +42,19 @@ abstract class Visitor {
 		$this->propertyNameStack = [];
 		$this->mainObject = $object;
 		$this->params = $params;
-
-		$this->_init($object);
-		$this->_acceptChildren($object, false);
+		$result = null;
 		
-		return $this->_finalize($object);
+		try {
+			$this->_init($object);
+			$this->_acceptChildren($object, false);
+			$result = $this->_finalize($object);
+		} catch (VisitException $e) {
+			throw $e;
+		} catch (\Exception $e) {
+			throw new VisitException($e, $this->propertyNameStack);
+		}
+		
+		return $result;
 	}
 	
 	/**
@@ -100,23 +109,23 @@ abstract class Visitor {
 	 * verify parameters
 	 * 
 	 * @param array $params
-	 * @throws VisitorParameterException
+	 * @throws ParameterException
 	 */
 	private function _verifParameters($params) {
 		$parameters = $this->_getMandatoryParameters();
 		if (is_array($parameters)) {
 			if (!empty($parameters)) {
 				if (!is_array($params)) {
-					throw new VisitorParameterException(implode(', ', $parameters));
+					throw new ParameterException(implode(', ', $parameters));
 				}
 				foreach ($parameters as $parameterName) {
 					if (!array_key_exists($parameterName, $params)) {
-						throw new VisitorParameterException($parameterName);
+						throw new ParameterException($parameterName);
 					}
 				}
 			}
-		} else if (!is_null($parameters)) {
-			throw new VisitorParameterException(null);
+		} elseif (!is_null($parameters)) {
+			throw new ParameterException(null);
 		}
 	}
 

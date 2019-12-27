@@ -29,6 +29,7 @@ abstract class ConstantException {
 	const UNEXPECTED_VALUE_TYPE_EXCEPTION     = 203;
 	const ABSTRACT_OBJECT_EXCEPTION           = 204;
 	const MISSING_REQUIRED_VALUE_EXCEPTION    = 205;
+	const MISSING_ID_FOREIGN_VALUE_EXCEPTION  = 206;
 	
 	// interfacing exception
 	const DUPLICATED_ID_EXCEPTION        = 301;

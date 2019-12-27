@@ -13,6 +13,7 @@ use Comhon\Exception\Literal\NotLinkableLiteralException;
 use Comhon\Exception\Literal\UnresolvableLiteralException;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Exception\Request\NotAllowedLiteralException;
+use Comhon\Exception\Interfacer\ImportException;
 
 class ObjectLoadRequestTest extends TestCase
 {
@@ -36,16 +37,28 @@ class ObjectLoadRequestTest extends TestCase
 		ComplexLoadRequest::build($obj);
 	}
 	
-	public function testUnloadedRequestRoot()
+	public function testBadModel()
+	{
+		$request = [
+			"__inheritance__"=> 'Comhon\SqlTable'
+		];
+		
+		$this->expectException(ImportException::class);
+		$this->expectExceptionMessage("model must be a 'Comhon\Request', model 'Comhon\SqlTable' given");
+		ComplexLoadRequest::build($request);
+	}
+	
+	public function testUnloadedNotValidRequestRoot()
 	{
 		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Intermediate')->getObjectInstance(false);
 		
 		$this->expectException(ComhonException::class);
-		$this->expectExceptionMessage('all objects must be loaded. object not loaded found : .');
+		$this->expectExceptionMessage("Something goes wrong on '.' object : 
+missing required value 'root' on comhon object with model 'Comhon\Request\Intermediate'");
 		ComplexLoadRequest::build($obj);
 	}
 	
-	public function testUnloadedRequestLeaf()
+	public function testUnloadedNotValidRequestLeaf()
 	{
 		$NodeModel = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Node');
 		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance(false);
@@ -58,7 +71,51 @@ class ObjectLoadRequestTest extends TestCase
 		$tree->setIsLoaded(true);
 		
 		$this->expectException(ComhonException::class);
-		$this->expectExceptionMessage('all objects must be loaded. object not loaded found : .tree.nodes.0');
+		$this->expectExceptionMessage("Something goes wrong on '.tree.nodes.0' object : 
+missing required value 'id' on comhon object with model 'Comhon\Model\Node'");
+		ComplexLoadRequest::build($obj);
+	}
+	
+	public function testNotRefValueRequest()
+	{
+		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal\String');
+		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance(false);
+		$tree = $obj->getInstanceValue('tree', false);
+		$tree->setId(1);
+		$tree->setValue('model', 'Comhon\SqlTable');
+		$obj->setValue('tree', $tree);
+		$notRefTree = $obj->getInstanceValue('tree', false);
+		$notRefTree->setId(2);
+		$notRefTree->setValue('model', 'Comhon\SqlTable');
+		$filter = $literalModel->getObjectInstance(false);
+		$filter->setId(1);
+		$filter->setValue('node', $notRefTree);
+		$filter->setValue('property', 'my_property');
+		$filter->setValue('operator', '=');
+		$filter->setValue('value', 'hehe');
+		$simpleCollection = $obj->initValue('simpleCollection', false);
+		$simpleCollection->pushValue($filter);
+		
+		$this->expectException(ComhonException::class);
+		$this->expectExceptionMessage("Something goes wrong on '.simpleCollection.0.node' object : 
+foreign value with model 'Comhon\Model\Root' and id '2' not referenced in interfaced object");
+		ComplexLoadRequest::build($obj);
+	}
+	
+	public function testForeignWithoutIdRequest()
+	{
+		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal\String');
+		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance(false);
+		$tree = $obj->getInstanceValue('tree', false);
+		$tree->setId(1);
+		$tree->setValue('model', 'Comhon\SqlTable');
+		$obj->setValue('tree', $tree);
+		$filter = $literalModel->getObjectInstance(false);
+		$obj->setValue('filter', $filter);
+		
+		$this->expectException(ComhonException::class);
+		$this->expectExceptionMessage("Something goes wrong on '.filter' object : 
+missing or not complete id on foreign value");
 		ComplexLoadRequest::build($obj);
 	}
 	
@@ -162,7 +219,6 @@ class ObjectLoadRequestTest extends TestCase
 		$this->expectException($exception);
 		$this->expectExceptionMessage($message);
 		ComplexLoadRequest::build($model->import($request, $interfacer), true);
-		
 	}
 	
 	public function notAllowedLiteralData()
