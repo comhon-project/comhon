@@ -14,6 +14,7 @@ namespace Comhon\Model\Property;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\ModelForeign;
 use Comhon\Object\UniqueObject;
+use Comhon\Model\Singleton\ModelManager;
 
 class MultipleForeignProperty extends ForeignProperty {
 
@@ -87,19 +88,10 @@ class MultipleForeignProperty extends ForeignProperty {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\Property\Property::isAllowedLiteral()
+	 * @see \Comhon\Model\Property\Property::getLiteralModel()
 	 */
-	public function isAllowedLiteral(UniqueObject $literal) {
-		return in_array($literal->getModel()->getName(), self::ALLOWED_STRING_LITERALS);
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\Property\Property::getAllowedLiterals()
-	 */
-	public function getAllowedLiterals() {
-		return self::ALLOWED_STRING_LITERALS;
+	public function getLiteralModel() {
+		return ModelManager::getInstance()->getInstanceModel('string');
 	}
 	
 }

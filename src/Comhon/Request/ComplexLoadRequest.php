@@ -189,7 +189,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$objectLoadRequest->setLimit($request->getValue('limit'));
 		}
 		if ($request->hasValue('properties')) {
-			$objectLoadRequest->setPropertiesFilter($request->getValue('properties'));
+			$objectLoadRequest->setPropertiesFilter($request->getValue('properties')->getValues());
 		}
 		if ($request->hasValue('offset')) {
 			$objectLoadRequest->setOffset($request->getValue('offset'));
@@ -643,6 +643,9 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			$mainTable->resetSelectedColumns();
 			foreach ($selectedColumns as $column) {
 				$mainTable->addSelectedColumn($column);
+			}
+			if ($this->model->getSerialization()->getInheritanceKey()) {
+				$mainTable->addSelectedColumn($this->model->getSerialization()->getInheritanceKey());
 			}
 		}
 	}

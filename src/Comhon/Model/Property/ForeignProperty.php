@@ -13,7 +13,8 @@ namespace Comhon\Model\Property;
 
 use Comhon\Object\UniqueObject;
 use Comhon\Model\ModelForeign;
-use Comhon\Model\Restriction\NotNull;
+use Comhon\Model\Model;
+use Comhon\Model\Singleton\ModelManager;
 
 class ForeignProperty extends Property {
 	
@@ -65,6 +66,21 @@ class ForeignProperty extends Property {
 	 */
 	public function isForeign() {
 		return true;
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::getLiteralModel()
+	 */
+	public function getLiteralModel() {
+		if (!($this->getModel()->getModel() instanceof Model)) {
+			return null;
+		}
+		$foreignModel = $this->getModel()->getModel();
+		return $foreignModel->hasUniqueIdProperty() 
+			? $foreignModel->getUniqueIdProperty()->getModel()
+			: ModelManager::getInstance()->getInstanceModel('string');
 	}
 	
 }

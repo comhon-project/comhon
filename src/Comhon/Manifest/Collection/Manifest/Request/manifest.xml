@@ -13,7 +13,7 @@
     </type>
   </types>
   <properties>
-    <property name="limit" type="integer" not_null="1"/>
+    <property name="limit" type="integer" not_null="1" interval="[1,]"/>
     <property name="offset" type="integer" not_null="1"/>
     <property name="order" type="array" not_null="1">
       <values name="element" type="Order" not_null="1"/>

@@ -25,41 +25,6 @@ use Comhon\Model\Restriction\NotNull;
 
 class Property {
 
-	const ALLOWED_STRING_LITERALS = [
-		'Comhon\Logic\Simple\Literal\String',
-		'Comhon\Logic\Simple\Literal\Set\String',
-		'Comhon\Logic\Simple\Literal\Null'
-	];
-	
-	const ALLOWED_FLOAT_LITERALS = [
-		'Comhon\Logic\Simple\Literal\Numeric\Float',
-		'Comhon\Logic\Simple\Literal\Set\Numeric\Float',
-		'Comhon\Logic\Simple\Literal\Numeric\Integer',
-		'Comhon\Logic\Simple\Literal\Set\Numeric\Integer',
-		'Comhon\Logic\Simple\Literal\Null'
-	];
-	
-	const ALLOWED_INTEGER_LITERALS = [
-		'Comhon\Logic\Simple\Literal\Numeric\Integer',
-		'Comhon\Logic\Simple\Literal\Set\Numeric\Integer',
-		'Comhon\Logic\Simple\Literal\Null'
-	];
-	
-	const ALLOWED_BOOLEAN_LITERALS = [
-		'Comhon\Logic\Simple\Literal\Boolean',
-		'Comhon\Logic\Simple\Literal\Null'
-	];
-	
-	protected static $allowedLiterals = [
-		'string'     => self::ALLOWED_STRING_LITERALS,
-		'integer'    => self::ALLOWED_INTEGER_LITERALS,
-		'float'      => self::ALLOWED_FLOAT_LITERALS,
-		'dateTime'   => self::ALLOWED_STRING_LITERALS,
-		'index'      => self::ALLOWED_INTEGER_LITERALS,
-		'percentage' => self::ALLOWED_FLOAT_LITERALS,
-		'boolean'    => self::ALLOWED_BOOLEAN_LITERALS
-	];
-	
 	/** @var \Comhon\Model\AbstractModel */
 	protected $model;
 	
@@ -147,7 +112,7 @@ class Property {
 	/**
 	 * get model
 	 * 
-	 * @return \Comhon\Model\AbstractModel
+	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel|\Comhon\Model\ModelContainer
 	 */
 	public function getModel() {
 		$this->model->load();
@@ -417,6 +382,15 @@ class Property {
 	}
 	
 	/**
+	 * get property model that permit to build literal
+	 * 
+	 * @return \Comhon\Model\SimpleModel|null
+	 */
+	public function getLiteralModel() {
+		return ($this->getModel() instanceof SimpleModel) ? $this->getModel() : null;
+	}
+	
+	/**
 	 * verify if specified property is equal to this property
 	 * 
 	 * verify if properties are same instance or if they have same attributes
@@ -438,34 +412,6 @@ class Property {
 			$this->model->isEqual($property->getModel()) && 
 			Restriction::compare($this->restrictions, $property->getRestrictions())
 		);
-	}
-	
-	/**
-	 * verify if given literal is allowed.
-	 * literals are used when requesting objects.
-	 * model of given literal must be a 'Comhon\Logic\Simple\Literal'.
-	 *
-	 * @param UniqueObject $literal
-	 * @return boolean
-	 */
-	public function isAllowedLiteral(UniqueObject $literal) {
-		return array_key_exists($this->getUniqueModel()->getName(), self::$allowedLiterals)
-		? in_array($literal->getModel()->getName(), self::$allowedLiterals[$this->getUniqueModel()->getName()])
-		: false;
-	}
-	
-	/**
-	 * get allowed literals that may be applied.
-	 * literals are used when requesting objects.
-	 * model of given literal must be a 'Comhon\Logic\Simple\Literal'.
-	 *
-	 * @param UniqueObject $literal
-	 * @return boolean
-	 */
-	public function getAllowedLiterals() {
-		return array_key_exists($this->getUniqueModel()->getName(), self::$allowedLiterals)
-		? self::$allowedLiterals[$this->getUniqueModel()->getName()]
-		: [];
 	}
 	
 }

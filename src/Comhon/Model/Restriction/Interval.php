@@ -99,7 +99,7 @@ class Interval extends Restriction {
 		$this->rightEndPoint = $matches[3];
 		$this->model = $model;
 		
-		if ($this->leftEndPoint > $this->rightEndPoint) {
+		if (!is_null($this->leftEndPoint) && !is_null($this->rightEndPoint) && $this->leftEndPoint > $this->rightEndPoint) {
 			throw new MalformedIntervalException($interval);
 		}
 	}

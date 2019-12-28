@@ -133,9 +133,9 @@ $Json = '{
 $result = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
-	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "literal cannot contain aggregation property 'childrenTestDb' except in queue node"
-	|| !isset($result->error->code) || $result->error->code !== 703
-) {
+	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== 'there is no literal allowed on property \'childrenTestDb\' of model \'Test\TestDb\'.'
+	|| !isset($result->error->code) || $result->error->code !== 709
+		) {
 	throw new \Exception('bad ObjectService::getObjects return 4 '.json_encode($result));
 }
 

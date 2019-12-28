@@ -53,7 +53,7 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 	 * @see \Comhon\Request\ObjectLoadRequest::execute()
 	 */
 	public function execute() {
-		return $this->model->loadObject($this->id, $this->propertiesFilter);
+		return $this->model->loadObject($this->id, $this->propertiesFilter, true);
 	}
 	
 	/**

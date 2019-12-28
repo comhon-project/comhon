@@ -29,6 +29,7 @@
         {
             "name": "limit",
             "type": "integer",
+            "interval": "[1,]",
             "not_null": true
         },
         {

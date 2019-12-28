@@ -449,8 +449,9 @@ try {
 
 // TODO for version > 3.0
 
+// replace clause disjunction, conjunction by enumeration
+// manage all errors request handler
 // add patch method
-// all comhon objects inherit automaticaly from same empty abstract model (ex ComhonObject) ?
 
 // add selectquery select count(*) on query and func(*) on table
 // restriction string length (perhaps several restrictions same time)

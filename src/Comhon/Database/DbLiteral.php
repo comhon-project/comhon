@@ -15,7 +15,6 @@ use Comhon\Request\ComplexLoadRequest;
 use Comhon\Model\Model;
 use Comhon\Logic\Clause;
 use Comhon\Logic\Literal;
-use Comhon\Exception\Literal\LiteralPropertyAggregationException;
 use Comhon\Exception\Model\PropertyVisibilityException;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Serialization\SerializationException;
@@ -23,7 +22,8 @@ use Comhon\Model\Property\MultipleForeignProperty;
 use Comhon\Object\ComhonArray;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Exception\ArgumentException;
-use Comhon\Exception\Request\NotAllowedLiteralException;
+use Comhon\Exception\Literal\NotAllowedLiteralException;
+use Comhon\Request\LiteralBinder;
 
 abstract class DbLiteral extends Literal {
 	
@@ -109,13 +109,10 @@ abstract class DbLiteral extends Literal {
 		}
 		else {
 			$property = $model->getProperty($literal->getValue('property'), true);
-			if ($property->isAggregation()) {
-				throw new LiteralPropertyAggregationException($property->getName());
-			}
 			if (!$allowPrivateProperties && $property->isPrivate()) {
 				throw new PropertyVisibilityException($property->getName());
 			}
-			if (!$property->isAllowedLiteral($literal)) {
+			if (!LiteralBinder::isAllowedLiteral($property, $literal)) {
 				throw new NotAllowedLiteralException($model, $property, $literal);
 			}
 			

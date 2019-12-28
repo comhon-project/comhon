@@ -12,10 +12,11 @@ use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Exception\Literal\NotLinkableLiteralException;
 use Comhon\Exception\Literal\UnresolvableLiteralException;
 use Comhon\Interfacer\AssocArrayInterfacer;
-use Comhon\Exception\Request\NotAllowedLiteralException;
+use Comhon\Exception\Literal\NotAllowedLiteralException;
 use Comhon\Exception\Interfacer\ImportException;
+use Comhon\Request\LiteralBinder;
 
-class ObjectLoadRequestTest extends TestCase
+class RequestTest extends TestCase
 {
 	private static $data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Request' . DIRECTORY_SEPARATOR;
 	
@@ -192,10 +193,8 @@ missing or not complete id on foreign value");
 		];
 	}
 	
-	
-	
 	/**
-	 * @dataProvider notAllowedLiteralData
+	 * @dataProvider notAllowedLiteralRequestData
 	 */
 	public function testNotAllowedLiteralRequest($literal, $exception, $message)
 	{
@@ -221,7 +220,7 @@ missing or not complete id on foreign value");
 		ComplexLoadRequest::build($model->import($request, $interfacer), true);
 	}
 	
-	public function notAllowedLiteralData()
+	public function notAllowedLiteralRequestData()
 	{
 		return [
 			[
@@ -254,7 +253,6 @@ missing or not complete id on foreign value");
 				NotAllowedLiteralException::class,
 				"literal 'Comhon\Logic\Simple\Literal\Boolean' not allowed on property 'integer' of model 'Test\TestDb'. must be one of [Comhon\Logic\Simple\Literal\Numeric\Integer, Comhon\Logic\Simple\Literal\Set\Numeric\Integer, Comhon\Logic\Simple\Literal\Null]"
 			],
-				
 			[
 				[
 					"property" => "date",
@@ -265,7 +263,119 @@ missing or not complete id on foreign value");
 				NotAllowedLiteralException::class,
 				"literal 'Comhon\Logic\Simple\Literal\Boolean' not allowed on property 'date' of model 'Test\TestDb'. must be one of [Comhon\Logic\Simple\Literal\String, Comhon\Logic\Simple\Literal\Set\String, Comhon\Logic\Simple\Literal\Null]"
 			],
+			[
+				[
+					"property" => "mainParentTestDb",
+					"operator" => "=",
+					"value"    => true,
+					"__inheritance__"=> 'Comhon\Logic\Simple\Literal\Boolean'
+				],
+				NotAllowedLiteralException::class,
+				"literal 'Comhon\Logic\Simple\Literal\Boolean' not allowed on property 'mainParentTestDb' of model 'Test\TestDb'. must be one of [Comhon\Logic\Simple\Literal\Numeric\Integer, Comhon\Logic\Simple\Literal\Set\Numeric\Integer, Comhon\Logic\Simple\Literal\Null]"
+			],
 		];
 	}
 	
+	/**
+	 * 
+	 * @dataProvider foreignValueFilterRequestData
+	 */
+	public function testForeignValueFilterRequest($modelName, $propertyName, $value, $literalModelName, $result)
+	{
+		$request = [
+			"tree" => [
+				"model"   => $modelName,
+				"id"      => 1
+			],
+			"simpleCollection" => [
+				[
+					"id"       => 1,
+					"node"     => 1,
+					"property" => $propertyName,
+					"operator" => "=",
+					"value"    => $value,
+					"__inheritance__"=> $literalModelName
+				]
+			],
+			"filter" => 1,
+		    "__inheritance__"=> 'Comhon\Request\Complex'
+		];
+		$request = ComplexLoadRequest::build($request);
+		$array = $request->execute();
+		$interfacer = new AssocArrayInterfacer();
+		
+		$this->assertEquals($result, $interfacer->toString($array->export($interfacer)));
+	}
+	
+	public function foreignValueFilterRequestData()
+	{
+		return [
+			[
+				'Test\ChildTestDb',
+				'parentTestDb',
+				'[1,"1501774389"]',
+				'Comhon\Logic\Simple\Literal\String',
+				'[{"id":1,"name":"plop","parentTestDb":"[1,\"1501774389\"]"},{"id":2,"name":"plop2","parentTestDb":"[1,\"1501774389\"]"}]'
+			],
+			[
+				'Test\Person',
+				'birthPlace',
+				2,
+				'Comhon\Logic\Simple\Literal\Numeric\Integer',
+				'[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":11,"firstName":"Naelya","lastName":"Dupond","birthDate":null,"birthPlace":2,"bestFriend":null,"father":1,"mother":null,"__inheritance__":"Test\\\\Person\\\\Woman"}]'
+			]
+		];
+	}
+	
+	/**
+	 *
+	 * @dataProvider notFilterableValueRequestData
+	 */
+	public function testNotFilterableValueRequest($modelName, $propertyName, $value, $literalModelName, $exception, $message)
+	{
+		$request = [
+			"tree" => [
+				"model"   => $modelName,
+				"id"      => 1
+			],
+			"simpleCollection" => [
+				[
+					"id"       => 1,
+					"node"     => 1,
+					"property" => $propertyName,
+					"operator" => "=",
+					"value"    => $value,
+					"__inheritance__"=> $literalModelName
+				]
+			],
+			"filter" => 1,
+			"__inheritance__"=> 'Comhon\Request\Complex'
+		];
+		
+		$this->expectException($exception);
+		$this->expectExceptionMessage($message);
+		ComplexLoadRequest::build($request, true);
+	}
+	
+	public function notFilterableValueRequestData()
+	{
+		return [
+			[
+				'Test\TestDb',
+				'objectWithId',
+				'my_id',
+				'Comhon\Logic\Simple\Literal\String',
+				NotAllowedLiteralException::class,
+				'there is no literal allowed on property \'objectWithId\' of model \'Test\TestDb\'.'
+			],
+			[
+				'Test\Person',
+				'children',
+				2,
+				'Comhon\Logic\Simple\Literal\Numeric\Integer',
+				NotAllowedLiteralException::class,
+				'there is no literal allowed on property \'children\' of model \'Test\Person\'.'
+			]
+		];
+	}
 }

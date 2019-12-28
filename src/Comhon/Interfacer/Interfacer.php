@@ -291,8 +291,8 @@ abstract class Interfacer {
 	 * @param string[] $propertiesNames
 	 * @param string $modelName
 	 */
-	public function setPropertiesFilter($propertiesNames, $modelName) {
-		if (is_array($propertiesNames)) {
+	public function setPropertiesFilter(array $propertiesNames, $modelName) {
+		if (!empty($propertiesNames)) {
 			$this->propertiesFilters[$modelName] = array_flip($propertiesNames);
 			
 			// add id properties even if they are not in filter properties

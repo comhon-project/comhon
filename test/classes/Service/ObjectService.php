@@ -89,7 +89,7 @@ class ObjectService {
 	 */
 	private static function _getFilterProperties(\stdClass $params, ModelComhonObject $model) {
 		if (!isset($params->properties) || empty($params->properties)) {
-			return null;
+			return [];
 		}
 		$filterProperties = $params->properties;
 		if ($model->hasIdProperties()) {
