@@ -1,27 +1,8 @@
 {
     "version": "3.0",
-    "is_abstract": true,
     "share_parent_id": true,
     "extends": [
         "\\Comhon\\Logic\\Having\\Formula"
-    ],
-    "types": [
-        {
-            "name": "Conjunction",
-            "share_parent_id": true,
-            "extends": [
-                "\\Comhon\\Logic\\Having\\Clause"
-            ],
-            "properties": []
-        },
-        {
-            "name": "Disjunction",
-            "share_parent_id": true,
-            "extends": [
-                "\\Comhon\\Logic\\Having\\Clause"
-            ],
-            "properties": []
-        }
     ],
     "properties": [
         {
@@ -36,6 +17,16 @@
             "not_null": true,
             "not_empty": true,
             "is_foreign": true
+        },
+        {
+            "name": "type",
+            "type": "string",
+            "enum": [
+                "disjunction",
+                "conjunction"
+            ],
+            "is_required": true,
+            "not_null": true
         }
     ]
 }

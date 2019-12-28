@@ -247,13 +247,8 @@ class RequestHandler {
 			$clauseType = $get[self::CLAUSE];
 			unset($get[self::CLAUSE]);
 		}
-		if ($clauseType == Clause::CONJUNCTION) {
-			$clause = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause\Conjunction')->getObjectInstance(false);
-		} elseif ($clauseType == Clause::DISJUNCTION) {
-			$clause = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause\Disjunction')->getObjectInstance(false);
-		} else {
-			throw new HTTPException("Not supported clause type $clauseType", 400);
-		}
+		$clause = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause')->getObjectInstance(false);
+		$clause->setValue('type', $clauseType);
 		$clause->setId($i++);
 		$simpleCollection = $request->initValue('simpleCollection');
 		$elements = $clause->initValue('elements', false);

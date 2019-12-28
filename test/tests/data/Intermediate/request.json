@@ -3,7 +3,8 @@
         {
             "id": 0,
             "elements": [1,2,3,4,5],
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Conjunction"
+            "type": "conjunction",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
         },
         {
             "id": 1,
@@ -38,7 +39,8 @@
         {
             "id": 5,
             "elements": [6,7,8],
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Conjunction"
+            "type": "conjunction",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
         },
         {
             "id": 6,
@@ -68,7 +70,8 @@
         {
             "id": 0,
             "elements": [1,2],
-            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Conjunction"
+            "type": "conjunction",
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause"
         },
         {
             "id": 1,
@@ -93,7 +96,8 @@
         {
             "id": 4,
             "elements" : [5,6,7],
-            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Disjunction"
+            "type": "disjunction",
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause"
         },
         {
             "id": 5,
@@ -109,9 +113,9 @@
         },
         {
             "id": 7,
-            "type" : "conjunction",
             "elements" : [8,9],
-            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Conjunction"
+            "type": "conjunction",
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause"
         },
         {
             "id": 8,

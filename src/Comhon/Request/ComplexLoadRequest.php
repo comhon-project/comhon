@@ -428,8 +428,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @throws \Exception
 	 */
 	private function _importFilter(UniqueObject $filter) {
-		$clauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause');
-		if ($filter->getModel()->isInheritedFrom($clauseModel)) { // clause
+		if ($filter->getModel()->getName() == 'Comhon\Logic\Simple\Clause') { // clause
 			$this->filter = Clause::build(
 				$filter, 
 				$this->modelByNodeId, 

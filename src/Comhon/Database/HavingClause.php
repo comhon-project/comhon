@@ -30,17 +30,16 @@ class HavingClause extends Clause {
 	 * @return HavingClause
 	 */
 	public static function buildHaving(UniqueObject $havingClause, $firstTable, $lastTable, $lastModel, $allowPrivateProperties) {
-		$clauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Clause');
-		if (!$havingClause->getModel()->isInheritedFrom($clauseModel)) {
+		if ($havingClause->getModel()->getName() != 'Comhon\Logic\Having\Clause') {
+			$clauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Clause');
 			throw new ArgumentException($havingClause, $clauseModel->getObjectInstance(false)->getComhonClass(), 1);
 		}
 		$havingClause->validate();
-		$type = $havingClause->getModel()->getName() == 'Comhon\Logic\Having\Clause\Conjunction' ? Clause::CONJUNCTION : Clause::DISJUNCTION;
-		$clause = new HavingClause($type);
+		$clause = new HavingClause($havingClause->getValue('type'));
 		
 		/** @var \Comhon\Object\UniqueObject $element */
 		foreach ($havingClause->getValue('elements') as $element) {
-			if ($element->getModel()->isInheritedFrom($clauseModel)) { // clause
+			if ($element->getModel()->getName() == 'Comhon\Logic\Having\Clause') { // clause
 				$clause->addClause(self::buildHaving($element, $firstTable, $lastTable, $lastModel, $allowPrivateProperties));
 			} else { // literal
 				// table is not used anymore for function "COUNT" because we now use COUNT(*) instead of COUNT(table.column)

@@ -1,22 +1,16 @@
-<manifest version="3.0" is_abstract="1" share_parent_id="1">
+<manifest version="3.0" share_parent_id="1">
   <extends>
     <type>\Comhon\Logic\Simple\Formula</type>
   </extends>
-  <types>
-    <type name="Conjunction" share_parent_id="1">
-      <extends>
-        <type>\Comhon\Logic\Simple\Clause</type>
-      </extends>
-    </type>
-    <type name="Disjunction" share_parent_id="1">
-      <extends>
-        <type>\Comhon\Logic\Simple\Clause</type>
-      </extends>
-    </type>
-  </types>
   <properties>
     <property name="elements" type="array" is_foreign="1" is_required="1" not_null="1" not_empty="1">
       <values name="element" type="\Comhon\Logic\Simple\Formula" not_null="1"/>
+    </property>
+    <property name="type" type="string" is_required="1" not_null="1">
+      <enum>
+        <value>disjunction</value>
+        <value>conjunction</value>
+      </enum>
     </property>
   </properties>
 </manifest>

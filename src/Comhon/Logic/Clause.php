@@ -315,15 +315,15 @@ class Clause extends Formula {
 	 * @return Clause
 	 */
 	public static function build(UniqueObject $clause, $modelByNodeId, $selectQuery = null, $allowPrivateProperties = true, &$dbLiteralsById = []) {
-		$clauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause');
-		if (!$clause->getModel()->isInheritedFrom($clauseModel)) {
+		if ($clause->getModel()->getName() != 'Comhon\Logic\Simple\Clause') {
+			var_dump($clause->getModel()->getName());
+			$clauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause');
 			throw new ArgumentException($clause, $clauseModel->getObjectInstance(false)->getComhonClass(), 1);
 		}
 		
-		$type = $clause->getModel()->getName() == 'Comhon\Logic\Simple\Clause\Conjunction' ? Clause::CONJUNCTION : Clause::DISJUNCTION;
-		$newClause = new Clause($type);
+		$newClause = new Clause($clause->getValue('type'));
 		foreach ($clause->getValue('elements') as $element) {
-			if ($element->getModel()->isInheritedFrom($clauseModel)) { // clause
+			if ($element->getModel()->getName() == 'Comhon\Logic\Simple\Clause') { // clause
 				$newClause->addClause(Clause::build($element, $modelByNodeId, $selectQuery, $allowPrivateProperties, $dbLiteralsById));
 			} else { // literal
 				if (!isset($modelByNodeId[$element->getValue('node')->getId()])) {

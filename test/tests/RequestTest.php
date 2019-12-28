@@ -25,7 +25,8 @@ $request = [
 			[
 				"id" => 0,
 				"elements" => [1,2],
-				"__inheritance__" => "Comhon\Logic\Simple\Clause\Conjunction"
+				"type" => "conjunction",
+				"__inheritance__" => "Comhon\Logic\Simple\Clause"
 			],
 			[
 				"id" => 1,
@@ -70,7 +71,8 @@ $request = [
 				[
 						"id" => 0,
 						"elements" => [1,2],
-						"__inheritance__" => "Comhon\Logic\Simple\Clause\Conjunction"
+						"type" => "conjunction",
+						"__inheritance__" => "Comhon\Logic\Simple\Clause"
 				],
 				[
 						"id" => 1,

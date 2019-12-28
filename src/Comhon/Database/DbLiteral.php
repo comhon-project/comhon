@@ -213,10 +213,9 @@ abstract class DbLiteral extends Literal {
 			$mainTable->addSelectedColumn($columns[1]);
 			$selectQuery->addGroup($columns[1]);
 		}
-		$havingClauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Clause');
 		$havingFormula = $literal->getValue('having');
 		
-		if ($havingFormula->getModel()->isInheritedFrom($havingClauseModel)) {
+		if ($havingFormula->getModel()->getName() == 'Comhon\Logic\Having\Clause') {
 			$having = HavingClause::buildHaving($havingFormula, $mainTable, $lastTable, $lastModel, $allowPrivateProperties);
 		} else {
 			$table = $havingFormula->getModel()->getName() == 'Comhon\Logic\Having\Literal\Count' ? $mainTable : $lastTable;

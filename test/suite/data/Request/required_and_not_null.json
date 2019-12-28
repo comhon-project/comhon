@@ -133,14 +133,16 @@
 	],
 	[
 		{
-            "elements": [10]
+            "elements": [10],
+            "type": "disjunction"
         },
-		"Comhon\\Logic\\Simple\\Clause\\Disjunction"
+		"Comhon\\Logic\\Simple\\Clause"
 	],
 	[
 		{
-            "elements": [10]
+            "elements": [10],
+            "type": "disjunction"
         },
-		"Comhon\\Logic\\Having\\Clause\\Disjunction"
+		"Comhon\\Logic\\Having\\Clause"
 	]
 ]

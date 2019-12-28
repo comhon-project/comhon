@@ -73,7 +73,8 @@
                 2,
                 100
             ],
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Disjunction"
+            "type": "disjunction",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
         },
         {
             "id": 8,
@@ -85,7 +86,8 @@
                 6,
                 9
             ],
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Conjunction"
+            "type": "conjunction",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
         },
         {
             "id": 9,
@@ -125,14 +127,16 @@
                 10,
                 11
             ],
-            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Disjunction"
+            "type": "disjunction",
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause"
         },
         {
             "id": 13,
             "elements": [
                 12
             ],
-            "__inheritance__": "Comhon\\Logic\\Having\\Clause\\Conjunction"
+            "type": "conjunction",
+            "__inheritance__": "Comhon\\Logic\\Having\\Clause"
         }
     ],
     "root": 1,

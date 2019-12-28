@@ -16,7 +16,8 @@
                 7,
                 8
             ],
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause\\Disjunction"
+            "type": "disjunction",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
         },
         {
             "id": 1,
