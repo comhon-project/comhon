@@ -14,6 +14,7 @@ namespace Comhon\Model;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
+use Comhon\Exception\Model\CastStringException;
 
 class ModelFloat extends SimpleModel implements StringCastableModelInterface {
 	
@@ -50,9 +51,16 @@ class ModelFloat extends SimpleModel implements StringCastableModelInterface {
 	 * cast value to float
 	 *
 	 * @param string $value
+	 * @param string $property if value belong to a property, permit to be more specific if an exception is thrown
 	 * @return float
 	 */
-	public function castValue($value) {
+	public function castValue($value, $property = null) {
+		if (is_float($value)) {
+			return $value;
+		}
+		if (!is_numeric($value)) {
+			throw new CastStringException($value, 'float', $property);
+		}
 		return (float) $value;
 	}
 	

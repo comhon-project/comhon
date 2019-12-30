@@ -20,13 +20,14 @@ class CastStringException extends ComhonException {
 	 * 
 	 * @param string $value
 	 * @param string $expected
+	 * @param string $property
 	 */
-	public function __construct($value, $expected) {
+	public function __construct($value, $expected, $property = null) {
 		$expected = is_array($expected)
 			? 'belong to enumeration '.json_encode($expected)
 			: "be $expected";
-		
-		$message = "Cannot cast value '$value', value should $expected";
+		$propertyMessage = is_null($property) ? '' : " for property '$property'";
+		$message = "Cannot cast value '$value'{$propertyMessage}, value should $expected";
 		parent::__construct($message, ConstantException::CAST_EXCEPTION);
 	}
 	

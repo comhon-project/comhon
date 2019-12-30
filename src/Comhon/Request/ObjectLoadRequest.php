@@ -71,7 +71,7 @@ abstract class ObjectLoadRequest {
 			if ($property->isAggregation()) {
 				throw new MalformedRequestException("aggregation property '$propertyName' can't be a filter property");
 			} else if (!$this->private && $property->isPrivate()) {
-				throw new PropertyVisibilityException($propertyName);
+				throw new PropertyVisibilityException($property);
 			}
 			else {
 				$this->propertiesFilter[] = $propertyName;

@@ -449,8 +449,9 @@ try {
 
 // TODO for version > 3.0
 
-// replace clause disjunction, conjunction by enumeration
-// manage all errors request handler
+// test post method manage all errors request handler
+// test put method manage all errors request handler
+// test delete method manage all errors request handler
 // add patch method
 
 // add selectquery select count(*) on query and func(*) on table

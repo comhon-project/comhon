@@ -53,7 +53,7 @@ $request = [
 $result = ObjectService::getObjects(json_decode(json_encode($request)), true);
 
 if (!is_object($result) || !isset($result->success) || !$result->success || !isset($result->result) || !is_array($result->result)) {
-	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
+	throw new \Exception('bad ObjectService::getObjects return 1 '.json_encode($result));
 }
 
 if (!compareJson(json_encode($result->result), '[{"date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"id1":1,"id2":"23"},{"date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"id1":1,"id2":"101"}]')) {
@@ -98,7 +98,7 @@ $request = [
 $result = ObjectService::getObjects(json_decode(json_encode($request)), true);
 
 if (!is_object($result) || !isset($result->success) || !$result->success || !isset($result->result) || !is_array($result->result)) {
-	throw new \Exception('bad ObjectService::getObjects return '.json_encode($result));
+	throw new \Exception('bad ObjectService::getObjects return 2 '.json_encode($result));
 }
 
 if (!compareJson(json_encode($result->result), '[{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T14:53:54+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":0,"object":null,"objectWithId":null,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean":false,"boolean2":true},{"defaultValue":"default","id1":1,"id2":"101","date":"2016-04-13T09:14:33+02:00","timestamp":"2016-10-16T21:50:19+02:00","integer":2,"object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean":false,"boolean2":true}]')) {

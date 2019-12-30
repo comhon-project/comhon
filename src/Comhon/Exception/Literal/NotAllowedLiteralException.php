@@ -26,12 +26,13 @@ class NotAllowedLiteralException extends ComhonException {
 	 * @param \Comhon\Model\Property\Property $property
 	 * @param \Comhon\Object\UniqueObject $literal
 	 */
-	public function __construct(Model $model, Property $property, UniqueObject $literal) {
+	public function __construct(Model $model, Property $property, UniqueObject $literal = null) {
 		$literalNames = LiteralBinder::getAllowedLiterals($property);
 		if (empty($literalNames)) {
 			$message = "there is no literal allowed on property '{$property->getName()}' of model '{$model->getName()}'.";
 		} else {
-			$message = "literal '{$literal->getModel()->getName()}' not allowed on property '{$property->getName()}' of model '{$model->getName()}'."
+			$literalName = is_null($literal) ? ' ' : " '{$literal->getModel()->getName()}' ";
+			$message = "literal{$literalName}not allowed on property '{$property->getName()}' of model '{$model->getName()}'."
 			. " must be one of [". implode(', ', $literalNames) . ']';
 		}
 		parent::__construct($message, ConstantException::NOT_ALLOWED_LITERAL_EXCEPTION);

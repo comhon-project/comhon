@@ -15,22 +15,29 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Serialization\SqlTable;
-use Comhon\Model\ModelInteger;
 use Comhon\Model\Model;
 use Comhon\Model\StringCastableModelInterface;
 use Comhon\Exception\ComhonException;
 use Comhon\Serialization\SerializationUnit;
 use Comhon\Logic\Literal;
 use Comhon\Logic\Clause;
-use Comhon\Exception\HTTP\HTTPException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Request\ComplexLoadRequest;
 use Comhon\Request\SimpleLoadRequest;
 use Comhon\Object\ComhonArray;
 use Comhon\Request\LiteralBinder;
 use Comhon\Object\UniqueObject;
-use Comhon\Exception\Model\UndefinedPropertyException;
 use Comhon\Exception\Model\NotDefinedModelException;
+use Comhon\Exception\HTTP\ResponseException;
+use Comhon\Exception\Literal\NotAllowedLiteralException;
+use Comhon\Exception\HTTP\NotFoundException;
+use Comhon\Exception\HTTP\MalformedRequestException;
+use Comhon\Exception\Value\UnexpectedValueTypeException;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
+use Comhon\Exception\Model\DependsPropertiesException;
+use Comhon\Model\Restriction\Range;
+use Comhon\Exception\Model\NoIdPropertyException;
+use Comhon\Exception\Model\PropertyVisibilityException;
 
 class RequestHandler {
 	
@@ -58,6 +65,12 @@ class RequestHandler {
 	 */
 	const CLAUSE = '__clause__';
 	
+	/**
+	 * 
+	 * @var string[]
+	 */
+	private $route;
+	
 	public static function handle($basePath) {
 		$handler = new self();
 		return $handler->_handle($basePath, $_SERVER, $_GET, apache_request_headers());
@@ -69,11 +82,32 @@ class RequestHandler {
 	 * @param string[] $server
 	 * @param array $get
 	 * @param string[] $headers
-	 * @throws HTTPException
 	 * @throws \Exception
 	 * @return boolean|\Comhon\Api\Response
 	 */
 	protected function _handle($basePath, $server, $get, $headers) {
+		try {
+			$this->_setRoute($basePath, $server, $headers);
+			$response = $this->_handleMethod($server, $get);
+		} catch (ResponseException $e) {
+			$response = $e->getResponse();
+		} catch (\Exception $e) {
+			$response = $this->_buildResponse(500);
+		}
+		
+		return $response;
+	}
+	
+	/**
+	 * set route array according request route.
+	 * check if route is valid and may be handled.
+	 * add namespace to model if header namespace is specified.
+	 * 
+	 * @param string $basePath
+	 * @param string[] $server
+	 * @param string[] $headers
+	 */
+	protected function _setRoute($basePath, $server, $headers) {
 		$route = substr(preg_replace('~/+~', '/', $server['REQUEST_URI'].'/'), 0, -1);
 		$basePath = preg_replace('~/+~', '/', '/'.$basePath.'/');
 		
@@ -83,124 +117,97 @@ class RequestHandler {
 		if (strpos($route, $basePath) === 0) {
 			$route = substr($route, strlen($basePath));
 		} elseif ($route === substr($basePath, 0, -1)) {
-			// health check return 200
-			return new Response();
-		}else {
-			// route not handled
-			$response = new Response();
-			$response->setCode(404);
-			return $response;
+			// health check send response code 200
+			throw new ResponseException(200);
+		} else {
+			throw new ResponseException(404, 'not handled route');
 		}
-		$explodedRoute = explode('/', urldecode($route));
-		$modelNameIndex = $server['REQUEST_METHOD'] === 'GET' && $explodedRoute[0] === 'count'? 1 : 0;
+		$this->route = explode('/', urldecode($route));
+		$modelNameIndex = $server['REQUEST_METHOD'] === 'GET' && $this->route[0] === 'count'? 1 : 0;
 		
-		if (!array_key_exists($modelNameIndex, $explodedRoute)) {
-			$response = new Response();
-			$response->setCode(404);
-			$response->addHeader('Content-Type', 'text/plain');
-			$response->setContent("invalid route");
-			return $response;
+		if (!array_key_exists($modelNameIndex, $this->route)) {
+			throw new ResponseException(404, 'invalid route');
 		}
 		if (isset($headers['namespace']) && !empty($headers['namespace'])) {
-			$explodedRoute[$modelNameIndex] = $headers['namespace'] . '\\' . $explodedRoute[$modelNameIndex];
+			$this->route[$modelNameIndex] = $headers['namespace'] . '\\' . $this->route[$modelNameIndex];
 		}
 		try {
-			ModelManager::getInstance()->getInstanceModel($explodedRoute[$modelNameIndex]);
+			ModelManager::getInstance()->getInstanceModel($this->route[$modelNameIndex]);
 		} catch (NotDefinedModelException $e) {
-			$response = new Response();
-			$response->setCode(404);
-			$response->addHeader('Content-Type', 'text/plain');
-			$response->setContent("resource model '{$explodedRoute[$modelNameIndex]}' doesn't exist");
-			return $response;
+			throw new ResponseException(404, "resource model '{$this->route[$modelNameIndex]}' doesn't exist");
 		}
-		try {
-			switch ($server['REQUEST_METHOD']) {
-				case 'GET':
-					if ($explodedRoute[0] === 'count') {
-						$response = $this->_getCount($explodedRoute, $get);
-					} else {
-						$response = $this->_get($explodedRoute, $get);
-					}
-					break;
-				case 'POST':
-					$response = $this->_post($explodedRoute);
-					break;
-				case 'PUT':
-					$response = $this->_put($explodedRoute);
-					break;
-				case 'DELETE':
-					$response = $this->_delete($explodedRoute);
-					break;
-				case 'OPTIONS':
-					$response = new Response();
-					break;
-				default:
-					throw new HTTPException('method not handled', 501);
-					break;
-			}
-		} catch (UndefinedPropertyException $e) {
-			$response = new Response();
-			$response->setCode(400);
-			$response->addHeader('Content-Type', 'text/plain');
-			$response->setContent($e->getMessage());
-		} catch (HTTPException $e) {
-			throw $e;
-			trigger_error($e->getCode() . ': ' . $e->getMessage());
-			http_response_code($e->getCode());
-		} catch (\Exception $e) {
-			throw $e;
-			trigger_error($e->getCode() . ': ' . $e->getMessage());
-			http_response_code(500);
-		}
-		
-		return $response;
 	}
 	
 	/**
 	 *
-	 * @param string $modelName
+	 * @param string[] $server
+	 * @param array $get
+	 * @throws \Exception
+	 * @return boolean|\Comhon\Api\Response
+	 */
+	protected function _handleMethod($server, $get) {
+		switch ($server['REQUEST_METHOD']) {
+			case 'GET':
+				return $this->route[0] === 'count' ? $this->_getCount($get) : $this->_get($get);
+			case 'POST':
+				return $this->_post();
+			case 'PUT':
+				return $this->_put();
+			case 'DELETE':
+				return $this->_delete();
+			case 'OPTIONS':
+				return new Response();
+			default:
+				return $this->_buildResponse(501);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param \Comhon\Model\Model $model
 	 * @param array $get
 	 * @param string[] $filterProperties
-	 * @throws HTTPException
-	 * @return \Comhon\Object\ComhonArray
+	 * @return \Comhon\Request\ComplexLoadRequest
 	 */
-	private function _getResources($modelName, &$get, $filterProperties = null) {
-		$model = ModelManager::getInstance()->getInstanceModel($modelName);
+	private function _getComplexRequest(Model $model, &$get, $filterProperties = null) {
 		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
 		$request = $requestModel->getObjectInstance(false);
 		$tree = $request->initValue('tree', false);
 		$tree->setId(1);
-		$tree->setValue('model', $modelName);
+		$tree->setValue('model', $model->getName());
 		$request->setValue('properties', $filterProperties);
 		
 		// limit and offset
 		if (isset($get[self::RANGE])) {
 			if (!isset($get[self::ORDER])) { // TODO and model doesn't have default order
-				throw new HTTPException(self::ORDER." is required with ".self::RANGE, 400);
+				throw new DependsPropertiesException(self::RANGE, self::ORDER);
 			}
-			$range = explode('-', $get[self::RANGE]);
-			if (count($range) !== 2) {
-				throw new HTTPException("malformed range '{$get[self::RANGE]}'", 400);
+			$range = new Range();
+			if (!$range->satisfy($get[self::RANGE])) {
+				throw new ImportException(new NotSatisfiedRestrictionException($get[self::RANGE], $range), self::RANGE);
 			}
-			if (!ctype_digit($range[0]) || !ctype_digit($range[0])) {
-				throw new HTTPException("malformed range '{$get[self::RANGE]}'", 400);
-			}
-			
-			$range[0] = (integer) $range[0];
-			$range[1] = (integer) $range[1];
-			
-			$request->setValue('offset', $range[0]);
-			$request->setValue('limit', ($range[1] - $range[0]) + 1);
+			list($first, $last) = explode('-', $get[self::RANGE]);
+			$limit = 1 + $last - $first;
+			$request->setValue('offset', (integer) $first);
+			$request->setValue('limit',  $limit);
 			
 			unset($get[self::RANGE]);
 		}
 		
 		// values order
 		if (isset($get[self::ORDER])) {
-			$order = $requestModel->getProperty('order')->getModel()->import(
-				json_decode($get[self::ORDER], true),
-				new AssocArrayInterfacer()
-			);
+			$orderArray = json_decode($get[self::ORDER], true);
+			if (!is_array($orderArray)) {
+				throw new UnexpectedValueTypeException($get[self::ORDER], 'json', self::ORDER);
+			}
+			try {
+				$order = $requestModel->getProperty('order')->getModel()->import(
+					$orderArray,
+					new AssocArrayInterfacer()
+				);
+			} catch (\Exception $e) {
+				throw new ImportException($e, self::ORDER);
+			}
 			$request->setValue('order', $order);
 			unset($get[self::ORDER]);
 		}
@@ -208,14 +215,13 @@ class RequestHandler {
 		// modify $params object by adding filter to apply
 		$this->_setParamsFilter($request, $get, $model);
 		
-		return ComplexLoadRequest::build($request)->execute();
+		return ComplexLoadRequest::build($request);
 	}
 	
 	/**
 	 *
 	 * @param string $modelName
 	 * @param array $get
-	 * @throws HTTPException
 	 * @return int
 	 */
 	private function _getResourcesCount($modelName, &$get) {
@@ -238,7 +244,6 @@ class RequestHandler {
 	 * @param \Comhon\Object\UniqueObject $request
 	 * @param array $get
 	 * @param \Comhon\Model\Model $model
-	 * @throws HTTPException
 	 */
 	private function _setParamsFilter(UniqueObject $request, &$get, Model $model) {
 		$i = 0;
@@ -248,7 +253,11 @@ class RequestHandler {
 			unset($get[self::CLAUSE]);
 		}
 		$clause = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause')->getObjectInstance(false);
-		$clause->setValue('type', $clauseType);
+		try {
+			$clause->setValue('type', $clauseType);
+		} catch (\Exception $e) {
+			throw new ImportException($e, self::CLAUSE);
+		}
 		$clause->setId($i++);
 		$simpleCollection = $request->initValue('simpleCollection');
 		$elements = $clause->initValue('elements', false);
@@ -259,15 +268,15 @@ class RequestHandler {
 			$literal = LiteralBinder::getLiteralInstance($property, $isArrayFilter);
 			$propertyModel = $property->getLiteralModel();
 			if (is_null($literal)) {
-				throw new HTTPException("Not supported property $propertyName", 400);
+				throw new NotAllowedLiteralException($model, $property);
 			}
 			if ($propertyModel instanceof StringCastableModelInterface) {
 				if ($isArrayFilter) {
 					foreach ($value as &$element) {
-						$element = $propertyModel->castValue($element);
+						$element = $propertyModel->castValue($element, $propertyName);
 					}
 				} else {
-					$value = $propertyModel->castValue($value);
+					$value = $propertyModel->castValue($value, $propertyName);
 				}
 			}
 			if ($isArrayFilter) {
@@ -295,27 +304,19 @@ class RequestHandler {
 		}
 	}
 	
-	private function _getResource($modelName, $id, ComhonArray $filterProperties) {
-		$model = ModelManager::getInstance()->getInstanceModel($modelName);
-		$idProperties = $model->getIdProperties();
-		if (count($idProperties) !== 1) {
-			throw new HTTPException('id property must be unique', 400);
-		}
-		if (current($idProperties)->getModel() instanceof ModelInteger) {
-			if (!ctype_digit($id)) {
-				throw new HTTPException('id must be an integer', 400);
-			}
-			$id = (integer) $id;
-		}
-		
-		$request = SimpleLoadRequest::build($modelName, $id, $filterProperties->getValues());
-		$object = $request->execute();
-		
-		if (is_null($object)) {
-			throw new HTTPException("resource not found", 404);
-		}
-		
-		return $object;
+	/**
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @param mixed $id
+	 * @param \Comhon\Object\ComhonArray $filterProperties
+	 * @return \Comhon\Request\SimpleLoadRequest
+	 */
+	private function _getSimpleRequest(Model $model, $id, ComhonArray $filterProperties) {
+		return SimpleLoadRequest::build(
+			$model->getName(),
+			$this->_getFormatedId($model, $id),
+			$filterProperties->getValues()
+		);
 	}
 	
 	
@@ -326,29 +327,46 @@ class RequestHandler {
 	 * @return \Comhon\Object\ComhonArray
 	 */
 	private function _getFilterProperties(&$get) {
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
-		$filterProperties = isset($get[self::PROPERTIES]) 
-			? $model->getProperty('properties')->getModel()->import($get[self::PROPERTIES], new AssocArrayInterfacer())
-			: $model->getProperty('properties')->getModel()->getObjectInstance();
-		unset($get[self::PROPERTIES]);
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request')->getProperty('properties')->getModel();
+		if (isset($get[self::PROPERTIES])) {
+			if (!is_array($get[self::PROPERTIES])) {
+				throw new UnexpectedValueTypeException($get[self::PROPERTIES], 'array', self::PROPERTIES);
+			}
+			$filterProperties = $model->import($get[self::PROPERTIES], new AssocArrayInterfacer());
+			unset($get[self::PROPERTIES]);
+		} else {
+			$filterProperties = $model->getObjectInstance();
+		}
 		
 		return $filterProperties;
 	}
 	
 	/**
 	 * 
-	 * @param string[] $explodedRoute
 	 * @param array $get
 	 * @return \Comhon\Api\Response
 	 */
-	private function _get($explodedRoute, &$get) {
-		$filterProperties = $this->_getFilterProperties($get);
-		$modelName = $explodedRoute[0];
-		
-		$object = isset($explodedRoute[1])
-			? $this->_getResource($modelName, $explodedRoute[1], $filterProperties)
-			: $this->_getResources($modelName, $get, $filterProperties);
+	private function _get(&$get) {
+		if (count($this->route) > 2) {
+			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
+		}
+		try {
+			$filterProperties = $this->_getFilterProperties($get);
+			$model = ModelManager::getInstance()->getInstanceModel($this->route[0]);
+			
+			$request = isset($this->route[1])
+				? $this->_getSimpleRequest($model, $this->route[1], $filterProperties)
+				: $this->_getComplexRequest($model, $get, $filterProperties);
+		} catch (MalformedRequestException $e) {
+			throw $e;
+		} catch (ComhonException $e) {
+			throw new MalformedRequestException(['code' => $e->getCode(), 'message' => $e->getMessage()]);
+		}
 
+		$object = $request->execute();
+		if (is_null($object)) {
+			throw new NotFoundException($model, $this->route[1]);
+		}
 		$interfacer = new StdObjectInterfacer();
 		$interfacer->setPropertiesFilter($filterProperties->getValues(), $object->getUniqueModel()->getName());
 		
@@ -356,47 +374,40 @@ class RequestHandler {
 			$interfacedObject = $interfacer->export($object);
 		} else {
 			// export through original model to export potential inheritance key
-			$model = ModelManager::getInstance()->getInstanceModel($modelName);
 			$interfacedObject = $model->export($object, $interfacer);
 		}
-		$response = new Response();
-		$response->setCode(200);
-		$response->addHeader('Content-Type', 'application/json');
-		$response->setContent($interfacer->toString($interfacedObject));
-		
-		return $response;
+		return $this->_buildResponse(
+			200,
+			$interfacer->toString($interfacedObject),
+			['Content-Type' => 'application/json']
+		);
 	}
 	
 	/**
 	 * 
-	 * @param string[] $explodedRoute
 	 * @param array $get
-	 * @throws HTTPException
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getCount($explodedRoute, &$get) {
-		if (!isset($explodedRoute[1])) {
-			throw new HTTPException('missing resource name', 400);
+	private function _getCount(&$get) {
+		if (count($this->route) != 2) {
+			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
 		}
-		$response = new Response();
-		$response->setCode(200);
-		$response->addHeader('Content-Type', 'text/plain');
-		$response->setContent($this->_getResourcesCount($explodedRoute[1], $get));
-		
-		return $response;
+		$count = $this->_getResourcesCount($this->route[1], $get);
+		return $this->_buildResponse(200, $count, ['Content-Type' => 'text/plain']);
 	}
 	
 	/**
 	 * 
-	 * @param string[] $explodedRoute
 	 * @throws ComhonException
-	 * @throws HTTPException
 	 * @return \Comhon\Api\Response
 	 */
-	private function _post($explodedRoute) {
+	private function _post() {
+		if (count($this->route) != 1) {
+			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
+		}
 		$post = json_decode(file_get_contents('php://input'), true);
 		
-		$model  = ModelManager::getInstance()->getInstanceModel($explodedRoute[0]);
+		$model  = ModelManager::getInstance()->getInstanceModel($this->route[0]);
 		$interfacer = new AssocArrayInterfacer();
 		$interfacer->setFlagObjectAsLoaded(false);
 		
@@ -407,126 +418,129 @@ class RequestHandler {
 		
 		if ($object->hasCompleteId()) {
 			$serialization = $model->getSqlTableUnit();
-			if ($serialization instanceof SqlTable) {
-				if ($serialization->hasIncrementalId($model)) {
-					throw new ComhonException('id must be empty to create resource '.$model->getName());
-				}
+			if (($serialization instanceof SqlTable) && $serialization->hasIncrementalId($model)) {
+				throw new MalformedRequestException("id must not be set to create resource '{$model->getName()}'");
 			}
 			if (!is_null($model->loadObject($object->getId(), array_keys($model->getIdProperties())))) {
-				throw new ComhonException('resource already exists');
+				throw new MalformedRequestException("resource already exists");
 			}
 		}
 		if ($object->save(SerializationUnit::CREATE) === 0) {
-			throw new HTTPException('malformed request', 400);
+			throw new MalformedRequestException();
 		}
 		$model->loadAndFillObject($object, null, true);
 		
-		$response = new Response();
-		$response->setCode(201);
-		$response->addHeader('Content-Type', 'application/json');
-		$response->setContent($interfacer->toString($interfacer->export($object)));
-		
-		return $response;
+		return $this->_buildResponse(
+			201,
+			$interfacer->toString($interfacer->export($object)),
+			['Content-Type' => 'application/json']
+		);
 	}
 	
 	/**
 	 * 
-	 * @param string[] $explodedRoute
-	 * @throws HTTPException
 	 * @return \Comhon\Api\Response
 	 */
-	private function _put($explodedRoute) {
-		if (!isset($explodedRoute[0]) || !isset($explodedRoute[1])) {
-			throw new HTTPException('malformed route', 400);
+	private function _put() {
+		if (count($this->route) != 2) {
+			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
 		}
-		$id = $explodedRoute[1];
-		
 		$post = json_decode(file_get_contents('php://input'), true);
+		$model = ModelManager::getInstance()->getInstanceModel($this->route[0]);
+		$id = $this->_getFormatedId($model, $this->route[1]);
 		
-		$model  = ModelManager::getInstance()->getInstanceModel($explodedRoute[0]);
 		$interfacer = new AssocArrayInterfacer();
 		$interfacer->setFlagObjectAsLoaded(false);
 		
-		$idProperties = $model->getIdProperties();
-		if (count($idProperties) == 0) {
-			throw new HTTPException('model without id cannot be deleted', 400);
-		}
-		$idPropertiesNames = array_keys($idProperties);
-		if (count($idProperties) == 1) {
-			$modelId = $idProperties[$idPropertiesNames[0]]->getModel();
-			if ($modelId instanceof StringCastableModelInterface) {
-				$id = $modelId->castValue($id);
-			}
-		}
-		
-		/**
-		 * @var \Comhon\Object\ComhonObject $object
-		 */
 		try {
 			$object = $interfacer->import($post, $model);
 		} catch (ImportException $e) {
-			throw new HTTPException($e->getMessage(), 400);
+			throw new MalformedRequestException($e->getMessage());
 		}
 		
 		if ($object->hasEmptyId()) {
 			$object->setId($id);
-		}elseif ($object->getId() !== $id) {
-			throw new HTTPException('malformed request, ids not compatible', 400);
+		} elseif ($object->getId() !== $id) {
+			throw new MalformedRequestException('conflict on route id and body id');
 		}
 		if (!$object->hasCompleteId()) {
-			throw new HTTPException('malformed request', 400);
+			throw new MalformedRequestException('not complete id');
 		}
 		if (is_null($model->loadObject($object->getId(), array_keys($model->getIdProperties())))) {
-			throw new HTTPException('not found', 404);
+			throw new NotFoundException($model, $object->getId());
 		}
 		$object->save(SerializationUnit::UPDATE);
 		$model->loadAndFillObject($object, null, true);
 		
-		$response = new Response();
-		$response->setCode(200);
-		$response->addHeader('Content-Type', 'application/json');
-		$response->setContent($interfacer->toString($interfacer->export($object)));
-		
-		return $response;
+		return $this->_buildResponse(
+			200,
+			$interfacer->toString($interfacer->export($object)),
+			['Content-Type' => 'application/json']
+		);
 	}
 	
 	/**
 	 * 
-	 * @param string[] $explodedRoute
-	 * @throws HTTPException
 	 * @return \Comhon\Api\Response
 	 */
-	private function _delete($explodedRoute) {
-		if (!isset($explodedRoute[0]) || !isset($explodedRoute[1])) {
-			throw new HTTPException('malformed route', 400);
+	private function _delete() {
+		if (count($this->route) != 2) {
+			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
 		}
-		$modelName = $explodedRoute[0];
-		$id = $explodedRoute[1];
+		$model  = ModelManager::getInstance()->getInstanceModel($this->route[0]);
+		$id = $this->_getFormatedId($model, $this->route[1]);
+		$object = $model->loadObject($id, array_keys($model->getIdProperties()));
 		
-		$model  = ModelManager::getInstance()->getInstanceModel($modelName);
-		
-		$idProperties = $model->getIdProperties();
-		if (count($idProperties) == 0) {
-			throw new HTTPException('model without id cannot be deleted', 400);
-		}
-		$idPropertiesNames = array_keys($idProperties);
-		if (count($idProperties) == 1) {
-			$modelId = $idProperties[$idPropertiesNames[0]]->getModel();
-			if ($modelId instanceof StringCastableModelInterface) {
-				$id = $modelId->castValue($id);
-			}
-		}
-		$object = $model->loadObject($id, $idPropertiesNames);
 		if (is_null($object)) {
-			throw new HTTPException("{$model->getName()} with id '{$id}' not found", 404);
+			throw new NotFoundException($model, $this->route[1]);
 		}
 		$object->_delete();
 		
+		return $this->_buildResponse(204);
+	}
+	
+	/**
+	 * get formated route. cast id if needed.
+	 * 
+	 * @param Model $model
+	 * @param string $id
+	 * @throws ResponseException
+	 * @return mixed
+	 */
+	private function _getFormatedId(Model $model, $id) {
+		if (!$model->hasIdProperties()) {
+			throw new NoIdPropertyException($model);
+		}
+		if ($model->hasPrivateIdProperty()) {
+			foreach ($model->getIdProperties() as $property) {
+				if ($property->isPrivate()) {
+					throw new PropertyVisibilityException($property);
+				}
+			}
+		}
+		if ($model->hasUniqueIdProperty()) {
+			$idModel = $model->getUniqueIdProperty()->getModel();
+			if ($idModel instanceof StringCastableModelInterface) {
+				$id = $idModel->castvalue($id, $model->getUniqueIdProperty()->getName());
+			}
+		}
+		return $id;
+	}
+	
+	/**
+	 * 
+	 * @param integer $code
+	 * @param string $content
+	 * @param string[] $headers
+	 */
+	private function _buildResponse($code, $content = null, array $headers = []) {
 		$response = new Response();
-		$response->setCode(204);
+		$response->setCode($code);
+		foreach ($headers as $name => $value) {
+			$response->addHeader($name, $value);
+		}
+		$response->setContent($content);
 		
 		return $response;
 	}
 }
-
-

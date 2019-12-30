@@ -110,7 +110,7 @@ abstract class DbLiteral extends Literal {
 		else {
 			$property = $model->getProperty($literal->getValue('property'), true);
 			if (!$allowPrivateProperties && $property->isPrivate()) {
-				throw new PropertyVisibilityException($property->getName());
+				throw new PropertyVisibilityException($property);
 			}
 			if (!LiteralBinder::isAllowedLiteral($property, $literal)) {
 				throw new NotAllowedLiteralException($model, $property, $literal);
@@ -160,7 +160,7 @@ abstract class DbLiteral extends Literal {
 		foreach ($queue as $propertyName) {
 			$property = $leftModel->getProperty($propertyName, true);
 			if (!$allowPrivateProperties && $property->isPrivate()) {
-				throw new PropertyVisibilityException($property->getName());
+				throw new PropertyVisibilityException($property);
 			}
 			$leftJoin = ComplexLoadRequest::prepareJoinedTable($leftTable, $property, $databaseId, self::_getAlias());
 			$joinedTables[] = $leftJoin;

@@ -12,6 +12,7 @@ use Comhon\Model\Restriction\Enum;
 use Comhon\Exception\Restriction\MalformedIntervalException;
 use Comhon\Exception\Restriction\NotSupportedModelIntervalException;
 use Comhon\Exception\Restriction\NotExistingRegexException;
+use Comhon\Model\Restriction\RegexCollection;
 
 $time_start = microtime(true);
 
@@ -281,7 +282,7 @@ foreach ($groupedRegexTests as $pattern => $regexTests) {
 			}
 		}
 	} else { // name of a pattern
-		$regex = new Regex($pattern);
+		$regex = new Regex(RegexCollection::getInstance()->getRegex($pattern));
 		foreach ($regexTests as $regexTest) {
 			if ($regex->satisfy($regexTest) !== true) {
 				throw new \Exception("$pattern '$regexTest' should be valid");
@@ -298,7 +299,7 @@ foreach ($groupedMalformedRegexTests as $pattern => $regexTests) {
 			}
 		}
 	} else { // name of a pattern
-		$regex = new Regex($pattern);
+		$regex = new Regex(RegexCollection::getInstance()->getRegex($pattern));
 		foreach ($regexTests as $regexTest) {
 			if ($regex->satisfy($regexTest) !== false) {
 				throw new \Exception("$pattern '$regexTest' should be not valid");
@@ -411,7 +412,7 @@ if ($throw) {
 
 $throw = true;
 try {
-	$regex = new Regex('bad_name');
+	$regex = new Regex(RegexCollection::getInstance()->getRegex('bad_name'));
 } catch (NotExistingRegexException $e) {
 	$throw = false;
 }

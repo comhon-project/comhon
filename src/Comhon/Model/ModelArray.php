@@ -14,7 +14,6 @@ namespace Comhon\Model;
 use Comhon\Object\ComhonArray;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Interfacer\ImportException;
@@ -24,6 +23,8 @@ use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
 use Comhon\Model\Restriction\Restriction;
 use Comhon\Model\Restriction\NotNull;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
+use Comhon\Exception\ArgumentException;
+use Comhon\Exception\Interfacer\IncompatibleValueException;
 
 class ModelArray extends ModelContainer implements ModelComhonObject {
 	
@@ -310,8 +311,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			$interfacedObject = dom_import_simplexml($interfacedObject);
 		}
 		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
-			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
-			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
+			throw new IncompatibleValueException($interfacedObject, $interfacer);
 		}
 		$objectArray = $this->getObjectInstance(false);
 		$isSimple = $this->getModel() instanceof SimpleModel;
@@ -321,7 +321,12 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 					if ($isSimple) {
 						$value = $interfacer->isNullValue($element) ? null : $this->getModel()->importSimple($element, $interfacer, true);
 					} else {
-						$value = $interfacer->isNullValue($element) ? null : $this->getModel()->import($element, $interfacer);
+						try {
+							$value = $interfacer->isNullValue($element) ? null : $this->getModel()->import($element, $interfacer);
+						} catch (IncompatibleValueException $e) {
+							$Obj = $this->getModel()->getObjectInstance(false);
+							throw new UnexpectedValueTypeException($element, $Obj->getComhonClass());
+						}
 					}
 					
 					if ($this->isAssociative) {
@@ -352,8 +357,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			$interfacedObject = dom_import_simplexml($interfacedObject);
 		}
 		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
-			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
-			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
+			throw new IncompatibleValueException($interfacedObject, $interfacer);
 		}
 		$isSimple = $this->getModel() instanceof SimpleModel;
 		if (!$isSimple && !$this->getUniqueModel()->hasIdProperties()) {

@@ -1,0 +1,24 @@
+{
+    "version": "2.0",
+    "serialization": {
+        "type": "Comhon\\SqlTable",
+        "id": "public.test_private_id"
+    },
+    "properties": {
+        "objectValues": {
+            "serializationName": "object_values"
+        },
+        "foreignObjectValue": {
+            "serializationName": "foreign_object_value"
+        },
+        "foreignObjectValues": {
+            "serializationName": "foreign_object_values"
+        },
+        "foreignTestPrivateId": {
+            "serializationName": "foreign_test_private_id"
+        },
+        "foreignTestPrivateIds": {
+            "serializationName": "foreign_test_private_ids"
+        }
+    }
+}

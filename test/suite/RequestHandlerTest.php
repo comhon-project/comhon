@@ -25,9 +25,11 @@ class RequestHandlerTest extends TestCase
 	public function testRequestNamespace($server, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
-		$this->assertEquals($responseCode, $response->getCode());
-		$this->assertEquals($responseHeaders,$response->getHeaders());
-		$this->assertEquals($responseContent,$response->getContent());
+		$send = $response->getSend();
+		
+		$this->assertEquals($responseContent, $send[2]);
+		$this->assertEquals($responseCode, $send[0]);
+		$this->assertEquals($responseHeaders, $send[1]);
 	}
 	
 	public function requestNamespaceData()
@@ -91,10 +93,11 @@ class RequestHandlerTest extends TestCase
 	public function testRequestUniqueResponse($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, $get, []);
-	
-		$this->assertEquals($responseCode, $response->getCode());
-		$this->assertEquals($responseHeaders, $response->getHeaders());
-		$this->assertEquals($responseContent, $response->getContent());
+		$send = $response->getSend();
+		
+		$this->assertEquals($responseContent, $send[2]);
+		$this->assertEquals($responseCode, $send[0]);
+		$this->assertEquals($responseHeaders, $send[1]);
 	}
 
 	public function requestUniqueResponseData()
@@ -124,7 +127,7 @@ class RequestHandlerTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}'
 			],
-			[ // filter properties with inheritance
+			[ // filter properties
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson/1'
@@ -147,10 +150,11 @@ class RequestHandlerTest extends TestCase
 	public function testRequestArrayResponse($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, $get, []);
+		$send = $response->getSend();
 		
-		$this->assertEquals($responseCode, $response->getCode());
-		$this->assertEquals($responseHeaders, $response->getHeaders());
-		$this->assertEquals($responseContent, $response->getContent());
+		$this->assertEquals($responseContent, $send[2]);
+		$this->assertEquals($responseCode, $send[0]);
+		$this->assertEquals($responseHeaders, $send[1]);
 	}
 	
 	public function requestArrayResponseData()
@@ -253,17 +257,30 @@ class RequestHandlerTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'[{"id":1,"firstName":"Bernard","__inheritance__":"Test\\\\Person\\\\Man"},{"id":5,"firstName":"Jean","__inheritance__":"Test\\\\Person\\\\Man"},{"id":6,"firstName":"john","__inheritance__":"Test\\\\Person\\\\Man"}]'
 			],
-			[ // bad properties filter
+			[ // private id property must not appear in result (with filter properties)
 				[
 					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+					'REQUEST_URI' => '/index.php/api/Test%5cTestPrivateId'
 				],
 				[
-					'__properties__' => ['does_not_exist']
+					'__order__' => '[{"property":"id","type":"ASC"}]',
+					'__properties__' => ['name']
 				],
-				400,
-				['Content-Type' => 'text/plain'],
-				'Undefined property \'does_not_exist\' for model \'Test\Person\''
+				200,
+				['Content-Type' => 'application/json'],
+				'[{"name":null}]'
+			],
+			[ // private id property must not appear in result (without filter properties)
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestPrivateId'
+				],
+				[
+					'__order__' => '[{"property":"id","type":"ASC"}]',
+				],
+				200,
+				['Content-Type' => 'application/json'],
+				'[{"name":null,"objectValues":null,"foreignObjectValue":null,"foreignObjectValues":null,"foreignTestPrivateId":null,"foreignTestPrivateIds":null}]'
 			]
 		];
 	}
@@ -275,10 +292,11 @@ class RequestHandlerTest extends TestCase
 	public function testRequestCount($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, $get, []);
+		$send = $response->getSend();
 		
-		$this->assertEquals($responseCode, $response->getCode());
-		$this->assertEquals($responseHeaders, $response->getHeaders());
-		$this->assertEquals($responseContent, $response->getContent());
+		$this->assertEquals($responseContent, $send[2]);
+		$this->assertEquals($responseCode, $send[0]);
+		$this->assertEquals($responseHeaders, $send[1]);
 	}
 	
 	public function requestCountData()
@@ -323,6 +341,338 @@ class RequestHandlerTest extends TestCase
 				404,
 				['Content-Type' => 'text/plain'],
 				"resource model 'Aaaaa' doesn't exist"
+			]
+		];
+	}
+	
+	/**
+	 *
+	 * @dataProvider malformedGetRequestData
+	 */
+	public function testMalformedGetRequest($server, $get, $responseCode, $responseHeaders, $responseContent)
+	{
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, $get, []);
+		$send = $response->getSend();
+		
+		$this->assertEquals($responseContent, $send[2]);
+		$this->assertEquals($responseCode, $send[0]);
+		$this->assertEquals($responseHeaders, $send[1]);
+	}
+	
+	public function malformedGetRequestData()
+	{
+		return [
+			[ // non-existent model name
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cAaaa%5cMan/1'
+				],
+				[],
+				404,
+				['Content-Type' => 'text/plain'],
+				'resource model \'Test\Aaaa\Man\' doesn\'t exist'
+			],
+			[ // not handled route
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/apii/Test%5cPerson%5cMan/1'
+				],
+				[],
+				404,
+				['Content-Type' => 'text/plain'],
+				'not handled route'
+			],
+			[ // invalid route
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1/aaa'
+				],
+				[],
+				404,
+				['Content-Type' => 'text/plain'],
+				'invalid route'
+			],
+			[ // invalid route
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson%5cMan/1'
+				],
+				[],
+				404,
+				['Content-Type' => 'text/plain'],
+				'invalid route'
+			],
+			[ // not defined property in properties filter
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
+				],
+				[
+					'__properties__' => ['does_not_exist']
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":105,"message":"Undefined property \'does_not_exist\' for model \'Test\\\\Person\\\\Man\'"}'
+			],
+			[ // malformed properties filter
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
+				],
+				[
+					'__properties__' => 'not_array'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":203,"message":"value of property \'__properties__\' must be a array, string \'not_array\' given"}'
+			],
+			[ // malformed properties filter
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
+				],
+				[
+					'__properties__' => [1]
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":203,"message":"Something goes wrong on \'.0\' value : \nvalue must be a string, integer \'1\' given"}'
+			],
+			[ // private properties filter
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/1'
+				],
+				[
+					'__properties__' => ['string']
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":108,"message":"cannot use private property \'string\' in public context"}'
+			],
+			[ // malformed clause
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'__clause__' => ['hehe']
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":203,"message":"Something goes wrong on \'.__clause__\' value : \nvalue must be a string, array given"}'
+			],
+			[ // malformed clause
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'__clause__' => 'hehe'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":201,"message":"Something goes wrong on \'.__clause__\' value : \nhehe is not in enumeration [\"disjunction\",\"conjunction\"]"}'
+			],
+			[ // malformed order
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'__order__' => 'aaaa'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":203,"message":"value of property \'__order__\' must be a json, string \'aaaa\' given"}'
+			],
+			[ // malformed order
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'__order__' => '["aaa"]'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":203,"message":"Something goes wrong on \'.__order__.0\' value : \nvalue must be a Comhon\\\\Object\\\\UniqueObject(Comhon\\\\Request\\\\Order), string \'aaa\' given"}'
+			],
+			[ // malformed order
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'__order__' => '[{"hehe":"hehe"}]'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":205,"message":"Something goes wrong on \'.__order__.0\' value : \nmissing required value \'property\' on comhon object with model \'Comhon\\\\Request\\\\Order\'"}'
+			],
+				[ // malformed order undefined property name
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'__order__' => '[{"property":"undefined_property"}]'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":105,"message":"Undefined property \'undefined_property\' for model \'Test\\\\Person\\\\Man\'"}'
+			],
+			[ // range without order
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'__range__' => '1-2'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":109,"message":"property \'__range__\' can\'t be set without property \'__order__\'"}'
+			],
+			[ // malformed range 1
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'__range__' => 'my_range',
+					'__order__' => '[{"property":"id"}]'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":201,"message":"Something goes wrong on \'.__range__\' value : \nmy_range doesn\'t satisfy range format \'x-y\' where x and y are integer and x<=y"}'
+			],
+			[ // malformed range 2
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'__range__' => '9-2',
+					'__order__' => '[{"property":"id"}]'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":201,"message":"Something goes wrong on \'.__range__\' value : \n9-2 doesn\'t satisfy range format \'x-y\' where x and y are integer and x<=y"}'
+			],
+			[ // request filter with undefined property
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'undefined_property' => 'value'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":105,"message":"Undefined property \'undefined_property\' for model \'Test\\\\Person\\\\Man\'"}'
+			],
+			[ // request filter with malformed property 1
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb'
+				],
+				[
+					'boolean' => 'value'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":107,"message":"Cannot cast value \'value\' for property \'boolean\', value should belong to enumeration [\"0\",\"1\"]"}'
+			],
+			[ // request filter with malformed property 2
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb'
+				],
+				[
+					'boolean' => ['0']
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":709,"message":"literal not allowed on property \'boolean\' of model \'Test\\\\TestDb\'. must be one of [Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Boolean, Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Null]"}'
+			],
+			[ // request filter with malformed property 3
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'bestFriend' => 'aaa'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":107,"message":"Cannot cast value \'aaa\' for property \'bestFriend\', value should be integer"}'
+			],
+			[ // request filter with malformed property 4
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+					'bestFriend' => ['0', 'aaaa']
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":107,"message":"Cannot cast value \'aaaa\' for property \'bestFriend\', value should be integer"}'
+			],
+			[ // request filter with private property
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb'
+				],
+				[
+					'string' => 'aaaa'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":108,"message":"cannot use private property \'string\' in public context"}'
+			],
+			[ // request unique id malformed
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/bbb'
+				],
+				[],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":107,"message":"Cannot cast value \'bbb\' for property \'id\', value should be integer"}'
+			],
+			[ // request unique id resource without id
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cBasic%5cNoId/bbb'
+				],
+				[],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":110,"message":"model \'Test\\\\Basic\\\\NoId\' doesn\'t have id property"}'
+			],
+			[ // request unique id resource with private id
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestPrivateId/1'
+				],
+				[],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":108,"message":"cannot use private id property \'id\' in public context"}'
+			],
+			[ // TestNoId is linked to person serialization but doesn't have same properties, so select name column fail
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestNoId'
+				],
+				[
+					'__properties__' => ['name']
+				],
+				500,
+				[],
+				null
 			]
 		];
 	}

@@ -13,8 +13,6 @@ namespace Comhon\Model;
 
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
-use Comhon\Object\Collection\ObjectCollection;
-use Comhon\Exception\ComhonException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
 
 abstract class SimpleModel extends AbstractModel implements ModelUnique {

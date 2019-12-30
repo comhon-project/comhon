@@ -43,8 +43,8 @@ function verifException(InterfaceException $e, $code, $message, $stringifiedProp
 	if ($e->getCode() !== $e->getOriginalException()->getCode()) {
 		throw new ComhonException("unexpected exception code {$e->getCode()}");
 	}
-	if ($e->getMessage() !== $e->getOriginalException()->getMessage()) {
-		throw new ComhonException("unexpected exception message \"{$e->getMessage()}\" !== \"$e->getOriginalException()->getMessage()\"");
+	if (strpos($e->getMessage(), $e->getOriginalException()->getMessage()) === false) {
+		throw new ComhonException("unexpected exception message \"{$e->getMessage()}\" !== \"{$e->getOriginalException()->getMessage()}\"");
 	}
 	if ($e->getOriginalException() instanceof InterfaceException) {
 		throw new ComhonException("unexpected exception class");
@@ -79,6 +79,7 @@ try {
 	verifException(
 		$e, 
 		ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
+		'Something goes wrong on \'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne\' value : '.PHP_EOL.
 		"value must be a string, integer '12' given", 
 		'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne', 
 		Interfacer::class, 
@@ -99,6 +100,7 @@ try {
 	verifException(
 			$e,
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
+			'Something goes wrong on \'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne\' value : '.PHP_EOL.
 			"value must be a string, integer '12' given",
 			'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
 			Model::class,
@@ -121,6 +123,7 @@ try {
 	verifException(
 			$e,
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
+			'Something goes wrong on \'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne\' value : '.PHP_EOL.
 			"value must be a string, integer '12' given",
 			'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
 			Model::class,
@@ -143,6 +146,7 @@ try {
 	verifException(
 			$e,
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
+			'Something goes wrong on \'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne\' value : '.PHP_EOL.
 			"value must be a string, integer '12' given",
 			'.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
 			AbstractComhonObject::class,
@@ -166,6 +170,7 @@ try {
 	verifException(
 			$e,
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
+			'Something goes wrong on \'.1.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne\' value : '.PHP_EOL.
 			"value must be a string, integer '12' given",
 			'.1.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
 			ModelArray::class,
@@ -190,6 +195,7 @@ try {
 	verifException(
 			$e,
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
+			'Something goes wrong on \'.1.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne\' value : '.PHP_EOL.
 			"value must be a string, integer '12' given",
 			'.1.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
 			ModelArray::class,
@@ -214,6 +220,7 @@ try {
 	verifException(
 			$e,
 			ConstantException::UNEXPECTED_VALUE_TYPE_EXCEPTION,
+			'Something goes wrong on \'.1.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne\' value : '.PHP_EOL.
 			"value must be a string, integer '12' given",
 			'.1.objectContainer.objectValueTwo.propertyTwoArray.1.propertyOne',
 			AbstractComhonObject::class,

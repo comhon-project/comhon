@@ -18,7 +18,7 @@ function testExportPrivateIdPublicContext($comhonObject, $publicInterfacer, $exc
 	try {
 		$comhonObject->export($publicInterfacer);
 	} catch (ExportException $e) {
-		if ($e->getMessage() !== 'Cannot interface foreign value with private id in public context') {
+		if (strpos($e->getMessage(), 'Cannot interface foreign value with private id in public context') === false) {
 			throw new \Exception('bad exception message : ' . $e->getMessage());
 		}
 		if ($e->getStringifiedProperties() !== $exceptionProperties) {
@@ -36,7 +36,7 @@ function testImportPrivateIdPublicContext($model, $interfacedPrivateObject, $pub
 		$throw = true;
 		$model->import($interfacedPrivateObject, $publicInterfacer);
 	} catch (ImportException $e) {
-		if ($e->getMessage() !== 'Cannot interface foreign value with private id in public context') {
+		if (strpos($e->getMessage(), 'Cannot interface foreign value with private id in public context') === false) {
 			throw new \Exception('bad exception message : ' . $e->getMessage());
 		}
 		if ($e->getStringifiedProperties() !== $exceptionProperties) {
@@ -649,8 +649,10 @@ $privateStdObject = '{"id":"1","name":"test 1","objectValues":[{"id1":1,"id2":2,
 if (json_encode($testPrivateId->export($stdPrivateInterfacer)) !== $privateStdObject) {
 	throw new \Exception('bad private object value : '.json_encode($testPrivateId->export($stdPrivateInterfacer)));
 }
-if (json_encode($testPrivateId->export($stdSerialInterfacer)) !== $privateStdObject) {
-	throw new \Exception('bad serial object value : '.json_encode($testPrivateId->export($stdPrivateInterfacer)));
+
+$serialStdObject = '{"id":"1","name":"test 1","object_values":[{"id1":1,"id2":2,"propertyOne":"azeaze1"},{"id1":10,"id2":20,"propertyOne":"azeaze10"},{"id1":100,"id2":200,"propertyOne":"azeaze100"}],"foreign_object_value":"[1,2]","foreign_object_values":["[10,20]","[100,200]"],"foreign_test_private_id":"2","foreign_test_private_ids":["3","1"]}';
+if (json_encode($testPrivateId->export($stdSerialInterfacer)) !== $serialStdObject) {
+	throw new \Exception('bad serial object value : '.json_encode($testPrivateId->export($stdSerialInterfacer)));
 }
 
 testExportPrivateIdPublicContext($testPrivateId, $stdPublicInterfacer, '.foreignObjectValue');

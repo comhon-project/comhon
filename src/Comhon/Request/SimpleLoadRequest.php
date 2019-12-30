@@ -48,9 +48,9 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 	}
 	
 	/**
+	 * execute resquest and return resulting object
 	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Request\ObjectLoadRequest::execute()
+	 * @return \Comhon\Object\UniqueObject|null null if object not found
 	 */
 	public function execute() {
 		return $this->model->loadObject($this->id, $this->propertiesFilter, true);

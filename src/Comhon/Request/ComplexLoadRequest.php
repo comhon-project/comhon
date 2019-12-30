@@ -113,6 +113,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		if (!SelectQuery::isAllowedOrderType($type)) {
 			throw new ArgumentException($type, SelectQuery::getAllowedOrderTypes(), 2);
 		}
+		$this->model->getProperty($propertyName, true); // verify property existence
 		$this->order[] = [$propertyName, $type];
 		return $this;
 	}

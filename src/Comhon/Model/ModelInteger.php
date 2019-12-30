@@ -14,6 +14,7 @@ namespace Comhon\Model;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
+use Comhon\Exception\Model\CastStringException;
 
 class ModelInteger extends SimpleModel implements StringCastableModelInterface {
 	
@@ -50,9 +51,16 @@ class ModelInteger extends SimpleModel implements StringCastableModelInterface {
 	 * cast value to integer
 	 *
 	 * @param string $value
+	 * @param string $property if value belong to a property, permit to be more specific if an exception is thrown
 	 * @return integer
 	 */
-	public function castValue($value) {
+	public function castValue($value, $property = null) {
+		if (is_integer($value)) {
+			return $value;
+		}
+		if (!ctype_digit($value)) {
+			throw new CastStringException($value, 'integer', $property);
+		}
 		return (integer) $value;
 	}
 	

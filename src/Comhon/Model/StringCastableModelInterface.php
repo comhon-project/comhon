@@ -17,8 +17,9 @@ interface StringCastableModelInterface {
 	 * cast string value in appropriate type according instanciated simple model
 	 * 
 	 * @param string $value
+	 * @param string $property if value belong to a property, permit to be more specific if an exception is thrown
 	 * @return mixed
 	 */
-	public function castValue($value);
+	public function castValue($value, $property = null);
 	
 }

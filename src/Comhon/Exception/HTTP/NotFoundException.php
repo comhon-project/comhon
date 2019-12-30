@@ -11,8 +11,11 @@
 
 namespace Comhon\Exception\HTTP;
 
-use Comhon\Exception\ComhonException;
+use Comhon\Model\Model;
 
-class HTTPException extends ComhonException {
+class NotFoundException extends ResponseException {
 	
+	public function __construct(Model $model, $id) {
+		parent::__construct(404, "resource '{$model->getName()}' with id '$id' not found");
+	}
 }

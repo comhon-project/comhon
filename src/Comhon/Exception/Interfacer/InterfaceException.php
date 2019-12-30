@@ -31,7 +31,6 @@ class InterfaceException extends ComhonException {
 	 * @param string $property
 	 */
 	public function __construct(ComhonException $exception, $property = null) {
-		parent::__construct($exception->getMessage(), $exception->getCode());
 		if ($exception instanceof InterfaceException) {
 			$this->stackProperties = $exception->getStackProperties();
 			$this->originalException = $exception->getOriginalException();
@@ -41,6 +40,9 @@ class InterfaceException extends ComhonException {
 		if (!is_null($property)) {
 			$this->stackProperties[] = $property;
 		}
+		$message = "Something goes wrong on '{$this->getStringifiedProperties()}' value : ".PHP_EOL
+			.$this->originalException->getMessage();
+		parent::__construct($message, $this->originalException->getCode());
 	}
 	
 	/**

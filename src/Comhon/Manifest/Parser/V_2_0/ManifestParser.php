@@ -30,6 +30,7 @@ use Comhon\Model\Restriction\Length;
 use Comhon\Model\Restriction\NotEmptyString;
 use Comhon\Model\Restriction\NotEmptyArray;
 use Comhon\Model\Restriction\ModelName;
+use Comhon\Model\Restriction\RegexCollection;
 
 class ManifestParser extends ParentManifestParser {
 
@@ -274,7 +275,8 @@ class ManifestParser extends ParentManifestParser {
 			if (!($model instanceof ModelString)) {
 				throw new ManifestException('pattern cannot be defined on '.$model->getName());
 			}
-			$restrictions[] = new Regex($this->interfacer->getValue($currentNode, self::PATTERN));
+			$regex = RegexCollection::getInstance()->getRegex($this->interfacer->getValue($currentNode, self::PATTERN));
+			$restrictions[] = new Regex($regex);
 		}
 		
 		return $restrictions;

@@ -118,7 +118,7 @@ class HavingLiteral extends DbLiteral {
 				throw new MultiplePropertyLiteralException($property);
 			}
 			if (!$allowPrivateProperties && $property->isPrivate()) {
-				throw new PropertyVisibilityException($property->getName());
+				throw new PropertyVisibilityException($property);
 			}
 			$column = $property->getSerializationName();
 			$literal  = new HavingLiteral($havingLiteral->getValue('function'), $table, $column, $havingLiteral->getValue('operator'), $havingLiteral->getValue('value'));

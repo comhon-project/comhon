@@ -13,7 +13,6 @@ namespace Comhon\Model;
 
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;

@@ -22,6 +22,8 @@ abstract class ConstantException {
 	const CONFLICT_PROPERTIES_EXCEPTION     = 106;
 	const CAST_EXCEPTION                    = 107;
 	const PROPERTY_VISIBILITY_EXCEPTION     = 108;
+	const DEPENDS_PROPERTIES_EXCEPTION      = 109;
+	const NO_ID_PROPERTY_EXCEPTION          = 110;
 	
 	// object/value exception
 	const NOT_SATISFIED_RESTRICTION_EXCEPTION = 201;

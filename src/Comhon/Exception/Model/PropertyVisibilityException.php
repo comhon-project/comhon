@@ -13,14 +13,16 @@ namespace Comhon\Exception\Model;
 
 use Comhon\Exception\ConstantException;
 use Comhon\Exception\ComhonException;
+use Comhon\Model\Property\Property;
 
 class PropertyVisibilityException extends ComhonException {
 	
 	/**
-	 * @param string $propertyName
+	 * @param \Comhon\Model\Property\Property $property
 	 */
-	public function __construct($propertyName) {
-		$message = "cannot use private property '$propertyName' in public context";
+	public function __construct(Property $property) {
+		$isIdessage = $property->isId() ? ' id ' : ' ';
+		$message = "cannot use private{$isIdessage}property '{$property->getName()}' in public context";
 		parent::__construct($message, ConstantException::PROPERTY_VISIBILITY_EXCEPTION);
 	}
 	

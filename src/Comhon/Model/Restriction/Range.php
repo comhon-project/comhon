@@ -14,17 +14,14 @@ namespace Comhon\Model\Restriction;
 use Comhon\Model\ModelString;
 use Comhon\Model\AbstractModel;
 
-class Regex extends Restriction {
-	
-	/** @var string */
-	private $regex;
+class Range extends Regex {
 	
 	/**
 	 * 
 	 * @param string $regex regular expression
 	 */
-	public function __construct($regex) {
-		$this->regex = $regex;
+	public function __construct() {
+		parent::__construct('/^\\d+-\\d+$/');
 	}
 	
 	/**
@@ -33,7 +30,12 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::satisfy()
 	 */
 	public function satisfy($value) {
-		return preg_match($this->regex, $value) === 1;
+		if (!parent::satisfy($value)) {
+			return false;
+		}
+		list($first, $last) = explode('-', $value);
+		
+		return (1 + $last - $first) > 0;
 	}
 	
 	/**
@@ -42,7 +44,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::isEqual()
 	 */
 	public function isEqual(Restriction $restriction) {
-		return $this === $restriction || (($restriction instanceof Regex) && $this->regex === $restriction->regex);
+		return $restriction instanceof Regex;
 	}
 	
 	/**
@@ -65,7 +67,7 @@ class Regex extends Restriction {
 			return "Value passed to Regex must be a string, instance of $class given";
 		}
 		return $value . ($this->satisfy($value) ? ' ' : ' doesn\'t ')
-			. 'satisfy regex ' . $this->regex;
+			. 'satisfy range format \'x-y\' where x and y are integer and x<=y';
 	}
 	
 	/**
@@ -74,7 +76,7 @@ class Regex extends Restriction {
 	 * @see \Comhon\Model\Restriction\Restriction::toString()
 	 */
 	public function toString() {
-		return $this->regex;
+		return 'x-y';
 	}
 	
 }

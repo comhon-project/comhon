@@ -488,8 +488,8 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 		if ($value instanceof \DOMElement) {
 			$value = $this->extractNodeText($value);
 		}
-		if (!is_numeric($value)) {
-			throw new CastStringException($value, 'numeric');
+		if (!is_integer($value) && !ctype_digit($value)) {
+			throw new CastStringException($value, 'integer');
 		}
 		return (integer) $value;
 	}
@@ -504,7 +504,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 			$value = $this->extractNodeText($value);
 		}
 		if (!is_numeric($value)) {
-			throw new CastStringException($value, 'numeric');
+			throw new CastStringException($value, 'float');
 		}
 		return (float) $value;
 	}

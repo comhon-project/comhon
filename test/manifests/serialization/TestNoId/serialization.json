@@ -2,6 +2,6 @@
     "version": "2.0",
     "serialization": {
         "type": "Comhon\\SqlTable",
-        "id": "town"
+        "id": "`person`"
     }
 }

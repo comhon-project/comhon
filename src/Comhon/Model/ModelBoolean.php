@@ -14,6 +14,7 @@ namespace Comhon\Model;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
+use Comhon\Exception\Model\CastStringException;
 
 class ModelBoolean extends SimpleModel implements StringCastableModelInterface {
 	
@@ -69,9 +70,16 @@ class ModelBoolean extends SimpleModel implements StringCastableModelInterface {
 	 * cast value to boolean
 	 * 
 	 * @param string $value
+	 * @param string $property if value belong to a property, permit to be more specific if an exception is thrown
 	 * @return boolean
 	 */
-	public function castValue($value) {
+	public function castValue($value, $property = null) {
+		if (is_bool($value)) {
+			return $value;
+		}
+		if ($value !== '0' && $value !== '1') {
+			throw new CastStringException($value, ['0', '1'], $property);
+		}
 		return (boolean) $value;
 	}
 	

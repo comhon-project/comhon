@@ -12,6 +12,7 @@ use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\ComhonException;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Model\Restriction\RegexCollection;
 
 $time_start = microtime(true);
 
@@ -167,7 +168,7 @@ $modelRestrictedArray = new ModelArray($modelFloat, false, 'intervalValue', [], 
 $objectArray = new ComhonArray($modelRestrictedArray);
 $testRestricted->setValue('intervalInArray', $objectArray);
 
-$restriction = new Regex('email');
+$restriction = new Regex(RegexCollection::getInstance()->getRegex('email'));
 $modelRestrictedArray = new ModelArray($modelString, false, 'email', [], [$restriction]);
 $objectArray = new ComhonArray($modelRestrictedArray);
 $testRestricted->setValue('emails', $objectArray);
@@ -186,7 +187,7 @@ $objectArray = new ComhonArray($modelRestrictedArray);
 testSetBadArrayValue($testRestricted, 'intervalInArray', $objectArray);
 
 // Regex should be 'email'
-$restriction = new Regex('color');
+$restriction = new Regex(RegexCollection::getInstance()->getRegex('color'));
 $modelRestrictedArray = new ModelArray($modelString, false, 'email', [], [$restriction]);
 $objectArray = new ComhonArray($modelRestrictedArray);
 testSetBadArrayValue($testRestricted, 'emails', $objectArray);

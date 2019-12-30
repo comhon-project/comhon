@@ -42,6 +42,8 @@ use Comhon\Exception\Interfacer\InterfaceException;
 use Comhon\Exception\Interfacer\ContextIdException;
 use Comhon\Exception\Interfacer\ObjectLoopException;
 use Comhon\Exception\Value\MissingIdForeignValueException;
+use Comhon\Exception\Interfacer\IncompatibleValueException;
+use Comhon\Exception\Model\NoIdPropertyException;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -810,7 +812,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		}
 		$this->load();
 		if (!$this->hasIdProperties()) {
-			throw new ComhonException("model '$this->modelName' must have at least one id property to load object");
+			throw new NoIdPropertyException($this);
 		}
 		$mainObject = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
 		
@@ -1160,8 +1162,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$interfacedObject = dom_import_simplexml($interfacedObject);
 		}
 		if (!$interfacer->isNodeValue($interfacedObject)) {
-			$type = is_object($interfacedObject) ? get_class($interfacedObject) : gettype($interfacedObject);
-			throw new ComhonException('Argument 1 ('.$type.') imcompatible with argument 2 ('.get_class($interfacer).')');
+			throw new IncompatibleValueException($interfacedObject, $interfacer);
 		}
 		try {
 			return $this->_importRoot($interfacedObject, $interfacer);
