@@ -242,6 +242,11 @@ class SqlTable extends ValidatedSerializationUnit {
 		];
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::hasIncrementalId()
+	 */
 	public function hasIncrementalId(Model $model) {
 		$this->_initDatabaseInterfacing($model);
 		return $this->modelInfos[$model->getName()][self::HAS_INCR_ID_INDEX];

@@ -15,6 +15,7 @@ use Comhon\Utils\Utils;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Exception\ArgumentException;
+use Comhon\Model\Model;
 
 abstract class SerializationFile extends ValidatedSerializationUnit {
 
@@ -35,6 +36,15 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 			$this->interfacer = static::_initInterfacer();
 		}
 		return $this->interfacer;
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\SerializationUnit::hasIncrementalId()
+	 */
+	public function hasIncrementalId(Model $model) {
+		return false;
 	}
 	
 	/**
@@ -94,6 +104,12 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 	 * @see \Comhon\Serialization\SerializationUnit::_loadObject()
 	 */
 	protected function _loadObject(UniqueObject $object, $propertiesFilter = null) {
+		if (!$object->getModel()->hasIdProperties()) {
+			throw new SerializationException('Cannot load model without id into file');
+		}
+		if (!$object->hasCompleteId()) {
+			throw new SerializationException('Cannot load object, object id is not complete');
+		}
 		$path = $this->_getPath($object);
 		if (!file_exists($path)) {
 			return false;
@@ -112,18 +128,18 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 	 * @see \Comhon\Serialization\SerializationUnit::_deleteObject()
 	 */
 	protected function _deleteObject(UniqueObject $object) {
-		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
-			throw new SerializationException('delete operation require complete id');
+		if (!$object->getModel()->hasIdProperties()) {
+			throw new SerializationException('Cannot delete model without id into file');
 		}
-		$id = $object->getId();
-		if ($id == null || $id == '') {
-			throw new SerializationException("Cannot delete object '{$object->getModel()->getName()}' with id '$id', object id is empty");
+		if (!$object->hasCompleteId()) {
+			throw new SerializationException('Cannot delete object, object id is not complete');
 		}
 		$path = $this->_getPath($object);
 		if (!file_exists($path)) {
 			return 0;
 		}
 		if (!Utils::delTree(dirname($path))) {
+			$id = $object->getId();
 			throw new SerializationException("Cannot delete object '{$object->getModel()->getName()}' with id '$id', failure when try to delete folder '".dirname($path)."'");
 		}
 		return 1;

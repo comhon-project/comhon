@@ -1,5 +1,6 @@
 <manifest version="3.0" is_serializable="1">
   <properties>
     <property type="string" name="name"/>
+    <property type="string" name="value"/>
   </properties>
 </manifest>

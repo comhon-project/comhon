@@ -449,23 +449,18 @@ try {
 
 // TODO for version > 3.0
 
-// test post method manage all errors request handler
-// test put method manage all errors request handler
-// test delete method manage all errors request handler
+// depends property defined in manifest (offset and limit depends on order in request model)
+// conflict property defined in manifest
+// manifest validator
 // add patch method
 
 // add selectquery select count(*) on query and func(*) on table
-// restriction string length (perhaps several restrictions same time)
 // replace self tests by phpunit tests
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)
 // transaction serialization
-// allow to active only one value among several values (a or b might be set but not a and b)
 // define in manifest if property is requestable
 // from object specifying object path (object.property.property)
-// mandatory value when serialize
-// common models/values in unique files
 // left/inner join simple/function litteral
 // versionning for manifest (get versionned instance model)
 // inheritage with join table
-// manifest validator
 // request order not only on requested model

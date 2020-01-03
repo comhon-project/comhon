@@ -71,7 +71,7 @@ class Response {
 	/**
 	 * set HTTP body content
 	 * 
-	 * @param string|array|\stdClass $content
+	 * @param string|array|\stdClass|\DOMNode|\SimpleXMLElement $content
 	 */
 	public function setContent($content) {
 		$this->content = $content;
@@ -80,7 +80,7 @@ class Response {
 	/**
 	 * get HTTP body content
 	 * 
-	 * @return string|array|\stdClass
+	 * @return string|array|\stdClass|\DOMNode|\SimpleXMLElement
 	 */
 	public function getContent() {
 		return $this->content;
@@ -114,6 +114,13 @@ class Response {
 			if (($this->content instanceof \stdClass) || is_array($this->content)) {
 				$content = json_encode($this->content);
 				$headers['Content-Type'] = 'application/json';
+			} elseif ($this->content instanceof \DOMNode) {
+				$headers['Content-Type'] = 'application/xml';
+				$simpleXML = simplexml_import_dom($this->content);
+				$content = $simpleXML->asXML();
+			} elseif ($this->content instanceof \SimpleXMLElement) {
+				$headers['Content-Type'] = 'application/xml';
+				$content = $this->content->asXML();
 			} elseif (is_string($this->content) && !array_key_exists('Content-Type', $headers)) {
 				$headers['Content-Type'] = 'text/plain';
 			}

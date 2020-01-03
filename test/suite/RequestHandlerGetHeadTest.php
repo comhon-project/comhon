@@ -6,7 +6,7 @@ use Comhon\Object\Config\Config;
 use Test\Comhon\Mock\RequestHandlerMock;
 use Comhon\Object\Collection\MainObjectCollection;
 
-class RequestHandlerTest extends TestCase
+class RequestHandlerGetHeadTest extends TestCase
 {
 	public static function setUpBeforeClass()
 	{
@@ -25,11 +25,24 @@ class RequestHandlerTest extends TestCase
 	public function testRequestNamespace($server, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
-		$send = $response->getSend();
+		$sendGet = $response->getSend();
 		
-		$this->assertEquals($responseContent, $send[2]);
-		$this->assertEquals($responseCode, $send[0]);
-		$this->assertEquals($responseHeaders, $send[1]);
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
 	}
 	
 	public function requestNamespaceData()
@@ -88,16 +101,120 @@ class RequestHandlerTest extends TestCase
 	
 	/**
 	 *
+	 * @dataProvider requestAcceptHeaderData
+	 */
+	public function testRequestAcceptHeader($server, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
+	{
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
+		$sendGet = $response->getSend();
+		
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
+	}
+	
+	public function requestAcceptHeaderData()
+	{
+		return [
+			[ // empty Accept
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
+				],
+				['Accept' => ''],
+				200,
+				['Content-Type' => 'application/json'],
+				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
+			],
+			[ // Accept xml
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
+				],
+				[
+					'Accept' => 'application/xml',
+				],
+				200,
+				['Content-Type' => 'application/xml'],
+				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="1" firstName="Bernard" lastName="Dupond" birthDate="2016-11-13T19:04:05+00:00"><birthPlace>2</birthPlace><bestFriend xsi:nil="true"/><father xsi:nil="true"/><mother xsi:nil="true"/></root>',
+			],
+			[ // Accept several content type + quality value 1
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				[
+						'Accept' => 'application/json;q=0.55, application/xml;q=0.6'
+				],
+				200,
+				['Content-Type' => 'application/xml'],
+				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Man id="1" firstName="Bernard" lastName="Dupond" birthDate="2016-11-13T19:04:05+00:00"><birthPlace>2</birthPlace><bestFriend xsi:nil="true"/><father xsi:nil="true"/><mother xsi:nil="true"/></Man><Man id="5" firstName="Jean" lastName="Henri" birthDate="2016-11-13T19:04:05+00:00"><birthPlace xsi:nil="true"/><bestFriend>7</bestFriend><father>1</father><mother>2</mother></Man><Man id="6" firstName="john" lastName="lennon" birthDate="2016-11-13T19:04:05+00:00"><birthPlace xsi:nil="true"/><bestFriend xsi:nil="true"/><father>1</father><mother>2</mother></Man></root>',
+			],
+			[ // Accept several content type + quality value 2
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
+				],
+				[
+					'Accept' => 'application/json, application/xml;q=0.6',
+				],
+				200,
+				['Content-Type' => 'application/json'],
+				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}'
+			],
+			[ // non-existent content type
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
+				],
+				[
+					'Accept' => 'aaaa',
+				],
+				200,
+				['Content-Type' => 'application/json'],
+				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}'
+			]
+		];
+	}
+	
+	/**
+	 *
 	 * @dataProvider requestUniqueResponseData
 	 */
 	public function testRequestUniqueResponse($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, $get, []);
-		$send = $response->getSend();
+		$response = RequestHandlerMock::handle('index.php/api', $server, $get, []);
+		$sendGet = $response->getSend();
 		
-		$this->assertEquals($responseContent, $send[2]);
-		$this->assertEquals($responseCode, $send[0]);
-		$this->assertEquals($responseHeaders, $send[1]);
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('index.php/api', $server, $get, []);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
 	}
 
 	public function requestUniqueResponseData()
@@ -120,9 +237,7 @@ class RequestHandlerTest extends TestCase
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson/1'
 				],
-				[
-					'__order__' => '[{"property":"id","type":"DESC"}]',
-				],
+				[],
 				200,
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}'
@@ -133,12 +248,21 @@ class RequestHandlerTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson/1'
 				],
 				[
-					'__order__' => '[{"property":"id","type":"DESC"}]',
 					'__properties__' => ['birthPlace', 'firstName']
 				],
 				200,
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","birthPlace":2,"__inheritance__":"Test\\\\Person\\\\Man"}'
+			],
+			[ // multiple id
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/[1,"23"]'
+				],
+				[],
+				200,
+				['Content-Type' => 'application/json'],
+				'{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T12:53:54+00:00","timestamp":"2016-10-16T19:50:19+00:00","object":null,"objectWithId":null,"integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}'
 			]
 		];
 	}
@@ -149,12 +273,25 @@ class RequestHandlerTest extends TestCase
 	 */
 	public function testRequestArrayResponse($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, $get, []);
-		$send = $response->getSend();
+		$response = RequestHandlerMock::handle('index.php/api/', $server, $get, []);
+		$sendGet = $response->getSend();
 		
-		$this->assertEquals($responseContent, $send[2]);
-		$this->assertEquals($responseCode, $send[0]);
-		$this->assertEquals($responseHeaders, $send[1]);
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('index.php/api/', $server, $get, []);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
 	}
 	
 	public function requestArrayResponseData()
@@ -291,12 +428,25 @@ class RequestHandlerTest extends TestCase
 	 */
 	public function testRequestCount($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, $get, []);
-		$send = $response->getSend();
+		$response = RequestHandlerMock::handle('/index.php/api', $server, $get, []);
+		$sendGet = $response->getSend();
 		
-		$this->assertEquals($responseContent, $send[2]);
-		$this->assertEquals($responseCode, $send[0]);
-		$this->assertEquals($responseHeaders, $send[1]);
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('/index.php/api', $server, $get, []);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
 	}
 	
 	public function requestCountData()
@@ -351,12 +501,25 @@ class RequestHandlerTest extends TestCase
 	 */
 	public function testMalformedGetRequest($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, $get, []);
-		$send = $response->getSend();
+		$response = RequestHandlerMock::handle('/index.php/api/', $server, $get, []);
+		$sendGet = $response->getSend();
 		
-		$this->assertEquals($responseContent, $send[2]);
-		$this->assertEquals($responseCode, $send[0]);
-		$this->assertEquals($responseHeaders, $send[1]);
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('/index.php/api/', $server, $get, []);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
 	}
 	
 	public function malformedGetRequestData()
@@ -441,7 +604,7 @@ class RequestHandlerTest extends TestCase
 			[ // private properties filter
 				[
 					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/1'
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/[1,"23"]'
 				],
 				[
 					'__properties__' => ['string']
@@ -642,15 +805,25 @@ class RequestHandlerTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":107,"message":"Cannot cast value \'bbb\' for property \'id\', value should be integer"}'
 			],
-			[ // request unique id resource without id
+			[ // request unique id resource without serialization
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cBasic%5cNoId/bbb'
 				],
 				[],
+				405,
+				['Content-Type' => 'text/plain'],
+				'resource model \'Test\Basic\NoId\' is not requestable'
+			],
+			[ // request unique id resource without id
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestNoId/bbb'
+				],
+				[],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":110,"message":"model \'Test\\\\Basic\\\\NoId\' doesn\'t have id property"}'
+				'{"code":110,"message":"model \'Test\\\\TestNoId\' doesn\'t have id property"}'
 			],
 			[ // request unique id resource with private id
 				[
@@ -662,17 +835,47 @@ class RequestHandlerTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":108,"message":"cannot use private id property \'id\' in public context"}'
 			],
-			[ // TestNoId is linked to person serialization but doesn't have same properties, so select name column fail
+			[ // TestNoId has 'value' property but sql table doesn't have column 'value', so it fail
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestNoId'
 				],
 				[
-					'__properties__' => ['name']
+					'__properties__' => ['value']
 				],
 				500,
 				[],
 				null
+			],
+			[ // filter properties
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/[1,"23]'
+				],
+				[],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":207,"message":"invalid composite id \'[1,\\"23]\'"}'
+			],
+			[ // filter properties
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/[1]'
+				],
+				[],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":207,"message":"invalid composite id \'[1]\'"}'
+			],
+			[ // filter properties
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/[1,null]'
+				],
+				[],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":207,"message":"invalid composite id \'[1,null]\'"}'
 			]
 		];
 	}

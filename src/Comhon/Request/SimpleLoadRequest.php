@@ -13,6 +13,7 @@ namespace Comhon\Request;
 
 use Comhon\Exception\Request\MalformedRequestException;
 use Comhon\Exception\Request\NotAllowedRequestException;
+use Comhon\Exception\Value\InvalidCompositeIdException;
 
 class SimpleLoadRequest extends ObjectLoadRequest {
 
@@ -44,6 +45,9 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 	 * @param string|integer $id
 	 */
 	public function setRequestedId($id) {
+		if (!$this->model->isCompleteId($id)) {
+			throw new InvalidCompositeIdException($id);
+		}
 		$this->id = $id;
 	}
 	

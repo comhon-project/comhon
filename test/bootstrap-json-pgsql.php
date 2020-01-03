@@ -8,3 +8,7 @@ $loader->addPsr4('Test\\Comhon\\', __DIR__ . DIRECTORY_SEPARATOR . 'classes');
 chdir(__DIR__);
 
 Data::$config = './config/config-json-pgsql.json';
+
+$dataSourceName = 'pgsql:dbname=database;host=localhost';
+$pdo = new \PDO($dataSourceName, 'root', 'root');
+$pdo->exec(file_get_contents(__DIR__.'/data/database/database_pgsql.sql'));

@@ -368,6 +368,26 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::fromString()
+	 */
+	public function fromString($string) {
+		try {
+			if (!$this->domDocument->loadXML($string)) {
+				return null;
+			}
+		} catch (\Exception $e) {
+			return null;
+		}
+		if ($this->domDocument->childNodes->length !== 1 || !($this->domDocument->childNodes->item(0) instanceof \DOMElement)) {
+			trigger_error('wrong xml, XMLInterfacer manage only xml with one and only one root node');
+			return null;
+		}
+		return $this->domDocument->childNodes->item(0);
+	}
+	
+	/**
 	 * write file with given content
 	 * 
 	 * @param \DOMElement $node
@@ -384,19 +404,19 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * read file and load node with file content
 	 * 
 	 * @param string $path
-	 * @return \DOMElement|boolean return false on failure
+	 * @return \DOMElement|null return null on failure
 	 */
 	public function read($path) {
 		try {
 			if (!$this->domDocument->load($path)) {
-				return false;
+				return null;
 			}
 		} catch (\Exception $e) {
-			return false;
+			return null;
 		}
 		if ($this->domDocument->childNodes->length !== 1 || !($this->domDocument->childNodes->item(0) instanceof \DOMElement)) {
 			trigger_error('wrong xml, XMLInterfacer manage only xml with one and only one root node');
-			return false;
+			return null;
 		}
 		return $this->domDocument->childNodes->item(0);
 	}

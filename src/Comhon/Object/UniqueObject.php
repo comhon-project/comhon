@@ -191,7 +191,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 */
 	final public function hasCompleteId() {
 		foreach ($this->getModel()->getIdProperties() as $propertyName => $property) {
-			if(is_null($this->getValue($propertyName))) {
+			if(is_null($this->getValue($propertyName)) || $this->getValue($propertyName) === '') {
 				return false;
 			}
 		}

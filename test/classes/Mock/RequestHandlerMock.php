@@ -15,9 +15,9 @@ use Comhon\Api\RequestHandler;
 
 class RequestHandlerMock extends RequestHandler {
 	
-	public static function handle($basePath, $server = [], $get = [], $headers = []) {
+	public static function handle($basePath, $server = [], $get = [], $headers = [], $body = '') {
 		$handler = new self();
-		return $handler->_handle($basePath, $server, $get, $headers);
+		return $handler->_handle($basePath, $server, $get, $headers, $body);
 	}
 	
 }

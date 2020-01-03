@@ -575,12 +575,20 @@ abstract class Interfacer {
 	
 	/**
 	 * transform given node to string
-	 * 
+	 *
 	 * @param mixed $node
 	 * @param bool $prettyPrint
 	 * @return string
 	 */
 	abstract public function toString($node, $prettyPrint = false);
+	
+	/**
+	 * transform given string to node
+	 *
+	 * @param mixed $string
+	 * @return mixed
+	 */
+	abstract public function fromString($string);
 	
 	/**
 	 * write file with given content
@@ -596,7 +604,7 @@ abstract class Interfacer {
 	 * read file and load node with file content
 	 * 
 	 * @param string $path
-	 * @return mixed|boolean return false on failure
+	 * @return mixed|null return null on failure
 	 */
 	abstract public function read($path);
 	

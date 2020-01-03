@@ -207,16 +207,25 @@ class AssocArrayInterfacer extends Interfacer {
 	public function getArrayNodeClasses() {
 		return ['array'];
 	}
-    
+	
 	/**
 	 * transform given node to string
-	 * 
+	 *
 	 * @param array $node
 	 * @param bool $prettyPrint
 	 * @return string
 	 */
 	public function toString($node, $prettyPrint = false) {
 		return $prettyPrint ? json_encode($node, JSON_PRETTY_PRINT) : json_encode($node);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::fromString()
+	 */
+	public function fromString($string) {
+		return json_decode($string, true);
 	}
 	
 	/**
@@ -236,14 +245,11 @@ class AssocArrayInterfacer extends Interfacer {
 	 * read file and load node with file content
 	 * 
 	 * @param string $path
-	 * @return array|boolean return false on failure
+	 * @return array|null return null on failure
 	 */
 	public function read($path) {
 		$json = file_get_contents($path);
-		if (!$json) {
-			return false;
-		}
-		return json_decode($json, true);
+		return $json ? json_decode($json, true) : null;
 	}
 	
 	/**

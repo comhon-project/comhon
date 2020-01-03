@@ -12,6 +12,7 @@
 namespace Comhon\Serialization;
 
 use Comhon\Object\UniqueObject;
+use Comhon\Model\Model;
 
 abstract class SerializationUnit {
 
@@ -57,5 +58,12 @@ abstract class SerializationUnit {
 	 * @return integer number of deleted objects
 	 */
 	abstract public function deleteObject(UniqueObject $object);
+	
+	/**
+	 * verify if serialization has incremental id when save object without id
+	 *
+	 * @param \Comhon\Model\Model $model
+	 */
+	abstract public function hasIncrementalId(Model $model);
 	
 }

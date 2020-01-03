@@ -15,6 +15,11 @@ use Comhon\Model\Model;
 
 class NotFoundException extends ResponseException {
 	
+	/**
+	 * 
+	 * @param \Comhon\Model\Model $model
+	 * @param string|integer $id
+	 */
 	public function __construct(Model $model, $id) {
 		parent::__construct(404, "resource '{$model->getName()}' with id '$id' not found");
 	}

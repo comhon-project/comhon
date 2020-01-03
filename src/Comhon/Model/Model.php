@@ -44,6 +44,7 @@ use Comhon\Exception\Interfacer\ObjectLoopException;
 use Comhon\Exception\Value\MissingIdForeignValueException;
 use Comhon\Exception\Interfacer\IncompatibleValueException;
 use Comhon\Exception\Model\NoIdPropertyException;
+use Comhon\Exception\Value\InvalidCompositeIdException;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -782,9 +783,29 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	public function decodeId($id) {
 		$decodedId = json_decode($id);
 		if (!is_array($decodedId) || (count($this->getIdProperties()) !== count($decodedId))) {
-			throw new ComhonException("id invalid : $id");
+			throw new InvalidCompositeIdException($id);
 		}
 		return $decodedId;
+	}
+	
+	/**
+	 * verify if composite id has all id values not null and are not empty string.
+	 * do not verify values types.
+	 * 
+	 * @param string $id
+	 * @return boolean
+	 */
+	public function isCompleteId($id) {
+		if ($this->hasUniqueIdProperty()) {
+			return true;
+		}
+		$decodedId = $this->decodeId($id);
+		for ($i = 0; $i < count($decodedId); $i++) {
+			if (is_null($decodedId[$i]) || $decodedId[$i] === '') {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/**

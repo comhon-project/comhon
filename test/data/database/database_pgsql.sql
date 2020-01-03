@@ -51,6 +51,7 @@ DROP TABLE IF EXISTS public.test_multi_increment;
 DROP TABLE IF EXISTS public.town;
 DROP TABLE IF EXISTS public.woman_body;
 DROP TABLE IF EXISTS public.test_private_id;
+DROP TABLE IF EXISTS public.test_no_id;
 
 --
 -- TOC entry 181 (class 1259 OID 304387)
@@ -397,7 +398,7 @@ CREATE TABLE public.test (
     object_with_id text,
     "timestamp" timestamp with time zone DEFAULT now() NOT NULL,
     "integer" integer,
-    string text NOT NULL,
+    string text,
     main_test_id integer NOT NULL,
     objects_with_id character varying(1024) DEFAULT '[]'::character varying NOT NULL,
     foreign_objects character varying(1024) DEFAULT '[]'::character varying NOT NULL,
@@ -450,6 +451,18 @@ ALTER TABLE public.test_multi_increment_id1_seq OWNER TO root;
 
 ALTER SEQUENCE public.test_multi_increment_id1_seq OWNED BY public.test_multi_increment.id1;
 
+
+--
+-- TOC entry 205 (class 1259 OID 330027)
+-- Name: test_no_id; Type: TABLE; Schema: public; Owner: root
+--
+
+CREATE TABLE public.test_no_id (
+    name text
+);
+
+
+ALTER TABLE public.test_no_id OWNER TO root;
 
 --
 -- TOC entry 204 (class 1259 OID 304540)
@@ -864,7 +877,7 @@ SELECT pg_catalog.setval('public.man_body_id_seq', 2, true);
 -- Name: person_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public.person_id_seq', 798, true);
+SELECT pg_catalog.setval('public.person_id_seq', 11, true);
 
 
 --

@@ -582,7 +582,7 @@ abstract class AbstractComhonObject {
 			$interfacer->setVerifyReferences(false);
 			return json_encode($interfacer->export($this), JSON_PRETTY_PRINT)."\n";
 		} catch (\Exception $e) {
-			trigger_error($e->getMessage());
+			trigger_error('object can\'t be printed because it is invalid : '.$e->getMessage());
 		}
 		return '';
 	}

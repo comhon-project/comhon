@@ -2,7 +2,6 @@
 
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Model\Model;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 

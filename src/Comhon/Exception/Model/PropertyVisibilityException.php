@@ -21,8 +21,8 @@ class PropertyVisibilityException extends ComhonException {
 	 * @param \Comhon\Model\Property\Property $property
 	 */
 	public function __construct(Property $property) {
-		$isIdessage = $property->isId() ? ' id ' : ' ';
-		$message = "cannot use private{$isIdessage}property '{$property->getName()}' in public context";
+		$isIdMessage = $property->isId() ? ' id ' : ' ';
+		$message = "cannot use private{$isIdMessage}property '{$property->getName()}' in public context";
 		parent::__construct($message, ConstantException::PROPERTY_VISIBILITY_EXCEPTION);
 	}
 	

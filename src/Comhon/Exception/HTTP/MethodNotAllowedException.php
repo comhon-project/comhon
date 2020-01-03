@@ -11,7 +11,7 @@
 
 namespace Comhon\Exception\HTTP;
 
-class MalformedRequestException extends ResponseException {
+class MethodNotAllowedException extends ResponseException {
 	
 	/**
 	 * 
@@ -19,6 +19,6 @@ class MalformedRequestException extends ResponseException {
 	 * @param string[] $headers
 	 */
 	public function __construct($content = null, $headers = []) {
-		parent::__construct(400, $content, $headers);
+		parent::__construct(405, $content, $headers);
 	}
 }

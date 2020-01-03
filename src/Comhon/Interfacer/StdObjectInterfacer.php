@@ -220,6 +220,15 @@ class StdObjectInterfacer extends Interfacer {
 	}
 	
 	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::fromString()
+	 */
+	public function fromString($string) {
+		return json_decode($string);
+	}
+	
+	/**
 	 * write file with given content
 	 * 
 	 * @param mixed $node
@@ -236,14 +245,11 @@ class StdObjectInterfacer extends Interfacer {
 	 * read file and load node with file content
 	 * 
 	 * @param string $path
-	 * @return \stdClass|boolean return false on failure
+	 * @return \stdClass|null return null on failure
 	 */
 	public function read($path) {
 		$json = file_get_contents($path);
-		if (!$json) {
-			return false;
-		}
-		return json_decode($json);
+		return $json ? json_decode($json) : null;
 	}
 	
 	/**

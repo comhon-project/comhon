@@ -33,6 +33,7 @@ DROP TABLE IF EXISTS test_multi_increment;
 DROP TABLE IF EXISTS town;
 DROP TABLE IF EXISTS woman_body;
 DROP TABLE IF EXISTS test_private_id;
+DROP TABLE IF EXISTS test_no_id;
 
 -- --------------------------------------------------------
 
@@ -243,7 +244,7 @@ CREATE TABLE `test` (
   `object_with_id` text,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `integer` int(11) DEFAULT NULL,
-  `string` text NOT NULL,
+  `string` text,
   `main_test_id` int(11) NOT NULL,
   `objects_with_id` varchar(1024) NOT NULL DEFAULT '[]',
   `foreign_objects` varchar(1024) NOT NULL DEFAULT '[]',
@@ -304,6 +305,16 @@ INSERT INTO `test_multi_increment` (`id1`, `plop`, `id2`) VALUES
 (14, 'hoho', 45),
 (15, 'hohohohoho', 45),
 (16, 'hoho', 45);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `test_no_id`
+--
+
+CREATE TABLE `test_no_id` (
+  `name` text
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
