@@ -51,19 +51,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::getInheritanceRequestable()
 	 */
 	public function getInheritanceRequestable() {
-		$inheritanceRequestables = null;
-		
-		if ($this->interfacer->hasValue($this->manifest, self::INHERITANCE_REQUESTABLES, true)) {
-			$node = $this->interfacer->getValue($this->manifest, self::INHERITANCE_REQUESTABLES, true);
-			$inheritanceRequestables = $this->interfacer->getTraversableNode($node);
-			if ($this->interfacer instanceof XMLInterfacer) {
-				foreach ($inheritanceRequestables as $key => $domNode) {
-					$inheritanceRequestables[$key] = $this->interfacer->extractNodeText($domNode);
-				}
-			}
-		}
-		
-		return $inheritanceRequestables;
+		return $this->_getArrayStringValue($this->manifest, self::INHERITANCE_REQUESTABLES);
 	}
 	
 	/**
@@ -131,7 +119,7 @@ class ManifestParser extends ParentManifestParser {
 			? $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, 'types', true))
 			: []; 
 		
-		// don't you basename() because very slow compare to strrpos() + substr()
+		// don't use basename() because very slow compare to strrpos() + substr()
 		$pos = strrpos($this->serializationManifestPath_afe, DIRECTORY_SEPARATOR);
 		$dirname = substr($this->serializationManifestPath_afe, 0, $pos);
 		$basename = substr($this->serializationManifestPath_afe, $pos + 1);
@@ -305,6 +293,24 @@ class ManifestParser extends ParentManifestParser {
 			$default = null;
 		}
 		return $default;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_getDependencyProperties()
+	 */
+	protected function _getDependencyProperties() {
+		return $this->_getArrayStringValue($this->_getCurrentPropertyNode(), self::DEPENDS);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_getConflictProperties()
+	 */
+	protected function _getConflictProperties() {
+		return $this->_getArrayStringValue($this->_getCurrentPropertyNode(), self::CONFLICTS);
 	}
 	
 	/**

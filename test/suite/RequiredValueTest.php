@@ -20,30 +20,30 @@ class RequiredValueTest extends TestCase
 	
 	public function testInstanciateObject()
 	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$model->getObjectInstance(false);
 		
 		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("missing required value 'valueRequired' on comhon object with model 'Test\Required'");
+		$this->expectExceptionMessage("missing required value 'valueRequired' on comhon object with model 'Test\Validate'");
 		$model->getObjectInstance();
 	}
 	
 	public function testSetIsLoadedValue()
 	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$object = $model->getObjectInstance(false);
 		$object->setValue('valueRequired', 'aaaa');
 		$object->setIsLoaded(true);
 		
 		$object = $model->getObjectInstance(false);
 		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("missing required value 'valueRequired' on comhon object with model 'Test\Required'");
+		$this->expectExceptionMessage("missing required value 'valueRequired' on comhon object with model 'Test\Validate'");
 		$object->setIsLoaded(true);
 	}
 	
 	public function testUnsetValue()
 	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$object = $model->getObjectInstance(false);
 		$object->setValue('valueRequired', 'aaaa');
 		$object->unsetValue('valueRequired');
@@ -51,13 +51,13 @@ class RequiredValueTest extends TestCase
 		$object->setValue('valueRequired', 'aaaa');
 		$object->setIsLoaded(true);
 		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("impossible to unset required value 'valueRequired' on comhon object with model 'Test\Required'");
+		$this->expectExceptionMessage("impossible to unset required value 'valueRequired' on comhon object with model 'Test\Validate'");
 		$object->unsetValue('valueRequired');
 	}
 	
 	public function testSetNullValue()
 	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$object = $model->getObjectInstance(false);
 		$object->setValue('valueRequired', null); // a required property may be null
 		$this->assertNull($object->getValue('valueRequired'));
@@ -70,7 +70,7 @@ class RequiredValueTest extends TestCase
 		// root object NOT flaged as loaded so required values of root object are NOT required
 		$interfacer->setFlagObjectAsLoaded(false);
 		
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['value' => 'aaaa', 'valueComplex' => ['valueRequired' => 'aaaa']], $interfacer);
 		$this->assertFalse($obj->isLoaded());
 		$this->assertEquals('aaaa', $obj->getValue('value'));
@@ -80,7 +80,7 @@ class RequiredValueTest extends TestCase
 		// root object flaged as loaded so required values of root object are required
 		$interfacer->setFlagObjectAsLoaded(true);
 		
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['valueRequired' => 'aaaa'], $interfacer);
 		$this->assertTrue($obj->isLoaded());
 		$this->assertEquals('aaaa', $obj->getValue('valueRequired'));
@@ -90,7 +90,7 @@ class RequiredValueTest extends TestCase
 	{
 		$interfacer = new AssocArrayInterfacer();
 		$interfacer->setFlagObjectAsLoaded(true);
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		
 		$thrown = false;
 		try {
@@ -100,7 +100,7 @@ class RequiredValueTest extends TestCase
 			$this->assertEquals($e->getStringifiedProperties(), '.');
 			$this->assertEquals(get_class($e->getOriginalException()), MissingRequiredValueException::class);
 			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::MISSING_REQUIRED_VALUE_EXCEPTION);
-			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on comhon object with model 'Test\Required'");
+			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on comhon object with model 'Test\Validate'");
 		}
 		$this->assertTrue($thrown);
 	}
@@ -109,7 +109,7 @@ class RequiredValueTest extends TestCase
 	{
 		$interfacer = new AssocArrayInterfacer();
 		$interfacer->setFlagObjectAsLoaded(false);
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		
 		$thrown = false;
 		try {
@@ -119,7 +119,7 @@ class RequiredValueTest extends TestCase
 			$this->assertEquals($e->getStringifiedProperties(), '.valueComplex');
 			$this->assertEquals(get_class($e->getOriginalException()), MissingRequiredValueException::class);
 			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::MISSING_REQUIRED_VALUE_EXCEPTION);
-			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on comhon object with model 'Test\Required\localRestricted'");
+			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on comhon object with model 'Test\Validate\localRestricted'");
 		}
 		$this->assertTrue($thrown);
 	}
@@ -128,7 +128,7 @@ class RequiredValueTest extends TestCase
 		
 		$interfacer = new AssocArrayInterfacer();
 		$interfacer->setFlagObjectAsLoaded(false);
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['valueRequired' => 'aaaa', 'valueComplex' => ['valueRequired' => 'aaaa']], $interfacer);
 		
 		$this->assertEquals(
@@ -145,7 +145,7 @@ class RequiredValueTest extends TestCase
 		
 		$interfacer = new AssocArrayInterfacer();
 		$interfacer->setFlagObjectAsLoaded(false);
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->getObjectInstance(false);
 		$obj->setValue($rootProperty, 'aaaa');
 		$obj2 = $obj->initValue('valueComplex', false);
@@ -170,32 +170,32 @@ class RequiredValueTest extends TestCase
 				'value',
 				'valueRequired',
 				'.',
-				'Test\Required'
+				'Test\Validate'
 			],
 			[
 				'valueRequired',
 				'value',
 				'.valueComplex',
-				'Test\Required\localRestricted'
+				'Test\Validate\localRestricted'
 			]
 		];
 	}
 	
 	public function testCast() {
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Required');
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->getObjectInstance(false);
 		
 		$obj2 = $obj->initValue('valueComplex', false);
 		$obj2->setValue('valueRequired', 'aaaa');
-		$obj2->cast(ModelManager::getInstance()->getInstanceModel('Test\Required\localRestrictedExtended'));
+		$obj2->cast(ModelManager::getInstance()->getInstanceModel('Test\Validate\localRestrictedExtended'));
 		
 		$obj2 = $obj->initValue('valueComplex', false);
 		$obj2->setValue('valueRequired', 'aaaa');
 		$obj2->setIsLoaded(true);
 		
 		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("missing required value 'valueRequiredExtended' on comhon object with model 'Test\Required\localRestrictedExtended'");
-		$obj2->cast(ModelManager::getInstance()->getInstanceModel('Test\Required\localRestrictedExtended'));
+		$this->expectExceptionMessage("missing required value 'valueRequiredExtended' on comhon object with model 'Test\Validate\localRestrictedExtended'");
+		$obj2->cast(ModelManager::getInstance()->getInstanceModel('Test\Validate\localRestrictedExtended'));
 	}
 
 }

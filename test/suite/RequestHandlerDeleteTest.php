@@ -109,7 +109,7 @@ class RequestHandlerDeleteTest extends TestCase
 				],
 				405,
 				['Content-Type' => 'application/json'],
-				'{"code":110,"message":"model \'Test\\\\TestNoId\' doesn\'t have id property"}',
+				'{"code":106,"message":"model \'Test\\\\TestNoId\' doesn\'t have id property"}',
 			],
 			[ // private property id
 				[
@@ -118,7 +118,7 @@ class RequestHandlerDeleteTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":108,"message":"cannot use private id property \'id\' in public context"}'
+				'{"code":105,"message":"cannot use private id property \'id\' in public context"}'
 			],
 		];
 	}
@@ -147,7 +147,7 @@ class RequestHandlerDeleteTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'1\'"}',
+				'{"code":206,"message":"invalid composite id \'1\'"}',
 			],
 			[ // missing value
 				[
@@ -156,7 +156,7 @@ class RequestHandlerDeleteTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'[1]\'"}',
+				'{"code":206,"message":"invalid composite id \'[1]\'"}',
 			],
 			[ // empty string value
 				[
@@ -165,7 +165,7 @@ class RequestHandlerDeleteTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'[1,\"\"]\'"}',
+				'{"code":206,"message":"invalid composite id \'[1,\"\"]\'"}',
 			],
 			[ // null value
 				[
@@ -174,7 +174,7 @@ class RequestHandlerDeleteTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'[null,\"46\"]\'"}',
+				'{"code":206,"message":"invalid composite id \'[null,\"46\"]\'"}',
 			],
 		];
 	}

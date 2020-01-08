@@ -11,6 +11,7 @@ use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Object\MissingRequiredValueException;
 use Comhon\Exception\ConstantException;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
+use Comhon\Exception\Object\DependsValuesException;
 
 class RequestModelTest extends TestCase
 {
@@ -154,7 +155,7 @@ class RequestModelTest extends TestCase
 			[
 				"limit" => 1,
 				"offset" => 0,
-				"order" => [],
+					"order" => [['type' => 'ASC', 'property' => 'staticName']],
 				"properties" => [],
 				"simpleCollection" => [],
 				"havingCollection" => [],
@@ -211,5 +212,64 @@ class RequestModelTest extends TestCase
 		$interfacer = new AssocArrayInterfacer();
 		
 		return $interfacer->read(self::$data_ad . 'required_and_not_null.json');
+	}
+	
+	/**
+	 *
+	 * @dataProvider importLimitOffsetWithoutOrderData
+	 */
+	public function testImportLimitOffsetWithoutOrderFailureRequest($interfacedObjectBase, $modelName, $property)
+	{
+		$interfacer = new AssocArrayInterfacer();
+		$interfacer->setVerifyReferences(false);
+		$model = ModelManager::getInstance()->getInstanceModel($modelName);
+		
+		$thrown = false;
+		try {
+			$model->import($interfacedObjectBase, $interfacer);
+		} catch (ImportException $e) {
+			$thrown = true;
+			$this->assertEquals($e->getStringifiedProperties(), '.');
+			$this->assertEquals(get_class($e->getOriginalException()), DependsValuesException::class);
+			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::DEPENDS_VALUES_EXCEPTION);
+			$this->assertEquals($e->getOriginalException()->getMessage(), "property value '$property' can't be set without property value 'order'");
+		}
+		$this->assertTrue($thrown);
+	}
+	
+	public function importLimitOffsetWithoutOrderData()
+	{
+		return [
+			[
+				[
+					"offset" => 0,
+					"filter" => 1,
+					"root" => 1,
+					"models" => [
+						[
+							"id" => 1,
+							"model" => 'Comhon\SqlTable'
+						]
+					]
+				],
+				"Comhon\\Request\\Intermediate",
+				'offset'
+			],
+			[
+				[
+					"limit" => 1,
+					"filter" => 1,
+					"root" => 1,
+					"models" => [
+						[
+							"id" => 1,
+							"model" => 'Comhon\SqlTable'
+						]
+					]
+				],
+				"Comhon\\Request\\Intermediate",
+				'limit'
+			]
+		];
 	}
 }

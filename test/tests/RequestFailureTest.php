@@ -32,7 +32,7 @@ $result = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success 
 		|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "cannot use private property 'string' in public context"
-		|| !isset($result->error->code) || $result->error->code !== 108
+		|| !isset($result->error->code) || $result->error->code !== 105
 ) {
 	throw new \Exception('bad ObjectService::getObjects return 1 '.json_encode($result));
 }
@@ -63,7 +63,7 @@ $result = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
 	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "cannot use private property 'string' in public context"
-	|| !isset($result->error->code) || $result->error->code !== 108
+	|| !isset($result->error->code) || $result->error->code !== 105
 ) {
 	throw new \Exception('bad ObjectService::getObjects return 2 '.json_encode($result));
 }
@@ -103,7 +103,7 @@ $result = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
 	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "cannot use private property 'string' in public context"
-	|| !isset($result->error->code) || $result->error->code !== 108
+	|| !isset($result->error->code) || $result->error->code !== 105
 ) {
 	throw new \Exception('bad ObjectService::getObjects return 3 '.json_encode($result));
 }

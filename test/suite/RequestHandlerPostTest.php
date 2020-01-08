@@ -238,7 +238,7 @@ class RequestHandlerPostTest extends TestCase
 				'{"firstName":"Bernard","lastName":1}',
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":203,"message":"Something goes wrong on \'.lastName\' value : \nvalue must be a string, integer \'1\' given"}',
+				'{"code":202,"message":"Something goes wrong on \'.lastName\' value : \nvalue must be a string, integer \'1\' given"}',
 			],
 			[ // specified id but auto incremental id
 				[

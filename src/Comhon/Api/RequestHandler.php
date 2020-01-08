@@ -32,7 +32,7 @@ use Comhon\Exception\HTTP\NotFoundException;
 use Comhon\Exception\HTTP\MalformedRequestException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
-use Comhon\Exception\Model\DependsPropertiesException;
+use Comhon\Exception\Object\DependsValuesException;
 use Comhon\Model\Restriction\Range;
 use Comhon\Exception\Model\NoIdPropertyException;
 use Comhon\Exception\Model\PropertyVisibilityException;
@@ -199,7 +199,7 @@ class RequestHandler {
 		// limit and offset
 		if (isset($get[self::RANGE])) {
 			if (!isset($get[self::ORDER])) {
-				throw new DependsPropertiesException(self::RANGE, self::ORDER);
+				throw new DependsValuesException(self::RANGE, self::ORDER);
 			}
 			$range = new Range();
 			if (!$range->satisfy($get[self::RANGE])) {
@@ -690,9 +690,9 @@ class RequestHandler {
 		
 		if (isset($this->resource[1])) { // request unique value with id
 			$methods = !$model->hasIdProperties() || $model->hasPrivateIdProperty() 
-				? ['OPTIONS'] : ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS'];
+				? ['OPTIONS'] : ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'];
 		} else { // request collection
-			$methods = is_null($model->getSqlTableUnit()) ? ['OPTIONS'] : ['GET', 'HEAD', 'OPTIONS'];
+			$methods = is_null($model->getSqlTableUnit()) ? ['POST', 'OPTIONS'] : ['GET', 'HEAD', 'POST', 'OPTIONS'];
 		}
 		return $methods;
 	}

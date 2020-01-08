@@ -22,6 +22,8 @@ use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Object\MissingRequiredValueException;
+use Comhon\Exception\Object\ConflictValuesException;
+use Comhon\Exception\Object\DependsValuesException;
 
 abstract class UniqueObject extends AbstractComhonObject {
 	
@@ -116,7 +118,22 @@ abstract class UniqueObject extends AbstractComhonObject {
 				$property->getModel()->verifValue($value);
 			}
 			$property->isSatisfiable($value, true);
-			
+			if ($this->isLoaded()) {
+				if ($this->getModel()->hasConflicts($name)) {
+					foreach ($this->getModel()->getConflicts($name) as $propertyName) {
+						if ($this->hasValue($propertyName)) {
+							throw new ConflictValuesException($this->getModel(), [$name, $propertyName]);
+						}
+					}
+				}
+				if ($property->hasDependencies()) {
+					foreach ($property->getDependencies() as $propertyName) {
+						if (!$this->hasValue($propertyName)) {
+							throw new DependsValuesException($name, $propertyName);
+						}
+					}
+				}
+			}
 			if ($property->isAggregation()) {
 				$flagAsUpdated = false;
 			}
@@ -138,8 +155,17 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 */
 	final public function unsetValue($name, $flagAsUpdated = true) {
 		try {
-			if ($this->isLoaded() && $this->hasValue($name) && $this->getModel()->getProperty($name)->isRequired()) {
-				throw new MissingRequiredValueException($this, $name, true);
+			if ($this->isLoaded()) {
+				if ($this->getModel()->getProperty($name, true)->isRequired()) {
+					throw new MissingRequiredValueException($this, $name, true);
+				}
+				if ($this->getModel()->hasDependents($name)) {
+					foreach ($this->getModel()->getDependents($name) as $propertyName) {
+						if ($this->hasValue($propertyName)) {
+							throw new DependsValuesException($name, $propertyName, true);
+						}
+					}
+				}
 			}
 		} catch (NotSatisfiedRestrictionException $e) {
 			throw new NotSatisfiedRestrictionException($this, $e->getRestriction(), $e->getIncrement());
@@ -352,6 +378,24 @@ abstract class UniqueObject extends AbstractComhonObject {
 		foreach ($this->getModel()->getRequiredProperties() as $name => $property) {
 			if (!$this->hasValue($name)) {
 				throw new MissingRequiredValueException($this, $name);
+			}
+		}
+		foreach ($this->getModel()->getConflictsProperties() as $name => $property) {
+			if ($this->hasValue($name)) {
+				foreach ($property->getConflicts() as $propertyName) {
+					if ($this->hasValue($propertyName)) {
+						throw new ConflictValuesException($this->getModel(), [$name, $propertyName]);
+					}
+				}
+			}
+		}
+		foreach ($this->getModel()->getDependsProperties() as $name => $property) {
+			if ($this->hasValue($name)) {
+				foreach ($property->getDependencies() as $propertyName) {
+					if (!$this->hasValue($propertyName)) {
+						throw new DependsValuesException($name, $propertyName);
+					}
+				}
 			}
 		}
 	}

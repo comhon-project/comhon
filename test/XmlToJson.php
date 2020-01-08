@@ -287,6 +287,18 @@ function getProperties($xml) {
 				$json->default = (string) $child['default'];
 			}
 		}
+		if (isset($child->depends)) {
+			$json->depends = [];
+			foreach ($child->depends->name as $name) {
+				$json->depends[] = (string) $name;
+			}
+		}
+		if (isset($child->conflicts)) {
+			$json->conflicts = [];
+			foreach ($child->conflicts->name as $name) {
+				$json->conflicts[] = (string) $name;
+			}
+		}
 		$propertiesJson[] = $json;
 	}
 	return $propertiesJson;

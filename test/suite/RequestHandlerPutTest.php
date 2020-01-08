@@ -140,7 +140,7 @@ class RequestHandlerPutTest extends TestCase
 				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo" lastName="Dupond" birthDate="2016-11-13T19:04:05+00:00"><birthPlace>aaa</birthPlace><bestFriend xsi:nil="true"/><father xsi:nil="true"/><mother xsi:nil="true"/></root>',
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":107,"message":"Something goes wrong on \'.birthPlace\' value : \nCannot cast value \'aaa\', value should be integer"}',
+				'{"code":104,"message":"Something goes wrong on \'.birthPlace\' value : \nCannot cast value \'aaa\', value should be integer"}',
 			],
 			[ // conflict route and body id 
 				[
@@ -166,7 +166,7 @@ class RequestHandlerPutTest extends TestCase
 				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo" lastName="Dupond"></root>',
 				405,
 				['Content-Type' => 'application/json'],
-				'{"code":110,"message":"model \'Test\\\\TestNoId\' doesn\'t have id property"}',
+				'{"code":106,"message":"model \'Test\\\\TestNoId\' doesn\'t have id property"}',
 			],
 			[ // private property id
 				[
@@ -179,7 +179,7 @@ class RequestHandlerPutTest extends TestCase
 				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo" lastName="Dupond"></root>',
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":108,"message":"cannot use private id property \'id\' in public context"}'
+				'{"code":105,"message":"cannot use private id property \'id\' in public context"}'
 			],
 		];
 	}
@@ -210,7 +210,7 @@ class RequestHandlerPutTest extends TestCase
 				'{"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'1\'"}',
+				'{"code":206,"message":"invalid composite id \'1\'"}',
 			],
 			[ // missing value
 				[
@@ -221,7 +221,7 @@ class RequestHandlerPutTest extends TestCase
 				'{"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'[1]\'"}',
+				'{"code":206,"message":"invalid composite id \'[1]\'"}',
 			],
 			[ // empty string value
 				[
@@ -232,7 +232,7 @@ class RequestHandlerPutTest extends TestCase
 				'{"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'[1,\"\"]\'"}',
+				'{"code":206,"message":"invalid composite id \'[1,\"\"]\'"}',
 			],
 			[ // null value
 				[
@@ -243,7 +243,7 @@ class RequestHandlerPutTest extends TestCase
 				'{"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'[1,null]\'"}',
+				'{"code":206,"message":"invalid composite id \'[1,null]\'"}',
 			],
 			[ // null value
 				[

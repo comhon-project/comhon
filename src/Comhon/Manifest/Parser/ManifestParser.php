@@ -67,6 +67,12 @@ abstract class ManifestParser {
 	const IS_ABSTRACT = 'is_abstract';
 	
 	/** @var string */
+	const DEPENDS = 'depends';
+	
+	/** @var string */
+	const CONFLICTS = 'conflicts';
+	
+	/** @var string */
 	const SHARE_PARENT_ID = 'share_parent_id';
 	
 	/** @var string */
@@ -236,6 +242,20 @@ abstract class ManifestParser {
 	abstract protected function _getDefaultValue(AbstractModel $propertyModel);
 	
 	/**
+	 * get properties values that MUST be set if current property value is set
+	 *
+	 * @return string[] empty if there is no dependencies
+	 */
+	abstract protected function _getDependencyProperties();
+	
+	/**
+	 * get properties values that MUST NOT be set if current property value is set
+	 *
+	 * @return string[] empty if there is no conflict
+	 */
+	abstract protected function _getConflictProperties();
+	
+	/**
 	 * get Property/ComhonArray restrictions
 	 * 
 	 * @param mixed $currentNode
@@ -354,6 +374,26 @@ abstract class ManifestParser {
 	}
 	
 	/**
+	 * 
+	 * @param mixed $node node
+	 * @param string $name value's name
+	 * @return string[]
+	 */
+	public function _getArrayStringValue($node, $name) {
+		if (!$this->interfacer->hasValue($node, $name, true)) {
+			return [];
+		}
+		$values = $this->interfacer->getTraversableNode($this->interfacer->getValue($node, $name, true));
+		if ($this->interfacer instanceof XMLInterfacer) {
+			foreach ($values as $key => $domNode) {
+				$values[$key] = $this->interfacer->extractNodeText($domNode);
+			}
+		}
+		
+		return $values;
+	}
+	
+	/**
 	 * get current property
 	 * 
 	 * @param \Comhon\Model\AbstractModel $propertyModel unique model associated to property
@@ -363,6 +403,8 @@ abstract class ManifestParser {
 	public function getCurrentProperty(AbstractModel $propertyModel) {
 		list($name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
 		list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
+		$dependencies = $this->_getDependencyProperties();
+		$conflicts = $this->_getConflictProperties();
 		
 		if ($name === Interfacer::INHERITANCE_KEY || $serializationName === Interfacer::INHERITANCE_KEY) {
 			throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
@@ -377,12 +419,12 @@ abstract class ManifestParser {
 				} else if (!is_null($aggregations)) {
 					throw new ManifestException('aggregation and serializationNames cannot coexist');
 				}
-				$property = new MultipleForeignProperty($modelForeign, $name, $serializationNames, $isPrivate, $isRequired, $isSerializable, $isNotNull);
+				$property = new MultipleForeignProperty($modelForeign, $name, $serializationNames, $isPrivate, $isRequired, $isSerializable, $isNotNull, $dependencies, $conflicts);
 			}
 			else if (is_null($aggregations)) {
-				$property = new ForeignProperty($modelForeign, $name, $serializationName, $isPrivate, $isRequired, $isSerializable, $isNotNull);
+				$property = new ForeignProperty($modelForeign, $name, $serializationName, $isPrivate, $isRequired, $isSerializable, $isNotNull, $dependencies, $conflicts);
 			} else {
-				$property = new AggregationProperty($modelForeign, $name, $aggregations, $serializationName, $isPrivate);
+				$property = new AggregationProperty($modelForeign, $name, $aggregations, $serializationName, $isPrivate, $dependencies, $conflicts);
 			}
 		}
 		else {
@@ -392,7 +434,7 @@ abstract class ManifestParser {
 			if (!empty($serializationNames)) {
 				throw new ManifestException('several serialization names only allowed for foreign properties');
 			}
-			$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $isNotNull, $default, $interfaceAsNodeXml, $restrictions);
+			$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $isNotNull, $default, $interfaceAsNodeXml, $restrictions, $dependencies, $conflicts);
 			// verify default value (get it from property due to dateTime that need to instanciate DateTime object)
 			if (!is_null($default) && !is_null($restriction = Restriction::getFirstNotSatisifed($restrictions, $property->getDefaultValue()))) {
 				throw new NotSatisfiedRestrictionException($property->getDefaultValue(), $restriction);

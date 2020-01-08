@@ -575,7 +575,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":105,"message":"Undefined property \'does_not_exist\' for model \'Test\\\\Person\\\\Man\'"}'
+				'{"code":103,"message":"Undefined property \'does_not_exist\' for model \'Test\\\\Person\\\\Man\'"}'
 			],
 			[ // malformed properties filter
 				[
@@ -587,7 +587,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":203,"message":"value of property \'__properties__\' must be a array, string \'not_array\' given"}'
+				'{"code":202,"message":"value of property \'__properties__\' must be a array, string \'not_array\' given"}'
 			],
 			[ // malformed properties filter
 				[
@@ -599,7 +599,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":203,"message":"Something goes wrong on \'.0\' value : \nvalue must be a string, integer \'1\' given"}'
+				'{"code":202,"message":"Something goes wrong on \'.0\' value : \nvalue must be a string, integer \'1\' given"}'
 			],
 			[ // private properties filter
 				[
@@ -611,7 +611,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":108,"message":"cannot use private property \'string\' in public context"}'
+				'{"code":105,"message":"cannot use private property \'string\' in public context"}'
 			],
 			[ // malformed clause
 				[
@@ -623,7 +623,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":203,"message":"Something goes wrong on \'.__clause__\' value : \nvalue must be a string, array given"}'
+				'{"code":202,"message":"Something goes wrong on \'.__clause__\' value : \nvalue must be a string, array given"}'
 			],
 			[ // malformed clause
 				[
@@ -635,7 +635,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":201,"message":"Something goes wrong on \'.__clause__\' value : \nhehe is not in enumeration [\"disjunction\",\"conjunction\"]"}'
+				'{"code":200,"message":"Something goes wrong on \'.__clause__\' value : \nhehe is not in enumeration [\"disjunction\",\"conjunction\"]"}'
 			],
 			[ // malformed order
 				[
@@ -647,7 +647,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":203,"message":"value of property \'__order__\' must be a json, string \'aaaa\' given"}'
+				'{"code":202,"message":"value of property \'__order__\' must be a json, string \'aaaa\' given"}'
 			],
 			[ // malformed order
 				[
@@ -659,7 +659,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":203,"message":"Something goes wrong on \'.__order__.0\' value : \nvalue must be a Comhon\\\\Object\\\\UniqueObject(Comhon\\\\Request\\\\Order), string \'aaa\' given"}'
+				'{"code":202,"message":"Something goes wrong on \'.__order__.0\' value : \nvalue must be a Comhon\\\\Object\\\\UniqueObject(Comhon\\\\Request\\\\Order), string \'aaa\' given"}'
 			],
 			[ // malformed order
 				[
@@ -671,7 +671,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":205,"message":"Something goes wrong on \'.__order__.0\' value : \nmissing required value \'property\' on comhon object with model \'Comhon\\\\Request\\\\Order\'"}'
+				'{"code":204,"message":"Something goes wrong on \'.__order__.0\' value : \nmissing required value \'property\' on comhon object with model \'Comhon\\\\Request\\\\Order\'"}'
 			],
 				[ // malformed order undefined property name
 				[
@@ -683,7 +683,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":105,"message":"Undefined property \'undefined_property\' for model \'Test\\\\Person\\\\Man\'"}'
+				'{"code":103,"message":"Undefined property \'undefined_property\' for model \'Test\\\\Person\\\\Man\'"}'
 			],
 			[ // range without order
 				[
@@ -695,7 +695,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":109,"message":"property \'__range__\' can\'t be set without property \'__order__\'"}'
+				'{"code":208,"message":"property value \'__range__\' can\'t be set without property value \'__order__\'"}'
 			],
 			[ // malformed range 1
 				[
@@ -708,7 +708,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":201,"message":"Something goes wrong on \'.__range__\' value : \nmy_range doesn\'t satisfy range format \'x-y\' where x and y are integer and x<=y"}'
+				'{"code":200,"message":"Something goes wrong on \'.__range__\' value : \nmy_range doesn\'t satisfy range format \'x-y\' where x and y are integer and x<=y"}'
 			],
 			[ // malformed range 2
 				[
@@ -721,7 +721,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":201,"message":"Something goes wrong on \'.__range__\' value : \n9-2 doesn\'t satisfy range format \'x-y\' where x and y are integer and x<=y"}'
+				'{"code":200,"message":"Something goes wrong on \'.__range__\' value : \n9-2 doesn\'t satisfy range format \'x-y\' where x and y are integer and x<=y"}'
 			],
 			[ // request filter with undefined property
 				[
@@ -733,7 +733,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":105,"message":"Undefined property \'undefined_property\' for model \'Test\\\\Person\\\\Man\'"}'
+				'{"code":103,"message":"Undefined property \'undefined_property\' for model \'Test\\\\Person\\\\Man\'"}'
 			],
 			[ // request filter with malformed property 1
 				[
@@ -745,7 +745,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":107,"message":"Cannot cast value \'value\' for property \'boolean\', value should belong to enumeration [\"0\",\"1\"]"}'
+				'{"code":104,"message":"Cannot cast value \'value\' for property \'boolean\', value should belong to enumeration [\"0\",\"1\"]"}'
 			],
 			[ // request filter with malformed property 2
 				[
@@ -769,7 +769,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":107,"message":"Cannot cast value \'aaa\' for property \'bestFriend\', value should be integer"}'
+				'{"code":104,"message":"Cannot cast value \'aaa\' for property \'bestFriend\', value should be integer"}'
 			],
 			[ // request filter with malformed property 4
 				[
@@ -781,7 +781,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":107,"message":"Cannot cast value \'aaaa\' for property \'bestFriend\', value should be integer"}'
+				'{"code":104,"message":"Cannot cast value \'aaaa\' for property \'bestFriend\', value should be integer"}'
 			],
 			[ // request filter with private property
 				[
@@ -793,7 +793,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":108,"message":"cannot use private property \'string\' in public context"}'
+				'{"code":105,"message":"cannot use private property \'string\' in public context"}'
 			],
 			[ // request unique id malformed
 				[
@@ -803,7 +803,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				[],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":107,"message":"Cannot cast value \'bbb\' for property \'id\', value should be integer"}'
+				'{"code":104,"message":"Cannot cast value \'bbb\' for property \'id\', value should be integer"}'
 			],
 			[ // request unique id resource without serialization
 				[
@@ -823,7 +823,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				[],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":110,"message":"model \'Test\\\\TestNoId\' doesn\'t have id property"}'
+				'{"code":106,"message":"model \'Test\\\\TestNoId\' doesn\'t have id property"}'
 			],
 			[ // request unique id resource with private id
 				[
@@ -833,7 +833,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				[],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":108,"message":"cannot use private id property \'id\' in public context"}'
+				'{"code":105,"message":"cannot use private id property \'id\' in public context"}'
 			],
 			[ // TestNoId has 'value' property but sql table doesn't have column 'value', so it fail
 				[
@@ -855,7 +855,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				[],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'[1,\\"23]\'"}'
+				'{"code":206,"message":"invalid composite id \'[1,\\"23]\'"}'
 			],
 			[ // filter properties
 				[
@@ -865,7 +865,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				[],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'[1]\'"}'
+				'{"code":206,"message":"invalid composite id \'[1]\'"}'
 			],
 			[ // filter properties
 				[
@@ -875,7 +875,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				[],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":207,"message":"invalid composite id \'[1,null]\'"}'
+				'{"code":206,"message":"invalid composite id \'[1,null]\'"}'
 			]
 		];
 	}

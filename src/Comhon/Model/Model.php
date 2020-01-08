@@ -108,6 +108,18 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var \Comhon\Model\Property\Property[] */
 	private $requiredProperties = [];
 	
+	/** @var \Comhon\Model\Property\Property[] */
+	private $dependsProperties = [];
+	
+	/** @var \Comhon\Model\Property\Property[] */
+	private $dependents = [];
+	
+	/** @var \Comhon\Model\Property\Property[] */
+	private $conflictProperties = [];
+	
+	/** @var string[][] */
+	private $conflicts = [];
+	
 	/** @var Property */
 	private $uniqueIdProperty;
 	
@@ -176,6 +188,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$this->multipleForeignProperties = [];
 			$this->complexProperties = [];
 			$this->dateTimeProperties = [];
+			$this->conflictProperties = [];
+			$this->dependsProperties = [];
 			$this->uniqueIdProperty = null;
 			$this->hasPrivateIdProperty = false;
 			$this->manifestParser = null;
@@ -245,7 +259,39 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			if ($property->isRequired()) {
 				$this->requiredProperties[$property->getName()] = $property;
 			}
+			if ($property->hasDependencies()) {
+				$this->dependsProperties[$property->getName()] = $property;
+			}
+			if ($property->hasConflicts()) {
+				$this->conflictProperties[$property->getName()] = $property;
+			}
 			$this->properties[$property->getName()] = $property;
+		}
+		foreach ($this->conflictProperties as $property) {
+			if (!isset($this->conflicts[$property->getName()])) {
+				$this->conflicts[$property->getName()] = [];
+			}
+			foreach ($property->getConflicts() as $propertyName) {
+				if (!isset($this->properties[$propertyName])) {
+					throw new UndefinedPropertyException($this, $propertyName);
+				}
+				if (!isset($this->conflicts[$propertyName])) {
+					$this->conflicts[$propertyName] = [];
+				}
+				$this->conflicts[$propertyName][] = $property->getName();
+				$this->conflicts[$property->getName()][] = $propertyName;
+			}
+		}
+		foreach ($this->dependsProperties as $property) {
+			foreach ($property->getDependencies() as $propertyName) {
+				if (!isset($this->properties[$propertyName])) {
+					throw new UndefinedPropertyException($this, $propertyName);
+				}
+				if (!isset($this->dependents[$propertyName])) {
+					$this->dependents[$propertyName] = [];
+				}
+				$this->dependents[$propertyName][] = $property->getName();
+			}
 		}
 		if (count($this->idProperties) == 1) {
 			reset($this->idProperties);
@@ -675,7 +721,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * get properties with default value
 	 * 
-	 * @return \Comhon\Model\Property\Property
+	 * @return \Comhon\Model\Property\Property[]
 	 */
 	public function getPropertiesWithDefaultValues() {
 		return $this->propertiesWithDefaultValues;
@@ -684,19 +730,81 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * get aggregation proprties
 	 *
-	 * @return \Comhon\Model\Property\AggregationProperty[]:
+	 * @return \Comhon\Model\Property\AggregationProperty[]
 	 */
 	public function getAggregationProperties() {
 		return $this->aggregations;
 	}
 	
 	/**
-	 * get required proprties
+	 * get required properties
 	 *
-	 * @return \Comhon\Model\Property\Property[]:
+	 * @return \Comhon\Model\Property\Property[]
 	 */
 	public function getRequiredProperties() {
 		return $this->requiredProperties;
+	}
+	
+	/**
+	 * get all properties that have conflicts.
+	 * a property has conflict with other properties if property value MUST NOT be set when other properties values are set.
+	 *
+	 * @param string $propertyName name of property
+	 * @return \Comhon\Model\Property\Property[]
+	 */
+	public function getConflictsProperties() {
+		return $this->conflictProperties;
+	}
+	
+	/**
+	 * verify if specified property has conflits with other properties.
+	 * a property has conflict with other properties if property value MUST NOT be set when other properties values are set.
+	 *
+	 * @param string $propertyName name of property
+	 * @return boolean
+	 */
+	public function hasConflicts($propertyName) {
+		return isset($this->conflicts[$propertyName]);
+	}
+	
+	/**
+	 * get properties names that have conflicts with specified property.
+	 * a property has conflict with other properties if property value MUST NOT be set when other properties values are set.
+	 *
+	 * @param string $propertyName name of property
+	 * @return string[]
+	 */
+	public function getConflicts($propertyName) {
+		return isset($this->conflicts[$propertyName]) ? $this->conflicts[$propertyName] : [];
+	}
+	
+	/**
+	 * get all properties that depends on other property(ies).
+	 * a property depends on other properties if property value MAY be set only if other properties values are set.
+	 *
+	 * @return \Comhon\Model\Property\Property[]
+	 */
+	public function getDependsProperties() {
+		return $this->dependsProperties;
+	}
+	
+	/**
+	 * verify if given property is referenced by depends on other property(ies).
+	 *
+	 * @param string $propertyName name of property
+	 * @return boolean
+	 */
+	public function hasDependents($propertyName) {
+		return isset($this->dependents[$propertyName]);
+	}
+	
+	/**
+	 * get properties names that are referenced by depends on other property(ies).
+	 *
+	 * @return \Comhon\Model\Property\Property[]
+	 */
+	public function getDependents($propertyName) {
+		return isset($this->dependents[$propertyName]) ? $this->dependents[$propertyName] : [];
 	}
 	
 	/**

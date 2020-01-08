@@ -43,7 +43,7 @@ class RequestHandlerOptionsTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/'
 				],
 				200,
-					['Allow' => 'GET, HEAD, OPTIONS'],
+					['Allow' => 'GET, HEAD, POST, OPTIONS'],
 			],
 			[ // unique, sql, id
 				[
@@ -51,7 +51,7 @@ class RequestHandlerOptionsTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
 				],
 				200,
-				['Allow' => 'GET, HEAD, POST, PUT, DELETE, OPTIONS'],
+				['Allow' => 'GET, HEAD, PUT, DELETE, OPTIONS'],
 			],
 			[ // collection, sql, no id
 				[
@@ -59,7 +59,7 @@ class RequestHandlerOptionsTest extends TestCase
 						'REQUEST_URI' => '/index.php/api/Test%5cTestNoId'
 				],
 				200,
-				['Allow' => 'GET, HEAD, OPTIONS'],
+				['Allow' => 'GET, HEAD, POST, OPTIONS'],
 			],
 			[ // unique, sql, no id
 				[
@@ -75,7 +75,7 @@ class RequestHandlerOptionsTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cTestPrivateId'
 				],
 				200,
-				['Allow' => 'GET, HEAD, OPTIONS'],
+				['Allow' => 'GET, HEAD, POST, OPTIONS'],
 			],
 			[ // unique, sql, private id
 				[
@@ -91,7 +91,7 @@ class RequestHandlerOptionsTest extends TestCase
 				'REQUEST_URI' => '/index.php/api/Test%5cTest'
 			],
 			200,
-			['Allow' => 'OPTIONS'],
+			['Allow' => 'POST, OPTIONS'],
 		],
 			[ // unique, file
 				[
@@ -99,7 +99,7 @@ class RequestHandlerOptionsTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cTest/1'
 				],
 				200,
-				['Allow' => 'GET, HEAD, POST, PUT, DELETE, OPTIONS'],
+				['Allow' => 'GET, HEAD, PUT, DELETE, OPTIONS'],
 			],
 		];
 	}

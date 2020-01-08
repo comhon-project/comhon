@@ -13,9 +13,17 @@
     </type>
   </types>
   <properties>
-    <property name="limit" type="integer" not_null="1" interval="[1,]"/>
-    <property name="offset" type="integer" not_null="1"/>
-    <property name="order" type="array" not_null="1">
+    <property name="limit" type="integer" not_null="1" interval="[1,]">
+      <depends>
+        <name>order</name>
+      </depends>
+    </property>
+    <property name="offset" type="integer" not_null="1">
+      <depends>
+        <name>order</name>
+      </depends>
+    </property>
+    <property name="order" type="array" not_null="1" not_empty="1">
       <values name="element" type="Order" not_null="1"/>
     </property>
     <property name="properties" type="array" not_null="1">

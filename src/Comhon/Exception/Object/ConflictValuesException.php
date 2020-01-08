@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Comhon\Exception\Model;
+namespace Comhon\Exception\Object;
 
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\ConstantException;
 use Comhon\Model\Model;
 
-class ConflictPropertiesException extends ComhonException {
+class ConflictValuesException extends ComhonException {
 	
 	/**
 	 * 
@@ -23,9 +23,9 @@ class ConflictPropertiesException extends ComhonException {
 	 * @param string[] $propertiesNames
 	 */
 	public function __construct(Model $model, array $propertiesNames) {
-		$message = "properties " . json_encode($propertiesNames)
-			."cannot coexist for model '{$model->getName()}'";
-		parent::__construct($message, ConstantException::CONFLICT_PROPERTIES_EXCEPTION);
+		$message = "properties values " . json_encode($propertiesNames)
+			." cannot coexist for model '{$model->getName()}'";
+		parent::__construct($message, ConstantException::CONFLICT_VALUES_EXCEPTION);
 	}
 	
 }

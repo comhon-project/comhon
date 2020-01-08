@@ -449,8 +449,6 @@ try {
 
 // TODO for version > 3.0
 
-// depends property defined in manifest (offset and limit depends on order in request model)
-// conflict property defined in manifest
 // manifest validator
 // add patch method
 

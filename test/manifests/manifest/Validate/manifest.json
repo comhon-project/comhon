@@ -15,15 +15,14 @@
                 },
                 {
                     "name": "valueNotRequired",
-                    "type": "string",
-                    "is_required": false
+                    "type": "string"
                 }
             ]
         },
         {
             "name": "localRestrictedExtended",
             "extends": [
-                "\\Test\\Required\\localRestricted"
+                "\\Test\\Validate\\localRestricted"
             ],
             "properties": [
                 {
@@ -46,12 +45,41 @@
         },
         {
             "name": "valueNotRequired",
-            "type": "string",
-            "is_required": false
+            "type": "string"
         },
         {
             "name": "valueComplex",
             "type": "localRestricted"
+        },
+        {
+            "name": "baseValue",
+            "type": "string"
+        },
+        {
+            "name": "depends",
+            "type": "string",
+            "depends": [
+                "baseValue",
+                "value"
+            ]
+        },
+        {
+            "name": "conflict",
+            "type": "string",
+            "conflicts": [
+                "baseValue",
+                "value"
+            ]
+        },
+        {
+            "name": "dependsConflict",
+            "type": "string",
+            "depends": [
+                "baseValue"
+            ],
+            "conflicts": [
+                "value"
+            ]
         }
     ]
 }

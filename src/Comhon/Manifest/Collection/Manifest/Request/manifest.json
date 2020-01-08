@@ -30,12 +30,18 @@
             "name": "limit",
             "type": "integer",
             "interval": "[1,]",
-            "not_null": true
+            "not_null": true,
+            "depends": [
+                "order"
+            ]
         },
         {
             "name": "offset",
             "type": "integer",
-            "not_null": true
+            "not_null": true,
+            "depends": [
+                "order"
+            ]
         },
         {
             "name": "order",
@@ -45,7 +51,8 @@
                 "name": "element",
                 "not_null": true
             },
-            "not_null": true
+            "not_null": true,
+            "not_empty": true
         },
         {
             "name": "properties",

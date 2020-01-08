@@ -23,7 +23,6 @@ use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
 use Comhon\Model\Restriction\Restriction;
 use Comhon\Model\Restriction\NotNull;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
-use Comhon\Exception\ArgumentException;
 use Comhon\Exception\Interfacer\IncompatibleValueException;
 
 class ModelArray extends ModelContainer implements ModelComhonObject {
@@ -439,36 +438,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			$this->getModel()->verifValue($value);
 			if (!is_null($restriction = Restriction::getFirstNotSatisifed($this->elementRestrictions, $value))) {
 				throw new NotSatisfiedRestrictionException($value, $restriction);
-			}
-		}
-		return true;
-	}
-	
-	/**
-	 * verify if a value may be added to given comhon array
-	 *
-	 * @param \Comhon\Object\ComhonArray $array
-	 * @return boolean
-	 */
-	public function verifAddValue(ComhonArray $array) {
-		foreach ($this->arrayRestrictions as $restriction) {
-			if (!$restriction->satisfy($array, 1)) {
-				throw new NotSatisfiedRestrictionException($array, $restriction, 1);
-			}
-		}
-		return true;
-	}
-	
-	/**
-	 * verify if a value may be removed from given comhon array
-	 *
-	 * @param \Comhon\Object\ComhonArray $array
-	 * @return boolean
-	 */
-	public function verifRemoveValue(ComhonArray $array) {
-		foreach ($this->arrayRestrictions as $restriction) {
-			if (!$restriction->satisfy($array, $array->count() == 0 ? 0 : -1)) {
-				throw new NotSatisfiedRestrictionException($array, $restriction, $array->count() == 0 ? 0 : -1);
 			}
 		}
 		return true;

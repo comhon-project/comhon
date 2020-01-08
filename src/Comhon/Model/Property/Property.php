@@ -59,6 +59,12 @@ class Property {
 	/** @var \Comhon\Model\Restriction\Restriction[] */
 	protected $restrictions = [];
 	
+	/** @var string[] */
+	protected $dependencies;
+	
+	/** @var string[] */
+	protected $conflicts;
+	
 	/**
 	 * 
 	 * @param \Comhon\Model\AbstractModel $model
@@ -72,9 +78,11 @@ class Property {
 	 * @param mixed $default
 	 * @param boolean $isInterfacedAsNodeXml
 	 * @param \Comhon\Model\Restriction\Restriction[] $restrictions
+	 * @param boolean $dependencies
+	 * @param boolean $conflicts
 	 * @throws \Exception
 	 */
-	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false, $default = null, $isInterfacedAsNodeXml = null, $restrictions = []) {
+	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false, $default = null, $isInterfacedAsNodeXml = null, $restrictions = [], $dependencies = [], $conflicts = []) {
 		$this->model = $model;
 		$this->name = $name;
 		$this->hasDefinedSerializationName = !is_null($serializationName);
@@ -85,6 +93,8 @@ class Property {
 		$this->isSerializable = $isSerializable;
 		$this->isNotNull = $isNotNull;
 		$this->default = $default;
+		$this->dependencies = $dependencies;
+		$this->conflicts = $conflicts;
 		
 		foreach ($restrictions as $restriction) {
 			if (!$restriction->isAllowedModel($this->model)) {
@@ -293,6 +303,46 @@ class Property {
 	}
 	
 	/**
+	 * verify if property depends on other properties. 
+	 * a property depends on other properties if property value MAY be set only if other properties values are set.
+	 *
+	 * @return boolean
+	 */
+	public function hasDependencies() {
+		return !empty($this->dependencies);
+	}
+	
+	/**
+	 * get names of dependency properties.
+	 * dependencies values MUST be set when current property value is set
+	 *
+	 * @return mixed|null null if property doesn't have default value
+	 */
+	public function getDependencies() {
+		return $this->dependencies;
+	}
+	
+	/**
+	 * verify if property has conflict with other properties.
+	 * a property has conflict with other properties if property value MUST NOT be set when other properties values are set.
+	 *
+	 * @return boolean
+	 */
+	public function hasConflicts() {
+		return !empty($this->conflicts);
+	}
+	
+	/**
+	 * get names of conflict properties.
+	 * conflicts values MUST NOT be set when current property value is set
+	 *
+	 * @return string[]
+	 */
+	public function getConflicts() {
+		return $this->conflicts;
+	}
+	
+	/**
 	 * verify if property is interfaceable for export/import in public/private/serialization mode
 	 * 
 	 * @param boolean $private if true private mode, otherwise public mode
@@ -409,6 +459,8 @@ class Property {
 			$this->isSerializable    === $property->isSerializable() &&
 			$this->isNotNull         === $property->isNotNull() &&
 			$this->serializationName === $property->getSerializationName() &&
+			$this->dependencies      === $property->getDependencies() &&
+			$this->conflicts         === $property->getConflicts() &&
 			$this->model->isEqual($property->getModel()) && 
 			Restriction::compare($this->restrictions, $property->getRestrictions())
 		);
