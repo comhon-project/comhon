@@ -12,11 +12,15 @@
 namespace Comhon\Serialization;
 
 use Comhon\Object\UniqueObject;
+use Comhon\Exception\Serialization\SerializationException;
 
 final class Serialization {
-
+	
 	/** @var \Comhon\Object\UniqueObject */
 	private $settings;
+	
+	/** @var string */
+	private $serializationUnitClass;
 	
 	/** @var string */
 	private $inheritanceKey;
@@ -33,16 +37,59 @@ final class Serialization {
 	/**
 	 * 
 	 * @param UniqueObject $settings
+	 * @param string $serializationUnitClass
 	 * @param string $inheritanceKey
 	 * @param bool $allowSerialization
 	 * @param string[] $inheritanceValues
 	 */
-	public function __construct(UniqueObject $settings, $inheritanceKey = null, $allowSerialization = true, $inheritanceValues = null) {
+	private function __construct(UniqueObject $settings = null, $serializationUnitClass = null, $inheritanceKey = null, $allowSerialization = true, $inheritanceValues = null) {
 		$this->settings = $settings;
 		$this->inheritanceKey = $inheritanceKey;
-		$this->serializationUnit = SerializationUnitFactory::getInstance($settings->getModel()->getName());
+		
+		if (is_null($serializationUnitClass)) {
+			if (is_null($settings)) {
+				throw new SerializationException('invalid parameter, you must specify at least first or/and second parameter.');
+			}
+			$this->serializationUnit = SerializationUnitFactory::getInstance($settings->getModel()->getName());
+		} else {
+			$rC = new \ReflectionClass($serializationUnitClass);
+			if (!$rC->hasMethod('getInstance')) {
+				throw new SerializationException(
+					'invalid serialization unit class \'' . get_class($this->serializationUnit) . '\'. '
+					. 'it must inherit from ' . SerializationUnit::class
+				);
+			}
+			$this->serializationUnit = $serializationUnitClass::getInstance();
+			if (!($this->serializationUnit instanceof SerializationUnit)) {
+				throw new SerializationException(
+					'invalid serialization unit class \'' . get_class($this->serializationUnit) . '\'. '
+					. 'it must inherit from ' . SerializationUnit::class
+				);
+			}
+			$this->serializationUnitClass = $serializationUnitClass;
+		}
 		$this->allowSerialization = $allowSerialization;
 		$this->inheritanceValues = $inheritanceValues;
+	}
+	/**
+	 *
+	 * @param UniqueObject $settings
+	 * @param string $inheritanceKey
+	 * @param bool $allowSerialization
+	 * @param string[] $inheritanceValues
+	 */
+	public static function getInstanceWithSettings(UniqueObject $settings, $inheritanceKey = null, $allowSerialization = true, $inheritanceValues = null) {
+		return new self($settings, null, $inheritanceKey, $allowSerialization, $inheritanceValues);
+	}
+	/**
+	 *
+	 * @param string $serializationUnitClass must be a class that inherit from SerializationUnit
+	 * @param string $inheritanceKey
+	 * @param bool $allowSerialization
+	 * @param string[] $inheritanceValues
+	 */
+	public static function getInstanceWithUnitClass($serializationUnitClass, $inheritanceKey = null, $allowSerialization = true, $inheritanceValues = null) {
+		return new self(null, $serializationUnitClass, $inheritanceKey, $allowSerialization, $inheritanceValues);
 	}
 	
 	/**
@@ -52,6 +99,15 @@ final class Serialization {
 	 */
 	public function getSettings() {
 		return $this->settings;
+	}
+	
+	/**
+	 * get serialization unit class (only if specified during instanciation)
+	 *
+	 * @return string|null
+	 */
+	public function getSerializationUnitClass() {
+		return $this->serializationUnitClass;
 	}
 	
 	/**

@@ -296,7 +296,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		return $literalsByModelName;
 	}
 	
-	private function _buildTree(Model $model, array &$literalsByModelName, &$maxId, $propertyName = null, &$visited = [], &$visitedStack = [], $databaseId = null) {
+	private static function _buildTree(Model $model, array &$literalsByModelName, &$maxId, $propertyName = null, &$visited = [], &$visitedStack = [], $databaseId = null) {
 		$key = ObjectCollection::getModelKey(ModelManager::getInstance()->getInstanceModel($model->getName()))->getName();
 		if (array_key_exists($key, $visitedStack)) {
 			return;
@@ -344,7 +344,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 			}
 		}
 		
-		foreach ($model->getForeignSerializableProperties('Comhon\SqlTable') as $property) {
+		foreach (self::_getForeignSqlSerializableProperties($model) as $property) {
 			if (!is_null($databaseId)) {
 				$database = $property->getUniqueModel()->getSqlTableSettings()->getValue('database');
 				if (!($database instanceof UniqueObject)) {
@@ -369,6 +369,25 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		unset($visitedStack[$key]);
 		
 		return $node;
+	}
+	
+	/**
+	 * get foreign properties that have sql serialization
+	 *
+	 * @param \Comhon\Model\Model $model
+	 * @return \Comhon\Model\Property\Property[]
+	 */
+	private static function _getForeignSqlSerializableProperties(Model $model) {
+		$properties = [];
+		foreach ($model->getProperties() as $property) {
+			if (($property instanceof ForeignProperty) 
+				&& $property->getUniqueModel()->hasSerialization() 
+				&& $property->getUniqueModel()->getSerialization()->getSerializationUnit() instanceof SqlTable
+			) {
+				$properties[] = $property;
+			}
+		}
+		return $properties;
 	}
 	
 	/**

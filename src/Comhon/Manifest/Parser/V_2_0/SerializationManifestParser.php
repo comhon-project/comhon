@@ -97,7 +97,7 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 		if ($this->interfacer->hasValue($serializationNode, 'value', true)) {
 			$serialization = ModelManager::getInstance()->getInstanceModel($type)->getObjectInstance();
 			$serialization->fill($this->interfacer->getValue($serializationNode, 'value', true), $this->interfacer);
-		} else if ($this->interfacer->hasValue($serializationNode, 'id')) {
+		} elseif ($this->interfacer->hasValue($serializationNode, 'id')) {
 			$id = $this->interfacer->getValue($serializationNode, 'id');
 			if (empty($id)) {
 				throw new ManifestException('malformed serialization, must have description or id');
@@ -106,10 +106,28 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 			if (is_null($serialization)) {
 				throw new SerializationManifestIdException($type, $id);
 			}
-		} else {
+		} elseif (!$this->interfacer->hasValue($serializationNode, 'serialization_unit_class')) {
 			throw new ManifestException('malformed serialization');
+		} else {
+			$serialization = null;
 		}
 		return $serialization;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getSerializationUnitClass()
+	 */
+	public function getSerializationUnitClass() {
+		$serializationNode = $this->interfacer->getValue($this->manifest, 'serialization', true);
+		return is_null($serializationNode)
+			? null
+			: (
+				$this->interfacer->hasValue($serializationNode, 'serialization_unit_class')
+				? $this->interfacer->getValue($serializationNode, 'serialization_unit_class')
+				: null
+			);
 	}
 	
 	/**
@@ -123,8 +141,8 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 			? null
 			: (
 				$this->interfacer->hasValue($serializationNode, 'inheritanceKey')
-					? $this->interfacer->getValue($serializationNode, 'inheritanceKey')
-					: null
+				? $this->interfacer->getValue($serializationNode, 'inheritanceKey')
+				: null
 			);
 	}
 	

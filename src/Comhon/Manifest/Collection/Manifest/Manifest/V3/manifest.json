@@ -1,0 +1,321 @@
+{
+    "version": "3.0",
+    "is_abstract": true,
+    "types": [
+        {
+            "name": "Property",
+            "is_abstract": true,
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "is_required": true,
+                    "not_null": true
+                },
+                {
+                    "name": "not_null",
+                    "type": "boolean",
+                    "not_null": true
+                },
+                {
+                    "name": "is_required",
+                    "type": "boolean",
+                    "not_null": true
+                }
+            ]
+        },
+        {
+            "name": "Property\\Scalar",
+            "is_abstract": true,
+            "extends": [
+                "Property"
+            ],
+            "properties": []
+        },
+        {
+            "name": "Property\\String",
+            "extends": [
+                "Property\\Scalar"
+            ],
+            "properties": [
+                {
+                    "name": "length",
+                    "type": "string",
+                    "not_null": true
+                },
+                {
+                    "name": "pattern",
+                    "type": "string",
+                    "not_null": true
+                },
+                {
+                    "name": "enum",
+                    "type": "array",
+                    "values": {
+                        "type": "string",
+                        "name": "value",
+                        "not_null": true
+                    },
+                    "not_null": true
+                },
+                {
+                    "name": "not_empty",
+                    "type": "boolean",
+                    "not_null": true
+                },
+                {
+                    "name": "is_model_name",
+                    "type": "boolean",
+                    "not_null": true
+                }
+            ]
+        },
+        {
+            "name": "Property\\Integer",
+            "extends": [
+                "Property\\Scalar"
+            ],
+            "properties": [
+                {
+                    "name": "interval",
+                    "type": "string",
+                    "not_null": true
+                },
+                {
+                    "name": "enum",
+                    "type": "array",
+                    "values": {
+                        "type": "integer",
+                        "name": "value",
+                        "not_null": true
+                    },
+                    "not_null": true
+                }
+            ]
+        },
+        {
+            "name": "Property\\Index",
+            "extends": [
+                "Property\\Integer"
+            ],
+            "properties": []
+        },
+        {
+            "name": "Property\\Float",
+            "extends": [
+                "Property\\Scalar"
+            ],
+            "properties": [
+                {
+                    "name": "interval",
+                    "type": "string",
+                    "not_null": true
+                },
+                {
+                    "name": "enum",
+                    "type": "array",
+                    "values": {
+                        "type": "float",
+                        "name": "value",
+                        "not_null": true
+                    },
+                    "not_null": true
+                }
+            ]
+        },
+        {
+            "name": "Property\\Percentage",
+            "extends": [
+                "Property\\Float"
+            ],
+            "properties": []
+        },
+        {
+            "name": "Property\\Datetime",
+            "extends": [
+                "Property\\Scalar"
+            ],
+            "properties": [
+                {
+                    "name": "interval",
+                    "type": "string",
+                    "not_null": true
+                },
+                {
+                    "name": "enum",
+                    "type": "array",
+                    "values": {
+                        "type": "string",
+                        "name": "value",
+                        "not_null": true
+                    },
+                    "not_null": true
+                }
+            ]
+        },
+        {
+            "name": "Property\\Boolean",
+            "extends": [
+                "Property"
+            ],
+            "properties": []
+        },
+        {
+            "name": "Property\\Object",
+            "extends": [
+                "Property"
+            ],
+            "properties": [
+                {
+                    "name": "type",
+                    "type": "string",
+                    "is_required": true,
+                    "not_null": true
+                },
+                {
+                    "name": "is_foreign",
+                    "type": "boolean",
+                    "not_null": true
+                }
+            ]
+        },
+        {
+            "name": "Property\\Array",
+            "is_abstract": true,
+            "extends": [
+                "Property"
+            ],
+            "properties": [
+                {
+                    "name": "not_empty",
+                    "type": "boolean",
+                    "not_null": true
+                },
+                {
+                    "name": "size",
+                    "type": "string",
+                    "not_null": true
+                }
+            ]
+        },
+        {
+            "name": "Property\\Array\\Scalar",
+            "extends": [
+                "Property\\Array"
+            ],
+            "properties": [
+                {
+                    "name": "values",
+                    "type": "Property\\Scalar",
+                    "not_null": true
+                }
+            ]
+        },
+        {
+            "name": "Property\\Array\\Object",
+            "extends": [
+                "Property\\Array"
+            ],
+            "properties": [
+                {
+                    "name": "is_foreign",
+                    "type": "boolean",
+                    "not_null": true
+                },
+                {
+                    "name": "values",
+                    "type": "Property\\Object",
+                    "not_null": true
+                }
+            ]
+        },
+        {
+            "name": "File",
+            "extends": [
+                "\\Comhon\\Manifest"
+            ],
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "is_required": true,
+                    "not_null": true,
+                    "is_id": true
+                },
+                {
+                    "name": "types",
+                    "type": "array",
+                    "values": {
+                        "type": "\\Comhon\\Manifest\\Local",
+                        "name": "type"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Local",
+            "extends": [
+                "\\Comhon\\Manifest"
+            ],
+            "properties": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "is_required": true,
+                    "not_null": true,
+                    "is_id": true
+                }
+            ]
+        }
+    ],
+    "properties": [
+        {
+            "name": "is_abstract",
+            "type": "boolean",
+            "not_null": true
+        },
+        {
+            "name": "is_serializable",
+            "type": "boolean",
+            "not_null": true
+        },
+        {
+            "name": "is_main",
+            "type": "boolean",
+            "not_null": true
+        },
+        {
+            "name": "share_parent_id",
+            "type": "boolean",
+            "not_null": true
+        },
+        {
+            "name": "shared_id",
+            "type": "string",
+            "not_null": true,
+            "conflicts": [
+                "share_parent_id"
+            ]
+        },
+        {
+            "name": "extends",
+            "type": "array",
+            "values": {
+                "type": "string",
+                "name": "type",
+                "not_null": true
+            },
+            "not_null": true
+        },
+        {
+            "name": "properties",
+            "type": "array",
+            "values": {
+                "type": "Property",
+                "name": "property",
+                "not_null": true
+            },
+            "not_null": true
+        }
+    ]
+}

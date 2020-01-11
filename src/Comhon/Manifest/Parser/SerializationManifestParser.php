@@ -36,10 +36,17 @@ abstract class SerializationManifestParser {
 	
 	/**
 	 * get serialization settings
-	 * 
+	 *
 	 * @return \Comhon\Object\UniqueObject
 	 */
 	abstract public function getSerializationSettings();
+	
+	/**
+	 * get serialization unit class
+	 *
+	 * @return string|null
+	 */
+	abstract public function getSerializationUnitClass();
 	
 	/**
 	 * get inheritance key

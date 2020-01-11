@@ -450,6 +450,7 @@ try {
 // TODO for version > 3.0
 
 // manifest validator
+// serialization v3.0 + validator
 // add patch method
 
 // add selectquery select count(*) on query and func(*) on table

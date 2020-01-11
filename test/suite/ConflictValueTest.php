@@ -34,7 +34,7 @@ class ConflictValueTest extends TestCase
 		);
 	}
 	
-	public function testConflictSet()
+	public function testSetConflictDefinedOnProperty()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->getObjectInstance(false);
@@ -49,6 +49,20 @@ class ConflictValueTest extends TestCase
 		$this->expectException(ConflictValuesException::class);
 		$this->expectExceptionMessage("properties values [\"conflict\",\"baseValue\"] cannot coexist for model 'Test\Validate'");
 		$obj->setValue('conflict', 'my_value');
+	}
+	
+	public function testSetConflictDefinedOnOtherProperty()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
+		$obj = $model->getObjectInstance(false);
+		$obj->setValue('valueRequired', 'my_value');
+		$obj->setIsLoaded(true);
+		
+		$obj->setValue('conflict', 'my_value');
+		
+		$this->expectException(ConflictValuesException::class);
+		$this->expectExceptionMessage('properties values ["value","conflict"] cannot coexist for model \'Test\Validate\'');
+		$obj->setValue('value', 'my_value');
 	}
 	
 	public function testValidateConflict()

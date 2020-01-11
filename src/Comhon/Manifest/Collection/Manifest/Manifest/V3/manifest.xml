@@ -1,0 +1,149 @@
+<manifest version="3.0" is_abstract="1">
+  <types>
+    <type name="Property" is_abstract="1">
+      <properties>
+        <property type="string" name="name" not_null="1" is_required="1"/>
+        <property type="boolean" name="not_null" not_null="1"/>
+        <property type="boolean" name="is_required" not_null="1"/>
+      </properties>
+    </type>
+    <type name="Property\Scalar" is_abstract="1">
+      <extends>
+        <type>Property</type>
+      </extends>
+    </type>
+    <type name="Property\String">
+      <extends>
+        <type>Property\Scalar</type>
+      </extends>
+      <properties>
+        <property type="string" name="length" not_null="1"/>
+        <property type="string" name="pattern" not_null="1"/>
+        <property type="array" name="enum" not_null="1">
+          <values  type="string" name="value" not_null="1"/>
+        </property>
+        <property type="boolean" name="not_empty" not_null="1"/>
+        <property type="boolean" name="is_model_name" not_null="1"/>
+      </properties>
+    </type>
+    <type name="Property\Integer">
+      <extends>
+        <type>Property\Scalar</type>
+      </extends>
+      <properties>
+        <property type="string" name="interval" not_null="1" regex="/^([\[\]])\s*((?:-?\d+)|(?:\d*))\s*,\s*((?:-?\d+)|(?:\d*))\s*([\[\]])$/"/>
+        <property type="array" name="enum" not_null="1">
+          <values  type="integer" name="value" not_null="1"/>
+        </property>
+      </properties>
+    </type>
+    <type name="Property\Index">
+      <extends>
+        <type>Property\Integer</type>
+      </extends>
+    </type>
+    <type name="Property\Float">
+      <extends>
+        <type>Property\Scalar</type>
+      </extends>
+      <properties>
+        <property type="string" name="interval" not_null="1" regex="/^([\[\]])\s*((?:-?\d+(?:\.\d+)?)|(?:\d*))\s*,\s*((?:-?\d+(?:\.\d+)?)|(?:\d*))\s*([\[\]])$/"/>
+        <property type="array" name="enum" not_null="1">
+          <values  type="float" name="value" not_null="1"/>
+        </property>
+      </properties>
+    </type>
+    <type name="Property\Percentage">
+      <extends>
+        <type>Property\Float</type>
+      </extends>
+    </type>
+    <type name="Property\Datetime">
+      <extends>
+        <type>Property\Scalar</type>
+      </extends>
+      <properties>
+        <property type="string" name="interval" not_null="1" regex="/^([\[\]])([^,]*),([^,]*)([\[\]])$/"/>
+        <property type="array" name="enum" not_null="1">
+          <values  type="string" name="value" not_null="1"/>
+        </property>
+      </properties>
+    </type>
+    <type name="Property\Boolean">
+      <extends>
+        <type>Property</type>
+      </extends>
+    </type>
+    <type name="Property\Object">
+      <extends>
+        <type>Property</type>
+      </extends>
+      <properties>
+        <property type="string" name="type" not_null="1" is_required="1"/>
+        <property type="boolean" name="is_foreign" not_null="1"/>
+      </properties>
+    </type>
+    <type name="Property\Array" is_abstract="1">
+      <extends>
+        <type>Property</type>
+      </extends>
+      <properties>
+        <property type="boolean" name="not_empty" not_null="1"/>
+        <property type="string" name="size" not_null="1" regex="/^([\[\]])\s*((?:-?\d+)|(?:\d*))\s*,\s*((?:-?\d+)|(?:\d*))\s*([\[\]])$/"/>
+      </properties>
+    </type>
+    <type name="Property\Array\Scalar">
+      <extends>
+        <type>Property\Array</type>
+      </extends>
+      <properties>
+        <property type="Property\Scalar" name="values" not_null="1"/>
+      </properties>
+    </type>
+    <type name="Property\Array\Object">
+      <extends>
+        <type>Property\Array</type>
+      </extends>
+      <properties>
+        <property type="boolean" name="is_foreign" not_null="1"/>
+        <property type="Property\Object" name="values" not_null="1"/>
+      </properties>
+    </type>
+    <type name="File">
+      <extends>
+        <type>\Comhon\Manifest</type>
+      </extends>
+      <properties>
+        <property type="string" name="name" is_id="1" is_required="1" not_null="1" regex="/^[A-Za-z]+(\\[A-Za-z]+)+$/"/>
+        <property type="array" name="types">
+          <values  type="\Comhon\Manifest\Local" name="type"/>
+        </property>
+      </properties>
+    </type>
+    <type name="Local">
+      <extends>
+        <type>\Comhon\Manifest</type>
+      </extends>
+      <properties>
+        <property type="string" name="name" is_id="1" is_required="1" not_null="1" regex="/^[A-Za-z]+(\\[A-Za-z]+)*$/"/>
+      </properties>
+    </type>
+  </types>
+  <properties>
+    <property type="boolean" name="is_abstract" not_null="1"/>
+    <property type="boolean" name="is_serializable" not_null="1"/>
+    <property type="boolean" name="is_main" not_null="1"/>
+    <property type="boolean" name="share_parent_id" not_null="1"/>
+    <property type="string" name="shared_id" not_null="1">
+      <conflicts>
+        <name>share_parent_id</name>
+      </conflicts>
+    </property>
+    <property type="array" name="extends" not_null="1">
+      <values  type="string" name="type" not_null="1"/>
+    </property>
+    <property type="array" name="properties" not_null="1">
+      <values  type="Property" name="property" not_null="1"/>
+    </property>
+  </properties>
+</manifest>

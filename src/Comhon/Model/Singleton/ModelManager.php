@@ -254,7 +254,7 @@ class ModelManager {
 	 * @param string $fullyQualifiedNameSuffix
 	 * @return string
 	 */
-	private function _getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) {
+	public function getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) {
 		if (!array_key_exists($fullyQualifiedNamePrefix, $this->autoloadManifest)) {
 			throw new ComhonException("prefix namespace '$fullyQualifiedNamePrefix' do not belong to autoload manifest list");
 		}
@@ -293,12 +293,12 @@ class ModelManager {
 		if (strpos($fullyQualifiedName, '\\\\') !== false) {
 			throw new ComhonException('invalid model name, it cannot contain several followed baskslash (\\\\)');
 		}
-		list($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) = $this->_splitModelName($fullyQualifiedName);
+		list($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) = $this->splitModelName($fullyQualifiedName);
 		$separatorOffset = PHP_INT_MAX;
 		$manifestPath_afe = null;
 		
 		while (is_null($manifestPath_afe) && $separatorOffset !== false) {
-			$tempManifestPath_afe = $this->_getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix);
+			$tempManifestPath_afe = $this->getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix);
 			if (file_exists($tempManifestPath_afe)) {
 				$manifestPath_afe = $tempManifestPath_afe;
 			}
@@ -337,7 +337,7 @@ class ModelManager {
 	 * @throws ComhonException
 	 * @return string[]
 	 */
-	private function _splitModelName($modelName) {
+	public function splitModelName($modelName) {
 		$prefix = '';
 		$suffix = $modelName;
 		do {
@@ -525,15 +525,17 @@ class ModelManager {
 	 */
 	private function _getSerializationInstance(ManifestParser $manifestParser, SerializationManifestParser $serializationManifestParser = null, $isSerializable = false, array $parentModels = []) {
 		$serializationSettings = null;
+		$serializationUnitClass = null;
 		$inheritanceKey = null;
 		$inheritanceValues = null;
 		$serialization = null;
 		$parentModel = isset($parentModels[0]) ? $parentModels[0] : null;
 		
 		if (!is_null($serializationManifestParser)) {
-			$inheritanceKey        = $serializationManifestParser->getInheritanceKey();
-			$serializationSettings = $serializationManifestParser->getSerializationSettings();
-			$inheritanceValues     = $serializationManifestParser->getInheritanceValues();
+			$inheritanceKey         = $serializationManifestParser->getInheritanceKey();
+			$serializationSettings  = $serializationManifestParser->getSerializationSettings();
+			$serializationUnitClass = $serializationManifestParser->getSerializationUnitClass();
+			$inheritanceValues      = $serializationManifestParser->getInheritanceValues();
 			
 			if (is_array($inheritanceValues)) {
 				for ($i = 0; $i < count($inheritanceValues); $i++) {
@@ -544,19 +546,35 @@ class ModelManager {
 			}
 		}
 		if (!is_null($serializationSettings)) {
-			$serialization = new Serialization(
+			$serialization = Serialization::getInstanceWithSettings(
 				$this->getUniqueSerializationSettings($serializationSettings, $parentModel), 
 				$inheritanceKey, 
 				$isSerializable, 
 				$inheritanceValues
 			);
-		} elseif (!is_null($parentModel) && !is_null($parentModel->getSerialization())) {
-			$serialization = new Serialization(
-				$parentModel->getSerializationSettings(), 
-				$parentModel->getSerialization()->getInheritanceKey(), 
-				$isSerializable, 
+		} elseif (!is_null($serializationUnitClass)) {
+			$serialization = Serialization::getInstanceWithUnitClass(
+				$serializationUnitClass,
+				$inheritanceKey,
+				$isSerializable,
 				$inheritanceValues
 			);
+		} elseif (!is_null($parentModel) && !is_null($parentModel->getSerialization())) {
+			if (!is_null($parentModel->getSerializationSettings())) {
+				$serialization = Serialization::getInstanceWithSettings(
+					$parentModel->getSerialization()->getSettings(),
+					$parentModel->getSerialization()->getInheritanceKey(), 
+					$isSerializable,
+					$inheritanceValues
+				);
+			} elseif (!is_null($serializationUnitClass)) {
+				$serialization = Serialization::getInstanceWithUnitClass(
+					$parentModel->getSerialization()->getSerializationUnitClass(),
+					$parentModel->getSerialization()->getInheritanceKey(), 
+					$isSerializable,
+					$inheritanceValues
+				);
+			}
 		}
 		
 		return $serialization;
@@ -632,7 +650,7 @@ class ModelManager {
 		
 		if (!is_null($serialization)) {
 			$tempParent = $parentModel;
-			while (!is_null($tempParent) && (is_null($tempParent->getSerialization()) ||  $tempParent->getSerialization()->getSettings() !== $serialization->getSettings())) {
+			while (!is_null($tempParent) && (is_null($tempParent->getSerialization()) || $tempParent->getSerialization()->getSettings() !== $serialization->getSettings())) {
 				$tempParent = $tempParent->getParent();
 			}
 			if (!is_null($tempParent)) {

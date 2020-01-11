@@ -52,16 +52,6 @@ class ForeignProperty extends Property {
 	}
 	
 	/**
-	 * verify if property has serialization with specified type
-	 * 
-	 * @param string $serializationType
-	 * @return boolean
-	 */
-	public function hasSerialization($serializationType) {
-		return $this->getUniqueModel()->hasSerialization($serializationType);
-	}
-	
-	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Property\Property::isForeign()

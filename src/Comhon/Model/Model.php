@@ -190,6 +190,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$this->dateTimeProperties = [];
 			$this->conflictProperties = [];
 			$this->dependsProperties = [];
+			$this->conflicts = [];
+			$this->dependents = [];
 			$this->uniqueIdProperty = null;
 			$this->hasPrivateIdProperty = false;
 			$this->manifestParser = null;
@@ -435,6 +437,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		$model = $this;
 		$parentMatch = null;
 		$serializationSettings = $this->getSerializationSettings();
+		$serializationUnitClass = $this->getSerialization() ? $this->getSerialization()->getSerializationUnitClass() : null;
 		$shareIdModel = ObjectCollection::getModelKey($this);
 		while (!is_null($model->getParent())) {
 			$model = $model->getParent();
@@ -449,7 +452,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				}
 			}
 			if (!is_null($sameSerializationSettings)) {
-				if (($model->getSerializationSettings() === $serializationSettings) !== $sameSerializationSettings) {
+				$parentSerializationUnitClass = $parentSerialization ? $parentSerialization->getSerializationUnitClass() : null;
+				$same = $model->getSerializationSettings() === $serializationSettings 
+					&& $parentSerializationUnitClass === $serializationUnitClass;
+				if ($same !== $sameSerializationSettings) {
 					continue;
 				}
 			}
@@ -648,22 +654,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * get foreign properties that have their own serialization
-	 * 
-	 * @param string $serializationType ("Comhon\SqlTable", "Comhon\File\JsonFile"...)
-	 * @return \Comhon\Model\Property\Property[]
-	 */
-	public function getForeignSerializableProperties($serializationType) {
-		$properties = [];
-		foreach ($this->properties as $property) {
-			if (($property instanceof ForeignProperty) && $property->hasSerialization($serializationType)) {
-				$properties[] = $property;
-			}
-		}
-		return $properties;
-	}
-	
-	/**
 	 * get serializable properties
 	 * 
 	 * @return \Comhon\Model\Property\Property[]
@@ -829,11 +819,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * verify if model has serialization
 	 * 
-	 * @param string $serializationType
 	 * @return boolean
 	 */
-	public function hasSerialization($serializationType = null) {
-		return !is_null($this->serialization) && (is_null($serializationType) || $this->serialization->getSettings()->getModel()->getName() === $serializationType);
+	public function hasSerialization() {
+		return !is_null($this->serialization);
 	}
 	
 	/**
@@ -860,7 +849,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return \Comhon\Object\UniqueObject|null null if no sql serialization
 	 */
 	public function getSqlTableSettings() {
-		return !is_null($this->serialization) && ($this->serialization->getSerializationUnit() instanceof SqlTable) ? $this->serialization->getSettings() : null;
+		return $this->hasSqlTableSerialization() ? $this->serialization->getSettings() : null;
 	}
 	
 	/**
@@ -869,7 +858,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return \Comhon\Serialization\SqlTable|null null if no sql serialization
 	 */
 	public function getSqlTableUnit() {
-		return !is_null($this->serialization) && ($this->serialization->getSerializationUnit()instanceof SqlTable) ? $this->serialization->getSerializationUnit(): null;
+		return $this->hasSqlTableSerialization() ? $this->serialization->getSerializationUnit(): null;
 	}
 	
 	/**

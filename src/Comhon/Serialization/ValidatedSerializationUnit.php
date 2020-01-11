@@ -16,17 +16,26 @@ use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Exception\ArgumentException;
 
 abstract class ValidatedSerializationUnit extends SerializationUnit {
-
 	
 	public final function validateSerialization(UniqueObject $object) {
-		if (is_null($object->getModel()->getSerializationSettings())) {
-			throw new SerializationException("object with model '{$object->getModel()}' doesn't have serialization settings");
+		if (is_null($object->getModel()->getSerialization()->getSerializationUnit())) {
+			throw new SerializationException("object with model '{$object->getModel()}' doesn't have serialization unit");
 		}
-		if ($object->getModel()->getSerializationSettings()->getModel()->getName() !== static::getType()) {
-			throw new SerializationException(
-				"object with model '{$object->getModel()}' has wrong serialization. " .
-				$object->getModel()->getSerializationSettings()->getModel()->getName() . ' !== ' . static::getType()
-			);
+		if (!is_null($object->getModel()->getSerializationSettings())) {
+			if ($object->getModel()->getSerializationSettings()->getModel()->getName() !== static::getType()) {
+				throw new SerializationException(
+					"object with model '{$object->getModel()->getName()}' has wrong serialization. " .
+					$object->getModel()->getSerializationSettings()->getModel()->getName() . ' !== ' . static::getType()
+				);
+			}
+		}
+		if (!is_null($object->getModel()->getSerialization()->getSerializationUnitClass())) {
+			if ($object->getModel()->getSerialization()->getSerializationUnitClass() !== '\\'.static::class) {
+				throw new SerializationException(
+					"object with model '{$object->getModel()->getName()}' has wrong serialization. " .
+					$object->getModel()->getSerialization()->getSerializationUnitClass() . ' !== ' . static::class
+				);
+			}
 		}
 	}
 	

@@ -96,6 +96,9 @@ abstract class ManifestParser {
 	const PATTERN  = 'pattern';
 	
 	/** @var string */
+	const REGEX  = 'regex';
+	
+	/** @var string */
 	const NOT_NULL  = 'not_null';
 	
 	/** @var string */

@@ -260,11 +260,19 @@ class ManifestParser extends ParentManifestParser {
 			$restrictions[] = new Interval($this->interfacer->getValue($currentNode, self::INTERVAL), $model);
 		}
 		if ($this->interfacer->hasValue($currentNode, self::PATTERN)) {
+			if ($this->interfacer->hasValue($currentNode, self::REGEX)) {
+				throw new ManifestException(self::PATTERN.' cannot coexist with '.self::REGEX);
+			}
 			if (!($model instanceof ModelString)) {
 				throw new ManifestException('pattern cannot be defined on '.$model->getName());
 			}
 			$regex = RegexCollection::getInstance()->getRegex($this->interfacer->getValue($currentNode, self::PATTERN));
 			$restrictions[] = new Regex($regex);
+		} elseif ($this->interfacer->hasValue($currentNode, self::REGEX)) {
+			if (!($model instanceof ModelString)) {
+				throw new ManifestException('regex cannot be defined on '.$model->getName());
+			}
+			$restrictions[] = new Regex($this->interfacer->getValue($currentNode, self::REGEX));
 		}
 		
 		return $restrictions;
