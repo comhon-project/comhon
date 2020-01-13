@@ -1,14 +1,14 @@
-<manifest version="3.0" share_parent_id="1">
+<root name="Comhon\Logic\Simple\Literal\String" share_parent_id="1" version="3.0">
   <extends>
     <type>\Comhon\Logic\Simple\Literal</type>
   </extends>
   <properties>
-    <property name="operator" type="string" is_required="1" not_null="1">
+    <property name="operator" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String">
       <enum>
         <value>=</value>
         <value>&lt;&gt;</value>
       </enum>
     </property>
-    <property name="value" type="string" is_required="1" not_null="1"/>
+    <property name="value" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

@@ -1,7 +1,7 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\NotLinkableTestDb" is_serializable="1" version="3.0">
   <properties>
-    <property type="integer" is_id="1" name="id"/>
-    <property type="string" name="name"/>
-    <property is_foreign="1" type="\Test\TestDb" name="notLinkableParentTestDb"/>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="notLinkableParentTestDb" model="\Test\TestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+</root>

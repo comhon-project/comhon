@@ -1,43 +1,45 @@
 {
-    "version": "3.0",
+    "name": "Test\\MainTestDb",
     "is_serializable": true,
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "name",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "obj",
+            "model": "Object",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "childrenTestDb",
+            "is_foreign": true,
+            "values": {
+                "name": "childTestDb",
+                "model": "\\Test\\TestDb"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "Object",
             "properties": [
                 {
                     "name": "plop",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "plop2",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "integer",
-            "is_id": true
-        },
-        {
-            "name": "name",
-            "type": "string"
-        },
-        {
-            "name": "obj",
-            "type": "Object"
-        },
-        {
-            "name": "childrenTestDb",
-            "type": "array",
-            "values": {
-                "type": "\\Test\\TestDb",
-                "name": "childTestDb"
-            },
-            "is_foreign": true
         }
     ]
 }

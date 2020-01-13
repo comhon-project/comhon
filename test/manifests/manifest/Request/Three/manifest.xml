@@ -1,5 +1,5 @@
-<manifest version="3.0">
+<root name="Test\Request\Three" version="3.0">
   <properties>
-    <property type="string" name="string"/>
+    <property name="string" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

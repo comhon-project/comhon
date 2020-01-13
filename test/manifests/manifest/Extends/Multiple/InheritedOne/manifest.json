@@ -1,11 +1,12 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\Multiple\\InheritedOne",
     "is_serializable": false,
     "properties": [
         {
             "name": "id",
-            "type": "integer",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         }
-    ]
+    ],
+    "version": "3.0"
 }

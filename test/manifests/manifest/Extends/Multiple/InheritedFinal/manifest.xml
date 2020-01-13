@@ -1,9 +1,9 @@
-<manifest version="3.0" is_serializable="0">
+<root name="Test\Extends\Multiple\InheritedFinal" is_serializable="0" version="3.0">
   <extends>
     <type>\Test\Extends\Multiple\InheritedTwo</type>
     <type>\Test\Extends\Multiple\InheritedFourth</type>
   </extends>
   <properties>
-    <property type="string" name="final"/>
+    <property name="final" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

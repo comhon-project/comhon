@@ -146,7 +146,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	public static function build($request, $private = false) {
 		if ($request instanceof UniqueObject) {
-			if (!$request->getModel()->isInheritedFrom(ModelManager::getInstance()->getInstanceModel('Comhon\Request'))) {
+			if (!$request->isA('Comhon\Request')) {
 				$expected = ModelManager::getInstance()->getInstanceModel('Comhon\Request')->getObjectInstance(false)->getComhonClass();
 				throw new ArgumentException($request, $expected, 1);
 			}
@@ -279,10 +279,11 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$collectionMap = ObjectCollection::build($filter, true, true)->getMap();
 		$literalsByModelName = [];
 		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal');
+		$havingModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Having');
 		
 		/** @var \Comhon\Object\UniqueObject $object */
 		foreach ($collectionMap['Comhon\Logic\Simple\Formula'] as $object) {
-			if ($object->getModel()->isInheritedFrom($literalModel) || $object->getModel()->getName() == 'Comhon\Logic\Simple\Having') {
+			if ($object->isA($literalModel) || $object->isA($havingModel)) {
 				$modelName = $object->getValue('node')->getValue('model');
 				$key = ObjectCollection::getModelKey(ModelManager::getInstance()->getInstanceModel($modelName))->getName();
 				if (!array_key_exists($key, $literalsByModelName)) {

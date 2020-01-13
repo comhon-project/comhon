@@ -1,11 +1,11 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Comhon\SqlDatabase" is_serializable="1" version="3.0">
   <properties>
-    <property type="string" is_id="1" name="id"/>
-    <property type="string" name="DBMS"/>
-    <property type="string" name="host"/>
-    <property type="string" name="name"/>
-    <property type="string" name="user"/>
-    <property type="string" is_private="1" name="password"/>
-    <property type="integer" name="port"/>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="DBMS" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="host" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="user" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="password" is_private="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="port" __inheritance__="Comhon\Manifest\Property\Integer"/>
   </properties>
-</manifest>
+</root>

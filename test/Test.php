@@ -449,8 +449,11 @@ try {
 
 // TODO for version > 3.0
 
+// conflic/depends foreign property refernce property id (name)
+// define shareid on property/array
 // manifest validator
 // serialization v3.0 + validator
+// get with interemediate/complex request in body or query
 // add patch method
 
 // add selectquery select count(*) on query and func(*) on table

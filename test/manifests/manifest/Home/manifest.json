@@ -1,29 +1,32 @@
 {
-    "version": "3.0",
+    "name": "Test\\Home",
     "is_serializable": true,
     "properties": [
         {
             "name": "id",
-            "type": "integer",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "beginDate",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "endDate",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "person",
-            "type": "\\Test\\Person",
-            "is_foreign": true
+            "model": "\\Test\\Person",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "house",
-            "type": "\\Test\\House",
-            "is_foreign": true
+            "model": "\\Test\\House",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         }
-    ]
+    ],
+    "version": "3.0"
 }

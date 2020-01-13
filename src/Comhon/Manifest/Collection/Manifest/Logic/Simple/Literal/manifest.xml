@@ -1,9 +1,9 @@
-<manifest version="3.0" is_abstract="1" share_parent_id="1">
+<root name="Comhon\Logic\Simple\Literal" is_abstract="1" share_parent_id="1" version="3.0">
   <extends>
     <type>\Comhon\Logic\Simple\Formula</type>
   </extends>
   <properties>
-    <property name="node" type="\Comhon\Model" is_foreign="1" is_required="1" not_null="1"/>
-    <property name="property" type="string" is_required="1" not_null="1"/>
+    <property name="node" not_null="1" is_required="1" model="\Comhon\Model" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="property" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

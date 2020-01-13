@@ -34,7 +34,7 @@ abstract class ManifestParser {
 	const _EXTENDS        = 'extends';
 	
 	/** @var string */
-	const _OBJECT         = 'object';
+	const OBJECT_CLASS    = 'object_class';
 	
 	/** @var string */
 	const IS_MAIN         = 'is_main';
@@ -77,6 +77,9 @@ abstract class ManifestParser {
 	
 	/** @var string */
 	const SHARED_ID       = 'shared_id';
+	
+	/** @var string */
+	const XML_ELEM_TYPE   = 'xml';
 	
 	/** @var string */
 	const XML_NODE        = 'node';

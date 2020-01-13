@@ -1,8 +1,8 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\Town" is_serializable="1" version="3.0">
   <properties>
-    <property type="integer" is_id="1" name="id"/>
-    <property type="string" name="name"/>
-    <property type="integer" name="surface"/>
-    <property is_foreign="1" type="\Test\Place" name="cityHall"/>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="surface" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="cityHall" model="\Test\Place" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+</root>

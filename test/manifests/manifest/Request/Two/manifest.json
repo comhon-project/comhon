@@ -1,14 +1,16 @@
 {
-    "version": "3.0",
+    "name": "Test\\Request\\Two",
     "properties": [
         {
             "name": "one",
-            "type": "\\Test\\Request\\One",
-            "is_foreign": true
+            "model": "\\Test\\Request\\One",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "string",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

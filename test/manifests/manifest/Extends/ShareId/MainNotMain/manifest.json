@@ -1,39 +1,40 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\ShareId\\MainNotMain",
     "is_main": true,
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "Main",
-            "is_main": true,
-            "share_parent_id": true,
             "extends": [
                 "\\Test\\Extends\\ShareId\\MainNotMain"
             ],
+            "is_main": true,
+            "share_parent_id": true,
             "properties": []
         },
         {
             "name": "NotMain",
-            "share_parent_id": true,
             "extends": [
                 "\\Test\\Extends\\ShareId\\MainNotMain"
             ],
+            "share_parent_id": true,
             "properties": []
         },
         {
             "name": "NotMain\\Main",
-            "is_main": true,
-            "share_parent_id": true,
             "extends": [
                 "NotMain"
             ],
+            "is_main": true,
+            "share_parent_id": true,
             "properties": []
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "integer",
-            "is_id": true
         }
     ]
 }

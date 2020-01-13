@@ -1,13 +1,14 @@
 {
-    "version": "3.0",
-    "shared_id": "\\Test\\Extends\\ShareId\\GrandParent\\ParentTwo",
+    "name": "Test\\Extends\\ShareId\\GrandParent\\ParentTwo\\Child",
     "extends": [
         "\\Test\\Extends\\ShareId\\GrandParent\\ParentTwo"
     ],
+    "shared_id": "\\Test\\Extends\\ShareId\\GrandParent\\ParentTwo",
     "properties": [
         {
             "name": "childTwo",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

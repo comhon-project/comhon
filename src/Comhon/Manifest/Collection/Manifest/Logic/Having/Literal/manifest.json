@@ -1,64 +1,15 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Logic\\Having\\Literal",
     "is_abstract": true,
-    "share_parent_id": true,
     "extends": [
         "\\Comhon\\Logic\\Having\\Formula"
     ],
-    "types": [
-        {
-            "name": "Count",
-            "share_parent_id": true,
-            "extends": [
-                "\\Comhon\\Logic\\Having\\Literal"
-            ],
-            "properties": [
-                {
-                    "name": "value",
-                    "type": "integer",
-                    "is_required": true,
-                    "not_null": true
-                }
-            ]
-        },
-        {
-            "name": "Function",
-            "share_parent_id": true,
-            "extends": [
-                "\\Comhon\\Logic\\Having\\Literal"
-            ],
-            "properties": [
-                {
-                    "name": "property",
-                    "type": "string",
-                    "is_required": true,
-                    "not_null": true
-                },
-                {
-                    "name": "function",
-                    "type": "string",
-                    "enum": [
-                        "SUM",
-                        "AVG",
-                        "MIN",
-                        "MAX"
-                    ],
-                    "is_required": true,
-                    "not_null": true
-                },
-                {
-                    "name": "value",
-                    "type": "float",
-                    "is_required": true,
-                    "not_null": true
-                }
-            ]
-        }
-    ],
+    "share_parent_id": true,
     "properties": [
         {
             "name": "operator",
-            "type": "string",
+            "not_null": true,
+            "is_required": true,
             "enum": [
                 "=",
                 "<>",
@@ -67,8 +18,58 @@
                 ">",
                 ">="
             ],
-            "is_required": true,
-            "not_null": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0",
+    "types": [
+        {
+            "name": "Count",
+            "extends": [
+                "\\Comhon\\Logic\\Having\\Literal"
+            ],
+            "share_parent_id": true,
+            "properties": [
+                {
+                    "name": "value",
+                    "not_null": true,
+                    "is_required": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+                }
+            ]
+        },
+        {
+            "name": "Function",
+            "extends": [
+                "\\Comhon\\Logic\\Having\\Literal"
+            ],
+            "share_parent_id": true,
+            "properties": [
+                {
+                    "name": "property",
+                    "not_null": true,
+                    "is_required": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                },
+                {
+                    "name": "function",
+                    "not_null": true,
+                    "is_required": true,
+                    "enum": [
+                        "SUM",
+                        "AVG",
+                        "MIN",
+                        "MAX"
+                    ],
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                },
+                {
+                    "name": "value",
+                    "not_null": true,
+                    "is_required": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+                }
+            ]
         }
     ]
 }

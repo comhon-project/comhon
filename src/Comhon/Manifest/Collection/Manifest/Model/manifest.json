@@ -1,75 +1,76 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Model",
     "is_abstract": true,
+    "properties": [
+        {
+            "name": "id",
+            "not_null": true,
+            "is_required": true,
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "Simple",
-            "share_parent_id": true,
             "extends": [
                 "\\Comhon\\Model"
             ],
+            "share_parent_id": true,
             "properties": [
                 {
                     "name": "model",
-                    "type": "string",
-                    "is_required": true,
                     "not_null": true,
-                    "is_model_name": true
+                    "is_required": true,
+                    "is_model_name": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
         {
             "name": "Root",
-            "share_parent_id": true,
             "extends": [
                 "Simple"
             ],
+            "share_parent_id": true,
             "properties": [
                 {
                     "name": "nodes",
-                    "type": "array",
+                    "not_null": true,
                     "values": {
-                        "type": "Node",
                         "name": "node",
-                        "not_null": true
+                        "not_null": true,
+                        "model": "Node"
                     },
-                    "not_null": true
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
                 }
             ]
         },
         {
             "name": "Node",
-            "share_parent_id": true,
             "extends": [
                 "\\Comhon\\Model"
             ],
+            "share_parent_id": true,
             "properties": [
                 {
                     "name": "property",
-                    "type": "string",
+                    "not_null": true,
                     "is_required": true,
-                    "not_null": true
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "nodes",
-                    "type": "array",
+                    "not_null": true,
                     "values": {
-                        "type": "Node",
                         "name": "node",
-                        "not_null": true
+                        "not_null": true,
+                        "model": "Node"
                     },
-                    "not_null": true
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "integer",
-            "is_required": true,
-            "not_null": true,
-            "is_id": true
         }
     ]
 }

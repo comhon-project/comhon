@@ -1,36 +1,37 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\SqlDatabase",
     "is_serializable": true,
     "properties": [
         {
             "name": "id",
-            "type": "string",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "DBMS",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "host",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "name",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "user",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "password",
-            "type": "string",
-            "is_private": true
+            "is_private": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "port",
-            "type": "integer"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         }
-    ]
+    ],
+    "version": "3.0"
 }

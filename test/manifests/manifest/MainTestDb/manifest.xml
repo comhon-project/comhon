@@ -1,18 +1,18 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\MainTestDb" is_serializable="1" version="3.0">
+  <properties>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="obj" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="childrenTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="childTestDb" model="\Test\TestDb"/>
+    </property>
+  </properties>
   <types>
     <type name="Object">
       <properties>
-        <property type="string" name="plop"/>
-        <property type="string" name="plop2"/>
+        <property name="plop" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>
-  <properties>
-    <property type="integer" is_id="1" name="id"/>
-    <property type="string" name="name"/>
-    <property type="Object" name="obj"/>
-    <property is_foreign="1" type="array" name="childrenTestDb">
-      <values type="\Test\TestDb" name="childTestDb"/>
-    </property>
-  </properties>
-</manifest>
+</root>

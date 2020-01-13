@@ -1,8 +1,8 @@
-<manifest version="3.0">
+<root name="Comhon\Request\Complex" version="3.0">
   <extends>
     <type>\Comhon\Request</type>
   </extends>
   <properties>
-    <property name="tree" type="\Comhon\Model\Root" is_required="1" not_null="1"/>
+    <property name="tree" not_null="1" is_required="1" model="\Comhon\Model\Root" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+</root>

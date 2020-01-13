@@ -1,5 +1,5 @@
-<manifest version="3.0" is_main="1">
+<root name="Comhon\File\XmlFile" is_main="1" version="3.0">
   <extends>
     <type>\Comhon\File</type>
   </extends>
-</manifest>
+</root>

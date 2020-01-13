@@ -1,11 +1,19 @@
-<manifest version="3.0">
+<root name="Test\Duplicated" version="3.0">
+  <properties>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="dupliForeignProp" model="\Test\Duplicated" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="containerOne" model="ContainerOne" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="containerTwo" model="ContainerTwo" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="containerMain" model="ContainerMain" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="containerForeign" model="ContainerForeign" __inheritance__="Comhon\Manifest\Property\Object"/>
+  </properties>
   <types>
-    <type name="ObjectMain" share_parent_id="1" is_main="1">
+    <type name="ObjectMain" is_main="1" share_parent_id="1">
       <extends>
         <type>\Test\Duplicated</type>
       </extends>
       <properties>
-        <property type="string" name="localMain"/>
+        <property name="localMain" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="ObjectOne" share_parent_id="1">
@@ -13,7 +21,7 @@
         <type>\Test\Duplicated</type>
       </extends>
       <properties>
-        <property type="string" name="localOne"/>
+        <property name="localOne" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="ObjectTwo">
@@ -21,40 +29,32 @@
         <type>\Test\Duplicated</type>
       </extends>
       <properties>
-        <property type="string" name="localTwo"/>
+        <property name="localTwo" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="ContainerOne">
       <properties>
-        <property type="\Test\Duplicated" name="dupliProp"/>
-        <property type="ObjectTwo" name="objTwoProp"/>
+        <property name="dupliProp" model="\Test\Duplicated" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="objTwoProp" model="ObjectTwo" __inheritance__="Comhon\Manifest\Property\Object"/>
       </properties>
     </type>
     <type name="ContainerTwo">
       <properties>
-        <property type="ObjectOne" name="objOneProp"/>
+        <property name="objOneProp" model="ObjectOne" __inheritance__="Comhon\Manifest\Property\Object"/>
       </properties>
     </type>
     <type name="ContainerMain">
       <properties>
-        <property type="ObjectMain" name="objMainProp"/>
+        <property name="objMainProp" model="ObjectMain" __inheritance__="Comhon\Manifest\Property\Object"/>
       </properties>
     </type>
     <type name="ContainerForeign">
       <properties>
-        <property type="array" name="objOneForeignProp" is_foreign="1">
-          <values type="ObjectOne" name="objOneForeign"/>
+        <property name="objOneForeignProp" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+          <values name="objOneForeign" model="ObjectOne"/>
         </property>
-        <property type="ObjectMain" name="objMainForeignProp" is_foreign="1"/>
+        <property name="objMainForeignProp" model="ObjectMain" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
       </properties>
     </type>
   </types>
-  <properties>
-    <property type="integer" is_id="1" name="id"/>
-    <property type="\Test\Duplicated" name="dupliForeignProp" is_foreign="1"/>
-    <property type="ContainerOne" name="containerOne"/>
-    <property type="ContainerTwo" name="containerTwo"/>
-    <property type="ContainerMain" name="containerMain"/>
-    <property type="ContainerForeign" name="containerForeign"/>
-  </properties>
-</manifest>
+</root>

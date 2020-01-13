@@ -1,8 +1,8 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\Body\Man" is_serializable="1" version="3.0">
   <extends>
     <type>\Test\Body</type>
   </extends>
   <properties>
-    <property type="boolean" name="baldness"/>
+    <property name="baldness" __inheritance__="Comhon\Manifest\Property\Boolean"/>
   </properties>
-</manifest>
+</root>

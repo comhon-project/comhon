@@ -1,20 +1,20 @@
-<manifest version="3.0">
+<root name="Test\Basic\NoId" version="3.0">
+  <properties>
+    <property name="stringProperty" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="floatProperty" __inheritance__="Comhon\Manifest\Property\Float"/>
+    <property name="objectContainerProperty" model="ObjectContainer" __inheritance__="Comhon\Manifest\Property\Object"/>
+  </properties>
   <types>
     <type name="ObjectContainer">
       <properties>
-        <property type="Object" name="objectProperty"/>
+        <property name="objectProperty" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
       </properties>
     </type>
     <type name="Object">
       <properties>
-        <property type="string" is_id="1" name="id"/>
-        <property type="string" name="propertyOne"/>
+        <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="propertyOne" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>
-  <properties>
-    <property type="string" name="stringProperty"/>
-    <property type="float" name="floatProperty"/>
-    <property type="ObjectContainer" name="objectContainerProperty"/>
-  </properties>
-</manifest>
+</root>

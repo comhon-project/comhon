@@ -1,36 +1,37 @@
 {
-    "version": "3.0",
+    "name": "Test\\House",
     "is_serializable": true,
     "properties": [
         {
             "name": "id",
-            "type": "integer",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "surface",
-            "type": "float"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
         },
         {
             "name": "type",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "garden",
-            "type": "boolean"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
         },
         {
             "name": "garage",
-            "type": "boolean"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
         },
         {
             "name": "residents",
-            "type": "array",
+            "is_foreign": true,
             "values": {
-                "type": "\\Test\\Home",
-                "name": "resident"
+                "name": "resident",
+                "model": "\\Test\\Home"
             },
-            "is_foreign": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
         }
-    ]
+    ],
+    "version": "3.0"
 }

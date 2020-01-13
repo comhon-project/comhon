@@ -1,16 +1,16 @@
-<manifest version="3.0" share_parent_id="1">
+<root name="Comhon\Logic\Simple\Clause" share_parent_id="1" version="3.0">
   <extends>
     <type>\Comhon\Logic\Simple\Formula</type>
   </extends>
   <properties>
-    <property name="elements" type="array" is_foreign="1" is_required="1" not_null="1" not_empty="1">
-      <values name="element" type="\Comhon\Logic\Simple\Formula" not_null="1"/>
+    <property name="elements" not_null="1" is_required="1" not_empty="1" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="element" not_null="1" model="\Comhon\Logic\Simple\Formula"/>
     </property>
-    <property name="type" type="string" is_required="1" not_null="1">
+    <property name="type" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String">
       <enum>
         <value>disjunction</value>
         <value>conjunction</value>
       </enum>
     </property>
   </properties>
-</manifest>
+</root>

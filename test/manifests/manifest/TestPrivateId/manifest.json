@@ -1,74 +1,77 @@
 {
-    "version": "3.0",
+    "name": "Test\\TestPrivateId",
     "is_main": true,
+    "properties": [
+        {
+            "name": "id",
+            "is_private": true,
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "name",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "objectValues",
+            "values": {
+                "name": "objectValue",
+                "model": "Object"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        },
+        {
+            "name": "foreignObjectValue",
+            "model": "Object",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "foreignObjectValues",
+            "is_foreign": true,
+            "values": {
+                "name": "foreignObjectValue",
+                "model": "Object"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        },
+        {
+            "name": "foreignTestPrivateId",
+            "model": "\\Test\\TestPrivateId",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "foreignTestPrivateIds",
+            "is_foreign": true,
+            "values": {
+                "name": "foreignTestPrivateId",
+                "model": "\\Test\\TestPrivateId"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "Object",
             "properties": [
                 {
                     "name": "id1",
-                    "type": "integer",
+                    "is_private": true,
                     "is_id": true,
-                    "is_private": true
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
                 },
                 {
                     "name": "id2",
-                    "type": "integer",
-                    "is_id": true
+                    "is_id": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
                 },
                 {
                     "name": "propertyOne",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "string",
-            "is_id": true,
-            "is_private": true
-        },
-        {
-            "name": "name",
-            "type": "string"
-        },
-        {
-            "name": "objectValues",
-            "type": "array",
-            "values": {
-                "type": "Object",
-                "name": "objectValue"
-            }
-        },
-        {
-            "name": "foreignObjectValue",
-            "type": "Object",
-            "is_foreign": true
-        },
-        {
-            "name": "foreignObjectValues",
-            "type": "array",
-            "values": {
-                "type": "Object",
-                "name": "foreignObjectValue"
-            },
-            "is_foreign": true
-        },
-        {
-            "name": "foreignTestPrivateId",
-            "type": "\\Test\\TestPrivateId",
-            "is_foreign": true
-        },
-        {
-            "name": "foreignTestPrivateIds",
-            "type": "array",
-            "values": {
-                "type": "\\Test\\TestPrivateId",
-                "name": "foreignTestPrivateId"
-            },
-            "is_foreign": true
         }
     ]
 }

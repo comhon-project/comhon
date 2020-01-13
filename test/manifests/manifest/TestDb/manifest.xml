@@ -1,15 +1,49 @@
-<manifest version="3.0" is_main="1" is_serializable="1">
+<root name="Test\TestDb" is_serializable="1" is_main="1" version="3.0">
+  <properties>
+    <property name="id1" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="id2" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="date" __inheritance__="Comhon\Manifest\Property\DateTime"/>
+    <property name="timestamp" __inheritance__="Comhon\Manifest\Property\DateTime"/>
+    <property name="object" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="objectWithId" model="ObjectWithId" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="string" is_private="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="integer" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="mainParentTestDb" model="\Test\MainTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="objectsWithId" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="objectWithId" model="ObjectWithId"/>
+    </property>
+    <property name="foreignObjects" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="foreignObject" model="ObjectWithId"/>
+    </property>
+    <property name="lonelyForeignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="lonelyForeignObjectTwo" model="ObjectWithIdAndMore" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="defaultValue" default="default" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="manBodyJson" model="\Test\Body\ManJson" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="womanXml" model="\Test\Person\WomanXml" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="notSerializedValue" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="notSerializedForeignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="boolean" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="boolean2" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="childrenTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="childTestDb" model="\Test\ChildTestDb"/>
+    </property>
+    <property name="notLinkableArrayTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="childTestDb" model="\Test\NotLinkableTestDb"/>
+    </property>
+    <property name="notLinkableTestDb" model="\Test\NotLinkableTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="notLinkableTestObjValue" model="\Test\Test" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+  </properties>
   <types>
     <type name="Object">
       <properties>
-        <property type="string" name="plop"/>
-        <property type="string" name="plop2"/>
+        <property name="plop" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="ObjectWithId">
       <properties>
-        <property type="string" is_id="1" name="plop"/>
-        <property type="string" name="plop2"/>
+        <property name="plop" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="ObjectWithIdAndMore">
@@ -17,7 +51,7 @@
         <type>ObjectWithId</type>
       </extends>
       <properties>
-        <property type="string" is_private="1" name="plop3"/>
+        <property name="plop3" is_private="1" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="ObjectWithIdAndMoreMore">
@@ -25,42 +59,8 @@
         <type>ObjectWithIdAndMore</type>
       </extends>
       <properties>
-        <property type="string" name="plop4"/>
+        <property name="plop4" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>
-  <properties>
-    <property type="integer" is_id="1" name="id1"/>
-    <property type="string" is_id="1" name="id2"/>
-    <property type="dateTime" name="date"/>
-    <property type="dateTime" name="timestamp"/>
-    <property type="Object" name="object"/>
-    <property type="ObjectWithId" name="objectWithId"/>
-    <property type="string" is_private="1" name="string"/>
-    <property type="integer" name="integer"/>
-    <property is_foreign="1" type="\Test\MainTestDb" name="mainParentTestDb"/>
-    <property type="array" name="objectsWithId">
-      <values type="ObjectWithId" name="objectWithId"/>
-    </property>
-    <property is_foreign="1" type="array" name="foreignObjects">
-      <values type="ObjectWithId" name="foreignObject"/>
-    </property>
-    <property is_foreign="1" type="ObjectWithId" name="lonelyForeignObject"/>
-    <property is_foreign="1" type="ObjectWithIdAndMore" name="lonelyForeignObjectTwo"/>
-    <property type="string" default="default" name="defaultValue"/>
-    <property is_foreign="1" type="\Test\Body\ManJson" name="manBodyJson"/>
-    <property is_foreign="1" type="\Test\Person\WomanXml" name="womanXml"/>
-    <property type="string" name="notSerializedValue"/>
-    <property is_foreign="1" type="ObjectWithId" name="notSerializedForeignObject"/>
-    <property type="boolean" name="boolean"/>
-    <property type="boolean" name="boolean2"/>
-    <property is_foreign="1" type="array" name="childrenTestDb">
-      <values type="\Test\ChildTestDb" name="childTestDb"/>
-    </property>
-    <property is_foreign="1" type="array" name="notLinkableArrayTestDb">
-      <values type="\Test\NotLinkableTestDb" name="childTestDb"/>
-    </property>
-    <property is_foreign="1" type="\Test\NotLinkableTestDb" name="notLinkableTestDb"/>
-    <property is_foreign="1" type="\Test\Test" name="notLinkableTestObjValue"/>
-  </properties>
-</manifest>
+</root>

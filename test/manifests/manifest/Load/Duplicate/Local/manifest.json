@@ -1,4 +1,11 @@
 {
+    "name": "Test\\Load\\Duplicate\\Local",
+    "properties": [
+        {
+            "name": "floatProperty",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+        }
+    ],
     "version": "3.0",
     "types": [
         {
@@ -6,15 +13,9 @@
             "properties": [
                 {
                     "name": "localOne",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "floatProperty",
-            "type": "float"
         }
     ]
 }

@@ -1,10 +1,12 @@
 {
-    "version": "3.0",
+    "name": "Test\\Load\\NotDefinedProperty",
     "is_main": true,
     "properties": [
         {
             "name": "malformedProperty",
-            "type": "wrong-type"
+            "model": "wrong-type",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         }
-    ]
+    ],
+    "version": "3.0"
 }

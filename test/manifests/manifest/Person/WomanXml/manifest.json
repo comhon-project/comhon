@@ -1,26 +1,24 @@
 {
-    "version": "3.0",
+    "name": "Test\\Person\\WomanXml",
     "is_serializable": true,
     "properties": [
         {
             "name": "id",
-            "type": "integer",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "firstName",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "lastName",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "birthDate",
-            "type": "dateTime"
+            "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
         }
     ],
-    "inheritance_requestables": [
-        "\\Test\\Person\\WomanXmlExtended"
-    ]
+    "version": "3.0"
 }

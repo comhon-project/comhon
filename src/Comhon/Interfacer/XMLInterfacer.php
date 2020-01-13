@@ -364,7 +364,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 */
 	public function toString($node, $prettyPrint = false) {
 		$this->domDocument->formatOutput = $prettyPrint;
-		return $this->domDocument->saveXML($node);
+		return $this->domDocument->saveXML($this->domDocument->importNode($node, true));
 	}
 	
 	/**
@@ -397,7 +397,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 */
 	public function write($node, $path, $prettyPrint = false) {
 		$this->domDocument->formatOutput = $prettyPrint;
-		return file_put_contents($path, $this->domDocument->saveXML($node)) !== false;
+		return file_put_contents($path, $this->domDocument->saveXML($this->domDocument->importNode($node, true))) !== false;
 	}
 	
 	/**

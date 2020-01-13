@@ -1,42 +1,40 @@
 {
-    "version": "3.0",
+    "name": "Test\\Body\\ManJson",
     "is_serializable": true,
     "properties": [
         {
             "name": "id",
-            "type": "integer",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "date",
-            "type": "dateTime"
+            "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
         },
         {
             "name": "height",
-            "type": "float"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
         },
         {
             "name": "weight",
-            "type": "float"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
         },
         {
             "name": "hairColor",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "hairCut",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "eyesColor",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "baldness",
-            "type": "boolean"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
         }
     ],
-    "inheritance_requestables": [
-        "\\Test\\Body\\ManJsonExtended"
-    ]
+    "version": "3.0"
 }

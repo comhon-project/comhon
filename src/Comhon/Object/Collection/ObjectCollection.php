@@ -122,11 +122,7 @@ class ObjectCollection {
 		
 		if (array_key_exists($key, $this->map) && array_key_exists($id, $this->map[$key])) {
 			$objectTemp = $this->map[$key][$id];
-			if (
-				$objectTemp->getModel() === $model 
-				|| ($objectTemp->getModel()->isInheritedFrom($model)) 
-				|| ($inlcudeInheritance && $model->isInheritedFrom($objectTemp->getModel()))
-			) {
+			if ($objectTemp->isA($model) || ($inlcudeInheritance && $model->isInheritedFrom($objectTemp->getModel()))) {
 				$object = $objectTemp;
 			}
 		}

@@ -1,14 +1,16 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Request\\Complex",
     "extends": [
         "\\Comhon\\Request"
     ],
     "properties": [
         {
             "name": "tree",
-            "type": "\\Comhon\\Model\\Root",
+            "not_null": true,
             "is_required": true,
-            "not_null": true
+            "model": "\\Comhon\\Model\\Root",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         }
-    ]
+    ],
+    "version": "3.0"
 }

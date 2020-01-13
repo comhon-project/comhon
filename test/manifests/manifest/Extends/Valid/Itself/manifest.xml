@@ -1,16 +1,16 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\Extends\Valid\Itself" is_serializable="1" version="3.0">
+  <properties>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="stringProperty" __inheritance__="Comhon\Manifest\Property\String"/>
+  </properties>
   <types>
     <type name="Itself">
       <extends>
         <type>\Test\Extends\Valid\Itself</type>
       </extends>
       <properties>
-        <property type="float" name="floatProperty"/>
+        <property name="floatProperty" __inheritance__="Comhon\Manifest\Property\Float"/>
       </properties>
     </type>
   </types>
-  <properties>
-    <property type="integer" is_id="1" name="id"/>
-    <property type="string" name="stringProperty"/>
-  </properties>
-</manifest>
+</root>

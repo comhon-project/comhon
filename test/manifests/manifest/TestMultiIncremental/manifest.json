@@ -1,20 +1,21 @@
 {
-    "version": "3.0",
+    "name": "Test\\TestMultiIncremental",
     "is_serializable": true,
     "properties": [
         {
             "name": "id1",
-            "type": "integer",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "id2",
-            "type": "integer",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "plop",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

@@ -1,35 +1,38 @@
 {
-    "version": "3.0",
-    "share_parent_id": true,
+    "name": "Comhon\\Logic\\Simple\\Having",
     "extends": [
         "\\Comhon\\Logic\\Simple\\Formula"
     ],
+    "share_parent_id": true,
     "properties": [
         {
             "name": "node",
-            "type": "\\Comhon\\Model",
-            "is_required": true,
             "not_null": true,
-            "is_foreign": true
+            "is_required": true,
+            "model": "\\Comhon\\Model",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "queue",
-            "type": "array",
-            "values": {
-                "type": "string",
-                "name": "property",
-                "not_null": true
-            },
-            "is_required": true,
             "not_null": true,
-            "not_empty": true
+            "is_required": true,
+            "not_empty": true,
+            "values": {
+                "name": "property",
+                "not_null": true,
+                "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
         },
         {
             "name": "having",
-            "type": "\\Comhon\\Logic\\Having\\Formula",
-            "is_required": true,
             "not_null": true,
-            "is_foreign": true
+            "is_required": true,
+            "model": "\\Comhon\\Logic\\Having\\Formula",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         }
-    ]
+    ],
+    "version": "3.0"
 }

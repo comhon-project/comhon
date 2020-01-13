@@ -1,43 +1,37 @@
 {
-    "version": "3.0",
-    "is_serializable": true,
+    "name": "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
     "extends": [
         "\\Test\\GreatGrandParent\\GrandParent\\ParentOne"
     ],
+    "is_serializable": true,
+    "properties": [
+        {
+            "name": "childOne",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "ChildLocalSerializable",
-            "is_serializable": true,
             "extends": [
                 "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child"
             ],
+            "is_serializable": true,
             "properties": [
                 {
                     "name": "localChildOne",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
-            ],
-            "inheritance_requestables": [
-                "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\Child"
             ]
         },
         {
             "name": "ChildLocalNotSerializable",
-            "is_serializable": false,
             "extends": [
                 "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child"
             ],
+            "is_serializable": false,
             "properties": []
         }
-    ],
-    "properties": [
-        {
-            "name": "childOne",
-            "type": "string"
-        }
-    ],
-    "inheritance_requestables": [
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\Child",
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable"
     ]
 }

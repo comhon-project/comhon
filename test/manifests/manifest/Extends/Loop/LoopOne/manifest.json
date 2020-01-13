@@ -1,9 +1,17 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\Loop\\LoopOne",
     "extends": [
         "\\Test\\Extends\\Loop\\LoopTwo"
     ],
     "is_serializable": true,
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "LocalLoopOne",
@@ -13,7 +21,7 @@
             "properties": [
                 {
                     "name": "property",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -25,7 +33,7 @@
             "properties": [
                 {
                     "name": "loopIntermediateProperty",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -37,16 +45,9 @@
             "properties": [
                 {
                     "name": "loopProperty",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "integer",
-            "is_id": true
         }
     ]
 }

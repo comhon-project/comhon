@@ -1,14 +1,18 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\Extends\Valid" is_serializable="1" version="3.0">
   <extends>
     <type>Itself</type>
   </extends>
+  <properties>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="floatProperty" __inheritance__="Comhon\Manifest\Property\Float"/>
+  </properties>
   <types>
     <type name="One">
       <extends>
         <type>Two</type>
       </extends>
       <properties>
-        <property type="boolean" name="booleanProperty"/>
+        <property name="booleanProperty" __inheritance__="Comhon\Manifest\Property\Boolean"/>
       </properties>
     </type>
     <type name="Two">
@@ -16,13 +20,9 @@
         <type>Itself\Itself</type>
       </extends>
       <properties>
-        <property type="integer" is_id="1" name="id"/>
-        <property type="integer" name="integerProperty"/>
+        <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+        <property name="integerProperty" __inheritance__="Comhon\Manifest\Property\Integer"/>
       </properties>
     </type>
   </types>
-  <properties>
-    <property type="integer" is_id="1" name="id"/>
-    <property type="float" name="floatProperty"/>
-  </properties>
-</manifest>
+</root>

@@ -1,4 +1,76 @@
 {
+    "name": "Test\\TestXml\\PersonLocal",
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "firstName",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "lastName",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "birthDate",
+            "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
+        },
+        {
+            "name": "birthPlace",
+            "model": "\\Test\\Place",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "bestFriend",
+            "model": "\\Test\\Person",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "father",
+            "model": "\\Test\\Person\\Man",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "mother",
+            "model": "\\Test\\Person\\Woman",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "children",
+            "is_foreign": true,
+            "values": {
+                "name": "child",
+                "model": "\\Test\\Person"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        },
+        {
+            "name": "homes",
+            "is_foreign": true,
+            "values": {
+                "name": "home",
+                "model": "\\Test\\Home"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        },
+        {
+            "name": "anObjectWithIdAndMore",
+            "model": "ObjectWithIdAndMore",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "recursiveLocal",
+            "model": "Recursive",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        }
+    ],
     "version": "3.0",
     "types": [
         {
@@ -6,12 +78,12 @@
             "properties": [
                 {
                     "name": "plop",
-                    "type": "string",
-                    "is_id": true
+                    "is_id": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "plop2",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -23,75 +95,10 @@
             "properties": [
                 {
                     "name": "plop3",
-                    "type": "string",
-                    "is_private": true
+                    "is_private": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "string",
-            "is_id": true
-        },
-        {
-            "name": "firstName",
-            "type": "string"
-        },
-        {
-            "name": "lastName",
-            "type": "string"
-        },
-        {
-            "name": "birthDate",
-            "type": "dateTime"
-        },
-        {
-            "name": "birthPlace",
-            "type": "\\Test\\Place",
-            "is_foreign": true
-        },
-        {
-            "name": "bestFriend",
-            "type": "\\Test\\Person",
-            "is_foreign": true
-        },
-        {
-            "name": "father",
-            "type": "\\Test\\Person\\Man",
-            "is_foreign": true
-        },
-        {
-            "name": "mother",
-            "type": "\\Test\\Person\\Woman",
-            "is_foreign": true
-        },
-        {
-            "name": "children",
-            "type": "array",
-            "values": {
-                "type": "\\Test\\Person",
-                "name": "child"
-            },
-            "is_foreign": true
-        },
-        {
-            "name": "homes",
-            "type": "array",
-            "values": {
-                "type": "\\Test\\Home",
-                "name": "home"
-            },
-            "is_foreign": true
-        },
-        {
-            "name": "anObjectWithIdAndMore",
-            "type": "ObjectWithIdAndMore"
-        },
-        {
-            "name": "recursiveLocal",
-            "type": "Recursive"
         }
     ]
 }

@@ -1,5 +1,5 @@
-<manifest version="3.0" is_main="1">
+<root name="Test\Load\NotDefinedProperty" is_main="1" version="3.0">
   <properties>
-    <property type="wrong-type" name="malformedProperty"/>
+    <property name="malformedProperty" model="wrong-type" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+</root>

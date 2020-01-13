@@ -1,7 +1,8 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\File\\JsonFile",
     "extends": [
         "\\Comhon\\File"
     ],
-    "is_main": true
+    "is_main": true,
+    "version": "3.0"
 }

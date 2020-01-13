@@ -1,8 +1,8 @@
-<manifest version="3.0">
+<root name="Test\Request\Five" version="3.0">
   <properties>
-    <property type="array" name="fours" is_foreign="1">
-      <values type="\Test\Request\Four" name="four"/>
+    <property name="fours" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="four" model="\Test\Request\Four"/>
     </property>
-    <property type="string" name="string"/>
+    <property name="string" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

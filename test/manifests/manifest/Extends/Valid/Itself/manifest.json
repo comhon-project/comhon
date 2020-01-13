@@ -1,6 +1,18 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\Valid\\Itself",
     "is_serializable": true,
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "stringProperty",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "Itself",
@@ -10,20 +22,9 @@
             "properties": [
                 {
                     "name": "floatProperty",
-                    "type": "float"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Float"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "integer",
-            "is_id": true
-        },
-        {
-            "name": "stringProperty",
-            "type": "string"
         }
     ]
 }

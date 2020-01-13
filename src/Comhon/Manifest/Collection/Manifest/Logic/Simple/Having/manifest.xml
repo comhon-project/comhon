@@ -1,12 +1,12 @@
-<manifest version="3.0" share_parent_id="1">
+<root name="Comhon\Logic\Simple\Having" share_parent_id="1" version="3.0">
   <extends>
     <type>\Comhon\Logic\Simple\Formula</type>
   </extends>
   <properties>
-    <property name="node" type="\Comhon\Model" is_foreign="1" is_required="1" not_null="1"/>
-    <property name="queue" type="array" is_required="1" not_null="1" not_empty="1">
-      <values name="property" type="string" not_null="1"/>
+    <property name="node" not_null="1" is_required="1" model="\Comhon\Model" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="queue" not_null="1" is_required="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="property" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
     </property>
-    <property name="having" type="\Comhon\Logic\Having\Formula" is_foreign="1" is_required="1" not_null="1"/>
+    <property name="having" not_null="1" is_required="1" model="\Comhon\Logic\Having\Formula" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+</root>

@@ -1,55 +1,52 @@
-<manifest version="3.0" is_main="1">
+<root name="Test\TestRestricted" is_main="1" version="3.0">
   <properties>
-    <!-- pattern -->
-    <property type="string" name="color" pattern="color"/>
-    <property type="array" name="emails">
-      <values type="string" name="email" pattern="email"/>
+    <property name="color" pattern="color" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="emails" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="email" pattern="email" __inheritance__="Comhon\Manifest\Property\String"/>
     </property>
-    <!-- interval -->
-    <property type="integer" name="naturalNumber" interval="[0,]"/>
-    <property type="dateTime" name="birthDate" interval="[1900-01-01,now["/>
-    <property type="array" name="intervalInArray">
-      <values type="float" name="intervalArrayValue" interval="]-1.5, 2["/>
+    <property name="naturalNumber" interval="[0,]" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="birthDate" interval="[1900-01-01,now[" __inheritance__="Comhon\Manifest\Property\DateTime"/>
+    <property name="intervalInArray" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="intervalArrayValue" interval="]-1.5, 2[" __inheritance__="Comhon\Manifest\Property\Float"/>
     </property>
-    <!-- enum -->
-    <property type="string" name="enumValue">
+    <property name="enumValue" __inheritance__="Comhon\Manifest\Property\String">
       <enum>
         <value>plop1</value>
         <value>plop2</value>
       </enum>
     </property>
-    <property type="array" name="enumIntArray">
-      <values type="integer" name="enumArrayValue">
+    <property name="enumIntArray" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="enumArrayValue" __inheritance__="Comhon\Manifest\Property\Integer">
         <enum>
           <value>1</value>
           <value>3</value>
         </enum>
       </values>
     </property>
-    <property type="array" name="enumFloatArray">
-      <values type="float" name="enumArrayValue">
+    <property name="enumFloatArray" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="enumArrayValue" __inheritance__="Comhon\Manifest\Property\Float">
         <enum>
           <value>1.5</value>
           <value>3.5</value>
         </enum>
       </values>
     </property>
-    <property type="array" name="notNullArray" not_null="1">
-      <values type="float" name="enumNotNullValue" not_null="1">
+    <property name="notNullArray" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="enumNotNullValue" not_null="1" __inheritance__="Comhon\Manifest\Property\Float">
         <enum>
           <value>1.5</value>
           <value>3.5</value>
         </enum>
       </values>
     </property>
-    <property type="\Test\Basic\Standard" name="notNullForeign" not_null="1"/>
-    <property type="string" name="notEmpty" not_empty="1"/>
-    <property type="array" name="notEmptyArray" not_empty="1">
-      <values type="string" name="notEmptyArrayValue" not_empty="1"/>
+    <property name="notNullForeign" not_null="1" model="\Test\Basic\Standard" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="notEmpty" not_empty="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="notEmptyArray" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="notEmptyArrayValue" not_empty="1" __inheritance__="Comhon\Manifest\Property\String"/>
     </property>
-    <property type="string" name="length" length="[3,5]"/>
-    <property type="array" name="sizeArray" size="[3,5]">
-      <values type="string" name="lengthArrayValue" length="[3,4]"/>
+    <property name="length" length="[3,5]" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="sizeArray" size="[3,5]" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="lengthArrayValue" length="[3,4]" __inheritance__="Comhon\Manifest\Property\String"/>
     </property>
   </properties>
-</manifest>
+</root>

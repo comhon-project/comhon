@@ -1,6 +1,6 @@
-<manifest version="3.0">
+<root name="Test\Extends\ShareId\GrandParent" version="3.0">
   <properties>
-    <property type="string" name="id" is_id="1"/>
-    <property type="string" name="grandParent"/>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="grandParent" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

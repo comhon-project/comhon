@@ -1,32 +1,33 @@
 {
-    "version": "3.0",
-    "share_parent_id": true,
+    "name": "Comhon\\Logic\\Simple\\Clause",
     "extends": [
         "\\Comhon\\Logic\\Simple\\Formula"
     ],
+    "share_parent_id": true,
     "properties": [
         {
             "name": "elements",
-            "type": "array",
-            "values": {
-                "type": "\\Comhon\\Logic\\Simple\\Formula",
-                "name": "element",
-                "not_null": true
-            },
-            "is_required": true,
             "not_null": true,
+            "is_required": true,
             "not_empty": true,
-            "is_foreign": true
+            "is_foreign": true,
+            "values": {
+                "name": "element",
+                "not_null": true,
+                "model": "\\Comhon\\Logic\\Simple\\Formula"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
         },
         {
             "name": "type",
-            "type": "string",
+            "not_null": true,
+            "is_required": true,
             "enum": [
                 "disjunction",
                 "conjunction"
             ],
-            "is_required": true,
-            "not_null": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

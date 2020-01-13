@@ -1,7 +1,7 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\TestMultiIncremental" is_serializable="1" version="3.0">
   <properties>
-    <property type="integer" is_id="1" name="id1"/>
-    <property type="integer" is_id="1" name="id2"/>
-    <property type="string" name="plop"/>
+    <property name="id1" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="id2" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="plop" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

@@ -1493,7 +1493,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	protected function _fillObject(UniqueObject $object, $interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		$model = $object->getModel();
-		if ($model !== $this && !$model->isInheritedFrom($this)) {
+		if (!$object->isA($this)) {
 			throw new UnexpectedModelException($this, $model);
 		}
 		if ($isFirstLevel && $interfacer->hasToFlattenValues()) {
@@ -1680,7 +1680,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return boolean
 	 */
 	public function verifValue($value) {
-		if (!($value instanceof UniqueObject) || ($value->getModel() !== $this && !$value->getModel()->isInheritedFrom($this))) {
+		if (!($value instanceof UniqueObject) || !$value->isA($this)) {
 			$Obj = $this->getObjectInstance(false);
 			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
 		}

@@ -1,11 +1,14 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\Extends\Conflict" is_serializable="1" version="3.0">
+  <properties>
+    <property name="integerProperty" interval="[0,]" __inheritance__="Comhon\Manifest\Property\Integer"/>
+  </properties>
   <types>
     <type name="One">
       <extends>
         <type>\Test\Extends\Conflict</type>
       </extends>
       <properties>
-        <property type="string" name="integerProperty"/>
+        <property name="integerProperty" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="Two">
@@ -13,7 +16,7 @@
         <type>\Test\Extends\Conflict</type>
       </extends>
       <properties>
-        <property type="integer" name="integerProperty"/>
+        <property name="integerProperty" __inheritance__="Comhon\Manifest\Property\Integer"/>
       </properties>
     </type>
     <type name="Three">
@@ -21,7 +24,7 @@
         <type>\Test\Extends\Conflict</type>
       </extends>
       <properties>
-        <property type="integer" name="integerProperty" interval="[0,2]"/>
+        <property name="integerProperty" interval="[0,2]" __inheritance__="Comhon\Manifest\Property\Integer"/>
       </properties>
     </type>
     <type name="Four">
@@ -29,14 +32,12 @@
         <type>Five</type>
         <type>\Test\Extends\Conflict</type>
       </extends>
+      <properties/>
     </type>
     <type name="Five">
       <properties>
-        <property type="float" name="integerProperty"/>
+        <property name="integerProperty" __inheritance__="Comhon\Manifest\Property\Float"/>
       </properties>
     </type>
   </types>
-  <properties>
-    <property type="integer" name="integerProperty" interval="[0,]"/>
-  </properties>
-</manifest>
+</root>

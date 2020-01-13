@@ -11,17 +11,15 @@
 
 namespace Comhon\Serialization\File;
 
-use Comhon\Utils\Utils;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Serialization\SerializationException;
-use Comhon\Exception\ArgumentException;
-use Comhon\Model\Model;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Object\Config\Config;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Serialization\SerializationFile;
+use Comhon\Exception\ArgumentException;
 
 class ManifestFile extends SerializationFile {
 	
@@ -29,6 +27,8 @@ class ManifestFile extends SerializationFile {
 	 * @var \Comhon\Serialization\File\JsonFile
 	 */
 	private static $instance;
+	
+	private $format;
 	
 	/**
 	 * {@inheritDoc}
@@ -42,6 +42,23 @@ class ManifestFile extends SerializationFile {
 		}
 		
 		return self::$instance;
+	}
+	
+	public function __construct($format = null) {
+		if (!is_null($format)) {
+			if ($format == 'json') {
+				$this->interfacer = new AssocArrayInterfacer();
+			} elseif ($format == 'xml') {
+				$this->interfacer = new XMLInterfacer();
+			} else {
+				throw new ArgumentException($format, 'string', 1, ['json', 'xml']);
+			}
+			$this->format = $format;
+			$this->interfacer->setSerialContext(true);
+			$this->interfacer->setPrivateContext(true);
+			$this->interfacer->setFlagValuesAsUpdated(false);
+			$this->interfacer->setMergeType(Interfacer::OVERWRITE);
+		}
 	}
 	
 	/**
@@ -74,7 +91,13 @@ class ManifestFile extends SerializationFile {
 	 */
 	protected function _getPath(UniqueObject $object) {
 		list($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) = ModelManager::getInstance()->splitModelName($object->getId());
-		return ModelManager::getInstance()->getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix);
+		
+		if (is_null($this->format)) {
+			return ModelManager::getInstance()->getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix);
+		} else {
+			$path_afe = ModelManager::getInstance()->getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix);
+			return dirname($path_afe).DIRECTORY_SEPARATOR.'manifest.'.$this->format;
+		}
 	}
 
 	/**
@@ -83,8 +106,8 @@ class ManifestFile extends SerializationFile {
 	 * @see \Comhon\Serialization\SerializationUnit::_saveObject()
 	 */
 	protected function _saveObject(UniqueObject $object, $operation = null) {
-		if ($object->getModel()->getName() !== 'Comhon\Manifest\File') {
-			throw new SerializationException("object model must be 'Comhon\Manifest\File', {$object->getModel()->getName()} given");
+		if (!$object->isA('Comhon\Manifest\File')) {
+			throw new SerializationException("object model must be a 'Comhon\Manifest\File', {$object->getModel()->getName()} given");
 		}
 		return parent::_saveObject($object, $operation);
 	}
@@ -95,8 +118,8 @@ class ManifestFile extends SerializationFile {
 	 * @see \Comhon\Serialization\SerializationUnit::_loadObject()
 	 */
 	protected function _loadObject(UniqueObject $object, $propertiesFilter = null) {
-		if ($object->getModel()->getName() !== 'Comhon\Manifest\File') {
-			throw new SerializationException("object model must be 'Comhon\Manifest\File', {$object->getModel()->getName()} given");
+		if (!$object->isA('Comhon\Manifest\File')) {
+			throw new SerializationException("object model must be a 'Comhon\Manifest\File', {$object->getModel()->getName()} given");
 		}
 		return parent::_loadObject($object, $propertiesFilter);
 	}
@@ -107,8 +130,8 @@ class ManifestFile extends SerializationFile {
 	 * @see \Comhon\Serialization\SerializationUnit::_deleteObject()
 	 */
 	protected function _deleteObject(UniqueObject $object) {
-		if ($object->getModel()->getName() !== 'Comhon\Manifest\File') {
-			throw new SerializationException("object model must be 'Comhon\Manifest\File', {$object->getModel()->getName()} given");
+		if (!$object->isA('Comhon\Manifest\File')) {
+			throw new SerializationException("object model must be a 'Comhon\Manifest\File', {$object->getModel()->getName()} given");
 		}
 		return parent::_deleteObject($object);
 	}

@@ -20,8 +20,9 @@ class ArgumentException extends ComhonException {
 	 * @param mixed $argument
 	 * @param string|array $expected
 	 * @param integer $index start from 1
+	 * @param array $enum specify it only if argument doesn't belong to an enumeration
 	 */
-	public function __construct($argument, $expected, $index) {
+	public function __construct($argument, $expected, $index, $enum = null) {
 		if (is_object($argument)) {
 			if ($argument instanceof AbstractComhonObject) {
 				$type = $argument->getComhonClass();
@@ -43,7 +44,7 @@ class ArgumentException extends ComhonException {
 		
 		$expected = is_array($expected)
 			? 'be one of '.json_encode($expected)
-			: "be a $expected";
+			: "be a $expected".(is_array($enum) ? (" that belong to ".json_encode($enum)) : '');
 		
 		$message = "Argument at index $index passed to $function() "
 			."must $expected, $type given, called in {$callFile} on line {$callLine} "

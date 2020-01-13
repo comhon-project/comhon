@@ -1,12 +1,13 @@
 {
-    "version": "3.0",
-    "is_main": true,
+    "name": "Test\\Basic\\Id\\Main",
     "is_abstract": true,
+    "is_main": true,
     "properties": [
         {
             "name": "name",
-            "type": "string",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

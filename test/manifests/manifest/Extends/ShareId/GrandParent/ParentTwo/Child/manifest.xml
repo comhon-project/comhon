@@ -1,8 +1,8 @@
-<manifest version="3.0" shared_id="\Test\Extends\ShareId\GrandParent\ParentTwo">
+<root name="Test\Extends\ShareId\GrandParent\ParentTwo\Child" shared_id="\Test\Extends\ShareId\GrandParent\ParentTwo" version="3.0">
   <extends>
     <type>\Test\Extends\ShareId\GrandParent\ParentTwo</type>
   </extends>
   <properties>
-    <property type="string" name="childTwo"/>
+    <property name="childTwo" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

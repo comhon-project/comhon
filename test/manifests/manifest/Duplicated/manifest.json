@@ -1,30 +1,64 @@
 {
+    "name": "Test\\Duplicated",
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "dupliForeignProp",
+            "model": "\\Test\\Duplicated",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "containerOne",
+            "model": "ContainerOne",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "containerTwo",
+            "model": "ContainerTwo",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "containerMain",
+            "model": "ContainerMain",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "containerForeign",
+            "model": "ContainerForeign",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        }
+    ],
     "version": "3.0",
     "types": [
         {
             "name": "ObjectMain",
-            "is_main": true,
-            "share_parent_id": true,
             "extends": [
                 "\\Test\\Duplicated"
             ],
+            "is_main": true,
+            "share_parent_id": true,
             "properties": [
                 {
                     "name": "localMain",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
         {
             "name": "ObjectOne",
-            "share_parent_id": true,
             "extends": [
                 "\\Test\\Duplicated"
             ],
+            "share_parent_id": true,
             "properties": [
                 {
                     "name": "localOne",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -36,7 +70,7 @@
             "properties": [
                 {
                     "name": "localTwo",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -45,11 +79,13 @@
             "properties": [
                 {
                     "name": "dupliProp",
-                    "type": "\\Test\\Duplicated"
+                    "model": "\\Test\\Duplicated",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 },
                 {
                     "name": "objTwoProp",
-                    "type": "ObjectTwo"
+                    "model": "ObjectTwo",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
         },
@@ -58,7 +94,8 @@
             "properties": [
                 {
                     "name": "objOneProp",
-                    "type": "ObjectOne"
+                    "model": "ObjectOne",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
         },
@@ -67,7 +104,8 @@
             "properties": [
                 {
                     "name": "objMainProp",
-                    "type": "ObjectMain"
+                    "model": "ObjectMain",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
         },
@@ -76,47 +114,20 @@
             "properties": [
                 {
                     "name": "objOneForeignProp",
-                    "type": "array",
+                    "is_foreign": true,
                     "values": {
-                        "type": "ObjectOne",
-                        "name": "objOneForeign"
+                        "name": "objOneForeign",
+                        "model": "ObjectOne"
                     },
-                    "is_foreign": true
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
                 },
                 {
                     "name": "objMainForeignProp",
-                    "type": "ObjectMain",
-                    "is_foreign": true
+                    "model": "ObjectMain",
+                    "is_foreign": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "integer",
-            "is_id": true
-        },
-        {
-            "name": "dupliForeignProp",
-            "type": "\\Test\\Duplicated",
-            "is_foreign": true
-        },
-        {
-            "name": "containerOne",
-            "type": "ContainerOne"
-        },
-        {
-            "name": "containerTwo",
-            "type": "ContainerTwo"
-        },
-        {
-            "name": "containerMain",
-            "type": "ContainerMain"
-        },
-        {
-            "name": "containerForeign",
-            "type": "ContainerForeign"
         }
     ]
 }

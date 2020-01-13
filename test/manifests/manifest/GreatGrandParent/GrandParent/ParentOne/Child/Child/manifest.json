@@ -1,13 +1,14 @@
 {
-    "version": "3.0",
-    "is_serializable": true,
+    "name": "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\Child",
     "extends": [
         "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable"
     ],
+    "is_serializable": true,
     "properties": [
         {
             "name": "childChildOne",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

@@ -1,5 +1,5 @@
-<manifest version="3.0" is_serializable="0">
+<root name="Test\Extends\Multiple\InheritedThree" is_serializable="0" version="3.0">
   <properties>
-    <property type="string" name="three"/>
+    <property name="three" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

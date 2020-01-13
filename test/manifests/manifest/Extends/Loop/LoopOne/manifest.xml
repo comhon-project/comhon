@@ -1,14 +1,17 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\Extends\Loop\LoopOne" is_serializable="1" version="3.0">
   <extends>
     <type>\Test\Extends\Loop\LoopTwo</type>
   </extends>
+  <properties>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+  </properties>
   <types>
     <type name="LocalLoopOne">
       <extends>
         <type>LocalLoopTwo</type>
       </extends>
       <properties>
-        <property type="string" name="property"/>
+        <property name="property" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="LocalLoopTwo">
@@ -16,7 +19,7 @@
         <type>LocalLoopThree</type>
       </extends>
       <properties>
-        <property type="string" name="loopIntermediateProperty"/>
+        <property name="loopIntermediateProperty" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="LocalLoopThree">
@@ -24,11 +27,8 @@
         <type>LocalLoopOne</type>
       </extends>
       <properties>
-        <property type="string" name="loopProperty"/>
+        <property name="loopProperty" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>
-  <properties>
-    <property type="integer" is_id="1" name="id"/>
-  </properties>
-</manifest>
+</root>

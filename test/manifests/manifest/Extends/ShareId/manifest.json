@@ -1,31 +1,32 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\ShareId",
     "properties": [
         {
             "name": "foreignCollectionOne",
-            "type": "array",
+            "is_foreign": true,
             "values": {
-                "type": "\\Test\\Extends\\ShareId\\GrandParent",
-                "name": "element"
+                "name": "element",
+                "model": "\\Test\\Extends\\ShareId\\GrandParent"
             },
-            "is_foreign": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
         },
         {
             "name": "collection",
-            "type": "array",
             "values": {
-                "type": "\\Test\\Extends\\ShareId\\GrandParent",
-                "name": "element"
-            }
+                "name": "element",
+                "model": "\\Test\\Extends\\ShareId\\GrandParent"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
         },
         {
             "name": "foreignCollectionTwo",
-            "type": "array",
+            "is_foreign": true,
             "values": {
-                "type": "\\Test\\Extends\\ShareId\\GrandParent",
-                "name": "element"
+                "name": "element",
+                "model": "\\Test\\Extends\\ShareId\\GrandParent"
             },
-            "is_foreign": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
         }
-    ]
+    ],
+    "version": "3.0"
 }

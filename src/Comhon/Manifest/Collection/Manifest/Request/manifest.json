@@ -1,94 +1,96 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Request",
     "is_abstract": true,
+    "properties": [
+        {
+            "name": "limit",
+            "not_null": true,
+            "depends": [
+                "order"
+            ],
+            "interval": "[1,]",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "offset",
+            "not_null": true,
+            "depends": [
+                "order"
+            ],
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "order",
+            "not_null": true,
+            "not_empty": true,
+            "values": {
+                "name": "element",
+                "not_null": true,
+                "model": "Order"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        },
+        {
+            "name": "properties",
+            "not_null": true,
+            "values": {
+                "name": "property",
+                "not_null": true,
+                "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+        },
+        {
+            "name": "simpleCollection",
+            "not_null": true,
+            "values": {
+                "name": "formula",
+                "not_null": true,
+                "model": "\\Comhon\\Logic\\Simple\\Formula"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        },
+        {
+            "name": "havingCollection",
+            "not_null": true,
+            "values": {
+                "name": "formula",
+                "not_null": true,
+                "model": "\\Comhon\\Logic\\Having\\Formula"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        },
+        {
+            "name": "filter",
+            "not_null": true,
+            "model": "\\Comhon\\Logic\\Simple\\Formula",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "Order",
             "properties": [
                 {
                     "name": "property",
-                    "type": "string",
+                    "not_null": true,
                     "is_required": true,
-                    "not_null": true
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "type",
-                    "type": "string",
+                    "not_null": true,
+                    "is_required": true,
+                    "default": "ASC",
                     "enum": [
                         "DESC",
                         "ASC"
                     ],
-                    "is_required": true,
-                    "not_null": true,
-                    "default": "ASC"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "limit",
-            "type": "integer",
-            "interval": "[1,]",
-            "not_null": true,
-            "depends": [
-                "order"
-            ]
-        },
-        {
-            "name": "offset",
-            "type": "integer",
-            "not_null": true,
-            "depends": [
-                "order"
-            ]
-        },
-        {
-            "name": "order",
-            "type": "array",
-            "values": {
-                "type": "Order",
-                "name": "element",
-                "not_null": true
-            },
-            "not_null": true,
-            "not_empty": true
-        },
-        {
-            "name": "properties",
-            "type": "array",
-            "values": {
-                "type": "string",
-                "name": "property",
-                "not_null": true
-            },
-            "not_null": true
-        },
-        {
-            "name": "simpleCollection",
-            "type": "array",
-            "values": {
-                "type": "\\Comhon\\Logic\\Simple\\Formula",
-                "name": "formula",
-                "not_null": true
-            },
-            "not_null": true
-        },
-        {
-            "name": "havingCollection",
-            "type": "array",
-            "values": {
-                "type": "\\Comhon\\Logic\\Having\\Formula",
-                "name": "formula",
-                "not_null": true
-            },
-            "not_null": true
-        },
-        {
-            "name": "filter",
-            "type": "\\Comhon\\Logic\\Simple\\Formula",
-            "not_null": true,
-            "is_foreign": true
         }
     ]
 }

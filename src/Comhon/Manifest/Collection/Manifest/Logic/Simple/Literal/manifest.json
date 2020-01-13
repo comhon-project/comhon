@@ -1,23 +1,25 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Logic\\Simple\\Literal",
     "is_abstract": true,
-    "share_parent_id": true,
     "extends": [
         "\\Comhon\\Logic\\Simple\\Formula"
     ],
+    "share_parent_id": true,
     "properties": [
         {
             "name": "node",
-            "type": "\\Comhon\\Model",
-            "is_required": true,
             "not_null": true,
-            "is_foreign": true
+            "is_required": true,
+            "model": "\\Comhon\\Model",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "property",
-            "type": "string",
+            "not_null": true,
             "is_required": true,
-            "not_null": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

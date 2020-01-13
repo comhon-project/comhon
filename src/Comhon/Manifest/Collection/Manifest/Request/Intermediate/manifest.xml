@@ -1,11 +1,11 @@
-<manifest version="3.0">
+<root name="Comhon\Request\Intermediate" version="3.0">
   <extends>
     <type>\Comhon\Request</type>
   </extends>
   <properties>
-    <property name="root" type="\Comhon\Model\Simple" is_foreign="1" is_required="1" not_null="1"/>
-    <property name="models" type="array" is_required="1" not_null="1" not_empty="1">
-      <values name="model" type="\Comhon\Model\Simple" not_null="1"/>
+    <property name="root" not_null="1" is_required="1" model="\Comhon\Model\Simple" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="models" not_null="1" is_required="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="model" not_null="1" model="\Comhon\Model\Simple"/>
     </property>
   </properties>
-</manifest>
+</root>

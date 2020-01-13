@@ -1,34 +1,34 @@
-<manifest version="3.0" is_main="1">
-  <types>
-    <type name="DbOpt">
-      <properties>
-        <property type="string" name="charset"/>
-        <property type="string" name="timezone"/>
-      </properties>
-    </type>
-    <type name="Autoload">
-      <properties>
-        <property type="array" name="manifest" is_associative="1">
-          <values type="string" name="manifest"/>
-        </property>
-        <property type="array" name="serialization" is_associative="1">
-          <values type="string" name="serialization"/>
-        </property>
-      </properties>
-    </type>
-  </types>
+<root name="Comhon\Config" is_main="1" version="3.0">
   <properties>
-    <property type="DbOpt" name="database"/>
-    <property type="string" name="dateTimeFormat"/>
-    <property type="string" name="manifestFormat" default="json">
+    <property name="database" model="DbOpt" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="dateTimeFormat" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="manifestFormat" default="json" __inheritance__="Comhon\Manifest\Property\String">
       <enum>
         <value>json</value>
         <value>xml</value>
       </enum>
     </property>
-    <property type="Autoload" name="autoload"/>
-    <property type="string" name="regexList"/>
-    <property type="string" name="sqlTable"/>
-    <property type="string" name="sqlDatabase"/>
+    <property name="autoload" model="Autoload" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="regexList" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="sqlTable" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="sqlDatabase" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+  <types>
+    <type name="DbOpt">
+      <properties>
+        <property name="charset" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="timezone" __inheritance__="Comhon\Manifest\Property\String"/>
+      </properties>
+    </type>
+    <type name="Autoload">
+      <properties>
+        <property name="manifest" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+          <values name="manifest" __inheritance__="Comhon\Manifest\Property\String"/>
+        </property>
+        <property name="serialization" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+          <values name="serialization" __inheritance__="Comhon\Manifest\Property\String"/>
+        </property>
+      </properties>
+    </type>
+  </types>
+</root>

@@ -1,37 +1,13 @@
-<manifest version="3.0" is_serializable="1">
-  <types>
-    <type name="Art">
-      <properties>
-        <property type="string" name="type"/>
-        <property type="string" name="location"/>
-      </properties>
-    </type>
-    <type name="Tatoo">
-      <extends>
-        <type>Art</type>
-      </extends>
-      <properties>
-        <property is_foreign="1" type="\Test\Person" name="tatooArtist"/>
-      </properties>
-    </type>
-    <type name="Piercing">
-      <extends>
-        <type>Art</type>
-      </extends>
-      <properties>
-        <property is_foreign="1" type="\Test\Person" name="piercer"/>
-      </properties>
-    </type>
-  </types>
+<root name="Test\Body" is_serializable="1" version="3.0">
   <properties>
-    <property type="integer" is_id="1" name="id"/>
-    <property type="dateTime" name="date"/>
-    <property type="float" name="height"/>
-    <property type="float" name="weight"/>
-    <property type="string" name="hairColor"/>
-    <property type="string" name="hairCut"/>
-    <property type="string" name="eyesColor"/>
-    <property type="string" name="physicalAppearance">
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="date" __inheritance__="Comhon\Manifest\Property\DateTime"/>
+    <property name="height" __inheritance__="Comhon\Manifest\Property\Float"/>
+    <property name="weight" __inheritance__="Comhon\Manifest\Property\Float"/>
+    <property name="hairColor" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="hairCut" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="eyesColor" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="physicalAppearance" __inheritance__="Comhon\Manifest\Property\String">
       <enum>
         <value>slim</value>
         <value>average</value>
@@ -40,15 +16,39 @@
         <value>fat</value>
       </enum>
     </property>
-    <property type="array" name="tatoos">
-      <values type="\Test\Body\Tatoo" name="tatoo"/>
+    <property name="tatoos" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="tatoo" model="\Test\Body\Tatoo"/>
     </property>
-    <property type="array" name="piercings">
-      <values type="Piercing" name="piercing"/>
+    <property name="piercings" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="piercing" model="Piercing"/>
     </property>
-    <property type="array" name="arts">
-      <values type="Art" name="art"/>
+    <property name="arts" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="art" model="Art"/>
     </property>
-    <property is_foreign="1" type="\Test\Person" name="owner"/>
+    <property name="owner" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+  <types>
+    <type name="Art">
+      <properties>
+        <property name="type" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="location" __inheritance__="Comhon\Manifest\Property\String"/>
+      </properties>
+    </type>
+    <type name="Tatoo">
+      <extends>
+        <type>Art</type>
+      </extends>
+      <properties>
+        <property name="tatooArtist" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+      </properties>
+    </type>
+    <type name="Piercing">
+      <extends>
+        <type>Art</type>
+      </extends>
+      <properties>
+        <property name="piercer" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+      </properties>
+    </type>
+  </types>
+</root>

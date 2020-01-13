@@ -1,38 +1,38 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\TestXml" is_serializable="1" version="3.0">
+  <properties>
+    <property name="name" xml="node" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="textNode" xml="node" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="textAttribute" xml="attribute" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="objectValue" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="objectValues" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="objectValue" model="Object"/>
+    </property>
+    <property name="objectContainer" model="ObjectContainer" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="foreignObjectValues" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="foreignObjectValue" model="Object"/>
+    </property>
+  </properties>
   <types>
     <type name="ObjectContainer">
       <properties>
-        <property is_foreign="1" type="Object" name="foreignObjectValue"/>
-        <property type="ObjectTwo" name="objectValueTwo"/>
-        <property type="PersonLocal" name="person"/>
+        <property name="foreignObjectValue" model="Object" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="objectValueTwo" model="ObjectTwo" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="person" model="PersonLocal" __inheritance__="Comhon\Manifest\Property\Object"/>
       </properties>
     </type>
     <type name="Object">
       <properties>
-        <property type="string" is_id="1" name="id"/>
-        <property type="string" name="propertyOne"/>
-        <property type="string" name="propertyTwo"/>
+        <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="propertyOne" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="propertyTwo" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="ObjectTwo">
       <properties>
-        <property type="string" is_id="1" name="id"/>
-        <property type="string" name="propertyTwoOne"/>
-        <property type="string" name="propertyTwoTwo"/>
+        <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="propertyTwoOne" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="propertyTwoTwo" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>
-  <properties>
-    <property type="string" is_id="1" xml="node" name="name"/>
-    <property type="string" xml="node" name="textNode"/>
-    <property type="string" xml="attribute" name="textAttribute"/>
-    <property type="Object" name="objectValue"/>
-    <property type="array" name="objectValues">
-      <values type="Object" name="objectValue"/>
-    </property>
-    <property type="ObjectContainer" name="objectContainer"/>
-    <property is_foreign="1" type="array" name="foreignObjectValues">
-      <values type="Object" name="foreignObjectValue"/>
-    </property>
-  </properties>
-</manifest>
+</root>

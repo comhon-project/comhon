@@ -1,22 +1,127 @@
 {
-    "version": "3.0",
+    "name": "Test\\Test",
     "is_serializable": true,
+    "properties": [
+        {
+            "name": "name",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "stringValue",
+            "default": "plop",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "floatValue",
+            "default": 1.5,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+        },
+        {
+            "name": "booleanValue",
+            "default": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
+        },
+        {
+            "name": "indexValue",
+            "default": 0,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Index"
+        },
+        {
+            "name": "percentageValue",
+            "default": 1,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Percentage"
+        },
+        {
+            "name": "dateValue",
+            "default": "2016-11-13T20:04:05+01:00",
+            "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
+        },
+        {
+            "name": "objectValue",
+            "model": "Object",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "objectValues",
+            "values": {
+                "name": "objectValue",
+                "model": "Object"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        },
+        {
+            "name": "objectContainer",
+            "model": "ObjectContainer",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "foreignObjectValues",
+            "is_foreign": true,
+            "values": {
+                "name": "foreignObjectValue",
+                "model": "Object"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+        },
+        {
+            "name": "enumValue",
+            "enum": [
+                "plop1",
+                "plop2"
+            ],
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "enumIntArray",
+            "values": {
+                "name": "enumArrayValue",
+                "enum": [
+                    1,
+                    3
+                ],
+                "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+        },
+        {
+            "name": "enumFloatArray",
+            "values": {
+                "name": "enumArrayValue",
+                "enum": [
+                    1.5,
+                    3.5
+                ],
+                "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+        },
+        {
+            "name": "objectRefParent",
+            "model": "ObjectRefParent",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "ObjectContainer",
             "properties": [
                 {
                     "name": "foreignObjectValue",
-                    "type": "Object",
-                    "is_foreign": true
+                    "model": "Object",
+                    "is_foreign": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 },
                 {
                     "name": "objectValueTwo",
-                    "type": "ObjectTwo"
+                    "model": "ObjectTwo",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 },
                 {
                     "name": "person",
-                    "type": "PersonLocal"
+                    "model": "PersonLocal",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
         },
@@ -25,26 +130,26 @@
             "properties": [
                 {
                     "name": "id",
-                    "type": "string",
-                    "is_id": true
+                    "is_id": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "propertyOne",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "propertyTwo",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "stringValue",
-                    "type": "string",
-                    "default": "plop2"
+                    "default": "plop2",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "booleanValue",
-                    "type": "boolean",
-                    "default": false
+                    "default": false,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
                 }
             ]
         },
@@ -53,24 +158,24 @@
             "properties": [
                 {
                     "name": "id",
-                    "type": "string",
-                    "is_id": true
+                    "is_id": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "propertyTwoOne",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "propertyTwoTwo",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "propertyTwoArray",
-                    "type": "array",
                     "values": {
-                        "type": "Object",
-                        "name": "propertyTwoArrayValue"
-                    }
+                        "name": "propertyTwoArrayValue",
+                        "model": "Object"
+                    },
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
                 }
             ]
         },
@@ -79,112 +184,15 @@
             "properties": [
                 {
                     "name": "parent",
-                    "type": "\\Test\\Test",
-                    "is_foreign": true
+                    "model": "\\Test\\Test",
+                    "is_foreign": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 },
                 {
                     "name": "name",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "name",
-            "type": "string",
-            "is_id": true
-        },
-        {
-            "name": "stringValue",
-            "type": "string",
-            "default": "plop"
-        },
-        {
-            "name": "floatValue",
-            "type": "float",
-            "default": 1.5
-        },
-        {
-            "name": "booleanValue",
-            "type": "boolean",
-            "default": true
-        },
-        {
-            "name": "indexValue",
-            "type": "index",
-            "default": 0
-        },
-        {
-            "name": "percentageValue",
-            "type": "percentage",
-            "default": 1
-        },
-        {
-            "name": "dateValue",
-            "type": "dateTime",
-            "default": "2016-11-13 20:04:05"
-        },
-        {
-            "name": "objectValue",
-            "type": "Object"
-        },
-        {
-            "name": "objectValues",
-            "type": "array",
-            "values": {
-                "type": "Object",
-                "name": "objectValue"
-            }
-        },
-        {
-            "name": "objectContainer",
-            "type": "ObjectContainer"
-        },
-        {
-            "name": "foreignObjectValues",
-            "type": "array",
-            "values": {
-                "type": "Object",
-                "name": "foreignObjectValue"
-            },
-            "is_foreign": true
-        },
-        {
-            "name": "enumValue",
-            "type": "string",
-            "enum": [
-                "plop1",
-                "plop2"
-            ]
-        },
-        {
-            "name": "enumIntArray",
-            "type": "array",
-            "values": {
-                "type": "integer",
-                "name": "enumArrayValue",
-                "enum": [
-                    1,
-                    3
-                ]
-            }
-        },
-        {
-            "name": "enumFloatArray",
-            "type": "array",
-            "values": {
-                "type": "float",
-                "name": "enumArrayValue",
-                "enum": [
-                    1.5,
-                    3.5
-                ]
-            }
-        },
-        {
-            "name": "objectRefParent",
-            "type": "ObjectRefParent"
         }
     ]
 }

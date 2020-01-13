@@ -1,33 +1,24 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\GreatGrandParent\GrandParent\ParentOne\Child" is_serializable="1" version="3.0">
   <extends>
     <type>\Test\GreatGrandParent\GrandParent\ParentOne</type>
   </extends>
+  <properties>
+    <property name="childOne" __inheritance__="Comhon\Manifest\Property\String"/>
+  </properties>
   <types>
     <type name="ChildLocalSerializable" is_serializable="1">
       <extends>
         <type>\Test\GreatGrandParent\GrandParent\ParentOne\Child</type>
       </extends>
       <properties>
-        <property type="string" name="localChildOne"/>
+        <property name="localChildOne" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
-      <inheritance_requestables>
-        <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</inheritance_requestable>
-      </inheritance_requestables>
     </type>
     <type name="ChildLocalNotSerializable" is_serializable="0">
       <extends>
         <type>\Test\GreatGrandParent\GrandParent\ParentOne\Child</type>
       </extends>
+      <properties/>
     </type>
   </types>
-  <properties>
-    <property type="string" name="childOne"/>
-  </properties>
-  <inheritance_values>
-    <inheritance_value>\Test\GreatGrandParent\GrandParent\ParentOne\Child</inheritance_value>
-  </inheritance_values>
-  <inheritance_requestables>
-    <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</inheritance_requestable>
-    <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</inheritance_requestable>
-  </inheritance_requestables>
-</manifest>
+</root>

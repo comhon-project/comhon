@@ -1,76 +1,76 @@
-<manifest version="3.0" is_serializable="1">
-  <types>
-    <type name="ObjectContainer">
-      <properties>
-        <property is_foreign="1" type="Object" name="foreignObjectValue"/>
-        <property type="ObjectTwo" name="objectValueTwo"/>
-        <property type="PersonLocal" name="person"/>
-      </properties>
-    </type>
-    <type name="Object">
-      <properties>
-        <property type="string" is_id="1" name="id"/>
-        <property type="string" name="propertyOne"/>
-        <property type="string" name="propertyTwo"/>
-        <property type="string" default="plop2" name="stringValue"/>
-        <property type="boolean" default="0" name="booleanValue"/>
-      </properties>
-    </type>
-    <type name="ObjectTwo">
-      <properties>
-        <property type="string" is_id="1" name="id"/>
-        <property type="string" name="propertyTwoOne"/>
-        <property type="string" name="propertyTwoTwo"/>
-        <property type="array" name="propertyTwoArray">
-          <values type="Object" name="propertyTwoArrayValue"/>
-        </property>
-      </properties>
-    </type>
-    <type name="ObjectRefParent">
-      <properties>
-        <property is_foreign="1" type="\Test\Test" name="parent"/>
-        <property type="string" name="name"/>
-      </properties>
-    </type>
-  </types>
+<root name="Test\Test" is_serializable="1" version="3.0">
   <properties>
-    <property type="string" is_id="1" name="name"/>
-    <property type="string" default="plop" name="stringValue"/>
-    <property type="float" default="1.5" name="floatValue"/>
-    <property type="boolean" default="1" name="booleanValue"/>
-    <property type="index" default="0" name="indexValue"/>
-    <property type="percentage" default="1" name="percentageValue"/>
-    <property type="dateTime" default="2016-11-13 20:04:05" name="dateValue"/>
-    <property type="Object" name="objectValue"/>
-    <property type="array" name="objectValues">
-      <values type="Object" name="objectValue"/>
+    <property name="name" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="stringValue" default="plop" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="floatValue" default="1.5" __inheritance__="Comhon\Manifest\Property\Float"/>
+    <property name="booleanValue" default="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="indexValue" default="0" __inheritance__="Comhon\Manifest\Property\Index"/>
+    <property name="percentageValue" default="1" __inheritance__="Comhon\Manifest\Property\Percentage"/>
+    <property name="dateValue" default="2016-11-13T20:04:05+01:00" __inheritance__="Comhon\Manifest\Property\DateTime"/>
+    <property name="objectValue" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="objectValues" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="objectValue" model="Object"/>
     </property>
-    <property type="ObjectContainer" name="objectContainer"/>
-    <property is_foreign="1" type="array" name="foreignObjectValues">
-      <values type="Object" name="foreignObjectValue"/>
+    <property name="objectContainer" model="ObjectContainer" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="foreignObjectValues" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="foreignObjectValue" model="Object"/>
     </property>
-    <property type="string" name="enumValue">
+    <property name="enumValue" __inheritance__="Comhon\Manifest\Property\String">
       <enum>
         <value>plop1</value>
         <value>plop2</value>
       </enum>
     </property>
-    <property type="array" name="enumIntArray">
-      <values type="integer" name="enumArrayValue">
+    <property name="enumIntArray" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="enumArrayValue" __inheritance__="Comhon\Manifest\Property\Integer">
         <enum>
           <value>1</value>
           <value>3</value>
         </enum>
       </values>
     </property>
-    <property type="array" name="enumFloatArray">
-      <values type="float" name="enumArrayValue">
+    <property name="enumFloatArray" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="enumArrayValue" __inheritance__="Comhon\Manifest\Property\Float">
         <enum>
           <value>1.5</value>
           <value>3.5</value>
         </enum>
       </values>
     </property>
-    <property type="ObjectRefParent" name="objectRefParent"/>
+    <property name="objectRefParent" model="ObjectRefParent" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+  <types>
+    <type name="ObjectContainer">
+      <properties>
+        <property name="foreignObjectValue" model="Object" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="objectValueTwo" model="ObjectTwo" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="person" model="PersonLocal" __inheritance__="Comhon\Manifest\Property\Object"/>
+      </properties>
+    </type>
+    <type name="Object">
+      <properties>
+        <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="propertyOne" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="propertyTwo" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="stringValue" default="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="booleanValue" default="0" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+      </properties>
+    </type>
+    <type name="ObjectTwo">
+      <properties>
+        <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="propertyTwoOne" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="propertyTwoTwo" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="propertyTwoArray" __inheritance__="Comhon\Manifest\Property\Array\Object">
+          <values name="propertyTwoArrayValue" model="Object"/>
+        </property>
+      </properties>
+    </type>
+    <type name="ObjectRefParent">
+      <properties>
+        <property name="parent" model="\Test\Test" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
+      </properties>
+    </type>
+  </types>
+</root>

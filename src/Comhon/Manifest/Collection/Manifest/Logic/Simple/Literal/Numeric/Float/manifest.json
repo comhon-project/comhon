@@ -1,15 +1,16 @@
 {
-    "version": "3.0",
-    "share_parent_id": true,
+    "name": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Float",
     "extends": [
         "\\Comhon\\Logic\\Simple\\Literal\\Numeric"
     ],
+    "share_parent_id": true,
     "properties": [
         {
             "name": "value",
-            "type": "float",
+            "not_null": true,
             "is_required": true,
-            "not_null": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
         }
-    ]
+    ],
+    "version": "3.0"
 }

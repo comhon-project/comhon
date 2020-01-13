@@ -1,20 +1,21 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Logic\\Simple\\Literal\\Set",
     "is_abstract": true,
-    "share_parent_id": true,
     "extends": [
         "\\Comhon\\Logic\\Simple\\Literal"
     ],
+    "share_parent_id": true,
     "properties": [
         {
             "name": "operator",
-            "type": "string",
+            "not_null": true,
+            "is_required": true,
             "enum": [
                 "IN",
                 "NOT IN"
             ],
-            "is_required": true,
-            "not_null": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

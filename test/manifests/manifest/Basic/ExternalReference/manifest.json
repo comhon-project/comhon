@@ -1,13 +1,16 @@
 {
-    "version": "3.0",
+    "name": "Test\\Basic\\ExternalReference",
     "properties": [
         {
             "name": "basicPropertyWithId",
-            "type": "\\Test\\Basic\\Standard"
+            "model": "\\Test\\Basic\\Standard",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "basicNoIdObjectContainerProperty",
-            "type": "\\Test\\Basic\\NoId\\ObjectContainer"
+            "model": "\\Test\\Basic\\NoId\\ObjectContainer",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         }
-    ]
+    ],
+    "version": "3.0"
 }

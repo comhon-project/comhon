@@ -41,6 +41,19 @@ class MultipleInheritanceTest extends TestCase
 		$this->assertTrue($model->isInheritedFrom($modelParentThree));
 		$this->assertTrue($model->isInheritedFrom($modelParentFourth));
 		
+		$obj = $model->getObjectInstance();
+		$this->assertTrue($obj->isA($model));
+		$this->assertTrue($obj->isA($modelParentOne));
+		$this->assertTrue($obj->isA($modelParentTwo));
+		$this->assertTrue($obj->isA($modelParentThree));
+		$this->assertTrue($obj->isA($modelParentFourth));
+		$this->assertTrue($obj->isA('Test\Extends\Multiple\InheritedFinal'));
+		$this->assertTrue($obj->isA('Test\Extends\Multiple\InheritedOne'));
+		$this->assertTrue($obj->isA('Test\Extends\Multiple\InheritedTwo'));
+		$this->assertTrue($obj->isA('Test\Extends\Multiple\InheritedThree'));
+		$this->assertTrue($obj->isA('Test\Extends\Multiple\InheritedFourth'));
+		$this->assertFalse($obj->isA('Test\Test'));
+		
 		$this->assertSame($modelParentTwo, $model->getFirstSharedIdParentMatch(true));
 		$this->assertSame($modelParentOne, $model->getLastSharedIdParentMatch(true));
 	}

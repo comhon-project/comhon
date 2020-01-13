@@ -24,6 +24,8 @@ use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Object\MissingRequiredValueException;
 use Comhon\Exception\Object\ConflictValuesException;
 use Comhon\Exception\Object\DependsValuesException;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Exception\ArgumentException;
 
 abstract class UniqueObject extends AbstractComhonObject {
 	
@@ -405,6 +407,21 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 |                                      Model - Properties                                       |
 	 |                                                                                               |
 	 \***********************************************************************************************/
+	
+	/**
+	 * verify if current object model is same as given model or is inherited from given model
+	 * 
+	 * @param string|\Comhon\Model\Model $model model name or model instance
+	 * @return boolean
+	 */
+	final public function isA($model) {
+		if (is_string($model)) {
+			$model = ModelManager::getInstance()->getInstanceModel($model);
+		} elseif (!($model instanceof Model)) {
+			throw new ArgumentException($model, ['string', Model::class], 1);
+		}
+		return $this->getModel() === $model || $this->getModel()->isInheritedFrom($model);
+	}
 	
 	/**
 	 * cast comhon object

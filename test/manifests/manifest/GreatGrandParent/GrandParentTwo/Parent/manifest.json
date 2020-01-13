@@ -1,14 +1,15 @@
 {
-    "version": "3.0",
-    "is_serializable": false,
-    "shared_id": "\\Test\\GreatGrandParent",
+    "name": "Test\\GreatGrandParent\\GrandParentTwo\\Parent",
     "extends": [
         "\\Test\\GreatGrandParent\\GrandParentTwo"
     ],
+    "is_serializable": false,
+    "shared_id": "\\Test\\GreatGrandParent",
     "properties": [
         {
             "name": "parent",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

@@ -102,7 +102,7 @@ class HavingLiteral extends DbLiteral {
 	 */
 	public static function buildHaving(UniqueObject $havingLiteral, $table, $model = null, $allowPrivateProperties = true) {
 		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Literal');
-		if (!$havingLiteral->getModel()->isInheritedFrom($literalModel)) {
+		if (!$havingLiteral->isA($literalModel)) {
 			throw new ArgumentException($havingLiteral, $literalModel->getObjectInstance(false)->getComhonClass(), 1);
 		}
 		$havingLiteral->validate();

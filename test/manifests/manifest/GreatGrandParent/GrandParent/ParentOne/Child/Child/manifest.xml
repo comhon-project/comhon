@@ -1,8 +1,8 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\GreatGrandParent\GrandParent\ParentOne\Child\Child" is_serializable="1" version="3.0">
   <extends>
     <type>\Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</type>
   </extends>
   <properties>
-    <property type="string" name="childChildOne"/>
+    <property name="childChildOne" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

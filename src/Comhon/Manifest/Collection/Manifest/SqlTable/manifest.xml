@@ -1,6 +1,6 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Comhon\SqlTable" is_serializable="1" version="3.0">
   <properties>
-    <property type="string" is_id="1" name="name"/>
-    <property is_foreign="1" type="\Comhon\SqlDatabase" name="database"/>
+    <property name="name" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="database" model="\Comhon\SqlDatabase" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+</root>

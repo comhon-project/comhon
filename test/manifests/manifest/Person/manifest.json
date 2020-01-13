@@ -1,66 +1,67 @@
 {
-    "version": "3.0",
-    "object": "Test\\Comhon\\Object\\Person",
+    "name": "Test\\Person",
+    "object_class": "\\Test\\Comhon\\Object\\Person",
     "is_serializable": false,
     "properties": [
         {
             "name": "id",
-            "type": "integer",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "firstName",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "lastName",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "birthDate",
-            "type": "dateTime"
+            "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
         },
         {
             "name": "birthPlace",
-            "type": "\\Test\\Place",
-            "is_foreign": true
+            "model": "\\Test\\Place",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "bestFriend",
-            "type": "\\Test\\Person",
-            "is_foreign": true
+            "model": "\\Test\\Person",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "father",
-            "type": "\\Test\\Person\\Man",
-            "is_foreign": true
+            "model": "\\Test\\Person\\Man",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "mother",
-            "type": "\\Test\\Person\\Woman",
-            "is_foreign": true
+            "model": "\\Test\\Person\\Woman",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "children",
-            "type": "array",
+            "is_foreign": true,
             "values": {
-                "type": "\\Test\\Person",
-                "name": "child"
+                "name": "child",
+                "model": "\\Test\\Person"
             },
-            "is_foreign": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
         },
         {
             "name": "homes",
-            "type": "array",
+            "is_foreign": true,
             "values": {
-                "type": "\\Test\\Home",
-                "name": "home"
+                "name": "home",
+                "model": "\\Test\\Home"
             },
-            "is_foreign": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
         }
     ],
-    "inheritance_requestables": [
-        "\\Test\\Person\\Man",
-        "\\Test\\Person\\Woman"
-    ]
+    "version": "3.0"
 }

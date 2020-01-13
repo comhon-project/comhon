@@ -1,16 +1,18 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\SqlTable",
     "is_serializable": true,
     "properties": [
         {
             "name": "name",
-            "type": "string",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "database",
-            "type": "\\Comhon\\SqlDatabase",
-            "is_foreign": true
+            "model": "\\Comhon\\SqlDatabase",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         }
-    ]
+    ],
+    "version": "3.0"
 }

@@ -1,30 +1,34 @@
 {
-    "version": "3.0",
+    "name": "Test\\Load\\LocalTypeNotDefinedProperty",
     "is_main": true,
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "malformedProperty",
+            "model": "MalformedLocalType",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "malformedChild",
+            "model": "\\Test\\Load\\NotDefinedProperty",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "MalformedLocalType",
             "properties": [
                 {
                     "name": "malformedPropertyInLocal",
-                    "type": "wrong-type-in-local"
+                    "model": "wrong-type-in-local",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "integer",
-            "is_id": true
-        },
-        {
-            "name": "malformedProperty",
-            "type": "MalformedLocalType"
-        },
-        {
-            "name": "malformedChild",
-            "type": "\\Test\\Load\\NotDefinedProperty"
         }
     ]
 }

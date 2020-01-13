@@ -1,22 +1,25 @@
-<manifest version="3.0" is_main="1">
+<root name="Test\Extends\ShareId\MainNotMain" is_main="1" version="3.0">
+  <properties>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+  </properties>
   <types>
-    <type name="Main" share_parent_id="1" is_main="1">
+    <type name="Main" is_main="1" share_parent_id="1">
       <extends>
         <type>\Test\Extends\ShareId\MainNotMain</type>
       </extends>
+      <properties/>
     </type>
     <type name="NotMain" share_parent_id="1">
       <extends>
         <type>\Test\Extends\ShareId\MainNotMain</type>
       </extends>
+      <properties/>
     </type>
-    <type name="NotMain\Main" share_parent_id="1" is_main="1">
+    <type name="NotMain\Main" is_main="1" share_parent_id="1">
       <extends>
         <type>NotMain</type>
       </extends>
+      <properties/>
     </type>
   </types>
-  <properties>
-    <property type="integer" name="id" is_id="1"/>
-  </properties>
-</manifest>
+</root>

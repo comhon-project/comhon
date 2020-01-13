@@ -1,9 +1,27 @@
-<manifest version="3.0">
+<root name="Test\TestXml\PersonLocal" version="3.0">
+  <properties>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="firstName" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="lastName" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="birthDate" __inheritance__="Comhon\Manifest\Property\DateTime"/>
+    <property name="birthPlace" model="\Test\Place" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="bestFriend" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="father" model="\Test\Person\Man" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="mother" model="\Test\Person\Woman" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="children" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="child" model="\Test\Person"/>
+    </property>
+    <property name="homes" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="home" model="\Test\Home"/>
+    </property>
+    <property name="anObjectWithIdAndMore" model="ObjectWithIdAndMore" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="recursiveLocal" model="Recursive" __inheritance__="Comhon\Manifest\Property\Object"/>
+  </properties>
   <types>
     <type name="ObjectWithId">
       <properties>
-        <property type="string" is_id="1" name="plop"/>
-        <property type="string" name="plop2"/>
+        <property name="plop" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="ObjectWithIdAndMore">
@@ -11,26 +29,8 @@
         <type>ObjectWithId</type>
       </extends>
       <properties>
-        <property type="string" is_private="1" name="plop3"/>
+        <property name="plop3" is_private="1" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>
-  <properties>
-    <property type="string" is_id="1" name="id"/>
-    <property type="string" name="firstName"/>
-    <property type="string" name="lastName"/>
-    <property type="dateTime" name="birthDate"/>
-    <property is_foreign="1" type="\Test\Place" name="birthPlace"/>
-    <property is_foreign="1" type="\Test\Person" name="bestFriend"/>
-    <property is_foreign="1" type="\Test\Person\Man" name="father"/>
-    <property is_foreign="1" type="\Test\Person\Woman" name="mother"/>
-    <property is_foreign="1" type="array" name="children">
-      <values type="\Test\Person" name="child"/>
-    </property>
-    <property is_foreign="1" type="array" name="homes">
-      <values type="\Test\Home" name="home"/>
-    </property>
-    <property type="ObjectWithIdAndMore" name="anObjectWithIdAndMore"/>
-    <property type="Recursive" name="recursiveLocal"/>
-  </properties>
-</manifest>
+</root>

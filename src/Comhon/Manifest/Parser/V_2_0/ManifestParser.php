@@ -24,7 +24,6 @@ use Comhon\Manifest\Parser\ManifestParser as ParentManifestParser;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\Manifest\ManifestException;
 use Comhon\Model\AbstractModel;
-use Comhon\Model\Restriction\NotNull;
 use Comhon\Model\Restriction\Size;
 use Comhon\Model\Restriction\Length;
 use Comhon\Model\Restriction\NotEmptyString;
@@ -33,7 +32,10 @@ use Comhon\Model\Restriction\ModelName;
 use Comhon\Model\Restriction\RegexCollection;
 
 class ManifestParser extends ParentManifestParser {
-
+	
+	/** @var string */
+	const OBJECT_CLASS    = 'object';
+	
 	/**
 	 *
 	 * {@inheritDoc}
@@ -78,7 +80,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @see \Comhon\Manifest\Parser\ManifestParser::getObjectClass()
 	 */
 	public function getObjectClass() {
-		return $this->interfacer->getValue($this->manifest, self::_OBJECT);
+		return $this->interfacer->getValue($this->manifest, static::OBJECT_CLASS);
 	}
 	
 	/**
@@ -171,7 +173,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @param mixed $property
 	 * @return string
 	 */
-	private function _getPropertyModelName($property) {
+	protected function _getPropertyModelName($property) {
 		$modelName = $this->interfacer->getValue($property, 'type');
 		if ($modelName == 'array') {
 			$modelName = $this->_getPropertyModelName($this->interfacer->getValue($property, 'values', true));
@@ -203,14 +205,14 @@ class ManifestParser extends ParentManifestParser {
 		$name       = $this->interfacer->getValue($currentProperty, self::NAME);
 		$model      = $this->_completePropertyModel($currentProperty, $propertyModel);
 		
-		if ($this->interfacer->hasValue($currentProperty, 'xml')) {
-			$type = $this->interfacer->getValue($currentProperty, 'xml');
+		if ($this->interfacer->hasValue($currentProperty, self::XML_ELEM_TYPE)) {
+			$type = $this->interfacer->getValue($currentProperty, self::XML_ELEM_TYPE);
 			if ($type === self::XML_ATTRIBUTE) {
 				$interfaceAsNodeXml = false;
 			} else if ($type === self::XML_NODE) {
 				$interfaceAsNodeXml = true;
 			} else {
-				throw new ManifestException("invalid value '$type' for property 'xml'");
+				throw new ManifestException("invalid value '$type' for property '".self::XML_ELEM_TYPE."'");
 			}
 		} else {
 			$interfaceAsNodeXml = null;
@@ -330,9 +332,8 @@ class ManifestParser extends ParentManifestParser {
 	 */
 	private function _completePropertyModel($propertyNode, AbstractModel $uniqueModel) {
 		$propertyModel = $uniqueModel;
-		$typeId        = $this->interfacer->getValue($propertyNode,'type');
 	
-		if ($typeId == 'array') {
+		if ($this->isArrayProperty($propertyNode)) {
 			$valuesNode = $this->interfacer->getValue($propertyNode, 'values', true);
 			if (is_null($valuesNode)) {
 				throw new ManifestException('type array must have a values node');
@@ -358,6 +359,15 @@ class ManifestParser extends ParentManifestParser {
 			$propertyModel = new ModelArray($subModel, $isAssociative, $valuesName, $arrayRestrictions, $elementRestrictions, $isNotNullElement);
 		}
 		return $propertyModel;
+	}
+	
+	/**
+	 * 
+	 * @param mixed $propertyNode
+	 * @return boolean
+	 */
+	protected function isArrayProperty($propertyNode) {
+		return $this->interfacer->getValue($propertyNode, 'type') == 'array';
 	}
 	
 }

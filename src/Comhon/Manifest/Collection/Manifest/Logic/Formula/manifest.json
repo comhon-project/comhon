@@ -1,12 +1,13 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Logic\\Formula",
     "is_abstract": true,
     "properties": [
         {
             "name": "id",
-            "type": "integer",
             "not_null": true,
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         }
-    ]
+    ],
+    "version": "3.0"
 }

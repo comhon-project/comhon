@@ -1,6 +1,6 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\TestNoId" is_serializable="1" version="3.0">
   <properties>
-    <property type="string" name="name"/>
-    <property type="string" name="value"/>
+    <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="value" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

@@ -1,10 +1,10 @@
-<manifest version="3.0" share_parent_id="1">
+<root name="Comhon\Logic\Simple\Literal\Set\String" share_parent_id="1" version="3.0">
   <extends>
     <type>\Comhon\Logic\Simple\Literal\Set</type>
   </extends>
   <properties>
-    <property name="values" type="array" is_required="1" not_null="1" not_empty="1">
-      <values name="value" type="string"/>
+    <property name="values" not_null="1" is_required="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="value" __inheritance__="Comhon\Manifest\Property\String"/>
     </property>
   </properties>
-</manifest>
+</root>

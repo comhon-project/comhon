@@ -1,9 +1,21 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\Valid",
     "extends": [
         "Itself"
     ],
     "is_serializable": true,
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "floatProperty",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "One",
@@ -13,7 +25,7 @@
             "properties": [
                 {
                     "name": "booleanProperty",
-                    "type": "boolean"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
                 }
             ]
         },
@@ -25,25 +37,14 @@
             "properties": [
                 {
                     "name": "id",
-                    "type": "integer",
-                    "is_id": true
+                    "is_id": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
                 },
                 {
                     "name": "integerProperty",
-                    "type": "integer"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "integer",
-            "is_id": true
-        },
-        {
-            "name": "floatProperty",
-            "type": "float"
         }
     ]
 }

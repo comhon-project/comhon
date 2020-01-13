@@ -1,4 +1,16 @@
 {
+    "name": "Test\\Load\\Duplicate",
+    "properties": [
+        {
+            "name": "name",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "stringProperty",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
     "version": "3.0",
     "types": [
         {
@@ -6,20 +18,9 @@
             "properties": [
                 {
                     "name": "localOne",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "name",
-            "type": "string",
-            "is_id": true
-        },
-        {
-            "name": "stringProperty",
-            "type": "string"
         }
     ]
 }

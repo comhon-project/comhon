@@ -1,5 +1,5 @@
-<manifest version="3.0" is_main="1">
+<root name="Test\Load\LocalOnOtherManifest" is_main="1" version="3.0">
   <properties>
-    <property type="\Test\Load\Local" name="localDistant"/>
+    <property name="localDistant" model="\Test\Load\Local" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+</root>

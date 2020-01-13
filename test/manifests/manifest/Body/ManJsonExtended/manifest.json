@@ -1,5 +1,5 @@
 {
-    "version": "3.0",
+    "name": "Test\\Body\\ManJsonExtended",
     "extends": [
         "\\Test\\Body\\ManJson"
     ],
@@ -7,7 +7,8 @@
     "properties": [
         {
             "name": "value",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

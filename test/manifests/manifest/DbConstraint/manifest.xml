@@ -1,10 +1,10 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\DbConstraint" is_serializable="1" version="3.0">
   <properties>
-    <property type="integer" is_id="1" name="id"/>
-    <property type="string" name="unique_name"/>
-    <property is_foreign="1" type="\Test\DbConstraint" name="foreign_constraint"/>
-    <property type="integer" name="unique_one"/>
-    <property type="string" name="unique_two"/>
-    <property is_foreign="1" type="\Test\TestDb" name="foreign_constraint_composite"/>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="unique_name" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="foreign_constraint" model="\Test\DbConstraint" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="unique_one" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="unique_two" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="foreign_constraint_composite" model="\Test\TestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+</root>

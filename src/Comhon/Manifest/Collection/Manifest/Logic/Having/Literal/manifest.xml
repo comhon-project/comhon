@@ -1,36 +1,9 @@
-<manifest version="3.0" is_abstract="1" share_parent_id="1">
+<root name="Comhon\Logic\Having\Literal" is_abstract="1" share_parent_id="1" version="3.0">
   <extends>
     <type>\Comhon\Logic\Having\Formula</type>
   </extends>
-  <types>
-    <type name="Count" share_parent_id="1">
-      <extends>
-        <type>\Comhon\Logic\Having\Literal</type>
-      </extends>
-      <properties>
-        <property name="value" type="integer" is_required="1" not_null="1"/>
-      </properties>
-    </type>
-    <type name="Function" share_parent_id="1">
-      <extends>
-        <type>\Comhon\Logic\Having\Literal</type>
-      </extends>
-      <properties>
-        <property name="property" type="string" is_required="1" not_null="1"/>
-        <property name="function" type="string" is_required="1" not_null="1">
-          <enum>
-            <value>SUM</value>
-            <value>AVG</value>
-            <value>MIN</value>
-            <value>MAX</value>
-          </enum>
-        </property>
-        <property name="value" type="float" is_required="1" not_null="1"/>
-      </properties>
-    </type>
-  </types>
   <properties>
-    <property name="operator" type="string" is_required="1" not_null="1">
+    <property name="operator" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String">
       <enum>
         <value>=</value>
         <value>&lt;&gt;</value>
@@ -41,4 +14,31 @@
       </enum>
     </property>
   </properties>
-</manifest>
+  <types>
+    <type name="Count" share_parent_id="1">
+      <extends>
+        <type>\Comhon\Logic\Having\Literal</type>
+      </extends>
+      <properties>
+        <property name="value" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+      </properties>
+    </type>
+    <type name="Function" share_parent_id="1">
+      <extends>
+        <type>\Comhon\Logic\Having\Literal</type>
+      </extends>
+      <properties>
+        <property name="property" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="function" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String">
+          <enum>
+            <value>SUM</value>
+            <value>AVG</value>
+            <value>MIN</value>
+            <value>MAX</value>
+          </enum>
+        </property>
+        <property name="value" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Float"/>
+      </properties>
+    </type>
+  </types>
+</root>

@@ -1,20 +1,21 @@
 {
-    "version": "3.0",
-    "share_parent_id": true,
+    "name": "Comhon\\Logic\\Simple\\Literal\\Set\\String",
     "extends": [
         "\\Comhon\\Logic\\Simple\\Literal\\Set"
     ],
+    "share_parent_id": true,
     "properties": [
         {
             "name": "values",
-            "type": "array",
-            "values": {
-                "type": "string",
-                "name": "value"
-            },
-            "is_required": true,
             "not_null": true,
-            "not_empty": true
+            "is_required": true,
+            "not_empty": true,
+            "values": {
+                "name": "value",
+                "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
         }
-    ]
+    ],
+    "version": "3.0"
 }

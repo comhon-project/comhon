@@ -1,22 +1,16 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\ShareId\\GrandParentSerialized",
     "is_serializable": true,
     "properties": [
         {
             "name": "id",
-            "type": "string",
-            "is_id": true
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "grandParent",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
     ],
-    "inheritance_requestables": [
-        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentThree\\Child",
-        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne\\Child",
-        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne",
-        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo\\Child",
-        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo"
-    ]
+    "version": "3.0"
 }

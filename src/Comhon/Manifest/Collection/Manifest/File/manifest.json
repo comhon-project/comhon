@@ -1,15 +1,16 @@
 {
-    "version": "3.0",
-    "is_main": true,
+    "name": "Comhon\\File",
     "is_abstract": true,
+    "is_main": true,
     "properties": [
         {
             "name": "staticPath",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "staticName",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

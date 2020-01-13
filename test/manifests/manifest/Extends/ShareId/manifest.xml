@@ -1,13 +1,13 @@
-<manifest version="3.0">
+<root name="Test\Extends\ShareId" version="3.0">
   <properties>
-    <property is_foreign="1" type="array" name="foreignCollectionOne">
-      <values type="\Test\Extends\ShareId\GrandParent" name="element"/>
+    <property name="foreignCollectionOne" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="element" model="\Test\Extends\ShareId\GrandParent"/>
     </property>
-    <property type="array" name="collection">
-      <values type="\Test\Extends\ShareId\GrandParent" name="element"/>
+    <property name="collection" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="element" model="\Test\Extends\ShareId\GrandParent"/>
     </property>
-    <property is_foreign="1" type="array" name="foreignCollectionTwo">
-      <values type="\Test\Extends\ShareId\GrandParent" name="element"/>
+    <property name="foreignCollectionTwo" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="element" model="\Test\Extends\ShareId\GrandParent"/>
     </property>
   </properties>
-</manifest>
+</root>

@@ -1,46 +1,52 @@
 {
-    "version": "3.0",
+    "name": "Test\\Request\\Root",
     "properties": [
         {
             "name": "one",
-            "type": "\\Test\\Request\\One",
-            "is_foreign": true
+            "model": "\\Test\\Request\\One",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "three",
-            "type": "\\Test\\Request\\Three",
-            "is_foreign": true
+            "model": "\\Test\\Request\\Three",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "four",
-            "type": "\\Test\\Request\\Four",
-            "is_foreign": true
+            "model": "\\Test\\Request\\Four",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "five",
-            "type": "\\Test\\Request\\Five",
-            "is_foreign": true
+            "model": "\\Test\\Request\\Five",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "root",
-            "type": "\\Test\\Request\\Root",
-            "is_foreign": true
+            "model": "\\Test\\Request\\Root",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "string",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "integer",
-            "type": "integer"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "float",
-            "type": "float"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
         },
         {
             "name": "boolean",
-            "type": "boolean"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
         }
-    ]
+    ],
+    "version": "3.0"
 }

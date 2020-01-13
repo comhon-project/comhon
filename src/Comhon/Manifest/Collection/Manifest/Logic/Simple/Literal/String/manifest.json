@@ -1,25 +1,26 @@
 {
-    "version": "3.0",
-    "share_parent_id": true,
+    "name": "Comhon\\Logic\\Simple\\Literal\\String",
     "extends": [
         "\\Comhon\\Logic\\Simple\\Literal"
     ],
+    "share_parent_id": true,
     "properties": [
         {
             "name": "operator",
-            "type": "string",
+            "not_null": true,
+            "is_required": true,
             "enum": [
                 "=",
                 "<>"
             ],
-            "is_required": true,
-            "not_null": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "value",
-            "type": "string",
+            "not_null": true,
             "is_required": true,
-            "not_null": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

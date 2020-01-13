@@ -1,7 +1,8 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Logic\\Having\\Formula",
     "is_abstract": true,
     "extends": [
         "\\Comhon\\Logic\\Formula"
-    ]
+    ],
+    "version": "3.0"
 }

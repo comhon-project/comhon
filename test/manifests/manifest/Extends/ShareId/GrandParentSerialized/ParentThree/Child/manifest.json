@@ -1,5 +1,5 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\ShareId\\GrandParentSerialized\\ParentThree\\Child",
     "extends": [
         "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentThree"
     ],
@@ -7,7 +7,8 @@
     "properties": [
         {
             "name": "childThree",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

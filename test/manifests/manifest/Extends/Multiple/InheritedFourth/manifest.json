@@ -1,5 +1,5 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\Multiple\\InheritedFourth",
     "extends": [
         "\\Test\\Extends\\Multiple\\InheritedThree"
     ],
@@ -7,7 +7,8 @@
     "properties": [
         {
             "name": "fourth",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

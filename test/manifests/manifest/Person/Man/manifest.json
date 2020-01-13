@@ -1,5 +1,5 @@
 {
-    "version": "3.0",
+    "name": "Test\\Person\\Man",
     "extends": [
         "\\Test\\Person"
     ],
@@ -7,12 +7,13 @@
     "properties": [
         {
             "name": "bodies",
-            "type": "array",
+            "is_foreign": true,
             "values": {
-                "type": "\\Test\\Body\\Man",
-                "name": "body"
+                "name": "body",
+                "model": "\\Test\\Body\\Man"
             },
-            "is_foreign": true
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
         }
-    ]
+    ],
+    "version": "3.0"
 }

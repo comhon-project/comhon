@@ -1,4 +1,21 @@
 {
+    "name": "Test\\Test\\PersonLocal\\Recursive",
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "firstName",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "anotherObjectWithIdAndMore",
+            "model": "ObjectWithIdAndMore",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        }
+    ],
     "version": "3.0",
     "types": [
         {
@@ -6,12 +23,12 @@
             "properties": [
                 {
                     "name": "plop",
-                    "type": "string",
-                    "is_id": true
+                    "is_id": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "plop2",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -23,25 +40,10 @@
             "properties": [
                 {
                     "name": "plop3",
-                    "type": "string",
-                    "is_private": true
+                    "is_private": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "id",
-            "type": "integer",
-            "is_id": true
-        },
-        {
-            "name": "firstName",
-            "type": "string"
-        },
-        {
-            "name": "anotherObjectWithIdAndMore",
-            "type": "ObjectWithIdAndMore"
         }
     ]
 }

@@ -1,0 +1,179 @@
+<root name="Comhon\Manifest" version="3.0">
+  <properties>
+    <property name="name" not_null="1" is_required="1" is_id="1" regex="/^\w+(\\\w+)*$/" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="is_abstract" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="extends" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+      <values name="type" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    </property>
+    <property name="object_class" not_null="1" regex="/^(\\\w+)+$/" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="is_serializable" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="is_main" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="share_parent_id" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="shared_id" not_null="1" __inheritance__="Comhon\Manifest\Property\String">
+      <conflicts>
+        <property>share_parent_id</property>
+      </conflicts>
+    </property>
+    <property name="properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="property" not_null="1" model="Property"/>
+    </property>
+  </properties>
+  <types>
+    <type name="Property" is_abstract="1">
+      <properties>
+        <property name="name" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="not_null" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="is_required" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="is_private" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="depends" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+          <values name="property" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        </property>
+        <property name="conflicts" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+          <values name="property" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        </property>
+      </properties>
+    </type>
+    <type name="Property\Scalar" is_abstract="1">
+      <extends>
+        <type>Property</type>
+      </extends>
+      <properties>
+        <property name="xml" not_null="1" __inheritance__="Comhon\Manifest\Property\String">
+          <enum>
+            <value>attribute</value>
+            <value>node</value>
+          </enum>
+        </property>
+      </properties>
+    </type>
+    <type name="Property\Id" is_abstract="1">
+      <properties>
+        <property name="is_id" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+      </properties>
+    </type>
+    <type name="Property\String">
+      <extends>
+        <type>Property\Scalar</type>
+        <type>Property\Id</type>
+      </extends>
+      <properties>
+        <property name="default" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="length" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="pattern" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="regex" not_null="1" __inheritance__="Comhon\Manifest\Property\String">
+          <conflicts>
+            <property>pattern</property>
+          </conflicts>
+        </property>
+        <property name="enum" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+          <values name="value" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        </property>
+        <property name="not_empty" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="is_model_name" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+      </properties>
+    </type>
+    <type name="Property\Integer">
+      <extends>
+        <type>Property\Scalar</type>
+        <type>Property\Id</type>
+      </extends>
+      <properties>
+        <property name="default" __inheritance__="Comhon\Manifest\Property\Integer"/>
+        <property name="interval" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="enum" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+          <values name="value" not_null="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+        </property>
+      </properties>
+    </type>
+    <type name="Property\Index">
+      <extends>
+        <type>Property\Integer</type>
+      </extends>
+    </type>
+    <type name="Property\Float">
+      <extends>
+        <type>Property\Scalar</type>
+        <type>Property\Id</type>
+      </extends>
+      <properties>
+        <property name="default" __inheritance__="Comhon\Manifest\Property\Float"/>
+        <property name="interval" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="enum" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+          <values name="value" not_null="1" __inheritance__="Comhon\Manifest\Property\Float"/>
+        </property>
+      </properties>
+    </type>
+    <type name="Property\Percentage">
+      <extends>
+        <type>Property\Float</type>
+      </extends>
+    </type>
+    <type name="Property\DateTime">
+      <extends>
+        <type>Property\Scalar</type>
+      </extends>
+      <properties>
+        <property name="default" __inheritance__="Comhon\Manifest\Property\DateTime"/>
+        <property name="interval" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="enum" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
+          <values name="value" not_null="1" __inheritance__="Comhon\Manifest\Property\DateTime"/>
+        </property>
+      </properties>
+    </type>
+    <type name="Property\Boolean">
+      <extends>
+        <type>Property</type>
+      </extends>
+      <properties>
+        <property name="default" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+      </properties>
+    </type>
+    <type name="Property\Object">
+      <extends>
+        <type>Property</type>
+      </extends>
+      <properties>
+        <property name="model" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="is_foreign" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+      </properties>
+    </type>
+    <type name="Property\Array" is_abstract="1">
+      <extends>
+        <type>Property</type>
+      </extends>
+      <properties>
+        <property name="is_associative" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="not_empty" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="size" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+      </properties>
+    </type>
+    <type name="Property\Array\Scalar">
+      <extends>
+        <type>Property\Array</type>
+      </extends>
+      <properties>
+        <property name="values" not_null="1" is_required="1" model="Property\Scalar" __inheritance__="Comhon\Manifest\Property\Object"/>
+      </properties>
+    </type>
+    <type name="Property\Array\Object">
+      <extends>
+        <type>Property\Array</type>
+      </extends>
+      <properties>
+        <property name="is_foreign" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="values" not_null="1" is_required="1" model="Property\Object" __inheritance__="Comhon\Manifest\Property\Object"/>
+      </properties>
+    </type>
+    <type name="File">
+      <extends>
+        <type>\Comhon\Manifest</type>
+      </extends>
+      <properties>
+        <property name="version" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="types" __inheritance__="Comhon\Manifest\Property\Array\Object">
+          <values name="type" model="\Comhon\Manifest"/>
+        </property>
+      </properties>
+    </type>
+  </types>
+</root>

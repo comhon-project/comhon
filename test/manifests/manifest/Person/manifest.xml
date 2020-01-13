@@ -1,25 +1,18 @@
-<manifest version="3.0" object="Test\Comhon\Object\Person" is_serializable="0">
+<root name="Test\Person" object_class="\Test\Comhon\Object\Person" is_serializable="0" version="3.0">
   <properties>
-    <property type="integer" is_id="1" name="id"/>
-    <property type="string" name="firstName"/>
-    <property type="string" name="lastName"/>
-    <property type="dateTime" name="birthDate"/>
-    <property is_foreign="1" type="\Test\Place" name="birthPlace"/>
-    <property is_foreign="1" type="\Test\Person" name="bestFriend"/>
-    <property is_foreign="1" type="\Test\Person\Man" name="father"/>
-    <property is_foreign="1" type="\Test\Person\Woman" name="mother"/>
-    <property is_foreign="1" type="array" name="children">
-      <values type="\Test\Person" name="child"/>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="firstName" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="lastName" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="birthDate" __inheritance__="Comhon\Manifest\Property\DateTime"/>
+    <property name="birthPlace" model="\Test\Place" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="bestFriend" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="father" model="\Test\Person\Man" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="mother" model="\Test\Person\Woman" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="children" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="child" model="\Test\Person"/>
     </property>
-    <property is_foreign="1" type="array" name="homes">
-      <values type="\Test\Home" name="home"/>
+    <property name="homes" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="home" model="\Test\Home"/>
     </property>
-    <!--<property is_foreign="1" type="array" name="realEstateProperties">
-            <values type="\Test\Home"/>
-        </property>-->
   </properties>
-  <inheritance_requestables>
-    <inheritance_requestable>\Test\Person\Man</inheritance_requestable>
-    <inheritance_requestable>\Test\Person\Woman</inheritance_requestable>
-  </inheritance_requestables>
-</manifest>
+</root>

@@ -1,9 +1,9 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\Home" is_serializable="1" version="3.0">
   <properties>
-    <property type="integer" is_id="1" name="id"/>
-    <property type="string" name="beginDate"/>
-    <property type="string" name="endDate"/>
-    <property is_foreign="1" type="\Test\Person" name="person"/>
-    <property is_foreign="1" type="\Test\House" name="house"/>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="beginDate" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="endDate" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="person" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="house" model="\Test\House" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
-</manifest>
+</root>

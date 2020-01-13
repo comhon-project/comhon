@@ -1,6 +1,6 @@
-<manifest version="3.0" is_main="1">
+<root name="Test\TestNoSerialization" is_main="1" version="3.0">
   <properties>
-    <property type="integer" name="id" is_id="1"/>
-    <property type="string" name="name"/>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

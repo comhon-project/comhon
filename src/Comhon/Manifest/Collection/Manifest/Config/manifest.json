@@ -1,17 +1,55 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Config",
     "is_main": true,
+    "properties": [
+        {
+            "name": "database",
+            "model": "DbOpt",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "dateTimeFormat",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "manifestFormat",
+            "default": "json",
+            "enum": [
+                "json",
+                "xml"
+            ],
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "autoload",
+            "model": "Autoload",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "regexList",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "sqlTable",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "sqlDatabase",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "DbOpt",
             "properties": [
                 {
                     "name": "charset",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "timezone",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -20,58 +58,23 @@
             "properties": [
                 {
                     "name": "manifest",
-                    "type": "array",
                     "is_associative": true,
                     "values": {
-                        "type": "string",
-                        "name": "manifest"
-                    }
+                        "name": "manifest",
+                        "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    },
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
                 },
                 {
                     "name": "serialization",
-                    "type": "array",
                     "is_associative": true,
                     "values": {
-                        "type": "string",
-                        "name": "serialization"
-                    }
+                        "name": "serialization",
+                        "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    },
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "database",
-            "type": "DbOpt"
-        },
-        {
-            "name": "dateTimeFormat",
-            "type": "string"
-        },
-        {
-            "name": "manifestFormat",
-            "type": "string",
-            "enum": [
-                "json",
-                "xml"
-            ],
-            "default": "json"
-        },
-        {
-            "name": "autoload",
-            "type": "Autoload"
-        },
-        {
-            "name": "regexList",
-            "type": "string"
-        },
-        {
-            "name": "sqlTable",
-            "type": "string"
-        },
-        {
-            "name": "sqlDatabase",
-            "type": "string"
         }
     ]
 }

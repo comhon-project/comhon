@@ -1,8 +1,9 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Logic\\Simple\\Literal\\Set\\Numeric",
     "is_abstract": true,
-    "share_parent_id": true,
     "extends": [
         "\\Comhon\\Logic\\Simple\\Literal\\Set"
-    ]
+    ],
+    "share_parent_id": true,
+    "version": "3.0"
 }

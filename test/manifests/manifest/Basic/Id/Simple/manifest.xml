@@ -1,5 +1,5 @@
-<manifest version="3.0" is_abstract="1">
+<root name="Test\Basic\Id\Simple" is_abstract="1" version="3.0">
   <properties>
-    <property type="string" is_id="1" name="name"/>
+    <property name="name" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

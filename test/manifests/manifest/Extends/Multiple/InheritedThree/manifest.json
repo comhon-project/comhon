@@ -1,10 +1,11 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\Multiple\\InheritedThree",
     "is_serializable": false,
     "properties": [
         {
             "name": "three",
-            "type": "string"
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
-    ]
+    ],
+    "version": "3.0"
 }

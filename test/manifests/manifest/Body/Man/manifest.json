@@ -1,5 +1,5 @@
 {
-    "version": "3.0",
+    "name": "Test\\Body\\Man",
     "extends": [
         "\\Test\\Body"
     ],
@@ -7,7 +7,8 @@
     "properties": [
         {
             "name": "baldness",
-            "type": "boolean"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
         }
-    ]
+    ],
+    "version": "3.0"
 }

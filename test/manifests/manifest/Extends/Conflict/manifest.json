@@ -1,6 +1,14 @@
 {
-    "version": "3.0",
+    "name": "Test\\Extends\\Conflict",
     "is_serializable": true,
+    "properties": [
+        {
+            "name": "integerProperty",
+            "interval": "[0,]",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        }
+    ],
+    "version": "3.0",
     "types": [
         {
             "name": "One",
@@ -10,7 +18,7 @@
             "properties": [
                 {
                     "name": "integerProperty",
-                    "type": "string"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -22,7 +30,7 @@
             "properties": [
                 {
                     "name": "integerProperty",
-                    "type": "integer"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
                 }
             ]
         },
@@ -34,8 +42,8 @@
             "properties": [
                 {
                     "name": "integerProperty",
-                    "type": "integer",
-                    "interval": "[0,2]"
+                    "interval": "[0,2]",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
                 }
             ]
         },
@@ -52,16 +60,9 @@
             "properties": [
                 {
                     "name": "integerProperty",
-                    "type": "float"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Float"
                 }
             ]
-        }
-    ],
-    "properties": [
-        {
-            "name": "integerProperty",
-            "type": "integer",
-            "interval": "[0,]"
         }
     ]
 }

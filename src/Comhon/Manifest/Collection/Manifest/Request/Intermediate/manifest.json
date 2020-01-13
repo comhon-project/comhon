@@ -1,27 +1,29 @@
 {
-    "version": "3.0",
+    "name": "Comhon\\Request\\Intermediate",
     "extends": [
         "\\Comhon\\Request"
     ],
     "properties": [
         {
             "name": "root",
-            "type": "\\Comhon\\Model\\Simple",
-            "is_required": true,
             "not_null": true,
-            "is_foreign": true
+            "is_required": true,
+            "model": "\\Comhon\\Model\\Simple",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "models",
-            "type": "array",
-            "values": {
-                "type": "\\Comhon\\Model\\Simple",
-                "name": "model",
-                "not_null": true
-            },
-            "is_required": true,
             "not_null": true,
-            "not_empty": true
+            "is_required": true,
+            "not_empty": true,
+            "values": {
+                "name": "model",
+                "not_null": true,
+                "model": "\\Comhon\\Model\\Simple"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
         }
-    ]
+    ],
+    "version": "3.0"
 }

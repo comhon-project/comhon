@@ -1,10 +1,10 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\Person\Man" is_serializable="1" version="3.0">
   <extends>
     <type>\Test\Person</type>
   </extends>
   <properties>
-    <property is_foreign="1" type="array" name="bodies">
-      <values type="\Test\Body\Man" name="body"/>
+    <property name="bodies" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
+      <values name="body" model="\Test\Body\Man"/>
     </property>
   </properties>
-</manifest>
+</root>

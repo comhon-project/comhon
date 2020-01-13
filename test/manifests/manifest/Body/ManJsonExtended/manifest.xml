@@ -1,8 +1,8 @@
-<manifest version="3.0" is_serializable="1">
+<root name="Test\Body\ManJsonExtended" is_serializable="1" version="3.0">
   <extends>
     <type>\Test\Body\ManJson</type>
   </extends>
   <properties>
-    <property type="string" name="value"/>
+    <property name="value" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
-</manifest>
+</root>

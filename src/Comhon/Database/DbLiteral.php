@@ -75,7 +75,7 @@ abstract class DbLiteral extends Literal {
 	public static function build(UniqueObject $literal, Model $model, $selectQuery = null, $allowPrivateProperties = true, &$dbLiteralsById = []) {
 		if ($literal->getModel()->getName() != 'Comhon\Logic\Simple\Having') {
 			$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal');
-			if (!$literal->getModel()->isInheritedFrom($literalModel)) {
+			if (!$literal->isA($literalModel)) {
 				$expected = [
 					ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Having')->getObjectInstance(false)->getComhonClass(),
 					$literalModel->getObjectInstance(false)->getComhonClass()
@@ -117,8 +117,7 @@ abstract class DbLiteral extends Literal {
 			}
 			
 			$setModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal\Set');
-			$value = $literal->getModel()->isInheritedFrom($setModel) 
-				? $literal->getValue('values')->getValues() : $literal->getValue('value');
+			$value = $literal->isA($setModel) ? $literal->getValue('values')->getValues() : $literal->getValue('value');
 			
 			$databaseLiteral = ($property instanceof MultipleForeignProperty) 
 				? new MultiplePropertyDbLiteral($table, $property, $literal->getValue('operator'), $value)
