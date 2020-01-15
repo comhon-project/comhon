@@ -44,21 +44,23 @@
         },
         {
             "name": "children",
-            "is_foreign": true,
             "values": {
                 "name": "child",
-                "model": "\\Test\\Person"
+                "model": "\\Test\\Person",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "homes",
-            "is_foreign": true,
             "values": {
                 "name": "home",
-                "model": "\\Test\\Home"
+                "model": "\\Test\\Home",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "anObjectWithIdAndMore",

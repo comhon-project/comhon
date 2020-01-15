@@ -3,8 +3,8 @@
     <type>\Test\Person</type>
   </extends>
   <properties>
-    <property name="bodies" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="body" model="\Test\Body\Man"/>
+    <property name="bodies" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="body" model="\Test\Body\Man" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
 </root>

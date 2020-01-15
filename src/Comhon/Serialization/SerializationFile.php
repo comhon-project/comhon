@@ -18,11 +18,16 @@ use Comhon\Exception\ArgumentException;
 use Comhon\Model\Model;
 
 abstract class SerializationFile extends ValidatedSerializationUnit {
-
+	
 	/**
 	 * @var \Comhon\Interfacer\StdObjectInterfacer interfacer able to read serialized file content
 	 */
 	protected $interfacer;
+	
+	/**
+	 * @var string define if object must be pretty printed during serialization
+	 */
+	protected $pretty = false;
 	
 	/**
 	 * initialize and return interfacer able to read serialized file content
@@ -92,7 +97,7 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 			}
 		}
 		$content = $object->export($this->getInterfacer());
-		if ($this->getInterfacer()->write($content, $path) === false) {
+		if ($this->getInterfacer()->write($content, $path, $this->pretty) === false) {
 			throw new SerializationException("Cannot save object with id '{$object->getId()}'. Creation or filling file failed");
 		}
 		return 1;

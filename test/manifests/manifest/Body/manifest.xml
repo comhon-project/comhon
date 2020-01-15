@@ -16,14 +16,14 @@
         <value>fat</value>
       </enum>
     </property>
-    <property name="tatoos" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="tatoo" model="\Test\Body\Tatoo"/>
+    <property name="tatoos" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="tatoo" model="\Test\Body\Tatoo" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="piercings" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="piercing" model="Piercing"/>
+    <property name="piercings" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="piercing" model="Piercing" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="arts" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="art" model="Art"/>
+    <property name="arts" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="art" model="Art" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="owner" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>

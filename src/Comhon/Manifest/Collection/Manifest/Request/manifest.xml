@@ -10,17 +10,17 @@
         <property>order</property>
       </depends>
     </property>
-    <property name="order" not_null="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="element" not_null="1" model="Order"/>
+    <property name="order" not_null="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="element" not_null="1" model="Order" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
-      <values name="property" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="property" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
     </property>
-    <property name="simpleCollection" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="formula" not_null="1" model="\Comhon\Logic\Simple\Formula"/>
+    <property name="simpleCollection" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="formula" not_null="1" model="\Comhon\Logic\Simple\Formula" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="havingCollection" not_null="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="formula" not_null="1" model="\Comhon\Logic\Having\Formula"/>
+    <property name="havingCollection" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="formula" not_null="1" model="\Comhon\Logic\Having\Formula" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="filter" not_null="1" model="\Comhon\Logic\Simple\Formula" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
@@ -28,7 +28,7 @@
     <type name="Order">
       <properties>
         <property name="property" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="type" not_null="1" is_required="1" default="ASC" __inheritance__="Comhon\Manifest\Property\String">
+        <property name="type" not_null="1" default="ASC" is_required="1" __inheritance__="Comhon\Manifest\Property\String">
           <enum>
             <value>DESC</value>
             <value>ASC</value>

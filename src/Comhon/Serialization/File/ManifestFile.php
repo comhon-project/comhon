@@ -44,7 +44,13 @@ class ManifestFile extends SerializationFile {
 		return self::$instance;
 	}
 	
-	public function __construct($format = null) {
+	/**
+	 * 
+	 * @param string $format must belong to enumeration [xml, json]
+	 * @param boolean $pretty if true, manifest is pretty printed
+	 * @throws ArgumentException
+	 */
+	public function __construct($format = null, $pretty = true) {
 		if (!is_null($format)) {
 			if ($format == 'json') {
 				$this->interfacer = new AssocArrayInterfacer();
@@ -59,6 +65,7 @@ class ManifestFile extends SerializationFile {
 			$this->interfacer->setFlagValuesAsUpdated(false);
 			$this->interfacer->setMergeType(Interfacer::OVERWRITE);
 		}
+		$this->pretty = $pretty;
 	}
 	
 	/**

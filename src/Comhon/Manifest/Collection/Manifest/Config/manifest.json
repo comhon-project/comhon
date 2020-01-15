@@ -61,18 +61,18 @@
                     "is_associative": true,
                     "values": {
                         "name": "manifest",
-                        "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
                 },
                 {
                     "name": "serialization",
                     "is_associative": true,
                     "values": {
                         "name": "serialization",
-                        "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
                 }
             ]
         }

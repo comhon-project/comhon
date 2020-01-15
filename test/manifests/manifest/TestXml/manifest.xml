@@ -4,12 +4,12 @@
     <property name="textNode" xml="node" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="textAttribute" xml="attribute" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="objectValue" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="objectValues" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="objectValue" model="Object"/>
+    <property name="objectValues" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="objectValue" model="Object" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="objectContainer" model="ObjectContainer" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="foreignObjectValues" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="foreignObjectValue" model="Object"/>
+    <property name="foreignObjectValues" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="foreignObjectValue" model="Object" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
   <types>

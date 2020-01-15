@@ -22,11 +22,11 @@
     </type>
     <type name="Autoload">
       <properties>
-        <property name="manifest" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
-          <values name="manifest" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="manifest" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="manifest" __inheritance__="Comhon\Manifest\Value\String"/>
         </property>
-        <property name="serialization" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
-          <values name="serialization" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="serialization" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="serialization" __inheritance__="Comhon\Manifest\Value\String"/>
         </property>
       </properties>
     </type>

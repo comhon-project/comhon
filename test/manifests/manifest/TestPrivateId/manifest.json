@@ -16,9 +16,10 @@
             "name": "objectValues",
             "values": {
                 "name": "objectValue",
-                "model": "Object"
+                "model": "Object",
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "foreignObjectValue",
@@ -28,12 +29,13 @@
         },
         {
             "name": "foreignObjectValues",
-            "is_foreign": true,
             "values": {
                 "name": "foreignObjectValue",
-                "model": "Object"
+                "model": "Object",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "foreignTestPrivateId",
@@ -43,12 +45,13 @@
         },
         {
             "name": "foreignTestPrivateIds",
-            "is_foreign": true,
             "values": {
                 "name": "foreignTestPrivateId",
-                "model": "\\Test\\TestPrivateId"
+                "model": "\\Test\\TestPrivateId",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0",

@@ -5,8 +5,8 @@
     <property name="type" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="garden" __inheritance__="Comhon\Manifest\Property\Boolean"/>
     <property name="garage" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="residents" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="resident" model="\Test\Home"/>
+    <property name="residents" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="resident" model="\Test\Home" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="address" model="\Test\Place" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>

@@ -333,7 +333,7 @@ class ManifestParser extends ParentManifestParser {
 	private function _completePropertyModel($propertyNode, AbstractModel $uniqueModel) {
 		$propertyModel = $uniqueModel;
 	
-		if ($this->isArrayProperty($propertyNode)) {
+		if ($this->isArrayNode($propertyNode)) {
 			$valuesNode = $this->interfacer->getValue($propertyNode, 'values', true);
 			if (is_null($valuesNode)) {
 				throw new ManifestException('type array must have a values node');
@@ -366,7 +366,7 @@ class ManifestParser extends ParentManifestParser {
 	 * @param mixed $propertyNode
 	 * @return boolean
 	 */
-	protected function isArrayProperty($propertyNode) {
+	protected function isArrayNode($propertyNode) {
 		return $this->interfacer->getValue($propertyNode, 'type') == 'array';
 	}
 	

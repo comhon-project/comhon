@@ -46,25 +46,28 @@
             "name": "tatoos",
             "values": {
                 "name": "tatoo",
-                "model": "\\Test\\Body\\Tatoo"
+                "model": "\\Test\\Body\\Tatoo",
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "piercings",
             "values": {
                 "name": "piercing",
-                "model": "Piercing"
+                "model": "Piercing",
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "arts",
             "values": {
                 "name": "art",
-                "model": "Art"
+                "model": "Art",
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "owner",

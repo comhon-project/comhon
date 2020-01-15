@@ -17,9 +17,9 @@
             "values": {
                 "name": "email",
                 "pattern": "email",
-                "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                "__inheritance__": "Comhon\\Manifest\\Value\\String"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "naturalNumber",
@@ -36,9 +36,9 @@
             "values": {
                 "name": "intervalArrayValue",
                 "interval": "]-1.5, 2[",
-                "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+                "__inheritance__": "Comhon\\Manifest\\Value\\Float"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "enumValue",
@@ -56,9 +56,9 @@
                     1,
                     3
                 ],
-                "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+                "__inheritance__": "Comhon\\Manifest\\Value\\Integer"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "enumFloatArray",
@@ -68,9 +68,9 @@
                     1.5,
                     3.5
                 ],
-                "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+                "__inheritance__": "Comhon\\Manifest\\Value\\Float"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "notNullArray",
@@ -82,9 +82,9 @@
                     1.5,
                     3.5
                 ],
-                "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+                "__inheritance__": "Comhon\\Manifest\\Value\\Float"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "notNullForeign",
@@ -103,9 +103,9 @@
             "values": {
                 "name": "notEmptyArrayValue",
                 "not_empty": true,
-                "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                "__inheritance__": "Comhon\\Manifest\\Value\\String"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "length",
@@ -118,9 +118,9 @@
             "values": {
                 "name": "lengthArrayValue",
                 "length": "[3,4]",
-                "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                "__inheritance__": "Comhon\\Manifest\\Value\\String"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Scalar"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0"

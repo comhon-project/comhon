@@ -9,7 +9,6 @@
         {
             "name": "operator",
             "not_null": true,
-            "is_required": true,
             "enum": [
                 "=",
                 "<>",
@@ -18,6 +17,7 @@
                 ">",
                 ">="
             ],
+            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
     ],

@@ -3,29 +3,32 @@
     "properties": [
         {
             "name": "foreignCollectionOne",
-            "is_foreign": true,
             "values": {
                 "name": "element",
-                "model": "\\Test\\Extends\\ShareId\\GrandParent"
+                "model": "\\Test\\Extends\\ShareId\\GrandParent",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "collection",
             "values": {
                 "name": "element",
-                "model": "\\Test\\Extends\\ShareId\\GrandParent"
+                "model": "\\Test\\Extends\\ShareId\\GrandParent",
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "foreignCollectionTwo",
-            "is_foreign": true,
             "values": {
                 "name": "element",
-                "model": "\\Test\\Extends\\ShareId\\GrandParent"
+                "model": "\\Test\\Extends\\ShareId\\GrandParent",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0"

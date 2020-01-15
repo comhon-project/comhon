@@ -22,8 +22,8 @@
                 {
                     "name": "model",
                     "not_null": true,
-                    "is_required": true,
                     "is_model_name": true,
+                    "is_required": true,
                     "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]
@@ -41,9 +41,10 @@
                     "values": {
                         "name": "node",
                         "not_null": true,
-                        "model": "Node"
+                        "model": "Node",
+                        "__inheritance__": "Comhon\\Manifest\\Value\\Object"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
                 }
             ]
         },
@@ -66,9 +67,10 @@
                     "values": {
                         "name": "node",
                         "not_null": true,
-                        "model": "Node"
+                        "model": "Node",
+                        "__inheritance__": "Comhon\\Manifest\\Value\\Object"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
                 }
             ]
         }

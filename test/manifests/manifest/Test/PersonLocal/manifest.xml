@@ -8,11 +8,11 @@
     <property name="bestFriend" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="father" model="\Test\Person\Man" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="mother" model="\Test\Person\Woman" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="children" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="child" model="\Test\Person"/>
+    <property name="children" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="child" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="homes" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="home" model="\Test\Home"/>
+    <property name="homes" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="home" model="\Test\Home" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="anObjectWithIdAndMore" model="ObjectWithIdAndMore" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="aForeignObjectWithIdAndMore" model="ObjectWithIdAndMore" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>

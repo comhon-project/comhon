@@ -8,24 +8,25 @@
         {
             "name": "elements",
             "not_null": true,
-            "is_required": true,
             "not_empty": true,
-            "is_foreign": true,
             "values": {
                 "name": "element",
                 "not_null": true,
-                "model": "\\Comhon\\Logic\\Simple\\Formula"
+                "model": "\\Comhon\\Logic\\Simple\\Formula",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "is_required": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "type",
             "not_null": true,
-            "is_required": true,
             "enum": [
                 "disjunction",
                 "conjunction"
             ],
+            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
     ],

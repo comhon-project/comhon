@@ -7,12 +7,13 @@
     "properties": [
         {
             "name": "bodies",
-            "is_foreign": true,
             "values": {
                 "name": "body",
-                "model": "\\Test\\Body\\Man"
+                "model": "\\Test\\Body\\Man",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array\\Object"
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0"

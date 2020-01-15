@@ -1,7 +1,7 @@
 <root name="Test\Request\Four" version="3.0">
   <properties>
-    <property name="threes" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="three" model="\Test\Request\Three"/>
+    <property name="threes" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="three" model="\Test\Request\Three" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="string" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>

@@ -9,9 +9,9 @@
         {
             "name": "node",
             "not_null": true,
-            "is_required": true,
             "model": "\\Comhon\\Model",
             "is_foreign": true,
+            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {

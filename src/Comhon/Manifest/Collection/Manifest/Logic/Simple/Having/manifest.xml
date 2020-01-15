@@ -3,10 +3,10 @@
     <type>\Comhon\Logic\Simple\Formula</type>
   </extends>
   <properties>
-    <property name="node" not_null="1" is_required="1" model="\Comhon\Model" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="queue" not_null="1" is_required="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
-      <values name="property" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="node" not_null="1" model="\Comhon\Model" is_foreign="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="queue" not_null="1" not_empty="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="property" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
     </property>
-    <property name="having" not_null="1" is_required="1" model="\Comhon\Logic\Having\Formula" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="having" not_null="1" model="\Comhon\Logic\Having\Formula" is_foreign="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
 </root>

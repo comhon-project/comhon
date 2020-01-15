@@ -3,8 +3,8 @@
     <type>\Comhon\Logic\Having\Formula</type>
   </extends>
   <properties>
-    <property name="elements" not_null="1" is_required="1" not_empty="1" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="element" not_null="1" model="\Comhon\Logic\Having\Formula"/>
+    <property name="elements" not_null="1" not_empty="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="element" not_null="1" model="\Comhon\Logic\Having\Formula" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="type" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String">
       <enum>

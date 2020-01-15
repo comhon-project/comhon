@@ -9,11 +9,11 @@
     <property name="string" is_private="1" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="integer" __inheritance__="Comhon\Manifest\Property\Integer"/>
     <property name="mainParentTestDb" model="\Test\MainTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="objectsWithId" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="objectWithId" model="ObjectWithId"/>
+    <property name="objectsWithId" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="objectWithId" model="ObjectWithId" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="foreignObjects" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="foreignObject" model="ObjectWithId"/>
+    <property name="foreignObjects" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="foreignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="lonelyForeignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="lonelyForeignObjectTwo" model="ObjectWithIdAndMore" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
@@ -24,11 +24,11 @@
     <property name="notSerializedForeignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="boolean" __inheritance__="Comhon\Manifest\Property\Boolean"/>
     <property name="boolean2" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="childrenTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="childTestDb" model="\Test\ChildTestDb"/>
+    <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="childTestDb" model="\Test\ChildTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="notLinkableArrayTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="childTestDb" model="\Test\NotLinkableTestDb"/>
+    <property name="notLinkableArrayTestDb" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="childTestDb" model="\Test\NotLinkableTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="notLinkableTestDb" model="\Test\NotLinkableTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="notLinkableTestObjValue" model="\Test\Test" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>

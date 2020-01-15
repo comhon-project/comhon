@@ -8,12 +8,12 @@
     <property name="percentageValue" default="1" __inheritance__="Comhon\Manifest\Property\Percentage"/>
     <property name="dateValue" default="2016-11-13T20:04:05+01:00" __inheritance__="Comhon\Manifest\Property\DateTime"/>
     <property name="objectValue" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="objectValues" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="objectValue" model="Object"/>
+    <property name="objectValues" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="objectValue" model="Object" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="objectContainer" model="ObjectContainer" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="foreignObjectValues" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="foreignObjectValue" model="Object"/>
+    <property name="foreignObjectValues" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="foreignObjectValue" model="Object" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="enumValue" __inheritance__="Comhon\Manifest\Property\String">
       <enum>
@@ -21,16 +21,16 @@
         <value>plop2</value>
       </enum>
     </property>
-    <property name="enumIntArray" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
-      <values name="enumArrayValue" __inheritance__="Comhon\Manifest\Property\Integer">
+    <property name="enumIntArray" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="enumArrayValue" __inheritance__="Comhon\Manifest\Value\Integer">
         <enum>
           <value>1</value>
           <value>3</value>
         </enum>
       </values>
     </property>
-    <property name="enumFloatArray" __inheritance__="Comhon\Manifest\Property\Array\Scalar">
-      <values name="enumArrayValue" __inheritance__="Comhon\Manifest\Property\Float">
+    <property name="enumFloatArray" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="enumArrayValue" __inheritance__="Comhon\Manifest\Value\Float">
         <enum>
           <value>1.5</value>
           <value>3.5</value>
@@ -61,8 +61,8 @@
         <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
         <property name="propertyTwoOne" __inheritance__="Comhon\Manifest\Property\String"/>
         <property name="propertyTwoTwo" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="propertyTwoArray" __inheritance__="Comhon\Manifest\Property\Array\Object">
-          <values name="propertyTwoArrayValue" model="Object"/>
+        <property name="propertyTwoArray" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="propertyTwoArrayValue" model="Object" __inheritance__="Comhon\Manifest\Value\Object"/>
         </property>
       </properties>
     </type>

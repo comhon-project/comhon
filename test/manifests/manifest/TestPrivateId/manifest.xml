@@ -2,16 +2,16 @@
   <properties>
     <property name="id" is_private="1" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="objectValues" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="objectValue" model="Object"/>
+    <property name="objectValues" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="objectValue" model="Object" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="foreignObjectValue" model="Object" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="foreignObjectValues" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="foreignObjectValue" model="Object"/>
+    <property name="foreignObjectValues" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="foreignObjectValue" model="Object" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="foreignTestPrivateId" model="\Test\TestPrivateId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="foreignTestPrivateIds" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-      <values name="foreignTestPrivateId" model="\Test\TestPrivateId"/>
+    <property name="foreignTestPrivateIds" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="foreignTestPrivateId" model="\Test\TestPrivateId" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
   <types>

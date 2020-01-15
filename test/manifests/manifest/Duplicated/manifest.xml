@@ -50,8 +50,8 @@
     </type>
     <type name="ContainerForeign">
       <properties>
-        <property name="objOneForeignProp" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Array\Object">
-          <values name="objOneForeign" model="ObjectOne"/>
+        <property name="objOneForeignProp" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="objOneForeign" model="ObjectOne" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
         </property>
         <property name="objMainForeignProp" model="ObjectMain" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
       </properties>
