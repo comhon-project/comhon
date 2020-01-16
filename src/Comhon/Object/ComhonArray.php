@@ -20,7 +20,8 @@ use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Model\AbstractModel;
 use Comhon\Model\Restriction\Restriction;
-use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
+use Comhon\Exception\Value\UnexpectedArrayException;
+use Comhon\Model\ModelComplex;
 
 final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	
@@ -87,8 +88,8 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 			$this->getModel()->verifElementValue($value);
 		} catch (NotSatisfiedRestrictionException $e) {
 			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
-		} catch (UnexpectedRestrictedArrayException $e) {
-			throw new UnexpectedRestrictedArrayException($value, $e->getModelArray());
+		} catch (UnexpectedArrayException $e) {
+			throw new UnexpectedArrayException($value, $e->getModelArray(), $e->getDepth());
 		} catch (UnexpectedValueTypeException $e) {
 			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
@@ -126,8 +127,8 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 			$this->getModel()->verifElementValue($value);
 		} catch (NotSatisfiedRestrictionException $e) {
 			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
-		} catch (UnexpectedRestrictedArrayException $e) {
-			throw new UnexpectedRestrictedArrayException($value, $e->getModelArray());
+		} catch (UnexpectedArrayException $e) {
+			throw new UnexpectedArrayException($value, $e->getModelArray(), $e->getDepth());
 		} catch (UnexpectedValueTypeException $e) {
 			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
@@ -164,8 +165,8 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 			$this->getModel()->verifElementValue($value);
 		} catch (NotSatisfiedRestrictionException $e) {
 			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
-		} catch (UnexpectedRestrictedArrayException $e) {
-			throw new UnexpectedRestrictedArrayException($value, $e->getModelArray());
+		} catch (UnexpectedArrayException $e) {
+			throw new UnexpectedArrayException($value, $e->getModelArray(), $e->getDepth());
 		} catch (UnexpectedValueTypeException $e) {
 			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
@@ -187,6 +188,45 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 		}
 		parent::unsetValue($name, $flagAsUpdated);
 	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::initValue()
+	 */
+	final public function initValue($name, $isLoaded = true, $flagAsUpdated = true) {
+		$this->setValue($name, $this->getInstanceValue($isLoaded), $flagAsUpdated);
+		return $this->getValue($name);
+	}
+	
+	 /***********************************************************************************************\
+	 |                                                                                               |
+	 |                                        Values Getters                                         |
+	 |                                                                                               |
+	 \***********************************************************************************************/
+	
+	/**
+	 * get instance value
+	 *
+	 * may only be applied on array that contain a complex model (model instance of \Comhon\Model\ModelComplex)
+	 *
+	 * @param string $name
+	 * @param boolean $isLoaded
+	 * @return UniqueObject|ComhonArray
+	 */
+	final public function getInstanceValue($isLoaded = true) {
+		$containedModel = $this->getModel()->getModel();
+		if (!($containedModel instanceof ModelComplex)) {
+			throw new ComhonException("ComhonArray contain a simple model and can't have instance value");
+		}
+		return $containedModel->getObjectInstance($isLoaded);
+	}
+	
+	 /***********************************************************************************************\
+	 |                                                                                               |
+	 |                                      ComhonArray Status                                      |
+	 |                                                                                               |
+	 \***********************************************************************************************/
 	
 	/**
 	 * verify if a value may be added to given comhon array

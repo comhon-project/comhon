@@ -245,14 +245,14 @@ if (ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable') !== $testDb
 }
 
 $obj        = $testModel->getObjectInstance();
-$modelArray = $obj->getModel()->getProperty('objectValues')->getModel();
-$objArray   = $modelArray->getObjectInstance();
+$objArray = $obj->getModel()->getProperty('objectValues')->getModel()->getObjectInstance();
+$objArrayForeign = $obj->getModel()->getProperty('foreignObjectValues')->getModel()->getObjectInstance();
 $objValue   = $obj->getModel()->getproperty('objectValue')->getModel()->getObjectInstance();
 
 $obj->setId('sddsdfffff');
 $obj->setValue('objectValue', $objValue);
 $obj->setValue('objectValues', $objArray);
-$obj->setValue('foreignObjectValues', $objArray);
+$obj->setValue('foreignObjectValues', $objArrayForeign);
 
 if (!ModelManager::getInstance()->hasInstanceModel('Comhon\SqlTable')) {
 	throw new \Exception('model already initialized');

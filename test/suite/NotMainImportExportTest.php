@@ -48,7 +48,7 @@ class NotMainImportExportTest extends TestCase
 		$this->assertEquals('{"id":"an_id","firstName":"john","anObjectWithIdAndMore":{"plop":"plop","plop3":"plop3"},"aForeignObjectWithIdAndMore":"plop","mother":789}', $interfacer->toString($interfacedPerson));
 		
 		// export object array
-		$personLocals = new ComhonArray($personLocalModel);
+		$personLocals = new ComhonArray($personLocalModel, false, 'elem');
 		$personLocals->pushValue($personLocal);
 		$interfacedPerson = $personLocals->export($interfacer);
 		$this->assertEquals('[{"id":"an_id","firstName":"john","anObjectWithIdAndMore":{"plop":"plop","plop3":"plop3"},"aForeignObjectWithIdAndMore":"plop","mother":789}]', $interfacer->toString($interfacedPerson));

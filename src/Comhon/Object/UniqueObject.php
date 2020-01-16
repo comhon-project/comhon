@@ -19,13 +19,14 @@ use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Model\Model;
 use Comhon\Exception\Object\AbstractObjectException;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
-use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
+use Comhon\Exception\Value\UnexpectedArrayException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Object\MissingRequiredValueException;
 use Comhon\Exception\Object\ConflictValuesException;
 use Comhon\Exception\Object\DependsValuesException;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Exception\ArgumentException;
+use Comhon\Model\ModelComplex;
 
 abstract class UniqueObject extends AbstractComhonObject {
 	
@@ -141,8 +142,8 @@ abstract class UniqueObject extends AbstractComhonObject {
 			}
 		} catch (NotSatisfiedRestrictionException $e) {
 			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction());
-		} catch (UnexpectedRestrictedArrayException $e) {
-			throw new UnexpectedRestrictedArrayException($value, $e->getModelArray());
+		} catch (UnexpectedArrayException $e) {
+			throw new UnexpectedArrayException($value, $e->getModelArray(), $e->getDepth());
 		} catch (UnexpectedValueTypeException $e) {
 			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
@@ -175,11 +176,38 @@ abstract class UniqueObject extends AbstractComhonObject {
 		parent::unsetValue($name, $flagAsUpdated);
 	}
 	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Object\AbstractComhonObject::initValue()
+	 */
+	final public function initValue($name, $isLoaded = true, $flagAsUpdated = true) {
+		$this->setValue($name, $this->getInstanceValue($name, $isLoaded), $flagAsUpdated);
+		return $this->getValue($name);
+	}
+	
 	 /***********************************************************************************************\
 	 |                                                                                               |
 	 |                                        Values Getters                                         |
 	 |                                                                                               |
 	 \***********************************************************************************************/
+	
+	/**
+	 * get instance value
+	 *
+	 * may only be applied on property with complex model (model instance of \Comhon\Model\ModelComplex)
+	 *
+	 * @param string $name
+	 * @param boolean $isLoaded
+	 * @return UniqueObject|ComhonArray
+	 */
+	final public function getInstanceValue($name, $isLoaded = true) {
+		$propertyModel = $this->getModel()->getProperty($name, true)->getModel();
+		if (!($propertyModel instanceof ModelComplex)) {
+			throw new ComhonException("property '$name' has a simple model and can't have instance value");
+		}
+		return $propertyModel->getObjectInstance($isLoaded);
+	}
 	
 	/**
 	 * get names of values that have been deleted

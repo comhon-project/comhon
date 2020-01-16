@@ -19,11 +19,12 @@ use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
-use Comhon\Exception\Value\UnexpectedRestrictedArrayException;
+use Comhon\Exception\Value\UnexpectedArrayException;
 use Comhon\Model\Restriction\Restriction;
 use Comhon\Model\Restriction\NotNull;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Interfacer\IncompatibleValueException;
+use Comhon\Exception\ArgumentException;
 
 class ModelArray extends ModelContainer implements ModelComhonObject {
 	
@@ -55,14 +56,17 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	
 	/**
 	 * 
-	 * @param \Comhon\Model\ModelUnique $model
+	 * @param \Comhon\Model\ModelUnique|\Comhon\Model\ModelArray $model
 	 * @param boolean $isAssociative
 	 * @param string $elementName
 	 * @param \Comhon\Model\Restriction\Restriction[] $arrayRestrictions
 	 * @param \Comhon\Model\Restriction\Restriction[] $elementRestrictions
 	 * @param boolean $isNotNullElement
 	 */
-	public function __construct(ModelUnique $model, $isAssociative, $elementName, array $arrayRestrictions = [], array $elementRestrictions = [], $isNotNullElement = false) {
+	public function __construct(AbstractModel $model, $isAssociative, $elementName, array $arrayRestrictions = [], array $elementRestrictions = [], $isNotNullElement = false) {
+		if (!($model instanceof ModelUnique) && !($model instanceof ModelArray)) {
+			throw new ArgumentException(get_class($model), [ModelUnique::class, ModelArray::class], 1);
+		}
 		parent::__construct($model);
 		$this->isAssociative = $isAssociative;
 		$this->elementName = $elementName;
@@ -140,9 +144,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	}
 	
 	/**
-	 * get instance of object array
 	 * 
-	 * @param boolean $isloaded define if instanciated object will be flaged as loaded or not
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::getObjectInstance()
 	 * @return \Comhon\Object\ComhonArray
 	 */
 	public function getObjectInstance($isloaded = true) {
@@ -393,32 +397,53 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	}
 	
 	/**
-	 * 
+	 *
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::verifValue()
 	 */
 	public function verifValue($value) {
-		if (
-			!($value instanceof ComhonArray) 
-			|| (
-				$value->getModel() !== $this 
-				&& $value->getModel()->model !== $this->model 
-				&& (
-					$value->getModel()->model instanceof SimpleModel
-					|| !$value->getModel()->getModel()->isInheritedFrom($this->getModel())
-				)
-			)
-		) {
+		if (!($value instanceof ComhonArray)) {
 			$Obj = $this->getObjectInstance(false);
 			throw new UnexpectedValueTypeException($value, $Obj->getComhonClass());
 		}
-		if ($value->getModel() !== $this) {
-			if (!Restriction::compare($this->arrayRestrictions, $value->getModel()->getArrayRestrictions())) {
-				throw new UnexpectedRestrictedArrayException($value, $this);
+		return $this->_verifModel($value->getModel(), $value, 0);
+	}
+	
+	/**
+	 * 
+	 * @param Model $modelArray
+	 * @throws UnexpectedValueTypeException
+	 * @throws UnexpectedArrayException
+	 * @return boolean
+	 */
+	public function _verifModel($model, $value, $depth) {
+		if ($model === $this) {
+			return true;
+		}
+		if (!($model instanceof ModelArray)) {
+			throw new UnexpectedArrayException($value, $this, $depth);
+		}
+		if ($this->isAssociative !== $model->isAssociative) {
+			throw new UnexpectedArrayException($value, $this, $depth);
+		}
+		if ($this->elementName !== $model->elementName) {
+			throw new UnexpectedArrayException($value, $this, $depth);
+		}
+		if ($this->isNotNullElement !== $model->isNotNullElement) {
+			throw new UnexpectedArrayException($value, $this, $depth);
+		}
+		if ($model->model !== $this->model) {
+			if ($this->model instanceof ModelArray) {
+				$this->model->_verifModel($model->model, $value, $depth + 1);
+			} elseif (!($model->getModel() instanceof Model) || !$model->getModel()->isInheritedFrom($this->getModel())) {
+				throw new UnexpectedArrayException($value, $this, $depth);
 			}
-			if (!Restriction::compare($this->elementRestrictions, $value->getModel()->getElementRestrictions())) {
-				throw new UnexpectedRestrictedArrayException($value, $this);
-			}
+		}
+		if (!Restriction::compare($this->arrayRestrictions, $model->getArrayRestrictions())) {
+			throw new UnexpectedArrayException($value, $this, $depth);
+		}
+		if (!Restriction::compare($this->elementRestrictions, $model->getElementRestrictions())) {
+			throw new UnexpectedArrayException($value, $this, $depth);
 		}
 		return true;
 	}

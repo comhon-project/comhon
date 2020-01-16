@@ -174,15 +174,12 @@ abstract class AbstractComhonObject {
 	/**
 	 * instanciate a AbstractComhonObject and add it to values
 	 * 
-	 * @param string $name
+	 * @param string $name may be a property name (if current object is a UniqueObject) or a key (if current object is a ComhonArray)
 	 * @param boolean $isLoaded if true, flag value as loaded
 	 * @param boolean $flagAsUpdated if true, flag value as updated
 	 * @return UniqueObject|ComhonArray
 	 */
-	final public function initValue($name, $isLoaded = true, $flagAsUpdated = true) {
-		$this->setValue($name, $this->getInstanceValue($name, $isLoaded), $flagAsUpdated);
-		return $this->values[$name];
-	}
+	abstract public function initValue($name, $isLoaded = true, $flagAsUpdated = true);
 	
 	/**
 	 * set values
@@ -225,19 +222,6 @@ abstract class AbstractComhonObject {
 	 */
 	final public function getValue($name) {
 		return ($this->hasValue($name)) ? $this->values[$name] : null;
-	}
-	
-	/**
-	 * get instance value
-	 * 
-	 * may only be applied on property with complex model
-	 * 
-	 * @param string $name
-	 * @param boolean $isLoaded
-	 * @return UniqueObject|ComhonArray
-	 */
-	final public function getInstanceValue($name, $isLoaded = true) {
-		return $this->getModel()->getProperty($name, true)->getModel()->getObjectInstance($isLoaded);
 	}
 	
 	/**

@@ -342,10 +342,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * get instance of object associated to model
 	 * 
-	 * @param boolean $isloaded define if instanciated object will be flaged as loaded or not
-	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::getObjectInstance()
+	 * @return \Comhon\Object\UniqueObject
 	 */
 	public function getObjectInstance($isloaded = true) {
 		if ($this->isExtended) {

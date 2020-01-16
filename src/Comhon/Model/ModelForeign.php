@@ -50,10 +50,10 @@ class ModelForeign extends ModelContainer {
 	}
 	
 	/**
-	 * get instance of object associated to contained model
 	 * 
-	 * @param boolean $isloaded define if instanciated object will be flaged as loaded or not
-	 * @return \Comhon\Object\AbstractComhonObject
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::getObjectInstance()
+	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
 	 */
 	public function getObjectInstance($isloaded = true) {
 		return $this->getModel()->getObjectInstance($isloaded);

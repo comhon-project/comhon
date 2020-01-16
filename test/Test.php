@@ -449,7 +449,6 @@ try {
 
 // TODO for version > 3.0
 
-// multi dimensionnal array
 // conflicts two dimensional array (not in properties) array of array of two foreign properties
 // conflic/depends foreign property refernce property id (name)
 // define shareid on property/array

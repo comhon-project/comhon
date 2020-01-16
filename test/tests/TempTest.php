@@ -12,7 +12,7 @@ use phpDocumentor\Reflection\Types\Self_;
 use Comhon\Serialization\File\ManifestFile;
 
 //Config::setLoadPath('./config/config-json-pgsql.json');
-
+/*
 function getDirContents($dir, &$results = array()) {
 	$files = scandir($dir);
 	
@@ -28,12 +28,12 @@ function getDirContents($dir, &$results = array()) {
 	
 	return $results;
 }
-/*
+
 $folders = [
 		dirname(__DIR__) . '/manifests/manifest/' => 'Test',
 		dirname(dirname(__DIR__)) . '/src/Comhon/Manifest/Collection/Manifest/' => 'Comhon'
 ];
-$unit = new ManifestFile('xml');
+$unit = new ManifestFile('json');
 $model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest\File');
 foreach ($folders as $folder => $prefix) {
 	$files = [];
@@ -50,5 +50,5 @@ foreach ($folders as $folder => $prefix) {
 		}
 	}
 }
-die();*/
-
+die();
+*/

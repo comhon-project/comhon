@@ -347,7 +347,7 @@ class ManifestParser extends ParentManifestParser {
 			$isNotNullElement = $this->_getBooleanValue($valuesNode, self::NOT_NULL, false);
 			
 			$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
-			$elementRestrictions = $this->_getRestrictions($valuesNode, $uniqueModel);
+			$elementRestrictions = $subModel instanceof ModelArray ? [] : $this->_getRestrictions($valuesNode, $uniqueModel);
 			$arrayRestrictions = [];
 			
 			if ($this->interfacer->hasValue($propertyNode, self::SIZE)) {

@@ -164,7 +164,7 @@ $modelString = ModelManager::getInstance()->getInstanceModel('string');
 /** ************** test set value array with good restriction but not same instance *************** **/
 
 $restriction = new Interval(']-1.50, 2[', $modelFloat);
-$modelRestrictedArray = new ModelArray($modelFloat, false, 'intervalValue', [], [$restriction]);
+$modelRestrictedArray = new ModelArray($modelFloat, false, 'intervalArrayValue', [], [$restriction]);
 $objectArray = new ComhonArray($modelRestrictedArray);
 $testRestricted->setValue('intervalInArray', $objectArray);
 
@@ -182,7 +182,7 @@ $testRestricted->setValue('enumFloatArray', $objectArray);
 
 // Interval should be ']-1.50, 2['
 $restriction = new Interval(']-1.50, 2]', $modelFloat);
-$modelRestrictedArray = new ModelArray($modelFloat, false, 'intervalValue', [], [$restriction]);
+$modelRestrictedArray = new ModelArray($modelFloat, false, 'intervalArrayValue', [], [$restriction]);
 $objectArray = new ComhonArray($modelRestrictedArray);
 testSetBadArrayValue($testRestricted, 'intervalInArray', $objectArray);
 

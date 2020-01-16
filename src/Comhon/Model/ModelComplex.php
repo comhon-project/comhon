@@ -24,6 +24,14 @@ abstract class ModelComplex extends AbstractModel {
 	protected static $instanceObjectHash = [];
 	
 	/**
+	 * get instance of object associated to model
+	 *
+	 * @param boolean $isloaded define if instanciated object will be flaged as loaded or not
+	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
+	 */
+	abstract public function getObjectInstance($isloaded = true);
+	
+	/**
 	 * export comhon object in specified format
 	 *
 	 * @param \Comhon\Object\AbstractComhonObject $object
