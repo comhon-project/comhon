@@ -67,6 +67,13 @@ class PropertyEqualityTest extends TestCase
 		
 		$propertyTwo = new Property($modelString, 'hehe', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency'], ['conflict']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
+		
+		// test is isolated
+		$modelObject = ModelManager::getInstance()->getInstanceModel('Test\Basic\Standard');
+		$propertyOne = new Property($modelObject, 'hehe', 'hihi', false, true, false, true, false, 'hoho', true, [], [], [], false);
+		
+		$propertyTwo = new Property($modelObject, 'hehe', 'hihi', false, true, false, true, false, 'hoho', true, [], [], [], true);
+		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 	}
 	
 	public function testAggregationProperty()

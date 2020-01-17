@@ -67,6 +67,9 @@ abstract class ManifestParser {
 	const IS_ABSTRACT = 'is_abstract';
 	
 	/** @var string */
+	const IS_ISOLATED = 'is_isolated';
+	
+	/** @var string */
 	const DEPENDS = 'depends';
 	
 	/** @var string */
@@ -407,7 +410,7 @@ abstract class ManifestParser {
 	 * @return \Comhon\Model\Property\Property
 	 */
 	public function getCurrentProperty(AbstractModel $propertyModel) {
-		list($name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
+		list($name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $isIsolated, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
 		list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
 		$dependencies = $this->_getDependencyProperties();
 		$conflicts = $this->_getConflictProperties();
@@ -440,7 +443,7 @@ abstract class ManifestParser {
 			if (!empty($serializationNames)) {
 				throw new ManifestException('several serialization names only allowed for foreign properties');
 			}
-			$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $isNotNull, $default, $interfaceAsNodeXml, $restrictions, $dependencies, $conflicts);
+			$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $isNotNull, $default, $interfaceAsNodeXml, $restrictions, $dependencies, $conflicts, $isIsolated);
 			// verify default value (get it from property due to dateTime that need to instanciate DateTime object)
 			if (!is_null($default) && !is_null($restriction = Restriction::getFirstNotSatisifed($restrictions, $property->getDefaultValue()))) {
 				throw new NotSatisfiedRestrictionException($property->getDefaultValue(), $restriction);

@@ -15,6 +15,9 @@ use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Exception\ComhonException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
+use Comhon\Visitor\ObjectFinder;
+use Comhon\Exception\Interfacer\InterfaceException;
+use Comhon\Exception\Interfacer\NotReferencedValueException;
 
 abstract class ModelComplex extends AbstractModel {
 	
@@ -48,6 +51,62 @@ abstract class ModelComplex extends AbstractModel {
 		self::$instanceObjectHash = [];
 		$interfacer->finalizeExport($node);
 		return $node;
+	}
+	
+	
+	
+	/**
+	 *
+	 * @param \Comhon\Object\UniqueObject $object
+	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
+	 * @throws \Comhon\Exception\ComhonException
+	 */
+	protected function _verifyReferences(AbstractComhonObject $object, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+		$objects = $objectCollectionInterfacer->getNotReferencedObjects();
+		if (!empty($objects)) {
+			$objectFinder = new ObjectFinder();
+			foreach ($objects as $obj) {
+				$statck = $objectFinder->execute(
+					$object,
+					[
+						ObjectFinder::ID => $obj->getId(),
+						ObjectFinder::MODEL => $obj->getModel(),
+						ObjectFinder::SEARCH_FOREIGN => true
+					]
+				);
+				if (is_null($statck)) {
+					throw new ComhonException('value should not be null');
+				}
+				// for the moment InterfaceException manage only one error
+				// so we throw exception at the first loop
+				throw InterfaceException::getInstanceWithProperties(
+					new NotReferencedValueException($obj),
+					array_reverse($statck)
+				);
+			}
+		}
+	}
+	
+	/**
+	 * get inherited model name from interfaced object
+	 *
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
+	 * @param bool $isFirstLevel
+	 * @return string|null
+	 */
+	protected function _getInheritedModelName($interfacedObject, Interfacer $interfacer, $isFirstLevel) {
+		throw new ComhonException('cannot call _getInheritedModelName on '.get_class($this));
+	}
+	
+	/**
+	 * get inherited model
+	 *
+	 * @param string $inheritanceModelName
+	 * @return Model;
+	 */
+	protected function _getInheritedModel($inheritanceModelName) {
+		throw new ComhonException('cannot call _getInheritedModel on '.get_class($this));
 	}
 	
 	/**

@@ -698,7 +698,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 */
 	private function _buildObjectsWithRows($rows) {
 		$modelArray = new ModelArray($this->model, false, $this->model->getShortName());
-		return $modelArray->import($rows, SqlTable::getInstance()->getInterfacer());
+		return $modelArray->import($rows, SqlTable::getInstance()->getInterfacer(), true);
 	}
 	
 }

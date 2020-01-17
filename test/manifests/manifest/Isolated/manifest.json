@@ -1,0 +1,50 @@
+{
+    "name": "Test\\Isolated",
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "foreignObject",
+            "model": "\\Test\\Basic\\Standard",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "objects",
+            "values": {
+                "name": "first",
+                "values": {
+                    "name": "second",
+                    "model": "\\Test\\Basic\\Standard",
+                    "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                },
+                "__inheritance__": "Comhon\\Manifest\\Value\\Array"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+        },
+        {
+            "name": "containerIsolated",
+            "model": "\\Test\\Isolated",
+            "is_isolated": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "containerArrayIsolated",
+            "values": {
+                "name": "first",
+                "values": {
+                    "name": "second",
+                    "model": "\\Test\\Isolated",
+                    "is_isolated": true,
+                    "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                },
+                "__inheritance__": "Comhon\\Manifest\\Value\\Array"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+        }
+    ],
+    "version": "3.0"
+}

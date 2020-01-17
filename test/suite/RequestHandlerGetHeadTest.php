@@ -637,7 +637,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":200,"message":"Something goes wrong on \'.__clause__\' value : \nhehe is not in enumeration [\"disjunction\",\"conjunction\"]"}'
 			],
-			[ // malformed order
+			[ // malformed order #10
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
@@ -659,7 +659,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":202,"message":"Something goes wrong on \'.__order__.0\' value : \nvalue must be a Comhon\\\\Object\\\\UniqueObject(Comhon\\\\Request\\\\Order), string \'aaa\' given"}'
+				'{"code":202,"message":"Something goes wrong on \'.__order__.0\' value : \nvalue must be a array, string \'aaa\' given"}'
 			],
 			[ // malformed order
 				[

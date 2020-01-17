@@ -71,7 +71,7 @@ abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_export()
 	 */
-	final protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	final protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		return $this->exportSimple($value, $interfacer);
 	}
 	
@@ -91,7 +91,7 @@ abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_import()
 	 */
-	final protected function _import($value, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	final protected function _import($value, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		return $this->importSimple($value, $interfacer, $isFirstLevel);
 	}
 	

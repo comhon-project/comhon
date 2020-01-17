@@ -25,6 +25,7 @@ use Comhon\Model\Restriction\NotNull;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Interfacer\IncompatibleValueException;
 use Comhon\Exception\ArgumentException;
+use Comhon\Object\Collection\MainObjectCollection;
 
 class ModelArray extends ModelContainer implements ModelComhonObject {
 	
@@ -45,6 +46,11 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	private $isNotNullElement;
 	
 	/**
+	 * @var boolean
+	 */
+	private $isIsolatedElement;
+	
+	/**
 	 * @var \Comhon\Model\Restriction\Restriction[]
 	 */
 	private $arrayRestrictions = [];
@@ -62,8 +68,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @param \Comhon\Model\Restriction\Restriction[] $arrayRestrictions
 	 * @param \Comhon\Model\Restriction\Restriction[] $elementRestrictions
 	 * @param boolean $isNotNullElement
+	 * @param boolean $isIsolatedElement
 	 */
-	public function __construct(AbstractModel $model, $isAssociative, $elementName, array $arrayRestrictions = [], array $elementRestrictions = [], $isNotNullElement = false) {
+	public function __construct(AbstractModel $model, $isAssociative, $elementName, array $arrayRestrictions = [], array $elementRestrictions = [], $isNotNullElement = false, $isIsolatedElement = false) {
 		if (!($model instanceof ModelUnique) && !($model instanceof ModelArray)) {
 			throw new ArgumentException(get_class($model), [ModelUnique::class, ModelArray::class], 1);
 		}
@@ -71,7 +78,11 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		$this->isAssociative = $isAssociative;
 		$this->elementName = $elementName;
 		$this->isNotNullElement = $isNotNullElement;
+		$this->isIsolatedElement = $isIsolatedElement;
 		
+		if ($this->isIsolatedElement && !($this->model instanceof Model)) {
+			throw new ComhonException('only ModelArray with contained model instance of '.Model::class.' may be isolated');
+		}
 		foreach ($arrayRestrictions as $restriction) {
 			if (!$restriction->isAllowedModel($this)) {
 				throw new ComhonException('restriction doesn\'t allow specified model'.get_class($this));
@@ -114,6 +125,15 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 */
 	public function isNotNullElement() {
 		return $this->isNotNullElement;
+	}
+	
+	/**
+	 * verify if elements of comhon array are isolated
+	 *
+	 * @return boolean
+	 */
+	public function isIsolatedElement() {
+		return $this->isIsolatedElement;
 	}
 	
 	/**
@@ -196,7 +216,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_export()
 	 */
-	protected function _export($objectArray, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	protected function _export($objectArray, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		/** @var \Comhon\Object\ComhonArray $objectArray */
 		if (is_null($objectArray)) {
 			return null;
@@ -207,9 +227,17 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		foreach ($objectArray->getValues() as $key => $value) {
 			try {
 				if ($this->isAssociative) {
-					$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_export($value, $key, $interfacer, $isFirstLevel, $objectCollectionInterfacer), $key);
+					$interfacer->addAssociativeValue(
+						$nodeArray, 
+						$this->getModel()->_export($value, $key, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $this->isIsolatedElement),
+						$key
+					);
 				} else {
-					$interfacer->addValue($nodeArray, $this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel, $objectCollectionInterfacer), $this->elementName);
+					$interfacer->addValue(
+						$nodeArray,
+							$this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $this->isIsolatedElement),
+						$this->elementName
+					);
 				}
 			} catch (ComhonException $e) {
 				throw new ExportException($e, $key);
@@ -239,7 +267,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		return $nodeArray;
 	}
 	
-	
 	/**
 	 * 
 	 * {@inheritDoc}
@@ -247,7 +274,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * 
 	 * @return \Comhon\Object\ComhonArray|null
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	protected function _import($interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
@@ -255,16 +282,38 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getArrayNodeClasses()));
 		}
 		$objectArray = $this->getObjectInstance(false);
+		return $this->_fillObjectArray($objectArray, $interfacedObject, $interfacer, $isFirstLevel, $objectCollectionInterfacer);
+	}
+	
+	/**
+	 * 
+	 * @param ComhonArray $objectArray
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
+	 * @param boolean $isFirstLevel
+	 * @param ObjectCollectionInterfacer $objectCollectionInterfacer
+	 * @throws ImportException
+	 * @return \Comhon\Object\ComhonArray
+	 */
+	protected function _fillObjectArray(ComhonArray $objectArray, $interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+		$setIsLoaded = $isFirstLevel && $interfacer->hasToFlagObjectAsLoaded() && $this->model instanceof ModelComhonObject;
 		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			try {
+				$value = $this->getModel()->_import($element, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $this->isIsolatedElement);
+				if ($setIsLoaded && !is_null($value)) {
+					$value->setIsLoaded(true);
+				}
 				if ($this->isAssociative) {
-					$objectArray->setValue($key, $this->getModel()->_import($element, $interfacer, false, $objectCollectionInterfacer), $interfacer->hasToFlagValuesAsUpdated());
+					$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
 				} else {
-					$objectArray->pushValue($this->getModel()->_import($element, $interfacer, false, $objectCollectionInterfacer), $interfacer->hasToFlagValuesAsUpdated());
+					$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
 				}
 			} catch (ComhonException $e) {
 				throw new ImportException($e, $key);
 			}
+		}
+		if ($isFirstLevel && $interfacer->hasToVerifyReferences()) {
+			$this->_verifyReferences($objectArray, $objectCollectionInterfacer);
 		}
 		$objectArray->setIsLoaded(true);
 		return $objectArray;
@@ -305,10 +354,12 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 *
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @param boolean $forceIsolateElements force isolate each elements of imported array 
+	 * (isolated element doesn't share objects instances with others elements)
 	 * @throws \Exception
 	 * @return \Comhon\Object\ComhonArray
 	 */
-	public function import($interfacedObject, Interfacer $interfacer) {
+	public function import($interfacedObject, Interfacer $interfacer, $forceIsolateElements = true) {
 		$this->load();
 		if ($interfacedObject instanceof \SimpleXMLElement) {
 			$interfacedObject = dom_import_simplexml($interfacedObject);
@@ -316,32 +367,21 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
 			throw new IncompatibleValueException($interfacedObject, $interfacer);
 		}
-		$objectArray = $this->getObjectInstance(false);
-		$isSimple = $this->getModel() instanceof SimpleModel;
-		try {
-			foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
-				try {
-					if ($isSimple) {
-						$value = $interfacer->isNullValue($element) ? null : $this->getModel()->importSimple($element, $interfacer, true);
-					} else {
-						try {
-							$value = $interfacer->isNullValue($element) ? null : $this->getModel()->import($element, $interfacer);
-						} catch (IncompatibleValueException $e) {
-							$Obj = $this->getModel()->getObjectInstance(false);
-							throw new UnexpectedValueTypeException($element, $Obj->getComhonClass());
-						}
-					}
-					
-					if ($this->isAssociative) {
-						$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
-					} else {
-						$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
-					}
-				} catch (ComhonException $e) {
-					throw new ImportException($e, $key);
-				}
+		$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+		if ($interfacer->getMergeType() == interfacer::OVERWRITE) {
+			$uniqueModel = $this->getUniqueModel();
+			if ($uniqueModel instanceof Model && $uniqueModel->isMain()) {
+				$this->_resetMainObjets($interfacedObject, $interfacer);
 			}
-			$objectArray->setIsLoaded(true);
+		}
+		try {
+			if ($forceIsolateElements && !$this->isIsolatedElement && $this->model instanceof Model) {
+				$this->isIsolatedElement = true;
+				$objectArray = $this->_import($interfacedObject, $interfacer, true, $objectCollectionInterfacer);
+				$this->isIsolatedElement = false;
+			} else {
+				$objectArray = $this->_import($interfacedObject, $interfacer, true, $objectCollectionInterfacer);
+			}
 		} catch (ComhonException $e) {
 			throw new ImportException($e);
 		}
@@ -352,8 +392,10 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::fillObject()
+	 * @param boolean $forceIsolateElements force isolate each elements of imported array 
+	 * (isolated element doesn't share objects instances with others elements)
 	 */
-	public function fillObject(AbstractComhonObject $objectArray, $interfacedObject, Interfacer $interfacer) {
+	public function fillObject(AbstractComhonObject $objectArray, $interfacedObject, Interfacer $interfacer, $forceIsolateElements = true) {
 		$this->load();
 		$this->verifValue($objectArray);
 		if ($interfacedObject instanceof \SimpleXMLElement) {
@@ -371,28 +413,51 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 				$objectCollectionInterfacer->addStartObject($value);
 			}
 		}
+		if ($interfacer->getMergeType() == interfacer::OVERWRITE) {
+			$uniqueModel = $this->getUniqueModel();
+			if ($uniqueModel instanceof Model && $uniqueModel->isMain()) {
+				$this->_resetMainObjets($interfacedObject, $interfacer);
+			}
+		}
 		try {
 			$objectArray->reset();
-			foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
-				try {
-					if ($isSimple) {
-						$value = $interfacer->isNullValue($element) ? null : $this->getModel()->importSimple($element, $interfacer, true);
-					} else {
-						$value = $interfacer->isNullValue($element) ? null : $this->getModel()->_importRoot($element, $interfacer, $objectCollectionInterfacer);
-					}
-					
-					if ($this->isAssociative) {
-						$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
-					} else {
-						$objectArray->pushValue($value, $interfacer->hasToFlagValuesAsUpdated());
-					}
-				} catch (ComhonException $e) {
-					throw new ImportException($e, $key);
-				}
+			if ($forceIsolateElements && !$this->isIsolatedElement && $this->model instanceof Model) {
+				$this->isIsolatedElement = true;
+				$this->_fillObjectArray($objectArray, $interfacedObject, $interfacer, true, $objectCollectionInterfacer);
+				$this->isIsolatedElement = false;
+			} else {
+				$this->_fillObjectArray($objectArray, $interfacedObject, $interfacer, true, $objectCollectionInterfacer);
 			}
-			$objectArray->setIsLoaded(true);
 		} catch (ComhonException $e) {
 			throw new ImportException($e);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param mixed $interfacedObject
+	 * @param Interfacer $interfacer
+	 */
+	private function _resetMainObjets($interfacedObject, Interfacer $interfacer) {
+		$model = $this->model;
+		$isSubModelArray = $model instanceof ModelArray;
+		foreach ($interfacer->getTraversableNode($interfacedObject) as $value) {
+			if ($isSubModelArray) {
+				if ($interfacer->isArrayNodeValue($value, $model->isAssociative)) {
+					$model->_resetMainObjets($value, $interfacer);
+				}
+			} else {
+				if ($interfacer->isNodeValue($value)) {
+					$inheritance = $model->_getInheritedModelName($value, $interfacer, true);
+					/** @var \Comhon\Model\Model $inheritanceModel */
+					$inheritanceModel = is_null($inheritance) ? $model : $model->_getInheritedModel($inheritance);
+					$id = $inheritanceModel->getIdFromInterfacedObject($value, $interfacer, true);
+					
+					if (!is_null($object = MainObjectCollection::getInstance()->getObject($id, $inheritanceModel->getName()))) {
+						$object->reset(false);
+					}
+				}
+			}
 		}
 	}
 	
@@ -430,6 +495,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			throw new UnexpectedArrayException($value, $this, $depth);
 		}
 		if ($this->isNotNullElement !== $model->isNotNullElement) {
+			throw new UnexpectedArrayException($value, $this, $depth);
+		}
+		if ($this->isIsolatedElement !== $model->isIsolatedElement) {
 			throw new UnexpectedArrayException($value, $this, $depth);
 		}
 		if ($model->model !== $this->model) {

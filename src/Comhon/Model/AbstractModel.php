@@ -65,10 +65,11 @@ abstract class AbstractModel {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param boolean $isFirstLevel
 	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
+	 * @param boolean $isolate
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	abstract protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer);
+	abstract protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false);
 	
 	/**
 	 * import interfaced object
@@ -77,9 +78,10 @@ abstract class AbstractModel {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param boolean $isFirstLevel
 	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
+	 * @param boolean $isolate
 	 * @return mixed|null
 	 */
-	abstract protected function _import($interfacedValue, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer);
+	abstract protected function _import($interfacedValue, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false);
 	
 	/**
 	 * verify if value is correct according current model

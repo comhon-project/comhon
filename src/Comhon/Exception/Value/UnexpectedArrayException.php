@@ -48,6 +48,9 @@ class UnexpectedArrayException extends UnexpectedValueTypeException {
 		} elseif ($modelArray->isNotNullElement() !== $objectModel->isNotNullElement()) {
 			$part = $modelArray->isNotNullElement() ? 'must have' : 'must not have';
 			$this->message = "ModelArray $part not null element. ";
+		} elseif ($modelArray->isIsolatedElement() !== $objectModel->isIsolatedElement()) {
+			$part = $modelArray->isNotNullElement() ? 'must be' : 'must not be';
+			$this->message = "ModelArray $part isolated element. ";
 		} elseif (!($objectModel->getModel() instanceof Model) || !$objectModel->getModel()->isInheritedFrom($modelArray->getModel())) {
 			$trustModelName = $modelArray->getModel()->getName();
 			$objectModelName = $objectModel->getModel() instanceof ModelArray 

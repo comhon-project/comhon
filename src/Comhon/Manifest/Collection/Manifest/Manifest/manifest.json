@@ -60,6 +60,7 @@
                 "name": "property",
                 "not_null": true,
                 "model": "Property",
+                "is_isolated": true,
                 "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
             "__inheritance__": "Comhon\\Manifest\\Property\\Array"
@@ -261,6 +262,11 @@
                 },
                 {
                     "name": "is_foreign",
+                    "not_null": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
+                },
+                {
+                    "name": "is_isolated",
                     "not_null": true,
                     "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
                 }

@@ -194,9 +194,9 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 * {@inheritDoc}
 	 * @see \Comhon\Object\AbstractComhonObject::initValue()
 	 */
-	final public function initValue($name, $isLoaded = true, $flagAsUpdated = true) {
-		$this->setValue($name, $this->getInstanceValue($isLoaded), $flagAsUpdated);
-		return $this->getValue($name);
+	final public function initValue($key, $isLoaded = true, $flagAsUpdated = true) {
+		$this->setValue($key, $this->getInstanceValue($isLoaded), $flagAsUpdated);
+		return $this->getValue($key);
 	}
 	
 	 /***********************************************************************************************\

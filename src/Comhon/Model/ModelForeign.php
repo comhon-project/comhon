@@ -87,7 +87,7 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelContainer::_export()
 	 */
-	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		if (is_null($object)) {
 			return null;
 		}
@@ -126,7 +126,7 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelContainer::_import()
 	 */
-	protected function _import($value, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	protected function _import($value, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		return $this->getModel()->_importId($value, $interfacer, $isFirstLevel, $objectCollectionInterfacer);
 	}
 	

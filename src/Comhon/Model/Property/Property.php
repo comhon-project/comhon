@@ -22,6 +22,7 @@ use Comhon\Model\AbstractModel;
 use Comhon\Model\Restriction\Restriction;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Model\Restriction\NotNull;
+use Comhon\Model\Model;
 
 class Property {
 
@@ -49,6 +50,9 @@ class Property {
 	
 	/** @var boolean */
 	protected $isNotNull;
+	
+	/** @var boolean */
+	protected $isIsolated;
 	
 	/** @var mixed */
 	protected $default;
@@ -78,11 +82,12 @@ class Property {
 	 * @param mixed $default
 	 * @param boolean $isInterfacedAsNodeXml
 	 * @param \Comhon\Model\Restriction\Restriction[] $restrictions
-	 * @param boolean $dependencies
-	 * @param boolean $conflicts
+	 * @param string[] $dependencies
+	 * @param string[] $conflicts
+	 * @param boolean $isIsolatedElement
 	 * @throws \Exception
 	 */
-	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false, $default = null, $isInterfacedAsNodeXml = null, $restrictions = [], $dependencies = [], $conflicts = []) {
+	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false, $default = null, $isInterfacedAsNodeXml = null, $restrictions = [], $dependencies = [], $conflicts = [], $isIsolated = false) {
 		$this->model = $model;
 		$this->name = $name;
 		$this->hasDefinedSerializationName = !is_null($serializationName);
@@ -92,10 +97,14 @@ class Property {
 		$this->isRequired = $isRequired;
 		$this->isSerializable = $isSerializable;
 		$this->isNotNull = $isNotNull;
+		$this->isIsolated = $isIsolated;
 		$this->default = $default;
 		$this->dependencies = $dependencies;
 		$this->conflicts = $conflicts;
 		
+		if ($this->isIsolated && !($model instanceof Model)) {
+			throw new ComhonException('only property with model instance of '.Model::class.' may be isolated');
+		}
 		foreach ($restrictions as $restriction) {
 			if (!$restriction->isAllowedModel($this->model)) {
 				throw new ComhonException('restriction doesn\'t allow specified model'.get_class($this->model));
@@ -219,12 +228,21 @@ class Property {
 	}
 	
 	/**
-	 * verify if property must be not null
+	 * verify if property value must be not null
 	 *
 	 * @return boolean
 	 */
 	public function isNotNull() {
 		return $this->isNotNull;
+	}
+	
+	/**
+	 * verify if property value is isolated
+	 *
+	 * @return boolean
+	 */
+	public function isIsolated() {
+		return $this->isIsolated;
 	}
 	
 	/**
@@ -458,6 +476,7 @@ class Property {
 			$this->default           === $property->getDefaultValue() &&
 			$this->isSerializable    === $property->isSerializable() &&
 			$this->isNotNull         === $property->isNotNull() &&
+			$this->isIsolated        === $property->isIsolated() &&
 			$this->serializationName === $property->getSerializationName() &&
 			$this->dependencies      === $property->getDependencies() &&
 			$this->conflicts         === $property->getConflicts() &&

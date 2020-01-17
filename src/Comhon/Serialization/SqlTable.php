@@ -603,7 +603,7 @@ class SqlTable extends ValidatedSerializationUnit {
 		$isModelArray = $object->getModel() instanceof ModelArray;
 		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {
 			$interfacer = $this->getInterfacer(!$onlyIds);
-			$object->fill($isModelArray ? $rows : $rows[0], $interfacer);
+			$object->getModel()->fillObject($object, $isModelArray ? $rows : $rows[0], $interfacer, true);
 			$success = true;
 		}
 		return $success;

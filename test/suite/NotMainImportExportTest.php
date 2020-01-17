@@ -97,14 +97,11 @@ class NotMainImportExportTest extends TestCase
 		
 		// import object array
 		$modelArray = new ModelArray($personLocalModel, false, 'elem');
-		$personLocals = $modelArray->import(
-			json_decode('
-				[
-					{"id":"an_id","firstName":"john","anObjectWithIdAndMore":{"plop":"plopplop2","plop3":"plop3"},"aForeignObjectWithIdAndMore":"plopplop2","mother":789},
-					{"id":"an_id2","firstName":"john","anObjectWithIdAndMore":{"plop":"plopplop2","plop3":"plop3"},"aForeignObjectWithIdAndMore":"plopplop2","mother":789}
-				]'
-			), $interfacer
-		);
+		$interfacedObject = json_decode('[
+			{"id":"an_id","firstName":"john","anObjectWithIdAndMore":{"plop":"plopplop2","plop3":"plop3"},"aForeignObjectWithIdAndMore":"plopplop2","mother":789},
+			{"id":"an_id2","firstName":"john","anObjectWithIdAndMore":{"plop":"plopplop2","plop3":"plop3"},"aForeignObjectWithIdAndMore":"plopplop2","mother":789}
+		]');
+		$personLocals = $modelArray->import($interfacedObject, $interfacer, true);
 		
 		$this->assertSame($personLocals->getValue(0)->getValue('anObjectWithIdAndMore'), $personLocals->getValue(0)->getValue('aForeignObjectWithIdAndMore'));
 		$this->assertSame($personLocals->getValue(1)->getValue('anObjectWithIdAndMore'), $personLocals->getValue(1)->getValue('aForeignObjectWithIdAndMore'));

@@ -3,16 +3,14 @@
     <property name="integers" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="x" not_null="1" size="[,1]" __inheritance__="Comhon\Manifest\Value\Array">
         <values name="y" not_null="1" size="[,2]" __inheritance__="Comhon\Manifest\Value\Array">
-          <values name="z" not_null="1" interval="[,100]" __inheritance__="Comhon\Manifest\Value\Integer">
-          </values>
+          <values name="z" not_null="1" interval="[,100]" __inheritance__="Comhon\Manifest\Value\Integer"/>
         </values>
       </values>
     </property>
     <property name="objects" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="first" __inheritance__="Comhon\Manifest\Value\Array">
         <values name="second" is_associative="1" __inheritance__="Comhon\Manifest\Value\Array">
-          <values name="third" model="\Test\Basic\Standard" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object">
-          </values>
+          <values name="third" model="\Test\Basic\Standard" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
         </values>
       </values>
     </property>

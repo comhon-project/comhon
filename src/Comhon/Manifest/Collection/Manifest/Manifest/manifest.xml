@@ -15,7 +15,7 @@
       </conflicts>
     </property>
     <property name="properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="property" not_null="1" model="Property" __inheritance__="Comhon\Manifest\Value\Object"/>
+      <values name="property" not_null="1" model="Property" is_isolated="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
   <types>
@@ -106,6 +106,7 @@
       <properties>
         <property name="model" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
         <property name="is_foreign" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="is_isolated" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
       </properties>
     </type>
     <type name="Base\Array" is_abstract="1">

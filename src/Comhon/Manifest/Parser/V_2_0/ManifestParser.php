@@ -202,6 +202,7 @@ class ManifestParser extends ParentManifestParser {
 		$isPrivate  = $this->_getBooleanValue($currentProperty, self::IS_PRIVATE, false);
 		$isNotNull  = $this->_getBooleanValue($currentProperty, self::NOT_NULL, false);
 		$isRequired = $this->_getBooleanValue($currentProperty, self::IS_REQUIRED, false);
+		$isIsolated = $this->_getBooleanValue($currentProperty, self::IS_ISOLATED, false);
 		$name       = $this->interfacer->getValue($currentProperty, self::NAME);
 		$model      = $this->_completePropertyModel($currentProperty, $propertyModel);
 		
@@ -218,7 +219,7 @@ class ManifestParser extends ParentManifestParser {
 			$interfaceAsNodeXml = null;
 		}
 		
-		return [$name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $interfaceAsNodeXml];
+		return [$name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $isIsolated, $interfaceAsNodeXml];
 	}
 	
 	/**
@@ -345,6 +346,7 @@ class ManifestParser extends ParentManifestParser {
 			
 			$isAssociative = $this->_getBooleanValue($propertyNode, self::IS_ASSOCIATIVE, false);
 			$isNotNullElement = $this->_getBooleanValue($valuesNode, self::NOT_NULL, false);
+			$isIsolatedElement = $this->_getBooleanValue($valuesNode, self::IS_ISOLATED, false);
 			
 			$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
 			$elementRestrictions = $subModel instanceof ModelArray ? [] : $this->_getRestrictions($valuesNode, $uniqueModel);
@@ -356,7 +358,7 @@ class ManifestParser extends ParentManifestParser {
 			if ($this->_getBooleanValue($propertyNode, self::NOT_EMPTY, false)) {
 				$arrayRestrictions[] = new NotEmptyArray();
 			}
-			$propertyModel = new ModelArray($subModel, $isAssociative, $valuesName, $arrayRestrictions, $elementRestrictions, $isNotNullElement);
+			$propertyModel = new ModelArray($subModel, $isAssociative, $valuesName, $arrayRestrictions, $elementRestrictions, $isNotNullElement, $isIsolatedElement);
 		}
 		return $propertyModel;
 	}

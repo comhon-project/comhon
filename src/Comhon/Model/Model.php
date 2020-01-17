@@ -18,7 +18,6 @@ use Comhon\Object\ComhonObject;
 use Comhon\Object\ComhonArray;
 use Comhon\Exception\Model\UndefinedPropertyException;
 use Comhon\Model\Property\Property;
-use Comhon\Model\Property\ForeignProperty;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
@@ -36,9 +35,6 @@ use Comhon\Manifest\Parser\ManifestParser;
 use Comhon\Exception\Model\NotDefinedModelException;
 use Comhon\Exception\Interfacer\DuplicatedIdException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
-use Comhon\Exception\Interfacer\NotReferencedValueException;
-use Comhon\Visitor\ObjectFinder;
-use Comhon\Exception\Interfacer\InterfaceException;
 use Comhon\Exception\Interfacer\ContextIdException;
 use Comhon\Exception\Interfacer\ObjectLoopException;
 use Comhon\Exception\Value\MissingIdForeignValueException;
@@ -1002,7 +998,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_export()
 	 */
-	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		/** @var \Comhon\Object\UniqueObject $object */
 		if (is_null($object)) {
 			return null;
@@ -1030,6 +1026,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			}
 			$objectCollectionInterfacer->addObject($object, false);
 		}
+		if ($isolate) {
+			$originalCollection = $objectCollectionInterfacer;
+			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+		}
 		
 		$properties = $object->getModel()->_getContextProperties($private);
 		foreach ($object->getValues() as $propertyName => $value) {
@@ -1037,13 +1037,14 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				if (array_key_exists($propertyName, $properties)) {
 					$property = $properties[$propertyName];
 					
-					if ($property->isExportable($private, $isSerialContext, $value)) {
-						if ((!$onlyUpdatedValues || $property->isId() || $object->isUpdatedValue($propertyName))
-							&& (is_null($propertiesFilter) || array_key_exists($propertyName, $propertiesFilter))) {
-							$propertyName  = $isSerialContext ? $property->getSerializationName() : $propertyName;
-							$exportedValue = $property->getModel()->_export($value, $propertyName, $interfacer, false, $objectCollectionInterfacer);
-							$interfacer->setValue($node, $exportedValue, $propertyName, $property->isInterfacedAsNodeXml());
-						}
+					if (
+						$property->isExportable($private, $isSerialContext, $value)
+						&& (!$onlyUpdatedValues || $property->isId() || $object->isUpdatedValue($propertyName))
+						&& (is_null($propertiesFilter) || array_key_exists($propertyName, $propertiesFilter))
+					) {
+						$propertyName  = $isSerialContext ? $property->getSerializationName() : $propertyName;
+						$exportedValue = $property->getModel()->_export($value, $propertyName, $interfacer, false, $objectCollectionInterfacer, $property->isIsolated());
+						$interfacer->setValue($node, $exportedValue, $propertyName, $property->isInterfacedAsNodeXml());
 					}
 				}
 			} catch (ComhonException $e) {
@@ -1080,6 +1081,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			}
 		} elseif ($object->getModel() !== $this) {
 			$interfacer->setValue($node, $object->getModel()->getName(), Interfacer::INHERITANCE_KEY);
+		}
+		if ($isolate) {
+			if ($interfacer->hasToVerifyReferences()) {
+				$this->_verifyReferences($object, $objectCollectionInterfacer);
+			}
+			$objectCollectionInterfacer = $originalCollection;
+			$objectCollectionInterfacer->addObject($object, false);
 		}
 		self::$instanceObjectHash[spl_object_hash($object)]--;
 		return $node;
@@ -1359,43 +1367,11 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 *
-	 * @param \Comhon\Object\UniqueObject $object
-	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
-	 * @throws \Comhon\Exception\ComhonException
-	 */
-	private function _verifyReferences(UniqueObject $object, ObjectCollectionInterfacer $objectCollectionInterfacer) {
-		$objects = $objectCollectionInterfacer->getNotReferencedObjects();
-		if (!empty($objects)) {
-			$objectFinder = new ObjectFinder();
-			foreach ($objects as $obj) {
-				$statck = $objectFinder->execute(
-					$object,
-					[
-						ObjectFinder::ID => $obj->getId(),
-						ObjectFinder::MODEL => $obj->getModel(),
-						ObjectFinder::SEARCH_FOREIGN => true
-					]
-				);
-				if (is_null($statck)) {
-					throw new ComhonException('value should not be null');
-				}
-				// for the moment InterfaceException manage only one error
-				// so we throw exception at the first loop
-				throw InterfaceException::getInstanceWithProperties(
-					new NotReferencedValueException($obj),
-					array_reverse($statck)
-				);
-			}
-		}
-	}
-	
-	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_import()
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	protected function _import($interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
@@ -1407,7 +1383,19 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			}
 		}
 		$object = $this->_getOrCreateObjectInstanceFromInterfacedObject($interfacedObject, $interfacer, $isFirstLevel, $objectCollectionInterfacer);
+		
+		if ($isolate) {
+			$originalCollection = $objectCollectionInterfacer;
+			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+			$objectCollectionInterfacer->addObject($object, false);
+		}
 		$this->_fillObject($object, $interfacedObject, $interfacer, $isFirstLevel, $objectCollectionInterfacer);
+		if ($isolate) {
+			if ($interfacer->hasToVerifyReferences()) {
+				$this->_verifyReferences($object, $objectCollectionInterfacer);
+			}
+			$objectCollectionInterfacer = $originalCollection;
+		}
 		return $object;
 	}
 	
@@ -1511,9 +1499,17 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					$interfacedPropertyName = $isSerialContext ? $property->getSerializationName() : $propertyName;
 					if ($interfacer->hasValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml())) {
 						$interfacedValue = $interfacer->getValue($interfacedObject, $interfacedPropertyName, $property->isInterfacedAsNodeXml());
-						$value =  $interfacer->isNullValue($interfacedValue) ? null
-							: $property->getModel()->_import($interfacedValue, $interfacer, $property->getModel()->_isNextLevelFirstLevel($isFirstLevel), $objectCollectionInterfacer);
-						
+						if ($interfacer->isNullValue($interfacedValue)) {
+							$value = null;
+						} else {
+							$value = $property->getModel()->_import(
+								$interfacedValue,
+								$interfacer,
+								$property->getModel()->_isNextLevelFirstLevel($isFirstLevel),
+								$objectCollectionInterfacer,
+								$property->isIsolated()
+							);
+						}
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 					}
 				}
