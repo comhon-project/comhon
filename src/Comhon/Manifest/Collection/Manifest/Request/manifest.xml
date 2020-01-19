@@ -28,7 +28,7 @@
     <type name="Order">
       <properties>
         <property name="property" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="type" not_null="1" default="ASC" is_required="1" __inheritance__="Comhon\Manifest\Property\String">
+        <property name="type" not_null="1" is_required="1" default="ASC" __inheritance__="Comhon\Manifest\Property\String">
           <enum>
             <value>DESC</value>
             <value>ASC</value>

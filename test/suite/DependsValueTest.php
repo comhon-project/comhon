@@ -28,10 +28,6 @@ class DependsValueTest extends TestCase
 			['baseValue'],
 			$model->getProperty('dependsConflict')->getDependencies()
 		);
-		$this->assertEquals(
-			[],
-			$model->getProperty('depends')->getConflicts()
-		);
 	}
 	
 	

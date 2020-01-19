@@ -8,12 +8,12 @@
         {
             "name": "values",
             "not_null": true,
+            "is_required": true,
             "not_empty": true,
             "values": {
                 "name": "value",
                 "__inheritance__": "Comhon\\Manifest\\Value\\Integer"
             },
-            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         }
     ],

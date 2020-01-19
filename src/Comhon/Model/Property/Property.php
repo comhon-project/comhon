@@ -66,9 +66,6 @@ class Property {
 	/** @var string[] */
 	protected $dependencies;
 	
-	/** @var string[] */
-	protected $conflicts;
-	
 	/**
 	 * 
 	 * @param \Comhon\Model\AbstractModel $model
@@ -83,11 +80,10 @@ class Property {
 	 * @param boolean $isInterfacedAsNodeXml
 	 * @param \Comhon\Model\Restriction\Restriction[] $restrictions
 	 * @param string[] $dependencies
-	 * @param string[] $conflicts
-	 * @param boolean $isIsolatedElement
+	 * @param boolean $isIsolated
 	 * @throws \Exception
 	 */
-	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false, $default = null, $isInterfacedAsNodeXml = null, $restrictions = [], $dependencies = [], $conflicts = [], $isIsolated = false) {
+	public function __construct(AbstractModel $model, $name, $serializationName = null, $isId = false, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false, $default = null, $isInterfacedAsNodeXml = null, $restrictions = [], $dependencies = [], $isIsolated = false) {
 		$this->model = $model;
 		$this->name = $name;
 		$this->hasDefinedSerializationName = !is_null($serializationName);
@@ -100,7 +96,6 @@ class Property {
 		$this->isIsolated = $isIsolated;
 		$this->default = $default;
 		$this->dependencies = $dependencies;
-		$this->conflicts = $conflicts;
 		
 		if ($this->isIsolated && !($model instanceof Model)) {
 			throw new ComhonException('only property with model instance of '.Model::class.' may be isolated');
@@ -341,26 +336,6 @@ class Property {
 	}
 	
 	/**
-	 * verify if property has conflict with other properties.
-	 * a property has conflict with other properties if property value MUST NOT be set when other properties values are set.
-	 *
-	 * @return boolean
-	 */
-	public function hasConflicts() {
-		return !empty($this->conflicts);
-	}
-	
-	/**
-	 * get names of conflict properties.
-	 * conflicts values MUST NOT be set when current property value is set
-	 *
-	 * @return string[]
-	 */
-	public function getConflicts() {
-		return $this->conflicts;
-	}
-	
-	/**
 	 * verify if property is interfaceable for export/import in public/private/serialization mode
 	 * 
 	 * @param boolean $private if true private mode, otherwise public mode
@@ -479,7 +454,6 @@ class Property {
 			$this->isIsolated        === $property->isIsolated() &&
 			$this->serializationName === $property->getSerializationName() &&
 			$this->dependencies      === $property->getDependencies() &&
-			$this->conflicts         === $property->getConflicts() &&
 			$this->model->isEqual($property->getModel()) && 
 			Restriction::compare($this->restrictions, $property->getRestrictions())
 		);

@@ -28,10 +28,9 @@ class ForeignProperty extends Property {
 	 * @param boolean $isSerializable
 	 * @param boolean $isNotNull
 	 * @param boolean $dependencies
-	 * @param boolean $conflicts
 	 */
-	public function __construct(ModelForeign $model, $name, $serializationName = null, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false, $dependencies = [], $conflicts = []) {
-		parent::__construct($model, $name, $serializationName, false, $isPrivate, $isRequired, $isSerializable, $isNotNull, null, null, [], $dependencies, $conflicts);
+	public function __construct(ModelForeign $model, $name, $serializationName = null, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false, $dependencies = []) {
+		parent::__construct($model, $name, $serializationName, false, $isPrivate, $isRequired, $isSerializable, $isNotNull, null, null, [], $dependencies);
 	}
 	
 	/**

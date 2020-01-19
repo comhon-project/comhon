@@ -21,16 +21,13 @@ class ConflictValueTest extends TestCase
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$this->assertEquals(
-			['baseValue', 'value'],
-			$model->getProperty('conflict')->getConflicts()
+			'{"conflict":["baseValue","value"],"baseValue":["conflict"],"value":["conflict","dependsConflict"],"dependsConflict":["value"]}',
+			json_encode($model->getConflicts())
 		);
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate\Conflict');
 		$this->assertEquals(
-			['value'],
-			$model->getProperty('dependsConflict')->getConflicts()
-		);
-		$this->assertEquals(
-			[],
-			$model->getProperty('conflict')->getDependencies()
+			'{"value":["conflict"],"conflict":["value"]}',
+			json_encode($model->getConflicts())
 		);
 	}
 	

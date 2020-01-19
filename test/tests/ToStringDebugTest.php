@@ -18,8 +18,8 @@ if (Config::getInstance()->getManifestFormat() == 'json') {
 	$first = '#1052';
 	$second = '#930';
 } else {
-	$first = '#322';
-	$second = '#396';
+	$first = '#320';
+	$second = '#1084';
 }
 $varDumpContent = file_get_contents(__DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'object_var_dump.txt');
 $varDumpContent = str_replace(['#_1', '#_2'], [$first, $second], $varDumpContent);

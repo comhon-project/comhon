@@ -3,7 +3,7 @@
     <type>\Comhon\Logic\Simple\Literal\Set</type>
   </extends>
   <properties>
-    <property name="values" not_null="1" not_empty="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Array">
+    <property name="values" not_null="1" is_required="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="value" __inheritance__="Comhon\Manifest\Value\String"/>
     </property>
   </properties>

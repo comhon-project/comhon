@@ -4,9 +4,9 @@
         {
             "name": "name",
             "not_null": true,
-            "regex": "\/^\\w+(\\\\\\w+)*$\/",
             "is_required": true,
             "is_id": true,
+            "regex": "\/^\\w+(\\\\\\w+)*$\/",
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
@@ -48,9 +48,6 @@
         {
             "name": "shared_id",
             "not_null": true,
-            "conflicts": [
-                "share_parent_id"
-            ],
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
@@ -60,11 +57,34 @@
                 "name": "property",
                 "not_null": true,
                 "model": "Property",
-                "is_isolated": true,
                 "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
             "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+        },
+        {
+            "name": "conflicts",
+            "not_null": true,
+            "values": {
+                "name": "properties",
+                "not_null": true,
+                "size": "[2,]",
+                "values": {
+                    "name": "property",
+                    "not_null": true,
+                    "model": "Property",
+                    "is_foreign": true,
+                    "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                },
+                "__inheritance__": "Comhon\\Manifest\\Value\\Array"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         }
+    ],
+    "conflicts": [
+        [
+            "shared_id",
+            "share_parent_id"
+        ]
     ],
     "version": "3.0",
     "types": [
@@ -72,12 +92,6 @@
             "name": "Base",
             "is_abstract": true,
             "properties": [
-                {
-                    "name": "name",
-                    "not_null": true,
-                    "is_required": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
-                },
                 {
                     "name": "not_null",
                     "not_null": true,
@@ -109,9 +123,6 @@
                 {
                     "name": "regex",
                     "not_null": true,
-                    "conflicts": [
-                        "pattern"
-                    ],
                     "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
@@ -134,6 +145,12 @@
                     "not_null": true,
                     "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
                 }
+            ],
+            "conflicts": [
+                [
+                    "pattern",
+                    "regex"
+                ]
             ]
         },
         {
@@ -297,8 +314,8 @@
                 {
                     "name": "values",
                     "not_null": true,
-                    "model": "Value",
                     "is_required": true,
+                    "model": "Value",
                     "__inheritance__": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
@@ -310,6 +327,13 @@
                 "Base"
             ],
             "properties": [
+                {
+                    "name": "name",
+                    "not_null": true,
+                    "is_required": true,
+                    "is_id": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                },
                 {
                     "name": "is_required",
                     "not_null": true,
@@ -326,17 +350,9 @@
                     "values": {
                         "name": "property",
                         "not_null": true,
-                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
-                    },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
-                },
-                {
-                    "name": "conflicts",
-                    "not_null": true,
-                    "values": {
-                        "name": "property",
-                        "not_null": true,
-                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                        "model": "Property",
+                        "is_foreign": true,
+                        "__inheritance__": "Comhon\\Manifest\\Value\\Object"
                     },
                     "__inheritance__": "Comhon\\Manifest\\Property\\Array"
                 }
@@ -348,6 +364,7 @@
             "extends": [
                 "Property"
             ],
+            "share_parent_id": true,
             "properties": [
                 {
                     "name": "xml",
@@ -374,83 +391,100 @@
         {
             "name": "Property\\String",
             "extends": [
-                "Base\\String",
                 "Property\\Scalar",
-                "Property\\Id"
-            ]
+                "Property\\Id",
+                "Base\\String"
+            ],
+            "share_parent_id": true
         },
         {
             "name": "Property\\Integer",
             "extends": [
-                "Base\\Integer",
                 "Property\\Scalar",
-                "Property\\Id"
-            ]
+                "Property\\Id",
+                "Base\\Integer"
+            ],
+            "share_parent_id": true
         },
         {
             "name": "Property\\Index",
             "extends": [
                 "Property\\Integer"
-            ]
+            ],
+            "share_parent_id": true
         },
         {
             "name": "Property\\Float",
             "extends": [
-                "Base\\Float",
                 "Property\\Scalar",
-                "Property\\Id"
-            ]
+                "Property\\Id",
+                "Base\\Float"
+            ],
+            "share_parent_id": true
         },
         {
             "name": "Property\\Percentage",
             "extends": [
                 "Property\\Float"
-            ]
+            ],
+            "share_parent_id": true
         },
         {
             "name": "Property\\DateTime",
             "extends": [
-                "Base\\DateTime",
-                "Property\\Scalar"
-            ]
+                "Property\\Scalar",
+                "Base\\DateTime"
+            ],
+            "share_parent_id": true
         },
         {
             "name": "Property\\Boolean",
             "extends": [
-                "Base\\Boolean",
-                "Property\\Scalar"
-            ]
+                "Property\\Scalar",
+                "Base\\Boolean"
+            ],
+            "share_parent_id": true
         },
         {
             "name": "Property\\Object",
             "extends": [
-                "Base\\Object",
-                "Property"
-            ]
+                "Property",
+                "Base\\Object"
+            ],
+            "share_parent_id": true
         },
         {
             "name": "Property\\Array",
             "extends": [
-                "Base\\Array",
-                "Property"
-            ]
+                "Property",
+                "Base\\Array"
+            ],
+            "share_parent_id": true
         },
         {
             "name": "Value",
-            "is_abstract": true
+            "is_abstract": true,
+            "properties": [
+                {
+                    "name": "name",
+                    "not_null": true,
+                    "is_required": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                }
+            ]
         },
         {
             "name": "Value\\String",
             "extends": [
-                "Base\\String",
-                "Value"
+                "Value",
+                "Base\\String"
             ]
         },
         {
             "name": "Value\\Integer",
             "extends": [
-                "Base\\Integer",
-                "Value"
+                "Value",
+                "Base\\Integer"
             ]
         },
         {
@@ -462,8 +496,8 @@
         {
             "name": "Value\\Float",
             "extends": [
-                "Base\\Float",
-                "Value"
+                "Value",
+                "Base\\Float"
             ]
         },
         {
@@ -475,29 +509,29 @@
         {
             "name": "Value\\DateTime",
             "extends": [
-                "Base\\DateTime",
-                "Value"
+                "Value",
+                "Base\\DateTime"
             ]
         },
         {
             "name": "Value\\Boolean",
             "extends": [
-                "Base\\Boolean",
-                "Value"
+                "Value",
+                "Base\\Boolean"
             ]
         },
         {
             "name": "Value\\Object",
             "extends": [
-                "Base\\Object",
-                "Value"
+                "Value",
+                "Base\\Object"
             ]
         },
         {
             "name": "Value\\Array",
             "extends": [
-                "Base\\Array",
-                "Value"
+                "Value",
+                "Base\\Array"
             ]
         },
         {
@@ -517,6 +551,7 @@
                     "values": {
                         "name": "type",
                         "model": "\\Comhon\\Manifest",
+                        "is_isolated": true,
                         "__inheritance__": "Comhon\\Manifest\\Value\\Object"
                     },
                     "__inheritance__": "Comhon\\Manifest\\Property\\Array"

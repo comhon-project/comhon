@@ -318,10 +318,26 @@ class ManifestParser extends ParentManifestParser {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\ManifestParser::_getConflictProperties()
+	 * @see \Comhon\Manifest\Parser\ManifestParser::getConflicts()
 	 */
-	protected function _getConflictProperties() {
-		return $this->_getArrayStringValue($this->_getCurrentPropertyNode(), self::CONFLICTS);
+	public function getConflicts() {
+		$conflicts = [];
+		if (!$this->interfacer->hasValue($this->manifest, self::CONFLICTS, true)) {
+			return $conflicts;
+		}
+		$values = $this->interfacer->getTraversableNode($this->interfacer->getValue($this->manifest, self::CONFLICTS, true));
+		foreach ($values as $propertiesNode) {
+			$conflicts[] = $this->interfacer->getTraversableNode($propertiesNode);
+		}
+		if ($this->interfacer instanceof XMLInterfacer) {
+			foreach ($conflicts as $i => $properties) {
+				foreach ($properties as $j => $domNode) {
+					$conflicts[$i][$j] = $this->interfacer->extractNodeText($domNode);
+				}
+			}
+		}
+		
+		return $conflicts;
 	}
 	
 	/**

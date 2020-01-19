@@ -57,6 +57,9 @@ class ModelManager {
 	/** @var string */
 	const SHARED_ID_MODEL = 'shared_id_model';
 	
+	/** @var string */
+	const CONFLICTS = 'conflicts';
+	
 	/**
 	 * @var \Comhon\Model\AbstractModel[]
 	 *     map that contain all main model and simple model instances
@@ -395,6 +398,7 @@ class ModelManager {
 				self::OBJECT_CLASS => $manifestParser->getObjectClass(),
 				self::IS_ABSTRACT => $manifestParser->isAbstract(),
 				self::PROPERTIES => $this->_buildProperties($parentModels, $model, $manifestParser),
+				self::CONFLICTS => $manifestParser->getconflicts(),
 			];
 			$properties[self::SERIALIZATION] = $this->_getSerializationInstance(
 				$manifestParser, 

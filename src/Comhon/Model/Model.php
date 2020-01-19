@@ -110,9 +110,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var \Comhon\Model\Property\Property[] */
 	private $dependents = [];
 	
-	/** @var \Comhon\Model\Property\Property[] */
-	private $conflictProperties = [];
-	
 	/** @var string[][] */
 	private $conflicts = [];
 	
@@ -164,6 +161,18 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				$this->objectClass = $result[ModelManager::OBJECT_CLASS];
 				$this->isExtended = true;
 			}
+			foreach ($result[ModelManager::CONFLICTS] as $properties) {
+				foreach ($properties as $i => $propertyName) {
+					if (!array_key_exists($propertyName, $this->conflicts)) {
+						$this->conflicts[$propertyName] = [];
+					}
+					foreach ($properties as $j => $conflictPropertyName) {
+						if ($j != $i) {
+							$this->conflicts[$propertyName][] = $conflictPropertyName;
+						}
+					}
+				}
+			}
 			$this->_init();
 			$this->isLoaded  = true;
 			$this->isLoading = false;
@@ -184,7 +193,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$this->multipleForeignProperties = [];
 			$this->complexProperties = [];
 			$this->dateTimeProperties = [];
-			$this->conflictProperties = [];
 			$this->dependsProperties = [];
 			$this->conflicts = [];
 			$this->dependents = [];
@@ -260,25 +268,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			if ($property->hasDependencies()) {
 				$this->dependsProperties[$property->getName()] = $property;
 			}
-			if ($property->hasConflicts()) {
-				$this->conflictProperties[$property->getName()] = $property;
-			}
 			$this->properties[$property->getName()] = $property;
-		}
-		foreach ($this->conflictProperties as $property) {
-			if (!isset($this->conflicts[$property->getName()])) {
-				$this->conflicts[$property->getName()] = [];
-			}
-			foreach ($property->getConflicts() as $propertyName) {
-				if (!isset($this->properties[$propertyName])) {
-					throw new UndefinedPropertyException($this, $propertyName);
-				}
-				if (!isset($this->conflicts[$propertyName])) {
-					$this->conflicts[$propertyName] = [];
-				}
-				$this->conflicts[$propertyName][] = $property->getName();
-				$this->conflicts[$property->getName()][] = $propertyName;
-			}
 		}
 		foreach ($this->dependsProperties as $property) {
 			foreach ($property->getDependencies() as $propertyName) {
@@ -732,24 +722,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * get all properties that have conflicts.
-	 * a property has conflict with other properties if property value MUST NOT be set when other properties values are set.
-	 *
-	 * @param string $propertyName name of property
-	 * @return \Comhon\Model\Property\Property[]
-	 */
-	public function getConflictsProperties() {
-		return $this->conflictProperties;
-	}
-	
-	/**
 	 * verify if specified property has conflits with other properties.
 	 * a property has conflict with other properties if property value MUST NOT be set when other properties values are set.
 	 *
 	 * @param string $propertyName name of property
 	 * @return boolean
 	 */
-	public function hasConflicts($propertyName) {
+	public function hasPropertyConflicts($propertyName) {
 		return isset($this->conflicts[$propertyName]);
 	}
 	
@@ -760,8 +739,19 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param string $propertyName name of property
 	 * @return string[]
 	 */
-	public function getConflicts($propertyName) {
+	public function getPropertyConflicts($propertyName) {
 		return isset($this->conflicts[$propertyName]) ? $this->conflicts[$propertyName] : [];
+	}
+	
+	/**
+	 * get all conflicts.
+	 * a property has conflict with other properties if property value MUST NOT be set when other properties values are set.
+	 *
+	 * @param string $propertyName name of property
+	 * @return string[]
+	 */
+	public function getConflicts() {
+		return $this->conflicts;
 	}
 	
 	/**
@@ -1581,7 +1571,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	protected function _importId($interfacedId, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		if (!$this->hasIdProperties()) {
-			throw new ComhonException("cannot import id, actual model '{$this->getUniqueModel()->getName()}' doesn't have id");
+			throw new ComhonException("cannot import id, actual model '{$this->getName()}' doesn't have id");
 		}
 		if (!$interfacer->isPrivateContext() && $this->hasPrivateIdProperty()) {
 			throw new ContextIdException();

@@ -5,10 +5,10 @@
         {
             "name": "limit",
             "not_null": true,
-            "interval": "[1,]",
             "depends": [
                 "order"
             ],
+            "interval": "[1,]",
             "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         },
         {
@@ -85,12 +85,12 @@
                 {
                     "name": "type",
                     "not_null": true,
+                    "is_required": true,
                     "default": "ASC",
                     "enum": [
                         "DESC",
                         "ASC"
                     ],
-                    "is_required": true,
                     "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]

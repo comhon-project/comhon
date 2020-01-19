@@ -11,21 +11,27 @@
         <property>value</property>
       </depends>
     </property>
-    <property name="conflict" __inheritance__="Comhon\Manifest\Property\String">
-      <conflicts>
-        <property>baseValue</property>
-        <property>value</property>
-      </conflicts>
-    </property>
+    <property name="conflict" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="dependsConflict" __inheritance__="Comhon\Manifest\Property\String">
       <depends>
         <property>baseValue</property>
       </depends>
-      <conflicts>
-        <property>value</property>
-      </conflicts>
     </property>
   </properties>
+  <conflicts>
+    <properties>
+      <property>conflict</property>
+      <property>baseValue</property>
+    </properties>
+    <properties>
+      <property>conflict</property>
+      <property>value</property>
+    </properties>
+    <properties>
+      <property>dependsConflict</property>
+      <property>value</property>
+    </properties>
+  </conflicts>
   <types>
     <type name="localRestricted">
       <properties>
@@ -41,6 +47,18 @@
       <properties>
         <property name="valueRequiredExtended" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
+    </type>
+    <type name="Conflict">
+      <properties>
+        <property name="value" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="conflict" __inheritance__="Comhon\Manifest\Property\String"/>
+      </properties>
+      <conflicts>
+        <properties>
+          <property>value</property>
+          <property>conflict</property>
+        </properties>
+      </conflicts>
     </type>
   </types>
 </root>

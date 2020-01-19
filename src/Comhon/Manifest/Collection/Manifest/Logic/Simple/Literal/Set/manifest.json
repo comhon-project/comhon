@@ -9,11 +9,11 @@
         {
             "name": "operator",
             "not_null": true,
+            "is_required": true,
             "enum": [
                 "IN",
                 "NOT IN"
             ],
-            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
     ],

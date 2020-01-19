@@ -122,8 +122,8 @@ abstract class UniqueObject extends AbstractComhonObject {
 			}
 			$property->isSatisfiable($value, true);
 			if ($this->isLoaded()) {
-				if ($this->getModel()->hasConflicts($name)) {
-					foreach ($this->getModel()->getConflicts($name) as $propertyName) {
+				if ($this->getModel()->hasPropertyConflicts($name)) {
+					foreach ($this->getModel()->getPropertyConflicts($name) as $propertyName) {
 						if ($this->hasValue($propertyName)) {
 							throw new ConflictValuesException($this->getModel(), [$name, $propertyName]);
 						}
@@ -410,9 +410,9 @@ abstract class UniqueObject extends AbstractComhonObject {
 				throw new MissingRequiredValueException($this, $name);
 			}
 		}
-		foreach ($this->getModel()->getConflictsProperties() as $name => $property) {
+		foreach ($this->getModel()->getConflicts() as $name => $properties) {
 			if ($this->hasValue($name)) {
-				foreach ($property->getConflicts() as $propertyName) {
+				foreach ($properties as $propertyName) {
 					if ($this->hasValue($propertyName)) {
 						throw new ConflictValuesException($this->getModel(), [$name, $propertyName]);
 					}

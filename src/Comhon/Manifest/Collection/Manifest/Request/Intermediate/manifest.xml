@@ -3,8 +3,8 @@
     <type>\Comhon\Request</type>
   </extends>
   <properties>
-    <property name="root" not_null="1" model="\Comhon\Model\Simple" is_foreign="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="models" not_null="1" not_empty="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Array">
+    <property name="root" not_null="1" is_required="1" model="\Comhon\Model\Simple" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="models" not_null="1" is_required="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="model" not_null="1" model="\Comhon\Model\Simple" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>

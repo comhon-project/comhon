@@ -8,6 +8,7 @@
         {
             "name": "elements",
             "not_null": true,
+            "is_required": true,
             "not_empty": true,
             "values": {
                 "name": "element",
@@ -16,17 +17,16 @@
                 "is_foreign": true,
                 "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "type",
             "not_null": true,
+            "is_required": true,
             "enum": [
                 "disjunction",
                 "conjunction"
             ],
-            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
     ],

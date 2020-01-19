@@ -29,11 +29,10 @@ class AggregationProperty extends ForeignProperty {
 	 * @param string $serializationName
 	 * @param boolean $isPrivate
 	 * @param boolean $dependencies
-	 * @param boolean $conflicts
 	 * @throws \Exception
 	 */
-	public function __construct(ModelForeign $model, $name, $aggregationProperties, $serializationName = null, $isPrivate = false, $dependencies = [], $conflicts = []) {
-		parent::__construct($model, $name, $serializationName, $isPrivate, false, false, true, $dependencies, $conflicts);
+	public function __construct(ModelForeign $model, $name, $aggregationProperties, $serializationName = null, $isPrivate = false, $dependencies = []) {
+		parent::__construct($model, $name, $serializationName, $isPrivate, false, false, true, $dependencies);
 		if (empty($aggregationProperties)) {
 			throw new ComhonException('aggregation must have at least one aggregation property');
 		}

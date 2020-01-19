@@ -258,11 +258,11 @@ abstract class ManifestParser {
 	abstract protected function _getDependencyProperties();
 	
 	/**
-	 * get properties values that MUST NOT be set if current property value is set
+	 * get properties values that MUST NOT be set in same time
 	 *
 	 * @return string[] empty if there is no conflict
 	 */
-	abstract protected function _getConflictProperties();
+	abstract public function getConflicts();
 	
 	/**
 	 * get Property/ComhonArray restrictions
@@ -413,7 +413,6 @@ abstract class ManifestParser {
 		list($name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $isIsolated, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
 		list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
 		$dependencies = $this->_getDependencyProperties();
-		$conflicts = $this->_getConflictProperties();
 		
 		if ($name === Interfacer::INHERITANCE_KEY || $serializationName === Interfacer::INHERITANCE_KEY) {
 			throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
@@ -428,12 +427,12 @@ abstract class ManifestParser {
 				} else if (!is_null($aggregations)) {
 					throw new ManifestException('aggregation and serializationNames cannot coexist');
 				}
-				$property = new MultipleForeignProperty($modelForeign, $name, $serializationNames, $isPrivate, $isRequired, $isSerializable, $isNotNull, $dependencies, $conflicts);
+				$property = new MultipleForeignProperty($modelForeign, $name, $serializationNames, $isPrivate, $isRequired, $isSerializable, $isNotNull, $dependencies);
 			}
 			else if (is_null($aggregations)) {
-				$property = new ForeignProperty($modelForeign, $name, $serializationName, $isPrivate, $isRequired, $isSerializable, $isNotNull, $dependencies, $conflicts);
+				$property = new ForeignProperty($modelForeign, $name, $serializationName, $isPrivate, $isRequired, $isSerializable, $isNotNull, $dependencies);
 			} else {
-				$property = new AggregationProperty($modelForeign, $name, $aggregations, $serializationName, $isPrivate, $dependencies, $conflicts);
+				$property = new AggregationProperty($modelForeign, $name, $aggregations, $serializationName, $isPrivate, $dependencies);
 			}
 		}
 		else {
@@ -443,7 +442,7 @@ abstract class ManifestParser {
 			if (!empty($serializationNames)) {
 				throw new ManifestException('several serialization names only allowed for foreign properties');
 			}
-			$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $isNotNull, $default, $interfaceAsNodeXml, $restrictions, $dependencies, $conflicts, $isIsolated);
+			$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $isNotNull, $default, $interfaceAsNodeXml, $restrictions, $dependencies, $isIsolated);
 			// verify default value (get it from property due to dateTime that need to instanciate DateTime object)
 			if (!is_null($default) && !is_null($restriction = Restriction::getFirstNotSatisifed($restrictions, $property->getDefaultValue()))) {
 				throw new NotSatisfiedRestrictionException($property->getDefaultValue(), $restriction);

@@ -22,8 +22,8 @@
                 {
                     "name": "model",
                     "not_null": true,
-                    "is_model_name": true,
                     "is_required": true,
+                    "is_model_name": true,
                     "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]

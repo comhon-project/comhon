@@ -33,10 +33,6 @@
         },
         {
             "name": "conflict",
-            "conflicts": [
-                "baseValue",
-                "value"
-            ],
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
@@ -44,11 +40,22 @@
             "depends": [
                 "baseValue"
             ],
-            "conflicts": [
-                "value"
-            ],
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
+    ],
+    "conflicts": [
+        [
+            "conflict",
+            "baseValue"
+        ],
+        [
+            "conflict",
+            "value"
+        ],
+        [
+            "dependsConflict",
+            "value"
+        ]
     ],
     "version": "3.0",
     "types": [
@@ -81,6 +88,25 @@
                     "is_required": true,
                     "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
+            ]
+        },
+        {
+            "name": "Conflict",
+            "properties": [
+                {
+                    "name": "value",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                },
+                {
+                    "name": "conflict",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                }
+            ],
+            "conflicts": [
+                [
+                    "value",
+                    "conflict"
+                ]
             ]
         }
     ]

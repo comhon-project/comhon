@@ -23,56 +23,53 @@ class PropertyEqualityTest extends TestCase
 	{
 		$modelInt = ModelManager::getInstance()->getInstanceModel('integer');
 		$modelString = ModelManager::getInstance()->getInstanceModel('string');
-		$propertyOne = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency'], ['conflict']);
+		$propertyOne = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency']);
 		
 		$this->assertTrue($propertyOne->isEqual($propertyOne));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency'], ['conflict']);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency']);
 		$this->assertTrue($propertyOne->isEqual($propertyTwo));
 		
 		// property is equal even if last param ($isInterfacedAsNodeXml) is different
 		// because it doesn't matter on Comhon object instanciation (it is used only during interfacing)
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'hoho', false, [], ['dependency'], ['conflict']);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'hoho', false, [], ['dependency']);
 		$this->assertTrue($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency'], []);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency', 'foo']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency', 'foo'], ['conflict']);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'not_same', true, [], ['dependency']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, false, 'not_same', true, [], ['dependency'], ['conflict']);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, true, 'hoho', true, [], ['dependency']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, true, true, 'hoho', true, [], ['dependency'], ['conflict']);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, false, false, 'hoho', true, [], ['dependency']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, false, false, false, 'hoho', true, [], ['dependency'], ['conflict']);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, true, true, false, 'hoho', true, [], ['dependency']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, true, true, true, false, 'hoho', true, [], ['dependency'], ['conflict']);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, false, false, true, false, 'hoho', true, [], ['dependency']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', true, false, false, true, false, 'hoho', true, [], ['dependency'], ['conflict']);
+		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', false, true, false, true, false, 'hoho', true, [], ['dependency']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'hihi', false, true, false, true, false, 'hoho', true, [], ['dependency'], ['conflict']);
+		$propertyTwo = new Property($modelInt, 'hehe', 'not_same', true, true, false, true, false, 'hoho', true, [], ['dependency']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'hehe', 'not_same', true, true, false, true, false, 'hoho', true, [], ['dependency'], ['conflict']);
+		$propertyTwo = new Property($modelInt, 'not_same', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
-		$propertyTwo = new Property($modelInt, 'not_same', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency'], ['conflict']);
-		$this->assertFalse($propertyOne->isEqual($propertyTwo));
-		
-		$propertyTwo = new Property($modelString, 'hehe', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency'], ['conflict']);
+		$propertyTwo = new Property($modelString, 'hehe', 'hihi', true, true, false, true, false, 'hoho', true, [], ['dependency']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
 		// test is isolated
 		$modelObject = ModelManager::getInstance()->getInstanceModel('Test\Basic\Standard');
-		$propertyOne = new Property($modelObject, 'hehe', 'hihi', false, true, false, true, false, 'hoho', true, [], [], [], false);
+		$propertyOne = new Property($modelObject, 'hehe', 'hihi', false, true, false, true, false, 'hoho', true, [], [], false);
 		
-		$propertyTwo = new Property($modelObject, 'hehe', 'hihi', false, true, false, true, false, 'hoho', true, [], [], [], true);
+		$propertyTwo = new Property($modelObject, 'hehe', 'hihi', false, true, false, true, false, 'hoho', true, [], [], true);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 	}
 	

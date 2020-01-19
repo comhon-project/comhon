@@ -8,29 +8,29 @@
         {
             "name": "node",
             "not_null": true,
+            "is_required": true,
             "model": "\\Comhon\\Model",
             "is_foreign": true,
-            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "queue",
             "not_null": true,
+            "is_required": true,
             "not_empty": true,
             "values": {
                 "name": "property",
                 "not_null": true,
                 "__inheritance__": "Comhon\\Manifest\\Value\\String"
             },
-            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "having",
             "not_null": true,
+            "is_required": true,
             "model": "\\Comhon\\Logic\\Having\\Formula",
             "is_foreign": true,
-            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         }
     ],

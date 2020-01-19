@@ -3,6 +3,6 @@
     <type>\Comhon\Request</type>
   </extends>
   <properties>
-    <property name="tree" not_null="1" model="\Comhon\Model\Root" is_required="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="tree" not_null="1" is_required="1" model="\Comhon\Model\Root" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
 </root>

@@ -8,7 +8,7 @@
         <type>\Comhon\Model</type>
       </extends>
       <properties>
-        <property name="model" not_null="1" is_model_name="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="model" not_null="1" is_required="1" is_model_name="1" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="Root" share_parent_id="1">

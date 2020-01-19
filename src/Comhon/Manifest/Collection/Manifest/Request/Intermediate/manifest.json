@@ -7,14 +7,15 @@
         {
             "name": "root",
             "not_null": true,
+            "is_required": true,
             "model": "\\Comhon\\Model\\Simple",
             "is_foreign": true,
-            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "models",
             "not_null": true,
+            "is_required": true,
             "not_empty": true,
             "values": {
                 "name": "model",
@@ -22,7 +23,6 @@
                 "model": "\\Comhon\\Model\\Simple",
                 "__inheritance__": "Comhon\\Manifest\\Value\\Object"
             },
-            "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         }
     ],
