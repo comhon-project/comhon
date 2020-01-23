@@ -363,7 +363,7 @@ class SelectQuery {
 	public function exportCount() {
 		list($query, $values) = $this->exportBase(true);
 		if (!empty($this->group)) {
-			$query = 'SELECT sum(' . self::COL_COUNT . ') AS ' . self::COL_COUNT 
+			$query = 'SELECT COUNT(' . self::COL_COUNT . ') AS ' . self::COL_COUNT 
 				. " FROM ($query) AS count_table_alias";
 		}
 		return [$query, $values];

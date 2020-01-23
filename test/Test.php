@@ -451,7 +451,6 @@ try {
 
 // manifest validator
 // serialization v3.0 + validator
-// get with interemediate/complex request in body or query
 // add patch method
 
 // add selectquery select count(*) on query and func(*) on table

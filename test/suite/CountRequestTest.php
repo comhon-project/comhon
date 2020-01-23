@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use Comhon\Database\SelectQuery;
 use Comhon\Database\DatabaseHandler;
-use Comhon\Request\ComplexLoadRequest;
+use Comhon\Request\ComplexRequester;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Model\Singleton\ModelManager;
@@ -24,17 +24,17 @@ class CountRequestTest extends TestCase
 		$count = DatabaseHandler::getInstanceWithDataBaseId('1')->count($select);
 		$this->assertSame(9, $count);
 		
-		// group by id -> each group have count one
+		// group by id
 		$select = new SelectQuery('person');
 		$select->addGroup('id')->addOrder('id')->limit(2);
 		$count = DatabaseHandler::getInstanceWithDataBaseId('1')->count($select);
 		$this->assertSame(9, $count);
 		
-		// group by last_name -> groups have differents counts (same last_name)
+		// group by last_name (some same last_name)
 		$select = new SelectQuery('person');
 		$select->addGroup('last_name')->addOrder('last_name')->limit(2);
 		$count = DatabaseHandler::getInstanceWithDataBaseId('1')->count($select);
-		$this->assertSame(9, $count);
+		$this->assertSame(7, $count);
 	}
 	
 	public function testCountSelectQueryPgSql()
@@ -52,11 +52,11 @@ class CountRequestTest extends TestCase
 		$count = DatabaseHandler::getInstanceWithDataBaseId('2')->count($select);
 		$this->assertSame(9, $count);
 		
-		// group by last_name -> groups have differents counts (same last_name)
+		// group by last_name (some same last_name)
 		$select = new SelectQuery('person');
 		$select->addGroup('"last_name"')->addOrder('"last_name"')->limit(2);
 		$count = DatabaseHandler::getInstanceWithDataBaseId('2')->count($select);
-		$this->assertSame(9, $count);
+		$this->assertSame(7, $count);
 	}
 	
 	public function testCountServiceRequest()
@@ -67,7 +67,7 @@ class CountRequestTest extends TestCase
 		$tree->setValue('model', 'Test\Person');
 		$request->setIsLoaded(true);
 		$tree->setIsLoaded(true);
-		$count = ComplexLoadRequest::build($request)->count();
+		$count = ComplexRequester::build($request)->count();
 		
 		$this->assertSame(9, $count);
 	}
@@ -95,11 +95,11 @@ class CountRequestTest extends TestCase
 			"__inheritance__" => 'Comhon\Request\Complex'
 		];
 		
-		$objects = ComplexLoadRequest::build($request)->execute();
+		$objects = ComplexRequester::build($request)->execute();
 		$this->assertCount(1, $objects->getValues());
 		
 		// no limit for count so we may have count greater than retrieved objects
-		$count = ComplexLoadRequest::build($request)->count();
+		$count = ComplexRequester::build($request)->count();
 		$this->assertSame(2, $count);
 	}
 }

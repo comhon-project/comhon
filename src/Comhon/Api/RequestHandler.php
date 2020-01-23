@@ -20,8 +20,8 @@ use Comhon\Serialization\SerializationUnit;
 use Comhon\Logic\Literal;
 use Comhon\Logic\Clause;
 use Comhon\Exception\Interfacer\ImportException;
-use Comhon\Request\ComplexLoadRequest;
-use Comhon\Request\SimpleLoadRequest;
+use Comhon\Request\ComplexRequester;
+use Comhon\Request\SimpleRequester;
 use Comhon\Object\ComhonArray;
 use Comhon\Request\LiteralBinder;
 use Comhon\Object\UniqueObject;
@@ -165,7 +165,7 @@ class RequestHandler {
 	protected function _handleMethod($server, $get, $headers, $body) {
 		switch ($server['REQUEST_METHOD']) {
 			case 'GET':
-				return $this->isCountRequest ? $this->_getCount($get, $body) : $this->_get($get, $headers, $body);
+				return $this->_get($get, $headers, $body);
 			case 'HEAD':
 				return $this->_head($get, $headers, $body);
 			case 'POST':
@@ -185,10 +185,34 @@ class RequestHandler {
 	 * 
 	 * @param \Comhon\Model\Model $model
 	 * @param array $get
+	 * @param string[] $headers
+	 * @param string $body
 	 * @param string[] $filterProperties
-	 * @return \Comhon\Request\ComplexLoadRequest
+	 * @return \Comhon\Request\ComplexRequester
 	 */
-	private function _getComplexRequest(Model $model, &$get, $filterProperties = null) {
+	private function _getComplexRequester(Model $model, &$get, $headers, $body, $filterProperties = null) {
+		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers, false);
+		if (is_null($interfacer)) {
+			$request = $this->_setRequestFromQuery($model, $get, $headers, $body, $filterProperties);
+		} else {
+			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
+			$request = $this->_importBody($body, $requestModel, $interfacer);
+			$this->_verifyRequestModel($request);
+		}
+		
+		return ComplexRequester::build($request);
+	}
+	
+	/**
+	 *
+	 * @param \Comhon\Model\Model $model
+	 * @param array $get
+	 * @param string[] $headers
+	 * @param string $body
+	 * @param string[] $filterProperties
+	 * @return \Comhon\Request\ComplexRequester
+	 */
+	private function _setRequestFromQuery(Model $model, &$get, $headers, $body, $filterProperties = null) {
 		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
 		$request = $requestModel->getObjectInstance(false);
 		$tree = $request->initValue('tree', false);
@@ -230,41 +254,19 @@ class RequestHandler {
 			$request->setValue('order', $order);
 			unset($get[self::ORDER]);
 		}
+		$this->_setFilter($request, $get, $model);
 		
-		// modify $params object by adding filter to apply
-		$this->_setParamsFilter($request, $get, $model);
-		
-		return ComplexLoadRequest::build($request);
+		return $request;
 	}
 	
 	/**
-	 *
-	 * @param string $modelName
-	 * @param array $get
-	 * @return int
-	 */
-	private function _getResourcesCount($modelName, &$get) {
-		$model = ModelManager::getInstance()->getInstanceModel($modelName);
-		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
-		$request = $requestModel->getObjectInstance(false);
-		$tree = $request->initValue('tree', false);
-		$tree->setId(1);
-		$tree->setValue('model', $modelName);
-		
-		// modify $params object by adding filter to apply
-		$this->_setParamsFilter($request, $get, $model);
-		
-		return ComplexLoadRequest::build($request)->count();
-	}
-	
-	/**
-	 * modify $params object by adding filter to apply
+	 * add filter to apply on given request
 	 *
 	 * @param \Comhon\Object\UniqueObject $request
 	 * @param array $get
 	 * @param \Comhon\Model\Model $model
 	 */
-	private function _setParamsFilter(UniqueObject $request, &$get, Model $model) {
+	private function _setFilter(UniqueObject $request, &$get, Model $model) {
 		$i = 0;
 		$clauseType = Clause::CONJUNCTION;
 		if (isset($get[self::CLAUSE])) {
@@ -328,10 +330,10 @@ class RequestHandler {
 	 * @param \Comhon\Model\Model $model
 	 * @param mixed $id
 	 * @param \Comhon\Object\ComhonArray $filterProperties
-	 * @return \Comhon\Request\SimpleLoadRequest
+	 * @return \Comhon\Request\SimpleRequester
 	 */
-	private function _getSimpleRequest(Model $model, $id, ComhonArray $filterProperties) {
-		return SimpleLoadRequest::build(
+	private function _getSimpleRequester(Model $model, $id, ComhonArray $filterProperties) {
+		return SimpleRequester::build(
 			$model->getName(),
 			$this->_getFormatedId($model, $id),
 			$filterProperties->getValues()
@@ -361,6 +363,23 @@ class RequestHandler {
 	}
 	
 	/**
+	 * verify if route model and request model are the same
+	 * 
+	 * @param UniqueObject $request
+	 * @throws MalformedRequestException
+	 */
+	private function _verifyRequestModel(UniqueObject $request) {
+		if ($request->isA('Comhon\Request\Complex')) {
+			$modelName = $request->getValue('tree')->getValue('model');
+		} elseif ($request->isA('Comhon\Request\Intermediate')) {
+			$modelName = $request->getValue('root')->getValue('model');
+		}
+		if ($modelName !== $this->resource[0]) {
+			throw new MalformedRequestException('request model name is different than route model : '.$modelName.' != '.$this->resource[0]);
+		}
+	}
+	
+	/**
 	 * 
 	 * @param array $get
 	 * @param string[] $headers
@@ -368,6 +387,17 @@ class RequestHandler {
 	 * @return \Comhon\Api\Response
 	 */
 	private function _get(&$get, $headers, $body) {
+		return $this->isCountRequest ? $this->_getCount($get, $headers, $body) : $this->_getResources($get, $headers, $body);
+	}
+	
+	/**
+	 * 
+	 * @param array $get
+	 * @param string[] $headers
+	 * @param string $body
+	 * @return \Comhon\Api\Response
+	 */
+	private function _getResources(&$get, $headers, $body) {
 		if (count($this->resource) > 2) {
 			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
 		}
@@ -375,16 +405,16 @@ class RequestHandler {
 			$filterProperties = $this->_getFilterProperties($get);
 			$model = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
 			
-			$request = isset($this->resource[1])
-				? $this->_getSimpleRequest($model, $this->resource[1], $filterProperties)
-				: $this->_getComplexRequest($model, $get, $filterProperties);
+			$requester = isset($this->resource[1])
+				? $this->_getSimpleRequester($model, $this->resource[1], $filterProperties)
+				: $this->_getComplexRequester($model, $get, $headers, $body, $filterProperties);
 		} catch (MalformedRequestException $e) {
 			throw $e;
 		} catch (ComhonException $e) {
 			throw new MalformedRequestException(['code' => $e->getCode(), 'message' => $e->getMessage()]);
 		}
 
-		$object = $request->execute();
+		$object = $requester->execute();
 		if (is_null($object)) {
 			throw new NotFoundException($model, $this->resource[1]);
 		}
@@ -403,15 +433,33 @@ class RequestHandler {
 	/**
 	 * 
 	 * @param array $get
+	 * @param string[] $headers
 	 * @param string $body
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getCount(&$get, $body) {
+	private function _getCount(&$get, $headers, $body) {
 		if (count($this->resource) != 1) {
 			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
 		}
-		$count = $this->_getResourcesCount($this->resource[0], $get);
-		return $this->_buildResponse(200, $count, ['Content-Type' => 'text/plain']);
+		$model = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
+		
+		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers, false);
+		if (is_null($interfacer)) {
+			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
+			$request = $requestModel->getObjectInstance(false);
+			$tree = $request->initValue('tree', false);
+			$tree->setId(1);
+			$tree->setValue('model', $this->resource[0]);
+			
+			$this->_setFilter($request, $get, $model);
+		} else {
+			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
+			$request = $this->_importBody($body, $requestModel, $interfacer);
+			$this->_verifyRequestModel($request);
+		}
+		
+		$requester = ComplexRequester::build($request);
+		return $this->_buildResponse(200, $requester->count(), ['Content-Type' => 'text/plain']);
 	}
 	
 	/**
@@ -422,7 +470,7 @@ class RequestHandler {
 	 * @return \Comhon\Api\Response
 	 */
 	private function _head(&$get, $headers, $body) {
-		$response = $this->isCountRequest ? $this->_getCount($get, $body) : $this->_get($get, $headers, $body);
+		$response = $this->_get($get, $headers, $body);
 		$send = $response->getSend();
 		if (isset($send[1]['Content-Type'])) {
 			$response->addHeader('Content-Type', $send[1]['Content-Type']);
@@ -513,6 +561,7 @@ class RequestHandler {
 	 *
 	 * @param string|null $contentType
 	 * @param boolean $throw
+	 * @return \Comhon\Interfacer\Interfacer|null
 	 */
 	public function _getInterfacerFromContentType($contentType, $throw = false) {
 		switch ($contentType) {
@@ -534,16 +583,19 @@ class RequestHandler {
 	/**
 	 *
 	 * @param string[] $headers
+	 * @param boolean $default if true and Content-Type not specified, return default interfacer otherwise return null
+	 * @return \Comhon\Interfacer\Interfacer|null
 	 */
-	public function _getInterfacerFromContentTypeHeader($headers) {
+	public function _getInterfacerFromContentTypeHeader($headers, $default = true) {
 		return array_key_exists('Content-Type', $headers) 
 			? $this->_getInterfacerFromContentType($headers['Content-Type'], true)
-			: new AssocArrayInterfacer();
+			: ($default ? new AssocArrayInterfacer() : null);
 	}
 	
 	/**
 	 *
 	 * @param string[] $headers
+	 * @return \Comhon\Interfacer\Interfacer
 	 */
 	public function _getInterfacerFromAcceptHeader($headers) {
 		$accept = $this->_getHeaderMultiple('Accept', $headers);

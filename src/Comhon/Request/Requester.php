@@ -12,13 +12,11 @@
 namespace Comhon\Request;
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Object\AbstractComhonObject;
-use Comhon\Object\ComhonArray;
 use Comhon\Exception\Request\MalformedRequestException;
 use Comhon\Exception\Model\PropertyVisibilityException;
 use Comhon\Exception\Request\NotAllowedRequestException;
 
-abstract class ObjectLoadRequest {
+abstract class Requester {
 
 	/** @var \Comhon\Model\Model requested model */
 	protected $model;

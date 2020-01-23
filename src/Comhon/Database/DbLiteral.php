@@ -11,7 +11,7 @@
 
 namespace Comhon\Database;
 
-use Comhon\Request\ComplexLoadRequest;
+use Comhon\Request\ComplexRequester;
 use Comhon\Model\Model;
 use Comhon\Logic\Clause;
 use Comhon\Logic\Literal;
@@ -88,7 +88,7 @@ abstract class DbLiteral extends Literal {
 			return $dbLiteralsById[$literal->getId()];
 		}
 		
-		$table = ComplexLoadRequest::getTableAliasWithModelNode($literal->getValue('node'));
+		$table = ComplexRequester::getTableAliasWithModelNode($literal->getValue('node'));
 		
 		if ($literal->getModel()->getName() == 'Comhon\Logic\Simple\Having') {
 			list($joinedTables, $on) = self::_getJoinedTablesFromQueue($model, $literal->getValue('queue'), $allowPrivateProperties);
@@ -161,7 +161,7 @@ abstract class DbLiteral extends Literal {
 			if (!$allowPrivateProperties && $property->isPrivate()) {
 				throw new PropertyVisibilityException($property);
 			}
-			$leftJoin = ComplexLoadRequest::prepareJoinedTable($leftTable, $property, $databaseId, self::_getAlias());
+			$leftJoin = ComplexRequester::prepareJoinedTable($leftTable, $property, $databaseId, self::_getAlias());
 			$joinedTables[] = $leftJoin;
 			
 			$leftModel   = $leftJoin['model'];

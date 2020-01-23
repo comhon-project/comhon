@@ -40,7 +40,7 @@ use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Visitor\ObjectValidator;
 
-class ComplexLoadRequest extends ObjectLoadRequest {
+class ComplexRequester extends Requester {
 	
 	/**
 	 * @var \Comhon\Database\SelectQuery select query to find and retrieve serialized comhon objects
@@ -94,7 +94,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * set limit of retrieved comhon objects
 	 * 
 	 * @param integer $integer
-	 * @return \Comhon\Request\ComplexLoadRequest
+	 * @return \Comhon\Request\ComplexRequester
 	 */
 	public function setLimit($integer) {
 		$this->limit = $integer;
@@ -106,7 +106,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * 
 	 * @param string $propertyName
 	 * @param string $type allowed values are [SelectQuery::DESC, SelectQuery::ASC]
-	 * @return \Comhon\Request\ComplexLoadRequest
+	 * @return \Comhon\Request\ComplexRequester
 	 */
 	public function addOrder($propertyName, $type = SelectQuery::ASC) {
 		$type = strtoupper($type);
@@ -124,7 +124,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * indicates to pass specified number of rows before returning the remaining comhon objects
 	 * 
 	 * @param integer $integer
-	 * @return \Comhon\Request\ComplexLoadRequest
+	 * @return \Comhon\Request\ComplexRequester
 	 */
 	public function setOffset($integer) {
 		$this->offset = $integer;
@@ -142,7 +142,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @param \stdClass|array|\SimpleXMLElement|\DOMNode|\Comhon\Object\UniqueObject $request
 	 * @param boolean $private
 	 * @throws \Exception
-	 * @return \Comhon\Request\ComplexLoadRequest
+	 * @return \Comhon\Request\ComplexRequester
 	 */
 	public static function build($request, $private = false) {
 		if ($request instanceof UniqueObject) {
@@ -175,13 +175,13 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * @param \Comhon\Object\UniqueObject $request
 	 * @param boolean $private
 	 * @throws \Exception
-	 * @return \Comhon\Request\ComplexLoadRequest
+	 * @return \Comhon\Request\ComplexRequester
 	 */
 	private static function _build(UniqueObject $request, $private = false) {
 		if ($request->getModel()->getName() === 'Comhon\Request\Intermediate') {
 			$request = self::_intermediateToComplexRequest($request);
 		}
-		$objectLoadRequest = new ComplexLoadRequest($request->getValue('tree')->getValue('model'), $private);
+		$objectLoadRequest = new ComplexRequester($request->getValue('tree')->getValue('model'), $private);
 		$objectLoadRequest->_importModelTree($request->getValue('tree'));
 		if ($request->hasValue('filter')) {
 			$objectLoadRequest->_importFilter($request->getValue('filter'));
@@ -408,7 +408,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 	 * that are used in logical junction or literal (only for advanced request)
 	 *
 	 * @param \stdClass $tree
-	 * @return \Comhon\Request\ComplexLoadRequest
+	 * @return \Comhon\Request\ComplexRequester
 	 */
 	private function _importModelTree(UniqueObject $tree) {
 		$tableNode = new TableNode($this->model->getSqlTableSettings()->getValue('name'), self::getTableAliasWithModelNode($tree));
@@ -541,7 +541,7 @@ class ComplexLoadRequest extends ObjectLoadRequest {
 		$sqlTable->loadValue('database');
 		$dbInstance = DatabaseHandler::getInstanceWithDataBaseObject($sqlTable->getValue('database'));
 		
-		return $dbInstance->count($this->selectQuery);;
+		return $dbInstance->count($this->selectQuery);
 	}
 	
 	/**

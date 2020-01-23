@@ -2,41 +2,50 @@
     "simpleCollection": [
         {
             "id": 0,
-            "node": 1,
-            "property": "name",
-            "operator": ">",
-            "value": 200,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+            "node": 2,
+            "property": "lastName",
+            "operator": "=",
+            "value": "Henri",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
         },
         {
             "id": 1,
             "node": 4,
-            "property": "adresse",
-            "operator": "<>",
-            "value": "lalala",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+            "property": "surface",
+            "operator": "=",
+            "value": 300,
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+        },
+        {
+            "id": 2,
+            "elements": [
+                0,
+                1
+            ],
+            "type": "conjunction",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
         }
     ],
-	"filter": 0,
+    "filter": 2,
     "tree": {
         "id": 1,
         "model": "Test\\Person",
         "nodes": [
-	        {
-	            "id": 2,
-	            "property": "children"
-	        },
-			{
-	            "id": 3,
-	            "property": "houses",
-				"nodes": [
-			        {
-			            "id": 4,
-			            "property": "rooms"
-			        }
-				]
-	        }
-		]
+            {
+                "id": 2,
+                "property": "children"
+            },
+            {
+                "id": 3,
+                "property": "homes",
+                "nodes": [
+                    {
+                        "id": 4,
+                        "property": "house"
+                    }
+                ]
+            }
+        ]
     },
     "__inheritance__": "Comhon\\Request\\Complex"
 }

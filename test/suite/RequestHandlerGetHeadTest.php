@@ -8,6 +8,8 @@ use Comhon\Object\Collection\MainObjectCollection;
 
 class RequestHandlerGetHeadTest extends TestCase
 {
+	private static $data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Request' . DIRECTORY_SEPARATOR;
+	
 	public static function setUpBeforeClass()
 	{
 		Config::setLoadPath(Data::$config);
@@ -878,6 +880,273 @@ class RequestHandlerGetHeadTest extends TestCase
 				'{"code":206,"message":"invalid composite id \'[1,null]\'"}'
 			]
 		];
+	}
+	
+	/**
+	 *
+	 * @dataProvider requestWithBodyData
+	 */
+	public function testRequestWithBody($server, $bodyFile_rf, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
+	{
+		$body = file_get_contents(self::$data_ad . $bodyFile_rf);
+		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
+		$sendGet = $response->getSend();
+		
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
+	}
+	
+	public function requestWithBodyData()
+	{
+		return [
+			[ // intermediate request
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+				],
+				'intermediate.json',
+				['Content-Type' => 'application/json'],
+				200,
+				['Content-Type' => 'application/json'],
+				'[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":11,"firstName":"Naelya","lastName":"Dupond","birthDate":null,"birthPlace":2,"bestFriend":null,"father":1,"mother":null,"__inheritance__":"Test\\\\Person\\\\Woman"}]'
+			],
+			[ // complex request
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+				],
+				'complex.json',
+				['Content-Type' => 'application/json'],
+				200,
+				['Content-Type' => 'application/json'],
+				'[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]'
+			],
+		];
+	}
+	
+	/**
+	 *
+	 * @dataProvider requestCountWithBodyData
+	 */
+	public function testRequestCountWithBody($server, $bodyFile_rf, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
+	{
+		$body = file_get_contents(self::$data_ad . $bodyFile_rf);
+		$response = RequestHandlerMock::handle('/index.php/api', $server, [], $requestHeaders, $body);
+		$sendGet = $response->getSend();
+		
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('/index.php/api', $server, [], $requestHeaders, $body);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
+	}
+	
+	public function requestCountWithBodyData()
+	{
+		return [
+			[ // intermediate request
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson'
+				],
+				'intermediate.json',
+				['Content-Type' => 'application/json'],
+				200,
+					['Content-Type' => 'text/plain'],
+				2
+			],
+			[ // complex request
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson'
+				],
+				'complex.json',
+				['Content-Type' => 'application/json'],
+				200,
+				['Content-Type' => 'text/plain'],
+				1
+			],
+		];
+	}
+	
+	/**
+	 *
+	 * @dataProvider requestWithBodyFailureData
+	 */
+	public function testRequestWithBodyFailure($server, $body, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
+	{
+		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
+		$sendGet = $response->getSend();
+		
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
+	}
+	
+	public function requestWithBodyFailureData()
+	{
+		return [
+			[ // route model name different than request model name (complex request)
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				'{"tree": {"id": 1,"model": "Test\\\\Person"},"__inheritance__": "Comhon\\\\Request\\\\Complex"}',
+				['Content-Type' => 'application/json'],
+				400,
+				['Content-Type' => 'text/plain'],
+				'request model name is different than route model : Test\Person != Test\Person\Man'
+			],
+			[ // route model name different than request model name (intermediate request)
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb'
+				],
+				'{"models": [{"id": 1,"model": "Test\\\\Person"}],"root":1,"__inheritance__": "Comhon\\\\Request\\\\Intermediate"}',
+				['Content-Type' => 'application/json'],
+				400,
+				['Content-Type' => 'text/plain'],
+				'request model name is different than route model : Test\Person != Test\TestDb'
+			],
+			[ // incalid body
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+				],
+				'not-json',
+				['Content-Type' => 'application/json'],
+				400,
+				['Content-Type' => 'text/plain'],
+				'invalid body'
+			],
+				[ // error in request model
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+				],
+				'{"tree": {"id": 1,"model": 1},"__inheritance__": "Comhon\\\\Request\\\\Complex"}',
+				['Content-Type' => 'application/json'],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":202,"message":"Something goes wrong on \'.tree.model\' value : \nvalue must be a string, integer \'1\' given"}'
+			],
+		];
+	}
+	
+	
+	/**
+	 *
+	 * @dataProvider requestCountWithBodyFailureData
+	 */
+	public function testRequestCountWithBodyFailure($server, $body, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
+	{
+		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
+		$sendGet = $response->getSend();
+		
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
+	}
+	
+	public function requestCountWithBodyFailureData()
+	{
+		return [
+			[ // route model name different than request model name (complex request)
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson%5cMan'
+				],
+				'{"tree": {"id": 1,"model": "Test\\\\Person"},"__inheritance__": "Comhon\\\\Request\\\\Complex"}',
+				['Content-Type' => 'application/json'],
+				400,
+				['Content-Type' => 'text/plain'],
+				'request model name is different than route model : Test\Person != Test\Person\Man'
+			],
+			[ // route model name different than request model name (intermediate request)
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestDb'
+				],
+				'{"models": [{"id": 1,"model": "Test\\\\Person"}],"root":1,"__inheritance__": "Comhon\\\\Request\\\\Intermediate"}',
+				['Content-Type' => 'application/json'],
+				400,
+				['Content-Type' => 'text/plain'],
+				'request model name is different than route model : Test\Person != Test\TestDb'
+			],
+			[ // invalid body
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson'
+				],
+				'not-json',
+				['Content-Type' => 'application/json'],
+				400,
+				['Content-Type' => 'text/plain'],
+				'invalid body'
+			],
+			[ // error in request model
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson'
+				],
+				'{"tree": {"id": 1,"model": 1},"__inheritance__": "Comhon\\\\Request\\\\Complex"}',
+				['Content-Type' => 'application/json'],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":202,"message":"Something goes wrong on \'.tree.model\' value : \nvalue must be a string, integer \'1\' given"}'
+			],
+	];
 	}
 	
 }

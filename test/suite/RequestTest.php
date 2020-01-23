@@ -5,7 +5,7 @@ use Comhon\Model\Singleton\ModelManager;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Object\Collection\MainObjectCollection;
-use Comhon\Request\ComplexLoadRequest;
+use Comhon\Request\ComplexRequester;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
 use Comhon\Interfacer\StdObjectInterfacer;
@@ -14,7 +14,6 @@ use Comhon\Exception\Literal\UnresolvableLiteralException;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Exception\Literal\NotAllowedLiteralException;
 use Comhon\Exception\Interfacer\ImportException;
-use Comhon\Request\LiteralBinder;
 
 class RequestTest extends TestCase
 {
@@ -35,7 +34,7 @@ class RequestTest extends TestCase
 		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getObjectInstance();
 		
 		$this->expectException(ArgumentException::class);
-		ComplexLoadRequest::build($obj);
+		ComplexRequester::build($obj);
 	}
 	
 	public function testBadModel()
@@ -46,7 +45,7 @@ class RequestTest extends TestCase
 		
 		$this->expectException(ImportException::class);
 		$this->expectExceptionMessage("model must be a 'Comhon\Request', model 'Comhon\SqlTable' given");
-		ComplexLoadRequest::build($request);
+		ComplexRequester::build($request);
 	}
 	
 	public function testUnloadedNotValidRequestRoot()
@@ -56,7 +55,7 @@ class RequestTest extends TestCase
 		$this->expectException(ComhonException::class);
 		$this->expectExceptionMessage("Something goes wrong on '.' object : 
 missing required value 'root' on comhon object with model 'Comhon\Request\Intermediate'");
-		ComplexLoadRequest::build($obj);
+		ComplexRequester::build($obj);
 	}
 	
 	public function testUnloadedNotValidRequestLeaf()
@@ -74,7 +73,7 @@ missing required value 'root' on comhon object with model 'Comhon\Request\Interm
 		$this->expectException(ComhonException::class);
 		$this->expectExceptionMessage("Something goes wrong on '.tree.nodes.0' object : 
 missing required value 'id' on comhon object with model 'Comhon\Model\Node'");
-		ComplexLoadRequest::build($obj);
+		ComplexRequester::build($obj);
 	}
 	
 	public function testNotRefValueRequest()
@@ -100,7 +99,7 @@ missing required value 'id' on comhon object with model 'Comhon\Model\Node'");
 		$this->expectException(ComhonException::class);
 		$this->expectExceptionMessage("Something goes wrong on '.simpleCollection.0.node' object : 
 foreign value with model 'Comhon\Model\Root' and id '2' not referenced in interfaced object");
-		ComplexLoadRequest::build($obj);
+		ComplexRequester::build($obj);
 	}
 	
 	public function testForeignWithoutIdRequest()
@@ -117,7 +116,7 @@ foreign value with model 'Comhon\Model\Root' and id '2' not referenced in interf
 		$this->expectException(ComhonException::class);
 		$this->expectExceptionMessage("Something goes wrong on '.filter' object : 
 missing or not complete id on foreign value");
-		ComplexLoadRequest::build($obj);
+		ComplexRequester::build($obj);
 	}
 	
 	/**
@@ -132,7 +131,7 @@ missing or not complete id on foreign value");
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Intermediate');
 		
 		$interfacedObject = $interfacer->read($dataIntermediate_ad . $file_rf);
-		$request = ComplexLoadRequest::intermediateToComplexRequest($model->import($interfacedObject, $interfacer));
+		$request = ComplexRequester::intermediateToComplexRequest($model->import($interfacedObject, $interfacer));
 		$this->assertEquals(json_encode($interfacer->read($dataComplex_ad . $file_rf)), $interfacer->toString($request->export($interfacer)));
 	}
 	
@@ -168,7 +167,7 @@ missing or not complete id on foreign value");
 		
 		$this->expectException($exception);
 		$this->expectExceptionMessage($message);
-		ComplexLoadRequest::intermediateToComplexRequest($model->import($interfacedObject, $interfacer));
+		ComplexRequester::intermediateToComplexRequest($model->import($interfacedObject, $interfacer));
 		
 	}
 	
@@ -217,7 +216,7 @@ missing or not complete id on foreign value");
 		
 		$this->expectException($exception);
 		$this->expectExceptionMessage($message);
-		ComplexLoadRequest::build($model->import($request, $interfacer), true);
+		ComplexRequester::build($model->import($request, $interfacer), true);
 	}
 	
 	public function notAllowedLiteralRequestData()
@@ -300,7 +299,7 @@ missing or not complete id on foreign value");
 			"filter" => 1,
 		    "__inheritance__"=> 'Comhon\Request\Complex'
 		];
-		$request = ComplexLoadRequest::build($request);
+		$request = ComplexRequester::build($request);
 		$array = $request->execute();
 		$interfacer = new AssocArrayInterfacer();
 		
@@ -354,7 +353,7 @@ missing or not complete id on foreign value");
 		
 		$this->expectException($exception);
 		$this->expectExceptionMessage($message);
-		ComplexLoadRequest::build($request, true);
+		ComplexRequester::build($request, true);
 	}
 	
 	public function notFilterableValueRequestData()

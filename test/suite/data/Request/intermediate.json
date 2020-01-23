@@ -3,10 +3,10 @@
         {
             "id": 0,
             "node": 1,
-            "property": "name",
-            "operator": ">",
-            "value": 200,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+            "property": "lastName",
+            "operator": "=",
+            "value": "Dupond",
+            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
         }
     ],
 	"filter": 0,

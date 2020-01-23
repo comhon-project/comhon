@@ -15,7 +15,7 @@ use Comhon\Exception\Request\MalformedRequestException;
 use Comhon\Exception\Request\NotAllowedRequestException;
 use Comhon\Exception\Value\InvalidCompositeIdException;
 
-class SimpleLoadRequest extends ObjectLoadRequest {
+class SimpleRequester extends Requester {
 
 	/** @var string|integer */
 	private $id;
@@ -67,10 +67,10 @@ class SimpleLoadRequest extends ObjectLoadRequest {
 	 * @param mixed $id
 	 * @param string[] $propertiesFilter
 	 * @param boolean $private
-	 * @return \Comhon\Request\SimpleLoadRequest
+	 * @return \Comhon\Request\SimpleRequester
 	 */
 	public static function build($modelName, $id, $propertiesFilter = [], $private = false) {
-		$request = new SimpleLoadRequest($modelName, $private);
+		$request = new SimpleRequester($modelName, $private);
 		$request->setRequestedId($id);
 		if (is_array($propertiesFilter)) {
 			$request->setPropertiesFilter($propertiesFilter);

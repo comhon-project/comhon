@@ -84,13 +84,15 @@ class RequestModelTest extends TestCase
 		$obj = $model->import($interfacedObject, $interfacer);
 		
 		$modelPerson = $obj->getValue('tree');
-		$modelRooms = $modelPerson->getValue('nodes')->getValue(1)->getValue('nodes')->getValue(0);
+		$modelChildren = $modelPerson->getValue('nodes')->getValue(0);
+		$modelHouse = $modelPerson->getValue('nodes')->getValue(1)->getValue('nodes')->getValue(0);
 		$collection = $obj->getValue('simpleCollection');
 		
 		$this->assertInstanceOf(ComhonObject::class, $modelPerson);
-		$this->assertInstanceOf(ComhonObject::class, $modelRooms);
-		$this->assertSame($modelPerson, $collection->getValue(0)->getValue('node'));
-		$this->assertSame($modelRooms, $collection->getValue(1)->getValue('node'));
+		$this->assertInstanceOf(ComhonObject::class, $modelHouse);
+		$this->assertInstanceOf(ComhonObject::class, $modelChildren);
+		$this->assertSame($modelChildren, $collection->getValue(0)->getValue('node'));
+		$this->assertSame($modelHouse, $collection->getValue(1)->getValue('node'));
 	}
 	
 	public function testNotExistingModel()

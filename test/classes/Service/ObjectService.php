@@ -11,8 +11,8 @@
 
 namespace Test\Comhon\Service;
 
-use Comhon\Request\ComplexLoadRequest;
-use Comhon\Request\SimpleLoadRequest;
+use Comhon\Request\ComplexRequester;
+use Comhon\Request\SimpleRequester;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Model\Singleton\ModelManager;
@@ -33,7 +33,7 @@ class ObjectService {
 			if (!isset($params->properties)) {
 				$params->properties = [];
 			}
-			$object = SimpleLoadRequest::build($params->model, $params->id, $params->properties, $private)->execute();
+			$object = SimpleRequester::build($params->model, $params->id, $params->properties, $private)->execute();
 			if (is_null($object)) {
 				$result = null;
 			} else {
@@ -57,7 +57,7 @@ class ObjectService {
 	 */
 	public static function getObjects(\stdClass $params, $private = false) {
 		try {
-			$objectArray = ComplexLoadRequest::build($params, $private)->execute();
+			$objectArray = ComplexRequester::build($params, $private)->execute();
 			$interfacer = new StdObjectInterfacer();
 			$modelFilter = [$objectArray->getUniqueModel()->getName() => self::_getFilterProperties($params, $objectArray->getUniqueModel())];
 			return self::_setSuccessResponse($interfacer->export($objectArray, [Interfacer::PROPERTIES_FILTERS => $modelFilter]));
@@ -77,7 +77,7 @@ class ObjectService {
 	 * @return \stdClass
 	 */
 	public static function getObjectsCount(\stdClass $params, $private = false) {
-		return ComplexLoadRequest::build($params, $private)->count();
+		return ComplexRequester::build($params, $private)->count();
 	}
 	
 	/**
