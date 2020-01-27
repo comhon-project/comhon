@@ -3,8 +3,8 @@
     "version": "3.0",
     "serialization": {
         "settings": {
-            "staticPath": ".\/data\/test",
-            "staticName": "test.json",
+            "dir_path": ".\/data\/test",
+            "file_name": "test.json",
             "__inheritance__": "Comhon\\File\\JsonFile"
         }
     }

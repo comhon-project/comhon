@@ -41,7 +41,7 @@ $Json = '{
 			"id"       : 2
 		}
 	],
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 2,
@@ -73,7 +73,7 @@ $Json = '{
 			}
 		]
 	},
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 2,

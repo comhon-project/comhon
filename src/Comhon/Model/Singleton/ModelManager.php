@@ -138,22 +138,22 @@ class ModelManager {
 			$this->modelRoot = new ModelRoot();
 			$this->_addInstanceModel($this->modelRoot);
 			
-			if (Config::getInstance()->hasValue('sqlTable')) {
+			if (Config::getInstance()->hasValue('sql_table')) {
 				$path = Config::getInstance()->getSerializationSqlTablePath();
 				if (!is_dir($path)) {
-					throw new ConfigFileNotFoundException('sqlTable', 'directory', Config::getInstance()->getSerializationSqlTablePath(false));
+					throw new ConfigFileNotFoundException('sql_table', 'directory', Config::getInstance()->getSerializationSqlTablePath(false));
 				}
-				$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('staticPath', $path);
+				$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('dir_path', $path);
 			}
-			if (Config::getInstance()->hasValue('sqlDatabase')) {
+			if (Config::getInstance()->hasValue('sql_database')) {
 				$path = Config::getInstance()->getSerializationSqlDatabasePath();
 				if (!is_dir($path)) {
-					throw new ConfigFileNotFoundException('sqlDatabase', 'directory', Config::getInstance()->getSerializationSqlDatabasePath(false));
+					throw new ConfigFileNotFoundException('sql_database', 'directory', Config::getInstance()->getSerializationSqlDatabasePath(false));
 				}
-				$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('staticPath', $path);
+				$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('dir_path', $path);
 			}
-			if (!is_null(Config::getInstance()->getValue('manifestFormat'))) {
-				$this->manifestExtension = Config::getInstance()->getValue('manifestFormat');
+			if (!is_null(Config::getInstance()->getValue('manifest_format'))) {
+				$this->manifestExtension = Config::getInstance()->getValue('manifest_format');
 			}
 			$lManifestAutoloadList = Config::getInstance()->getManifestAutoloadList();
 			if (!is_null($lManifestAutoloadList)) {
@@ -682,7 +682,7 @@ class ModelManager {
 		}
 		if (!is_null($sharedIdModelTemp)) {
 			if (!is_null($sharedIdModel) && $sharedIdModelTemp !== $sharedIdModel) {
-				throw new ComhonException("Conflict on model '{$model->getName()}' beween shared id and serialization");
+				throw new ComhonException("Conflict on model '{$model->getName()}' between shared id and serialization");
 			}
 			$sharedIdModel = $sharedIdModelTemp;
 		}

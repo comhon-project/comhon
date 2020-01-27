@@ -13,7 +13,7 @@ $Json = '{
 		"model"   : "Test\\\\Person",
 		"id"      : 1
 	},
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 1,

@@ -42,7 +42,7 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
-            "name": "simpleCollection",
+            "name": "simple_collection",
             "not_null": true,
             "values": {
                 "name": "formula",
@@ -53,7 +53,7 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
-            "name": "havingCollection",
+            "name": "having_collection",
             "not_null": true,
             "values": {
                 "name": "formula",

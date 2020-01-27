@@ -68,7 +68,7 @@ class RequestModelTest extends TestCase
 		$obj = $model->import($interfacedObject, $interfacer);
 		
 		$modelPerson = $obj->getValue('models')->getValue(0);
-		$collection = $obj->getValue('simpleCollection');
+		$collection = $obj->getValue('simple_collection');
 		
 		$this->assertInstanceOf(ComhonObject::class, $modelPerson);
 		$this->assertSame($modelPerson, $obj->getValue('root'));
@@ -86,7 +86,7 @@ class RequestModelTest extends TestCase
 		$modelPerson = $obj->getValue('tree');
 		$modelChildren = $modelPerson->getValue('nodes')->getValue(0);
 		$modelHouse = $modelPerson->getValue('nodes')->getValue(1)->getValue('nodes')->getValue(0);
-		$collection = $obj->getValue('simpleCollection');
+		$collection = $obj->getValue('simple_collection');
 		
 		$this->assertInstanceOf(ComhonObject::class, $modelPerson);
 		$this->assertInstanceOf(ComhonObject::class, $modelHouse);
@@ -157,10 +157,10 @@ class RequestModelTest extends TestCase
 			[
 				"limit" => 1,
 				"offset" => 0,
-					"order" => [['type' => 'ASC', 'property' => 'staticName']],
+					"order" => [['type' => 'ASC', 'property' => 'file_name']],
 				"properties" => [],
-				"simpleCollection" => [],
-				"havingCollection" => [],
+				"simple_collection" => [],
+				"having_collection" => [],
 				"filter" => 1,
 				"root" => 1,
 				"models" => [

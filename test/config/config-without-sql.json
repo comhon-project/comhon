@@ -1,5 +1,5 @@
 {
-  "manifestFormat": "json",
+  "manifest_format": "json",
   "autoload": {
     "manifest":{
       "Test":"../manifests/manifest"
@@ -8,8 +8,8 @@
       "Test":"../manifests/serialization_pgsql"
     }
   },
-  "regexList":"./regex.json",
-  "dateTimeFormat": "c",
+  "regex_list":"./regex.json",
+  "date_time_format": "c",
   "database": {
     "charset": "utf8",
     "timezone": "UTC"

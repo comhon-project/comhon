@@ -79,12 +79,12 @@ class ModelToSQL {
 		mkdir($databasePath);
 		
 		$settings = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings();
-		$origin_table_ad = $settings->getValue('staticPath');
-		$settings->setValue('staticPath', $databasePath);
+		$origin_table_ad = $settings->getValue('dir_path');
+		$settings->setValue('dir_path', $databasePath);
 		
 		$sqlDatabase->save(SerializationUnit::CREATE);
 		
-		$settings->setValue('staticPath', $origin_table_ad);
+		$settings->setValue('dir_path', $origin_table_ad);
 	}
 	
 	/**
@@ -363,8 +363,8 @@ class ModelToSQL {
 		} catch(SerializationManifestIdException $e) {
 			if ($e->getType() == 'Comhon\SqlTable') {
 				$settings = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getSerializationSettings();
-				$origin_table_ad = $settings->getValue('staticPath');
-				$settings->setValue('staticPath', $this->table_ad);
+				$origin_table_ad = $settings->getValue('dir_path');
+				$settings->setValue('dir_path', $this->table_ad);
 				
 				$sqlTable = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getObjectInstance();
 				$sqlTable->setId($e->getId());
@@ -372,7 +372,7 @@ class ModelToSQL {
 				$sqlTable->save(SerializationUnit::CREATE);
 				
 				$model = ModelManager::getInstance()->getInstanceModel($modelName);
-				$settings->setValue('staticPath', $origin_table_ad);
+				$settings->setValue('dir_path', $origin_table_ad);
 			}
 		} catch(\Exception $e) {
 			$this->displayContinue($e, $modelName);
@@ -421,15 +421,15 @@ class ModelToSQL {
 			$table = empty($response) ? $defaultTableName: $response;
 			
 			$settings = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getSerializationSettings();
-			$origin_table_ad = $settings->getValue('staticPath');
-			$settings->setValue('staticPath', $this->table_ad);
+			$origin_table_ad = $settings->getValue('dir_path');
+			$settings->setValue('dir_path', $this->table_ad);
 			
 			$sqlTable = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getObjectInstance();
 			$sqlTable->setId($table);
 			$sqlTable->setValue('database', $this->defaultSqlDatabase);
 			$sqlTable->save(SerializationUnit::CREATE);
 			
-			$settings->setValue('staticPath', $origin_table_ad);
+			$settings->setValue('dir_path', $origin_table_ad);
 		}
 		else {
 			$table = null;

@@ -3,7 +3,7 @@
         "id": 1,
         "model": "Test\\Request\\Root"
     },
-    "simpleCollection": [
+    "simple_collection": [
         {
             "id": 0,
             "elements": [

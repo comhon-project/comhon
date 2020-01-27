@@ -27,7 +27,7 @@
         ],
         "id": 1
     },
-    "simpleCollection": [
+    "simple_collection": [
         {
             "id": 0,
             "elements": [
@@ -115,7 +115,7 @@
             "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
         }
     ],
-    "havingCollection": [
+    "having_collection": [
         {
             "id": 0,
             "elements": [

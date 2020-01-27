@@ -80,7 +80,7 @@ class CountRequestTest extends TestCase
 				"model" => "Test\Person"
 			],
 			"filter" => 1,
-			"simpleCollection" => [
+			"simple_collection" => [
 				[
 					"id" => 1,
 					"node" => 1,

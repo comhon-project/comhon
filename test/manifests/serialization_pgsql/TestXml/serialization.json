@@ -3,8 +3,8 @@
     "version": "3.0",
     "serialization": {
         "settings": {
-            "staticPath": ".\/data\/test_xml",
-            "staticName": "test.xml",
+            "dir_path": ".\/data\/test_xml",
+            "file_name": "test.xml",
             "__inheritance__": "Comhon\\File\\XmlFile"
         }
     }

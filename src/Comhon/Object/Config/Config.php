@@ -168,7 +168,7 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getManifestFormat() {
-		return $this->getValue('manifestFormat');
+		return $this->getValue('manifest_format');
 	}
 	
 	/**
@@ -202,9 +202,9 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getRegexListPath($transform = true) {
-		return $transform && substr($this->getValue('regexList'), 0, 1) == '.'
-			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('regexList')
-			: $this->getValue('regexList');
+		return $transform && substr($this->getValue('regex_list'), 0, 1) == '.'
+			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('regex_list')
+			: $this->getValue('regex_list');
 	}
 	
 	/**
@@ -216,9 +216,9 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getSerializationSqlTablePath($transform = true) {
-		return $transform && substr($this->getValue('sqlTable'), 0, 1) == '.'
-			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('sqlTable')
-			: $this->getValue('sqlTable');
+		return $transform && substr($this->getValue('sql_table'), 0, 1) == '.'
+			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('sql_table')
+			: $this->getValue('sql_table');
 	}
 	
 	/**
@@ -230,8 +230,8 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getSerializationSqlDatabasePath($transform = true) {
-		return $transform && substr($this->getValue('sqlDatabase'), 0, 1) == '.'
-			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('sqlDatabase')
-			: $this->getValue('sqlDatabase');
+		return $transform && substr($this->getValue('sql_database'), 0, 1) == '.'
+			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('sql_database')
+			: $this->getValue('sql_database');
 	}
 }

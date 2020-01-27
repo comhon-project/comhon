@@ -1,5 +1,5 @@
 <root name="Test\Extends\Multiple\InheritedFourth" version="3.0">
   <serialization inheritance_key="inheritance_two">
-    <settings staticPath="./data/multiple_inheritance_two_serialization" staticName="file.json" __inheritance__="Comhon\File\JsonFile"/>
+    <settings dir_path="./data/multiple_inheritance_two_serialization" file_name="file.json" __inheritance__="Comhon\File\JsonFile"/>
   </serialization>
 </root>

@@ -4,8 +4,8 @@
     "serialization": {
         "inheritance_key": "attribute",
         "settings": {
-            "staticPath": ".\/data\/woman_xml",
-            "staticName": "woman.xml",
+            "dir_path": ".\/data\/woman_xml",
+            "file_name": "woman.xml",
             "__inheritance__": "Comhon\\File\\XmlFile"
         }
     }

@@ -111,7 +111,7 @@ class AbstractModelTest extends TestCase
 		
 		$this->expectException(ImportException::class);
 		$this->expectExceptionMessage('model \'Comhon\Logic\Simple\Formula\' is abstract. Objects with abstract model cannot be flagged as loaded');
-		$interfacer->import(['simpleCollection' => [[Interfacer::COMPLEX_ID_KEY => 1, Interfacer::INHERITANCE_KEY => 'Comhon\Logic\Simple\Formula']]], $model);
+		$interfacer->import(['simple_collection' => [[Interfacer::COMPLEX_ID_KEY => 1, Interfacer::INHERITANCE_KEY => 'Comhon\Logic\Simple\Formula']]], $model);
 	}
 	
 	public function testImportValid()

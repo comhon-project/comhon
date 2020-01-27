@@ -17,8 +17,8 @@ class ManifestV2Test extends TestCase
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Manifest_V_2\Inherited_V_2');
 		$this->assertEquals(['id', 'name', 'inherited'], $model->getPropertiesNames());
-		$this->assertEquals('./data/file_xml', $model->getSerialization()->getSettings()->getValue('staticPath'));
-		$this->assertEquals('file.xml', $model->getSerialization()->getSettings()->getValue('staticName'));
+		$this->assertEquals('./data/file_xml', $model->getSerialization()->getSettings()->getValue('dir_path'));
+		$this->assertEquals('file.xml', $model->getSerialization()->getSettings()->getValue('file_name'));
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Manifest_V_2');
 		$this->assertEquals('serial_name', $model->getProperty('name')->getSerializationName());

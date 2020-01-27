@@ -14,7 +14,7 @@ $Json = '{
 	},
 	"order" : [{"property":"id1", "type":"DESC"}],
 	"properties" : ["date","timestamp","integer","string"],
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 1,
@@ -45,7 +45,7 @@ $Json = '{
 		"id"      : 1
 	},
 	"order" : [{"property":"id1", "type":"DESC"}],
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 1,
@@ -76,7 +76,7 @@ $Json = '{
 		"id"      : 1
 	},
 	"order" : [{"property":"id1", "type":"DESC"}],
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 1,
@@ -85,7 +85,7 @@ $Json = '{
         	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
 		}
 	],
-	"havingCollection" : [
+	"having_collection" : [
 		{
 			"id"       : 1,
 			"function" : "MAX",
@@ -116,7 +116,7 @@ $Json = '{
 		"id"      : 1
 	},
 	"order" : [{"property":"id1", "type":"DESC"}],
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 1,
@@ -154,7 +154,7 @@ $Json = '{
 			"id"      : 2
 		}
 	],
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 2,
@@ -191,7 +191,7 @@ $Json = '{
 			"id"      : 2
 		}
 	],
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 2,
@@ -227,7 +227,7 @@ $Json = '{
 			}
 		]
 	},
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 2,
@@ -263,7 +263,7 @@ $Json = '{
 			}
 		]
 	},
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 2,
@@ -294,7 +294,7 @@ $Json = '{
 		"id"      : 1
 	},
 	"order" : [{"property":"id1", "type":"DESC"}],
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 1,
@@ -303,7 +303,7 @@ $Json = '{
         	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
 		}
 	],
-	"havingCollection" : [
+	"having_collection" : [
 		{
 			"id"       : 1,
 			"property" : "string",

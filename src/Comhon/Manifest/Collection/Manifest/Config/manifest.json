@@ -8,11 +8,11 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
-            "name": "dateTimeFormat",
+            "name": "date_time_format",
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
-            "name": "manifestFormat",
+            "name": "manifest_format",
             "default": "json",
             "enum": [
                 "json",
@@ -26,15 +26,15 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
         {
-            "name": "regexList",
+            "name": "regex_list",
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
-            "name": "sqlTable",
+            "name": "sql_table",
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
-            "name": "sqlDatabase",
+            "name": "sql_database",
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
     ],

@@ -280,7 +280,7 @@ class RequestHandler {
 			throw new ImportException($e, self::CLAUSE);
 		}
 		$clause->setId($i++);
-		$simpleCollection = $request->initValue('simpleCollection');
+		$simpleCollection = $request->initValue('simple_collection');
 		$elements = $clause->initValue('elements', false);
 		
 		foreach ($get as $propertyName => $value) {

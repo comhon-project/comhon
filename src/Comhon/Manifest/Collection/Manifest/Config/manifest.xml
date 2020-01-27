@@ -1,17 +1,17 @@
 <root name="Comhon\Config" is_main="1" version="3.0">
   <properties>
     <property name="database" model="DbOpt" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="dateTimeFormat" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="manifestFormat" default="json" __inheritance__="Comhon\Manifest\Property\String">
+    <property name="date_time_format" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="manifest_format" default="json" __inheritance__="Comhon\Manifest\Property\String">
       <enum>
         <value>json</value>
         <value>xml</value>
       </enum>
     </property>
     <property name="autoload" model="Autoload" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="regexList" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="sqlTable" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="sqlDatabase" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="regex_list" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="sql_table" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="sql_database" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
   <types>
     <type name="DbOpt">

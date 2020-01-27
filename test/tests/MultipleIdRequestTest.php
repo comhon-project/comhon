@@ -9,7 +9,7 @@ $Json = '{
 		"model"   : "Test\\\\MainTestDb",
 		"id"      : 1
 	},
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 0,
 			"elements" : [1,2],
@@ -32,7 +32,7 @@ $Json = '{
         	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
 		}
 	],
-	"havingCollection" : [
+	"having_collection" : [
 		{
 			"id"       : 1,
 			"operator" : "=",
@@ -79,7 +79,7 @@ $Json = '{
 			"id"      : 2
 		}
 	],
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 0,
 			"elements" : [1,2],
@@ -102,7 +102,7 @@ $Json = '{
         	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
 		}
 	],
-	"havingCollection" : [
+	"having_collection" : [
 		{
 			"id"       : 1,
 			"operator" : "=",
@@ -151,7 +151,7 @@ $Json = '{
 		}
 	],
 	"order" : [{"property":"id", "type":"ASC"}],
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 2,

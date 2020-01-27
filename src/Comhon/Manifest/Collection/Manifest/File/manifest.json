@@ -4,11 +4,11 @@
     "is_main": true,
     "properties": [
         {
-            "name": "staticPath",
+            "name": "dir_path",
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
         {
-            "name": "staticName",
+            "name": "file_name",
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
     ],

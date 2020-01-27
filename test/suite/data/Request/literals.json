@@ -1,5 +1,5 @@
 {
-    "simpleCollection": [
+    "simple_collection": [
         {
             "id": 0,
             "node": 1,
@@ -106,7 +106,7 @@
             "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Null"
         }
     ],
-    "havingCollection": [
+    "having_collection": [
         {
             "id": 10,
             "operator": ">",

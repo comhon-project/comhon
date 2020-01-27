@@ -93,11 +93,11 @@ missing required value 'id' on comhon object with model 'Comhon\Model\Node'");
 		$filter->setValue('property', 'my_property');
 		$filter->setValue('operator', '=');
 		$filter->setValue('value', 'hehe');
-		$simpleCollection = $obj->initValue('simpleCollection', false);
+		$simpleCollection = $obj->initValue('simple_collection', false);
 		$simpleCollection->pushValue($filter);
 		
 		$this->expectException(ComhonException::class);
-		$this->expectExceptionMessage("Something goes wrong on '.simpleCollection.0.node' object : 
+		$this->expectExceptionMessage("Something goes wrong on '.simple_collection.0.node' object : 
 foreign value with model 'Comhon\Model\Root' and id '2' not referenced in interfaced object");
 		ComplexRequester::build($obj);
 	}
@@ -204,7 +204,7 @@ missing or not complete id on foreign value");
 				"model"   => 'Test\TestDb',
 				"id"      => 1
 			],
-			"simpleCollection" => [
+			"simple_collection" => [
 				$literal
 			],
 			"filter" => 1,
@@ -286,7 +286,7 @@ missing or not complete id on foreign value");
 				"model"   => $modelName,
 				"id"      => 1
 			],
-			"simpleCollection" => [
+			"simple_collection" => [
 				[
 					"id"       => 1,
 					"node"     => 1,
@@ -337,7 +337,7 @@ missing or not complete id on foreign value");
 				"model"   => $modelName,
 				"id"      => 1
 			],
-			"simpleCollection" => [
+			"simple_collection" => [
 				[
 					"id"       => 1,
 					"node"     => 1,

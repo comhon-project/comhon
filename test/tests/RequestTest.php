@@ -21,7 +21,7 @@ $request = [
 			"model" => 'Test\TestDb'
 		]],
 		"filter" => 0,
-		"simpleCollection" => [
+		"simple_collection" => [
 			[
 				"id" => 0,
 				"elements" => [1,2],
@@ -67,7 +67,7 @@ $request = [
 				"model" => 'Test\TestDb'
 		]],
 		"filter" => 0,
-		"simpleCollection" => [
+		"simple_collection" => [
 				[
 						"id" => 0,
 						"elements" => [1,2],

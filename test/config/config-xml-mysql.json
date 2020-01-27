@@ -1,5 +1,5 @@
 {
-  "manifestFormat": "xml",
+  "manifest_format": "xml",
   "autoload": {
     "manifest":{
       "Test":"../manifests/manifest"
@@ -8,10 +8,10 @@
       "Test":"../manifests/serialization"
     }
   },
-  "regexList":"./regex.json",
-  "sqlTable": "./table",
-  "sqlDatabase": "./database",
-  "dateTimeFormat": "c",
+  "regex_list":"./regex.json",
+  "sql_table": "./table",
+  "sql_database": "./database",
+  "date_time_format": "c",
   "database": {
     "charset": "utf8",
     "timezone": "UTC"

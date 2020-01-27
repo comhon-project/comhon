@@ -4,8 +4,8 @@
     "serialization": {
         "inheritance_key": "grand_parent",
         "settings": {
-            "staticPath": ".\/data\/inherited_serialization",
-            "staticName": "file.json",
+            "dir_path": ".\/data\/inherited_serialization",
+            "file_name": "file.json",
             "__inheritance__": "Comhon\\File\\JsonFile"
         }
     }

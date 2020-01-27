@@ -54,7 +54,7 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"first
 }
 
 $Json = '{
-	"simpleCollection": [
+	"simple_collection": [
 		{
 			"id": 1,
 			"node"    : 1,
@@ -82,7 +82,7 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"first
 }
 
 $Json = '{
-	"simpleCollection": [
+	"simple_collection": [
 		{
 			"id": 1,
 			"node"    : 2,
@@ -115,7 +115,7 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"first
 }
 
 $Json = '{
-	"simpleCollection": [
+	"simple_collection": [
 		{
 			"id": 1,
 			"node"    : 1,
@@ -145,7 +145,7 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"name"
 }
 
 $Json = '{
-	"simpleCollection": [
+	"simple_collection": [
 		{
 			"id": 1,
 			"node"    : 1,
@@ -154,7 +154,7 @@ $Json = '{
 			"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
 		}
 	],
-	"havingCollection": [
+	"having_collection": [
 		{
 			"id": 1,
 			"function"    : "AVG",
@@ -182,7 +182,7 @@ if (!compareJson(json_encode($result), '{"success":false,"error":{"message":"pro
 }
 
 $Json = '{
-	"simpleCollection": [
+	"simple_collection": [
 		{
 			"id": 1,
 			"node"    : 1,

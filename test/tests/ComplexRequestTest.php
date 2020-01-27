@@ -86,7 +86,7 @@ $Json = '{
 			}
 		]
 	},
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 3,
@@ -112,7 +112,7 @@ $Json = '{
 		"model"   : "Test\\\\Person",
 		"id"      : 1
 	},
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 1,
@@ -138,7 +138,7 @@ $Json = '{
 		"model"   : "Test\\\\ChildTestDb",
 		"id"      : 1
 	},
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 1,
@@ -164,7 +164,7 @@ $Json = '{
 		"model"   : "Test\\\\ChildTestDb",
 		"id"      : 1
 	},
-	"simpleCollection" : [
+	"simple_collection" : [
 		{
 			"id"       : 1,
 			"node"     : 1,

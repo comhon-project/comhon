@@ -58,11 +58,11 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 	 * @return string
 	 */
 	protected function _getPath(UniqueObject $object) {
-		return $object->getModel()->getSerializationSettings()->getValue('staticPath') 
+		return $object->getModel()->getSerializationSettings()->getValue('dir_path') 
 			. DIRECTORY_SEPARATOR 
 			. $object->getId() 
 			. DIRECTORY_SEPARATOR 
-			. $object->getModel()->getSerializationSettings()->getValue('staticName');
+			. $object->getModel()->getSerializationSettings()->getValue('file_name');
 	}
 
 	/**

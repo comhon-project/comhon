@@ -1,10 +1,10 @@
 {
   "manifestList": "../manifests/manifest/manifestList.json",
   "serializationList": "../manifests/serialization/serializationList.json",
-  "regexList":"./fake-path/regex.json",
-  "sqlTable": "./fake-path",
-  "sqlDatabase": "./fake-path",
-  "dateTimeFormat": "c",
+  "regex_list":"./fake-path/regex.json",
+  "sql_table": "./fake-path",
+  "sql_database": "./fake-path",
+  "date_time_format": "c",
   "database": {
     "charset": "utf8",
     "timezone": "UTC"

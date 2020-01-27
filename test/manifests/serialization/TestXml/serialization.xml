@@ -1,5 +1,5 @@
 <root name="Test\TestXml" version="3.0">
   <serialization>
-    <settings staticPath="./data/test_xml" staticName="test.xml" __inheritance__="Comhon\File\XmlFile"/>
+    <settings dir_path="./data/test_xml" file_name="test.xml" __inheritance__="Comhon\File\XmlFile"/>
   </serialization>
 </root>

@@ -16,10 +16,10 @@
     <property name="properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="property" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
     </property>
-    <property name="simpleCollection" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+    <property name="simple_collection" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="formula" not_null="1" model="\Comhon\Logic\Simple\Formula" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="havingCollection" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+    <property name="having_collection" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="formula" not_null="1" model="\Comhon\Logic\Having\Formula" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="filter" not_null="1" model="\Comhon\Logic\Simple\Formula" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
