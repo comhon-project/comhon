@@ -1,5 +1,6 @@
 {
-    "version": "2.0",
+    "name": "Test\\Person\\Man",
+    "version": "3.0",
     "properties": {
         "bodies": {
             "aggregations": [

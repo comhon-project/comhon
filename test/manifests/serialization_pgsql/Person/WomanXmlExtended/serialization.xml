@@ -1,5 +1,5 @@
-<manifest version="2.0">
+<root name="Test\Person\WomanXmlExtended" version="3.0">
   <inheritance_values>
-    <inheritance_value>\Test\Person\WomanXmlExtended</inheritance_value>
+    <model>\Test\Person\WomanXmlExtended</model>
   </inheritance_values>
-</manifest>
+</root>

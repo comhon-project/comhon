@@ -274,7 +274,7 @@ class ModelManager {
 	 * @param string $fullyQualifiedNameSuffix
 	 * @return string|null
 	 */
-	private function _getSerializationManifestPath($manifest_af, $fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) {
+	public function getSerializationManifestPath($manifest_af, $fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) {
 		if (array_key_exists($fullyQualifiedNamePrefix, $this->autoloadSerializationManifest)) {
 			$prefix_ad = substr($this->autoloadSerializationManifest[$fullyQualifiedNamePrefix], 0, 1) == '.'
 				? Config::getInstance()->getDirectory(). DIRECTORY_SEPARATOR . $this->autoloadSerializationManifest[$fullyQualifiedNamePrefix]
@@ -313,7 +313,7 @@ class ModelManager {
 		if (is_null($manifestPath_afe)) {
 			throw new NotDefinedModelException($model->getName());
 		}
-		$serializationPath_afe  = $this->_getSerializationManifestPath(
+		$serializationPath_afe  = $this->getSerializationManifestPath(
 			$manifestPath_afe, 
 			$fullyQualifiedNamePrefix, 
 			$fullyQualifiedNameSuffix

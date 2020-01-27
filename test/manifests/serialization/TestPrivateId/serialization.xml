@@ -1,11 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\SqlTable" id="test_private_id"/>
-	<properties>
-		<objectValues serializationName="object_values"/>
-		<foreignObjectValue serializationName="foreign_object_value"/>
-		<foreignObjectValues serializationName="foreign_object_values"/>
-		<foreignTestPrivateId serializationName="foreign_test_private_id"/>
-		<foreignTestPrivateIds serializationName="foreign_test_private_ids"/>
-	</properties>
-</manifest>
+<root name="Test\TestPrivateId" version="3.0">
+  <serialization>
+    <foreign_settings id="test_private_id" __inheritance__="Comhon\SqlTable"/>
+  </serialization>
+  <properties>
+    <objectValues serialization_name="object_values"/>
+    <foreignObjectValue serialization_name="foreign_object_value"/>
+    <foreignObjectValues serialization_name="foreign_object_values"/>
+    <foreignTestPrivateId serialization_name="foreign_test_private_id"/>
+    <foreignTestPrivateIds serialization_name="foreign_test_private_ids"/>
+  </properties>
+</root>

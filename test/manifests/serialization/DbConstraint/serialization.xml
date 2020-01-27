@@ -1,12 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\SqlTable" id="db_constraint"/>
-	<properties>
-		<foreign_constraint_composite>
-			<serializationNames>
-				<id1>unique_foreign_one</id1>
-				<id2>unique_foreign_two</id2>
-			</serializationNames>
-		</foreign_constraint_composite>
-	</properties>
-</manifest>
+<root name="Test\DbConstraint" version="3.0">
+  <serialization>
+    <foreign_settings id="db_constraint" __inheritance__="Comhon\SqlTable"/>
+  </serialization>
+  <properties>
+    <foreign_constraint_composite>
+      <serialization_names>
+        <id1>unique_foreign_one</id1>
+        <id2>unique_foreign_two</id2>
+      </serialization_names>
+    </foreign_constraint_composite>
+  </properties>
+</root>

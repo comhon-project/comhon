@@ -1,5 +1,6 @@
 {
-    "version": "2.0",
+    "name": "Comhon\\Manifest\\File",
+    "version": "3.0",
     "serialization": {
         "serialization_unit_class": "\\Comhon\\Serialization\\File\\ManifestFile"
     }

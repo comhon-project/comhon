@@ -1,11 +1,12 @@
 {
-    "version": "2.0",
+    "name": "Test\\Body\\ManJson",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\File\\JsonFile",
-        "inheritanceKey": "key",
-        "value": {
+        "inheritance_key": "key",
+        "settings": {
             "staticPath": ".\/data\/man_body_json",
-            "staticName": "man_body.json"
+            "staticName": "man_body.json",
+            "__inheritance__": "Comhon\\File\\JsonFile"
         }
     }
 }

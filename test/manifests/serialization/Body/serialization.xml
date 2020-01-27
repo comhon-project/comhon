@@ -1,10 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<properties>
-		<hairColor serializationName="hair_color"/>
-		<hairCut serializationName="hair_cut"/>
-		<eyesColor serializationName="eyes_color"/>
-		<physicalAppearance serializationName="physical_appearance"/>
-		<owner serializationName="owner_id"/>
-	</properties>
-</manifest>
+<root name="Test\Body" version="3.0">
+  <properties>
+    <hairColor serialization_name="hair_color"/>
+    <hairCut serialization_name="hair_cut"/>
+    <eyesColor serialization_name="eyes_color"/>
+    <physicalAppearance serialization_name="physical_appearance"/>
+    <owner serialization_name="owner_id"/>
+  </properties>
+</root>

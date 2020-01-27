@@ -1,12 +1,15 @@
 {
-    "version": "2.0",
+    "name": "Test\\Town",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\SqlTable",
-        "id": "public.town"
+        "foreign_settings": {
+            "id": "public.town",
+            "__inheritance__": "Comhon\\SqlTable"
+        }
     },
     "properties": {
         "cityHall": {
-            "serializationName": "city_hall"
+            "serialization_name": "city_hall"
         }
     }
 }

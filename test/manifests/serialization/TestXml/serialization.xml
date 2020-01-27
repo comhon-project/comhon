@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\File\XmlFile">
-		<value staticPath="./data/test_xml" staticName="test.xml"/>
-	</serialization>
-</manifest>
+<root name="Test\TestXml" version="3.0">
+  <serialization>
+    <settings staticPath="./data/test_xml" staticName="test.xml" __inheritance__="Comhon\File\XmlFile"/>
+  </serialization>
+</root>

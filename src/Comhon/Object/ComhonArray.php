@@ -71,7 +71,14 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 * @see \Comhon\Object\AbstractComhonObject::loadValue()
 	 */
 	final public function loadValue($pkey, $propertiesFilter = null, $forceLoad = false) {
-		return $this->getModel()->getUniqueModel()->loadAndFillObject($this->getValue($pkey), $propertiesFilter, $forceLoad);
+		if (!$this->issetValue($pkey)) {
+			throw new ComhonException("cannot load value $pkey, value not set");
+		}
+		$value = $this->getValue($pkey);
+		if (!($value instanceof UniqueObject)) {
+			throw new ComhonException("cannot load value $pkey, it is not an unique object");
+		}
+		return $value->load($propertiesFilter, $forceLoad);
 	}
 	
 	/**

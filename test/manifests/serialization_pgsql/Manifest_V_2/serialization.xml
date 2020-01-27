@@ -1,0 +1,6 @@
+<root version="2.0">
+  <serialization type="Comhon\SqlTable" inheritanceKey="sex" id="town"/>
+  <properties>
+    <name serializationName="serial_name"/>
+  </properties>
+</root>

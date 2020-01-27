@@ -277,7 +277,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Serialization\SerializationUnit::_saveObject()
+	 * @see \Comhon\Serialization\ValidatedSerializationUnit::_saveObject()
 	 */
 	protected function _saveObject(UniqueObject $object, $operation = null) {
 		$this->_initDatabaseInterfacing($object->getModel());
@@ -443,7 +443,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Serialization\SerializationUnit::_deleteObject()
+	 * @see \Comhon\Serialization\ValidatedSerializationUnit::_deleteObject()
 	 */
 	protected function _deleteObject(UniqueObject $object) {
 		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
@@ -476,7 +476,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Serialization\SerializationUnit::_loadObject()
+	 * @see \Comhon\Serialization\ValidatedSerializationUnit::_loadObject()
 	 */
 	protected function _loadObject(UniqueObject $object, $propertiesFilter = null) {
 		$model         = $object->getModel();

@@ -515,7 +515,7 @@ class RequestHandler {
 			throw new MalformedRequestException();
 		}
 		
-		$model->loadAndFillObject($object, null, true);
+		$object->load(null, true);
 		return $this->_buildResponse(201, $interfacer->export($object));
 	}
 	
@@ -553,7 +553,7 @@ class RequestHandler {
 		if ($updated == 0) {
 			throw new NotFoundException($model, $id);
 		}
-		$model->loadAndFillObject($object, null, true);
+		$object->load(null, true);
 		return $this->_buildResponse(200, $interfacer->export($object));
 	}
 	

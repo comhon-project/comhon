@@ -1,11 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\SqlTable" id="main_test"/>
-	<properties>
-		<childrenTestDb>
-			<aggregations>
-				<aggregation>mainParentTestDb</aggregation>
-			</aggregations>
-		</childrenTestDb>
-	</properties>
-</manifest>
+<root name="Test\MainTestDb" version="3.0">
+  <serialization>
+    <foreign_settings id="main_test" __inheritance__="Comhon\SqlTable"/>
+  </serialization>
+  <properties>
+    <childrenTestDb>
+      <aggregations>
+        <aggregation>mainParentTestDb</aggregation>
+      </aggregations>
+    </childrenTestDb>
+  </properties>
+</root>

@@ -1,8 +1,13 @@
 {
-    "version": "2.0",
+    "name": "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable",
+    "version": "3.0",
     "properties": {
         "localChildOne": {
-            "serializationName": "local_child_one"
+            "serialization_name": "local_child_one"
         }
-    }
+    },
+    "inheritance_values": [
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\Child",
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable"
+    ]
 }

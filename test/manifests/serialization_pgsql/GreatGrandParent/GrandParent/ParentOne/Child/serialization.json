@@ -1,16 +1,15 @@
 {
-    "version": "2.0",
+    "name": "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\File\\JsonFile",
-        "inheritanceKey": "child_one",
-        "value": {
+        "inheritance_key": "child_one",
+        "settings": {
             "staticPath": ".\/data\/inherited_serialization",
-            "staticName": "file.json"
+            "staticName": "file.json",
+            "__inheritance__": "Comhon\\File\\JsonFile"
         }
     },
     "inheritance_values": [
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\Child",
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable",
         "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child"
     ]
 }

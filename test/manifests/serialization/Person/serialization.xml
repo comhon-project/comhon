@@ -1,24 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\SqlTable" inheritanceKey="sex" id="`person`"/>
-	<properties>
-		<firstName serializationName="first_name"/>
-		<lastName serializationName="last_name"/>
-		<birthDate serializationName="birth_date"/>
-		<birthPlace serializationName="birth_place"/>
-		<bestFriend serializationName="best_friend"/>
-		<father serializationName="father_id"/>
-		<mother serializationName="mother_id"/>
-		<children>
-			<aggregations>
-				<aggregation>mother</aggregation>
-				<aggregation>father</aggregation>
-			</aggregations>
-		</children>
-		<homes>
-			<aggregations>
-				<aggregation>person</aggregation>
-			</aggregations>
-		</homes>
-	</properties>
-</manifest>
+<root name="Test\Person" version="3.0">
+  <serialization inheritance_key="sex">
+    <foreign_settings id="`person`" __inheritance__="Comhon\SqlTable"/>
+  </serialization>
+  <properties>
+    <firstName serialization_name="first_name"/>
+    <lastName serialization_name="last_name"/>
+    <birthDate serialization_name="birth_date"/>
+    <birthPlace serialization_name="birth_place"/>
+    <bestFriend serialization_name="best_friend"/>
+    <father serialization_name="father_id"/>
+    <mother serialization_name="mother_id"/>
+    <children>
+      <aggregations>
+        <aggregation>mother</aggregation>
+        <aggregation>father</aggregation>
+      </aggregations>
+    </children>
+    <homes>
+      <aggregations>
+        <aggregation>person</aggregation>
+      </aggregations>
+    </homes>
+  </properties>
+</root>

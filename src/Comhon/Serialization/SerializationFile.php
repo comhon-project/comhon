@@ -68,7 +68,7 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Serialization\SerializationUnit::_saveObject()
+	 * @see \Comhon\Serialization\ValidatedSerializationUnit::_saveObject()
 	 */
 	protected function _saveObject(UniqueObject $object, $operation = null) {
 		if (!$object->getModel()->hasIdProperties()) {
@@ -106,7 +106,7 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Serialization\SerializationUnit::_loadObject()
+	 * @see \Comhon\Serialization\ValidatedSerializationUnit::_loadObject()
 	 */
 	protected function _loadObject(UniqueObject $object, $propertiesFilter = null) {
 		if (!$object->getModel()->hasIdProperties()) {
@@ -130,7 +130,7 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Serialization\SerializationUnit::_deleteObject()
+	 * @see \Comhon\Serialization\ValidatedSerializationUnit::_deleteObject()
 	 */
 	protected function _deleteObject(UniqueObject $object) {
 		if (!$object->getModel()->hasIdProperties()) {

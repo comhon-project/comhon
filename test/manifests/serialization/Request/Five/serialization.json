@@ -1,10 +1,11 @@
 {
-    "version": "2.0",
+    "name": "Test\\Request\\Five",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\SqlTable",
-        "value": {
+        "settings": {
             "name": "five",
-            "database": "2"
+            "database": "2",
+            "__inheritance__": "Comhon\\SqlTable"
         }
     }
 }

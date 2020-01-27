@@ -351,6 +351,20 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'[{"id":1,"firstName":"Bernard","birthPlace":2,"__inheritance__":"Test\\\\Person\\\\Man"}]'
 			],
+			[ // empty result
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+				],
+				[
+					'__order__' => '[{"property":"firstName","type":"ASC"}]',
+					'__properties__' => ['birthPlace', 'firstName'],
+					'firstName' => 'no name'
+				],
+				200,
+				['Content-Type' => 'application/json'],
+				'[]'
+			],
 			[ // unique filter array string
 				[
 					'REQUEST_METHOD' => 'GET',
@@ -473,6 +487,16 @@ class RequestHandlerGetHeadTest extends TestCase
 				200,
 				['Content-Type' => 'text/plain'],
 				'9'
+			],
+			[ // count 0
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson'
+				],
+				['firstName' => 'no name'],
+				200,
+				['Content-Type' => 'text/plain'],
+				'0'
 			],
 			[ // invalid route
 				[
@@ -1046,7 +1070,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'text/plain'],
 				'request model name is different than route model : Test\Person != Test\TestDb'
 			],
-			[ // incalid body
+			[ // invalid body
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson'

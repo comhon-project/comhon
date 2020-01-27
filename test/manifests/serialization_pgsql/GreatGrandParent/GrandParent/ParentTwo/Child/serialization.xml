@@ -1,8 +1,8 @@
-<manifest version="2.0">
-  <serialization type="Comhon\File\JsonFile">
-    <value staticPath="./data/inherited_serialization" staticName="file.json"/>
+<root name="Test\GreatGrandParent\GrandParent\ParentTwo\Child" version="3.0">
+  <serialization>
+    <settings staticPath="./data/inherited_serialization" staticName="file.json" __inheritance__="Comhon\File\JsonFile"/>
   </serialization>
   <inheritance_values>
-    <inheritance_value>\Test\GreatGrandParent\GrandParent\ParentTwo\Child</inheritance_value>
+    <model>\Test\GreatGrandParent\GrandParent\ParentTwo\Child</model>
   </inheritance_values>
-</manifest>
+</root>

@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\SqlTable" id="test_no_id"/>
-</manifest>
+<root name="Test\TestNoId" version="3.0">
+  <serialization>
+    <foreign_settings id="test_no_id" __inheritance__="Comhon\SqlTable"/>
+  </serialization>
+</root>

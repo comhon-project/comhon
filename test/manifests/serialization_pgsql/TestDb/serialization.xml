@@ -1,24 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\SqlTable" id="public.test"/>
-	<properties>
-		<id1 serializationName="id_1"/>
-		<id2 serializationName="id_2"/>
-		<objectWithId serializationName="object_with_id"/>
-		<mainParentTestDb serializationName="main_test_id"/>
-		<objectsWithId serializationName="objects_with_id"/>
-		<foreignObjects serializationName="foreign_objects"/>
-		<lonelyForeignObject serializationName="lonely_foreign_object"/>
-		<lonelyForeignObjectTwo serializationName="lonely_foreign_object_two"/>
-		<defaultValue serializationName="default_value"/>
-		<manBodyJson serializationName="man_body_json_id"/>
-		<womanXml serializationName="woman_xml_id"/>
-		<notSerializedValue is_serializable="0"/>
-		<notSerializedForeignObject is_serializable="0"/>
-		<childrenTestDb>
-			<aggregations>
-				<aggregation>parentTestDb</aggregation>
-			</aggregations>
-		</childrenTestDb>
-	</properties>
-</manifest>
+<root name="Test\TestDb" version="3.0">
+  <serialization>
+    <foreign_settings id="public.test" __inheritance__="Comhon\SqlTable"/>
+  </serialization>
+  <properties>
+    <id1 serialization_name="id_1"/>
+    <id2 serialization_name="id_2"/>
+    <objectWithId serialization_name="object_with_id"/>
+    <mainParentTestDb serialization_name="main_test_id"/>
+    <objectsWithId serialization_name="objects_with_id"/>
+    <foreignObjects serialization_name="foreign_objects"/>
+    <lonelyForeignObject serialization_name="lonely_foreign_object"/>
+    <lonelyForeignObjectTwo serialization_name="lonely_foreign_object_two"/>
+    <defaultValue serialization_name="default_value"/>
+    <manBodyJson serialization_name="man_body_json_id"/>
+    <womanXml serialization_name="woman_xml_id"/>
+    <notSerializedValue is_serializable="0"/>
+    <notSerializedForeignObject is_serializable="0"/>
+    <childrenTestDb>
+      <aggregations>
+        <aggregation>parentTestDb</aggregation>
+      </aggregations>
+    </childrenTestDb>
+  </properties>
+</root>

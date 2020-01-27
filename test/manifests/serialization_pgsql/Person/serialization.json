@@ -1,31 +1,34 @@
 {
-    "version": "2.0",
+    "name": "Test\\Person",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\SqlTable",
-        "inheritanceKey": "sex",
-        "id": "\"public\".\"person\""
+        "inheritance_key": "sex",
+        "foreign_settings": {
+            "id": "\"public\".\"person\"",
+            "__inheritance__": "Comhon\\SqlTable"
+        }
     },
     "properties": {
         "firstName": {
-            "serializationName": "first_name"
+            "serialization_name": "first_name"
         },
         "lastName": {
-            "serializationName": "last_name"
+            "serialization_name": "last_name"
         },
         "birthDate": {
-            "serializationName": "birth_date"
+            "serialization_name": "birth_date"
         },
         "birthPlace": {
-            "serializationName": "birth_place"
+            "serialization_name": "birth_place"
         },
         "bestFriend": {
-            "serializationName": "best_friend"
+            "serialization_name": "best_friend"
         },
         "father": {
-            "serializationName": "father_id"
+            "serialization_name": "father_id"
         },
         "mother": {
-            "serializationName": "mother_id"
+            "serialization_name": "mother_id"
         },
         "children": {
             "aggregations": [

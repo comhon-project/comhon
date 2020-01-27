@@ -1,4 +1,4 @@
-<manifest version="2.0">
+<root name="Test\Person\Man" version="3.0">
   <properties>
     <bodies>
       <aggregations>
@@ -7,6 +7,6 @@
     </bodies>
   </properties>
   <inheritance_values>
-    <inheritance_value>\Test\Person\Man</inheritance_value>
+    <model>\Test\Person\Man</model>
   </inheritance_values>
-</manifest>
+</root>

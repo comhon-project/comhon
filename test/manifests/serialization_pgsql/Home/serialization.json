@@ -1,21 +1,24 @@
 {
-    "version": "2.0",
+    "name": "Test\\Home",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\SqlTable",
-        "id": "public.home"
+        "foreign_settings": {
+            "id": "public.home",
+            "__inheritance__": "Comhon\\SqlTable"
+        }
     },
     "properties": {
         "beginDate": {
-            "serializationName": "begin_date"
+            "serialization_name": "begin_date"
         },
         "endDate": {
-            "serializationName": "end_date"
+            "serialization_name": "end_date"
         },
         "person": {
-            "serializationName": "person_id"
+            "serialization_name": "person_id"
         },
         "house": {
-            "serializationName": "house_id"
+            "serialization_name": "house_id"
         }
     }
 }

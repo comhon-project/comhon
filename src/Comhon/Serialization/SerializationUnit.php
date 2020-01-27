@@ -46,7 +46,7 @@ abstract class SerializationUnit {
 	 * @param string[] $propertiesFilter
 	 * @return boolean true if loading is successfull
 	 * @throws \Exception
-	 * @return boolean true if object is successfully load, false otherwise
+	 * @return boolean true if object is successfully loaded, false otherwise
 	 */
 	abstract public function loadObject(UniqueObject $object, $propertiesFilter = null);
 	

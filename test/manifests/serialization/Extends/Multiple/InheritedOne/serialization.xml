@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\File\JsonFile" inheritanceKey="inheritance_one">
-		<value staticPath="./data/multiple_inheritance_one_serialization" staticName="file.json"/>
-	</serialization>
-</manifest>
+<root name="Test\Extends\Multiple\InheritedOne" version="3.0">
+  <serialization inheritance_key="inheritance_one">
+    <settings staticPath="./data/multiple_inheritance_one_serialization" staticName="file.json" __inheritance__="Comhon\File\JsonFile"/>
+  </serialization>
+</root>

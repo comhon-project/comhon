@@ -19,7 +19,28 @@ use Comhon\Exception\Manifest\ManifestException;
 
 abstract class SerializationManifestParser {
 	
+	/** @var string */
+	const SERIALIZATION = 'serialization';
+	
+	/** @var string */
 	const INHERITANCE_VALUES = 'inheritance_values';
+	
+	/** @var string */
+	const SERIALIZATION_NAME = 'serialization_name';
+	
+	/** @var string */
+	const SERIALIZATION_NAMES = 'serialization_names';
+	
+	/** @var string */
+	const INHERITANCE_KEY = 'inheritance_key';
+	
+	/** @var string */
+	const AGGREGATIONS = 'aggregations';
+	
+	/** @var string */
+	const IS_SERIALIZABLE = 'is_serializable';
+	
+	const UNIT_CLASS = 'serialization_unit_class';
 	
 	/** @var mixed */
 	protected $manifest;
@@ -139,6 +160,7 @@ abstract class SerializationManifestParser {
 		$version = (string) $interfacer->getValue($manifest, 'version');
 		switch ($version) {
 			case '2.0': return new V_2_0\SerializationManifestParser($manifest);
+			case '3.0': return new V_3_0\SerializationManifestParser($manifest);
 			default:    throw new ManifestException("version $version not recognized for manifest $serializationManifestPath_afe");
 		}
 	}

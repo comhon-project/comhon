@@ -18,7 +18,16 @@ use Comhon\Exception\Manifest\ManifestException;
 use Comhon\Exception\Manifest\SerializationManifestIdException;
 
 class SerializationManifestParser extends ParentSerializationManifestParser {
-
+	
+	/** @var string */
+	const SERIALIZATION_NAME = 'serializationName';
+	
+	/** @var string */
+	const SERIALIZATION_NAMES = 'serializationNames';
+	
+	/** @var string */
+	const INHERITANCE_KEY = 'inheritanceKey';
+	
 	/**
 	 * 
 	 * {@inheritDoc}
@@ -33,15 +42,15 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 		
 		if (!is_null($properties) && $this->interfacer->hasValue($properties, $propertyName, true)) {
 			$serializationNode = $this->interfacer->getValue($properties, $propertyName, true);
-			if ($this->interfacer->hasValue($serializationNode, 'serializationName')) {
-				$serializationName = $this->interfacer->getValue($serializationNode, 'serializationName');
-				if ($this->interfacer->hasValue($serializationNode, 'serializationNames')) {
+			if ($this->interfacer->hasValue($serializationNode, static::SERIALIZATION_NAME)) {
+				$serializationName = $this->interfacer->getValue($serializationNode, static::SERIALIZATION_NAME);
+				if ($this->interfacer->hasValue($serializationNode, static::SERIALIZATION_NAMES)) {
 					throw new ManifestException('serializationName and serializationNames cannot cohexist');
 				}
 			}
-			else if ($this->interfacer->hasValue($serializationNode, 'serializationNames', true)) {
+			else if ($this->interfacer->hasValue($serializationNode, static::SERIALIZATION_NAMES, true)) {
 				$serializationNames = $this->interfacer->getTraversableNode(
-					$this->interfacer->getValue($serializationNode, 'serializationNames', true),
+					$this->interfacer->getValue($serializationNode, static::SERIALIZATION_NAMES, true),
 					true
 				);
 				if ($this->interfacer instanceof XMLInterfacer) {
@@ -50,9 +59,9 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 					}
 				}
 			}
-			if ($this->interfacer->hasValue($serializationNode, 'aggregations', true)) {
+			if ($this->interfacer->hasValue($serializationNode, static::AGGREGATIONS, true)) {
 				$aggregations = $this->interfacer->getTraversableNode(
-					$this->interfacer->getValue($serializationNode, 'aggregations', true)
+					$this->interfacer->getValue($serializationNode, static::AGGREGATIONS, true)
 				);
 				if ($this->interfacer instanceof XMLInterfacer) {
 					foreach ($aggregations as $key => $serializationNameNode) {
@@ -63,8 +72,8 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 					throw new ManifestException('aggregation must have at least one aggregation property');
 				}
 			}
-			if ($this->interfacer->hasValue($serializationNode, 'is_serializable')) {
-				$isSerializable = $this->interfacer->getValue($serializationNode, 'is_serializable');
+			if ($this->interfacer->hasValue($serializationNode, static::IS_SERIALIZABLE)) {
+				$isSerializable = $this->interfacer->getValue($serializationNode, static::IS_SERIALIZABLE);
 				if ($this->interfacer instanceof XMLInterfacer) {
 					$isSerializable = $this->interfacer->castValueToBoolean($isSerializable);
 				}
@@ -80,8 +89,8 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getSerializationSettings()
 	 */
 	public function getSerializationSettings() {
-		return $this->interfacer->hasValue($this->manifest, 'serialization', true)
-			? $this->_buildSerializationSettings($this->interfacer->getValue($this->manifest, 'serialization', true))
+		return $this->interfacer->hasValue($this->manifest, static::SERIALIZATION, true)
+			? $this->_buildSerializationSettings($this->interfacer->getValue($this->manifest, static::SERIALIZATION, true))
 			: null;
 	}
 	
@@ -92,7 +101,7 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	 * @throws \Exception
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	private function _buildSerializationSettings($serializationNode) {
+	protected function _buildSerializationSettings($serializationNode) {
 		$type = $this->interfacer->getValue($serializationNode, 'type');
 		if ($this->interfacer->hasValue($serializationNode, 'value', true)) {
 			$serialization = ModelManager::getInstance()->getInstanceModel($type)->getObjectInstance();
@@ -106,7 +115,7 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 			if (is_null($serialization)) {
 				throw new SerializationManifestIdException($type, $id);
 			}
-		} elseif (!$this->interfacer->hasValue($serializationNode, 'serialization_unit_class')) {
+		} elseif (!$this->interfacer->hasValue($serializationNode, static::UNIT_CLASS)) {
 			throw new ManifestException('malformed serialization');
 		} else {
 			$serialization = null;
@@ -120,12 +129,12 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getSerializationUnitClass()
 	 */
 	public function getSerializationUnitClass() {
-		$serializationNode = $this->interfacer->getValue($this->manifest, 'serialization', true);
+		$serializationNode = $this->interfacer->getValue($this->manifest, static::SERIALIZATION, true);
 		return is_null($serializationNode)
 			? null
 			: (
-				$this->interfacer->hasValue($serializationNode, 'serialization_unit_class')
-				? $this->interfacer->getValue($serializationNode, 'serialization_unit_class')
+				$this->interfacer->hasValue($serializationNode, static::UNIT_CLASS)
+				? $this->interfacer->getValue($serializationNode, static::UNIT_CLASS)
 				: null
 			);
 	}
@@ -136,12 +145,12 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getInheritanceKey()
 	 */
 	public function getInheritanceKey() {
-		$serializationNode = $this->interfacer->getValue($this->manifest, 'serialization', true);
+		$serializationNode = $this->interfacer->getValue($this->manifest, static::SERIALIZATION, true);
 		return is_null($serializationNode)
 			? null
 			: (
-				$this->interfacer->hasValue($serializationNode, 'inheritanceKey')
-				? $this->interfacer->getValue($serializationNode, 'inheritanceKey')
+				$this->interfacer->hasValue($serializationNode, static::INHERITANCE_KEY)
+				? $this->interfacer->getValue($serializationNode, static::INHERITANCE_KEY)
 				: null
 			);
 	}
@@ -154,8 +163,8 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	public function getInheritanceValues() {
 		$inheritanceValues = null;
 		
-		if ($this->interfacer->hasValue($this->manifest, self::INHERITANCE_VALUES, true)) {
-			$node = $this->interfacer->getValue($this->manifest, self::INHERITANCE_VALUES, true);
+		if ($this->interfacer->hasValue($this->manifest, static::INHERITANCE_VALUES, true)) {
+			$node = $this->interfacer->getValue($this->manifest, static::INHERITANCE_VALUES, true);
 			$inheritanceValues = $this->interfacer->getTraversableNode($node);
 			if ($this->interfacer instanceof XMLInterfacer) {
 				foreach ($inheritanceValues as $key => $domNode) {

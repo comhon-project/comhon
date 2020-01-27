@@ -1,10 +1,11 @@
 {
-    "version": "2.0",
+    "name": "Comhon\\SqlDatabase",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\File\\JsonFile",
-        "value": {
+        "settings": {
             "staticPath": ".\/database",
-            "staticName": "database.json"
+            "staticName": "database.json",
+            "__inheritance__": "Comhon\\File\\JsonFile"
         }
     }
 }

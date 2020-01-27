@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\File\JsonFile">
-		<value staticPath="./table" staticName="table.json"/>
-	</serialization>
-	<properties/>
-</manifest>
+<root name="Comhon\SqlTable" version="3.0">
+  <serialization>
+    <settings staticPath="./table" staticName="table.json" __inheritance__="Comhon\File\JsonFile"/>
+  </serialization>
+</root>

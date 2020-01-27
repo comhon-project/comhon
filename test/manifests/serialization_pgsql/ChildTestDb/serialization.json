@@ -1,12 +1,15 @@
 {
-    "version": "2.0",
+    "name": "Test\\ChildTestDb",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\SqlTable",
-        "id": "public.child_test"
+        "foreign_settings": {
+            "id": "public.child_test",
+            "__inheritance__": "Comhon\\SqlTable"
+        }
     },
     "properties": {
         "parentTestDb": {
-            "serializationNames": {
+            "serialization_names": {
                 "id1": "parent_id_1",
                 "id2": "parent_id_2"
             }

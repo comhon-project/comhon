@@ -1,5 +1,7 @@
-<manifest version="2.0">
-  <serialization type="Comhon\SqlTable" inheritanceKey="sex" id="&quot;public&quot;.&quot;person&quot;"/>
+<root name="Test\Person\Woman" version="3.0">
+  <serialization inheritance_key="sex">
+    <foreign_settings id="&quot;public&quot;.&quot;person&quot;" __inheritance__="Comhon\SqlTable"/>
+  </serialization>
   <properties>
     <bodies>
       <aggregations>
@@ -8,6 +10,6 @@
     </bodies>
   </properties>
   <inheritance_values>
-    <inheritance_value>\Test\Person\Woman</inheritance_value>
+    <model>\Test\Person\Woman</model>
   </inheritance_values>
-</manifest>
+</root>

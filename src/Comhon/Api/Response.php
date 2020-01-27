@@ -109,7 +109,7 @@ class Response {
 		$headers = $this->headers;
 		$content = null;
 		
-		if (!empty($this->content) || is_array($this->content)) {
+		if (!is_null($this->content) && $this->content !== '') {
 			$content = $this->content;
 			if (($this->content instanceof \stdClass) || is_array($this->content)) {
 				$content = json_encode($this->content);

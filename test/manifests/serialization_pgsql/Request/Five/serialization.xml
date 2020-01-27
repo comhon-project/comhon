@@ -1,8 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\SqlTable">
-		<value name="five">
-		  <database>1</database>
-		</value>
-	</serialization>
-</manifest>
+<root name="Test\Request\Five" version="3.0">
+  <serialization>
+    <settings name="five" __inheritance__="Comhon\SqlTable">
+      <database>1</database>
+    </settings>
+  </serialization>
+</root>

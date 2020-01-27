@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\SqlTable" id="test_multi_increment"/>
-</manifest>
+<root name="Test\TestMultiIncremental" version="3.0">
+  <serialization>
+    <foreign_settings id="test_multi_increment" __inheritance__="Comhon\SqlTable"/>
+  </serialization>
+</root>

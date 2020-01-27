@@ -449,10 +449,8 @@ try {
 
 // TODO for version > 3.0
 
-// manifest validator
-// serialization v3.0 + validator
 // add patch method
-
+// manifest, serialization validator
 // add selectquery select count(*) on query and func(*) on table
 // replace self tests by phpunit tests
 // partial load for aggregation (perhaps add setting to set max length load aggreagtion)

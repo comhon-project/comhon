@@ -918,51 +918,30 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if (!$this->hasIdProperties()) {
 			throw new NoIdPropertyException($this);
 		}
-		$mainObject = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
+		$object = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
 		
-		if (is_null($mainObject)) {
-			$mainObject = $this->_buildObjectFromId($id, false, false);
+		if (is_null($object)) {
+			$object = $this->_buildObjectFromId($id, false, false);
 			$newObject = true;
-		} else if ($mainObject->isLoaded() && !$forceLoad) {
-			return $mainObject;
+		} else if ($object->isLoaded() && !$forceLoad) {
+			return $object;
 		} else {
 			$newObject = false;
 		}
 		
 		try {
-			return $this->loadAndFillObject($mainObject, $propertiesFilter, $forceLoad) ? $mainObject : null;
+			return $object->load($propertiesFilter, $forceLoad) ? $object : null;
 		} catch (CastComhonObjectException $e) {
 			if ($newObject) {
-				$mainObject->reset();
+				$object->reset();
 			}
 			throw $e;
 		} catch (ImportException $e) {
 			if ($newObject && ($e->getOriginalException() instanceof CastComhonObjectException)) {
-				$mainObject->reset();
+				$object->reset();
 			}
 			throw $e;
 		}
-	}
-	
-	/**
-	 * load instancied comhon object with serialized object
-	 *
-	 * @param \Comhon\Object\UniqueObject $object
-	 * @param string[] $propertiesFilter
-	 * @param boolean $forceLoad if object already exists and is already loaded, force to reload object
-	 * @throws \Exception
-	 * @return \Comhon\Object\UniqueObject|null null if load is unsuccessfull
-	 */
-	public function loadAndFillObject(UniqueObject $object, $propertiesFilter = null, $forceLoad = false) {
-		$success = false;
-		$this->load();
-		if (is_null($serialization = $this->getSerialization())) {
-			throw new ComhonException("model {$this->getName()} doesn't have serialization");
-		}
-		if (!$object->isLoaded() || $forceLoad) {
-			$success = $serialization->getSerializationUnit()->loadObject($object, $propertiesFilter);
-		}
-		return $success;
 	}
 	
 	/**
@@ -1151,7 +1130,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if ($isFirstLevel && $interfacer->isSerialContext()) {
 			$inheritance = $this->getSerialization() && $this->getSerialization()->getInheritanceKey()
 				? $interfacer->getValue($interfacedObject, $this->getSerialization()->getInheritanceKey())
-				: null;
+				: $interfacer->getValue($interfacedObject, Interfacer::INHERITANCE_KEY);
 		} else {
 			$inheritance = $interfacer->getValue($interfacedObject, Interfacer::INHERITANCE_KEY);
 		}
@@ -1570,15 +1549,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return \Comhon\Object\UniqueObject
 	 */
 	protected function _importId($interfacedId, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
-		if (!$this->hasIdProperties()) {
-			throw new ComhonException("cannot import id, actual model '{$this->getName()}' doesn't have id");
-		}
-		if (!$interfacer->isPrivateContext() && $this->hasPrivateIdProperty()) {
-			throw new ContextIdException();
-		}
-		if ($interfacer->isNullValue($interfacedId)) {
-			return null;
-		}
 		if ($interfacer->isComplexInterfacedId($interfacedId)) {
 			if (!$interfacer->hasValue($interfacedId, Interfacer::COMPLEX_ID_KEY) || !$interfacer->hasValue($interfacedId, Interfacer::INHERITANCE_KEY)) {
 				throw new ComhonException('object id must have property \''.Interfacer::COMPLEX_ID_KEY.'\' and \''.Interfacer::INHERITANCE_KEY.'\'');
@@ -1590,10 +1560,18 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		else {
 			$id = $interfacedId;
 			$model = $this;
-			
 			if ($model->hasUniqueIdProperty()) {
 				$id = $model->getUniqueIdProperty()->getModel()->importSimple($id, $interfacer, $isFirstLevel);
 			}
+		}
+		if (!$model->hasIdProperties()) {
+			throw new ComhonException("cannot import id, actual model '{$model->getName()}' doesn't have id");
+		}
+		if (!$interfacer->isPrivateContext() && $model->hasPrivateIdProperty()) {
+			throw new ContextIdException();
+		}
+		if ($interfacer->isNullValue($interfacedId)) {
+			return null;
 		}
 		if ($interfacer instanceof NoScalarTypedInterfacer) {
 			if ($model->hasUniqueIdProperty()) {
@@ -1607,7 +1585,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		}
 		if (is_object($id) || is_array($id) || $id === '') {
 			$id = is_object($id) || is_array($id) ? json_encode($id) : $id;
-			throw new ComhonException("malformed id '$id' for model '{$this->modelName}'");
+			throw new ComhonException("malformed id '$id' for model '{$model->modelName}'");
 		}
 		
 		return $model->_getOrCreateObjectInstance($id, $interfacer, false, true, $objectCollectionInterfacer);

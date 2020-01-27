@@ -1,0 +1,5 @@
+<root version="2.0">
+  <serialization type="Comhon\File\JsonFile">
+    <value staticPath="./data/file_xml" staticName="file.xml"/>
+  </serialization>
+</root>

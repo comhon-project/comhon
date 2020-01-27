@@ -522,6 +522,27 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 |                                                                                               |
 	 \***********************************************************************************************/
 	
+	
+	
+	/**
+	 * load (deserialize) comhon object using model serialization
+	 *
+	 * @param string[] $propertiesFilter
+	 * @param boolean $forceLoad if object already exists and is already loaded, force to reload object
+	 * @throws \Exception
+	 * @return boolean true if success
+	 */
+	public function load($propertiesFilter = null, $forceLoad = false) {
+		$success = false;
+		if (is_null($serialization = $this->getModel()->getSerialization())) {
+			throw new ComhonException("object with model {$this->getModel()->getName()} doesn't have serialization");
+		}
+		if (!$this->isLoaded() || $forceLoad) {
+			$success = $serialization->getSerializationUnit()->loadObject($this, $propertiesFilter);
+		}
+		return $success;
+	}
+	
 	/**
 	 * save (serialize) comhon object using model serialization
 	 *
@@ -535,7 +556,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 */
 	final public function save($operation = null) {
 		if (is_null($this->getModel()->getSerialization())) {
-			throw new SerializationException('model doesn\'t have serialization');
+			throw new SerializationException("object with model {$this->getModel()->getName()} doesn\'t have serialization");
 		}
 		return $this->getModel()->getSerialization()->getSerializationUnit()->saveObject($this, $operation);
 	}
@@ -550,7 +571,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 */
 	final public function delete() {
 		if (is_null($this->getModel()->getSerialization())) {
-			throw new SerializationException('model doesn\'t have serialization');
+			throw new SerializationException("object with model {$this->getModel()->getName()} doesn\'t have serialization");
 		}
 		return $this->getModel()->getSerialization()->getSerializationUnit()->deleteObject($this);
 	}

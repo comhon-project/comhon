@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\SqlTable" id="public.town"/>
-	<properties>
-		<cityHall serializationName="city_hall"/>
-	</properties>
-</manifest>
+<root name="Test\Town" version="3.0">
+  <serialization>
+    <foreign_settings id="public.town" __inheritance__="Comhon\SqlTable"/>
+  </serialization>
+  <properties>
+    <cityHall serialization_name="city_hall"/>
+  </properties>
+</root>

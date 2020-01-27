@@ -1,11 +1,12 @@
 {
-    "version": "2.0",
+    "name": "Test\\Extends\\Multiple\\InheritedOne",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\File\\JsonFile",
-        "inheritanceKey": "inheritance_one",
-        "value": {
+        "inheritance_key": "inheritance_one",
+        "settings": {
             "staticPath": ".\/data\/multiple_inheritance_one_serialization",
-            "staticName": "file.json"
+            "staticName": "file.json",
+            "__inheritance__": "Comhon\\File\\JsonFile"
         }
     }
 }

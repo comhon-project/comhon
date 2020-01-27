@@ -1,7 +1,10 @@
 {
-    "version": "2.0",
+    "name": "Test\\TestMultiIncremental",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\SqlTable",
-        "id": "test_multi_increment"
+        "foreign_settings": {
+            "id": "test_multi_increment",
+            "__inheritance__": "Comhon\\SqlTable"
+        }
     }
 }

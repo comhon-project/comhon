@@ -1,12 +1,15 @@
 {
-    "version": "2.0",
+    "name": "Test\\House",
+    "version": "3.0",
     "serialization": {
-        "type": "Comhon\\SqlTable",
-        "id": "public.house"
+        "foreign_settings": {
+            "id": "public.house",
+            "__inheritance__": "Comhon\\SqlTable"
+        }
     },
     "properties": {
         "id": {
-            "serializationName": "id_serial"
+            "serialization_name": "id_serial"
         },
         "residents": {
             "aggregations": [

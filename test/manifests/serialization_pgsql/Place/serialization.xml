@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\SqlTable" id="public.place"/>
-	<properties>
-		<geographicLatitude serializationName="geographic_latitude"/>
-		<geographicLongitude serializationName="geographic_longitude"/>
-	</properties>
-</manifest>
+<root name="Test\Place" version="3.0">
+  <serialization>
+    <foreign_settings id="public.place" __inheritance__="Comhon\SqlTable"/>
+  </serialization>
+  <properties>
+    <geographicLatitude serialization_name="geographic_latitude"/>
+    <geographicLongitude serialization_name="geographic_longitude"/>
+  </properties>
+</root>

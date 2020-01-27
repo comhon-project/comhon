@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<manifest version="2.0">
-	<serialization type="Comhon\File\JsonFile" inheritanceKey="key">
-		<value staticPath="./data/man_body_json" staticName="man_body.json"/>
-	</serialization>
-</manifest>
+<root name="Test\Body\ManJson" version="3.0">
+  <serialization inheritance_key="key">
+    <settings staticPath="./data/man_body_json" staticName="man_body.json" __inheritance__="Comhon\File\JsonFile"/>
+  </serialization>
+</root>

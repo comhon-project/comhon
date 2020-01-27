@@ -1,3 +1,8 @@
 {
-    "version": "2.0"
+    "name": "Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne",
+    "version": "3.0",
+    "inheritance_values": [
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne\\Child",
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne"
+    ]
 }

@@ -1,0 +1,130 @@
+{
+    "name": "Comhon\\Serialization\\File",
+    "properties": [
+        {
+            "name": "name",
+            "not_null": true,
+            "is_required": true,
+            "is_id": true,
+            "regex": "\/^\\w+(\\\\\\w+)*$\/",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "version",
+            "not_null": true,
+            "is_required": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "serialization",
+            "not_null": true,
+            "model": "Serialization",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "properties",
+            "not_null": true,
+            "is_associative": true,
+            "values": {
+                "name": "property",
+                "not_null": true,
+                "model": "Property",
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+        },
+        {
+            "name": "inheritance_values",
+            "not_null": true,
+            "values": {
+                "name": "model",
+                "not_null": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\String"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+        }
+    ],
+    "version": "3.0",
+    "types": [
+        {
+            "name": "Property",
+            "properties": [
+                {
+                    "name": "is_serializable",
+                    "not_null": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
+                },
+                {
+                    "name": "serialization_name",
+                    "not_null": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                },
+                {
+                    "name": "serialization_names",
+                    "not_null": true,
+                    "is_associative": true,
+                    "not_empty": true,
+                    "values": {
+                        "name": "serialization_name",
+                        "not_null": true,
+                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                    },
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                },
+                {
+                    "name": "aggregations",
+                    "not_null": true,
+                    "not_empty": true,
+                    "values": {
+                        "name": "aggregation",
+                        "not_null": true,
+                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                    },
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                }
+            ],
+            "conflicts": [
+                [
+                    "serialization_name",
+                    "serialization_names"
+                ]
+            ]
+        },
+        {
+            "name": "Serialization",
+            "properties": [
+                {
+                    "name": "serialization_unit_class",
+                    "not_null": true,
+                    "regex": "\/^(\\\\\\w+)+$\/",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                },
+                {
+                    "name": "inheritance_key",
+                    "not_null": true,
+                    "not_empty": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                },
+                {
+                    "name": "settings",
+                    "not_null": true,
+                    "model": "\\Comhon\\Root",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+                },
+                {
+                    "name": "foreign_settings",
+                    "not_null": true,
+                    "model": "\\Comhon\\Root",
+                    "is_foreign": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+                }
+            ],
+            "conflicts": [
+                [
+                    "settings",
+                    "foreign_settings"
+                ]
+            ]
+        }
+    ]
+}
