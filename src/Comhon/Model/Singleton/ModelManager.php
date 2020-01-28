@@ -540,14 +540,6 @@ class ModelManager {
 			$serializationSettings  = $serializationManifestParser->getSerializationSettings();
 			$serializationUnitClass = $serializationManifestParser->getSerializationUnitClass();
 			$inheritanceValues      = $serializationManifestParser->getInheritanceValues();
-			
-			if (is_array($inheritanceValues)) {
-				for ($i = 0; $i < count($inheritanceValues); $i++) {
-					$modelName = $inheritanceValues[$i];
-					$modelName = $modelName;
-					$inheritanceValues[$i] = $modelName;
-				}
-			}
 		}
 		if (!is_null($serializationSettings)) {
 			$serialization = Serialization::getInstanceWithSettings(
