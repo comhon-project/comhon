@@ -1,7 +1,7 @@
 {
     "name": "Test\\Person",
     "object_class": "\\Test\\Comhon\\Object\\Person",
-    "is_serializable": false,
+    "is_serializable": true,
     "properties": [
         {
             "name": "id",

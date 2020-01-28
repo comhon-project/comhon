@@ -271,7 +271,7 @@
         <type>Base\Array</type>
       </extends>
     </type>
-    <type name="File">
+    <type name="File" is_serializable="1">
       <extends>
         <type>\Comhon\Manifest</type>
       </extends>

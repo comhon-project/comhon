@@ -536,6 +536,7 @@
         },
         {
             "name": "File",
+            "is_serializable": true,
             "extends": [
                 "\\Comhon\\Manifest"
             ],

@@ -1,5 +1,6 @@
 {
     "name": "Comhon\\Serialization\\File",
+    "is_serializable": true,
     "properties": [
         {
             "name": "name",
