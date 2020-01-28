@@ -51,11 +51,11 @@ class ObjectCollection {
 	 */
 	public static function build(AbstractComhonObject $object, $addForeignObjects = true, $visitForeignObjects = false) {
 		$objectCollection = new ObjectCollection();
-		$stack = [[$object, false, true]];
+		$stack = [[$object, false, true, false]];
 		self::$instanceObjectHash = [];
 		
 		while (!empty($stack)) {
-			list($object, $isForeign, $add) = array_pop($stack);
+			list($object, $isForeign, $add, $isIsolated) = array_pop($stack);
 			$hash = spl_object_hash($object);
 			if (array_key_exists($hash, self::$instanceObjectHash)) {
 				continue;
@@ -66,7 +66,7 @@ class ObjectCollection {
 				if ($object->getUniqueModel() instanceof Model) {
 					foreach ($object as $element) {
 						if (!is_null($element)) {
-							$stack[] = [$element, $isForeign, $add];
+							$stack[] = [$element, $isForeign, $add, $object->getModel()->isIsolatedElement()];
 						}
 					}
 				}
@@ -74,17 +74,17 @@ class ObjectCollection {
 				if ($add) {
 					$objectCollection->addObject($object);
 				}
-				if (!$isForeign || $visitForeignObjects) {
+				if (!$isIsolated && (!$isForeign || $visitForeignObjects)) {
 					foreach ($object->getModel()->getComplexProperties() as $name => $complexeProperty) {
 						if (!$object->issetValue($name)) {
 							continue;
 						}
 						if ($complexeProperty->isForeign()) {
 							if ($addForeignObjects || $visitForeignObjects) {
-								$stack[] = [$object->getValue($name), $complexeProperty->isForeign(), $addForeignObjects];
+								$stack[] = [$object->getValue($name), $complexeProperty->isForeign(), $addForeignObjects, $complexeProperty->isIsolated()];
 							}
 						} else {
-							$stack[] = [$object->getValue($name), $complexeProperty->isForeign(), true];
+							$stack[] = [$object->getValue($name), $complexeProperty->isForeign(), true, $complexeProperty->isIsolated()];
 						}
 					}
 				}
@@ -171,7 +171,7 @@ class ObjectCollection {
 		
 		if (array_key_exists($key, $this->map) && array_key_exists($id, $this->map[$key])) {
 			if ($throwException && $this->map[$key][$id] !== $object) {
-				throw new ComhonException('different object instance with same id');
+				throw new ComhonException("different objects with same id. shared id model: '$key', id: '$id'");
 			}
 		} else {
 			$this->map[$key][$id] = $object;
@@ -203,7 +203,7 @@ class ObjectCollection {
 				unset($this->map[$key][$id]);
 				$success = true;
 			} elseif ($throwException) {
-				throw new ComhonException('different object instance with same id');
+				throw new ComhonException("different objects with same id. shared id model: '$key', id: '$id'");
 			}
 		}
 		

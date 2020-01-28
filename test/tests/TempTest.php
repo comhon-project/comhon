@@ -10,6 +10,7 @@ use Comhon\Model\Restriction\Enum;
 use Comhon\Model\ModelForeign;
 use phpDocumentor\Reflection\Types\Self_;
 use Comhon\Serialization\File\ManifestFile;
+use Comhon\Interfacer\AssocArrayInterfacer;
 
 //Config::setLoadPath('./config/config-json-pgsql.json');
 /*
@@ -50,5 +51,14 @@ foreach ($folders as $folder => $prefix) {
 		}
 	}
 }
+die();
+*/
+/*
+$interfacer = new AssocArrayInterfacer();
+$model = ModelManager::getInstance()->getInstanceModel('Comhon\Serialization\File');
+echo $model->import(
+	$interfacer->read('/home/jean-philippe/ReposGit/comhon/docker/assets/manifests/serialization/Sample/manifest.json'),
+	$interfacer
+);
 die();
 */

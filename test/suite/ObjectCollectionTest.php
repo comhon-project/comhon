@@ -164,4 +164,47 @@ class ObjectCollectionTest extends TestCase
 		);
 	}
 	
+	public function testIsolatedObject()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest\File');
+		$interfacedObject = json_decode('{
+		    "name": "Test\\\\MyTest\\\\Isolated",
+		    "version": "3.0",
+		    "properties": [
+		        {
+		            "name": "id",
+		            "is_id": true,
+		            "__inheritance__": "Comhon\\\\Manifest\\\\Property\\\\Integer"
+		        }
+		    ],
+		    "types": [
+		        {
+		            "name": "One",
+		            "properties": [
+		                {
+		                    "name": "id",
+		                    "is_id": true,
+		                    "__inheritance__": "Comhon\\\\Manifest\\\\Property\\\\Integer"
+		                }
+		            ]
+		        },
+		        {
+		            "name": "Two",
+		            "properties": [
+		                {
+		                    "name": "id",
+		                    "is_id": true,
+		                    "__inheritance__": "Comhon\\\\Manifest\\\\Property\\\\Integer"
+		                }
+		            ]
+		        }
+		    ]
+		}');
+		$object = $model->import($interfacedObject, new StdObjectInterfacer());
+		
+		// several duplicated id on properties, but must work because types are isolated
+		ObjectCollection::build($object);
+		$this->assertTrue(true);
+	}
+	
 }
