@@ -5,4 +5,7 @@
     <property name="lastName" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="birthDate" __inheritance__="Comhon\Manifest\Property\DateTime"/>
   </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\Person\WomanXmlExtended</inheritance_requestable>
+  </inheritance_requestables>
 </root>

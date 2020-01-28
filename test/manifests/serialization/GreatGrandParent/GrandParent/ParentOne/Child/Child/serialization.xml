@@ -1,5 +1,5 @@
 <root name="Test\GreatGrandParent\GrandParent\ParentOne\Child\Child" version="3.0">
   <inheritance_values>
-    <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</model>
+    <model>Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</model>
   </inheritance_values>
 </root>

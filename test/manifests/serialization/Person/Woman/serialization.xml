@@ -10,6 +10,6 @@
     </bodies>
   </properties>
   <inheritance_values>
-    <model>\Test\Person\Woman</model>
+    <model>Test\Person\Woman</model>
   </inheritance_values>
 </root>

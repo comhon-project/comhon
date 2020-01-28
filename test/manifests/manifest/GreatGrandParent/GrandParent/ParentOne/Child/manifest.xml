@@ -13,6 +13,9 @@
       <properties>
         <property name="localChildOne" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
+      <inheritance_requestables>
+        <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</inheritance_requestable>
+      </inheritance_requestables>
     </type>
     <type name="ChildLocalNotSerializable" is_serializable="0">
       <extends>
@@ -21,4 +24,8 @@
       <properties/>
     </type>
   </types>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</inheritance_requestable>
+    <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</inheritance_requestable>
+  </inheritance_requestables>
 </root>

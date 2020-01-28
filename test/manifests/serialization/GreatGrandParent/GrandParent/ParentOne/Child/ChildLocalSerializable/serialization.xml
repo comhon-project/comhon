@@ -3,7 +3,7 @@
     <localChildOne serialization_name="local_child_one"/>
   </properties>
   <inheritance_values>
-    <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</model>
-    <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</model>
+    <model>Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</model>
+    <model>Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</model>
   </inheritance_values>
 </root>

@@ -15,4 +15,8 @@
       <values name="home" model="\Test\Home" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\Person\Man</inheritance_requestable>
+    <inheritance_requestable>\Test\Person\Woman</inheritance_requestable>
+  </inheritance_requestables>
 </root>

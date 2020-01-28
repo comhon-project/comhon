@@ -1,5 +1,5 @@
 <root name="Test\Person\WomanXmlExtended" version="3.0">
   <inheritance_values>
-    <model>\Test\Person\WomanXmlExtended</model>
+    <model>Test\Person\WomanXmlExtended</model>
   </inheritance_values>
 </root>

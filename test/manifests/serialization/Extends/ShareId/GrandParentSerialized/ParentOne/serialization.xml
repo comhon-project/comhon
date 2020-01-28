@@ -1,6 +1,6 @@
 <root name="Test\Extends\ShareId\GrandParentSerialized\ParentOne" version="3.0">
   <inheritance_values>
-    <model>\Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</model>
-    <model>\Test\Extends\ShareId\GrandParentSerialized\ParentOne</model>
+    <model>Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</model>
+    <model>Test\Extends\ShareId\GrandParentSerialized\ParentOne</model>
   </inheritance_values>
 </root>

@@ -9,6 +9,6 @@
         }
     },
     "inheritance_values": [
-        "\\Test\\Person\\Man"
+        "Test\\Person\\Man"
     ]
 }

@@ -23,6 +23,9 @@
                     "name": "localChildOne",
                     "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
+            ],
+            "inheritance_requestables": [
+                "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\Child"
             ]
         },
         {
@@ -33,5 +36,9 @@
             "is_serializable": false,
             "properties": []
         }
+    ],
+    "inheritance_requestables": [
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\Child",
+        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable"
     ]
 }

@@ -9,6 +9,6 @@
         }
     },
     "inheritance_values": [
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentTwo\\Child"
+        "Test\\GreatGrandParent\\GrandParent\\ParentTwo\\Child"
     ]
 }

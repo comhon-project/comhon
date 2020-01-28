@@ -3,4 +3,11 @@
     <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="grandParent" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child</inheritance_requestable>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentOne</inheritance_requestable>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</inheritance_requestable>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentTwo</inheritance_requestable>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child</inheritance_requestable>
+  </inheritance_requestables>
 </root>

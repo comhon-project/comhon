@@ -5,4 +5,7 @@
   <properties>
     <property name="parentOne" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</inheritance_requestable>
+  </inheritance_requestables>
 </root>

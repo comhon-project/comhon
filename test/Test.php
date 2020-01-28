@@ -449,8 +449,6 @@ try {
 
 // TODO for version > 3.0
 
-// replace all camel case in comhon manifest
-// inherited values in  serialization file not prefixed by "\"
 // docker
 // add patch method
 // manifest, serialization validator

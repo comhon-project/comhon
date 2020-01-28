@@ -7,6 +7,7 @@
         }
     },
     "inheritance_values": [
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable"
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\Child",
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable"
     ]
 }

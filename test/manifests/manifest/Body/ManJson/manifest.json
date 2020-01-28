@@ -36,5 +36,8 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
         }
     ],
-    "version": "3.0"
+    "version": "3.0",
+    "inheritance_requestables": [
+        "\\Test\\Body\\ManJsonExtended"
+    ]
 }

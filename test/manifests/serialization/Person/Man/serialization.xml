@@ -7,6 +7,6 @@
     </bodies>
   </properties>
   <inheritance_values>
-    <model>\Test\Person\Man</model>
+    <model>Test\Person\Man</model>
   </inheritance_values>
 </root>

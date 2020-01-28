@@ -544,7 +544,7 @@ class ModelManager {
 			if (is_array($inheritanceValues)) {
 				for ($i = 0; $i < count($inheritanceValues); $i++) {
 					$modelName = $inheritanceValues[$i];
-					$modelName = ($modelName[0] != '\\') ? $manifestParser->getNamespace(). '\\' . $modelName : substr($modelName, 1) ;
+					$modelName = $modelName;
 					$inheritanceValues[$i] = $modelName;
 				}
 			}

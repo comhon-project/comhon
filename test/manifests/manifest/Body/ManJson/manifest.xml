@@ -9,4 +9,7 @@
     <property name="eyesColor" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="baldness" __inheritance__="Comhon\Manifest\Property\Boolean"/>
   </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\Body\ManJsonExtended</inheritance_requestable>
+  </inheritance_requestables>
 </root>

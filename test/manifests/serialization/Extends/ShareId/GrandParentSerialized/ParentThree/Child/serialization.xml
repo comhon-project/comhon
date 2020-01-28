@@ -3,6 +3,6 @@
     <settings dir_path="./data/inherited_serialization" file_name="file.json" __inheritance__="Comhon\File\JsonFile"/>
   </serialization>
   <inheritance_values>
-    <model>\Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child</model>
+    <model>Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child</model>
   </inheritance_values>
 </root>

@@ -2,7 +2,9 @@
     "name": "Test\\GreatGrandParent\\GrandParent\\ParentOne",
     "version": "3.0",
     "inheritance_values": [
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild"
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\Child",
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable",
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild"
     ]
 }

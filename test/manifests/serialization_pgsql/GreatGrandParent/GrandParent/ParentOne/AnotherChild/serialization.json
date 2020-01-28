@@ -2,6 +2,6 @@
     "name": "Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild",
     "version": "3.0",
     "inheritance_values": [
-        "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild"
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild"
     ]
 }

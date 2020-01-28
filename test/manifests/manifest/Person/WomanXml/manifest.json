@@ -20,5 +20,8 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
         }
     ],
-    "version": "3.0"
+    "version": "3.0",
+    "inheritance_requestables": [
+        "\\Test\\Person\\WomanXmlExtended"
+    ]
 }

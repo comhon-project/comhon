@@ -1,5 +1,5 @@
 <root name="Test\Body\ManJsonExtended" version="3.0">
   <inheritance_values>
-    <model>\Test\Body\ManJsonExtended</model>
+    <model>Test\Body\ManJsonExtended</model>
   </inheritance_values>
 </root>

@@ -2,6 +2,6 @@
     "name": "Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo",
     "version": "3.0",
     "inheritance_values": [
-        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo\\Child"
+        "Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo\\Child"
     ]
 }
