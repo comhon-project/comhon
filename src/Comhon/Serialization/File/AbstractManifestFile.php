@@ -20,6 +20,9 @@ use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Serialization\SerializationFile;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Exception\Serialization\ManifestSerializationException;
+use Comhon\Exception\Model\NotDefinedModelException;
 
 abstract class AbstractManifestFile extends SerializationFile {
 	
@@ -115,7 +118,15 @@ abstract class AbstractManifestFile extends SerializationFile {
 		if (!$object->isA($this->_getModelName())) {
 			throw new SerializationException("object model must be a {$this->_getModelName()}', {$object->getModel()->getName()} given");
 		}
-		return parent::_saveObject($object, $operation);
+		try {
+			list($fullyQualifiedNamePrefix) = ModelManager::getInstance()->splitModelName($object->getId());
+			if ($fullyQualifiedNamePrefix == 'Comhon') {
+				throw new ManifestSerializationException();
+			}
+			return parent::_saveObject($object, $operation);
+		} catch (NotDefinedModelException $e) {
+			return 0;
+		}
 	}
 	
 	/**
@@ -127,7 +138,11 @@ abstract class AbstractManifestFile extends SerializationFile {
 		if (!$object->isA($this->_getModelName())) {
 			throw new SerializationException("object model must be a '{$this->_getModelName()}', {$object->getModel()->getName()} given");
 		}
-		return parent::_loadObject($object, $propertiesFilter);
+		try {
+			return parent::_loadObject($object, $propertiesFilter);
+		} catch (NotDefinedModelException $e) {
+			return false;
+		}
 	}
 	
 	/**
@@ -139,7 +154,15 @@ abstract class AbstractManifestFile extends SerializationFile {
 		if (!$object->isA($this->_getModelName())) {
 			throw new SerializationException("object model must be a '{$this->_getModelName()}', {$object->getModel()->getName()} given");
 		}
-		return parent::_deleteObject($object);
+		try {
+			list($fullyQualifiedNamePrefix) = ModelManager::getInstance()->splitModelName($object->getId());
+			if ($fullyQualifiedNamePrefix == 'Comhon') {
+				throw new ManifestSerializationException();
+			}
+			return parent::_deleteObject($object);
+		} catch (NotDefinedModelException $e) {
+			return 0;
+		}
 	}
 	
 }

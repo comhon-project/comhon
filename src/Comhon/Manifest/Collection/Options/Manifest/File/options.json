@@ -1,0 +1,14 @@
+{
+    "name": "Comhon\\Manifest\\File",
+    "version": "3.0",
+    "unique": {
+        "allowed_methods": [
+            "GET",
+            "HEAD",
+            "OPTIONS"
+        ]
+    },
+    "collection": {
+        "allowed_methods": []
+    }
+}

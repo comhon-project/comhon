@@ -25,11 +25,10 @@ class HavingClause extends Clause {
 	 * @param TableNode|string $firstTable table to link with literals with function HavingLiteral::COUNT
 	 * @param TableNode|string $lastTable table to link with literals with other function than HavingLiteral::COUNT
 	 * @param \Comhon\Model\Model $lastModel model linked to $lastTable
-	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
 	 * @return HavingClause
 	 */
-	public static function buildHaving(UniqueObject $havingClause, $firstTable, $lastTable, $lastModel, $allowPrivateProperties) {
+	public static function buildHaving(UniqueObject $havingClause, $firstTable, $lastTable, $lastModel) {
 		if ($havingClause->getModel()->getName() != 'Comhon\Logic\Having\Clause') {
 			$clauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Clause');
 			throw new ArgumentException($havingClause, $clauseModel->getObjectInstance(false)->getComhonClass(), 1);
@@ -40,12 +39,12 @@ class HavingClause extends Clause {
 		/** @var \Comhon\Object\UniqueObject $element */
 		foreach ($havingClause->getValue('elements') as $element) {
 			if ($element->getModel()->getName() == 'Comhon\Logic\Having\Clause') { // clause
-				$clause->addClause(self::buildHaving($element, $firstTable, $lastTable, $lastModel, $allowPrivateProperties));
+				$clause->addClause(self::buildHaving($element, $firstTable, $lastTable, $lastModel));
 			} else { // literal
 				// table is not used anymore for function "COUNT" because we now use COUNT(*) instead of COUNT(table.column)
 				// but we keep condition just in case
 				$table = $element->getModel()->getName() == 'Comhon\Logic\Having\Literal\Count' ? $firstTable : $lastTable;
-				$clause->addLiteral(HavingLiteral::buildHaving($element, $table, $lastModel, $allowPrivateProperties));
+				$clause->addLiteral(HavingLiteral::buildHaving($element, $table, $lastModel));
 			}
 		}
 		return $clause;

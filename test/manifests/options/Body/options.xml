@@ -1,0 +1,17 @@
+<root name="Test\Body" version="3.0">
+  <collection allow_complex_request="0">
+    <allowed_methods>
+      <method>GET</method>
+      <method>HEAD</method>
+      <method>OPTIONS</method>
+    </allowed_methods>
+    <requestable_properties>
+      <name>id</name>
+      <name>height</name>
+      <name>hairColor</name>
+    </requestable_properties>
+  </collection>
+  <unique>
+    <allowed_methods/>
+  </unique>
+</root>

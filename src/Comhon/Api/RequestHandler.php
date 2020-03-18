@@ -41,6 +41,8 @@ use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\HTTP\ConflictException;
 use Comhon\Exception\HTTP\MethodNotAllowedException;
 use Comhon\Exception\Value\InvalidCompositeIdException;
+use Comhon\Exception\Serialization\ManifestSerializationException;
+use Comhon\Object\Config\Config;
 
 class RequestHandler {
 	
@@ -76,6 +78,19 @@ class RequestHandler {
 	
 	/**
 	 *
+	 * @var \Comhon\Model\Model
+	 */
+	private $requestedModel;
+	
+	/**
+	 * unique resource id (only if route has a unique resource id)
+	 * 
+	 * @var string
+	 */
+	private $uniqueResourceId;
+	
+	/**
+	 *
 	 * @var boolean
 	 */
 	private $isCountRequest = false;
@@ -100,7 +115,9 @@ class RequestHandler {
 			$response = $this->_handleMethod($server, $get, $headers, $body);
 		} catch (ResponseException $e) {
 			$response = $e->getResponse();
-		} catch (\Exception $e) {
+		} catch (ManifestSerializationException $e) {
+			$response = $this->_buildResponse(403, $e->getMessage());
+		}catch (\Exception $e) {
 			$response = $this->_buildResponse(500);
 		}
 		
@@ -116,7 +133,7 @@ class RequestHandler {
 	 * @param string[] $server
 	 * @param string[] $headers
 	 */
-	protected function _setRessource($basePath, $server, $headers) {
+	private function _setRessource($basePath, $server, $headers) {
 		$route = substr(preg_replace('~/+~', '/', $server['REQUEST_URI'].'/'), 0, -1);
 		$basePath = preg_replace('~/+~', '/', '/'.$basePath.'/');
 		
@@ -137,19 +154,30 @@ class RequestHandler {
 			array_shift($this->resource);
 			$this->isCountRequest = true;
 		}
-		if (!array_key_exists(0, $this->resource)) {
+		if (!array_key_exists(0, $this->resource)|| count($this->resource) > 2) {
 			throw new ResponseException(404, 'invalid route');
 		}
 		if (isset($headers['namespace']) && !empty($headers['namespace'])) {
 			$this->resource[0] = $headers['namespace'] . '\\' . $this->resource[0];
 		}
 		try {
-			$model = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
+			$this->requestedModel = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
 		} catch (NotDefinedModelException $e) {
 			throw new ResponseException(404, "resource model '{$this->resource[0]}' doesn't exist");
 		}
-		if (is_null($model->getSerialization()) && $server['REQUEST_METHOD'] !== 'OPTIONS') {
-			throw new MethodNotAllowedException("resource model '{$this->resource[0]}' is not requestable");
+		if (is_null($this->requestedModel->getSerialization()) && $server['REQUEST_METHOD'] !== 'OPTIONS') {
+			throw new MethodNotAllowedException("resource model '{$this->requestedModel->getName()}' is not requestable");
+		}
+		if (isset($this->resource[1])) {
+			try {
+				$this->uniqueResourceId = $this->_getFormatedId($this->requestedModel, $this->resource[1]);
+			} catch (NoIdPropertyException $e) {
+				throw new ResponseException(404, ['code' => $e->getCode(), 'message' => 'invalid route, '.$e->getMessage()]);
+			} catch (PropertyVisibilityException $e) {
+				throw new ResponseException(404, ['code' => $e->getCode(), 'message' => 'invalid route, '.$e->getMessage()]);
+			} catch (ComhonException $e) {
+				throw new MalformedRequestException(['code' => $e->getCode(), 'message' => $e->getMessage()]);
+			}
 		}
 	}
 	
@@ -162,7 +190,9 @@ class RequestHandler {
 	 * @throws \Exception
 	 * @return boolean|\Comhon\Api\Response
 	 */
-	protected function _handleMethod($server, $get, $headers, $body) {
+	private function _handleMethod($server, $get, $headers, $body) {
+		$this->_verifyAllowedMethod($server['REQUEST_METHOD']);
+		
 		switch ($server['REQUEST_METHOD']) {
 			case 'GET':
 				return $this->_get($get, $headers, $body);
@@ -182,19 +212,39 @@ class RequestHandler {
 	}
 	
 	/**
+	 * verify if method is allowed for requested resource. if method is not allowed, an exception is thrown.
 	 * 
-	 * @param \Comhon\Model\Model $model
+	 * @param string $method
+	 * @return boolean
+	 */
+	private function _verifyAllowedMethod($method) {
+		$allowedMethods = $this->_getAllowedMethods();
+		
+		if (empty($allowedMethods)) {
+			throw new ResponseException(404, 'invalid route');
+		}
+		if (!in_array($method, $allowedMethods)) {
+			throw new MethodNotAllowedException(
+				"method $method not allowed",
+				['Allow' => implode(', ', $allowedMethods)]
+			);
+		}
+	}
+	
+	/**
+	 * 
 	 * @param array $get
 	 * @param string[] $headers
 	 * @param string $body
 	 * @param string[] $filterProperties
 	 * @return \Comhon\Request\ComplexRequester
 	 */
-	private function _getComplexRequester(Model $model, &$get, $headers, $body, $filterProperties = null) {
+	private function _getComplexRequester(&$get, $headers, $body, $filterProperties = null) {
 		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers, false);
 		if (is_null($interfacer)) {
-			$request = $this->_setRequestFromQuery($model, $get, $headers, $body, $filterProperties);
+			$request = $this->_setRequestFromQuery($get, $headers, $body, $filterProperties);
 		} else {
+			$this->_verifyAllowedRequest();
 			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
 			$request = $this->_importBody($body, $requestModel, $interfacer);
 			$this->_verifyRequestModel($request);
@@ -205,19 +255,18 @@ class RequestHandler {
 	
 	/**
 	 *
-	 * @param \Comhon\Model\Model $model
 	 * @param array $get
 	 * @param string[] $headers
 	 * @param string $body
 	 * @param string[] $filterProperties
 	 * @return \Comhon\Request\ComplexRequester
 	 */
-	private function _setRequestFromQuery(Model $model, &$get, $headers, $body, $filterProperties = null) {
+	private function _setRequestFromQuery(&$get, $headers, $body, $filterProperties = null) {
 		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
 		$request = $requestModel->getObjectInstance(false);
 		$tree = $request->initValue('tree', false);
 		$tree->setId(1);
-		$tree->setValue('model', $model->getName());
+		$tree->setValue('model', $this->requestedModel->getName());
 		$request->setValue('properties', $filterProperties);
 		
 		// limit and offset
@@ -254,7 +303,7 @@ class RequestHandler {
 			$request->setValue('order', $order);
 			unset($get[self::ORDER]);
 		}
-		$this->_setFilter($request, $get, $model);
+		$this->_setFilter($request, $get);
 		
 		return $request;
 	}
@@ -264,9 +313,8 @@ class RequestHandler {
 	 *
 	 * @param \Comhon\Object\UniqueObject $request
 	 * @param array $get
-	 * @param \Comhon\Model\Model $model
 	 */
-	private function _setFilter(UniqueObject $request, &$get, Model $model) {
+	private function _setFilter(UniqueObject $request, &$get) {
 		$i = 0;
 		$clauseType = Clause::CONJUNCTION;
 		if (isset($get[self::CLAUSE])) {
@@ -285,11 +333,11 @@ class RequestHandler {
 		
 		foreach ($get as $propertyName => $value) {
 			$isArrayFilter = is_array($value);
-			$property = $model->getProperty($propertyName, true);
+			$property = $this->requestedModel->getProperty($propertyName, true);
 			$literal = LiteralBinder::getLiteralInstance($property, $isArrayFilter);
 			$propertyModel = $property->getLiteralModel();
 			if (is_null($literal)) {
-				throw new NotAllowedLiteralException($model, $property);
+				throw new NotAllowedLiteralException($this->requestedModel, $property);
 			}
 			if ($propertyModel instanceof StringCastableModelInterface) {
 				if ($isArrayFilter) {
@@ -327,17 +375,12 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param \Comhon\Model\Model $model
 	 * @param mixed $id
 	 * @param \Comhon\Object\ComhonArray $filterProperties
 	 * @return \Comhon\Request\SimpleRequester
 	 */
-	private function _getSimpleRequester(Model $model, $id, ComhonArray $filterProperties) {
-		return SimpleRequester::build(
-			$model->getName(),
-			$this->_getFormatedId($model, $id),
-			$filterProperties->getValues()
-		);
+	private function _getSimpleRequester($id, ComhonArray $filterProperties) {
+		return SimpleRequester::build($this->requestedModel->getName(), $id, $filterProperties->getValues());
 	}
 	
 	
@@ -374,8 +417,30 @@ class RequestHandler {
 		} elseif ($request->isA('Comhon\Request\Intermediate')) {
 			$modelName = $request->getValue('root')->getValue('model');
 		}
-		if ($modelName !== $this->resource[0]) {
-			throw new MalformedRequestException('request model name is different than route model : '.$modelName.' != '.$this->resource[0]);
+		if ($modelName !== $this->requestedModel->getName()) {
+			throw new MalformedRequestException(
+				'request model name is different than route model : '.$modelName.' != '.$this->requestedModel->getName()
+			);
+		}
+	}
+	
+	
+	
+	/**
+	 * verify if complex/intermediate request are allowed for requested model
+	 *
+	 * @throws MalformedRequestException
+	 */
+	private function _verifyAllowedRequest() {
+		$options = $this->requestedModel->getOptions();
+		$allow = !is_null($options) && $options->issetValue('collection') && $options->getValue('collection')->issetValue('allow_complex_request')
+			? $options->getValue('collection')->getValue('allow_complex_request')
+			: Config::getInstance()->getValue('allow_complex_request');
+		
+		if ($allow === false) {
+			throw new MalformedRequestException(
+				'complex or intermediate request not allowed for model '.$this->requestedModel->getName()
+			);
 		}
 	}
 	
@@ -403,11 +468,10 @@ class RequestHandler {
 		}
 		try {
 			$filterProperties = $this->_getFilterProperties($get);
-			$model = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
 			
-			$requester = isset($this->resource[1])
-				? $this->_getSimpleRequester($model, $this->resource[1], $filterProperties)
-				: $this->_getComplexRequester($model, $get, $headers, $body, $filterProperties);
+			$requester = !is_null($this->uniqueResourceId)
+				? $this->_getSimpleRequester($this->uniqueResourceId, $filterProperties)
+				: $this->_getComplexRequester($get, $headers, $body, $filterProperties);
 		} catch (MalformedRequestException $e) {
 			throw $e;
 		} catch (ComhonException $e) {
@@ -416,7 +480,7 @@ class RequestHandler {
 
 		$object = $requester->execute();
 		if (is_null($object)) {
-			throw new NotFoundException($model, $this->resource[1]);
+			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
 		$interfacer = $this->_getInterfacerFromAcceptHeader($headers);
 		$interfacer->setPropertiesFilter($filterProperties->getValues(), $object->getUniqueModel()->getName());
@@ -425,7 +489,7 @@ class RequestHandler {
 			$interfacedObject = $interfacer->export($object);
 		} else {
 			// export through original model to export potential inheritance key
-			$interfacedObject = $model->export($object, $interfacer);
+			$interfacedObject = $this->requestedModel->export($object, $interfacer);
 		}
 		return $this->_buildResponse(200, $interfacedObject);
 	}
@@ -441,7 +505,6 @@ class RequestHandler {
 		if (count($this->resource) != 1) {
 			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
 		}
-		$model = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
 		
 		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers, false);
 		if (is_null($interfacer)) {
@@ -449,10 +512,11 @@ class RequestHandler {
 			$request = $requestModel->getObjectInstance(false);
 			$tree = $request->initValue('tree', false);
 			$tree->setId(1);
-			$tree->setValue('model', $this->resource[0]);
+			$tree->setValue('model', $this->requestedModel->getName());
 			
-			$this->_setFilter($request, $get, $model);
+			$this->_setFilter($request, $get);
 		} else {
+			$this->_verifyAllowedRequest();
 			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
 			$request = $this->_importBody($body, $requestModel, $interfacer);
 			$this->_verifyRequestModel($request);
@@ -489,25 +553,24 @@ class RequestHandler {
 	 */
 	private function _post($headers, $body) {
 		if (count($this->resource) != 1) {
-			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
+			throw new ComhonException('unique id not verified or invalid options');
 		}
-		$model = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
 		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers);
-		$object = $this->_importBody($body, $model, $interfacer);
+		$object = $this->_importBody($body, $this->requestedModel, $interfacer);
 		
 		if ($object->getModel()->hasIdProperties()) {
 			if ($object->hasCompleteId()) {
-				$serializationUnit = $model->getSerialization()->getSerializationUnit();
-				if ($serializationUnit->hasIncrementalId($model)) {
-					throw new MalformedRequestException("id must not be set to create resource '{$model->getName()}'");
+				$serializationUnit = $this->requestedModel->getSerialization()->getSerializationUnit();
+				if ($serializationUnit->hasIncrementalId($this->requestedModel)) {
+					throw new MalformedRequestException("id must not be set to create resource '{$this->requestedModel->getName()}'");
 				}
-				if (!is_null($model->loadObject($object->getId(), array_keys($model->getIdProperties()), true))) {
+				if (!is_null($this->requestedModel->loadObject($object->getId(), array_keys($this->requestedModel->getIdProperties()), true))) {
 					throw new ConflictException("resource with id '{$object->getId()}' already exists");
 				}
 			} else {
-				$serializationUnit = $model->getSerialization()->getSerializationUnit();
-				if (!$serializationUnit->hasIncrementalId($model)) {
-					throw new MalformedRequestException("id must be set to create resource '{$model->getName()}'");
+				$serializationUnit = $this->requestedModel->getSerialization()->getSerializationUnit();
+				if (!$serializationUnit->hasIncrementalId($this->requestedModel)) {
+					throw new MalformedRequestException("id must be set to create resource '{$this->requestedModel->getName()}'");
 				}
 			}
 		}
@@ -526,35 +589,50 @@ class RequestHandler {
 	 * @return \Comhon\Api\Response
 	 */
 	private function _put($headers, $body) {
-		if (count($this->resource) != 2) {
-			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
+		if (is_null($this->uniqueResourceId) || count($this->resource) != 2) {
+			throw new ComhonException('unique id not verified or invalid options');
 		}
-		$model = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
-		try {
-			$id = $this->_getFormatedId($model, $this->resource[1]);
-		} catch (NoIdPropertyException $e) {
-			throw new MethodNotAllowedException(['code' => $e->getCode(), 'message' => $e->getMessage()]);
-		} catch (ComhonException $e) {
-			throw new MalformedRequestException(['code' => $e->getCode(), 'message' => $e->getMessage()]);
-		}
-		if (is_null($model->loadObject($id, array_keys($model->getIdProperties()), true))) {
-			throw new NotFoundException($model, $id);
+		$idPropertiesNames = array_keys($this->requestedModel->getIdProperties());
+		if (is_null($this->requestedModel->loadObject($this->uniqueResourceId, $idPropertiesNames, true))) {
+			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
 		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers);
-		$object = $this->_importBody($body, $model, $interfacer);
+		$object = $this->_importBody($body, $this->requestedModel, $interfacer);
 		
 		if ($object->hasEmptyId()) {
-			$object->setId($id);
-		} elseif ($object->getId() !== $id) {
+			$object->setId($this->uniqueResourceId);
+		} elseif ($object->getId() !== $this->uniqueResourceId) {
 			throw new MalformedRequestException('conflict on route id and body id');
 		}
 		$updated = $object->save(SerializationUnit::UPDATE);
 		
 		if ($updated == 0) {
-			throw new NotFoundException($model, $id);
+			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
 		$object->load(null, true);
 		return $this->_buildResponse(200, $interfacer->export($object));
+	}
+	
+	/**
+	 *
+	 * @return \Comhon\Api\Response
+	 */
+	private function _delete() {
+		if (is_null($this->uniqueResourceId) || count($this->resource) != 2) {
+			throw new ComhonException('unique id not verified or invalid options');
+		}
+		$object = $this->requestedModel->loadObject(
+			$this->uniqueResourceId, 
+			array_keys($this->requestedModel->getIdProperties()),
+			true
+		);
+		
+		if (is_null($object)) {
+			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
+		}
+		$object->delete();
+		
+		return $this->_buildResponse(204);
 	}
 	
 	/**
@@ -666,32 +744,6 @@ class RequestHandler {
 	}
 	
 	/**
-	 * 
-	 * @return \Comhon\Api\Response
-	 */
-	private function _delete() {
-		if (count($this->resource) != 2) {
-			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
-		}
-		$model  = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
-		try {
-			$id = $this->_getFormatedId($model, $this->resource[1]);
-		} catch (NoIdPropertyException $e) {
-			throw new MethodNotAllowedException(['code' => $e->getCode(), 'message' => $e->getMessage()]);
-		} catch (ComhonException $e) {
-			throw new MalformedRequestException(['code' => $e->getCode(), 'message' => $e->getMessage()]);
-		}
-		$object = $model->loadObject($id, array_keys($model->getIdProperties()), true);
-		
-		if (is_null($object)) {
-			throw new NotFoundException($model, $this->resource[1]);
-		}
-		$object->delete();
-		
-		return $this->_buildResponse(204);
-	}
-	
-	/**
 	 * get formated route. cast id if needed.
 	 * 
 	 * @param Model $model
@@ -706,7 +758,7 @@ class RequestHandler {
 		if ($model->hasPrivateIdProperty()) {
 			foreach ($model->getIdProperties() as $property) {
 				if ($property->isPrivate()) {
-					throw new PropertyVisibilityException($property);
+					throw new PropertyVisibilityException($property, $model);
 				}
 			}
 		}
@@ -729,7 +781,12 @@ class RequestHandler {
 	 * @return \Comhon\Api\Response
 	 */
 	private function _options($headers) {
-		return $this->_buildResponse(200, null, ['Allow' => implode(', ', $this->_getAllowedMethods())]);
+		$content = null;
+		$options = $this->requestedModel->getOptions();
+		if (!is_null($options)) {
+			$content = $this->_getInterfacerFromContentTypeHeader($headers)->export($options);
+		}
+		return $this->_buildResponse(200, $content, ['Allow' => implode(', ', $this->_getAllowedMethods())]);
 	}
 	
 	/**
@@ -738,14 +795,23 @@ class RequestHandler {
 	 * @return \Comhon\Api\Response
 	 */
 	private function _getAllowedMethods() {
-		$model  = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
-		
-		if (isset($this->resource[1])) { // request unique value with id
-			$methods = !$model->hasIdProperties() || $model->hasPrivateIdProperty() 
-				? ['OPTIONS'] : ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'];
-		} else { // request collection
-			$methods = is_null($model->getSqlTableUnit()) ? ['POST', 'OPTIONS'] : ['GET', 'HEAD', 'POST', 'OPTIONS'];
+		$methods = null;
+		$options = $this->requestedModel->getOptions();
+		if (!is_null($options)) {
+			$node = is_null($this->uniqueResourceId) ? $options->getValue('collection') : $options->getValue('unique');
+			if (!is_null($node) && $node->issetValue('allowed_methods')) {
+				$methods = $node->getValue('allowed_methods')->getValues();
+			}
 		}
+		if (is_null($methods)) {
+			if (!is_null($this->uniqueResourceId)) { // request unique value with id
+				$methods = !$this->requestedModel->hasIdProperties() || $this->requestedModel->hasPrivateIdProperty()
+				? ['OPTIONS'] : ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'];
+			} else { // request collection
+				$methods = is_null($this->requestedModel->getSqlTableUnit()) ? ['POST', 'OPTIONS'] : ['GET', 'HEAD', 'POST', 'OPTIONS'];
+			}
+		}
+		
 		return $methods;
 	}
 	

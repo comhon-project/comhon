@@ -164,9 +164,9 @@ class RequestHandlerPutTest extends TestCase
 					'Content-Type' => 'application/xml'
 				],
 				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo" lastName="Dupond"></root>',
-				405,
+				404,
 				['Content-Type' => 'application/json'],
-				'{"code":106,"message":"model \'Test\\\\TestNoId\' doesn\'t have id property"}',
+				'{"code":106,"message":"invalid route, model \'Test\\\\TestNoId\' doesn\'t have id property"}',
 			],
 			[ // private property id
 				[
@@ -177,9 +177,9 @@ class RequestHandlerPutTest extends TestCase
 					'Content-Type' => 'application/xml'
 				],
 				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo" lastName="Dupond"></root>',
-				400,
+				404,
 				['Content-Type' => 'application/json'],
-				'{"code":105,"message":"cannot use private id property \'id\' in public context"}'
+				'{"code":105,"message":"invalid route, cannot use private id property \'id\' on model \'Test\\\\TestPrivateId\' in public context"}'
 			],
 		];
 	}

@@ -152,8 +152,8 @@ INSERT INTO `main_test` (`id`, `name`, `obj`) VALUES
 
 CREATE TABLE `man_body` (
   `id` bigint(20) NOT NULL,
-  `height` float NOT NULL,
-  `weight` float NOT NULL,
+  `height` DECIMAL(20,10) NOT NULL,
+  `weight` DECIMAL(20,10) NOT NULL,
   `hair_color` text NOT NULL,
   `hair_cut` text NOT NULL,
   `eyes_color` text NOT NULL,
@@ -217,8 +217,8 @@ CREATE TABLE `place` (
   `number` int(11) DEFAULT NULL,
   `type` varchar(31) CHARACTER SET utf8 DEFAULT NULL,
   `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `geographic_latitude` float DEFAULT NULL,
-  `geographic_longitude` float DEFAULT NULL,
+  `geographic_latitude` DECIMAL(20,10) DEFAULT NULL,
+  `geographic_longitude` DECIMAL(20,10) DEFAULT NULL,
   `town` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -316,6 +316,17 @@ CREATE TABLE `test_no_id` (
   `name` text
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--
+-- Contenu de la table `test_no_id`
+--
+
+INSERT INTO `test_no_id` (`name`) VALUES
+('a'),
+('b'),
+('c'),
+('d'),
+('e');
+
 -- --------------------------------------------------------
 
 --
@@ -337,7 +348,32 @@ CREATE TABLE `test_private_id` (
 --
 
 INSERT INTO `test_private_id` (`id`, `name`, `object_values`, `foreign_object_value`, `foreign_object_values`, `foreign_test_private_id`, `foreign_test_private_ids`) VALUES
-('id1', NULL, NULL, NULL, NULL, NULL, NULL);
+('id1', 'a', NULL, NULL, NULL, NULL, NULL),
+('id2', 'b', NULL, NULL, NULL, NULL, NULL),
+('id3', 'c', NULL, NULL, NULL, NULL, NULL),
+('id4', 'd', NULL, NULL, NULL, NULL, NULL),
+('id5', 'e', NULL, NULL, NULL, NULL, NULL),
+('id6', 'f', NULL, NULL, NULL, NULL, NULL),
+('id7', 'g', NULL, NULL, NULL, NULL, NULL),
+('id8', 'h', NULL, NULL, NULL, NULL, NULL),
+('id9', 'i', NULL, NULL, NULL, NULL, NULL),
+('id10', 'j', NULL, NULL, NULL, NULL, NULL),
+('id11', 'k', NULL, NULL, NULL, NULL, NULL),
+('id12', 'l', NULL, NULL, NULL, NULL, NULL),
+('id13', 'm', NULL, NULL, NULL, NULL, NULL),
+('id14', 'n', NULL, NULL, NULL, NULL, NULL),
+('id15', 'o', NULL, NULL, NULL, NULL, NULL),
+('id16', 'p', NULL, NULL, NULL, NULL, NULL),
+('id17', 'q', NULL, NULL, NULL, NULL, NULL),
+('id18', 'r', NULL, NULL, NULL, NULL, NULL),
+('id19', 's', NULL, NULL, NULL, NULL, NULL),
+('id20', 't', NULL, NULL, NULL, NULL, NULL),
+('id21', 'u', NULL, NULL, NULL, NULL, NULL),
+('id22', 'v', NULL, NULL, NULL, NULL, NULL),
+('id23', 'w', NULL, NULL, NULL, NULL, NULL),
+('id24', 'x', NULL, NULL, NULL, NULL, NULL),
+('id25', 'y', NULL, NULL, NULL, NULL, NULL),
+('id26', 'z', NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -367,8 +403,8 @@ INSERT INTO `town` (`id`, `name`, `surface`, `city_hall`) VALUES
 
 CREATE TABLE `woman_body` (
   `id` bigint(20) NOT NULL,
-  `height` float NOT NULL,
-  `weight` float NOT NULL,
+  `height` DECIMAL(20,10) NOT NULL,
+  `weight` DECIMAL(20,10) NOT NULL,
   `hair_color` text NOT NULL,
   `hair_cut` text NOT NULL,
   `eyes_color` text NOT NULL,

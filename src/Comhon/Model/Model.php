@@ -74,6 +74,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var Serialization */
 	private $serialization = null;
 	
+	/** @var boolean */
+	private $isOptionsLoaded = false;
+	
+	/** @var \Comhon\Object\UniqueObject */
+	private $options = null;
+	
 	/** @var \Comhon\Model\Property\Property[] */
 	private $properties   = [];
 	
@@ -845,6 +851,33 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	public function getSqlTableUnit() {
 		return $this->hasSqlTableSerialization() ? $this->serialization->getSerializationUnit(): null;
+	}
+	
+	/**
+	 * load options
+	 *
+	 * @return \Comhon\Object\UniqueObject|null null if no serialization settings
+	 */
+	private function loadOptions() {
+		if (!$this->isOptionsLoaded) {
+			$this->options = ModelManager::getInstance()->getInstanceModel('Comhon\Options\File')->loadObject($this->modelName);
+			if (is_null($this->options) && !is_null($this->getParent())) {
+				$this->options = $this->getParent()->getOptions();
+			}
+			$this->isOptionsLoaded = true;
+		}
+	}
+	
+	/**
+	 * get options
+	 *
+	 * @return \Comhon\Object\UniqueObject|null null if no defined options
+	 */
+	public function getOptions() {
+		if (!$this->isOptionsLoaded) {
+			$this->loadOptions();
+		}
+		return $this->options;
 	}
 	
 	/**

@@ -82,6 +82,36 @@ class ConfigTest extends TestCase
 		$this->assertTrue(strpos($configPath, realpath(Data::$config)) !== false);
 		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Comhon\SqlTable'));
 		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Comhon\SqlDatabase'));
+		$this->assertTrue(in_array($config->getManifestFormat(), ['xml', 'json']));
+		
+		$expected = '{
+    "manifest_format": "json",
+    "database": {
+        "charset": "utf8",
+        "timezone": "UTC"
+    },
+    "date_time_format": "c",
+    "autoload": {
+        "manifest": {
+            "Test": "..\/manifests\/manifest"
+        },
+        "serialization": {
+            "Test": "..\/manifests\/serialization_pgsql"
+        },
+        "options": {
+            "Test": "..\/manifests\/options"
+        }
+    },
+    "regex_list": ".\/regex.json",
+    "sql_table": ".\/table",
+    "sql_database": ".\/database",
+    "request_collection_limit": 20
+}
+';
+		if ($config->getManifestFormat() == 'xml') {
+			$expected = str_replace(['"json"', 'serialization_pgsql'], ['"xml"', 'serialization'], $expected);
+		}
+		$this->assertEquals($expected, $config->__toString());
 		
 		RegexCollection::getInstance();
 	}

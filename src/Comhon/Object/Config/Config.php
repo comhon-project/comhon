@@ -146,7 +146,7 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getDataBaseCharset() {
-		return ($this->getValue('database') instanceof AbstractComhonObject) && $this->getValue('database')->hasValue('charset')
+		return $this->issetValue('database') && $this->getValue('database')->issetValue('charset')
 			? $this->getValue('database')->getValue('charset')
 			: 'utf8';
 	}
@@ -157,7 +157,7 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getDataBaseTimezone() {
-		return ($this->getValue('database') instanceof AbstractComhonObject) && $this->getValue('database')->hasValue('timezone')
+		return $this->issetValue('database') && $this->getValue('database')->issetValue('timezone')
 			? $this->getValue('database')->getValue('timezone')
 			: 'UTC';
 	}
@@ -177,7 +177,7 @@ class Config extends ExtendableObject {
 	 * @return \Comhon\Object\ComhonArray|null
 	 */
 	public function getManifestAutoloadList() {
-		return ($this->getValue('autoload') instanceof AbstractComhonObject)
+		return $this->issetValue('autoload')
 			? $this->getValue('autoload')->getValue('manifest')
 			: null;
 	}
@@ -188,8 +188,19 @@ class Config extends ExtendableObject {
 	 * @return \Comhon\Object\ComhonArray|null
 	 */
 	public function getSerializationAutoloadList() {
-		return ($this->getValue('autoload') instanceof AbstractComhonObject)
+		return $this->issetValue('autoload')
 			? $this->getValue('autoload')->getValue('serialization')
+			: null;
+	}
+	
+	/**
+	 * get map namespace prefix to directory to allow options manifest autoloading
+	 *
+	 * @return \Comhon\Object\ComhonArray|null
+	 */
+	public function getOptionsAutoloadList() {
+		return $this->issetValue('autoload')
+			? $this->getValue('autoload')->getValue('options')
 			: null;
 	}
 	

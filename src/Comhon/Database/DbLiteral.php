@@ -67,12 +67,11 @@ abstract class DbLiteral extends Literal {
 	 * @param \Comhon\Object\UniqueObject $literal
 	 * @param \Comhon\Model\Model $model
 	 * @param \Comhon\Database\SelectQuery $selectQuery
-	 * @param boolean $allowPrivateProperties
 	 * @param \Comhon\Database\DbLiteral[] $dbLiteralsById do not specify this parameter, it is used implicitly
 	 * @throws \Exception
 	 * @return DbLiteral
 	 */
-	public static function build(UniqueObject $literal, Model $model, $selectQuery = null, $allowPrivateProperties = true, &$dbLiteralsById = []) {
+	public static function build(UniqueObject $literal, Model $model, $selectQuery = null, &$dbLiteralsById = []) {
 		if ($literal->getModel()->getName() != 'Comhon\Logic\Simple\Having') {
 			$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal');
 			if (!$literal->isA($literalModel)) {
@@ -91,8 +90,8 @@ abstract class DbLiteral extends Literal {
 		$table = ComplexRequester::getTableAliasWithModelNode($literal->getValue('node'));
 		
 		if ($literal->getModel()->getName() == 'Comhon\Logic\Simple\Having') {
-			list($joinedTables, $on) = self::_getJoinedTablesFromQueue($model, $literal->getValue('queue'), $allowPrivateProperties);
-			$subSelectQuery = self::_setSubSelectQuery($joinedTables, $on, $literal, $allowPrivateProperties);
+			list($joinedTables, $on) = self::_getJoinedTablesFromQueue($model, $literal->getValue('queue'));
+			$subSelectQuery = self::_setSubSelectQuery($joinedTables, $on, $literal);
 			$rigthTable  = new TableNode($subSelectQuery, self::_getAlias(), false);
 			
 			if (!is_null($selectQuery)) {
@@ -109,9 +108,6 @@ abstract class DbLiteral extends Literal {
 		}
 		else {
 			$property = $model->getProperty($literal->getValue('property'), true);
-			if (!$allowPrivateProperties && $property->isPrivate()) {
-				throw new PropertyVisibilityException($property);
-			}
 			if (!LiteralBinder::isAllowedLiteral($property, $literal)) {
 				throw new NotAllowedLiteralException($model, $property, $literal);
 			}
@@ -133,13 +129,12 @@ abstract class DbLiteral extends Literal {
 	 * 
 	 * @param \Comhon\Model\Model $model
 	 * @param \Comhon\Object\ComhonArray $queue
-	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
 	 * @return [[], []]
 	 * - first element is array of joined tables
 	 * - second element is array of columns that will be use for group, select and joins with principale query
 	 */
-	private static function _getJoinedTablesFromQueue(Model $model, ComhonArray $queue, $allowPrivateProperties) {
+	private static function _getJoinedTablesFromQueue(Model $model, ComhonArray $queue) {
 		$firstTable    = new TableNode($model->getSqlTableSettings()->getValue('name'), null, false);
 		$leftTable     = $firstTable;
 		$firstModel    = $model;
@@ -158,9 +153,6 @@ abstract class DbLiteral extends Literal {
 		
 		foreach ($queue as $propertyName) {
 			$property = $leftModel->getProperty($propertyName, true);
-			if (!$allowPrivateProperties && $property->isPrivate()) {
-				throw new PropertyVisibilityException($property);
-			}
 			$leftJoin = ComplexRequester::prepareJoinedTable($leftTable, $property, $databaseId, self::_getAlias());
 			$joinedTables[] = $leftJoin;
 			
@@ -192,10 +184,9 @@ abstract class DbLiteral extends Literal {
 	 * @param array $joinedTables 
 	 * @param array $groupColumns
 	 * @param \Comhon\Object\UniqueObject $literal
-	 * @param boolean $allowPrivateProperties
 	 * @return SelectQuery
 	 */
-	private static function _setSubSelectQuery(array $joinedTables, array $groupColumns, UniqueObject $literal, $allowPrivateProperties) {
+	private static function _setSubSelectQuery(array $joinedTables, array $groupColumns, UniqueObject $literal) {
 		$mainTable   = $joinedTables[0]['table'];
 		$selectQuery = new SelectQuery($mainTable);
 		
@@ -215,10 +206,10 @@ abstract class DbLiteral extends Literal {
 		$havingFormula = $literal->getValue('having');
 		
 		if ($havingFormula->getModel()->getName() == 'Comhon\Logic\Having\Clause') {
-			$having = HavingClause::buildHaving($havingFormula, $mainTable, $lastTable, $lastModel, $allowPrivateProperties);
+			$having = HavingClause::buildHaving($havingFormula, $mainTable, $lastTable, $lastModel);
 		} else {
 			$table = $havingFormula->getModel()->getName() == 'Comhon\Logic\Having\Literal\Count' ? $mainTable : $lastTable;
-			$having = HavingLiteral::buildHaving($havingFormula, $table, $lastModel, $allowPrivateProperties);
+			$having = HavingLiteral::buildHaving($havingFormula, $table, $lastModel);
 		}
 		$selectQuery->having($having);
 		return $selectQuery;

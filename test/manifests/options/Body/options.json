@@ -1,0 +1,20 @@
+{
+    "name": "Test\\Body",
+    "version": "3.0",
+    "unique": {
+        "allowed_methods": []
+    },
+    "collection": {
+        "allowed_methods": [
+            "GET",
+            "HEAD",
+            "OPTIONS"
+        ],
+        "requestable_properties": [
+            "id",
+            "height",
+            "hairColor"
+        ],
+        "allow_complex_request": false
+    }
+}

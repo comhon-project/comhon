@@ -212,9 +212,9 @@ class RequestHandlerPostTest extends TestCase
 				],
 				[],
 				'',
-				404,
-				['Content-Type' => 'text/plain'],
-				'invalid route',
+				405,
+				['Content-Type' => 'text/plain', 'Allow' => 'GET, HEAD, PUT, DELETE, OPTIONS'],
+				'method POST not allowed',
 			],
 			[ // invalid body
 				[
@@ -261,7 +261,7 @@ class RequestHandlerPostTest extends TestCase
 				400,
 				['Content-Type' => 'text/plain'],
 				'id must be set to create resource \'Test\TestDb\'',
-				],
+			],
 			[ // already existing id
 				[
 					'REQUEST_METHOD' => 'POST',

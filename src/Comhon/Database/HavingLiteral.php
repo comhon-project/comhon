@@ -96,11 +96,10 @@ class HavingLiteral extends DbLiteral {
 	 * @param \Comhon\Object\UniqueObject $havingLiteral
 	 * @param TableNode|string $table
 	 * @param \Comhon\Model\Model $model not necessary if function is self::COUNT
-	 * @param boolean $allowPrivateProperties
 	 * @throws \Exception
 	 * @return HavingLiteral
 	 */
-	public static function buildHaving(UniqueObject $havingLiteral, $table, $model = null, $allowPrivateProperties = true) {
+	public static function buildHaving(UniqueObject $havingLiteral, $table, $model = null) {
 		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Literal');
 		if (!$havingLiteral->isA($literalModel)) {
 			throw new ArgumentException($havingLiteral, $literalModel->getObjectInstance(false)->getComhonClass(), 1);
@@ -108,7 +107,7 @@ class HavingLiteral extends DbLiteral {
 		$havingLiteral->validate();
 		
 		if ($havingLiteral->getModel()->getName() == 'Comhon\Logic\Having\Literal\Count') {
-			$literal  = new HavingLiteral(HavingLiteral::COUNT, $table, null, $havingLiteral->getValue('operator'), $havingLiteral->getValue('value'));
+			$literal = new HavingLiteral(HavingLiteral::COUNT, $table, null, $havingLiteral->getValue('operator'), $havingLiteral->getValue('value'));
 		} else {
 			if (is_null($model)) {
 				throw new ComhonException('model can\'t be null if function is different than COUNT');
@@ -117,11 +116,8 @@ class HavingLiteral extends DbLiteral {
 			if ($property->hasMultipleSerializationNames()) {
 				throw new MultiplePropertyLiteralException($property);
 			}
-			if (!$allowPrivateProperties && $property->isPrivate()) {
-				throw new PropertyVisibilityException($property);
-			}
 			$column = $property->getSerializationName();
-			$literal  = new HavingLiteral($havingLiteral->getValue('function'), $table, $column, $havingLiteral->getValue('operator'), $havingLiteral->getValue('value'));
+			$literal = new HavingLiteral($havingLiteral->getValue('function'), $table, $column, $havingLiteral->getValue('operator'), $havingLiteral->getValue('value'));
 		}
 		
 		return $literal;

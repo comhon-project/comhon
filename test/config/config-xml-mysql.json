@@ -6,8 +6,12 @@
     },
     "serialization":{
       "Test":"../manifests/serialization"
+    },
+    "options":{
+      "Test":"../manifests/options"
     }
   },
+  "request_collection_limit":20,
   "regex_list":"./regex.json",
   "sql_table": "./table",
   "sql_database": "./database",

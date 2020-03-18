@@ -1,0 +1,10 @@
+<root name="Test\Body\Woman" version="3.0">
+  <collection>
+    <allowed_methods>
+      <method>GET</method>
+    </allowed_methods>
+  </collection>
+  <unique>
+    <allowed_methods/>
+  </unique>
+</root>

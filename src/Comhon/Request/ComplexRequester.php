@@ -39,6 +39,10 @@ use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Visitor\ObjectValidator;
+use Comhon\Exception\Model\PropertyVisibilityException;
+use Comhon\Model\Property\Property;
+use Comhon\Exception\Model\RequestablePropertyException;
+use Comhon\Object\Config\Config;
 
 class ComplexRequester extends Requester {
 	
@@ -184,6 +188,9 @@ class ComplexRequester extends Requester {
 		$objectLoadRequest = new ComplexRequester($request->getValue('tree')->getValue('model'), $private);
 		$objectLoadRequest->_importModelTree($request->getValue('tree'));
 		if ($request->hasValue('filter')) {
+			if (!$private) {
+				$objectLoadRequest->_verifyPublicRequest($request);
+			}
 			$objectLoadRequest->_importFilter($request->getValue('filter'));
 		}
 		if ($request->hasValue('limit')) {
@@ -199,6 +206,9 @@ class ComplexRequester extends Requester {
 			foreach ($request->getValue('order') as $orderElement) {
 				$objectLoadRequest->addOrder($orderElement->getValue('property'), $orderElement->getValue('type'));
 			}
+		}
+		if (!$private) {
+			$objectLoadRequest->_setDefaultLimit();
 		}
 		return $objectLoadRequest;
 	}
@@ -281,16 +291,16 @@ class ComplexRequester extends Requester {
 		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal');
 		$havingModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Having');
 		
-		/** @var \Comhon\Object\UniqueObject $object */
-		foreach ($collectionMap['Comhon\Logic\Simple\Formula'] as $object) {
-			if ($object->isA($literalModel) || $object->isA($havingModel)) {
-				$modelName = $object->getValue('node')->getValue('model');
+		/** @var \Comhon\Object\UniqueObject $formula */
+		foreach ($collectionMap['Comhon\Logic\Simple\Formula'] as $formula) {
+			if ($formula->isA($literalModel) || $formula->isA($havingModel)) {
+				$modelName = $formula->getValue('node')->getValue('model');
 				$key = ObjectCollection::getModelKey(ModelManager::getInstance()->getInstanceModel($modelName))->getName();
 				if (!array_key_exists($key, $literalsByModelName)) {
 					$literalsByModelName[$key] = [];
 				}
-				$literalsByModelName[$key][] = $object;
-				$maxId = max($maxId, $object->getValue('node')->getId());
+				$literalsByModelName[$key][] = $formula;
+				$maxId = max($maxId, $formula->getValue('node')->getId());
 			}
 		}
 		
@@ -441,6 +451,92 @@ class ComplexRequester extends Requester {
 	}
 	
 	/**
+	 * verify if request is executable in public context.
+	 * if not executable in public context, an exception is thrown.
+	 *
+	 * @param UniqueObject $request
+	 */
+	private function _verifyPublicRequest(UniqueObject $request) {
+		$filter = $request->getValue('filter');
+		$collectionMap = ObjectCollection::build($filter, true, true)->getMap();
+		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal');
+		$havingModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Having');
+		
+		/** @var \Comhon\Object\UniqueObject $formula */
+		foreach ($collectionMap['Comhon\Logic\Simple\Formula'] as $formula) {
+			if (!$formula->isA($literalModel) && !$formula->isA($havingModel)) {
+				continue;
+			}
+			if ($formula->isA($literalModel)) {
+				$model = $this->modelByNodeId[$formula->getValue('node')->getId()];
+				$property = $model->getProperty($formula->getValue('property'), true);
+				if ($property->isPrivate()) {
+					throw new PropertyVisibilityException($property, $model);
+				}
+				$this->_verifyRequestableProperty($model, $property);
+			}
+			if ($formula->isA($havingModel)) {
+				$this->_verifyPublicLiteralHaving($formula);
+			}
+		}
+	}
+	
+	/**
+	 * verify if literal having is valid in public context.
+	 * if not valid in public context, an exception is thrown.
+	 *
+	 * @param UniqueObject $literalHaving
+	 */
+	private function _verifyPublicLiteralHaving(UniqueObject $literalHaving) {
+		$modelQueue = $this->modelByNodeId[$literalHaving->getValue('node')->getId()];
+		foreach ($literalHaving->getValue('queue') as $propertyName) {
+			$property = $modelQueue->getProperty($propertyName, true);
+			if ($property->isPrivate()) {
+				throw new PropertyVisibilityException($property, $modelQueue);
+			}
+			$modelQueue = $property->getUniqueModel();
+		}
+		$havingFormula = $literalHaving->getValue('having');
+		$collectionMap = ObjectCollection::build($havingFormula, true, true)->getMap();
+		$functionLiteralModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Having\Literal\Function');
+		
+		/** @var \Comhon\Object\UniqueObject $formula */
+		foreach ($collectionMap['Comhon\Logic\Having\Formula'] as $formula) {
+			if (!$formula->isA($functionLiteralModel)) {
+				continue;
+			}
+			$property = $modelQueue->getProperty($formula->getValue('property'), true);
+			if ($property->isPrivate()) {
+				throw new PropertyVisibilityException($property, $modelQueue);
+			}
+			$this->_verifyRequestableProperty($modelQueue, $property);
+		}
+	}
+	
+	/**
+	 * verify if property is requestable in public context.
+	 * if not requestable in public context, an exception is thrown.
+	 *
+	 * @param Model $model
+	 * @param Property $property
+	 */
+	private function _verifyRequestableProperty(Model $model, Property $property) {
+		$options = $model->getOptions();
+		if (
+			is_null($options)
+			|| !$options->issetValue('collection')
+			|| !$options->getValue('collection')->issetValue('requestable_properties')
+		) {
+			return;
+		}
+		
+		$requestables = $options->getValue('collection')->getValue('requestable_properties')->getValues();
+		if (!in_array($property->getName(), $requestables)) {
+			throw new RequestablePropertyException($property, $model);
+		}
+	}
+	
+	/**
 	 * import literal collection
 	 * 
 	 * literal collection contain a list of defined literals that are reusable in logical junction
@@ -453,16 +549,43 @@ class ComplexRequester extends Requester {
 			$this->filter = Clause::build(
 				$filter, 
 				$this->modelByNodeId, 
-				$this->selectQuery, 
-				$this->private
+				$this->selectQuery
 			);
 		} else { // literal
 			$this->filter = DbLiteral::build(
 				$filter, 
 				$this->modelByNodeId[$filter->getValue('node')->getId()], 
-				$this->selectQuery, 
-				$this->private
+				$this->selectQuery
 			);
+		}
+	}
+	
+	/**
+	 * set default limit if needed.
+	 * config may have default limit or model may have default limit too,
+	 * so if request doesn't have limit or if it is supperior than default limit, we set the default limit.
+	 * an order may be added if there is no order.
+	 *
+	 * @param UniqueObject $request
+	 */
+	private function _setDefaultLimit() {
+		$options = $this->model->getOptions();
+		$limitModel = !is_null($options) && $options->issetValue('collection') && $options->getValue('collection')->issetValue('limit')
+			? $options->getValue('collection')->getValue('limit')
+			: Config::getInstance()->getValue('request_collection_limit');
+		
+		if (!is_null($limitModel) && (is_null($this->limit) || $this->limit > $limitModel)) {
+			if (empty($this->order)) {
+				if ($this->model->hasIdProperties()) {
+					foreach ($this->model->getIdProperties() as $property) {
+						$this->addOrder($property->getName());
+					}
+				} else {
+					$properties = $this->model->getProperties();
+					$this->addOrder(current($properties)->getName());
+				}
+			}
+			$this->setLimit($limitModel);
 		}
 	}
 	

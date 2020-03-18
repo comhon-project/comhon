@@ -29,7 +29,6 @@ class RequestHandlerOptionsTest extends TestCase
 		$response = RequestHandlerMock::handle('index.php/api', $server);
 		$send = $response->getSend();
 		
-		$this->assertNull($send[2]);
 		$this->assertEquals($responseCode, $send[0]);
 		$this->assertEquals($responseHeaders, $send[1]);
 	}
@@ -43,7 +42,7 @@ class RequestHandlerOptionsTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/'
 				],
 				200,
-					['Allow' => 'GET, HEAD, POST, OPTIONS'],
+				['Allow' => 'GET, HEAD, POST, OPTIONS'],
 			],
 			[ // unique, sql, id
 				[
@@ -53,21 +52,13 @@ class RequestHandlerOptionsTest extends TestCase
 				200,
 				['Allow' => 'GET, HEAD, PUT, DELETE, OPTIONS'],
 			],
-			[ // collection, sql, no id
+			[ // collection, sql, no id (options file defined but without allowed properties nodes)
 				[
 						'REQUEST_METHOD' => 'OPTIONS',
 						'REQUEST_URI' => '/index.php/api/Test%5cTestNoId'
 				],
 				200,
-				['Allow' => 'GET, HEAD, POST, OPTIONS'],
-			],
-			[ // unique, sql, no id
-				[
-					'REQUEST_METHOD' => 'OPTIONS',
-					'REQUEST_URI' => '/index.php/api/Test%5cTestNoId/1'
-				],
-				200,
-				['Allow' => 'OPTIONS'],
+				['Allow' => 'GET, HEAD, POST, OPTIONS', 'Content-Type' => 'application/json'],
 			],
 			[ // collection, sql, private id
 				[
@@ -77,22 +68,14 @@ class RequestHandlerOptionsTest extends TestCase
 				200,
 				['Allow' => 'GET, HEAD, POST, OPTIONS'],
 			],
-			[ // unique, sql, private id
+			[ // collection, file
 				[
 					'REQUEST_METHOD' => 'OPTIONS',
-					'REQUEST_URI' => '/index.php/api/Test%5cTestPrivateId/1'
+					'REQUEST_URI' => '/index.php/api/Test%5cTest'
 				],
 				200,
-				['Allow' => 'OPTIONS'],
+				['Allow' => 'POST, OPTIONS'],
 			],
-			[ // collection, file
-			[
-				'REQUEST_METHOD' => 'OPTIONS',
-				'REQUEST_URI' => '/index.php/api/Test%5cTest'
-			],
-			200,
-			['Allow' => 'POST, OPTIONS'],
-		],
 			[ // unique, file
 				[
 					'REQUEST_METHOD' => 'OPTIONS',
@@ -100,6 +83,82 @@ class RequestHandlerOptionsTest extends TestCase
 				],
 				200,
 				['Allow' => 'GET, HEAD, PUT, DELETE, OPTIONS'],
+			],
+		];
+	}
+	
+	/**
+	 *
+	 * @dataProvider requestOptionsWithBodyData
+	 */
+	public function testRequestOptionsWithBody($server, $responseCode, $responseHeaders, $responseBody)
+	{
+		$response = RequestHandlerMock::handle('index.php/api', $server);
+		$send = $response->getSend();
+		
+		$this->assertEquals($responseBody, $send[2]);
+		$this->assertEquals($responseCode, $send[0]);
+		$this->assertEquals($responseHeaders, $send[1]);
+	}
+	
+	public function requestOptionsWithBodyData()
+	{
+		return [
+			[
+				[
+					'REQUEST_METHOD' => 'OPTIONS',
+					'REQUEST_URI' => '/index.php/api/Comhon%5cManifest%5cFile/1'
+				],
+				200,
+				['Allow' => 'GET, HEAD, OPTIONS', 'Content-Type' => 'application/json'],
+				'{"name":"Comhon\\\\Manifest\\\\File","version":"3.0","unique":{"allowed_methods":["GET","HEAD","OPTIONS"]},"collection":{"allowed_methods":[]}}',
+			],
+			[
+				[
+					'REQUEST_METHOD' => 'OPTIONS',
+					'REQUEST_URI' => '/index.php/api/Comhon%5cManifest%5cFile'
+				],
+				404,
+				['Content-Type' => 'text/plain'],
+				'invalid route',
+			],
+		];
+	}
+	
+	/**
+	 *
+	 * @dataProvider requestOptionsFailureData
+	 */
+	public function testRequestOptionsFailure($server, $responseCode, $responseHeaders, $responseBody)
+	{
+		$response = RequestHandlerMock::handle('index.php/api', $server);
+		$send = $response->getSend();
+		
+		$this->assertEquals($responseBody, $send[2]);
+		$this->assertEquals($responseCode, $send[0]);
+		$this->assertEquals($responseHeaders, $send[1]);
+	}
+	
+	public function requestOptionsFailureData()
+	{
+		return [
+			[ // unique, sql, no id
+				[
+					'REQUEST_METHOD' => 'OPTIONS',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestNoId/1'
+				],
+				404,
+				['Content-Type' => 'application/json'],
+				'{"code":106,"message":"invalid route, model \'Test\\\\TestNoId\' doesn\'t have id property"}',
+			],
+			[ // unique, sql, private id
+				[
+					'REQUEST_METHOD' => 'OPTIONS',
+					'REQUEST_URI' => '/index.php/api/Test%5cTestPrivateId/1'
+				],
+				404,
+				['Content-Type' => 'application/json'],
+				'{"code":105,"message":"invalid route, cannot use private id property \'id\' on model \'Test\\\\TestPrivateId\' in public context"}',
 			],
 		];
 	}

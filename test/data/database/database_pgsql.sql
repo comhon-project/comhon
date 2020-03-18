@@ -789,6 +789,17 @@ INSERT INTO public.test_multi_increment VALUES (14, 'hoho', 45);
 INSERT INTO public.test_multi_increment VALUES (15, 'hohohohoho', 45);
 INSERT INTO public.test_multi_increment VALUES (16, 'hoho', 45);
 
+--
+-- TOC entry 2297 (class 0 OID 304540)
+-- Dependencies: 204
+-- Data for Name: test_no_id; Type: TABLE DATA; Schema: public; Owner: root
+--
+
+INSERT INTO public.test_no_id VALUES ('a');
+INSERT INTO public.test_no_id VALUES ('b');
+INSERT INTO public.test_no_id VALUES ('c');
+INSERT INTO public.test_no_id VALUES ('d');
+INSERT INTO public.test_no_id VALUES ('e');
 
 --
 -- TOC entry 2297 (class 0 OID 304540)
@@ -796,7 +807,32 @@ INSERT INTO public.test_multi_increment VALUES (16, 'hoho', 45);
 -- Data for Name: test_private_id; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public.test_private_id VALUES ('id1', NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id1', 'a', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id2', 'b', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id3', 'c', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id4', 'd', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id5', 'e', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id6', 'f', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id7', 'g', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id8', 'h', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id9', 'i', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id10', 'j', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id11', 'k', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id12', 'l', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id13', 'm', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id14', 'n', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id15', 'o', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id16', 'p', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id17', 'q', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id18', 'r', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id19', 's', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id20', 't', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id21', 'u', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id22', 'v', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id23', 'w', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id24', 'x', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id25', 'y', NULL, NULL, NULL, NULL, NULL);
+INSERT INTO public.test_private_id VALUES ('id26', 'z', NULL, NULL, NULL, NULL, NULL);
 
 
 --

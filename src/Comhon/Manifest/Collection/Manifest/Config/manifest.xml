@@ -12,6 +12,8 @@
     <property name="regex_list" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="sql_table" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="sql_database" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="request_collection_limit" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="allow_complex_request" __inheritance__="Comhon\Manifest\Property\Boolean"/>
   </properties>
   <types>
     <type name="DbOpt">
@@ -27,6 +29,9 @@
         </property>
         <property name="serialization" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array">
           <values name="serialization" __inheritance__="Comhon\Manifest\Value\String"/>
+        </property>
+        <property name="options" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="options" __inheritance__="Comhon\Manifest\Value\String"/>
         </property>
       </properties>
     </type>

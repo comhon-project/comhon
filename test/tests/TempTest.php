@@ -47,6 +47,7 @@ foreach ($folders as $folder => $prefix) {
 				continue;
 			}
 			$obj = $model->loadObject($modelName);
+			echo $obj;
 			// $unit->saveObject($obj);
 		}
 	}
@@ -62,3 +63,4 @@ echo $model->import(
 );
 die();
 */
+

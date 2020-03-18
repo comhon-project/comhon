@@ -27,14 +27,16 @@ echo "load config file $configFile... ";
 Config::setLoadPath(__DIR__.'/config/'.$configFile);
 echo "success".PHP_EOL;
 
-echo "initializing database... ";
+echo "set timezone... ";
+date_default_timezone_set('Europe/Berlin');
+echo date_default_timezone_get().PHP_EOL;
 
+echo "initializing database... ";
 $dbHandlerMySql = DatabaseHandler::getInstanceWithDataBaseId('1');
 $dbHandlerMySql->getPDO()->exec(file_get_contents('./data/database/database_mysql.sql'));
 
 $dbHandlerPgSql = DatabaseHandler::getInstanceWithDataBaseId('2');
 $dbHandlerPgSql->getPDO()->exec(file_get_contents('./data/database/database_pgsql.sql'));
-
 echo "success".PHP_EOL;
 
 echo PHP_EOL;

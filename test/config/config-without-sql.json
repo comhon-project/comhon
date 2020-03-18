@@ -6,6 +6,9 @@
     },
     "serialization":{
       "Test":"../manifests/serialization_pgsql"
+    },
+    "options":{
+      "Test":"../manifests/options"
     }
   },
   "regex_list":"./regex.json",

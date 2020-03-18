@@ -309,14 +309,12 @@ class Clause extends Formula {
 	 * @param \Comhon\Object\UniqueObject $clause
 	 * @param \Comhon\Model\Model[] $modelByNodeId
 	 * @param \Comhon\Database\SelectQuery $selectQuery
-	 * @param boolean $allowPrivateProperties
 	 * @param \Comhon\Database\DbLiteral[] $dbLiteralsById do not specify this parameter, it is used implicitly
 	 * @throws \Exception
 	 * @return Clause
 	 */
-	public static function build(UniqueObject $clause, $modelByNodeId, $selectQuery = null, $allowPrivateProperties = true, &$dbLiteralsById = []) {
+	public static function build(UniqueObject $clause, $modelByNodeId, $selectQuery = null, &$dbLiteralsById = []) {
 		if ($clause->getModel()->getName() != 'Comhon\Logic\Simple\Clause') {
-			var_dump($clause->getModel()->getName());
 			$clauseModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause');
 			throw new ArgumentException($clause, $clauseModel->getObjectInstance(false)->getComhonClass(), 1);
 		}
@@ -324,13 +322,13 @@ class Clause extends Formula {
 		$newClause = new Clause($clause->getValue('type'));
 		foreach ($clause->getValue('elements') as $element) {
 			if ($element->getModel()->getName() == 'Comhon\Logic\Simple\Clause') { // clause
-				$newClause->addClause(Clause::build($element, $modelByNodeId, $selectQuery, $allowPrivateProperties, $dbLiteralsById));
+				$newClause->addClause(Clause::build($element, $modelByNodeId, $selectQuery, $dbLiteralsById));
 			} else { // literal
 				if (!isset($modelByNodeId[$element->getValue('node')->getId()])) {
 					throw new ComhonException("missing key '{$element->getValue('node')->getId()}'");
 				}
 				$model = $modelByNodeId[$element->getValue('node')->getId()];
-				$newClause->addLiteral(DbLiteral::build($element, $model, $selectQuery, $allowPrivateProperties, $dbLiteralsById));
+				$newClause->addLiteral(DbLiteral::build($element, $model, $selectQuery, $dbLiteralsById));
 			}
 		}
 		return $newClause;

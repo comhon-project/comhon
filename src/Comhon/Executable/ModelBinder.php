@@ -14,11 +14,11 @@ $optionsDescription = [
 		'description' => 'path to config file',
 	],
 	'yes' => [
-			'short' => 'y',
-			'long' => 'yes',
-			'has_value' => false,
-			'description' => 'Automatic yes to prompts.',
-			'long_description' => 'Automatic yes to prompts. Assume "yes" as answer to all prompts and run non-interactively.'
+		'short' => 'y',
+		'long' => 'yes',
+		'has_value' => false,
+		'description' => 'Automatic yes to prompts.',
+		'long_description' => 'Automatic yes to prompts. Assume "yes" as answer to all prompts and run non-interactively.'
 	]
 ];
 

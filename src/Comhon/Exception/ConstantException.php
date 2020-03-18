@@ -21,6 +21,7 @@ abstract class ConstantException {
 	const CAST_EXCEPTION                    = 104;
 	const PROPERTY_VISIBILITY_EXCEPTION     = 105;
 	const NO_ID_PROPERTY_EXCEPTION          = 106;
+	const REQUESTABLE_PROPERTY_EXCEPTION    = 107;
 	
 	// object/value exception
 	const NOT_SATISFIED_RESTRICTION_EXCEPTION = 200;
@@ -69,10 +70,11 @@ abstract class ConstantException {
 	const NOT_ALLOWED_LITERAL_EXCEPTION                = 709;
 	
 	// serialization exception
-	const SERIALIZATION_EXCEPTION       = 800;
-	const NOT_NULL_CONSTRAINT_EXCEPTION = 801;
-	const FOREIGN_CONSTRAINT_EXCEPTION  = 802;
-	const UNIQUE_CONSTRAINT_EXCEPTION   = 803;
+	const SERIALIZATION_EXCEPTION          = 800;
+	const NOT_NULL_CONSTRAINT_EXCEPTION    = 801;
+	const FOREIGN_CONSTRAINT_EXCEPTION     = 802;
+	const UNIQUE_CONSTRAINT_EXCEPTION      = 803;
+	const MANIFEST_SERIALIZATION_EXCEPTION = 804;
 	
 	// config
 	const CONFIG_NOT_FOUND_EXCEPTION = 900;

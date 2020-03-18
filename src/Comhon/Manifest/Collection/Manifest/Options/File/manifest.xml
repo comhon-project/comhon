@@ -1,0 +1,41 @@
+<root name="Comhon\Options\File" is_serializable="1" version="3.0">
+  <properties>
+    <property name="name" not_null="1" is_required="1" is_id="1" regex="/^\w+(\\\w+)*$/" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="version" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="unique" not_null="1" model="Unique" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="collection" not_null="1" model="Collection" __inheritance__="Comhon\Manifest\Property\Object"/>
+  </properties>
+  <types>
+    <type name="Unique">
+      <properties>
+        <property name="allowed_methods" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="method" not_null="1" __inheritance__="Comhon\Manifest\Value\String">
+            <enum>
+              <value>GET</value>
+              <value>HEAD</value>
+              <value>POST</value>
+              <value>PUT</value>
+              <value>DELETE</value>
+              <value>CONNECT</value>
+              <value>OPTIONS</value>
+              <value>TRACE</value>
+              <value>PATCH</value>
+            </enum>
+          </values>
+        </property>
+      </properties>
+    </type>
+    <type name="Collection">
+      <extends>
+        <type>Unique</type>
+      </extends>
+      <properties>
+        <property name="limit" not_null="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+        <property name="allow_complex_request" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="requestable_properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="name" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
+        </property>
+      </properties>
+    </type>
+  </types>
+</root>

@@ -1,0 +1,12 @@
+{
+    "name": "Test\\Body\\Woman",
+    "version": "3.0",
+    "unique": {
+        "allowed_methods": []
+    },
+    "collection": {
+        "allowed_methods": [
+            "GET"
+        ]
+    }
+}

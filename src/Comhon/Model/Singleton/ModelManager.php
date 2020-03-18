@@ -104,12 +104,24 @@ class ModelManager {
 	 * @var string[] map namespace prefix to directory to allow serialization manifest autoloading
 	 */
 	private $autoloadSerializationManifest = [
-		'Comhon' => __DIR__ . DIRECTORY_SEPARATOR 
-			. '..' . DIRECTORY_SEPARATOR 
-			. '..' . DIRECTORY_SEPARATOR 
-			. 'Manifest' . DIRECTORY_SEPARATOR 
-			. 'Collection' . DIRECTORY_SEPARATOR 
+		'Comhon' => __DIR__ . DIRECTORY_SEPARATOR
+			. '..' . DIRECTORY_SEPARATOR
+			. '..' . DIRECTORY_SEPARATOR
+			. 'Manifest' . DIRECTORY_SEPARATOR
+			. 'Collection' . DIRECTORY_SEPARATOR
 			. 'Serialization'
+	];
+	
+	/**
+	 * @var string[] map namespace prefix to directory to allow options manifest autoloading
+	 */
+	private $autoloadOptionsManifest = [
+		'Comhon' => __DIR__ . DIRECTORY_SEPARATOR
+			. '..' . DIRECTORY_SEPARATOR
+			. '..' . DIRECTORY_SEPARATOR
+			. 'Manifest' . DIRECTORY_SEPARATOR
+			. 'Collection' . DIRECTORY_SEPARATOR
+			. 'Options'
 	];
 	
 	/**
@@ -166,6 +178,14 @@ class ModelManager {
 				$comhonPath_ad = $this->autoloadSerializationManifest['Comhon'];
 				$this->autoloadSerializationManifest = $lSerializationManifestAutoloadList->getValues();
 				$this->autoloadSerializationManifest['Comhon'] = $comhonPath_ad;
+			}
+			$lOptionsManifestAutoloadList = Config::getInstance()->getOptionsAutoloadList();
+			if (!is_null($lOptionsManifestAutoloadList)) {
+				$comhonPath_ad = $this->autoloadOptionsManifest['Comhon'];
+				$this->autoloadOptionsManifest = $lOptionsManifestAutoloadList->getValues();
+				if (!isset($this->autoloadOptionsManifest['Comhon'])) {
+					$this->autoloadOptionsManifest['Comhon'] = $comhonPath_ad;
+				}
 			}
 		} catch (\Exception $e) {
 			self::$_instance = null;
@@ -252,6 +272,7 @@ class ModelManager {
 	}
 	
 	/**
+	 * get manifest path
 	 * 
 	 * @param string $fullyQualifiedNamePrefix
 	 * @param string $fullyQualifiedNameSuffix
@@ -268,7 +289,8 @@ class ModelManager {
 	}
 	
 	/**
-	 * 
+	 * get serialization manifest path
+	 *
 	 * @param string $manifest_af
 	 * @param string $fullyQualifiedNamePrefix
 	 * @param string $fullyQualifiedNameSuffix
@@ -282,6 +304,26 @@ class ModelManager {
 			$manifest_af = $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $fullyQualifiedNameSuffix) . DIRECTORY_SEPARATOR .'serialization.' . $this->manifestExtension;
 		} else {
 			$manifest_af = dirname($manifest_af) . DIRECTORY_SEPARATOR .'serialization.' . $this->manifestExtension;
+		}
+		return $manifest_af;
+	}
+	
+	/**
+	 * get options manifest path
+	 *
+	 * @param string $manifest_af
+	 * @param string $fullyQualifiedNamePrefix
+	 * @param string $fullyQualifiedNameSuffix
+	 * @return string|null
+	 */
+	public function getOptionsManifestPath($manifest_af, $fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) {
+		if (array_key_exists($fullyQualifiedNamePrefix, $this->autoloadOptionsManifest)) {
+			$prefix_ad = substr($this->autoloadOptionsManifest[$fullyQualifiedNamePrefix], 0, 1) == '.'
+				? Config::getInstance()->getDirectory(). DIRECTORY_SEPARATOR . $this->autoloadOptionsManifest[$fullyQualifiedNamePrefix]
+				: $this->autoloadOptionsManifest[$fullyQualifiedNamePrefix];
+			$manifest_af = $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $fullyQualifiedNameSuffix) . DIRECTORY_SEPARATOR .'options.' . $this->manifestExtension;
+		} else {
+			$manifest_af = dirname($manifest_af) . DIRECTORY_SEPARATOR .'options.' . $this->manifestExtension;
 		}
 		return $manifest_af;
 	}

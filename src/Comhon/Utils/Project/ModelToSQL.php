@@ -180,6 +180,9 @@ class ModelToSQL {
 	 */
 	private function getUniqueForeignColumnDescription(ForeignProperty $property, array &$foreignConstraint = null) {
 		$idProperties = $property->getUniqueModel()->getIdProperties();
+		if (empty($idProperties)) {
+			throw new \Exception("foreign property '{$property->getName()}' has a model without id ('{$property->getUniqueModel()->getName()}')");
+		}
 		$foreignIdProperty = current($idProperties);
 		
 		if (!is_null($foreignConstraint)) {
@@ -210,7 +213,14 @@ class ModelToSQL {
 				$type = 'INT';
 				break;
 			case 'float':
-				$type = 'FLOAT';
+				switch ($this->sqlModels[$this->currentModel->getName()]['table']->getValue('database')->getValue('DBMS')) {
+					case 'mysql':
+						$type = 'DECIMAL(20,10)';
+						break;
+					case 'pgsql':
+						$type = 'FLOAT';
+						break;
+				}
 				break;
 			case 'boolean':
 				$type = 'BOOLEAN';
@@ -489,7 +499,7 @@ class ModelToSQL {
 	 * @throws ArgumentException
 	 */
 	private function transform($outputPath, UniqueObject $sqlDatabase = null, $case = 'iso') {
-		$this->case = $case;
+		$this->case = is_null($case) ? 'iso' : $case;
 		if (is_null($sqlDatabase)) {
 			$sqlDatabase = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getObjectInstance();
 			$sqlDatabase->setId('generated');
@@ -517,6 +527,11 @@ class ModelToSQL {
 					continue;
 				}
 				$modelName = $namespace . '\\' . substr(str_replace(DIRECTORY_SEPARATOR, '\\', str_replace($manifest_ad, '', $name)), 1);
+				list($prefix, $suffix) = ModelManager::getInstance()->splitModelName($modelName);
+				$manifest_af = ModelManager::getInstance()->getManifestPath($prefix, $suffix);
+				if (!file_exists($manifest_af)) {
+					continue;
+				}
 				$model = $this->getModel($modelName);
 				
 				if (!is_null($model)) {

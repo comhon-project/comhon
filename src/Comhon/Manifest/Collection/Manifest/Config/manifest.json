@@ -36,6 +36,14 @@
         {
             "name": "sql_database",
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "request_collection_limit",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "allow_complex_request",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
         }
     ],
     "version": "3.0",
@@ -70,6 +78,15 @@
                     "is_associative": true,
                     "values": {
                         "name": "serialization",
+                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                    },
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                },
+                {
+                    "name": "options",
+                    "is_associative": true,
+                    "values": {
+                        "name": "options",
                         "__inheritance__": "Comhon\\Manifest\\Value\\String"
                     },
                     "__inheritance__": "Comhon\\Manifest\\Property\\Array"

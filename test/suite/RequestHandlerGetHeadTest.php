@@ -417,11 +417,12 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				[
 					'__order__' => '[{"property":"id","type":"ASC"}]',
+					'__range__' => '0-0',
 					'__properties__' => ['name']
 				],
 				200,
 				['Content-Type' => 'application/json'],
-				'[{"name":null}]'
+				'[{"name":"a"}]'
 			],
 			[ // private id property must not appear in result (without filter properties)
 				[
@@ -430,10 +431,25 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				[
 					'__order__' => '[{"property":"id","type":"ASC"}]',
+					'__range__' => '0-0',
 				],
 				200,
 				['Content-Type' => 'application/json'],
-				'[{"name":null,"objectValues":null,"foreignObjectValue":null,"foreignObjectValues":null,"foreignTestPrivateId":null,"foreignTestPrivateIds":null}]'
+				'[{"name":"a","objectValues":null,"foreignObjectValue":null,"foreignObjectValues":null,"foreignTestPrivateId":null,"foreignTestPrivateIds":null}]'
+			],
+			[ // test requestable properties (defined in option files)
+					[
+							'REQUEST_METHOD' => 'GET',
+							'REQUEST_URI' => '/index.php/api/Test%5cBody%5cMan'
+					],
+					[
+							'hairColor' => 'black',
+							'height' => 1.8,
+							'__properties__' => ['id', 'height', 'physicalAppearance']
+					],
+					200,
+					['Content-Type' => 'application/json'],
+					'[{"id":1,"height":1.8,"physicalAppearance":"muscular"},{"id":2,"height":1.8,"physicalAppearance":"slim"}]'
 			]
 		];
 	}
@@ -637,7 +653,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":105,"message":"cannot use private property \'string\' in public context"}'
+				'{"code":105,"message":"cannot use private property \'string\' on model \'Test\\\\TestDb\' in public context"}'
 			],
 			[ // malformed clause
 				[
@@ -663,7 +679,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":200,"message":"Something goes wrong on \'.__clause__\' value : \nhehe is not in enumeration [\"disjunction\",\"conjunction\"]"}'
 			],
-			[ // malformed order #10
+			[ // ##### 10 ##### malformed order 
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
@@ -785,7 +801,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":709,"message":"literal not allowed on property \'boolean\' of model \'Test\\\\TestDb\'. must be one of [Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Boolean, Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Null]"}'
 			],
-			[ // request filter with malformed property 3
+			[ // ##### 20 ##### request filter with malformed property 3 
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
@@ -809,7 +825,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":104,"message":"Cannot cast value \'aaaa\' for property \'bestFriend\', value should be integer"}'
 			],
-			[ // request filter with private property
+				[ // request filter with not requestable property (defined in option files)
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestDb'
@@ -819,7 +835,19 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":105,"message":"cannot use private property \'string\' in public context"}'
+				'{"code":105,"message":"cannot use private property \'string\' on model \'Test\\\\TestDb\' in public context"}'
+			],
+			[ // request filter with private property
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cBody%5cMan'
+				],
+				[
+					'eyesColor' => 'blue'
+				],
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":107,"message":"cannot request  property \'eyesColor\' on model \'Test\\\\Body\\\\Man\' in public context"}'
 			],
 			[ // request unique id malformed
 				[
@@ -841,15 +869,15 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'text/plain'],
 				'resource model \'Test\Basic\NoId\' is not requestable'
 			],
-			[ // request unique id resource without id
+			[ // ##### 25 ##### request unique id resource without id
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestNoId/bbb'
 				],
 				[],
-				400,
+				404,
 				['Content-Type' => 'application/json'],
-				'{"code":106,"message":"model \'Test\\\\TestNoId\' doesn\'t have id property"}'
+				'{"code":106,"message":"invalid route, model \'Test\\\\TestNoId\' doesn\'t have id property"}'
 			],
 			[ // request unique id resource with private id
 				[
@@ -857,9 +885,9 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cTestPrivateId/1'
 				],
 				[],
-				400,
+				404,
 				['Content-Type' => 'application/json'],
-				'{"code":105,"message":"cannot use private id property \'id\' in public context"}'
+				'{"code":105,"message":"invalid route, cannot use private id property \'id\' on model \'Test\\\\TestPrivateId\' in public context"}'
 			],
 			[ // TestNoId has 'value' property but sql table doesn't have column 'value', so it fail
 				[
@@ -873,7 +901,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				[],
 				null
 			],
-			[ // filter properties
+			[ // invalid composite id
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/[1,"23]'
@@ -883,7 +911,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":206,"message":"invalid composite id \'[1,\\"23]\'"}'
 			],
-			[ // filter properties
+			[ // invalid composite id
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/[1]'
@@ -893,7 +921,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":206,"message":"invalid composite id \'[1]\'"}'
 			],
-			[ // filter properties
+			[ // invalid composite id
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/[1,null]'

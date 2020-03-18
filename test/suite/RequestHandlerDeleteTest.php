@@ -107,18 +107,18 @@ class RequestHandlerDeleteTest extends TestCase
 					'REQUEST_METHOD' => 'DELETE',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestNoId/'
 				],
-				405,
+				404,
 				['Content-Type' => 'application/json'],
-				'{"code":106,"message":"model \'Test\\\\TestNoId\' doesn\'t have id property"}',
+				'{"code":106,"message":"invalid route, model \'Test\\\\TestNoId\' doesn\'t have id property"}',
 			],
 			[ // private property id
 				[
 					'REQUEST_METHOD' => 'DELETE',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestPrivateId/'
 				],
-				400,
+				404,
 				['Content-Type' => 'application/json'],
-				'{"code":105,"message":"cannot use private id property \'id\' in public context"}'
+				'{"code":105,"message":"invalid route, cannot use private id property \'id\' on model \'Test\\\\TestPrivateId\' in public context"}'
 			],
 		];
 	}

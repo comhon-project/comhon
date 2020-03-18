@@ -69,7 +69,7 @@ abstract class Requester {
 			if ($property->isAggregation()) {
 				throw new MalformedRequestException("aggregation property '$propertyName' can't be a filter property");
 			} else if (!$this->private && $property->isPrivate()) {
-				throw new PropertyVisibilityException($property);
+				throw new PropertyVisibilityException($property, $this->model);
 			}
 			else {
 				$this->propertiesFilter[] = $propertyName;
