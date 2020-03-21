@@ -7,39 +7,48 @@ It will allow you to import, export, serialize (in sql database, xml file, json 
 
 ## Some others features
 * advanced object managment ([see wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Object-management))
-* provide API to request sql database and build automatically complexe sql requests without knowing sql syntaxe ([see wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Objects-request-api))
+* provide a request format to request any object by any client ([see wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Objects-request-api))
+* provide automatic and dynamic REST API ([see wiki page](https://github.com/comhon-project/comhon/wiki/rest-api))
 
 ## Manifest Example
 A Manifest permit to describe a concept by listing its properties. Manifests can be defined in XML or JSON format
 
 simple XML manifest to describe a person :
 ```XML
-<manifest>
-	<properties>
-		<property type="string" name="firstName"/>
-		<property type="string" name="lastName"/>
-		<property type="integer" name="age"/>
-	</properties>
+<manifest version="3.0" name="Example\Person">
+    <properties>
+        <property name="identifier" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="firstName" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="lastName" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="age" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    </properties>
 </manifest>
 ```
 
 simple JSON manifest to describe a person :
 ```JSON
 {
-	"properties": [
-		{
-			"name": "firstName",
-			"type": "string"
-		},
-		{
-			"name": "lastName",
-			"type": "string"
-		},
-		{
-			"name": "age",
-			"type": "integer"
-		}
-	]
+    "version": "3.0",
+    "name": "Example\\Person",
+    "properties": [
+        {
+            "name": "identifier",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "firstName",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "lastName",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "age",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        }
+    ]
 }
 ```
 for more informations to build complexes manifests take a look at [manifest wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Manifest)
@@ -48,11 +57,11 @@ for more informations to build complexes manifests take a look at [manifest wiki
 
 ```PHP
 // first way to instanciate a comhon object
-$personModel = InstanceModel::getInstance()->getInstanceModel('person');
+$personModel = InstanceModel::getInstance()->getInstanceModel('Example\Person');
 $person = $personModel->getObjectInstance();
 
 // second way to instanciate a comhon object
-$person = new ComhonObject('person');
+$person = new ComhonObject('Example\Person');
 
 // third way to instanciate a comhon object only if you have defined a class
 $person = new Person();
@@ -68,13 +77,15 @@ $age = $person->getValue('age');
 $interfacer = new StdObjectInterfacer();
 $person = $interfacer->import(json_decode('{"first_name":"john","last_name":"john","age":21}'), $personModel);
 
-// fill a comhon object by importing json
+// fill an existing comhon object by importing json
 $interfacer = new StdObjectInterfacer();
 $person->fill(json_decode('{"first_name":"john","last_name":"john","age":21}'), $interfacer);
 
-// export a comhon object to xml
+// export a comhon object to xml and print it as string
 $interfacer = new XMLInterfacer();
 $nodeXML = $interfacer->export($person);
+echo $interfacer->toString($nodeXML);
+// output : <root first_name="john" last_name="john" age=21 />
 
 // load, update and save an object (from/to sql database or xml file or json file)
 $loadedPerson = $personModel->loadObject('id_of_a_person');
@@ -90,6 +101,6 @@ give a chance to make a comhon object managment in your project and avoid many s
 
 for more informations take a look at [installation wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Installation)
 
-## API Reference
+## Documentation
 
 for more informations take a look at [wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki)
