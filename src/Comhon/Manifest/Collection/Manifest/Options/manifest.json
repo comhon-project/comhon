@@ -1,5 +1,5 @@
 {
-    "name": "Comhon\\Options\\File",
+    "name": "Comhon\\Options",
     "is_serializable": true,
     "properties": [
         {

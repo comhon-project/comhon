@@ -1,4 +1,4 @@
-<root name="Comhon\Options\File" version="3.0">
+<root name="Comhon\Options" version="3.0">
   <collection>
     <allowed_methods/>
   </collection>

@@ -858,9 +858,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 *
 	 * @return \Comhon\Object\UniqueObject|null null if no serialization settings
 	 */
-	private function loadOptions() {
+	private function _loadOptions() {
 		if (!$this->isOptionsLoaded) {
-			$this->options = ModelManager::getInstance()->getInstanceModel('Comhon\Options\File')->loadObject($this->modelName);
+			$this->options = ModelManager::getInstance()->getInstanceModel('Comhon\Options')->loadObject($this->modelName);
 			if (is_null($this->options) && !is_null($this->getParent())) {
 				$this->options = $this->getParent()->getOptions();
 			}
@@ -875,7 +875,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	public function getOptions() {
 		if (!$this->isOptionsLoaded) {
-			$this->loadOptions();
+			$this->_loadOptions();
 		}
 		return $this->options;
 	}

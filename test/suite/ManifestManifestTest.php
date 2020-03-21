@@ -34,7 +34,7 @@ class ManifestManifestTest extends TestCase
 		$this->assertNotFalse($manifestFileContent);
 		
 		$modelName = $prefix.'\\'.$suffix;
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest\File');
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
 		$manifest = $model->loadObject($modelName);
 		$this->assertNotNull($manifest);
 		
@@ -64,7 +64,7 @@ class ManifestManifestTest extends TestCase
 	public function testManifestObjectSave()
 	{
 		$modelName = 'Test\Test';
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest\File');
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
 		$manifest = $model->loadObject($modelName);
 		$manifest->setId('Test\TestCopy');
 		
@@ -78,7 +78,7 @@ class ManifestManifestTest extends TestCase
 	{
 		$modelNameOrigin = 'Test\Test';
 		$modelNameCopied = 'Test\TestCopy';
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest\File');
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
 		
 		$interfacer = Config::getInstance()->getManifestFormat() == 'json' ? new AssocArrayInterfacer() : new XMLInterfacer();
 		$interfacer->setSerialContext(true);

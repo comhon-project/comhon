@@ -451,6 +451,8 @@ try {
 
 // TODO for version > 3.0
 
+// verify options manifest overdire
+
 // docker
 // add patch method
 // manifest, serialization validator

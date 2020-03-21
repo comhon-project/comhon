@@ -107,16 +107,16 @@ class RequestHandlerOptionsTest extends TestCase
 			[
 				[
 					'REQUEST_METHOD' => 'OPTIONS',
-					'REQUEST_URI' => '/index.php/api/Comhon%5cManifest%5cFile/1'
+					'REQUEST_URI' => '/index.php/api/Comhon%5cManifest/1'
 				],
 				200,
 				['Allow' => 'GET, HEAD, OPTIONS', 'Content-Type' => 'application/json'],
-				'{"name":"Comhon\\\\Manifest\\\\File","version":"3.0","unique":{"allowed_methods":["GET","HEAD","OPTIONS"]},"collection":{"allowed_methods":[]}}',
+				'{"name":"Comhon\\\\Manifest","version":"3.0","unique":{"allowed_methods":["GET","HEAD","OPTIONS"]},"collection":{"allowed_methods":[]}}',
 			],
 			[
 				[
 					'REQUEST_METHOD' => 'OPTIONS',
-					'REQUEST_URI' => '/index.php/api/Comhon%5cManifest%5cFile'
+					'REQUEST_URI' => '/index.php/api/Comhon%5cManifest'
 				],
 				404,
 				['Content-Type' => 'text/plain'],

@@ -1,5 +1,5 @@
 {
-    "name": "Comhon\\Options\\File",
+    "name": "Comhon\\Serialization",
     "version": "3.0",
     "unique": {
         "allowed_methods": []

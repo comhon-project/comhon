@@ -1,4 +1,4 @@
-<root name="Comhon\Manifest\File" version="3.0">
+<root name="Comhon\Manifest" version="3.0">
   <collection>
     <allowed_methods/>
   </collection>

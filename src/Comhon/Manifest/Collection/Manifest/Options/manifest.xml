@@ -1,4 +1,4 @@
-<root name="Comhon\Options\File" is_serializable="1" version="3.0">
+<root name="Comhon\Options" is_serializable="1" version="3.0">
   <properties>
     <property name="name" not_null="1" is_required="1" is_id="1" regex="/^\w+(\\\w+)*$/" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="version" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>

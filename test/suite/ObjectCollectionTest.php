@@ -166,7 +166,7 @@ class ObjectCollectionTest extends TestCase
 	
 	public function testIsolatedObject()
 	{
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest\File');
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
 		$interfacedObject = json_decode('{
 		    "name": "Test\\\\MyTest\\\\Isolated",
 		    "version": "3.0",

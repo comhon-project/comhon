@@ -35,7 +35,7 @@ $folders = [
 		dirname(dirname(__DIR__)) . '/src/Comhon/Manifest/Collection/Manifest/' => 'Comhon'
 ];
 $unit = new ManifestFile('json');
-$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest\File');
+$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
 foreach ($folders as $folder => $prefix) {
 	$files = [];
 	$files = getDirContents($folder, $files);

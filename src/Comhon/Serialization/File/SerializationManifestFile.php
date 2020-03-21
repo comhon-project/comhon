@@ -41,7 +41,7 @@ class SerializationManifestFile extends AbstractManifestFile {
 	 * @see \Comhon\Serialization\File\AbstractManifestFile::_getModelName()
 	 */
 	protected function _getModelName() {
-		return 'Comhon\Serialization\File';
+		return 'Comhon\Serialization';
 	}
 	
 	/**

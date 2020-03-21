@@ -1,5 +1,5 @@
 {
-    "name": "Comhon\\Manifest\\File",
+    "name": "Comhon\\Manifest",
     "version": "3.0",
     "unique": {
         "allowed_methods": [

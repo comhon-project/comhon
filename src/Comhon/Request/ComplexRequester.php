@@ -454,7 +454,7 @@ class ComplexRequester extends Requester {
 	 * verify if request is executable in public context.
 	 * if not executable in public context, an exception is thrown.
 	 *
-	 * @param UniqueObject $request
+	 * @param \Comhon\Object\UniqueObject $request
 	 */
 	private function _verifyPublicRequest(UniqueObject $request) {
 		$filter = $request->getValue('filter');
@@ -464,9 +464,6 @@ class ComplexRequester extends Requester {
 		
 		/** @var \Comhon\Object\UniqueObject $formula */
 		foreach ($collectionMap['Comhon\Logic\Simple\Formula'] as $formula) {
-			if (!$formula->isA($literalModel) && !$formula->isA($havingModel)) {
-				continue;
-			}
 			if ($formula->isA($literalModel)) {
 				$model = $this->modelByNodeId[$formula->getValue('node')->getId()];
 				$property = $model->getProperty($formula->getValue('property'), true);
@@ -475,7 +472,7 @@ class ComplexRequester extends Requester {
 				}
 				$this->_verifyRequestableProperty($model, $property);
 			}
-			if ($formula->isA($havingModel)) {
+			elseif ($formula->isA($havingModel)) {
 				$this->_verifyPublicLiteralHaving($formula);
 			}
 		}
@@ -485,7 +482,7 @@ class ComplexRequester extends Requester {
 	 * verify if literal having is valid in public context.
 	 * if not valid in public context, an exception is thrown.
 	 *
-	 * @param UniqueObject $literalHaving
+	 * @param \Comhon\Object\UniqueObject $literalHaving
 	 */
 	private function _verifyPublicLiteralHaving(UniqueObject $literalHaving) {
 		$modelQueue = $this->modelByNodeId[$literalHaving->getValue('node')->getId()];
@@ -517,8 +514,8 @@ class ComplexRequester extends Requester {
 	 * verify if property is requestable in public context.
 	 * if not requestable in public context, an exception is thrown.
 	 *
-	 * @param Model $model
-	 * @param Property $property
+	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\Property\Property $property
 	 */
 	private function _verifyRequestableProperty(Model $model, Property $property) {
 		$options = $model->getOptions();
@@ -566,7 +563,7 @@ class ComplexRequester extends Requester {
 	 * so if request doesn't have limit or if it is supperior than default limit, we set the default limit.
 	 * an order may be added if there is no order.
 	 *
-	 * @param UniqueObject $request
+	 * @param \Comhon\Object\UniqueObject $request
 	 */
 	private function _setDefaultLimit() {
 		$options = $this->model->getOptions();

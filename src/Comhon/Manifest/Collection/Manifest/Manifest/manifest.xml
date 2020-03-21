@@ -1,30 +1,13 @@
-<root name="Comhon\Manifest" version="3.0">
+<root name="Comhon\Manifest" version="3.0" is_serializable="1">
+  <extends>
+    <type>\Comhon\Manifest\Local</type>
+  </extends>
   <properties>
-    <property name="name" not_null="1" is_required="1" is_id="1" regex="/^\w+(\\\w+)*$/" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="is_abstract" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="extends" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="type" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
-    </property>
-    <property name="object_class" not_null="1" regex="/^(\\\w+)+$/" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="is_serializable" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="is_main" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="share_parent_id" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="shared_id" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="property" not_null="1" model="Property" __inheritance__="Comhon\Manifest\Value\Object"/>
-    </property>
-    <property name="conflicts" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="properties" not_null="1" size="[2,]" __inheritance__="Comhon\Manifest\Value\Array">
-        <values name="property" not_null="1" model="Property" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
-      </values>
+    <property name="version" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="types" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="type" model="\Comhon\Manifest\Local" is_isolated="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
-  <conflicts>
-    <properties>
-      <property>shared_id</property>
-      <property>share_parent_id</property>
-    </properties>
-  </conflicts>
   <types>
     <type name="Base" is_abstract="1">
       <properties>
@@ -271,16 +254,33 @@
         <type>Base\Array</type>
       </extends>
     </type>
-    <type name="File" is_serializable="1">
-      <extends>
-        <type>\Comhon\Manifest</type>
-      </extends>
+    <type name="Local">
       <properties>
-        <property name="version" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="types" __inheritance__="Comhon\Manifest\Property\Array">
-          <values name="type" model="\Comhon\Manifest" is_isolated="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+        <property name="name" not_null="1" is_required="1" is_id="1" regex="/^\w+(\\\w+)*$/" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="is_abstract" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="extends" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="type" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
+        </property>
+        <property name="object_class" not_null="1" regex="/^(\\\w+)+$/" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="is_serializable" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="is_main" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="share_parent_id" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="shared_id" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="property" not_null="1" model="Property" __inheritance__="Comhon\Manifest\Value\Object"/>
+        </property>
+        <property name="conflicts" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="properties" not_null="1" size="[2,]" __inheritance__="Comhon\Manifest\Value\Array">
+            <values name="property" not_null="1" model="Property" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+          </values>
         </property>
       </properties>
+      <conflicts>
+        <properties>
+          <property>shared_id</property>
+          <property>share_parent_id</property>
+        </properties>
+      </conflicts>
     </type>
   </types>
 </root>

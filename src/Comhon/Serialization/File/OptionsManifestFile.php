@@ -41,7 +41,7 @@ class OptionsManifestFile extends AbstractManifestFile {
 	 * @see \Comhon\Serialization\File\AbstractManifestFile::_getModelName()
 	 */
 	protected function _getModelName() {
-		return 'Comhon\Options\File';
+		return 'Comhon\Options';
 	}
 	
 	/**
