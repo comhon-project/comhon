@@ -116,7 +116,7 @@ class RequestHandler {
 		} catch (ResponseException $e) {
 			$response = $e->getResponse();
 		} catch (ManifestSerializationException $e) {
-			$response = $this->_buildResponse(403, $e->getMessage());
+			$response = $this->_buildResponse(403, ['code' => $e->getCode(), 'message' => $e->getMessage()]);
 		}catch (\Exception $e) {
 			$response = $this->_buildResponse(500);
 		}
@@ -165,8 +165,8 @@ class RequestHandler {
 		} catch (NotDefinedModelException $e) {
 			throw new ResponseException(404, "resource model '{$this->resource[0]}' doesn't exist");
 		}
-		if (is_null($this->requestedModel->getSerialization()) && $server['REQUEST_METHOD'] !== 'OPTIONS') {
-			throw new MethodNotAllowedException("resource model '{$this->requestedModel->getName()}' is not requestable");
+		if (is_null($this->requestedModel->getSerialization())) {
+			throw new ResponseException(404, "resource model '{$this->requestedModel->getName()}' is not requestable");
 		}
 		if (isset($this->resource[1])) {
 			try {
@@ -575,7 +575,7 @@ class RequestHandler {
 			}
 		}
 		if ($object->save(SerializationUnit::CREATE) === 0) {
-			throw new MalformedRequestException();
+			throw new ResponseException(500, 'unknown error, object not created');
 		}
 		
 		$object->load(null, true);

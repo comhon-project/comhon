@@ -19,11 +19,8 @@ class ManifestSerializationException extends ComhonException {
 	/**
 	 * @param string $message
 	 */
-	public function __construct() {
-		parent::__construct(
-			'manifest file with \'Comhon\' prefix cannot be serialized or deleted',
-			ConstantException::MANIFEST_SERIALIZATION_EXCEPTION
-		);
+	public function __construct($message) {
+		parent::__construct($message, ConstantException::MANIFEST_SERIALIZATION_EXCEPTION);
 	}
 	
 }

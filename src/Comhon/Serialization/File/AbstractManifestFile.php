@@ -111,6 +111,22 @@ abstract class AbstractManifestFile extends SerializationFile {
 	
 	/**
 	 * 
+	 * @param UniqueObject $object
+	 * @throws ManifestSerializationException
+	 */
+	private function _verifyNamespacePrefix(UniqueObject $object) {
+		try {
+			list($fullyQualifiedNamePrefix) = ModelManager::getInstance()->splitModelName($object->getId());
+			if ($fullyQualifiedNamePrefix == 'Comhon') {
+				throw new ManifestSerializationException('manifest with \'Comhon\' prefix cannot be serialized or deleted');
+			}
+		} catch (NotDefinedModelException $e) {
+			throw new ManifestSerializationException("manifest prefix not defined in config file autoload for model '{$object->getId()}'");
+		}
+	}
+	
+	/**
+	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Serialization\SerializationFile::_saveObject()
 	 */
@@ -118,15 +134,8 @@ abstract class AbstractManifestFile extends SerializationFile {
 		if (!$object->isA($this->_getModelName())) {
 			throw new SerializationException("object model must be a {$this->_getModelName()}', {$object->getModel()->getName()} given");
 		}
-		try {
-			list($fullyQualifiedNamePrefix) = ModelManager::getInstance()->splitModelName($object->getId());
-			if ($fullyQualifiedNamePrefix == 'Comhon') {
-				throw new ManifestSerializationException();
-			}
-			return parent::_saveObject($object, $operation);
-		} catch (NotDefinedModelException $e) {
-			return 0;
-		}
+		$this->_verifyNamespacePrefix($object);
+		return parent::_saveObject($object, $operation);
 	}
 	
 	/**
@@ -154,15 +163,8 @@ abstract class AbstractManifestFile extends SerializationFile {
 		if (!$object->isA($this->_getModelName())) {
 			throw new SerializationException("object model must be a '{$this->_getModelName()}', {$object->getModel()->getName()} given");
 		}
-		try {
-			list($fullyQualifiedNamePrefix) = ModelManager::getInstance()->splitModelName($object->getId());
-			if ($fullyQualifiedNamePrefix == 'Comhon') {
-				throw new ManifestSerializationException();
-			}
-			return parent::_deleteObject($object);
-		} catch (NotDefinedModelException $e) {
-			return 0;
-		}
+		$this->_verifyNamespacePrefix($object);
+		return parent::_deleteObject($object);
 	}
 	
 }

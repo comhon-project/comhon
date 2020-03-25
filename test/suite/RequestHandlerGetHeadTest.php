@@ -865,7 +865,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cBasic%5cNoId/bbb'
 				],
 				[],
-				405,
+				404,
 				['Content-Type' => 'text/plain'],
 				'resource model \'Test\Basic\NoId\' is not requestable'
 			],
