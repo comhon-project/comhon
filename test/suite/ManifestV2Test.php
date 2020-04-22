@@ -22,7 +22,8 @@ class ManifestV2Test extends TestCase
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Manifest_V_2');
 		$this->assertEquals('serial_name', $model->getProperty('name')->getSerializationName());
-		$this->assertEquals('town', $model->getSerialization()->getSettings()->getValue('name'));
+		$TableName = Config::getInstance()->getManifestFormat() == 'xml' ? 'town' : 'public.town';
+		$this->assertEquals($TableName, $model->getSerialization()->getSettings()->getValue('name'));
 		$this->assertTrue($model->getSerialization()->getSettings()->isLoaded());
 		$this->assertTrue($model->getSerialization()->getSettings()->hasValue('database'));
 	}

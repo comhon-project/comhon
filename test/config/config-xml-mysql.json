@@ -2,13 +2,13 @@
   "manifest_format": "xml",
   "autoload": {
     "manifest":{
-      "Test":"../manifests/manifest"
+      "Test":"../manifests/test/manifest"
     },
     "serialization":{
-      "Test":"../manifests/serialization"
+      "Test":"../manifests/test/serialization"
     },
     "options":{
-      "Test":"../manifests/options"
+      "Test":"../manifests/test/options"
     }
   },
   "request_collection_limit":20,

@@ -1,8 +1,0 @@
-<root name="Test\Body\Man" is_serializable="1" version="3.0">
-  <extends>
-    <type>\Test\Body</type>
-  </extends>
-  <properties>
-    <property name="baldness" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-  </properties>
-</root>

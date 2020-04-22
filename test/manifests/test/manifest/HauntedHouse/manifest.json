@@ -1,0 +1,18 @@
+{
+    "name": "Test\\HauntedHouse",
+    "extends": [
+        "\\Test\\House"
+    ],
+    "is_serializable": true,
+    "properties": [
+        {
+            "name": "ghosts",
+            "values": {
+                "name": "ghost",
+                "__inheritance__": "Comhon\\Manifest\\Value\\String"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+        }
+    ],
+    "version": "3.0"
+}

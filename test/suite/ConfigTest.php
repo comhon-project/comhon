@@ -93,13 +93,13 @@ class ConfigTest extends TestCase
     "date_time_format": "c",
     "autoload": {
         "manifest": {
-            "Test": "..\/manifests\/manifest"
+            "Test": "..\/manifests\/test\/manifest"
         },
         "serialization": {
-            "Test": "..\/manifests\/serialization_pgsql"
+            "Test": "..\/manifests\/test\/serialization_pgsql"
         },
         "options": {
-            "Test": "..\/manifests\/options"
+            "Test": "..\/manifests\/test\/options"
         }
     },
     "regex_list": ".\/regex.json",

@@ -37,10 +37,9 @@ class LoadingModelTest extends TestCase
 	{
 		$this->expectException(ManifestException::class);
 		$this->expectExceptionMessage(
-			'manifest malformed :' . PHP_EOL
-			. "manifest file not found or malformed '"
+			"manifest file not found or malformed '"
 			. dirname(__DIR__)
-			. "/config/../manifests/manifest/Load/Malformed/manifest."
+			. "/config/../manifests/test/manifest/Load/Malformed/manifest."
 			. config::getInstance()->getManifestFormat() 
 			. "'"
 		);

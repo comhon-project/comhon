@@ -74,7 +74,7 @@ if (json_encode(array_keys($womanBodyModel->getProperties())) !== '["id","date",
 	throw new \Exception('bad model properties '.json_encode(array_keys($womanBodyModel->getProperties())));
 }
 $bodyModel = ModelManager::getInstance()->getInstanceModel('Test\Body');
-if (json_encode(array_keys($bodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts","owner"]') {
+if (json_encode(array_keys($bodyModel->getProperties())) !== '["id","date","height","weight","hairColor","hairCut","eyesColor","physicalAppearance","tatoos","piercings","arts"]') {
 	throw new \Exception('bad model properties');
 }
 if ($bodyModel->getProperty('hairColor') !== $womanBodyModel->getProperty('hairColor')) {

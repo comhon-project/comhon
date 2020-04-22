@@ -61,10 +61,10 @@ class InheritedSerializationTest extends TestCase
 		$this->assertEquals('grand_parent', $model->getSerialization()->getInheritanceKey());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentOne\Child');
-		$this->assertEquals('child_one', $model->getSerialization()->getInheritanceKey());
+		$this->assertEquals('grand_parent', $model->getSerialization()->getInheritanceKey());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentTwo\Child');
-		$this->assertEquals(null, $model->getSerialization()->getInheritanceKey());
+		$this->assertEquals('grand_parent', $model->getSerialization()->getInheritanceKey());
 	}
 	
 	public function testSerializationAllowed()

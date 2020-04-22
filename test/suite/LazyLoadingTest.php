@@ -31,9 +31,11 @@ class LazyLoadingTest extends TestCase
 		$personModel = ModelManager::getInstance()->getInstanceModel('Test\Person');
 		$person = $personModel->getObjectInstance();
 		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Place'));
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Home'));
 		
 		$person->fill($interfacedObject, $interfacer);
 		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Place'));
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Home'));
 		
 		foreach ($verifValues as $propertyName) {
 			$this->assertTrue($person->hasValue($propertyName));
@@ -41,6 +43,7 @@ class LazyLoadingTest extends TestCase
 		
 		$person->export($interfacer);
 		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Place'));
+		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Home'));
 	}
 	
 	public function lazyLoadingData() {

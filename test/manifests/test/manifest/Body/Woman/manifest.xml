@@ -1,0 +1,9 @@
+<root name="Test\Body\Woman" is_serializable="1" version="3.0">
+  <extends>
+    <type>\Test\Body</type>
+  </extends>
+  <properties>
+    <property name="owner" model="\Test\Person\Woman" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="chestSize" __inheritance__="Comhon\Manifest\Property\String"/>
+  </properties>
+</root>
