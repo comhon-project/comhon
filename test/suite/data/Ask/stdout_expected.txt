@@ -1,0 +1,184 @@
+0 - how are you ? 
+> 1 - how are you ? (default : i'm ok !)
+> 2 - how are you ? (default : not find !)
+> 3 - are you ok ? [yes/no]
+> [41mInvalid response[0m
+3 - are you ok ? [yes/no]
+> [41mInvalid response[0m
+3 - are you ok ? [yes/no]
+> 4 - are you ok ? [yes/no]
+> 5 - are you ok ? [yes/no/perhaps]
+> 6 - are you ok ? [(yes)/no]
+> 7 - are you ok ? [yes/(no)]
+> [41mInvalid response[0m
+7 - are you ok ? [yes/(no)]
+> 8 - are you ok ? [(yes)/no]
+> 9 - are you ok ? [yes/(no)]
+> [41mInvalid response[0m
+9 - are you ok ? [yes/(no)]
+> 10 - are you ok ? 
+  0: yes
+  1: no
+> [41mInvalid response[0m
+10 - are you ok ? 
+  0: yes
+  1: no
+> [41mInvalid response[0m
+10 - are you ok ? 
+  0: yes
+  1: no
+> 11 - are you ok ? 
+  0: yes
+  1: no
+> 12 - are you ok ? 
+  0: yes
+  1: no
+  2: perhaps
+> 13 - are you ok ? 
+  (0): yes
+  1: no
+> 14 - are you ok ? 
+  0: yes
+  (1): no
+> [41mInvalid response[0m
+14 - are you ok ? 
+  0: yes
+  (1): no
+> 15 - are you ok ? 
+  (0): yes
+  1: no
+> 16 - are you ok ? 
+  0: yes
+  (1): no
+> [41mInvalid response[0m
+16 - are you ok ? 
+  0: yes
+  (1): no
+> 17 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  1: -4
+  2: 4
+> [41mInvalid response[0m
+17 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  1: -4
+  2: 4
+> [41mInvalid response[0m
+17 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  1: -4
+  2: 4
+> [41mInvalid response[0m
+17 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  1: -4
+  2: 4
+> [41mInvalid response[0m
+17 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  1: -4
+  2: 4
+> [41mInvalid response[0m
+17 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  1: -4
+  2: 4
+> 18 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  1: -4
+  2: 4
+> 19 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  1: -4
+  2: 4
+> 20 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  (0): 0
+  1: -4
+  2: 4
+> 21 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  (1): -4
+  (2): 4
+> [41mInvalid response[0m
+21 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  (1): -4
+  (2): 4
+> 22 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  (0): 0
+  1: -4
+  2: 4
+> 23 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  (1): -4
+  (2): 4
+> [41mInvalid response[0m
+23 - resolve equation x^2 = 16 ? 
+you can type several responses in one time by separating them with commas.
+  0: 0
+  (1): -4
+  (2): 4
+> 24 - which comhon model would you process ? 
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+ - /^Test.+House$/
+> [41mInvalid response[0m
+24 - which comhon model would you process ? 
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+ - /^Test.+House$/
+> [41mInvalid response[0m
+24 - which comhon model would you process ? 
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+ - /^Test.+House$/
+> [41mInvalid response[0m
+24 - which comhon model would you process ? 
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+ - /^Test.+House$/
+> 25 - which comhon model would you process ? 
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+> 26 - which comhon model would you process ? 
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+ - /^Test.+House$/
+> 27 - which comhon model would you process ? 
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+ - /^Test.+Person$/
+> 28 - which comhon model would you process ? (default : Test\House)
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+> 29 - which comhon model would you process ? (default : Test\Person)
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+> [41mInvalid response[0m
+29 - which comhon model would you process ? (default : Test\Person)
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+> 30 - which comhon model would you process ? (default : Test\House)
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+> 31 - which comhon model would you process ? (default : Test\Person)
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+> [41mInvalid response[0m
+31 - which comhon model would you process ? (default : Test\Person)
+response must match with at least one of following regular expressions : 
+ - /^\w+(\\\w+)*$/
+> 

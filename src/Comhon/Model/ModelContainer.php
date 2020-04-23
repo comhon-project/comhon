@@ -44,12 +44,11 @@ abstract class ModelContainer extends ModelComplex {
 	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
 	 */
 	public function getUniqueModel() {
-		$uniqueModel = $this->model;
-		while ($uniqueModel instanceof ModelContainer) {
-			$uniqueModel = $uniqueModel->getModel();
+		$model = $this->getModel();
+		while ($model instanceof ModelContainer) {
+			$model = $model->getModel();
 		}
-		$uniqueModel->load();
-		return $uniqueModel;
+		return $model;
 	}
 	
 	/**

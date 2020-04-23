@@ -1,0 +1,52 @@
+find !
+
+find and you ?
+/////////////////////
+
+yes
+yes
+perhaps
+
+not valid
+
+no
+not valid
+yes
+/////////////////////
+
+0
+0
+2
+
+not valid
+
+1
+not valid
+0
+/////////////////////
+
+1,5
+1,2,
+1,,2
+0
+0
+1,2
+
+not valid
+
+1,2
+not valid
+0
+/////////////////////
+
+Test-Person
+Test\House
+Test\House
+Test\Person
+Test\Person
+
+not valid
+
+Test\Person
+not valid
+Test\House

@@ -1,0 +1,10 @@
+<root name="Sql\HauntedHouse" is_serializable="0" version="3.0">
+  <extends>
+    <type>\Sql\House</type>
+  </extends>
+  <properties>
+    <property name="ghosts" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="ghost" __inheritance__="Comhon\Manifest\Value\String"/>
+    </property>
+  </properties>
+</root>

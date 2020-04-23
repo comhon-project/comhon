@@ -1,0 +1,9 @@
+<root name="Sql\Body\Woman" is_serializable="1" version="3.0">
+  <extends>
+    <type>\Sql\Body</type>
+  </extends>
+  <properties>
+    <property name="owner" model="\Sql\Person\Woman" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="chestSize" __inheritance__="Comhon\Manifest\Property\String"/>
+  </properties>
+</root>

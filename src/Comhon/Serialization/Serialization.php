@@ -28,9 +28,6 @@ final class Serialization {
 	/** @var \Comhon\Serialization\SerializationUnit */
 	private $serializationUnit;
 	
-	/** @var string */
-	private $allowSerialization;
-	
 	/** @var string[] */
 	private $inheritanceValues;
 	
@@ -39,10 +36,9 @@ final class Serialization {
 	 * @param UniqueObject $settings
 	 * @param string $serializationUnitClass
 	 * @param string $inheritanceKey
-	 * @param bool $allowSerialization
 	 * @param string[] $inheritanceValues
 	 */
-	private function __construct(UniqueObject $settings = null, $serializationUnitClass = null, $inheritanceKey = null, $allowSerialization = true, $inheritanceValues = null) {
+	private function __construct(UniqueObject $settings = null, $serializationUnitClass = null, $inheritanceKey = null, $inheritanceValues = null) {
 		$this->settings = $settings;
 		$this->inheritanceKey = $inheritanceKey;
 		
@@ -68,28 +64,25 @@ final class Serialization {
 			}
 			$this->serializationUnitClass = $serializationUnitClass;
 		}
-		$this->allowSerialization = $allowSerialization;
 		$this->inheritanceValues = $inheritanceValues;
 	}
 	/**
 	 *
 	 * @param UniqueObject $settings
 	 * @param string $inheritanceKey
-	 * @param bool $allowSerialization
 	 * @param string[] $inheritanceValues
 	 */
-	public static function getInstanceWithSettings(UniqueObject $settings, $inheritanceKey = null, $allowSerialization = true, $inheritanceValues = null) {
-		return new self($settings, null, $inheritanceKey, $allowSerialization, $inheritanceValues);
+	public static function getInstanceWithSettings(UniqueObject $settings, $inheritanceKey = null, $inheritanceValues = null) {
+		return new self($settings, null, $inheritanceKey, $inheritanceValues);
 	}
 	/**
 	 *
 	 * @param string $serializationUnitClass must be a class that inherit from SerializationUnit
 	 * @param string $inheritanceKey
-	 * @param bool $allowSerialization
 	 * @param string[] $inheritanceValues
 	 */
-	public static function getInstanceWithUnitClass($serializationUnitClass, $inheritanceKey = null, $allowSerialization = true, $inheritanceValues = null) {
-		return new self(null, $serializationUnitClass, $inheritanceKey, $allowSerialization, $inheritanceValues);
+	public static function getInstanceWithUnitClass($serializationUnitClass, $inheritanceKey = null, $inheritanceValues = null) {
+		return new self(null, $serializationUnitClass, $inheritanceKey, $inheritanceValues);
 	}
 	
 	/**
@@ -117,16 +110,6 @@ final class Serialization {
 	 */
 	public function getInheritanceKey() {
 		return $this->inheritanceKey;
-	}
-	
-	/**
-	 * verify if serialization (save) is allowed.
-	 * deserialization (load) still available even if serialization is not allowed.
-	 *
-	 * @return string
-	 */
-	public function isSerializationAllowed() {
-		return $this->allowSerialization;
 	}
 	
 	/**

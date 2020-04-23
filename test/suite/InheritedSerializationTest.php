@@ -70,30 +70,30 @@ class InheritedSerializationTest extends TestCase
 	public function testSerializationAllowed()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent');
-		$this->assertTrue($model->getSerialization()->isSerializationAllowed());
+		$this->assertTrue($model->isSerializable());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentOne');
-		$this->assertFalse($model->getSerialization()->isSerializationAllowed());
+		$this->assertFalse($model->isSerializable());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentOne\Child');
-		$this->assertTrue($model->getSerialization()->isSerializationAllowed());
+		$this->assertTrue($model->isSerializable());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentTwo');
-		$this->assertTrue($model->getSerialization()->isSerializationAllowed());
+		$this->assertTrue($model->isSerializable());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentTwo\Child');
-		$this->assertTrue($model->getSerialization()->isSerializationAllowed());
+		$this->assertTrue($model->isSerializable());
 	}
 	
 	public function testLocalModelSerialization()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable');
-		$this->assertTrue($model->getSerialization()->isSerializationAllowed());
+		$this->assertTrue($model->isSerializable());
 		
 		$this->assertEquals('local_child_one', $model->getProperty('localChildOne')->getSerializationName());
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalNotSerializable');
-		$this->assertFalse($model->getSerialization()->isSerializationAllowed());
+		$this->assertFalse($model->isSerializable());
 	}
 	
 	public function testFirstSharedIdParentMatch()

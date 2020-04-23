@@ -71,6 +71,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var boolean */
 	private $isAbstract = true;
 	
+	/** @var boolean */
+	private $isFlagedAsSerializable = false;
+	
 	/** @var Serialization */
 	private $serialization = null;
 	
@@ -149,7 +152,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		try {
 			$this->isLoading = true;
 			if (is_null($this->manifestParser)) {
-				ModelManager::getInstance()->addManifestParser($this);
+				$localModels = ModelManager::getInstance()->addManifestParser($this);
 				if (is_null($this->manifestParser)) {
 					throw new NotDefinedModelException($this->getName());
 				}
@@ -161,6 +164,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$this->_setProperties($result[ModelManager::PROPERTIES]);
 			$this->serialization = $result[ModelManager::SERIALIZATION];
 			$this->isAbstract = $result[ModelManager::IS_ABSTRACT];
+			$this->isFlagedAsSerializable = $result[ModelManager::IS_SERIALIZABLE];
 			$this->_verifyIdSerialization();
 			
 			if (!is_null($result[ModelManager::OBJECT_CLASS]) && ($this->objectClass !== $result[ModelManager::OBJECT_CLASS])) {
@@ -205,6 +209,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$this->uniqueIdProperty = null;
 			$this->hasPrivateIdProperty = false;
 			$this->manifestParser = null;
+			
+			if (isset($localModels)) {
+				foreach ($localModels as $localModel) {
+					$localModel->manifestParser = null;
+				}
+			}
 			
 			throw $e;
 		}
@@ -364,6 +374,27 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
+	 * verify if model is flaged as serialisable.
+	 * Warning! this function doesn't verify if model is actually serializable.
+	 * to verify if model is serializable, you have to call self::isSerialisable.
+	 *
+	 * @return string
+	 */
+	public function isFlagedAsSerializable() {
+		return $this->isFlagedAsSerializable;
+	}
+	
+	/**
+	 * verify if serialization (save) is allowed.
+	 * deserialization (load) still available even if serialization is not allowed.
+	 *
+	 * @return string
+	 */
+	public function isSerializable() {
+		return $this->isFlagedAsSerializable && $this->hasSerialization();
+	}
+	
+	/**
 	 * get model that share id with current model.
 	 * if a model is return it is inevitably a parent of current model. 
 	 * it may be the direct parent or the parent of parent, etc...
@@ -439,7 +470,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				continue;
 			}
 			if (!is_null($isSerializable)) {
-				if ((!is_null($parentSerialization) && $parentSerialization->isSerializationAllowed()) !== $isSerializable) {
+				if ($model->isSerializable() !== $isSerializable) {
 					continue;
 				}
 			}
@@ -944,6 +975,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @return \Comhon\Object\UniqueObject|null null if load is unsuccessfull
 	 */
 	public function loadObject($id, $propertiesFilter = null, $forceLoad = false) {
+		if (is_null($id)) {
+			return null;
+		}
 		if (is_null($this->getSerialization())) {
 			throw new ComhonException("model {$this->getName()} doesn't have serialization");
 		}

@@ -1,0 +1,12 @@
+<root name="Sql\House" is_serializable="1" version="3.0">
+  <properties>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="surface" __inheritance__="Comhon\Manifest\Property\Float"/>
+    <property name="type" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="garden" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="garage" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="residents" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="resident" model="\Sql\Home" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    </property>
+  </properties>
+</root>

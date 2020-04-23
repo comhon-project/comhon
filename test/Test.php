@@ -451,9 +451,15 @@ try {
 
 // TODO for version > 3.0
 
-// verify options manifest overdire
-
+// use id different than table name for sql table (may have same table name but with different database)
+// new name space for invalid manifest and manifest v2
 // docker
+// latest : override Comhon options to allow manifest creation
+// latest : allow namespace prefix creation
+// latest : create sql table when create manifest
+// sample : put "Sample" folder for manifest and serialization
+
+// add autoload without prefix namespace ?
 // add patch method
 // manifest, serialization validator
 // add selectquery select count(*) on query and func(*) on table

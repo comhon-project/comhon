@@ -1,0 +1,18 @@
+<root name="Sql\MainTestDb" is_serializable="1" version="3.0">
+  <properties>
+    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="obj" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="childTestDb" model="\Sql\TestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    </property>
+  </properties>
+  <types>
+    <type name="Object">
+      <properties>
+        <property name="plop" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
+      </properties>
+    </type>
+  </types>
+</root>

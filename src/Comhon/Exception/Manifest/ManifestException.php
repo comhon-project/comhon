@@ -21,7 +21,7 @@ class ManifestException extends ComhonException {
 	 * @param string $value
 	 */
 	public function __construct($message) {
-		parent::__construct("manifest malformed :\n" . $message, ConstantException::MANIFEST_EXCEPTION);
+		parent::__construct($message, ConstantException::MANIFEST_EXCEPTION);
 	}
 	
 }

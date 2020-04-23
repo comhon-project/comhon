@@ -143,7 +143,7 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 		if (!file_exists($path)) {
 			return 0;
 		}
-		if (!Utils::delTree(dirname($path))) {
+		if (!Utils::deleteDirectory(dirname($path))) {
 			$id = $object->getId();
 			throw new SerializationException("Cannot delete object '{$object->getModel()->getName()}' with id '$id', failure when try to delete folder '".dirname($path)."'");
 		}

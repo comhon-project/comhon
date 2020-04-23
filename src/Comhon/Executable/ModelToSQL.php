@@ -13,6 +13,12 @@ $optionsDescription = [
 		'required' => true,
 		'description' => 'path to output folder',
 	],
+	'input' => [
+		'short' => 'i',
+		'long' => 'input',
+		'has_value' => true,
+		'description' => 'path to a folder to filter manifest to process',
+	],
 	'config' => [
 		'short' => 'x',
 		'long' => 'config',
@@ -58,5 +64,6 @@ ModelToSQL::exec(
 	$optionManager->getOption('output'),
 	$optionManager->getOption('config'),
 	$optionManager->getOption('case'),
-	$optionManager->getOption('database')
+	$optionManager->getOption('database'),
+	$optionManager->getOption('input')
 );

@@ -1,0 +1,20 @@
+{
+    "name": "Sql\\Person\\Man",
+    "extends": [
+        "\\Sql\\Person"
+    ],
+    "is_serializable": true,
+    "properties": [
+        {
+            "name": "bodies",
+            "values": {
+                "name": "body",
+                "model": "\\Sql\\Body\\Man",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+        }
+    ],
+    "version": "3.0"
+}

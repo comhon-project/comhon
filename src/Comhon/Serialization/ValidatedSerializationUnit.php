@@ -49,7 +49,7 @@ abstract class ValidatedSerializationUnit extends SerializationUnit {
 	 */
 	public final function saveObject(UniqueObject $object, $operation = null) {
 		$this->validateSerialization($object);
-		if (!$object->getModel()->getSerialization()->isSerializationAllowed()) {
+		if (!$object->getModel()->isSerializable()) {
 			throw new SerializationException("object with model '{$object->getModel()->getName()}' doesn't have serialization allowed");
 		}
 		if (!is_null($operation) && ($operation !== self::CREATE) && ($operation !== self::UPDATE)) {
@@ -77,7 +77,7 @@ abstract class ValidatedSerializationUnit extends SerializationUnit {
 	 */
 	public final function deleteObject(UniqueObject $object) {
 		$this->validateSerialization($object);
-		if (!$object->getModel()->getSerialization()->isSerializationAllowed()) {
+		if (!$object->getModel()->isSerializable()) {
 			throw new SerializationException("object with model '{$object->getModel()->getName()}' doesn't have serialization allowed");
 		}
 		return $this->_deleteObject($object);

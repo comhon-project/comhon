@@ -2,10 +2,12 @@
   "manifest_format": "xml",
   "autoload": {
     "manifest":{
-      "Test":"../manifests/test/manifest"
+      "Test":"../manifests/test/manifest",
+      "Sql":"../manifests/sql/manifest"
     },
     "serialization":{
-      "Test":"../manifests/test/serialization"
+      "Test":"../manifests/test/serialization",
+      "Sql":"../manifests/sql/serialization"
     },
     "options":{
       "Test":"../manifests/test/options"

@@ -1,0 +1,10 @@
+<root name="Sql\Person\Woman" object_class="\Sql\Comhon\Object\Woman" is_serializable="1" version="3.0">
+  <extends>
+    <type>\Sql\Person</type>
+  </extends>
+  <properties>
+    <property name="bodies" __inheritance__="Comhon\Manifest\Property\Array">
+      <values name="body" model="\Sql\Body\Woman" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    </property>
+  </properties>
+</root>

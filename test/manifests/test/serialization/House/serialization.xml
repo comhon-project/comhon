@@ -1,5 +1,5 @@
 <root name="Test\House" version="3.0">
-  <serialization>
+  <serialization inheritance_key="__inheritance__">
     <foreign_settings id="house" __inheritance__="Comhon\SqlTable"/>
   </serialization>
   <properties>

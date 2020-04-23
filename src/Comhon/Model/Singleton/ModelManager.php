@@ -55,6 +55,9 @@ class ModelManager {
 	const IS_ABSTRACT = 'is_abstract';
 	
 	/** @var string */
+	const IS_SERIALIZABLE = 'is_serializable';
+	
+	/** @var string */
 	const SHARED_ID_MODEL = 'shared_id_model';
 	
 	/** @var string */
@@ -72,6 +75,11 @@ class ModelManager {
 	 * @var \Comhon\Model\SimpleModel[] map that contain all simple model instances
 	 */
 	private $instanceSimpleModels;
+	
+	/**
+	 * @var string[] map that contain all local types indexed by model name (model defined in manifest)
+	 */
+	private $localTypes;
 	
 	/**
 	 * @var string
@@ -239,8 +247,19 @@ class ModelManager {
 	}
 	
 	/**
+	 * get local types defined in manifest of given model name
+	 *
+	 * @return string[]
+	 */
+	public function getLocalTypes($modelName) {
+		// ensure that model is loaded
+		$this->getInstanceModel($modelName);
+		return array_key_exists($modelName, $this->localTypes) ? $this->localTypes[$modelName] : [];
+	}
+	
+	/**
 	 * get model instance
-	 * 
+	 *
 	 * @param string $modelName fully qualified name of wanted model
 	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
 	 */
@@ -332,6 +351,7 @@ class ModelManager {
 	 * add manifest parser to specified model
 	 * 
 	 * @param \Comhon\Model\Model $model
+	 * @return \Comhon\Model\Model[] models from local types
 	 */
 	public function addManifestParser(Model $model) {
 		$fullyQualifiedName = $model->getName();
@@ -372,8 +392,9 @@ class ModelManager {
 		if ($mainModel !== $model && !array_key_exists($model->getName(), $localTypeManifestParsers)) {
 			throw new NotDefinedModelException($model->getName());
 		}
+		$this->localTypes[$mainModel->getName()] = array_keys($localTypeManifestParsers);
 		$mainModel->setManifestParser($manifestParser);
-		$this->_instanciateLocalModels($localTypeManifestParsers);
+		return $this->_instanciateLocalModels($localTypeManifestParsers);
 	}
 	
 	/**
@@ -439,13 +460,13 @@ class ModelManager {
 			$properties = [
 				self::OBJECT_CLASS => $manifestParser->getObjectClass(),
 				self::IS_ABSTRACT => $manifestParser->isAbstract(),
+				self::IS_SERIALIZABLE => $manifestParser->isSerializable(),
 				self::PROPERTIES => $this->_buildProperties($parentModels, $model, $manifestParser),
 				self::CONFLICTS => $manifestParser->getconflicts(),
 			];
 			$properties[self::SERIALIZATION] = $this->_getSerializationInstance(
 				$manifestParser, 
 				$manifestParser->getSerializationManifestParser(), 
-				$manifestParser->isSerializable(), 
 				$parentModels
 			);
 			$properties[self::SHARED_ID_MODEL] = $this->_getSharedIdModel($model, $manifestParser, $properties[self::SERIALIZATION], $parentModels); 
@@ -469,8 +490,10 @@ class ModelManager {
 	 * instanciate models according given local manifest parsers
 	 * 
 	 * @param array $localTypeManifestParsers
+	 * @return \Comhon\Model\Model[] models from local types
 	 */
 	private function _instanciateLocalModels($localTypeManifestParsers) {
+		$models = [];
 		foreach ($localTypeManifestParsers as $modelName => $localManifestParser) {
 			$model = $this->_getInstanceModel($modelName, false);
 			if (!$model->isLoaded()) {
@@ -479,7 +502,9 @@ class ModelManager {
 				}
 				$model->setManifestParser($localManifestParser);
 			}
+			$models[] = $model;
 		}
+		return $models;
 	}
 	
 	/**
@@ -565,11 +590,10 @@ class ModelManager {
 	 * 
 	 * @param \Comhon\Manifest\Parser\ManifestParser $manifestParser
 	 * @param \Comhon\Manifest\Parser\SerializationManifestParser $serializationManifestParser
-	 * @param bool $isSerializable
 	 * @param \Comhon\Model\Model[] $parentModels
 	 * @return \Comhon\Serialization\Serialization|null null if no serialization
 	 */
-	private function _getSerializationInstance(ManifestParser $manifestParser, SerializationManifestParser $serializationManifestParser = null, $isSerializable = false, array $parentModels = []) {
+	private function _getSerializationInstance(ManifestParser $manifestParser, SerializationManifestParser $serializationManifestParser = null, array $parentModels = []) {
 		$serializationSettings = null;
 		$serializationUnitClass = null;
 		$inheritanceKey = null;
@@ -587,14 +611,12 @@ class ModelManager {
 			$serialization = Serialization::getInstanceWithSettings(
 				$this->getUniqueSerializationSettings($serializationSettings, $parentModel), 
 				$inheritanceKey, 
-				$isSerializable, 
 				$inheritanceValues
 			);
 		} elseif (!is_null($serializationUnitClass)) {
 			$serialization = Serialization::getInstanceWithUnitClass(
 				$serializationUnitClass,
 				$inheritanceKey,
-				$isSerializable,
 				$inheritanceValues
 			);
 		} elseif (!is_null($parentModel) && !is_null($parentModel->getSerialization())) {
@@ -602,14 +624,12 @@ class ModelManager {
 				$serialization = Serialization::getInstanceWithSettings(
 					$parentModel->getSerialization()->getSettings(),
 					$parentModel->getSerialization()->getInheritanceKey(), 
-					$isSerializable,
 					$inheritanceValues
 				);
 			} elseif (!is_null($serializationUnitClass)) {
 				$serialization = Serialization::getInstanceWithUnitClass(
 					$parentModel->getSerialization()->getSerializationUnitClass(),
 					$parentModel->getSerialization()->getInheritanceKey(), 
-					$isSerializable,
 					$inheritanceValues
 				);
 			}
@@ -688,10 +708,17 @@ class ModelManager {
 		
 		if (!is_null($serialization)) {
 			$tempParent = $parentModel;
-			while (!is_null($tempParent) && (is_null($tempParent->getSerialization()) || $tempParent->getSerialization()->getSettings() !== $serialization->getSettings())) {
+			while (!is_null($tempParent) && (!$tempParent->hasSerialization() || $tempParent->getSerialization()->getSettings() !== $serialization->getSettings())) {
 				$tempParent = $tempParent->getParent();
 			}
 			if (!is_null($tempParent)) {
+				if ($serialization->getInheritanceKey() !== $tempParent->getSerialization()->getInheritanceKey()) {
+					throw new ComhonException(
+						"conflict on inheritance keys '{$serialization->getInheritanceKey()}' and '{$tempParent->getSerialization()->getInheritanceKey()}' "
+						."on models {$model->getName()} and {$tempParent->getName()}. "
+						.'inherited model with same serialization than parent model must have same inheritance key than parent model'
+					);
+				}
 				$sharedIdModel = ObjectCollection::getModelKey($tempParent);
 			}
 		}

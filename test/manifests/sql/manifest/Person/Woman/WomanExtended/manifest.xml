@@ -1,0 +1,8 @@
+<root name="Sql\Person\Woman\WomanExtended" is_serializable="1" version="3.0">
+  <extends>
+    <type>\Sql\Person\Woman</type>
+  </extends>
+  <properties>
+    <property name="aProperty" __inheritance__="Comhon\Manifest\Property\String"/>
+  </properties>
+</root>

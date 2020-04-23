@@ -1,0 +1,15 @@
+{
+    "name": "Sql\\TestNoId",
+    "is_serializable": true,
+    "properties": [
+        {
+            "name": "name",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "value",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0"
+}

@@ -1,0 +1,18 @@
+{
+    "name": "Sql\\HauntedHouse",
+    "extends": [
+        "\\Sql\\House"
+    ],
+    "is_serializable": false,
+    "properties": [
+        {
+            "name": "ghosts",
+            "values": {
+                "name": "ghost",
+                "__inheritance__": "Comhon\\Manifest\\Value\\String"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+        }
+    ],
+    "version": "3.0"
+}

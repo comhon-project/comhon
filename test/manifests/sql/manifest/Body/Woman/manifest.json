@@ -1,0 +1,20 @@
+{
+    "name": "Sql\\Body\\Woman",
+    "extends": [
+        "\\Sql\\Body"
+    ],
+    "is_serializable": true,
+    "properties": [
+        {
+            "name": "owner",
+            "model": "\\Sql\\Person\\Woman",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "chestSize",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0"
+}

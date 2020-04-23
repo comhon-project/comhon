@@ -1,0 +1,73 @@
+{
+    "name": "Sql\\Person",
+    "object_class": "\\Sql\\Comhon\\Object\\Person",
+    "is_serializable": true,
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "firstName",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "lastName",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "birthDate",
+            "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
+        },
+        {
+            "name": "birthPlace",
+            "model": "\\Sql\\Place",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "bestFriend",
+            "model": "\\Sql\\Person",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "father",
+            "model": "\\Sql\\Person\\Man",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "mother",
+            "model": "\\Sql\\Person\\Woman",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "children",
+            "values": {
+                "name": "child",
+                "model": "\\Sql\\Person",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+        },
+        {
+            "name": "homes",
+            "values": {
+                "name": "home",
+                "model": "\\Sql\\Home",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+        }
+    ],
+    "version": "3.0",
+    "inheritance_requestables": [
+        "\\Sql\\Person\\Man",
+        "\\Sql\\Person\\Woman"
+    ]
+}

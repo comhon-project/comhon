@@ -1,0 +1,44 @@
+{
+    "name": "Sql\\Place",
+    "is_serializable": true,
+    "properties": [
+        {
+            "name": "id",
+            "is_id": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "number",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+        },
+        {
+            "name": "type",
+            "enum": [
+                "street",
+                "avenue",
+                "boulevard",
+                "square"
+            ],
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "name",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "geographicLatitude",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+        },
+        {
+            "name": "geographicLongitude",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+        },
+        {
+            "name": "town",
+            "model": "\\Sql\\Town",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        }
+    ],
+    "version": "3.0"
+}
