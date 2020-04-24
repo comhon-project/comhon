@@ -3,7 +3,6 @@
     "extends": [
         "\\Sql\\House"
     ],
-    "is_serializable": false,
     "properties": [
         {
             "name": "ghosts",

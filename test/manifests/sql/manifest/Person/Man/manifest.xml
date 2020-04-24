@@ -1,4 +1,4 @@
-<root name="Sql\Person\Man" is_serializable="1" version="3.0">
+<root name="Sql\Person\Man" version="3.0">
   <extends>
     <type>\Sql\Person</type>
   </extends>

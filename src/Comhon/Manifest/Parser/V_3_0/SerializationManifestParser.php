@@ -28,6 +28,18 @@ class SerializationManifestParser extends \Comhon\Manifest\Parser\V_2_0\Serializ
 	/** @var string */
 	const INHERITANCE_KEY = 'inheritance_key';
 	
+	/** @var string */
+	const SHARE_PARENT_SERIALIZATION = 'share_parent_serialization';
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::shareParentSerialization()
+	 */
+	public function shareParentSerialization() {
+		return $this->_getBooleanValue($this->manifest, self::SHARE_PARENT_SERIALIZATION, true);
+	}
+	
 	/**
 	 * 
 	 * {@inheritDoc}
@@ -36,19 +48,19 @@ class SerializationManifestParser extends \Comhon\Manifest\Parser\V_2_0\Serializ
 	protected function _buildSerializationSettings($serializationNode) {
 		if ($this->interfacer->hasValue($serializationNode, 'settings', true)) {
 			$model = ModelManager::getInstance()->getInstanceModel('Comhon\Root');
-			$serialization = $model->import(
+			$serializationSettings = $model->import(
 				$this->interfacer->getValue($serializationNode, 'settings', true),
 				$this->interfacer
 			);
 		} elseif ($this->interfacer->hasValue($serializationNode, 'foreign_settings', true)) {
 			$model = ModelManager::getInstance()->getInstanceModel('Comhon\Root');
 			$foreignModel = new ModelForeign($model);
-			$serialization = $foreignModel->import(
+			$serializationSettings = $foreignModel->import(
 				$this->interfacer->getValue($serializationNode, 'foreign_settings', true),
 				$this->interfacer
 			);
-			$serialization->load();
-			if (!$serialization->isLoaded()) {
+			$serializationSettings->load();
+			if (!$serializationSettings->isLoaded()) {
 				$node = $this->interfacer->getValue($serializationNode, 'foreign_settings', true);
 				$id = $this->interfacer->getValue($node, Interfacer::COMPLEX_ID_KEY);
 				$modelName = $this->interfacer->getValue($node, Interfacer::INHERITANCE_KEY);
@@ -57,9 +69,9 @@ class SerializationManifestParser extends \Comhon\Manifest\Parser\V_2_0\Serializ
 		} elseif (!$this->interfacer->hasValue($serializationNode, static::UNIT_CLASS)) {
 			throw new ManifestException('malformed serialization');
 		} else {
-			$serialization = null;
+			$serializationSettings = null;
 		}
-		return $serialization;
+		return $serializationSettings;
 	}
 	
 }

@@ -1,6 +1,5 @@
 {
     "name": "Sql\\House",
-    "is_serializable": true,
     "properties": [
         {
             "name": "id",

@@ -1,4 +1,4 @@
-<root name="Test\Extends\Loop\LoopOne" is_serializable="1" version="3.0">
+<root name="Test\Extends\Loop\LoopOne" version="3.0">
   <extends>
     <type>\Test\Extends\Loop\LoopTwo</type>
   </extends>

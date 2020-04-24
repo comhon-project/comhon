@@ -72,9 +72,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var boolean */
 	private $isAbstract = true;
 	
-	/** @var boolean */
-	private $isFlagedAsSerializable = false;
-	
 	/** @var Serialization */
 	private $serialization = null;
 	
@@ -165,7 +162,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$this->_setProperties($result[ModelManager::PROPERTIES]);
 			$this->serialization = $result[ModelManager::SERIALIZATION];
 			$this->isAbstract = $result[ModelManager::IS_ABSTRACT];
-			$this->isFlagedAsSerializable = $result[ModelManager::IS_SERIALIZABLE];
 			$this->_verifyIdSerialization();
 			
 			if (!is_null($result[ModelManager::OBJECT_CLASS]) && ($this->objectClass !== $result[ModelManager::OBJECT_CLASS])) {
@@ -375,27 +371,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * verify if model is flaged as serialisable.
-	 * Warning! this function doesn't verify if model is actually serializable.
-	 * to verify if model is serializable, you have to call self::isSerialisable.
-	 *
-	 * @return string
-	 */
-	public function isFlagedAsSerializable() {
-		return $this->isFlagedAsSerializable;
-	}
-	
-	/**
-	 * verify if serialization (save) is allowed.
-	 * deserialization (load) still available even if serialization is not allowed.
-	 *
-	 * @return string
-	 */
-	public function isSerializable() {
-		return $this->isFlagedAsSerializable && $this->hasSerialization();
-	}
-	
-	/**
 	 * get model that share id with current model.
 	 * if a model is return it is inevitably a parent of current model. 
 	 * it may be the direct parent or the parent of parent, etc...
@@ -425,39 +400,36 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * get first shared id parent model that match with all specified parameters.
-	 * if a parameter is null, it is not taken in account in match.
+	 * get first shared id parent model found. search from direct parent two last parent.
 	 *
-	 * @param bool $sameSerializationSettings
-	 * @param bool $isSerializable
+	 * @param bool $sameSerializationSettings if provided and true, only look at parent model with same serialization,
+	 *                                        otherwise serialization is ignored
 	 * @return Model|null null if no parent model matches
 	 */
-	public function getFirstSharedIdParentMatch($sameSerializationSettings = null, $isSerializable = null) {
-		return $this->_getSharedIdParentMatch($sameSerializationSettings, $isSerializable, true);
+	public function getFirstSharedIdParentMatch($sameSerializationSettings = false) {
+		return $this->_getSharedIdParentMatch($sameSerializationSettings, true);
 	}
 	
 	/**
-	 * get last shared id parent model that match with all specified parameters.
-	 * if a parameter is null, it is not taken in account in match.
+	 * get last shared id parent model found. search from direct parent two last parent.
 	 *
-	 * @param bool $sameSerializationSettings
-	 * @param bool $isSerializable
+	 * @param bool $sameSerializationSettings if provided and true, only look at parent model with same serialization,
+	 *                                        otherwise serialization is ignored
 	 * @return Model|null null if no parent model matches
 	 */
-	public function getLastSharedIdParentMatch($sameSerializationSettings = null, $isSerializable = null) {
-		return $this->_getSharedIdParentMatch($sameSerializationSettings, $isSerializable, false);
+	public function getLastSharedIdParentMatch($sameSerializationSettings = null) {
+		return $this->_getSharedIdParentMatch($sameSerializationSettings, false);
 	}
 	
 	/**
-	 * get shared id model that match with all specified parameters.
-	 * if a parameter is null, it is not taken in account in match.
+	 * get first or last shared id parent model found. search from direct parent two last parent.
 	 * 
-	 * @param bool $sameSerializationSettings
-	 * @param bool $isSerializable
+	 * @param bool $sameSerializationSettings if provided and true, only look at parent model with same serialization,
+	 *                                        otherwise serialization is ignored
 	 * @param bool $first if true stop at first parent match otherwise coninue to last parent match
 	 * @return Model|null null if no parent model matches
 	 */
-	private function _getSharedIdParentMatch($sameSerializationSettings, $isSerializable, $first) {
+	private function _getSharedIdParentMatch($sameSerializationSettings, $first) {
 		$model = $this;
 		$parentMatch = null;
 		$serializationSettings = $this->getSerializationSettings();
@@ -470,16 +442,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			if (ObjectCollection::getModelKey($model) !== $shareIdModel) {
 				continue;
 			}
-			if (!is_null($isSerializable)) {
-				if ($model->isSerializable() !== $isSerializable) {
-					continue;
-				}
-			}
-			if (!is_null($sameSerializationSettings)) {
+			if ($sameSerializationSettings === true) {
 				$parentSerializationUnitClass = $parentSerialization ? $parentSerialization->getSerializationUnitClass() : null;
-				$same = $model->getSerializationSettings() === $serializationSettings 
-					&& $parentSerializationUnitClass === $serializationUnitClass;
-				if ($same !== $sameSerializationSettings) {
+				if (
+					$model->getSerializationSettings() !== $serializationSettings
+					|| $parentSerializationUnitClass !== $serializationUnitClass
+				) {
 					continue;
 				}
 			}

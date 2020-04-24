@@ -1,6 +1,5 @@
 {
     "name": "Test\\Town",
-    "is_serializable": true,
     "properties": [
         {
             "name": "id",

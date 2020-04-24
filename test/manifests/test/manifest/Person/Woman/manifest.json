@@ -4,7 +4,6 @@
         "\\Test\\Person"
     ],
     "object_class": "\\Test\\Comhon\\Object\\Woman",
-    "is_serializable": true,
     "properties": [
         {
             "name": "bodies",

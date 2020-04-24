@@ -1,4 +1,4 @@
-<root name="Test\GreatGrandParent\GrandParent\ParentOne\Child" is_serializable="1" version="3.0">
+<root name="Test\GreatGrandParent\GrandParent\ParentOne\Child" version="3.0">
   <extends>
     <type>\Test\GreatGrandParent\GrandParent\ParentOne</type>
   </extends>
@@ -6,7 +6,7 @@
     <property name="childOne" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
   <types>
-    <type name="ChildLocalSerializable" is_serializable="1">
+    <type name="ChildLocalSerializable">
       <extends>
         <type>\Test\GreatGrandParent\GrandParent\ParentOne\Child</type>
       </extends>
@@ -17,7 +17,7 @@
         <inheritance_requestable>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</inheritance_requestable>
       </inheritance_requestables>
     </type>
-    <type name="ChildLocalNotSerializable" is_serializable="0">
+    <type name="ChildLocalNotSerializable">
       <extends>
         <type>\Test\GreatGrandParent\GrandParent\ParentOne\Child</type>
       </extends>

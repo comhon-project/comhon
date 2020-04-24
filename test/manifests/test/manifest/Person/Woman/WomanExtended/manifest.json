@@ -3,6 +3,5 @@
     "extends": [
         "\\Test\\Person\\Woman"
     ],
-    "is_serializable": true,
     "version": "3.0"
 }

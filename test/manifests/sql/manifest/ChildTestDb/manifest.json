@@ -1,6 +1,5 @@
 {
     "name": "Sql\\ChildTestDb",
-    "is_serializable": true,
     "properties": [
         {
             "name": "id",

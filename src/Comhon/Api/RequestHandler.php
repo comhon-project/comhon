@@ -555,6 +555,9 @@ class RequestHandler {
 		if (count($this->resource) != 1) {
 			throw new ComhonException('unique id not verified or invalid options');
 		}
+		if ($this->requestedModel->isAbstract()) {
+			throw new MethodNotAllowedException('cannot create resource with abstract model');
+		}
 		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers);
 		$object = $this->_importBody($body, $this->requestedModel, $interfacer);
 		
@@ -591,6 +594,9 @@ class RequestHandler {
 	private function _put($headers, $body) {
 		if (is_null($this->uniqueResourceId) || count($this->resource) != 2) {
 			throw new ComhonException('unique id not verified or invalid options');
+		}
+		if ($this->requestedModel->isAbstract()) {
+			throw new MethodNotAllowedException('cannot update resource with abstract model');
 		}
 		$idPropertiesNames = array_keys($this->requestedModel->getIdProperties());
 		if (is_null($this->requestedModel->loadObject($this->uniqueResourceId, $idPropertiesNames, true))) {

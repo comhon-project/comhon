@@ -1,4 +1,4 @@
-<root name="Sql\HauntedHouse" is_serializable="0" version="3.0">
+<root name="Sql\HauntedHouse" version="3.0">
   <extends>
     <type>\Sql\House</type>
   </extends>

@@ -3,7 +3,6 @@
     "extends": [
         "\\Test\\House"
     ],
-    "is_serializable": true,
     "properties": [
         {
             "name": "ghosts",

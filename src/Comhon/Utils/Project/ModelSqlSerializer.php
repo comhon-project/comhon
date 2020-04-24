@@ -699,18 +699,7 @@ class ModelSqlSerializer {
 	 * @return boolean
 	 */
 	private function isInheritanceKeyNeeded($tableInfos, $modelsInfos) {
-		$count = 0;
-		if (count($tableInfos['modelNames']) < 2) {
-			return false;
-		} else {
-			foreach ($tableInfos['modelNames'] as $modelName) {
-				$model = ModelManager::getInstance()->getInstanceModel($modelName);
-				if ($model->isFlagedAsSerializable()) {
-					$count++;
-				}
-			}
-		}
-		return $count > 1;
+		return count($tableInfos['modelNames']) > 1;
 	}
 	
 	/**

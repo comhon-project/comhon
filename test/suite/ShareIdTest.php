@@ -47,7 +47,7 @@ class ShareIdTest extends TestCase
 		$this->assertSame($modelChildOne->getSharedIdModel(), $modelGrandParent);
 		$this->assertSame($modelParentOne->getSharedIdModel(), $modelGrandParent);
 		$this->assertSame($modelChildTwo->getSharedIdModel(), $modelGrandParent);
-		$this->assertSame($modelParentTwo->getSharedIdModel(), $modelGrandParent);
+		$this->assertNull($modelParentTwo->getSharedIdModel());
 		$this->assertSame($modelChildThree->getSharedIdModel(), $modelGrandParent);
 		$this->assertNull($modelParentThree->getSharedIdModel());
 		$this->assertNull($modelGrandParent->getSharedIdModel());

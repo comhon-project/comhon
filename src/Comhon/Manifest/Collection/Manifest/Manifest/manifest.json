@@ -1,6 +1,5 @@
 {
     "name": "Comhon\\Manifest",
-    "is_serializable": true,
     "extends": [
         "\\Comhon\\Manifest\\Local"
     ],
@@ -501,11 +500,6 @@
                     "not_null": true,
                     "regex": "\/^(\\\\\\w+)+$\/",
                     "__inheritance__": "Comhon\\Manifest\\Property\\String"
-                },
-                {
-                    "name": "is_serializable",
-                    "not_null": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
                 },
                 {
                     "name": "is_main",

@@ -1,6 +1,5 @@
 {
     "name": "Test\\Person\\WomanXml",
-    "is_serializable": true,
     "properties": [
         {
             "name": "id",

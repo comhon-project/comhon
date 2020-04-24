@@ -1,4 +1,4 @@
-<root name="Sql\Body\Woman" is_serializable="1" version="3.0">
+<root name="Sql\Body\Woman" version="3.0">
   <extends>
     <type>\Sql\Body</type>
   </extends>

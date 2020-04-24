@@ -1,4 +1,4 @@
-<root name="Test\GreatGrandParent\GrandParent" is_serializable="1" share_parent_id="1" version="3.0">
+<root name="Test\GreatGrandParent\GrandParent" share_parent_id="1" version="3.0">
   <extends>
     <type>\Test\GreatGrandParent</type>
   </extends>

@@ -1,4 +1,4 @@
-<root name="Test\LocatedHouse" is_serializable="1" version="3.0">
+<root name="Test\LocatedHouse" version="3.0">
   <properties>
     <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
     <property name="surface" __inheritance__="Comhon\Manifest\Property\Float"/>

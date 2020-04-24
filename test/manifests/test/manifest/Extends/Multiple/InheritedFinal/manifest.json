@@ -4,7 +4,6 @@
         "\\Test\\Extends\\Multiple\\InheritedTwo",
         "\\Test\\Extends\\Multiple\\InheritedFourth"
     ],
-    "is_serializable": false,
     "properties": [
         {
             "name": "final",

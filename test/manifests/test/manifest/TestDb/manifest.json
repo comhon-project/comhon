@@ -1,6 +1,5 @@
 {
     "name": "Test\\TestDb",
-    "is_serializable": true,
     "is_main": true,
     "properties": [
         {

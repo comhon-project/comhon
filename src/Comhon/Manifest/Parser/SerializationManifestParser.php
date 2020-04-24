@@ -16,6 +16,7 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Exception\Manifest\ManifestException;
+use Comhon\Interfacer\NoScalarTypedInterfacer;
 
 abstract class SerializationManifestParser {
 	
@@ -47,6 +48,9 @@ abstract class SerializationManifestParser {
 	
 	/** @var \Comhon\Interfacer\Interfacer */
 	protected $interfacer;
+	
+	/** @var boolean */
+	protected $castValues;
 
 	/**
 	 * get serialization informations of property
@@ -54,6 +58,13 @@ abstract class SerializationManifestParser {
 	 * @param string $propertyName
 	 */
 	abstract public function getPropertySerializationInfos($propertyName);
+	
+	/**
+	 * verify if serialization of parent model must be shared with current model
+	 *
+	 * @return \Comhon\Object\UniqueObject
+	 */
+	abstract public function shareParentSerialization();
 	
 	/**
 	 * get serialization settings
@@ -92,6 +103,25 @@ abstract class SerializationManifestParser {
 		
 		$this->interfacer->setSerialContext(true);
 		$this->interfacer->setPrivateContext(true);
+		$this->castValues = ($this->interfacer instanceof NoScalarTypedInterfacer);
+	}
+	
+	/**
+	 * get boolean value from serialization manifest (cast if necessary)
+	 *
+	 * @param mixed $node node
+	 * @param string $name value's name
+	 * @param boolean $defaultValue used if value not found
+	 * @return boolean
+	 */
+	protected function _getBooleanValue($node, $name, $defaultValue) {
+		return $this->interfacer->hasValue($node, $name)
+		? (
+				$this->castValues
+				? $this->interfacer->castValueToBoolean($this->interfacer->getValue($node, $name))
+				: $this->interfacer->getValue($node, $name)
+				)
+				: $defaultValue;
 	}
 	
 	/**

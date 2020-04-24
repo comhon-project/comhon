@@ -223,6 +223,8 @@ you can type several responses in one time by separating them with commas.
 > is property 'notLinkableArrayTestDb' serializable [(yes)/no]
 > is property 'notLinkableTestDb' serializable [(yes)/no]
 > is property 'notLinkableTestObjValue' serializable [(yes)/no]
+> [0;93mProcessing [1;33minheritance key[0;93m of model [1;33m'Sql\House'[0m
+Enter an inheritance key (for example if your sql table store persons (male and female), inheritance key would be "gender") (default : __inheritance__)
 > [0;93mProcessing [1;33minheritance key[0;93m of model [1;33m'Sql\Person'[0m
 Enter an inheritance key (for example if your sql table store persons (male and female), inheritance key would be "gender") (default : __inheritance__)
 > 

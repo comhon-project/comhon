@@ -1,4 +1,4 @@
-<root name="Comhon\Manifest" version="3.0" is_serializable="1">
+<root name="Comhon\Manifest" version="3.0">
   <extends>
     <type>\Comhon\Manifest\Local</type>
   </extends>
@@ -262,7 +262,6 @@
           <values name="type" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
         </property>
         <property name="object_class" not_null="1" regex="/^(\\\w+)+$/" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="is_serializable" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
         <property name="is_main" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
         <property name="share_parent_id" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
         <property name="shared_id" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>

@@ -1,4 +1,4 @@
-<root name="Comhon\SqlDatabase" is_serializable="1" version="3.0">
+<root name="Comhon\SqlDatabase" version="3.0">
   <properties>
     <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="DBMS" __inheritance__="Comhon\Manifest\Property\String"/>

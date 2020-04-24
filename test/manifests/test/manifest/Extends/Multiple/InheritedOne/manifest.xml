@@ -1,4 +1,4 @@
-<root name="Test\Extends\Multiple\InheritedOne" is_serializable="0" version="3.0">
+<root name="Test\Extends\Multiple\InheritedOne" version="3.0">
   <properties>
     <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
   </properties>

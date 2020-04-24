@@ -1,6 +1,5 @@
 {
     "name": "Test\\Extends\\Conflict",
-    "is_serializable": true,
     "properties": [
         {
             "name": "integerProperty",

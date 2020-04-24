@@ -86,6 +86,15 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	/**
 	 * 
 	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::shareParentSerialization()
+	 */
+	public function shareParentSerialization() {
+		return true;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getSerializationSettings()
 	 */
 	public function getSerializationSettings() {
@@ -104,23 +113,23 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	protected function _buildSerializationSettings($serializationNode) {
 		$type = $this->interfacer->getValue($serializationNode, 'type');
 		if ($this->interfacer->hasValue($serializationNode, 'value', true)) {
-			$serialization = ModelManager::getInstance()->getInstanceModel($type)->getObjectInstance();
-			$serialization->fill($this->interfacer->getValue($serializationNode, 'value', true), $this->interfacer);
+			$serializationSettings = ModelManager::getInstance()->getInstanceModel($type)->getObjectInstance();
+			$serializationSettings->fill($this->interfacer->getValue($serializationNode, 'value', true), $this->interfacer);
 		} elseif ($this->interfacer->hasValue($serializationNode, 'id')) {
 			$id = $this->interfacer->getValue($serializationNode, 'id');
 			if (empty($id)) {
 				throw new ManifestException('malformed serialization, must have description or id');
 			}
-			$serialization =  ModelManager::getInstance()->getInstanceModel($type)->loadObject($id);
-			if (is_null($serialization)) {
+			$serializationSettings =  ModelManager::getInstance()->getInstanceModel($type)->loadObject($id);
+			if (is_null($serializationSettings)) {
 				throw new SerializationManifestIdException($type, $id);
 			}
 		} elseif (!$this->interfacer->hasValue($serializationNode, static::UNIT_CLASS)) {
 			throw new ManifestException('malformed serialization');
 		} else {
-			$serialization = null;
+			$serializationSettings = null;
 		}
-		return $serialization;
+		return $serializationSettings;
 	}
 	
 	/**

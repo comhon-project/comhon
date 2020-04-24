@@ -40,9 +40,6 @@ abstract class ManifestParser {
 	const IS_MAIN         = 'is_main';
 	
 	/** @var string */
-	const IS_SERIALIZABLE = 'is_serializable';
-	
-	/** @var string */
 	const INHERITANCE_REQUESTABLES = 'inheritance_requestables';
 	
 	/** @var string */
@@ -153,14 +150,6 @@ abstract class ManifestParser {
 	 * @return boolean
 	 */
 	abstract public function isMain();
-	
-	/**
-	 * verify if manifest describe a serializable model.
-	 * a serializable model is automatically a main model
-	 *
-	 * @return boolean
-	 */
-	abstract public function isSerializable();
 	
 	/**
 	 * get extends model names

@@ -1,4 +1,4 @@
-<root name="Test\TestXml" is_serializable="1" version="3.0">
+<root name="Test\TestXml" version="3.0">
   <properties>
     <property name="name" xml="node" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="textNode" xml="node" __inheritance__="Comhon\Manifest\Property\String"/>

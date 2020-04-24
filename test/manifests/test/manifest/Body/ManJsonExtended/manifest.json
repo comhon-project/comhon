@@ -3,7 +3,6 @@
     "extends": [
         "\\Test\\Body\\ManJson"
     ],
-    "is_serializable": true,
     "properties": [
         {
             "name": "value",

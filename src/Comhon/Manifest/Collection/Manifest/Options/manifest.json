@@ -1,6 +1,5 @@
 {
     "name": "Comhon\\Options",
-    "is_serializable": true,
     "properties": [
         {
             "name": "name",

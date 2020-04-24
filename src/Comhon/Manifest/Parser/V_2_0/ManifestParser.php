@@ -68,15 +68,6 @@ class ManifestParser extends ParentManifestParser {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\ManifestParser::isSerializable()
-	 */
-	public function isSerializable() {
-		return $this->_getBooleanValue($this->manifest, self::IS_SERIALIZABLE, false);
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\ManifestParser::getObjectClass()
 	 */
 	public function getObjectClass() {

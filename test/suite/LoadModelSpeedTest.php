@@ -61,16 +61,17 @@ class LoadModelSpeedTest extends TestCase
 		}
 		
 		$exectTime = microtime(true) - $timeStart;
-		$averageTimeXml = 0.458;
-		$averageTimeJson = 0.303;
+		$averageTimeXml = 0.524;
+		$averageTimeJson = 0.348;
 		$errorMargin = 0.01;
 		
 		$this->assertContains(Config::getInstance()->getManifestFormat(), ['xml', 'json']);
 		$averageTime = Config::getInstance()->getManifestFormat() == 'xml' ? $averageTimeXml : $averageTimeJson;
-		$alert = ($exectTime - $averageTime) > $errorMargin ? "\033[31mWARNING!!!" : "\033[32mOK!";
-		echo PHP_EOL . PHP_EOL . "Loading model time :  " . PHP_EOL
-			. "$alert"
-			. "\033[0m exec :" . round($exectTime, 4) . ", average :" . $averageTime . PHP_EOL . PHP_EOL;
+		if (($exectTime - $averageTime) > $errorMargin) {
+			echo PHP_EOL . PHP_EOL . "Loading model time :  " . PHP_EOL
+				. "\033[31mWARNING!!!"
+				. "\033[0m exec :" . round($exectTime, 4) . ", average :" . $averageTime . PHP_EOL . PHP_EOL;
+		}
 	}
 
 }

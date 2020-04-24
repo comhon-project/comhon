@@ -1,0 +1,13 @@
+{
+    "name": "Test\\GreatGrandParent\\GrandParent\\ParentThree",
+    "extends": [
+        "\\Test\\GreatGrandParent\\GrandParent"
+    ],
+    "properties": [
+        {
+            "name": "parentThree",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0"
+}

@@ -3,7 +3,6 @@
     "extends": [
         "\\Test\\GreatGrandParent\\GrandParent\\ParentOne"
     ],
-    "is_serializable": true,
     "properties": [
         {
             "name": "childOne",
@@ -17,7 +16,6 @@
             "extends": [
                 "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child"
             ],
-            "is_serializable": true,
             "properties": [
                 {
                     "name": "localChildOne",
@@ -33,7 +31,6 @@
             "extends": [
                 "\\Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child"
             ],
-            "is_serializable": false,
             "properties": []
         }
     ],

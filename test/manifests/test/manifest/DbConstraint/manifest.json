@@ -1,6 +1,5 @@
 {
     "name": "Test\\DbConstraint",
-    "is_serializable": true,
     "properties": [
         {
             "name": "id",

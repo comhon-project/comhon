@@ -1,7 +1,4 @@
 <root name="Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child" version="3.0">
-  <serialization inheritance_key="grand_parent">
-    <settings dir_path="./data/inherited_serialization" file_name="file.json" __inheritance__="Comhon\File\JsonFile"/>
-  </serialization>
   <inheritance_values>
     <model>Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child</model>
   </inheritance_values>

@@ -1,6 +1,5 @@
 {
     "name": "Comhon\\Serialization",
-    "is_serializable": true,
     "properties": [
         {
             "name": "name",
@@ -15,6 +14,11 @@
             "not_null": true,
             "is_required": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "share_parent_serialization",
+            "not_null": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
         },
         {
             "name": "serialization",

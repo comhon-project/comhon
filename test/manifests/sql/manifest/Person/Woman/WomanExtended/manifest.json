@@ -3,7 +3,6 @@
     "extends": [
         "\\Sql\\Person\\Woman"
     ],
-    "is_serializable": true,
     "properties": [
         {
             "name": "aProperty",

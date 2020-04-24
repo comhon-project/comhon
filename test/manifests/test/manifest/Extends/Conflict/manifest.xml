@@ -1,4 +1,4 @@
-<root name="Test\Extends\Conflict" is_serializable="1" version="3.0">
+<root name="Test\Extends\Conflict" version="3.0">
   <properties>
     <property name="integerProperty" interval="[0,]" __inheritance__="Comhon\Manifest\Property\Integer"/>
   </properties>

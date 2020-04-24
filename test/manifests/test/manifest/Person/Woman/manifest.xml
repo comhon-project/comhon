@@ -1,4 +1,4 @@
-<root name="Test\Person\Woman" object_class="\Test\Comhon\Object\Woman" is_serializable="1" version="3.0">
+<root name="Test\Person\Woman" object_class="\Test\Comhon\Object\Woman" version="3.0">
   <extends>
     <type>\Test\Person</type>
   </extends>

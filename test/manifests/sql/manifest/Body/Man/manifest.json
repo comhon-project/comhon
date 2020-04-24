@@ -3,7 +3,6 @@
     "extends": [
         "\\Sql\\Body"
     ],
-    "is_serializable": true,
     "properties": [
         {
             "name": "owner",

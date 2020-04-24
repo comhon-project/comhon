@@ -3,7 +3,6 @@
     "extends": [
         "Itself"
     ],
-    "is_serializable": true,
     "properties": [
         {
             "name": "id",

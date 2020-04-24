@@ -55,9 +55,6 @@ class ModelManager {
 	const IS_ABSTRACT = 'is_abstract';
 	
 	/** @var string */
-	const IS_SERIALIZABLE = 'is_serializable';
-	
-	/** @var string */
 	const SHARED_ID_MODEL = 'shared_id_model';
 	
 	/** @var string */
@@ -460,7 +457,6 @@ class ModelManager {
 			$properties = [
 				self::OBJECT_CLASS => $manifestParser->getObjectClass(),
 				self::IS_ABSTRACT => $manifestParser->isAbstract(),
-				self::IS_SERIALIZABLE => $manifestParser->isSerializable(),
 				self::PROPERTIES => $this->_buildProperties($parentModels, $model, $manifestParser),
 				self::CONFLICTS => $manifestParser->getconflicts(),
 			];
@@ -599,13 +595,15 @@ class ModelManager {
 		$inheritanceKey = null;
 		$inheritanceValues = null;
 		$serialization = null;
+		$shareParentSerialization = true;
 		$parentModel = isset($parentModels[0]) ? $parentModels[0] : null;
 		
 		if (!is_null($serializationManifestParser)) {
-			$inheritanceKey         = $serializationManifestParser->getInheritanceKey();
-			$serializationSettings  = $serializationManifestParser->getSerializationSettings();
+			$inheritanceKey = $serializationManifestParser->getInheritanceKey();
+			$serializationSettings = $serializationManifestParser->getSerializationSettings();
 			$serializationUnitClass = $serializationManifestParser->getSerializationUnitClass();
-			$inheritanceValues      = $serializationManifestParser->getInheritanceValues();
+			$inheritanceValues = $serializationManifestParser->getInheritanceValues();
+			$shareParentSerialization = $serializationManifestParser->shareParentSerialization();
 		}
 		if (!is_null($serializationSettings)) {
 			$serialization = Serialization::getInstanceWithSettings(
@@ -619,19 +617,24 @@ class ModelManager {
 				$inheritanceKey,
 				$inheritanceValues
 			);
-		} elseif (!is_null($parentModel) && !is_null($parentModel->getSerialization())) {
-			if (!is_null($parentModel->getSerializationSettings())) {
-				$serialization = Serialization::getInstanceWithSettings(
-					$parentModel->getSerialization()->getSettings(),
-					$parentModel->getSerialization()->getInheritanceKey(), 
-					$inheritanceValues
-				);
-			} elseif (!is_null($serializationUnitClass)) {
-				$serialization = Serialization::getInstanceWithUnitClass(
-					$parentModel->getSerialization()->getSerializationUnitClass(),
-					$parentModel->getSerialization()->getInheritanceKey(), 
-					$inheritanceValues
-				);
+		} elseif ($shareParentSerialization) {
+			while (!is_null($parentModel) && !$parentModel->hasSerialization()) {
+				$parentModel = $parentModel->getParent();
+			}
+			if (!is_null($parentModel)) {
+				if (!is_null($parentModel->getSerializationSettings())) {
+					$serialization = Serialization::getInstanceWithSettings(
+						$parentModel->getSerialization()->getSettings(),
+						$parentModel->getSerialization()->getInheritanceKey(), 
+						$inheritanceValues
+					);
+				} elseif (!is_null($serializationUnitClass)) {
+					$serialization = Serialization::getInstanceWithUnitClass(
+						$parentModel->getSerialization()->getSerializationUnitClass(),
+						$parentModel->getSerialization()->getInheritanceKey(), 
+						$inheritanceValues
+					);
+				}
 			}
 		}
 		

@@ -1,6 +1,5 @@
 {
     "name": "Sql\\TestMultiIncremental",
-    "is_serializable": true,
     "properties": [
         {
             "name": "id1",

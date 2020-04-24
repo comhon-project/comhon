@@ -1,4 +1,4 @@
-<root name="Test\Extends\ShareId\GrandParentSerialized\ParentThree" is_serializable="1" version="3.0">
+<root name="Test\Extends\ShareId\GrandParentSerialized\ParentThree" version="3.0">
   <extends>
     <type>\Test\Extends\ShareId\GrandParentSerialized</type>
   </extends>

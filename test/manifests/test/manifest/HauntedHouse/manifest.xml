@@ -1,4 +1,4 @@
-<root name="Test\HauntedHouse" is_serializable="1" version="3.0">
+<root name="Test\HauntedHouse" version="3.0">
   <extends>
     <type>\Test\House</type>
   </extends>

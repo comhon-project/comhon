@@ -3,7 +3,6 @@
     "extends": [
         "\\Test\\Extends\\Multiple\\InheritedOne"
     ],
-    "is_serializable": false,
     "properties": [
         {
             "name": "two",

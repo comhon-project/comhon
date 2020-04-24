@@ -1,4 +1,4 @@
-<manifest version="2.0" extends="\Test\Manifest_V_2" is_serializable="0">
+<manifest version="2.0" extends="\Test\Manifest_V_2">
   <properties>
     <property type="string" name="inherited"/>
   </properties>

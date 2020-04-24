@@ -1,6 +1,5 @@
 {
     "name": "Comhon\\SqlTable",
-    "is_serializable": true,
     "properties": [
         {
             "name": "name",

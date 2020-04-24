@@ -1,6 +1,5 @@
 {
     "name": "Test\\GreatGrandParent",
-    "is_serializable": false,
     "properties": [
         {
             "name": "id",

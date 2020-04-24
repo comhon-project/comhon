@@ -3,7 +3,6 @@
     "extends": [
         "\\Test\\GreatGrandParent\\GrandParent\\ParentOne"
     ],
-    "is_serializable": true,
     "properties": [
         {
             "name": "childOne",

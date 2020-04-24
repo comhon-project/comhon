@@ -1,4 +1,4 @@
-<root name="Test\Extends\Multiple\InheritedThree" is_serializable="0" version="3.0">
+<root name="Test\Extends\Multiple\InheritedThree" version="3.0">
   <properties>
     <property name="three" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>

@@ -1,4 +1,4 @@
-<root name="Test\TestNoId" is_serializable="1" version="3.0">
+<root name="Test\TestNoId" version="3.0">
   <properties>
     <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="value" __inheritance__="Comhon\Manifest\Property\String"/>

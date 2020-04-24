@@ -3,7 +3,6 @@
     "extends": [
         "\\Test\\GreatGrandParent"
     ],
-    "is_serializable": true,
     "share_parent_id": true,
     "properties": [
         {

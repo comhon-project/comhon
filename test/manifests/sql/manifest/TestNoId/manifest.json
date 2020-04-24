@@ -1,6 +1,5 @@
 {
     "name": "Sql\\TestNoId",
-    "is_serializable": true,
     "properties": [
         {
             "name": "name",

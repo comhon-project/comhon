@@ -1,4 +1,4 @@
-<root name="Test\Extends\ShareId\GrandParentSerialized\ParentTwo" version="3.0">
+<root name="Test\Extends\ShareId\GrandParentSerialized\ParentTwo" version="3.0" share_parent_serialization="0">
   <inheritance_values>
     <model>Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child</model>
   </inheritance_values>

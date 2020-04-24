@@ -1,4 +1,4 @@
-<root name="Test\Person\WomanXmlExtended" is_serializable="1" version="3.0">
+<root name="Test\Person\WomanXmlExtended" version="3.0">
   <extends>
     <type>\Test\Person\WomanXml</type>
   </extends>

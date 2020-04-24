@@ -3,7 +3,6 @@
     "extends": [
         "\\Test\\Extends\\ShareId\\GrandParentSerialized"
     ],
-    "is_serializable": true,
     "properties": [
         {
             "name": "parentThree",

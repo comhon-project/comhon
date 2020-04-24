@@ -1,6 +1,5 @@
 {
     "name": "Sql\\Body",
-    "is_serializable": true,
     "is_abstract": true,
     "properties": [
         {

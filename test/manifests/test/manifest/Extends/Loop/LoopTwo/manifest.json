@@ -3,7 +3,6 @@
     "extends": [
         "\\Test\\Extends\\Loop\\LoopThree"
     ],
-    "is_serializable": true,
     "properties": [
         {
             "name": "id",
