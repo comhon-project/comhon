@@ -1,0 +1,5 @@
+<root name="Test\Person\Woman\WomanExtended" is_serializable="1" version="3.0">
+  <extends>
+    <type>\Test\Person\Woman</type>
+  </extends>
+</root>

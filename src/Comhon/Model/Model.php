@@ -41,6 +41,7 @@ use Comhon\Exception\Value\MissingIdForeignValueException;
 use Comhon\Exception\Interfacer\IncompatibleValueException;
 use Comhon\Exception\Model\NoIdPropertyException;
 use Comhon\Exception\Value\InvalidCompositeIdException;
+use Comhon\Exception\Interfacer\AbstractObjectExportException;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -1038,6 +1039,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		/** @var \Comhon\Object\UniqueObject $object */
 		if (is_null($object)) {
 			return null;
+		}
+		if ($object->getModel()->isAbstract()) {
+			throw new AbstractObjectExportException($object->getModel()->getName());
 		}
 		$object->validate();
 		

@@ -28,7 +28,7 @@ class LazyLoadingTest extends TestCase
 	 */
 	public function testLazyLoading($interfacedObject, $interfacer, $verifValues)
 	{
-		$personModel = ModelManager::getInstance()->getInstanceModel('Test\Person');
+		$personModel = ModelManager::getInstance()->getInstanceModel('Test\Person\Man');
 		$person = $personModel->getObjectInstance();
 		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Place'));
 		$this->assertFalse(ModelManager::getInstance()->hasInstanceModelLoaded('Test\Home'));

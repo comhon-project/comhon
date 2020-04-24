@@ -449,7 +449,7 @@ if ($obj !== $object->getValue('manBodyJson')) {
 
 /** ****************** test extended object class ********************* **/
 
-$person = new Person();
+$person = new Person(false);
 if ($person->getModel() !== ModelManager::getInstance()->getInstanceModel('Test\Person')) {
 	throw new \Exception('not same instance model');
 }

@@ -4,11 +4,5 @@
         "\\Test\\Person\\Woman"
     ],
     "is_serializable": true,
-    "properties": [
-        {
-            "name": "aProperty",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
-        }
-    ],
     "version": "3.0"
 }

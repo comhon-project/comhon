@@ -2,6 +2,7 @@
     "name": "Sql\\Person",
     "object_class": "\\Sql\\Comhon\\Object\\Person",
     "is_serializable": true,
+    "is_abstract": true,
     "properties": [
         {
             "name": "id",

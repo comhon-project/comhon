@@ -19,6 +19,8 @@ use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Model\ModelComhonObject;
 use Comhon\Model\ModelContainer;
+use Comhon\Model\Model;
+use Comhon\Exception\Object\AbstractObjectException;
 
 abstract class AbstractComhonObject {
 
@@ -36,7 +38,7 @@ abstract class AbstractComhonObject {
 	/**
 	 * @var boolean determine if comhon object is loaded
 	 */
-	private $isLoaded;
+	private $isLoaded = false;
 	
 	/**
 	 * @var boolean[] references all updated values
@@ -434,6 +436,9 @@ abstract class AbstractComhonObject {
 	 */
 	final public function setIsLoaded($isLoaded) {
 		if ($isLoaded && !$this->isLoaded) {
+			if (($this->getModel() instanceof Model) && $this->getModel()->isAbstract()) {
+				throw new AbstractObjectException($this);
+			}
 			$this->validate();
 		}
 		$this->isLoaded = $isLoaded;

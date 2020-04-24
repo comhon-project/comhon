@@ -13,6 +13,7 @@ use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Exception\Interfacer\ExportException;
+use Comhon\Exception\Interfacer\AbstractObjectExportException;
 
 class AbstractModelTest extends TestCase
 {
@@ -139,9 +140,9 @@ class AbstractModelTest extends TestCase
 		} catch (ExportException $e) {
 			$thrown = true;
 			$this->assertEquals($e->getStringifiedProperties(), '.');
-			$this->assertEquals(get_class($e->getOriginalException()), AbstractObjectException::class);
-			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::ABSTRACT_OBJECT_EXCEPTION);
-			$this->assertEquals($e->getOriginalException()->getMessage(), "model 'Test\Extends\Abstract\IsAbstract' is abstract. Objects with abstract model cannot be flagged as loaded");
+			$this->assertEquals(get_class($e->getOriginalException()), AbstractObjectExportException::class);
+			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::ABSTRACT_OBJECT_EXPORT_EXCEPTION);
+			$this->assertEquals($e->getOriginalException()->getMessage(), "model 'Test\Extends\Abstract\IsAbstract' is abstract. abstract model can't be exported");
 		}
 		$this->assertTrue($thrown);
 	}

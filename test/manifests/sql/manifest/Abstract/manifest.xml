@@ -1,1 +1,1 @@
-<root name="Sql\Abstract" version="3.0"/>
+<root name="Sql\Abstract" is_abstract="1" version="3.0"/>

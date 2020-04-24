@@ -17,7 +17,6 @@ use Comhon\Exception\Model\CastComhonObjectException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Model\Model;
-use Comhon\Exception\Object\AbstractObjectException;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Value\UnexpectedArrayException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
@@ -401,9 +400,6 @@ abstract class UniqueObject extends AbstractComhonObject {
 	final public function validate() {
 		if ($this->isLoaded()) {
 			return;
-		}
-		if ($this->getModel()->isAbstract()) {
-			throw new AbstractObjectException($this);
 		}
 		foreach ($this->getModel()->getRequiredProperties() as $name => $property) {
 			if (!$this->hasValue($name)) {

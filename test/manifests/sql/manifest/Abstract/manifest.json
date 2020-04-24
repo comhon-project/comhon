@@ -1,4 +1,5 @@
 {
     "name": "Sql\\Abstract",
+    "is_abstract": true,
     "version": "3.0"
 }

@@ -101,7 +101,7 @@ class RestrictionTest extends TestCase
 	public function testNotNullRestrictionAggregation()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Person');
-		$obj = $model->getObjectInstance();
+		$obj = $model->getObjectInstance(false);
 		$obj->initValue('homes');
 		
 		$this->expectException(NotSatisfiedRestrictionException::class);

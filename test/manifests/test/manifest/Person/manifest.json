@@ -2,6 +2,7 @@
     "name": "Test\\Person",
     "object_class": "\\Test\\Comhon\\Object\\Person",
     "is_serializable": true,
+    "is_abstract": true,
     "properties": [
         {
             "name": "id",

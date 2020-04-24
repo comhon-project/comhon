@@ -39,8 +39,11 @@ class ModelSqlSerializerTest extends TestCase
 		Utils::deleteDirectory($sqlTablePath.'/sql_test_multi_incremental');
 		Utils::deleteDirectory($sqlTablePath.'/sql_town');
 		Utils::deleteDirectory($sqlTablePath.'/sql_test_no_id');
-		Utils::deleteDirectory(__DIR__.'/../manifests/sql/serialization');
-		mkdir(__DIR__.'/../manifests/sql/serialization');
+		
+		$serializationSqlPath_rd = Config::getInstance()->getSerializationAutoloadList()->getValue('Sql');
+		$serializationSqlPath_ad = Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $serializationSqlPath_rd;
+		Utils::deleteDirectory($serializationSqlPath_ad);
+		mkdir($serializationSqlPath_ad);
 	}
 	
 	public function testRegisterSerializations() {

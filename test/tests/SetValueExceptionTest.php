@@ -56,11 +56,11 @@ $test->setValue('objectValues', null);
 testSetUnexpectedValue($test, 'stringValue',     true,                                 "value must be a string, boolean 'true' given");
 testSetUnexpectedValue($test, 'booleanValue',    12,                                   "value must be a boolean, integer '12' given");
 testSetUnexpectedValue($test, 'floatValue',      'a_string',                           "value must be a double, string 'a_string' given");
-testSetUnexpectedValue($test, 'indexValue',      new ComhonObject('Test\Person'),      "value must be a integer, Comhon\Object\UniqueObject(Test\Person) given");
+testSetUnexpectedValue($test, 'indexValue',      new ComhonObject('Test\Person\Man'),  "value must be a integer, Comhon\Object\UniqueObject(Test\Person\Man) given");
 testSetUnexpectedValue($test, 'indexValue',      -12,                                  "value must be a positive integer (including 0), integer '-12' given");
 testSetUnexpectedValue($test, 'percentageValue', 'a_string',                           "value must be a double, string 'a_string' given");
 testSetUnexpectedValue($test, 'dateValue',       new DateTime(),                       "value must be a Comhon\Object\ComhonDateTime, DateTime given");
-testSetUnexpectedValue($test, 'objectValue',     new ComhonObject('Test\Person'),      "value must be a Comhon\Object\UniqueObject(Test\Test\Object), Comhon\Object\UniqueObject(Test\Person) given");
+testSetUnexpectedValue($test, 'objectValue',     new ComhonObject('Test\Person\Man'),  "value must be a Comhon\Object\UniqueObject(Test\Test\Object), Comhon\Object\UniqueObject(Test\Person\Man) given");
 testSetUnexpectedValue($test, 'objectValues',    new ComhonObject('Test\Test\Object'), "value must be a Comhon\Object\ComhonArray(Test\Test\Object), Comhon\Object\UniqueObject(Test\Test\Object) given");
 
 $time_end = microtime(true);
