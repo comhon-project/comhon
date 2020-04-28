@@ -1,5 +1,6 @@
 yes
 
+no
 
 yes
 
@@ -7,16 +8,10 @@ yes
 
 yes
 
-yes
 
 
 
 
-
-
-yes
-
-yes
 
 yes
 
@@ -28,15 +23,14 @@ yes
 
 yes
 
+yes
+
 
 
 
 yes
 
 yes
-
-
-
 
 
 
@@ -60,15 +54,16 @@ yes
 
 
 
-
-
-
-
-
-
-
 yes
 0
+
+
+
+
+
+
+
+
 
 
 
@@ -115,18 +110,11 @@ yes
 
 
 
-
-
-
-
 no
 no
+
 
 
 yes
 0
-
-
-
-
 gender

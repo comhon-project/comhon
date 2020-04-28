@@ -47,8 +47,9 @@ $optionsDescription = [
 		'short' => 'c',
 		'long' => 'case',
 		'has_value' => true,
-		'enum' => ['camel', 'pascal', 'kebab', 'snake'],
-		'description' => 'column name\'s case',
+		'enum' => ['camel', 'pascal', 'kebab', 'snake', 'iso'],
+		'default' => 'snake',
+		'description' => 'case of tables and columns names (default snake case)',
 	]
 ];
 
@@ -59,10 +60,16 @@ if ($optionManager->hasHelpArgumentOption()) {
 	exit(0);
 }
 
-ModelSqlSerializer::exec(
-	$optionManager->getOption('config'),
-	$optionManager->getOption('database'),
-	$optionManager->getOption('case'),
-	$optionManager->getOption('model'),
-	$optionManager->hasOption('recursive')
-);
+try {
+	ModelSqlSerializer::exec(
+		$optionManager->getOption('config'),
+		$optionManager->getOption('database'),
+		$optionManager->getOption('case'),
+		$optionManager->getOption('model'),
+		$optionManager->hasOption('recursive')
+	);
+} catch (\Exception $e) {
+	echo "\033[0;31m{$e->getMessage()}\033[0m".PHP_EOL;
+	echo "script exited".PHP_EOL;
+	exit(1);
+}

@@ -5,8 +5,7 @@
         "foreign_settings": {
             "id": "public.house",
             "__inheritance__": "Comhon\\SqlTable"
-        },
-        "inheritance_key": "__inheritance__"
+        }
     },
     "properties": {
         "id": {

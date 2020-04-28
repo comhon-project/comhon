@@ -4,62 +4,32 @@
     <property name="id2" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="date" __inheritance__="Comhon\Manifest\Property\DateTime"/>
     <property name="timestamp" __inheritance__="Comhon\Manifest\Property\DateTime"/>
-    <property name="object" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="objectWithId" model="ObjectWithId" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="string" is_private="1" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="integer" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="mainParentTestDb" model="\Sql\MainTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="float" __inheritance__="Comhon\Manifest\Property\Float"/>
+    <property name="boolean" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="defaultValue" default="default" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="lonelyForeignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="objectsWithId" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="objectWithId" model="ObjectWithId" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="foreignObjects" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="foreignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="lonelyForeignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="lonelyForeignObjectTwo" model="ObjectWithIdAndMore" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="defaultValue" default="default" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="manBodyJson" model="\Test\Body\ManJson" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="womanXml" model="\Test\Person\WomanXml" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="notSerializedValue" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="notSerializedForeignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="boolean" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="boolean2" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="notLinkableTestDb" model="\Test\NotLinkableTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="notLinkableTestObjValue" model="\Test\Test" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="mainParentTestDb" model="\Sql\MainTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="childTestDb" model="\Sql\ChildTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="notLinkableArrayTestDb" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="childTestDb" model="\Test\NotLinkableTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
-    </property>
-    <property name="notLinkableTestDb" model="\Test\NotLinkableTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="notLinkableTestObjValue" model="\Test\Test" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
   </properties>
   <types>
-    <type name="Object">
-      <properties>
-        <property name="plop" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
-      </properties>
-    </type>
     <type name="ObjectWithId">
       <properties>
         <property name="plop" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
         <property name="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
-      </properties>
-    </type>
-    <type name="ObjectWithIdAndMore">
-      <extends>
-        <type>ObjectWithId</type>
-      </extends>
-      <properties>
-        <property name="plop3" is_private="1" __inheritance__="Comhon\Manifest\Property\String"/>
-      </properties>
-    </type>
-    <type name="ObjectWithIdAndMoreMore">
-      <extends>
-        <type>ObjectWithIdAndMore</type>
-      </extends>
-      <properties>
-        <property name="plop4" __inheritance__="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>

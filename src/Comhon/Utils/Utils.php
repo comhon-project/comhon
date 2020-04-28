@@ -47,16 +47,17 @@ class Utils {
 	}
 	
 	/**
+	 * copy directory
 	 * 
-	 * @param string $src
-	 * @param string $dst
+	 * @param string $src source directory
+	 * @param string $dst destination directory
 	 */
 	public static function copyDirectory($src, $dst) {
 		$dir = opendir($src);
 		mkdir($dst);
-		while(false !== ( $file = readdir($dir)) ) {
-			if (( $file != '.' ) && ( $file != '..' )) {
-				if ( is_dir($src . DIRECTORY_SEPARATOR . $file) ) {
+		while(($file = readdir($dir)) !== false) {
+			if (($file != '.') && ($file != '..')) {
+				if (is_dir($src . DIRECTORY_SEPARATOR . $file)) {
 					self::copyDirectory($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
 				}
 				else {
@@ -65,7 +66,28 @@ class Utils {
 			}
 		}
 		closedir($dir);
-	} 
+	}
+	
+	/**
+	 * scan directory recursively
+	 * 
+	 * @param string $dir
+	 */
+	public static function scanDirectory($dir) {
+		$objects = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir), \RecursiveIteratorIterator::SELF_FIRST);
+		$files = [];
+		/**
+		 * @var \SplFileInfo $object
+		 */
+		foreach($objects as $name => $object) {
+			if ($object->getBasename() === '.' || $object->getBasename() === '..') {
+				continue;
+			}
+			$files[] = $name;
+		}
+		
+		return $files;
+	}
 	
 	/**
 	 * print light backtrace with only file, function and line informations
@@ -85,10 +107,10 @@ class Utils {
 	 */
 	public static function toCamelCase($string) {
 		$string = preg_replace_callback(
-				"|([_-][a-z])|",
-				function ($matches) {return strtoupper(substr($matches[1], 1));},
-				$string
-				);
+			"|([_-][a-zA-Z])|",
+			function ($matches) {return strtoupper(substr($matches[1], 1));},
+			$string
+		);
 		return lcfirst($string);
 	}
 	
@@ -109,19 +131,24 @@ class Utils {
      * @return string
      */
     public static function toSnakeCase($string) {
-    	$string = lcfirst($string);
     	$string = preg_replace_callback(
-    			"|(?:[^A-Z]([A-Z]))|",
-    			function ($matches) {return strtolower(substr($matches[0], 0, 1) . '_' . $matches[1]);},
-    			$string
-    			);
+    		"|(?:([A-Z])([A-Z])([^A-Z]))|",
+    		function ($matches) {
+    			$separator = $matches[3] == '_' || $matches[3] == '-' ? '' : '_';
+    			return $matches[1] . strtolower($matches[2] . $separator . $matches[3]);
+    		},
+    		$string
+    	);
     	$string = preg_replace_callback(
-    			"|(?:[A-Z]([^A-Z]))|",
-    			function ($matches) {return strtolower(substr($matches[0], 0, 1) . '_' . $matches[1]);},
-    			$string
-    			);
+    		"|(?:([^A-Z])([A-Z]))|",
+    		function ($matches) {
+    			$separator = $matches[1] == '_' || $matches[1] == '-' ? '' : '_';
+    			return strtolower($matches[1] . $separator . $matches[2]);
+    		},
+    		$string
+    	);
     	
-    	return strtolower(str_replace('-', '_', $string));
+    	return lcfirst(strtolower(str_replace('-', '_', $string)));
     }
     
     /**

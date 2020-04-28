@@ -21,16 +21,6 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
         },
         {
-            "name": "object",
-            "model": "Object",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
-        },
-        {
-            "name": "objectWithId",
-            "model": "ObjectWithId",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
-        },
-        {
             "name": "string",
             "is_private": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
@@ -40,8 +30,21 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         },
         {
-            "name": "mainParentTestDb",
-            "model": "\\Sql\\MainTestDb",
+            "name": "float",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+        },
+        {
+            "name": "boolean",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
+        },
+        {
+            "name": "defaultValue",
+            "default": "default",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "lonelyForeignObject",
+            "model": "ObjectWithId",
             "is_foreign": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Object"
         },
@@ -65,35 +68,6 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
-            "name": "lonelyForeignObject",
-            "model": "ObjectWithId",
-            "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
-        },
-        {
-            "name": "lonelyForeignObjectTwo",
-            "model": "ObjectWithIdAndMore",
-            "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
-        },
-        {
-            "name": "defaultValue",
-            "default": "default",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
-        },
-        {
-            "name": "manBodyJson",
-            "model": "\\Test\\Body\\ManJson",
-            "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
-        },
-        {
-            "name": "womanXml",
-            "model": "\\Test\\Person\\WomanXml",
-            "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
-        },
-        {
             "name": "notSerializedValue",
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         },
@@ -102,34 +76,6 @@
             "model": "ObjectWithId",
             "is_foreign": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Object"
-        },
-        {
-            "name": "boolean",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
-        },
-        {
-            "name": "boolean2",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
-        },
-        {
-            "name": "childrenTestDb",
-            "values": {
-                "name": "childTestDb",
-                "model": "\\Sql\\ChildTestDb",
-                "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
-            },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
-        },
-        {
-            "name": "notLinkableArrayTestDb",
-            "values": {
-                "name": "childTestDb",
-                "model": "\\Test\\NotLinkableTestDb",
-                "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
-            },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "notLinkableTestDb",
@@ -142,23 +88,26 @@
             "model": "\\Test\\Test",
             "is_foreign": true,
             "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "mainParentTestDb",
+            "model": "\\Sql\\MainTestDb",
+            "is_foreign": true,
+            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
+            "name": "childrenTestDb",
+            "values": {
+                "name": "childTestDb",
+                "model": "\\Sql\\ChildTestDb",
+                "is_foreign": true,
+                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+            },
+            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0",
     "types": [
-        {
-            "name": "Object",
-            "properties": [
-                {
-                    "name": "plop",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
-                },
-                {
-                    "name": "plop2",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
-                }
-            ]
-        },
         {
             "name": "ObjectWithId",
             "properties": [
@@ -169,31 +118,6 @@
                 },
                 {
                     "name": "plop2",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
-                }
-            ]
-        },
-        {
-            "name": "ObjectWithIdAndMore",
-            "extends": [
-                "ObjectWithId"
-            ],
-            "properties": [
-                {
-                    "name": "plop3",
-                    "is_private": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
-                }
-            ]
-        },
-        {
-            "name": "ObjectWithIdAndMoreMore",
-            "extends": [
-                "ObjectWithIdAndMore"
-            ],
-            "properties": [
-                {
-                    "name": "plop4",
                     "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 }
             ]

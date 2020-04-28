@@ -29,14 +29,12 @@ class ModelSqlSerializerTest extends TestCase
 		Utils::deleteDirectory($sqlTablePath.'/sql_body_man');
 		Utils::deleteDirectory($sqlTablePath.'/sql_body_woman');
 		Utils::deleteDirectory($sqlTablePath.'/sql_child_test_db');
-		Utils::deleteDirectory($sqlTablePath.'/sql_db_constraint');
 		Utils::deleteDirectory($sqlTablePath.'/sql_home');
 		Utils::deleteDirectory($sqlTablePath.'/sql_house');
 		Utils::deleteDirectory($sqlTablePath.'/sql_main_test_db');
 		Utils::deleteDirectory($sqlTablePath.'/sql_person');
 		Utils::deleteDirectory($sqlTablePath.'/sql_place');
 		Utils::deleteDirectory($sqlTablePath.'/sql_test_db');
-		Utils::deleteDirectory($sqlTablePath.'/sql_test_multi_incremental');
 		Utils::deleteDirectory($sqlTablePath.'/sql_town');
 		Utils::deleteDirectory($sqlTablePath.'/sql_test_no_id');
 		
@@ -50,11 +48,35 @@ class ModelSqlSerializerTest extends TestCase
 		$sqlDatabase = new ComhonObject('Comhon\SqlDatabase');
 		$sqlDatabase->setId('test');
 		$sqlDatabase->setValue('DBMS', 'mysql');
-		$modelSqlSerialzer = new ModelSqlSerializer();
-		$modelSqlSerialzer->registerSerializations($sqlDatabase, 'iso', 'Sql', true);
+		$modelSqlSerialzer = new ModelSqlSerializer(true);
+		$modelSqlSerialzer->registerSerializations($sqlDatabase, 'snake', 'Sql', true);
 		$separator = DIRECTORY_SEPARATOR;
 		$expected = __DIR__.$separator.'data'.$separator.'ModelSqlSerializer'.$separator.'stdout_expected.txt';
 		$actual = __DIR__.$separator.'data'.$separator.'ModelSqlSerializer'.$separator.'stdout_actual.txt';
 		$this->assertFileEquals($expected, $actual);
+	}
+	
+	/**
+	 * @depends testRegisterSerializations
+	 */
+	public function testGeneratedSerializationManifests() {
+		$serializationSqlPath_rd = Config::getInstance()->getSerializationAutoloadList()->getValue('Sql');
+		$serializationSqlPath_ad = Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $serializationSqlPath_rd;
+		
+		$files = Utils::scanDirectory($serializationSqlPath_ad);
+		$this->assertCount(34, $files);
+		
+		$expectedMd5Files = Config::getInstance()->getManifestFormat() == 'json'
+			? '7c4dd582e49c04b89b960ec704d07881'
+			: '02c17a23e1b7580f6c50709d267ef75f';
+		
+		$actualMd5Files = '';
+		foreach ($files as $file) {
+			if (is_dir($file)) {
+				continue;
+			}
+			$actualMd5Files = md5($actualMd5Files.md5_file($file));
+		}
+		$this->assertEquals($expectedMd5Files, $actualMd5Files);
 	}
 }

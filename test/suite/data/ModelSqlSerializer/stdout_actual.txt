@@ -1,68 +1,62 @@
 [0;93mProcessing model [1;33m'Sql\House'[0m
-Model Sql\House doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\House doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_house)
 > [0;93mProcessing model [1;33m'Sql\HauntedHouse'[0m
 Sql\HauntedHouse inherit from Sql\House,
 would you like to use same table (sql_house) ? [(yes)/no]
+> Model Sql\HauntedHouse doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > [0;93mProcessing model [1;33m'Sql\Town'[0m
-Model Sql\Town doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Town doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_town)
-> [0;93mProcessing model [1;33m'Sql\DbConstraint'[0m
-Model Sql\DbConstraint doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
-> Enter a table name (default : sql_db_constraint)
 > [0;93mProcessing model [1;33m'Sql\Place'[0m
-Model Sql\Place doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Place doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_place)
 > [0;93mProcessing model [1;33m'Sql\MainTestDb'[0m
-Model Sql\MainTestDb doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\MainTestDb doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_main_test_db)
 > [0;93mProcessing model [1;33m'Sql\MainTestDb\Object'[0m
-Model Sql\MainTestDb\Object doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\MainTestDb\Object doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > [0;93mProcessing model [1;33m'Sql\Body'[0m
-Model Sql\Body doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Body doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > [0;93mProcessing model [1;33m'Sql\Body\Art'[0m
-Model Sql\Body\Art doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Body\Art doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > [0;93mProcessing model [1;33m'Sql\Body\Tatoo'[0m
-Model Sql\Body\Tatoo doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Body\Tatoo doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > [0;93mProcessing model [1;33m'Sql\Body\Piercing'[0m
-Model Sql\Body\Piercing doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Body\Piercing doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > [0;93mProcessing model [1;33m'Sql\Body\Man'[0m
-Model Sql\Body\Man doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Body\Man doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_body_man)
 > [0;93mProcessing model [1;33m'Sql\Body\Woman'[0m
-Model Sql\Body\Woman doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Body\Woman doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_body_woman)
 > [0;93mProcessing model [1;33m'Sql\TestNoId'[0m
-Model Sql\TestNoId doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\TestNoId doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_test_no_id)
 > [0;93mProcessing model [1;33m'Sql\ChildTestDb'[0m
-Model Sql\ChildTestDb doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\ChildTestDb doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_child_test_db)
 > [0;93mProcessing model [1;33m'Sql\Home'[0m
-Model Sql\Home doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Home doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_home)
-> [0;93mProcessing model [1;33m'Sql\TestMultiIncremental'[0m
-Model Sql\TestMultiIncremental doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
-> Enter a table name (default : sql_test_multi_incremental)
 > [0;93mProcessing model [1;33m'Sql\Person'[0m
-Model Sql\Person doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Person doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_person)
 > [0;93mProcessing model [1;33m'Sql\Person\Man'[0m
 Sql\Person\Man inherit from Sql\Person,
@@ -74,25 +68,16 @@ would you like to use same table (sql_person) ? [(yes)/no]
 Sql\Person\Woman\WomanExtended inherit from Sql\Person\Woman,
 would you like to use same table (sql_person) ? [(yes)/no]
 > [0;93mProcessing model [1;33m'Sql\Abstract'[0m
-Model Sql\Abstract doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\Abstract doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_abstract)
 > [0;93mProcessing model [1;33m'Sql\TestDb'[0m
-Model Sql\TestDb doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\TestDb doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > Enter a table name (default : sql_test_db)
-> [0;93mProcessing model [1;33m'Sql\TestDb\Object'[0m
-Model Sql\TestDb\Object doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
 > [0;93mProcessing model [1;33m'Sql\TestDb\ObjectWithId'[0m
-Model Sql\TestDb\ObjectWithId doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
-> [0;93mProcessing model [1;33m'Sql\TestDb\ObjectWithIdAndMore'[0m
-Model Sql\TestDb\ObjectWithIdAndMore doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
-> [0;93mProcessing model [1;33m'Sql\TestDb\ObjectWithIdAndMoreMore'[0m
-Model Sql\TestDb\ObjectWithIdAndMoreMore doesn't have serialization.
-Would you like to save it in sql database ? [yes/(no)]
+Model Sql\TestDb\ObjectWithId doesn't have serialization file.
+Would you like to defined sql serialization on this model ? [yes/(no)]
 > [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\House'[0m
 is property 'id' serializable [(yes)/no]
 > is property 'surface' serializable [(yes)/no]
@@ -104,20 +89,11 @@ is property 'id' serializable [(yes)/no]
 you can type several responses in one time by separating them with commas.
   0: house
   1: finally it's not an aggregation
-> [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\HauntedHouse'[0m
-is property 'ghosts' serializable [(yes)/no]
 > [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Town'[0m
 is property 'id' serializable [(yes)/no]
 > is property 'name' serializable [(yes)/no]
 > is property 'surface' serializable [(yes)/no]
 > is property 'cityHall' serializable [(yes)/no]
-> [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\DbConstraint'[0m
-is property 'id' serializable [(yes)/no]
-> is property 'unique_name' serializable [(yes)/no]
-> is property 'foreign_constraint' serializable [(yes)/no]
-> is property 'unique_one' serializable [(yes)/no]
-> is property 'unique_two' serializable [(yes)/no]
-> is property 'foreign_constraint_composite' serializable [(yes)/no]
 > [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Place'[0m
 is property 'id' serializable [(yes)/no]
 > is property 'number' serializable [(yes)/no]
@@ -135,6 +111,18 @@ is property 'id' serializable [(yes)/no]
 you can type several responses in one time by separating them with commas.
   0: mainParentTestDb
   1: finally it's not an aggregation
+> [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Body'[0m
+is property 'id' serializable [(yes)/no]
+> is property 'date' serializable [(yes)/no]
+> is property 'height' serializable [(yes)/no]
+> is property 'weight' serializable [(yes)/no]
+> is property 'hairColor' serializable [(yes)/no]
+> is property 'hairCut' serializable [(yes)/no]
+> is property 'eyesColor' serializable [(yes)/no]
+> is property 'physicalAppearance' serializable [(yes)/no]
+> is property 'tatoos' serializable [(yes)/no]
+> is property 'piercings' serializable [(yes)/no]
+> is property 'arts' serializable [(yes)/no]
 > [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Body\Man'[0m
 is property 'owner' serializable [(yes)/no]
 > is property 'baldness' serializable [(yes)/no]
@@ -154,10 +142,6 @@ is property 'id' serializable [(yes)/no]
 > is property 'endDate' serializable [(yes)/no]
 > is property 'person' serializable [(yes)/no]
 > is property 'house' serializable [(yes)/no]
-> [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\TestMultiIncremental'[0m
-is property 'id1' serializable [(yes)/no]
-> is property 'id2' serializable [(yes)/no]
-> is property 'plop' serializable [(yes)/no]
 > [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Person'[0m
 is property 'id' serializable [(yes)/no]
 > is property 'firstName' serializable [(yes)/no]
@@ -199,32 +183,24 @@ is property 'id1' serializable [(yes)/no]
 > is property 'id2' serializable [(yes)/no]
 > is property 'date' serializable [(yes)/no]
 > is property 'timestamp' serializable [(yes)/no]
-> is property 'object' serializable [(yes)/no]
-> is property 'objectWithId' serializable [(yes)/no]
 > is property 'string' serializable [(yes)/no]
 > is property 'integer' serializable [(yes)/no]
-> is property 'mainParentTestDb' serializable [(yes)/no]
+> is property 'float' serializable [(yes)/no]
+> is property 'boolean' serializable [(yes)/no]
+> is property 'defaultValue' serializable [(yes)/no]
+> is property 'lonelyForeignObject' serializable [(yes)/no]
 > is property 'objectsWithId' serializable [(yes)/no]
 > is property 'foreignObjects' serializable [(yes)/no]
-> is property 'lonelyForeignObject' serializable [(yes)/no]
-> is property 'lonelyForeignObjectTwo' serializable [(yes)/no]
-> is property 'defaultValue' serializable [(yes)/no]
-> is property 'manBodyJson' serializable [(yes)/no]
-> is property 'womanXml' serializable [(yes)/no]
 > is property 'notSerializedValue' serializable [(yes)/no]
 > is property 'notSerializedForeignObject' serializable [(yes)/no]
-> is property 'boolean' serializable [(yes)/no]
-> is property 'boolean2' serializable [(yes)/no]
+> is property 'notLinkableTestDb' serializable [(yes)/no]
+> is property 'notLinkableTestObjValue' serializable [(yes)/no]
+> is property 'mainParentTestDb' serializable [(yes)/no]
 > Is 'childrenTestDb' an aggregation of 'Sql\TestDb' (in other words not serialized as a column but reference rows in a table)? [yes/(no)]
 > Specify which property(ies) is used for aggregation. 
 you can type several responses in one time by separating them with commas.
   0: parentTestDb
   1: finally it's not an aggregation
-> is property 'notLinkableArrayTestDb' serializable [(yes)/no]
-> is property 'notLinkableTestDb' serializable [(yes)/no]
-> is property 'notLinkableTestObjValue' serializable [(yes)/no]
-> [0;93mProcessing [1;33minheritance key[0;93m of model [1;33m'Sql\House'[0m
-Enter an inheritance key (for example if your sql table store persons (male and female), inheritance key would be "gender") (default : __inheritance__)
 > [0;93mProcessing [1;33minheritance key[0;93m of model [1;33m'Sql\Person'[0m
 Enter an inheritance key (for example if your sql table store persons (male and female), inheritance key would be "gender") (default : __inheritance__)
 > 

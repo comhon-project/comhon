@@ -32,30 +32,34 @@ abstract class NoScalarTypedInterfacer extends Interfacer {
 	}
 	
 	/**
-	 * cast value to string
+	 * cast value to string and return it
 	 * 
 	 * @param mixed $value
+	 * @return string
 	 */
 	abstract public function castValueToString($value);
 	
 	/**
-	 * cast value to integer
+	 * cast value to integer and return it
 	 *
 	 * @param mixed $value
+	 * @return integer
 	 */
 	abstract public function castValueToInteger($value);
 	
 	/**
-	 * cast value to float
+	 * cast value to float and return it
 	 *
 	 * @param mixed $value
+	 * @return float
 	 */
 	abstract public function castValueToFloat($value);
 	
 	/**
-	 * cast value to boolean
+	 * cast value to boolean and return it
 	 *
 	 * @param mixed $value
+	 * @return boolean
 	 */
 	abstract public function castValueToBoolean($value);
 	

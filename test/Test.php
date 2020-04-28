@@ -449,17 +449,19 @@ try {
 	file_put_contents(__DIR__."/count.txt", 0);
 }*/
 
-// TODO for version > 3.0
+// TODO for version > 4.0
 
+// test model utils get project model names ...
 // add test model abstract in allowed method in request handler
-// use id different than table name for sql table (may have same table name but with different database)
 // new name space for invalid manifest and manifest v2
+
 // docker
 // latest : override Comhon options to allow manifest creation
 // latest : allow namespace prefix creation
 // latest : create sql table when create manifest
 // sample : put "Sample" folder for manifest and serialization
 
+// use id different than table name for sql table (may have same table name but with different database)
 // add autoload without prefix namespace ?
 // add patch method
 // manifest, serialization validator
