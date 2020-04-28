@@ -205,7 +205,7 @@ class OptionsTest extends TestCase
 	public function AllowedRequestData()
 	{
 		return [
-			[ // Test\Body doesn't allow complex request on coptions file
+			[ // Test\Body doesn't allow complex request on options file
 				'Test\Body\Man',
 				['id' => '1'],
 				['Content-Type' => 'application/json'],

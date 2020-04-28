@@ -84,6 +84,22 @@ class RequestHandlerOptionsTest extends TestCase
 				200,
 				['Allow' => 'GET, HEAD, PUT, DELETE, OPTIONS'],
 			],
+			[ // collection, abstract, sql
+				[
+					'REQUEST_METHOD' => 'OPTIONS',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+				],
+				200,
+				['Allow' => 'GET, HEAD, OPTIONS'],
+			],
+			[ // unique, abstract, sql
+				[
+					'REQUEST_METHOD' => 'OPTIONS',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson/1'
+				],
+				200,
+				['Allow' => 'GET, HEAD, DELETE, OPTIONS'],
+			],
 		];
 	}
 	

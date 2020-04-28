@@ -137,7 +137,7 @@ class ModelBinder {
 			if (is_null($model->getSerialization())) {
 				continue;
 			}
-			$serializationAllowed = $model->isSerializable();
+			$serializationAllowed = $model->hasSerialization();
 			
 			while (!is_null($model = $model->getFirstSharedIdParentMatch(true))) {
 				if (!array_key_exists($model->getName(), $modelsInfos)) {
@@ -168,7 +168,7 @@ class ModelBinder {
 			foreach ($modelInfos['inheritanceRequestables'] as $inheritanceModelName => $isSerializable) {
 				$inheritanceModel = $modelsInfos[$inheritanceModelName]['model'];
 				$inheritanceRequestables = $modelsInfos[$inheritanceModelName]['inheritanceRequestables'];
-				if (!($inheritanceModel->getSerialization() && $inheritanceModel->isSerializable()) && empty($inheritanceRequestables)) {
+				if (!($inheritanceModel->getSerialization() && $inheritanceModel->hasSerialization()) && empty($inheritanceRequestables)) {
 					unset($modelInfos['inheritanceRequestables'][$inheritanceModelName]);
 				}
 			}
@@ -187,7 +187,7 @@ class ModelBinder {
 					$parentModel = $parentModel->getParent();
 					continue;
 				}
-				if ($parentModel->isSerializable()) {
+				if ($parentModel->hasSerialization()) {
 					$addFilter = true;
 				}
 				foreach ($modelsInfos[$parentModel->getName()]['inheritanceRequestables'] as $modelName => $isSerializable) {
@@ -206,7 +206,7 @@ class ModelBinder {
 						$modelsInfos[$currentModel->getName()]['inheritanceSerializables'][] = $modelName;
 					}
 				}
-				if ($currentModel->getSerialization() && $currentModel->isSerializable()) {
+				if ($currentModel->getSerialization() && $currentModel->hasSerialization()) {
 					$modelsInfos[$currentModel->getName()]['inheritanceSerializables'][] = $currentModel->getName();
 				}
 			}

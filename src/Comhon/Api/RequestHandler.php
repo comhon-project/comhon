@@ -165,7 +165,7 @@ class RequestHandler {
 		} catch (NotDefinedModelException $e) {
 			throw new ResponseException(404, "resource model '{$this->resource[0]}' doesn't exist");
 		}
-		if (is_null($this->requestedModel->getSerialization())) {
+		if (!$this->requestedModel->hasSerialization()) {
 			throw new ResponseException(404, "resource model '{$this->requestedModel->getName()}' is not requestable");
 		}
 		if (isset($this->resource[1])) {
@@ -555,9 +555,6 @@ class RequestHandler {
 		if (count($this->resource) != 1) {
 			throw new ComhonException('unique id not verified or invalid options');
 		}
-		if ($this->requestedModel->isAbstract()) {
-			throw new MethodNotAllowedException('cannot create resource with abstract model');
-		}
 		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers);
 		$object = $this->_importBody($body, $this->requestedModel, $interfacer);
 		
@@ -594,9 +591,6 @@ class RequestHandler {
 	private function _put($headers, $body) {
 		if (is_null($this->uniqueResourceId) || count($this->resource) != 2) {
 			throw new ComhonException('unique id not verified or invalid options');
-		}
-		if ($this->requestedModel->isAbstract()) {
-			throw new MethodNotAllowedException('cannot update resource with abstract model');
 		}
 		$idPropertiesNames = array_keys($this->requestedModel->getIdProperties());
 		if (is_null($this->requestedModel->loadObject($this->uniqueResourceId, $idPropertiesNames, true))) {
@@ -812,9 +806,18 @@ class RequestHandler {
 		if (is_null($methods)) {
 			if (!is_null($this->uniqueResourceId)) { // request unique value with id
 				$methods = !$this->requestedModel->hasIdProperties() || $this->requestedModel->hasPrivateIdProperty()
-				? ['OPTIONS'] : ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS'];
+					? ['OPTIONS'] 
+					: ($this->requestedModel->isAbstract() 
+						? ['GET', 'HEAD', 'DELETE', 'OPTIONS']
+						: ['GET', 'HEAD', 'PUT', 'DELETE', 'OPTIONS']);
 			} else { // request collection
-				$methods = is_null($this->requestedModel->getSqlTableUnit()) ? ['POST', 'OPTIONS'] : ['GET', 'HEAD', 'POST', 'OPTIONS'];
+				$methods = is_null($this->requestedModel->getSqlTableUnit()) 
+					? ($this->requestedModel->isAbstract()
+						? ['OPTIONS']
+						: ['POST', 'OPTIONS'])
+					: ($this->requestedModel->isAbstract() 
+						? ['GET', 'HEAD', 'OPTIONS']
+						: ['GET', 'HEAD', 'POST', 'OPTIONS']);
 			}
 		}
 		

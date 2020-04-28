@@ -451,9 +451,8 @@ try {
 
 // TODO for version > 4.0
 
-// test model utils get project model names ...
-// add test model abstract in allowed method in request handler
-// new name space for invalid manifest and manifest v2
+// verify modelBinder
+// update modelToSql
 
 // docker
 // latest : override Comhon options to allow manifest creation

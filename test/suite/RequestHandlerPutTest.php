@@ -264,8 +264,8 @@ class RequestHandlerPutTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
 				405,
-				['Content-Type' => 'text/plain'],
-				'cannot update resource with abstract model',
+				['Content-Type' => 'text/plain', 'Allow' => 'GET, HEAD, DELETE, OPTIONS'],
+				'method PUT not allowed',
 			],
 		];
 	}
