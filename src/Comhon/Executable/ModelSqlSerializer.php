@@ -10,7 +10,7 @@ $optionsDescription = [
 		'short' => 'm',
 		'long' => 'model',
 		'has_value' => true,
-		'description' => 'filter to process only given model',
+		'description' => 'process only given model',
 	],
 	'recursive' => [
 		'short' => 'r',

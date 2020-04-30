@@ -13,13 +13,18 @@ $optionsDescription = [
 		'required' => true,
 		'description' => 'path to config file',
 	],
-	'yes' => [
-		'short' => 'y',
-		'long' => 'yes',
+	'model' => [
+		'short' => 'm',
+		'long' => 'model',
+		'has_value' => true,
+		'description' => 'process only given model',
+	],
+	'recursive' => [
+		'short' => 'r',
+		'long' => 'recursive',
 		'has_value' => false,
-		'description' => 'Automatic yes to prompts.',
-		'long_description' => 'Automatic yes to prompts. Assume "yes" as answer to all prompts and run non-interactively.'
-	]
+		'description' => 'if model is provided, process recursively models with same name space',
+	],
 ];
 
 $optionManager = new OptionManager();
@@ -29,4 +34,15 @@ if ($optionManager->hasHelpArgumentOption()) {
 	exit(0);
 }
 
-ModelBinder::exec($optionManager->getOption('config'), !$optionManager->hasOption('yes'));
+try {
+	ModelBinder::exec(
+		$optionManager->getOption('config'),
+		$optionManager->getOption('model'),
+		$optionManager->hasOption('recursive')
+	);
+} catch (\Exception $e) {
+	echo $e->getTraceAsString().PHP_EOL;
+	echo "\033[0;31m{$e->getMessage()}\033[0m".PHP_EOL;
+	echo "script exited".PHP_EOL;
+	exit(1);
+}

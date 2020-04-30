@@ -15,8 +15,4 @@
       <values name="home" model="\Sql\Home" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
-  <inheritance_requestables>
-    <inheritance_requestable>\Sql\Person\Man</inheritance_requestable>
-    <inheritance_requestable>\Sql\Person\Woman</inheritance_requestable>
-  </inheritance_requestables>
 </root>

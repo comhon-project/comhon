@@ -273,6 +273,9 @@
             <values name="property" not_null="1" model="Property" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
           </values>
         </property>
+        <property name="inheritance_requestables" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="model" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
+        </property>
       </properties>
       <conflicts>
         <properties>

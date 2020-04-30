@@ -16,5 +16,9 @@
                 "house"
             ]
         }
-    }
+    },
+    "inheritance_values": [
+        "Test\\HauntedHouse",
+        "Test\\House"
+    ]
 }

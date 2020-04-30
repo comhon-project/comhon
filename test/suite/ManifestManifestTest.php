@@ -50,7 +50,7 @@ class ManifestManifestTest extends TestCase
 	public function manifestObjectLoadData($param) {
 		return [
 			['Test', 'Test'],
-			['Test', 'TestDb'], // is_main, is_serialisable ...
+			['Test', 'TestDb'], // is_main ...
 			['Test', 'TestXml'], // xml node
 			['Test', 'Person\Woman'], // extends, object_class
 			['Test', 'Extends\ShareId\GrandParent\ParentThree\Child'], // shared_id

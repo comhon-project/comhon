@@ -65,9 +65,10 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\Array"
         }
     ],
-    "version": "3.0",
     "inheritance_requestables": [
         "\\Test\\Person\\Man",
-        "\\Test\\Person\\Woman"
-    ]
+        "\\Test\\Person\\Woman",
+        "\\Test\\Person\\Woman\\WomanExtended"
+    ],
+    "version": "3.0"
 }

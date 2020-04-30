@@ -2,4 +2,14 @@
   <serialization inheritance_key="grand_parent">
     <settings dir_path="./data/inherited_serialization" file_name="file.json" __inheritance__="Comhon\File\JsonFile"/>
   </serialization>
+  <inheritance_values>
+    <inheritance_value>Test\GreatGrandParent\GrandParent</inheritance_value>
+    <inheritance_value>Test\GreatGrandParent\GrandParent\ParentThree\Child</inheritance_value>
+    <inheritance_value>Test\GreatGrandParent\GrandParent\ParentOne</inheritance_value>
+    <inheritance_value>Test\GreatGrandParent\GrandParent\ParentOne\Child</inheritance_value>
+    <inheritance_value>Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</inheritance_value>
+    <inheritance_value>Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</inheritance_value>
+    <inheritance_value>Test\GreatGrandParent\GrandParent\ParentOne\AnotherChild</inheritance_value>
+    <inheritance_value>Test\GreatGrandParent\GrandParent\ParentTwo\Child</inheritance_value>
+  </inheritance_values>
 </root>

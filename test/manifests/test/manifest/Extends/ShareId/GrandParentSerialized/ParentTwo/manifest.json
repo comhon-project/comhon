@@ -9,8 +9,6 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
     ],
-    "version": "3.0",
-    "inheritance_requestables": [
-        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo\\Child"
-    ]
+    "inheritance_requestables": [],
+    "version": "3.0"
 }

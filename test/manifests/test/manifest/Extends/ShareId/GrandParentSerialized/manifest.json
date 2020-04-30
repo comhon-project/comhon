@@ -11,12 +11,11 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
     ],
-    "version": "3.0",
     "inheritance_requestables": [
         "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentThree\\Child",
-        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne\\Child",
         "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne",
-        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo\\Child",
-        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo"
-    ]
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne\\Child",
+        "\\Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo\\Child"
+    ],
+    "version": "3.0"
 }

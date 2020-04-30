@@ -597,12 +597,15 @@ class ComplexRequester extends Requester {
 			throw new ComhonException('query not initialized');
 		}
 		$inheritanceValuesLiteral = null;
-		if (!empty($this->model->getSerialization()->getInheritanceValues())) {
+		if (
+			!is_null($this->model->getSerialization()->getInheritanceKey())
+			&& !empty($this->model->getSerialization()->getInheritanceValues())
+		) {
 			$values = $this->model->getSerialization()->getInheritanceValues();
 			$inheritanceValuesLiteral = new SimpleDbLiteral(
 				$this->selectQuery->getMainTable(),
 				$this->model->getSerialization()->getInheritanceKey(),
-				Literal::EQUAL,
+				count($values) > 1 ? Literal::IN : Literal::EQUAL,
 				count($values) > 1 ? $values : $values[0]
 			);
 		}

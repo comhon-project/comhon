@@ -9,5 +9,8 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\String"
         }
     ],
+    "inheritance_requestables": [
+        "\\Test\\Extends\\Multiple\\InheritedFinal"
+    ],
     "version": "3.0"
 }

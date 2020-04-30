@@ -1,0 +1,7 @@
+{
+    "name": "Test\\HauntedHouse",
+    "version": "3.0",
+    "inheritance_values": [
+        "Test\\HauntedHouse"
+    ]
+}

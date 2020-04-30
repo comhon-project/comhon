@@ -60,16 +60,11 @@ class Model {
     	}
     	foreach ($autoloads as $namespace => $path) {
     		$manifest_ad = substr($path, 0, 1) == '.' ? Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $path : $path;
-    		$objects = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($manifest_ad), \RecursiveIteratorIterator::SELF_FIRST);
-    		
-    		/**
-    		 * @var \SplFileInfo $object
-    		 */
-    		foreach($objects as $name => $object) {
-    			if (!is_dir($name) || $object->getBasename() === '.' || $object->getBasename() === '..') {
+    		foreach(Utils::scanDirectory($manifest_ad) as $fileName) {
+    			if (!is_dir($fileName)) {
     				continue;
     			}
-    			$modelName = $namespace . '\\' . substr(str_replace(DIRECTORY_SEPARATOR, '\\', str_replace($manifest_ad, '', $name)), 1);
+    			$modelName = $namespace . '\\' . substr(str_replace(DIRECTORY_SEPARATOR, '\\', str_replace($manifest_ad, '', $fileName)), 1);
     			list($prefix, $suffix) = ModelManager::getInstance()->splitModelName($modelName);
     			$manifest_af = ModelManager::getInstance()->getManifestPath($prefix, $suffix);
     			

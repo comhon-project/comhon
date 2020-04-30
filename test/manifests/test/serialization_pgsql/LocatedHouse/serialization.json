@@ -16,5 +16,8 @@
                 "house"
             ]
         }
-    }
+    },
+    "inheritance_values": [
+        "Test\\LocatedHouse"
+    ]
 }

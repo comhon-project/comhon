@@ -16,6 +16,7 @@
         }
     },
     "inheritance_values": [
-        "Test\\Person\\Woman"
+        "Test\\Person\\Woman",
+        "Test\\Person\\Woman\\WomanExtended"
     ]
 }

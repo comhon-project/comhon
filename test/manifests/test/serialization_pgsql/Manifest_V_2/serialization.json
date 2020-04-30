@@ -9,5 +9,8 @@
         "name": {
             "serializationName": "serial_name"
         }
-    }
+    },
+    "inheritance_values": [
+        "Test\\Manifest_V_2"
+    ]
 }

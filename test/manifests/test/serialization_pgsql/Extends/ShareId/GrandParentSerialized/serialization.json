@@ -8,5 +8,12 @@
             "file_name": "file.json",
             "__inheritance__": "Comhon\\File\\JsonFile"
         }
-    }
+    },
+    "inheritance_values": [
+        "Test\\Extends\\ShareId\\GrandParentSerialized",
+        "Test\\Extends\\ShareId\\GrandParentSerialized\\ParentThree\\Child",
+        "Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne",
+        "Test\\Extends\\ShareId\\GrandParentSerialized\\ParentOne\\Child",
+        "Test\\Extends\\ShareId\\GrandParentSerialized\\ParentTwo\\Child"
+    ]
 }

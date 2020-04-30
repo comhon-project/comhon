@@ -1,0 +1,5 @@
+<root name="Test\GreatGrandParent\GrandParent\ParentThree\Child" version="3.0">
+  <inheritance_values>
+    <inheritance_value>Test\GreatGrandParent\GrandParent\ParentThree\Child</inheritance_value>
+  </inheritance_values>
+</root>

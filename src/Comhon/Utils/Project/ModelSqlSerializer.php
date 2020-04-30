@@ -25,14 +25,12 @@ use Comhon\Utils\Model as ModelUtils;
 use Comhon\Object\ComhonObject;
 use Comhon\Utils\Utils;
 use Comhon\Model\Property\MultipleForeignProperty;
-use Comhon\Interfacer\XMLInterfacer;
-use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Model\Property\AggregationProperty;
 use Comhon\Manifest\Parser\V_2_0\SerializationManifestParser as SerializationManifestParserV2;
 use Comhon\Manifest\Parser\V_3_0\SerializationManifestParser as SerializationManifestParserV3;
 
-class ModelSqlSerializer {
+class ModelSqlSerializer extends InteractiveProjectScript {
 	
 	/**
 	 * permit to know if we want to create manifest serialization file.
@@ -157,32 +155,13 @@ class ModelSqlSerializer {
 	private $rootModel;
 	
 	/**
-	 *
-	 * @var string
-	 */
-	private $isInteractive = true;
-	
-	/**
 	 * 
 	 * @param boolean $isInteractive if true, when self::registerSerializations() is called all process will be done automatically
 	 *                               otherwise, some questions may be ask to user so it must be called from CLI script.
 	 */
 	public function __construct($isInteractive) {
+		parent::__construct($isInteractive);
 		$this->rootModel = ModelManager::getInstance()->getInstanceModel('Comhon\Root');
-		$this->isInteractive = $isInteractive;
-	}
-	
-	/**
-	 * 
-	 * @see \Comhon\Utils\Cli::ask()
-	 */
-	public function ask($question, $default = null, $filter = null, $filterType = Cli::FILTER_VALUE) {
-		if ($this->isInteractive) {
-			return Cli::ask($question, $default, $filter, $filterType);
-		} elseif (!is_null($default)) {
-			return $default;
-		}
-		throw new \Exception('interactive mode is desactivated and question doesn\'t have default response');
 	}
 	
 	/**
@@ -260,55 +239,6 @@ class ModelSqlSerializer {
 	}
 	
 	/**
-	 *
-	 * @param string $message
-	 * @param boolean $addEndOfLine
-	 */
-	private function displayMessage($message, $addEndOfLine = true) {
-		if ($this->isInteractive) {
-			fwrite(Cli::$STDOUT, $message);
-			if ($addEndOfLine) {
-				fwrite(Cli::$STDOUT, PHP_EOL);
-			}
-		}
-	}
-	
-	/**
-	 * 
-	 * @param string $message
-	 * @param string $modelName
-	 * @param string $propertyName
-	 */
-	private function displayContinue($message, $modelName, $propertyName = null) {
-		$msgModel = "model '$modelName'";
-		$msgPropertyOrModel = (is_null($propertyName) ? '' : "property '$propertyName' on ").$msgModel;
-		$question = "Something goes wrong with {$msgPropertyOrModel} :".PHP_EOL
-			."\033[0;31m{$message}\033[0m".PHP_EOL
-			."You can stop or continue without $msgModel".PHP_EOL
-			."Would you like to continue ?";
-		$response = $this->ask($question, 'no', ['yes', 'no']);
-		
-		if ($response === 'no') {
-			throw new \Exception($message);
-		} else {
-			$this->displayMessage("\033[1;30m".$msgModel." is ignored\033[0m".PHP_EOL);
-		}
-	}
-	
-	/**
-	 * 
-	 * @param string $modelName
-	 * @param string $part
-	 */
-	private function displayProcessingModel($modelName, $part = null) {
-		if (empty($part)) {
-			$this->displayMessage("\033[0;93mProcessing model \033[1;33m'{$modelName}'\033[0m");
-		} else {
-			$this->displayMessage("\033[0;93mProcessing \033[1;33m{$part}\033[0;93m of model \033[1;33m'{$modelName}'\033[0m");
-		}
-	}
-	
-	/**
 	 * create and update serialization manifest files for objects that have to be serizalized in sql database
 	 * 
 	 * @param \Comhon\Object\UniqueObject $sqlDatabase
@@ -327,22 +257,16 @@ class ModelSqlSerializer {
 			$expected = $databaseModel->getObjectInstance()->getComhonClass();
 			throw new ArgumentException($sqlDatabase, $expected, 3);
 		}
+		if (!is_null($filterModelName) && !$recursive) {
+			// verify if model exists
+			ModelManager::getInstance()->getInstanceModel($filterModelName);
+		}
 		$this->serializeSqlDatabase($sqlDatabase);
 		
-		$notValid = [];
-		$projectModelNames = ModelUtils::getValidatedProjectModelNames(null, true, $notValid);
-		$filterModelNames = is_null($filterModelName) 
+		$projectModelNames = $this->getValidatedProjectModelNames($filterModelName, $recursive);
+		$filterModelNames = is_null($filterModelName)
 			? null
 			: $this->getFilterModelNames($projectModelNames, $filterModelName, $recursive);
-		
-		foreach ($notValid as $modelName => $message) {
-			if (is_null($filterModelName)
-				|| ($recursive && strpos($modelName, $filterModelName) === 0)
-				|| (!$recursive && $modelName === $filterModelName)
-			) {
-				$this->displayContinue($message, $modelName);
-			}
-		}
 		
 		// important! we must have parents models before children models
 		// to be sure to store highest parent model first
@@ -369,7 +293,7 @@ class ModelSqlSerializer {
 		$this->addSerializationSettings($modelsInfos, $tablesInfos);
 		
 		$updated = false;
-		foreach($modelsInfos as $modelName => $modelInfos) {
+		foreach($modelsInfos as $modelInfos) {
 			if (isset($modelInfos[SELF::SERIALIZATION_MANIFEST]) && $modelInfos[SELF::SERIALIZATION_MANIFEST]->isUpdated()) {
 				$modelInfos[SELF::SERIALIZATION_MANIFEST]->save(SerializationUnit::CREATE);
 				$updated = true;
@@ -377,52 +301,6 @@ class ModelSqlSerializer {
 		}
 		if (!$updated) {
 			$this->displayMessage('already up to date');
-		}
-	}
-	
-	/**
-	 * return array of filter model names. model names are stored in array keys.
-	 * 
-	 * @param string[] $projectModelNames
-	 * @param string $filterModelName
-	 * @param boolean $recursive
-	 * @return NULL[]
-	 */
-	private function getFilterModelNames($projectModelNames, $filterModelName, $recursive) {
-		if (in_array($filterModelName, $projectModelNames)) {
-			$filterModelNames = [$filterModelName => null];
-		} else {
-			$filterModelNames = [];
-		}
-		if ($recursive) {
-			foreach ($projectModelNames as $projectModelName) {
-				if (strpos($projectModelName, $filterModelName) === 0) {
-					$filterModelNames[$projectModelName] = null;
-				}
-			}
-		} else {
-			// verify if model exists
-			ModelManager::getInstance()->getInstanceModel($filterModelName);
-		}
-		return $filterModelNames;
-	}
-	
-	/**
-	 * get interfacer according manifest format
-	 *
-	 * @throws \Exception
-	 * @return \Comhon\Interfacer\XMLInterfacer|\Comhon\Interfacer\AssocArrayInterfacer
-	 */
-	private function getInterfacer() {
-		switch (Config::getInstance()->getManifestFormat()) {
-			case 'xml':
-				return new XMLInterfacer();
-				break;
-			case 'json':
-				return new AssocArrayInterfacer();
-				break;
-			default:
-				throw new \Exception('manifest format not managed : '.Config::getInstance()->getManifestFormat());
 		}
 	}
 	
@@ -728,11 +606,9 @@ class ModelSqlSerializer {
 				if (array_key_exists($parentModel->getName(), $filterModelNames)) {
 					$add = true;
 				}
-				if (array_key_exists($parentModel->getName(), $filteredModelNames)) {
-					$parentModel = $this->rootModel;
-				} else {
-					$parentModel = $parentModel->getParent();
-				}
+				$parentModel = array_key_exists($parentModel->getName(), $filteredModelNames)
+					? $this->rootModel
+					: $parentModel->getParent();
 			}
 			if ($add) {
 				if (array_key_exists(self::SQL_TABLE, $modelInfos)) {

@@ -8,5 +8,15 @@
             "file_name": "file.json",
             "__inheritance__": "Comhon\\File\\JsonFile"
         }
-    }
+    },
+    "inheritance_values": [
+        "Test\\GreatGrandParent\\GrandParent",
+        "Test\\GreatGrandParent\\GrandParent\\ParentThree\\Child",
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne",
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable",
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\Child",
+        "Test\\GreatGrandParent\\GrandParent\\ParentOne\\AnotherChild",
+        "Test\\GreatGrandParent\\GrandParent\\ParentTwo\\Child"
+    ]
 }

@@ -1,0 +1,7 @@
+{
+    "name": "Test\\GreatGrandParent\\GrandParent\\ParentThree\\Child",
+    "version": "3.0",
+    "inheritance_values": [
+        "Test\\GreatGrandParent\\GrandParent\\ParentThree\\Child"
+    ]
+}

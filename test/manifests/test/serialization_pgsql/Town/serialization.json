@@ -11,5 +11,8 @@
         "cityHall": {
             "serialization_name": "city_hall"
         }
-    }
+    },
+    "inheritance_values": [
+        "Test\\Town"
+    ]
 }

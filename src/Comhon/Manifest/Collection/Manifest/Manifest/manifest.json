@@ -544,6 +544,16 @@
                         "__inheritance__": "Comhon\\Manifest\\Value\\Array"
                     },
                     "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                },
+                {
+                    "name": "inheritance_requestables",
+                    "not_null": true,
+                    "values": {
+                        "name": "model",
+                        "not_null": true,
+                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                    },
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
                 }
             ],
             "conflicts": [

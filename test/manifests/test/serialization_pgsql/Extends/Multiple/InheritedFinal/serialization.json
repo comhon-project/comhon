@@ -1,0 +1,7 @@
+{
+    "name": "Test\\Extends\\Multiple\\InheritedFinal",
+    "version": "3.0",
+    "inheritance_values": [
+        "Test\\Extends\\Multiple\\InheritedFinal"
+    ]
+}

@@ -7,5 +7,9 @@
             "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
         }
     ],
+    "inheritance_requestables": [
+        "\\Test\\Extends\\Multiple\\InheritedTwo",
+        "\\Test\\Extends\\Multiple\\InheritedFinal"
+    ],
     "version": "3.0"
 }
