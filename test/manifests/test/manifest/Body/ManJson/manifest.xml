@@ -10,6 +10,6 @@
     <property name="baldness" __inheritance__="Comhon\Manifest\Property\Boolean"/>
   </properties>
   <inheritance_requestables>
-    <inheritance_requestable>\Test\Body\ManJsonExtended</inheritance_requestable>
+    <model>\Test\Body\ManJsonExtended</model>
   </inheritance_requestables>
 </root>

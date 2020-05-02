@@ -6,6 +6,6 @@
     <property name="birthDate" __inheritance__="Comhon\Manifest\Property\DateTime"/>
   </properties>
   <inheritance_requestables>
-    <inheritance_requestable>\Test\Person\WomanXmlExtended</inheritance_requestable>
+    <model>\Test\Person\WomanXmlExtended</model>
   </inheritance_requestables>
 </root>

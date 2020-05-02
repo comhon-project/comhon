@@ -1,0 +1,13 @@
+{
+    "name": "Binder\\GreatGrandParent\\GrandParent\\ParentTwo",
+    "extends": [
+        "\\Binder\\GreatGrandParent\\GrandParent"
+    ],
+    "properties": [
+        {
+            "name": "parentTwo",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0"
+}

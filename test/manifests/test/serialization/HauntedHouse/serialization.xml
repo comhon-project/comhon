@@ -1,5 +1,5 @@
 <root name="Test\HauntedHouse" version="3.0">
   <inheritance_values>
-    <inheritance_value>Test\HauntedHouse</inheritance_value>
+    <model>Test\HauntedHouse</model>
   </inheritance_values>
 </root>

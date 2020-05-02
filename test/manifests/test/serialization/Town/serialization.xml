@@ -6,6 +6,6 @@
     <cityHall serialization_name="city_hall"/>
   </properties>
   <inheritance_values>
-    <inheritance_value>Test\Town</inheritance_value>
+    <model>Test\Town</model>
   </inheritance_values>
 </root>

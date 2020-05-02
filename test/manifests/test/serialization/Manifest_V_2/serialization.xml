@@ -4,6 +4,6 @@
     <name serializationName="serial_name"/>
   </properties>
   <inheritance_values>
-    <inheritance_value>Test\Manifest_V_2</inheritance_value>
+    <model>Test\Manifest_V_2</model>
   </inheritance_values>
 </root>

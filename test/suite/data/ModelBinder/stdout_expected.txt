@@ -1,0 +1,10 @@
+Manifests : 
+ - Binder\GreatGrandParent\GrandParent updated
+ - Binder\GreatGrandParent\GrandParent\ParentOne\Child updated
+ - Binder\GreatGrandParent\GrandParent\ParentTwo updated
+Serialization manifests : 
+ - Binder\GreatGrandParent\GrandParent\ParentOne created
+ - Binder\GreatGrandParent\GrandParent\ParentOne\Child updated
+ - Binder\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable updated
+ - Binder\GreatGrandParent\GrandParent\ParentTwo\Child updated
+ - Binder\GreatGrandParent\GrandParent\ParentTwo\Child\Child updated

@@ -10,6 +10,6 @@
     </property>
   </properties>
   <inheritance_requestables>
-    <inheritance_requestable>\Test\HauntedHouse</inheritance_requestable>
+    <model>\Test\HauntedHouse</model>
   </inheritance_requestables>
 </root>

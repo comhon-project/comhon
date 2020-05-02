@@ -1,0 +1,9 @@
+{
+    "name": "Binder\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable",
+    "version": "3.0",
+    "properties": {
+        "localChildOne": {
+            "serialization_name": "local_child_one"
+        }
+    }
+}

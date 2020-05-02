@@ -11,6 +11,6 @@
     </residents>
   </properties>
   <inheritance_values>
-    <inheritance_value>Test\LocatedHouse</inheritance_value>
+    <model>Test\LocatedHouse</model>
   </inheritance_values>
 </root>

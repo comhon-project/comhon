@@ -1,0 +1,12 @@
+<root name="Binder\GreatGrandParent\GrandParent\ParentOne" version="3.0">
+  <extends>
+    <type>\Binder\GreatGrandParent\GrandParent</type>
+  </extends>
+  <properties>
+    <property name="parentOne" __inheritance__="Comhon\Manifest\Property\String"/>
+  </properties>
+  <inheritance_requestables>
+    <model>\Binder\GreatGrandParent\GrandParent\ParentOne\Child</model>
+    <model>\Binder\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</model>
+  </inheritance_requestables>
+</root>

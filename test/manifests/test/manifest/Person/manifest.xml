@@ -16,8 +16,8 @@
     </property>
   </properties>
   <inheritance_requestables>
-    <inheritance_requestable>\Test\Person\Man</inheritance_requestable>
-    <inheritance_requestable>\Test\Person\Woman</inheritance_requestable>
-    <inheritance_requestable>\Test\Person\Woman\WomanExtended</inheritance_requestable>
+    <model>\Test\Person\Man</model>
+    <model>\Test\Person\Woman</model>
+    <model>\Test\Person\Woman\WomanExtended</model>
   </inheritance_requestables>
 </root>

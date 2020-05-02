@@ -1,0 +1,14 @@
+{
+    "name": "Binder\\GreatGrandParent\\GrandParent",
+    "extends": [
+        "\\Binder\\GreatGrandParent"
+    ],
+    "share_parent_id": true,
+    "properties": [
+        {
+            "name": "grandParent",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0"
+}

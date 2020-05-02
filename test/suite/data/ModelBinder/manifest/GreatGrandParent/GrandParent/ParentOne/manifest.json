@@ -1,0 +1,17 @@
+{
+    "name": "Binder\\GreatGrandParent\\GrandParent\\ParentOne",
+    "extends": [
+        "\\Binder\\GreatGrandParent\\GrandParent"
+    ],
+    "properties": [
+        {
+            "name": "parentOne",
+            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0",
+    "inheritance_requestables": [
+        "\\Binder\\GreatGrandParent\\GrandParent\\ParentOne\\Child",
+        "\\Binder\\GreatGrandParent\\GrandParent\\ParentOne\\Child\\ChildLocalSerializable"
+    ]
+}

@@ -6,6 +6,6 @@
     <property name="parentOne" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
   <inheritance_requestables>
-    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</inheritance_requestable>
+    <model>\Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</model>
   </inheritance_requestables>
 </root>

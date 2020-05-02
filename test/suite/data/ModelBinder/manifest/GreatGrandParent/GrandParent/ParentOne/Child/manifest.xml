@@ -1,0 +1,24 @@
+<root name="Binder\GreatGrandParent\GrandParent\ParentOne\Child" is_abstract="1" version="3.0">
+  <extends>
+    <type>\Binder\GreatGrandParent\GrandParent\ParentOne</type>
+  </extends>
+  <properties>
+    <property name="childOne" __inheritance__="Comhon\Manifest\Property\String"/>
+  </properties>
+  <types>
+    <type name="ChildLocalSerializable">
+      <extends>
+        <type>\Binder\GreatGrandParent\GrandParent\ParentOne\Child</type>
+      </extends>
+      <properties>
+        <property name="localChildOne" __inheritance__="Comhon\Manifest\Property\String"/>
+      </properties>
+    </type>
+    <type name="ChildLocalNotSerializable">
+      <extends>
+        <type>\Binder\GreatGrandParent\GrandParent\ParentOne\Child</type>
+      </extends>
+      <properties/>
+    </type>
+  </types>
+</root>

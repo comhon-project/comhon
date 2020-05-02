@@ -10,7 +10,7 @@
     </bodies>
   </properties>
   <inheritance_values>
-    <inheritance_value>Test\Person\Woman</inheritance_value>
-    <inheritance_value>Test\Person\Woman\WomanExtended</inheritance_value>
+    <model>Test\Person\Woman</model>
+    <model>Test\Person\Woman\WomanExtended</model>
   </inheritance_values>
 </root>

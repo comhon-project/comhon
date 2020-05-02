@@ -1,6 +1,6 @@
 <root name="Test\Extends\Multiple\InheritedTwo" version="3.0">
   <inheritance_values>
-    <inheritance_value>Test\Extends\Multiple\InheritedTwo</inheritance_value>
-    <inheritance_value>Test\Extends\Multiple\InheritedFinal</inheritance_value>
+    <model>Test\Extends\Multiple\InheritedTwo</model>
+    <model>Test\Extends\Multiple\InheritedFinal</model>
   </inheritance_values>
 </root>

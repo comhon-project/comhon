@@ -94,11 +94,13 @@ class ConfigTest extends TestCase
     "autoload": {
         "manifest": {
             "Test": "..\/manifests\/test\/manifest",
-            "Sql": "..\/manifests\/sql\/manifest"
+            "Sql": "..\/manifests\/sql\/manifest",
+            "Binder": "..\/manifests\/binder\/manifest"
         },
         "serialization": {
             "Test": "..\/manifests\/test\/serialization_pgsql",
-            "Sql": "..\/manifests\/sql\/serialization"
+            "Sql": "..\/manifests\/sql\/serialization",
+            "Binder": "..\/manifests\/binder\/serialization"
         },
         "options": {
             "Test": "..\/manifests\/test\/options"

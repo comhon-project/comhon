@@ -354,7 +354,7 @@ class ModelBinder extends InteractiveProjectScript {
 			$updated = $this->updateInheritanceNode(
 				$modelInfos['manifestNode'],
 				ManifestParser::INHERITANCE_REQUESTABLES,
-				'inheritance_requestable',
+				'model',
 				$interfacer,
 				$modelInfos[ManifestParser::INHERITANCE_REQUESTABLES],
 				$modelInfos['namespace']
@@ -409,7 +409,7 @@ class ModelBinder extends InteractiveProjectScript {
 			$updated = $this->updateInheritanceNode(
 				$modelInfos['serializationManifestNode'],
 				SerializationManifestParser::INHERITANCE_VALUES,
-				'inheritance_value',
+				'model',
 				$interfacer,
 				$modelInfos[SerializationManifestParser::INHERITANCE_VALUES],
 				null

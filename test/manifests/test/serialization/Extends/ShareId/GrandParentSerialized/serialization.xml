@@ -3,10 +3,10 @@
     <settings dir_path="./data/inherited_serialization" file_name="file.json" __inheritance__="Comhon\File\JsonFile"/>
   </serialization>
   <inheritance_values>
-    <inheritance_value>Test\Extends\ShareId\GrandParentSerialized</inheritance_value>
-    <inheritance_value>Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child</inheritance_value>
-    <inheritance_value>Test\Extends\ShareId\GrandParentSerialized\ParentOne</inheritance_value>
-    <inheritance_value>Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</inheritance_value>
-    <inheritance_value>Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child</inheritance_value>
+    <model>Test\Extends\ShareId\GrandParentSerialized</model>
+    <model>Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child</model>
+    <model>Test\Extends\ShareId\GrandParentSerialized\ParentOne</model>
+    <model>Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</model>
+    <model>Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child</model>
   </inheritance_values>
 </root>

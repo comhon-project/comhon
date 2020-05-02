@@ -4,9 +4,9 @@
     <property name="grandParent" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
   <inheritance_requestables>
-    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child</inheritance_requestable>
-    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentOne</inheritance_requestable>
-    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</inheritance_requestable>
-    <inheritance_requestable>\Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child</inheritance_requestable>
+    <model>\Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child</model>
+    <model>\Test\Extends\ShareId\GrandParentSerialized\ParentOne</model>
+    <model>\Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</model>
+    <model>\Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child</model>
   </inheritance_requestables>
 </root>

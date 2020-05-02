@@ -1,0 +1,8 @@
+<root name="Binder\GreatGrandParent\GrandParent\ParentTwo\Child\Child" version="3.0">
+  <extends>
+    <type>\Binder\GreatGrandParent\GrandParent\ParentTwo\Child</type>
+  </extends>
+  <properties>
+    <property name="childChildTwo" __inheritance__="Comhon\Manifest\Property\String"/>
+  </properties>
+</root>
