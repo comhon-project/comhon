@@ -117,7 +117,6 @@ class StdObjectInterfacer extends Interfacer {
 	 * @param mixed $value
 	 * @param string $name must be specified and not null (there is a default value to stay compatible with interface)
 	 * @param boolean $asNode not used (but needed to stay compatible with interface)
-	 * @return mixed
 	 */
 	public function setValue(&$node, $value, $name = null, $asNode = false) {
 		if (!($node instanceof \stdClass)) {
@@ -127,7 +126,6 @@ class StdObjectInterfacer extends Interfacer {
 			throw new ArgumentException($name, 'string', 3);
 		}
 		$node->$name = $value;
-		return $value;
 	}
 	
 	/**

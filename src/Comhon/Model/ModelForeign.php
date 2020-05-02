@@ -69,12 +69,8 @@ class ModelForeign extends ModelContainer {
 	public function export(AbstractComhonObject $object, Interfacer $interfacer) {
 		try {
 			$this->verifValue($object);
-			$interfacer->initializeExport();
 			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
 			$node = $this->_export($object, 'root', $interfacer, true, $objectCollectionInterfacer);
-			if (is_object($node)) {
-				$interfacer->finalizeExport($node);
-			}
 			return $node;
 		} catch (ComhonException $e) {
 			throw new ExportException($e);

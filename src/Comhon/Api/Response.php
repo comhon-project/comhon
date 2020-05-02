@@ -11,6 +11,8 @@
 
 namespace Comhon\Api;
 
+use Comhon\Interfacer\XMLInterfacer;
+
 class Response {
 	
 	/**
@@ -116,8 +118,9 @@ class Response {
 				$headers['Content-Type'] = 'application/json';
 			} elseif ($this->content instanceof \DOMNode) {
 				$headers['Content-Type'] = 'application/xml';
-				$simpleXML = simplexml_import_dom($this->content);
-				$content = $simpleXML->asXML();
+				// use XMLInterfacer to add null namespace URI if needed
+				$interfacer = new XMLInterfacer();
+				$content = $interfacer->toString($this->content);
 			} elseif ($this->content instanceof \SimpleXMLElement) {
 				$headers['Content-Type'] = 'application/xml';
 				$content = $this->content->asXML();

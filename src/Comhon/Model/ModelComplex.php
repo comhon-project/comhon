@@ -43,13 +43,9 @@ abstract class ModelComplex extends AbstractModel {
 	 */
 	public function export(AbstractComhonObject $object, Interfacer $interfacer) {
 		$this->verifValue($object);
-		$interfacer->initializeExport();
 		self::$instanceObjectHash = [];
-		
 		$node = $this->_exportRoot($object, 'root', $interfacer);
-		
 		self::$instanceObjectHash = [];
-		$interfacer->finalizeExport($node);
 		return $node;
 	}
 	

@@ -14,8 +14,12 @@ namespace Comhon\Interfacer;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Model\CastStringException;
+use Comhon\Utils\Utils;
 
 class XMLInterfacer extends NoScalarTypedInterfacer {
+	
+	/** @var string */
+	const NS_XSI = 'xmlns:xsi';
 	
 	/** @var string */
 	const NS_NULL_VALUE = 'xsi:nil';
@@ -50,35 +54,6 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * initialize export
-	 */
-	public function initializeExport() {
-		parent::initializeExport();
-		$this->domDocument = new \DOMDocument();
-		$this->domDocument->preserveWhiteSpace = false;
-		$this->nullElements = [];
-	}
-	
-	/**
-	 * finalize export
-	 * 
-	 * @param mixed $rootNode
-	 */
-	public function finalizeExport($rootNode) {
-		parent::finalizeExport($rootNode);
-		
-		if (!empty($this->nullElements)) {
-			$this->domDocument->appendChild($rootNode);
-			$this->domDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
-			foreach ($this->nullElements as $domElement) {
-				$domElement->setAttributeNS(self::NIL_URI, self::NULL_VALUE, 'true');
-			}
-			$this->domDocument->removeChild($rootNode);
-			$this->nullElements = [];
-		}
-	}
-	
-	/**
 	 * get child node with name $name
 	 *
 	 * @param \DOMElement $node
@@ -92,6 +67,81 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 			}
 		}
 		return null;
+	}
+	
+	/**
+	 * add attribute namespace URI for null values if provided dom element has null child nodes (deep search).
+	 * if there is no null child nodes, nothing is updated.
+	 *
+	 * @param \DOMElement $node
+	 */
+	private function addNullNamespaceURI(\DOMElement $root) {
+		if ($root->hasAttribute(self::NS_XSI)) {
+			return;
+		}
+		$add = $root->hasAttribute(self::NS_NULL_VALUE);
+		if (!$add) {
+			$stack = [$root];
+			while(!$add && !empty($stack)) {
+				/** @var \DOMNode $node */
+				$node = array_pop($stack);
+				
+				foreach ($node->childNodes as $childNode) {
+					if ($childNode instanceof \DOMElement) {
+						if ($this->isNodeNull($childNode)) {
+							$add = true;
+							break;
+						}
+						$stack[] = $childNode;
+					}
+				}
+			}
+		}
+		if ($add) {
+			// first solution found, create real attribute namespace
+			// there is perhaps a more simple way
+			if ($root->ownerDocument->firstChild === $root) {
+				// no need to update Dom
+				$root->ownerDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
+			}else {
+				// node must be appended at first place to DomDocument before create attribute ns
+				// and node must be replaced at original place if needed
+				$parent = $root->parentNode;
+				$next = $root->nextSibling;
+				if (is_null($root->ownerDocument->firstChild)) {
+					$root->ownerDocument->appendChild($root);
+				} else {
+					$root->ownerDocument->insertBefore($root, $root->ownerDocument->firstChild);
+				}
+				$root->ownerDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
+				$root->ownerDocument->removeChild($root);
+				
+				if ($parent) {
+					if ($next) {
+						$parent->insertBefore($root, $next);
+					} else {
+						$parent->appendChild($root);
+					}
+				}
+			}
+			// second solution found, create fake attribute namespace
+			// more simple but not recognized as attribute namespace
+			// and we cannot get it with getAttribute()
+			// $root->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+		}
+	}
+	
+	/**
+	 * Dumps the internal XML tree back into a string
+	 *
+	 * @param \DOMElement $node
+	 * @param boolean $prettyPrint
+	 * @return false|string
+	 */
+	private function saveXML(\DOMElement $node, $prettyPrint) {
+		$this->addNullNamespaceURI($node);
+		$node->ownerDocument->formatOutput = $prettyPrint;
+		return $node->ownerDocument->saveXML($node);
 	}
 	
 	/**
@@ -128,7 +178,11 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * @return boolean
 	 */
 	public function isNodeNull(\DOMElement $node) {
-		return $node->hasAttributeNS(self::NIL_URI, self::NULL_VALUE);
+		return $node->hasAttributeNS(self::NIL_URI, self::NULL_VALUE) 
+			|| (
+				!is_null($node->attributes->getNamedItem(self::NS_NULL_VALUE))
+				&& $node->attributes->getNamedItem(self::NS_NULL_VALUE)->value == 'true'
+			);
 	}
 	
 	/**
@@ -236,39 +290,40 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * set value in $node with attribute or node $name according $asNode
+	 * Set value in $node with attribute or node $name according $asNode.
+	 * Warning! if $value is a \DomNode and doesn't belong to same \DomDocument than $node,
+	 * $value is copied and the copy is set on $node.
+	 * So modify $value later will not modify set value.
 	 * 
 	 * @param \DOMElement $node
 	 * @param mixed $value if scalar value, set attribute. else if \DOMElement, append child
 	 * @param string $name used only if $value if scalar value
 	 * @param boolean $asNode if true add node otherwise add attribute
 	 *     used only if $value if scalar value
-	 * @return \DOMNode|null return added node or null if nothing added
 	 */
 	public function setValue(&$node, $value, $name = null, $asNode = false) {
 		if (!($node instanceof \DOMElement)) {
 			throw new ArgumentException($node, '\DOMElement', 1);
 		}
 		if ($value instanceof \DOMNode) {
-			return $node->appendChild($value);
+			if ($node->ownerDocument !== $value->ownerDocument) {
+				$value = $node->ownerDocument->importNode($value, true);
+			}
+			$node->appendChild($value);
 		} else {
 			if ($asNode) {
-				$childNode = $node->appendChild($this->domDocument->createElement($name));
+				$childNode = $node->appendChild($node->ownerDocument->createElement($name));
 				if (is_null($value)) {
-					// xsi:nil attributes cannot be added in parallel due to namespace
-					// actually in export context $node is not currently added to it's parent
-					// and DomNode can't find xsi namespace and throw exception
-					// so xsi:nil attribute will be added for each node at the end of export
-					$this->nullElements[] = $childNode;
+					$childNode->setAttribute(self::NS_NULL_VALUE, 'true');
 				} else {
-					$childNode->appendChild($this->domDocument->createTextNode($value));
+					$childNode->appendChild($childNode->ownerDocument->createTextNode($value));
 				}
-				return $childNode;
+				$childNode;
 			} else {
 				if (is_null($value)) {
-					return $node->setAttribute($name, self::NS_NULL_VALUE);
+					$node->setAttribute($name, self::NS_NULL_VALUE);
 				} else {
-					return $node->setAttribute($name, $value);
+					$node->setAttribute($name, $value);
 				}
 			}
 		}
@@ -298,10 +353,9 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * @param \DOMElement $node
 	 * @param \DOMNode $value
 	 * @param string $name used only if $value if scalar value
-	 * @return \DOMNode
 	 */
 	public function addValue(&$node, $value, $name = null) {
-		return $this->setValue($node, $value, $name, true);
+		$this->setValue($node, $value, $name, true);
 	}
 	
 	/**
@@ -310,10 +364,9 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * @param \DOMElement $node
 	 * @param \DOMNode $value
 	 * @param string $name used only if $value if scalar value
-	 * @return \DOMNode
 	 */
 	public function addAssociativeValue(&$node, $value, $name = null) {
-		return $this->setValue($node, $value, $name, true);
+		$this->setValue($node, $value, $name, true);
 	}
 	
 	/**
@@ -363,8 +416,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * @return string
 	 */
 	public function toString($node, $prettyPrint = false) {
-		$this->domDocument->formatOutput = $prettyPrint;
-		return $this->domDocument->saveXML($this->domDocument->importNode($node, true));
+		return $this->saveXML($node, $prettyPrint);
 	}
 	
 	/**
@@ -396,8 +448,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * @return boolean
 	 */
 	public function write($node, $path, $prettyPrint = false) {
-		$this->domDocument->formatOutput = $prettyPrint;
-		return file_put_contents($path, $this->domDocument->saveXML($this->domDocument->importNode($node, true))) !== false;
+		return file_put_contents($path, $this->saveXML($node, $prettyPrint)) !== false;
 	}
 	
 	/**
@@ -434,12 +485,12 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 			$toRemove = [];
 			foreach ($domElement->childNodes as $child) {
 				$toRemove[] = $child;
-				$string .= $this->domDocument->saveXML($child);
+				$string .= $this->saveXML($child, false);
 			}
 			foreach ($toRemove as $child) {
 				$domElement->removeChild($child);
 			}
-			$domElement->appendChild($this->domDocument->createTextNode($string));
+			$domElement->appendChild($domElement->ownerDocument->createTextNode($string));
 		}
 	}
 	

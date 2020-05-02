@@ -338,22 +338,6 @@ abstract class Interfacer {
 	}
 	
 	/**
-	 * initialize export
-	 */
-	public function initializeExport() {
-		// do nothing (overrided in XMLInterfacer)
-	}
-	
-	/**
-	 * finalize export
-	 * 
-	 * @param mixed $rootNode
-	 */
-	public function finalizeExport($rootNode) {
-		// do nothing (overrided in XMLInterfacer)
-	}
-	
-	/**
 	 * define if imported values have to be flagged has updated
 	 *
 	 * @param boolean $boolean
@@ -512,7 +496,6 @@ abstract class Interfacer {
 	 * @param mixed $value
 	 * @param string $name
 	 * @param boolean $asNode
-	 * @return mixed
 	 */
 	abstract public function setValue(&$node, $value, $name = null, $asNode = false);
 	

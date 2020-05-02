@@ -356,7 +356,7 @@ class RequestHandler {
 				}
 			} else {
 				$literal->setValue('operator', Literal::EQUAL);
-				$values = $literal->setValue('value', $value);
+				$literal->setValue('value', $value);
 			}
 			$literal->setId($i++);
 			$literal->setValue('node', $request->getValue('tree'));

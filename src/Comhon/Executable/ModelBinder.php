@@ -41,7 +41,6 @@ try {
 		$optionManager->hasOption('recursive')
 	);
 } catch (\Exception $e) {
-	echo $e->getTraceAsString().PHP_EOL;
 	echo "\033[0;31m{$e->getMessage()}\033[0m".PHP_EOL;
 	echo "script exited".PHP_EOL;
 	exit(1);
