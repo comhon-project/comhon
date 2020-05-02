@@ -5,4 +5,7 @@
   <properties>
     <cityHall serialization_name="city_hall"/>
   </properties>
+  <inheritance_values>
+    <inheritance_value>Test\Town</inheritance_value>
+  </inheritance_values>
 </root>

@@ -1,0 +1,5 @@
+<root name="Test\Person\Woman\WomanExtended" version="3.0">
+  <inheritance_values>
+    <inheritance_value>Test\Person\Woman\WomanExtended</inheritance_value>
+  </inheritance_values>
+</root>

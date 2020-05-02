@@ -1,0 +1,5 @@
+<root name="Test\Extends\Multiple\InheritedFinal" version="3.0">
+  <inheritance_values>
+    <inheritance_value>Test\Extends\Multiple\InheritedFinal</inheritance_value>
+  </inheritance_values>
+</root>

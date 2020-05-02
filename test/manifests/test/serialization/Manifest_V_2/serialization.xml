@@ -3,4 +3,7 @@
   <properties>
     <name serializationName="serial_name"/>
   </properties>
+  <inheritance_values>
+    <inheritance_value>Test\Manifest_V_2</inheritance_value>
+  </inheritance_values>
 </root>

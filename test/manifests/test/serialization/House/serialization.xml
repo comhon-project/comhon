@@ -10,4 +10,8 @@
       </aggregations>
     </residents>
   </properties>
+  <inheritance_values>
+    <inheritance_value>Test\HauntedHouse</inheritance_value>
+    <inheritance_value>Test\House</inheritance_value>
+  </inheritance_values>
 </root>

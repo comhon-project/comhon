@@ -7,4 +7,7 @@
       <values name="body" model="\Test\Body\Woman" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\Person\Woman\WomanExtended</inheritance_requestable>
+  </inheritance_requestables>
 </root>

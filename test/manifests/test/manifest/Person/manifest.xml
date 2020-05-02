@@ -18,5 +18,6 @@
   <inheritance_requestables>
     <inheritance_requestable>\Test\Person\Man</inheritance_requestable>
     <inheritance_requestable>\Test\Person\Woman</inheritance_requestable>
+    <inheritance_requestable>\Test\Person\Woman\WomanExtended</inheritance_requestable>
   </inheritance_requestables>
 </root>

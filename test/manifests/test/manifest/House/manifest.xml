@@ -9,4 +9,7 @@
       <values name="resident" model="\Test\Home" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
+  <inheritance_requestables>
+    <inheritance_requestable>\Test\HauntedHouse</inheritance_requestable>
+  </inheritance_requestables>
 </root>

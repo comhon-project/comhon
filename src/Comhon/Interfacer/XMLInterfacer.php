@@ -73,7 +73,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * add attribute namespace URI for null values if provided dom element has null child nodes (deep search).
 	 * if there is no null child nodes, nothing is updated.
 	 *
-	 * @param \DOMElement $node
+	 * @param \DOMElement $root
 	 */
 	private function addNullNamespaceURI(\DOMElement $root) {
 		if ($root->hasAttribute(self::NS_XSI)) {
