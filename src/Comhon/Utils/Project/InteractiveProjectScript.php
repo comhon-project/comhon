@@ -14,9 +14,7 @@ namespace Comhon\Utils\Project;
 use Comhon\Object\Config\Config;
 use Comhon\Utils\Model as ModelUtils;
 use Comhon\Interfacer\XMLInterfacer;
-use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Utils\InteractiveScript;
-use Comhon\Model\Singleton\ModelManager;
 use Comhon\Interfacer\StdObjectInterfacer;
 
 abstract class InteractiveProjectScript extends InteractiveScript {

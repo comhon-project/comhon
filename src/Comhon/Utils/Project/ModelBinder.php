@@ -25,8 +25,9 @@ class ModelBinder extends InteractiveProjectScript {
 	const SERIALIZATION_MANIFEST_VERSIONS = ['2.0', '3.0'];
 	
 	/**
-	 * execute link binding between models
-	 * options are taken from script arguments
+	 * bind models by adding inheritance_requestables and inheritance_values.
+	 * inheritance_requestables permit to know which children models with same serialization are requestable.
+	 * inheritance_values permit to know which filter models we have to add during complex request.
 	 * 
 	 * @param string $configPath comhon config file path
 	 */
@@ -551,10 +552,14 @@ class ModelBinder extends InteractiveProjectScript {
 	}
 	
 	/**
-	 * execute link binding between models
-	 * options are taken from script arguments
+	 * bind models by adding inheritance_requestables and inheritance_values.
+	 * inheritance_requestables permit to know which children models with same serialization are requestable.
+	 * inheritance_values permit to know which filter models we have to add during complex request.
+	 * should be called from CLI script.
 	 *
 	 * @param string $configPath comhon config file path
+	 * @param string $modelName filter to process only given model
+	 * @param string $recursive if model is provided, process recursively models with same name space
 	 */
 	public static function exec($configPath, $filterModelName = null, $recursive = false) {
 		Config::setLoadPath($configPath);

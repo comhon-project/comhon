@@ -11,6 +11,7 @@ use Comhon\Model\Restriction\Interval;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Model\Restriction\Restriction;
+use Comhon\Model\Property\MultipleForeignProperty;
 
 class PropertyEqualityTest extends TestCase
 {
@@ -218,6 +219,23 @@ class PropertyEqualityTest extends TestCase
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 		
 		$propertyTwo = new Property($modelInt, 'hehe');
+		$this->assertFalse($propertyOne->isEqual($propertyTwo));
+	}
+	
+	public function testMultipleForeignProperty()
+	{
+		$modelForeign = new ModelForeign(ModelManager::getInstance()->getInstanceModel('Test\TestDb'));
+		$propertyOne = new MultipleForeignProperty($modelForeign, 'my_property', ['id1' => 'serial_name_1', 'id2' => 'serial_name_2']);
+		
+		$this->assertTrue($propertyOne->isEqual($propertyOne));
+		
+		$propertyTwo = new MultipleForeignProperty($modelForeign, 'my_property', ['id1' => 'serial_name_1', 'id2' => 'serial_name_2']);
+		$this->assertTrue($propertyOne->isEqual($propertyTwo));
+		
+		$propertyTwo = new MultipleForeignProperty($modelForeign, 'my_property', ['id1' => 'serial_name_10', 'id2' => 'serial_name_2']);
+		$this->assertFalse($propertyOne->isEqual($propertyTwo));
+		
+		$propertyTwo = new MultipleForeignProperty($modelForeign, 'my_prop', ['id1' => 'serial_name_1', 'id2' => 'serial_name_2']);
 		$this->assertFalse($propertyOne->isEqual($propertyTwo));
 	}
 

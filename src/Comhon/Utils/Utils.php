@@ -55,7 +55,7 @@ class Utils {
 	public static function copyDirectory($src, $dst) {
 		$dir = opendir($src);
 		if (!file_exists($dst)) {
-			mkdir($dst);
+			mkdir($dst, 0777, true);
 		}
 		while(($file = readdir($dir)) !== false) {
 			if (($file != '.') && ($file != '..')) {

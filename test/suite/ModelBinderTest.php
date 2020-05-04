@@ -4,7 +4,6 @@ use PHPUnit\Framework\TestCase;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Utils\Cli;
-use Comhon\Object\ComhonObject;
 use Comhon\Utils\Utils;
 use Comhon\Utils\Project\ModelBinder;
 

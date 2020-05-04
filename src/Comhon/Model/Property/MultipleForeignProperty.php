@@ -78,6 +78,26 @@ class MultipleForeignProperty extends ForeignProperty {
 	}
 	
 	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\Property\Property::isEqual()
+	 */
+	public function isEqual(Property $property) {
+		if (
+			!($property instanceof MultipleForeignProperty) 
+			|| count($this->getMultipleIdProperties()) != count($property->getMultipleIdProperties())
+		) {
+			return false;
+		}
+		foreach ($property->getMultipleIdProperties() as $serializationName => $idProperty) {
+			if (!array_key_exists($serializationName, $this->getMultipleIdProperties())) {
+				return false;
+			}
+		}
+		return parent::isEqual($property);
+	}
+	
+	/**
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Property\ForeignProperty::isInterfaceable()

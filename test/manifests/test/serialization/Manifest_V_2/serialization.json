@@ -1,8 +1,8 @@
 {
     "version": "2.0",
     "serialization": {
-        "inheritanceKey": "sex",
-        "id": "town",
+        "inheritanceKey": "inheritanceKey",
+        "id": "version_2",
         "type": "Comhon\\SqlTable"
     },
     "properties": {

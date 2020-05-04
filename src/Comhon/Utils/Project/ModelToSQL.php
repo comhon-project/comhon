@@ -13,8 +13,6 @@ namespace Comhon\Utils\Project;
 
 use Comhon\Object\Config\Config;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Exception\Manifest\SerializationManifestIdException;
-use Comhon\Serialization\SqlTable;
 use Comhon\Model\Property\MultipleForeignProperty;
 use Comhon\Model\Property\Property;
 use Comhon\Model\Property\ForeignProperty;
@@ -22,101 +20,388 @@ use Comhon\Model\SimpleModel;
 use Comhon\Model\ModelForeign;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\ArgumentException;
-use Comhon\Serialization\SerializationUnit;
 use Comhon\Model\ModelContainer;
-use Comhon\Model\ModelArray;
-use Comhon\Model\Model;
-use Comhon\Utils\Cli;
 use Comhon\Utils\Model as ModelUtils;
+use Comhon\Model\Model;
 
-class ModelToSQL {
+class ModelToSQL extends InteractiveProjectScript {
 	
 	/**
-	 * 
-	 * @var \Comhon\Model\Model
+	 * create file(s) with SQL instructions to create SQL tables according models that have SQL serialization.
+	 *
+	 * @param string $outputPath directory where SQL files will be stored
+	 * @param string $filterModelName filter to process only given model
+	 * @param string $recursive if model is provided, process recursively models with same name space
+	 * @throws ArgumentException
 	 */
-	private $currentModel;
+	public function transform($outputPath, $filterModelName = null, $recursive = false) {
+		if (!is_null($filterModelName) && !$recursive) {
+			// verify if model exists
+			ModelManager::getInstance()->getInstanceModel($filterModelName);
+		}
+		$projectModelNames = $this->getValidatedProjectModelNames($filterModelName, $recursive);
+		ModelUtils::sortModelNamesByInheritance($projectModelNames);
+		
+		$filterSqlTables = null;
+		$errorSqlTables = [];
+		
+		if (!is_null($filterModelName)) {
+			$filterSqlTables = $this->getFilterSqlTables($projectModelNames, $filterModelName, $recursive);
+		}
+		$tablesInfos = $this->getTablesInformations($projectModelNames, $filterSqlTables, $errorSqlTables);
+		$databaseQueries = $this->buildDatabaseQueries($tablesInfos, $errorSqlTables);
+		
+		if (!file_exists($outputPath)) {
+			mkdir($outputPath, 0777, true);
+		}
+		if (count($databaseQueries) > 1) {
+			foreach ($databaseQueries as $databaseId => $databaseQuery) {
+				file_put_contents($outputPath . DIRECTORY_SEPARATOR . "database-$databaseId.sql", $databaseQuery);
+			}
+		} else {
+			file_put_contents($outputPath . DIRECTORY_SEPARATOR . "database.sql", current($databaseQueries));
+		}
+	}
 	
-	/**
-	 * 
-	 * @var string
-	 */
-	private $case = 'iso';
 	
-	/**
-	 * 
-	 * @var \Comhon\Object\UniqueObject
-	 */
-	private $defaultSqlDatabase;
-	
-	/**
-	 * 
-	 * @var string
-	 */
-	private $table_ad;
-	
-	/**
-	 * 
-	 * @var array
-	 */
-	private $sqlModels = [];
 	
 	/**
 	 *
-	 * @param string $output
-	 * @param \Comhon\Object\UniqueObject $sqlDatabase
-	 * @return string
+	 * @param string[] $projectModelNames
+	 * @param string $filterModelName
+	 * @param boolean $recursive
+	 * @throws \Exception
+	 * @return NULL[]
 	 */
-	private function initialize($output, UniqueObject $sqlDatabase) {
-		if (file_exists($output)) {
-			exec("rm -r $output");
+	private function getFilterSqlTables($projectModelNames, $filterModelName, $recursive) {
+		$filterSqlTables = [];
+		if (!is_null($filterModelName)) {
+			$filterModelNames = $this->getFilterModelNames($projectModelNames, $filterModelName, $recursive);
+			foreach ($filterModelNames as $modelName => $value) {
+				$model = ModelManager::getInstance()->getInstanceModel($modelName);
+				if ($model->hasSqlTableSerialization()) {
+					$tableKey = $this->getTableUniqueKey($model->getSerializationSettings());
+					if (!array_key_exists($tableKey, $filterSqlTables)) {
+						$filterSqlTables[$tableKey] = null;
+					}
+					if (!$model->getSerializationSettings()->getValue('database')->isLoaded()) {
+						$success = $model->getSerializationSettings()->getValue('database')->load();
+						if (!$success) {
+							$dbId = $model->getSerializationSettings()->getValue('database')->getId();
+							throw new \Exception("impossible to load database with id '$dbId'");
+						}
+					}
+					if (!$model->getSerializationSettings()->getValue('database')->issetValue('DBMS')) {
+						throw new \Exception("database with id '$dbId' doesn't have DBMS value");
+					}
+				}
+			}
 		}
-		mkdir($output, 0777, true);
 		
-		$this->defaultSqlDatabase = $sqlDatabase;
-		$this->table_ad = $output. DIRECTORY_SEPARATOR . 'table';
-		mkdir($this->table_ad, 0777, true);
-		$databasePath = $output . DIRECTORY_SEPARATOR . 'database' . DIRECTORY_SEPARATOR;
-		mkdir($databasePath, 0777, true);
+		return $filterSqlTables;
+	}
+	
+	/**
+	 *
+	 * @param string[] $projectModelNames
+	 * @param array $filterSqlTables
+	 * @param array $errorSqlTables
+	 * @return array
+	 * @throws \Exception
+	 */
+	private function getTablesInformations($projectModelNames, $filterSqlTables, &$errorSqlTables) {
+		$tablesInfos = [];
+		foreach($projectModelNames as $modelName) {
+			try {
+				$model = ModelManager::getInstance()->getInstanceModel($modelName);
+				if (!$model->hasSqlTableSerialization()) {
+					continue;
+				}
+				$tableKey = $this->getTableUniqueKey($model->getSerializationSettings());
+				if (
+					(!is_null($filterSqlTables) && !array_key_exists($tableKey, $filterSqlTables))
+					|| array_key_exists($tableKey, $errorSqlTables)
+				) {
+					continue;
+				}
+				if (!array_key_exists($tableKey, $tablesInfos)) {
+					$tablesInfos[$tableKey] = [
+						'table' => $model->getSerializationSettings(),
+						'properties' => [],
+						'serialization_names' => [],
+						'inheritance_keys' => [],
+						'first_model' => $model
+					];
+				} elseif (!$model->isInheritedFrom($tablesInfos[$tableKey]['first_model'])) {
+					$this->verifyConflictId($model, $tablesInfos[$tableKey]);
+				}
+				$this->verifyConflictModelSerializationNames($model);
+				$this->addTableInformations($model, $tablesInfos[$tableKey]);
+						
+			} catch (\Exception $e) {
+				unset($tablesInfos[$tableKey]);
+				$errorSqlTables[$tableKey] = null;
+				$sqlTableName = $model->getSerializationSettings()->getValue('name');
+				$this->displayContinue(
+					$e->getMessage(),
+					"you can stop or continue without SQL Table '$sqlTableName'",
+					"SQL Table '$sqlTableName' is skipped"
+				);
+			}
+		}
 		
-		$settings = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings();
-		$origin_table_ad = $settings->getValue('dir_path');
-		$settings->setValue('dir_path', $databasePath);
+		return $tablesInfos;
+	}
+	
+	/**
+	 * verify if there is conflict between two models that use same SQL table
+	 *
+	 * @param \Comhon\Model\Model $model
+	 * @param array $tableInfos
+	 * @throws \Exception
+	 */
+	private function verifyConflictId(Model $model, $tableInfos) {
+		$DBMS = $model->getSerializationSettings()->getValue('database')->getValue('DBMS');
+		$sameId = true;
+		if (count($tableInfos['first_model']->getIdProperties()) != count($model->getIdProperties())) {
+			$sameId = false;
+		} else {
+			$existing = [];
+			foreach ($tableInfos['first_model']->getIdProperties() as $idProperty) {
+				$existing[$idProperty->getSerializationName()] = $this->getColumnType($idProperty, $DBMS);
+			}
+			foreach ($model->getIdProperties() as $idProperty) {
+				if (
+					!array_key_exists($idProperty->getSerializationName(), $existing)
+					|| $existing[$idProperty->getSerializationName()] !== $this->getColumnType($idProperty, $DBMS)
+				) {
+					$sameId = false;
+					break;
+				}
+			}
+		}
+		if (!$sameId) {
+			throw new \Exception(
+					"Conflict between id properties from different models "
+					."using same SQL table '{$model->getSerializationSettings()->getValue('name')}' : ".PHP_EOL
+					." - model '{$tableInfos['first_model']->getName()}'".PHP_EOL
+					." - model '{$model->getName()}'"
+					);
+		}
+	}
+	
+	/**
+	 * verify if there is conflict between several properties serialization names on provided model
+	 *
+	 * @param \Comhon\Model\Model $model
+	 * @throws \Exception
+	 */
+	private function verifyConflictModelSerializationNames(Model $model) {
+		$modelSerializationNames = [];
+		foreach ($model->getProperties() as $property) {
+			if (!$property->isSerializable() || $property->isAggregation()) {
+				continue;
+			}
+			if ($property instanceof MultipleForeignProperty) {
+				foreach ($property->getMultipleIdProperties() as $serializationName => $idProperty) {
+					if (array_key_exists($serializationName, $modelSerializationNames)) {
+						throw new \Exception(
+							"Conflict on several properties with same serialtion name '$serializationName' on model '{$model->getName()}'"
+						);
+					}
+					$modelSerializationNames[$serializationName] = null;
+				}
+			} else {
+				$serializationName = $property->getSerializationName();
+				if (array_key_exists($serializationName, $modelSerializationNames)) {
+					throw new \Exception(
+						"Conflict on several properties with same serialtion name '$serializationName' on model '{$model->getName()}'"
+					);
+				}
+				$modelSerializationNames[$serializationName] = null;
+			}
+		}
+	}
+	
+	/**
+	 * add models informations to associated SQL table
+	 *
+	 * @param \Comhon\Model\Model $model
+	 * @param array $tablesInfos
+	 * @throws \Exception
+	 */
+	private function addTableInformations(Model $model, &$tableInfos) {
+		$DBMS = $model->getSerializationSettings()->getValue('database')->getValue('DBMS');
 		
-		$sqlDatabase->save(SerializationUnit::CREATE);
+		foreach ($model->getProperties() as $propertyName => $property) {
+			if (!$property->isSerializable() || $property->isAggregation()) {
+				continue;
+			}
+			if (array_key_exists($propertyName, $tableInfos['properties'])) {
+				$existingProperty = $tableInfos['properties'][$propertyName];
+				if ($property->isEqual($existingProperty)) {
+					// either it's a parent model property already processed,
+					// or it's a property of another model with same table and there is no difference
+					continue;
+				}
+			}
+			// compare equality only if serializations names are the same
+			// if differents there is no coflict
+			if ($property instanceof MultipleForeignProperty) {
+				foreach ($property->getMultipleIdProperties() as $serializationName => $idProperty) {
+					if (array_key_exists($serializationName, $tableInfos['serialization_names'])) {
+						$serializationNameNode = $tableInfos['serialization_names'][$serializationName];
+						if ($this->getColumnType($idProperty, $DBMS) !== $serializationNameNode['column_type']) {
+							throw new \Exception(
+								"Conflict for properties with serialtion name '$serializationName' "
+								."on SQL table '{$model->getSerializationSettings()->getValue('name')}' : ".PHP_EOL
+								." - property of model '{$serializationNameNode['model']->getName()}'".PHP_EOL
+								." - property of model '{$model->getName()}'"
+							);
+						}
+					}
+					$tableInfos['serialization_names'][$serializationName] = [
+						'model' => $model,
+						'column_type' => $this->getColumnType($idProperty, $DBMS)
+					];
+				}
+			} else {
+				$serializationName = $property->getSerializationName();
+				if ($this->isForeignPropertySimpleIdColumn($property)) {
+					$idProperties = $property->getUniqueModel()->getIdProperties();
+					$columnProperty = current($idProperties);
+				} else {
+					$columnProperty = $property;
+				}
+				if (array_key_exists($serializationName, $tableInfos['serialization_names'])) {
+					$serializationNameNode = $tableInfos['serialization_names'][$serializationName];
+					if ($this->getColumnType($columnProperty, $DBMS) !== $serializationNameNode['column_type']) {
+						throw new \Exception(
+							"Conflict for properties with serialtion name '$serializationName' "
+							."on SQL table '{$model->getSerializationSettings()->getValue('name')}' : ".PHP_EOL
+							." - property of model '{$serializationNameNode['model']->getName()}'".PHP_EOL
+							." - property of model '{$model->getName()}'"
+						);
+					}
+				}
+				$tableInfos['serialization_names'][$serializationName] = [
+					'model' => $model,
+					'column_type' => $this->getColumnType($columnProperty, $DBMS)
+				];
+			}
+			if (array_key_exists($propertyName, $tableInfos['properties'])) {
+				// two models witout kinship using same sql table and having same property name
+				// but with differents serialization names
+				$tableInfos['properties'][] = $property;
+			} else {
+				$tableInfos['properties'][$propertyName] = $property;
+			}
+		}
+		$inheritanceKey = $model->getSerialization()->getInheritanceKey();
+		if (!is_null($model->getSerialization()->getInheritanceKey())) {
+			if (array_key_exists($inheritanceKey, $tableInfos['serialization_names'])) {
+				$serializationNameNode = $tableInfos['serialization_names'][$inheritanceKey];
+				throw new \Exception(
+					"Conflict between property and inhertance_key "
+					."on SQL table '{$model->getSerializationSettings()->getValue('name')}' : ".PHP_EOL
+					." - property with serialtion name '$inheritanceKey' "
+					."of model '{$serializationNameNode['model']->getName()}'".PHP_EOL
+					." - inhertance_key '$inheritanceKey' of model '{$model->getName()}'"
+				);
+			}
+			$tableInfos['inheritance_keys'][$model->getSerialization()->getInheritanceKey()] = null;
+		}
+	}
+	
+	/**
+	 * build SQL queries according provided tables informations
+	 *
+	 * @param array $tablesInfos
+	 * @param array $errorSqlTables
+	 * @return string[]
+	 */
+	private function buildDatabaseQueries($tablesInfos, $errorSqlTables) {
+		$databaseQueries = [];
+		$foreignConstraints = [];
+		foreach($tablesInfos as $tableInfos) {
+			if (empty($tableInfos['properties'])) {
+				continue;
+			}
+			$table = $tableInfos['table'];
+			$DBMS = $table->getValue('database')->getValue('DBMS');
+			$primaryKey = [];
+			$tableColumns = [];
+			if (!array_key_exists($table->getValue('database')->getId(), $databaseQueries)) {
+				$databaseQueries[$table->getValue('database')->getId()] = '';
+			}
+			
+			foreach ($tableInfos['properties'] as $property) {
+				$propertyColumns = $this->isForeignPropertySimpleIdColumn($property) || ($property instanceof MultipleForeignProperty)
+				? $this->getForeignColumnsDescriptions($table, $DBMS, $property, $errorSqlTables, $foreignConstraints)
+				: [$this->getColumnDescription($property, $DBMS)];
+				
+				foreach ($propertyColumns as $column) {
+					$tableColumns[] = $column;
+				}
+				if ($property->isId()) {
+					$primaryKey[] = $this->getColumnName($property, $DBMS);
+				}
+			}
+			foreach ($tableInfos['inheritance_keys'] as $columName => $null) {
+				$tableColumns[] = [
+						'name' => $this->escape($columName, $DBMS),
+						'type' => 'VARCHAR(255)'
+				];
+			}
+			$databaseQueries[$table->getValue('database')->getId()] .= $this->getTableDefinition(
+					$table->getId(),
+					$tableColumns,
+					$primaryKey
+					);
+		}
 		
-		$settings->setValue('dir_path', $origin_table_ad);
+		$foreignKeySuffix = 0;
+		foreach ($foreignConstraints as $databaseId => $databaseForeignConstraints) {
+			foreach ($databaseForeignConstraints as $foreignConstraint) {
+				$databaseQueries[$databaseId].= $this->getForeignConstraint($foreignConstraint, $foreignKeySuffix);
+			}
+		}
+		
+		return $databaseQueries;
 	}
 	
 	/**
 	 *
 	 * @param Property $property
+	 * @param string $DBMS database management system
 	 * @return string[]
 	 */
-	private function getColumnDescription(Property $property) {
+	private function getColumnDescription(Property $property, $DBMS) {
 		return [
-			'name' => $this->getColumnName($this->currentModel, $property),
-			'type' => $this->getColumnType($property)
+			'name' => $this->getColumnName($property, $DBMS),
+			'type' => $this->getColumnType($property, $DBMS)
 		];
 	}
 	
 	/**
 	 * 
 	 * @param \Comhon\Object\ComhonObject $table
+	 * @param string $DBMS database management system
 	 * @param \Comhon\Model\Property\ForeignProperty $property
+	 * @param array $errorSqlTables
 	 * @param array $foreignConstraints
 	 * @return array
 	 */
-	private function getForeignColumnsDescriptions($table, ForeignProperty $property, array &$foreignConstraints) {
+	private function getForeignColumnsDescriptions($table, $DBMS, ForeignProperty $property, $errorSqlTables, array &$foreignConstraints) {
 		$databaseId = $table->getValue('database')->getId();
-		$foreignModelName = $property->getUniqueModel()->getName();
 		
 		if (
-			array_key_exists($property->getUniqueModel()->getName(), $this->sqlModels)
+			$property->getUniqueModel()->hasSqlTableSerialization()
 			&& !($property->getModel()->getModel() instanceof ModelContainer)
-			&& $databaseId === $this->sqlModels[$foreignModelName]['table']->getValue('database')->getId()
+			&& $databaseId === $property->getUniqueModel()->getSerializationSettings()->getValue('database')->getId()
+			&& !array_key_exists($this->getTableUniqueKey($property->getUniqueModel()->getSerializationSettings()), $errorSqlTables)
 		) {
-			$foreignTable = $this->sqlModels[$foreignModelName]['table'];
+			$foreignTable = $property->getUniqueModel()->getSerializationSettings();
 			$foreignConstraint = [
 				'local_table' => $table->getId(),
 				'foreign_table' => $foreignTable->getId(),
@@ -131,13 +416,10 @@ class ModelToSQL {
 			$foreignConstraint = null;
 		}
 		
-		$hasMultipleColumns = count($property->getUniqueModel()->getIdProperties()) > 1
-			&& !($property->getModel()->getModel() instanceof ModelContainer);
-		
 		try {
-			$columns = $hasMultipleColumns
-				? $this->getMultipleForeignColumnDescription($property, $foreignConstraint)
-				: $this->getUniqueForeignColumnDescription($property, $foreignConstraint);
+			$columns = ($property instanceof MultipleForeignProperty)
+				? $this->getMultipleForeignColumnDescription($property, $DBMS, $foreignConstraint)
+				: $this->getUniqueForeignColumnDescription($property, $DBMS, $foreignConstraint);
 		} finally {
 			if (!is_null($foreignConstraint) && empty($foreignConstraint['local_columns'])) {
 				array_pop($foreignConstraints[$databaseId]);
@@ -149,32 +431,25 @@ class ModelToSQL {
 	
 	/**
 	 *
-	 * @param ForeignProperty $property
+	 * @param MultipleForeignProperty $property
+	 * @param string $DBMS database management system
 	 * @param array $foreignConstraint
 	 * @return string[][]
 	 */
-	private function getMultipleForeignColumnDescription(ForeignProperty $property, array &$foreignConstraint = null) {
+	private function getMultipleForeignColumnDescription(MultipleForeignProperty $property, $DBMS, array &$foreignConstraint = null) {
 		$columns = [];
-		$isInstanceMultiple = ($property instanceof MultipleForeignProperty);
 		
-		$properties = $isInstanceMultiple 
-			? $property->getMultipleIdProperties() 
-			: $property->getUniqueModel()->getIdProperties();
-		
-		foreach ($properties as $name => $foreignIdProperty) {
-			
-			$column = $isInstanceMultiple 
-				? ($this->case === 'iso' ? $this->escape($name) : $this->escape($this->transformString($name)))
-				: $this->getColumnName($property->getUniqueModel(), $property->getUniqueModel()->getProperty($name));
+		foreach ($property->getMultipleIdProperties()  as $serializationName => $foreignIdProperty) {
+			$column = $this->escape($serializationName, $DBMS);
 			
 			$columns[] = [
 				'name' => $column,
-				'type' => $this->getColumnType($foreignIdProperty),
+				'type' => $this->getColumnType($foreignIdProperty, $DBMS),
 			];
 			
 			if (!is_null($foreignConstraint)) {
 				$foreignConstraint['local_columns'][] = $column;
-				$foreignConstraint['foreign_columns'][] = $this->getColumnName($property->getUniqueModel(), $foreignIdProperty);
+				$foreignConstraint['foreign_columns'][] = $this->getColumnName($foreignIdProperty, $DBMS);
 			}
 		}
 		return $columns;
@@ -183,10 +458,11 @@ class ModelToSQL {
 	/**
 	 *
 	 * @param ForeignProperty $property
+	 * @param string $DBMS database management system
 	 * @param array $foreignConstraint
 	 * @return string[][]
 	 */
-	private function getUniqueForeignColumnDescription(ForeignProperty $property, array &$foreignConstraint = null) {
+	private function getUniqueForeignColumnDescription(ForeignProperty $property, $DBMS, array &$foreignConstraint = null) {
 		$idProperties = $property->getUniqueModel()->getIdProperties();
 		if (empty($idProperties)) {
 			throw new \Exception('foreign property not checked');
@@ -194,14 +470,14 @@ class ModelToSQL {
 		$foreignIdProperty = current($idProperties);
 		
 		if (!is_null($foreignConstraint)) {
-			$foreignConstraint['local_columns'][] = $this->getColumnName($this->currentModel, $property);
-			$foreignConstraint['foreign_columns'][] = $this->getColumnName($property->getUniqueModel(), $foreignIdProperty);
+			$foreignConstraint['local_columns'][] = $this->getColumnName($property, $DBMS);
+			$foreignConstraint['foreign_columns'][] = $this->getColumnName($foreignIdProperty, $DBMS);
 		}
 		
 		return [
 			[
-				'name' => $this->getColumnName($this->currentModel, $property),
-				'type' => $this->getColumnType($foreignIdProperty),
+				'name' => $this->getColumnName($property, $DBMS),
+				'type' => $this->getColumnType($foreignIdProperty, $DBMS),
 			]
 		];
 	}
@@ -209,10 +485,11 @@ class ModelToSQL {
 	/**
 	 *
 	 * @param Property $property
+	 * @param string $DBMS database management system
 	 * @throws \Exception
 	 * @return string
 	 */
-	private function getColumnType(Property $property) {
+	private function getColumnType(Property $property, $DBMS) {
 		switch ($property->getUniqueModel()->getName()) {
 			case 'string':
 				$type = $property->isId() ? 'VARCHAR(255)' : 'TEXT' /*CHARACTER SET utf8'*/;
@@ -223,7 +500,7 @@ class ModelToSQL {
 				break;
 			case 'float':
 			case 'percentage':
-				switch ($this->sqlModels[$this->currentModel->getName()]['table']->getValue('database')->getValue('DBMS')) {
+				switch ($DBMS) {
 					case 'mysql':
 						$type = 'DECIMAL(20,10)';
 						break;
@@ -243,14 +520,15 @@ class ModelToSQL {
 			default:
 				if (
 					($property->getModel() instanceof SimpleModel) 
-					|| (
-						($property->getModel() instanceof ModelForeign) 
-						&& !($property->getModel()->getModel() instanceof ModelArray)
-					)
+					|| $this->isForeignPropertySimpleIdColumn($property)
 				){
-					throw new \Exception('type not handled : ' . $property->getUniqueModel()->getName() . ' -> ' . get_class($property->getModel()));
+					throw new \Exception(
+						'type not handled : '
+						. $property->getUniqueModel()->getName().' -> '
+						.get_class($property->getModel()));
 				}
 				// model that correspond to an object or an object array 
+				// or foreign model with several ids but not defined as MultipleForeignProperty
 				// that will be JSON encoded during serialization
 				// so type is text, may be JSON probably
 				$type = 'TEXT';
@@ -260,217 +538,45 @@ class ModelToSQL {
 	}
 	
 	/**
-	 * transform column name if needed
+	 * verify if property is foreign and must be stored as a simple id column.
 	 * 
-	 * @param \Comhon\Model\Model $model
-	 * @param Property $property
-	 * @throws \Exception
-	 * @return string
+	 * @param \Comhon\Model\Property\Property $property
 	 */
-	private function getColumnName(Model $model, Property $property) {
-		$column = $property->getSerializationName();
-		
-		if (!$model->hasSerialization() && !$property->hasDefinedSerializationName() && $this->case !== 'iso') {
-			$column = $this->transformString($property->getSerializationName());
-		}
-		return $this->escape($column);
+	private function isForeignPropertySimpleIdColumn(Property $property) {
+		return ($property->getModel() instanceof ModelForeign)
+		&& ($property->getModel()->getModel() instanceof Model) // avoid arrays  
+		&& count($property->getModel()->getModel()->getIdProperties()) == 1; // avoid model with several ids
 	}
 	
 	/**
-	 * transform string to defined case
+	 * transform column name if needed
 	 * 
-	 * @param string $string
-	 * @throws \Exception
+	 * @param Property $property
+	 * @param string $DBMS database management system
 	 * @return string
 	 */
-	private function transformString($string) {
-		switch ($this->case) {
-			case 'camel':
-				return $this->toCamelCase($string);
-				break;
-			case 'pascal':
-				return $this->toPascalCase($string);
-				break;
-			case 'kebab':
-				return $this->toKebabCase($string);
-				break;
-			case 'snake':
-				return $this->toSnakeCase($string);
-				break;
-			default:
-				throw new \Exception("invalid case $this->case");
-				break;
-		}
+	private function getColumnName(Property $property, $DBMS) {
+		return $this->escape($property->getSerializationName(), $DBMS);
 	}
 	
-	private function escape($column) {
-		switch ($this->sqlModels[$this->currentModel->getName()]['table']->getValue('database')->getValue('DBMS')) {
+	/**
+	 * 
+	 * @param string $column
+	 * @param string $DBMS database management system
+	 * @return string
+	 */
+	private function escape($column, $DBMS) {
+		switch ($DBMS) {
 			case 'mysql':
 				$column = "`$column`";
 				break;
 			case 'pgsql':
 				$column = "\"$column\"";
 				break;
+			default:
+				throw new \Exception("DBMS '$DBMS' not managed");
 		}
 		return $column;
-	}
-	
-	/**
-	 *
-	 * @param string $string
-	 * @return string
-	 */
-	private function toCamelCase($string) {
-		$string = preg_replace_callback(
-				"|([_-][a-z])|",
-				function ($matches) {return strtoupper(substr($matches[1], 1));},
-				$string
-				);
-		return lcfirst($string);
-	}
-	
-	/**
-	 * 
-	 * @param string $string
-	 * @return string
-	 */
-	private function toPascalCase($string) {
-		return ucfirst($this->toCamelCase($string));
-	}
-	
-	/**
-	 *
-	 * @param string $string
-	 * @return string
-	 */
-	private function toSnakeCase($string) {
-		$string = lcfirst($string);
-		$string = preg_replace_callback(
-			"|(?:[^A-Z]([A-Z]))|",
-			function ($matches) {return strtolower(substr($matches[0], 0, 1) . '_' . $matches[1]);},
-			$string
-		);
-		$string = preg_replace_callback(
-			"|(?:[A-Z]([^A-Z]))|",
-			function ($matches) {return strtolower(substr($matches[0], 0, 1) . '_' . $matches[1]);},
-			$string
-		);
-		
-		return strtolower(str_replace('-', '_', $string));
-	}
-	
-	/**
-	 *
-	 * @param string $string
-	 * @return string
-	 */
-	private function toKebabCase($string) {
-		return str_replace('_', '-', $this->toSnakeCase($string));
-	}
-	
-	private function displayContinue($message, $modelName, $propertyName = null) {
-		$msgModel = "model '$modelName'";
-		$msgPropertyOrModel = (is_null($propertyName) ? '' : "property '$propertyName' on ").$msgModel;
-		$question = "Something goes wrong with {$msgPropertyOrModel} :".PHP_EOL
-			."\033[0;31m{$message}\033[0m".PHP_EOL
-			."You can stop or continue without $msgModel".PHP_EOL
-			."Would you like to continue ?";
-		$response = Cli::ask($question, 'yes', ['yes', 'no']);
-		
-		if ($response === 'no') {
-			self::exit();
-		} else {
-			echo "\033[1;30m".$msgModel." is ignored\033[0m".PHP_EOL.PHP_EOL;
-		}
-	}
-	
-	private static function exit($message = null) {
-		if (!is_null($message)) {
-			echo "\033[0;31m$message\033[0m".PHP_EOL;
-		}
-		echo "script exited".PHP_EOL;
-		exit(1);
-	}
-	
-	/**
-	 * ask to user if model must be saved in sql database
-	 *
-	 * @param string $modelName
-	 * @return boolean
-	 */
-	private function mustSaveModel($modelName) {
-		$question = "Model $modelName doesn't have serialization." . PHP_EOL
-		."Would you like to save it in sql database ?";
-		return Cli::ask($question, 'yes', ['yes', 'no']) === 'yes';
-	}
-	
-	/**
-	 * ask to user to define a table to serialize model.
-	 * the sql table object is serialized in output directory.
-	 * 
-	 *
-	 * @param string $modelName
-	 * @param string[][] $modelsByTable
-	 * @return \Comhon\Object\ComhonObject the sql table object
-	 */
-	private function getSqlTable($modelName, $modelsByTable) {
-		$default = $this->toSnakeCase(str_replace('\\', '', $modelName));
-		$dbId = $this->defaultSqlDatabase->getId();
-		if (array_key_exists($this->getTableUniqueKeyFromName($default, $dbId), $modelsByTable)) {
-			$i = 2;
-			while (array_key_exists($this->getTableUniqueKeyFromName($default.'_'.$i, $dbId), $modelsByTable)) {
-				$i++;
-			}
-			$default .= '_'.$i;
-		}
-		$table = Cli::ask('Enter a table name', $default);
-		while (array_key_exists($this->getTableUniqueKeyFromName($table, $dbId), $modelsByTable)) {
-			$table = Cli::ask('Talbe name already use, please enter a new table name', $default);
-		}
-		
-		$settings = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getSerializationSettings();
-		$origin_table_ad = $settings->getValue('dir_path');
-		$settings->setValue('dir_path', $this->table_ad);
-		
-		$sqlTable = ModelManager::getInstance()->getInstanceModel('Comhon\SqlTable')->getObjectInstance();
-		$sqlTable->setId($table);
-		$sqlTable->setValue('database', $this->defaultSqlDatabase);
-		$sqlTable->save(SerializationUnit::CREATE);
-		
-		$settings->setValue('dir_path', $origin_table_ad);
-		
-		return $sqlTable;
-	}
-	
-	/**
-	 * ask to user if model must be saved in same table than its parent model,
-	 * if it's the case, parent model is returned
-	 *
-	 * @param string $modelName
-	 * @return \Comhon\Model\Model|null null if no parent model or if doesn't share table with parent model
-	 */
-	private function getParentModelWithSharedTable($modelName) {
-		$model = ModelManager::getInstance()->getInstanceModel($modelName);
-		$root = ModelManager::getInstance()->getInstanceModel('Comhon\Root');
-		$parentModel = $model->getParent();
-		$sharedTableModel = null;
-		
-		while ($parentModel !== $root) {
-			if (array_key_exists($parentModel->getName(), $this->sqlModels)) {
-				$table = $this->sqlModels[$parentModel->getName()]['table']->getId();
-				$response = Cli::ask(
-					"$modelName inherit from {$parentModel->getName()},".PHP_EOL."would you like to use same table ($table) ?",
-					'yes',
-					['yes', 'no']
-				);
-				if ($response == 'yes') {
-					$sharedTableModel = $parentModel;
-					break;
-				}
-			}
-			$parentModel = $parentModel->getParent();
-		}
-		return $sharedTableModel;
 	}
 	
 	/**
@@ -517,257 +623,28 @@ class ModelToSQL {
 		);
 	}
 	
-	
-	/**
-	 * execute database file and comhon serialization files generation
-	 * 
-	 * @param string $outputPath folder path where database and serialization files will be exported
-	 * @param \Comhon\Object\UniqueObject $sqlDatabase
-	 * @param string $case case of tables and columns to use
-	 * @param string $inputPath path to a folder to filter manifest to process
-	 * @throws ArgumentException
-	 */
-	private function transform($outputPath, UniqueObject $sqlDatabase = null, $case = 'iso', $inputPath = null) {
-		$this->case = is_null($case) ? 'iso' : $case;
-		if (is_null($sqlDatabase)) {
-			$sqlDatabase = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getObjectInstance();
-			$sqlDatabase->setId('generated');
-			$sqlDatabase->setValue('DBMS', 'mysql');
-		}
-		if ($sqlDatabase->getUniqueModel()->getName() !== 'Comhon\SqlDatabase') {
-			$databaseModel = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase');
-			$expected = $databaseModel->getObjectInstance()->getComhonClass();
-			throw new ArgumentException($sqlDatabase, $expected, 3);
-		}
-		$this->initialize($outputPath, $sqlDatabase);
-		
-		$databaseQueries = [];
-		$foreignConstraints = [];
-		$modelsByTable = [];
-		$SqlableModelNames = [];
-		$notValid = [];
-		
-		$modelNames = ModelUtils::getValidatedProjectModelNames($inputPath, true, $notValid);
-		foreach ($notValid as $modelName => $message) {
-			$this->displayContinue($message, $modelName);
-		}
-		
-		// keep only "sqlable" models that have sql serialization or that doesn't have defined serialization
-		foreach ($modelNames as $modelName) {
-			$model = ModelManager::getInstance()->getInstanceModel($modelName);
-			if (!$model->hasSerialization() || ($model->getSerialization()->getSerializationUnit() instanceof SqlTable)) {
-				$SqlableModelNames[] = $modelName;
-			}
-		}
-		
-		// important! we must have parents models before children models
-		// to be sure to store highest parent model first 
-		// to know if a table is already defined and if we use it for children models
-		ModelUtils::sortModelNamesByInheritance($SqlableModelNames);
-		
-		$toDeleteModels = [];
-		foreach ($SqlableModelNames as $modelName) {
-			$model = ModelManager::getInstance()->getInstanceModel($modelName);
-			if (!$model->hasSerialization()) {
-				continue;
-			}
-			$tableKey = $this->getTableUniqueKeyFromObject($model->getSerializationSettings());
-			if (array_key_exists($tableKey, $modelsByTable)) {
-				$existingModel = ModelManager::getInstance()->getInstanceModel($modelsByTable[$tableKey][0]);
-				if (!$model->isInheritedFrom($existingModel)) {
-					$several = count($modelsByTable[$tableKey]) > 1;
-					$response = Cli::ask(
-						"models '{$model->getname()}' and '{$existingModel->getname()}'"
-						."share same serialization and no one is inherited from other,".PHP_EOL
-						."but the serialization may be shared only if one model inherit from other.".PHP_EOL
-						."Would you like to ?",
-						null,
-						[
-							"continue with model {$model->getname()}",
-							"continue with model".($several ? 's ' : ' ').implode(', ', $modelsByTable[$tableKey]),
-							"exit"
-						],
-						Cli::FILTER_KEY
-					);
-					if ($response === '0') {
-						foreach ($modelsByTable[$tableKey] as $toDeleteModelName) {
-							$toDeleteModels[] = $toDeleteModelName;
-						}
-					} elseif ($response === '1') {
-						$toDeleteModels[] = $modelName;
-					} else {
-						self::exit();
-					}
-				} else {
-					$modelsByTable[$tableKey][] = $model->getName();
-				}
-			} else {
-				$modelsByTable[$tableKey] = [$model->getName()];
-			}
-		}
-		if (!empty($toDeleteModels)) {
-			$SqlableModelNames = array_values(array_diff($SqlableModelNames, $toDeleteModels));
-		}
-		
-		foreach ($SqlableModelNames as $modelName) {
-			$model = ModelManager::getInstance()->getInstanceModel($modelName);
-			$sharedTableParentModel = null;
-			
-			if ($model->hasSerialization()) {
-				$model->getSerializationSettings()->loadValue('database');
-				$this->sqlModels[$model->getName()] = [
-					'table' => $model->getSerializationSettings(),
-					'model' => $model,
-					'shareTableModels' => []
-				];
-				$sharedTableParentModel = $model->getLastSharedIdParentMatch(true);
-			} elseif ($this->mustSaveModel($modelName)) {
-				$sharedTableParentModel = $this->getParentModelWithSharedTable($modelName);
-				$sqlTable = is_null($sharedTableParentModel)
-					? $this->getSqlTable($modelName, $modelsByTable)
-					: $this->sqlModels[$sharedTableParentModel->getName()]['table'];
-				
-				$this->sqlModels[$model->getName()] = [
-					'table' => $sqlTable,
-					'model' => $model,
-					'shareTableModels' => []
-				];
-			}
-			if (!is_null($sharedTableParentModel)) {
-				$this->sqlModels[$sharedTableParentModel->getName()]['shareTableModels'][] = $model;
-			}
-			if (array_key_exists($model->getName(), $this->sqlModels)) {
-				$this->sqlModels[$model->getName()]['createTable'] = is_null($sharedTableParentModel);
-				$tableKey = $this->getTableUniqueKeyFromObject($this->sqlModels[$model->getName()]['table']);
-				if (!array_key_exists($tableKey, $modelsByTable)) {
-					$modelsByTable[$tableKey] = [];
-				}
-				$modelsByTable[$tableKey][] = $model->getName();
-			}
-		}
-		
-		// now models are fully loaded so we can process them
-		foreach($this->sqlModels as $sqlModel) {
-			if (!$sqlModel['createTable'] || count($sqlModel['model']->getProperties()) == 0) {
-				continue;
-			}
-			$table = $sqlModel['table'];
-			$this->currentModel = $sqlModel['model'];
-			$primaryKey = [];
-			$tableColumns = [];
-			if (!array_key_exists($table->getValue('database')->getId(), $databaseQueries)) {
-				$databaseQueries[$table->getValue('database')->getId()] = '';
-			}
-			$properties = $this->currentModel->getProperties();
-			foreach ($sqlModel['shareTableModels'] as $model) {
-				$properties = array_merge($properties, $model->getProperties());
-			}
-			
-			foreach ($properties as $property) {
-				if (!$property->isSerializable() || $property->isAggregation()) {
-					continue;
-				}
-				if (
-					!$this->currentModel->hasSerialization()
-					&& array_key_exists($property->getUniqueModel()->getName(), $this->sqlModels)
-					&& ($property->getModel() instanceof ModelContainer)
-					&& ($property->getModel()->getModel() instanceof ModelArray)
-				) {
-					$question = "Is '{$this->getColumnName($this->currentModel, $property)}' an aggregation of '{$table->getId()}'"
-						. ' (in other words not serialized as a column)?';
-					
-					$response = Cli::ask($question, 'no', ['yes', 'no']);
-					
-					if ($response === 'yes') {
-						continue;
-					}
-				}
-				
-				$propertyColumns = $property->isForeign() && !($property->getModel()->getModel() instanceof ModelArray)
-				? $this->getForeignColumnsDescriptions($table, $property, $foreignConstraints)
-				: [$this->getColumnDescription($property)];
-				
-				foreach ($propertyColumns as $column) {
-					$tableColumns[] = $column;
-				}
-				if ($property->isId()) {
-					$primaryKey[] = $this->getColumnName($this->currentModel, $property);
-				}
-			}
-			$databaseQueries[$table->getValue('database')->getId()] .= $this->getTableDefinition($table->getId(), $tableColumns, $primaryKey);
-		}
-		
-		$foreignKeySuffix = 0;
-		foreach ($foreignConstraints as $databaseId => $databaseForeignConstraints) {
-			foreach ($databaseForeignConstraints as $foreignConstraint) {
-				$databaseQueries[$databaseId].= $this->getForeignConstraint($foreignConstraint, $foreignKeySuffix);
-			}
-		}
-		if (count($databaseQueries) > 1) {
-			foreach ($databaseQueries as $databaseId => $databaseQuery) {
-				file_put_contents($outputPath . DIRECTORY_SEPARATOR . "database-$databaseId.sql", $databaseQuery);
-			}
-		} else {
-			file_put_contents($outputPath . DIRECTORY_SEPARATOR . "database.sql", current($databaseQueries));
-		}
-	}
-	
 	/**
 	 * 
 	 * @param UniqueObject $sqlTable
 	 */
-	private function getTableUniqueKeyFromObject(UniqueObject $sqlTable) {
-		return $this->getTableUniqueKeyFromName($sqlTable->getId(), $sqlTable->getValue('database')->getId());
+	private function getTableUniqueKey(UniqueObject $sqlTable) {
+		return $sqlTable->getId().'_'.$sqlTable->getValue('database')->getId();
 	}
 	
 	/**
+	 * create file(s) with SQL instructions to create SQL tables according models that have SQL serialization.
+	 * should be called from CLI script.
 	 *
-	 * @param UniqueObject $sqlTable
-	 */
-	private function getTableUniqueKeyFromName($tableName, $databaseId) {
-		return $tableName.'_'.$databaseId;
-	}
-	
-	/**
-	 * execute database file and comhon serialization files generation
-	 * options are taken from script arguments
-	 * 
-	 * @param string $outputPath folder path where database and serialization files will be exported
 	 * @param string $configPath comhon config file path
-	 * @param string $case case of tables and columns to use
-	 * @param string $database database connection informations
-	 * @param string $inputPath path to a folder to filter manifest to process
+	 * @param string $outputPath directory where SQL files will be stored
+	 * @param string $filterModelName filter to process only given model
+	 * @param string $recursive if model is provided, process recursively models with same name space
 	 */
-	public static function exec($outputPath, $configPath, $case = 'iso', $database = null, $inputPath = null) {
+	public static function exec($configPath, $outputPath, $filterModelName = null, $recursive = false) {
 		Config::setLoadPath($configPath);
 		
-		if (!is_null($database)) {
-			$infos = explode(':', $database);
-			
-			if (count($infos) > 7 || $infos < 6) {
-				throw new \Exception('malformed database description : '.$database);
-			}
-			
-			$sqlDatabase = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->getObjectInstance();
-			$sqlDatabase->setId($infos[0]);
-			$sqlDatabase->setValue('DBMS', $infos[1]);
-			$sqlDatabase->setValue('host', $infos[2]);
-			$sqlDatabase->setValue('name', $infos[3]);
-			$sqlDatabase->setValue('user', $infos[4]);
-			$sqlDatabase->setValue('password', $infos[5]);
-			if (isset($infos[6])) {
-				$sqlDatabase->setValue('port', (integer) $infos[6]);
-			}
-		} else {
-			$sqlDatabase = null;
-		}
-		
-		$modelToSQL = new self();
-		try {
-			$modelToSQL->transform($outputPath, $sqlDatabase, $case, $inputPath);
-		} catch (\Exception $e) {
-			self::exit($e->getMessage());
-		}
+		$self = new self(true);
+		$self->transform($outputPath, $filterModelName, $recursive);
 	}
     
 }
