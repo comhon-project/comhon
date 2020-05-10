@@ -453,6 +453,7 @@ try {
 
 // update modelToSql
 
+// manifest add auto_increment attribut
 // docker
 // latest : override Comhon options to allow manifest creation
 // latest : allow namespace prefix creation

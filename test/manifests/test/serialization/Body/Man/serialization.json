@@ -6,5 +6,10 @@
             "id": "man_body",
             "__inheritance__": "Comhon\\SqlTable"
         }
+    },
+    "properties": {
+        "owner": {
+            "serialization_name": "owner_id"
+        }
     }
 }

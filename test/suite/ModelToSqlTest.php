@@ -31,37 +31,50 @@ class ModelToSqlTest extends TestCase
 		}
 	}
 	
-	public function testModelToSql() {
+	/**
+	 * @dataProvider ModelToSqlData
+	 */
+	public function testModelToSql($update, $modelName, $recursive) {
+		Cli::$STDIN = fopen(self::DATA_DIR.'stdin.txt', 'r');
+		Cli::$STDOUT = fopen(self::DATA_DIR.'stdout_actual.txt', 'w');
 		$modelBinder = new ModelToSQL(true);
-		$modelBinder->transform(self::OUTPUT_PATH, 'Test', true);
-		$expectedFile = Config::getInstance()->getManifestFormat() == 'json' 
+		$modelBinder->generateFiles(self::OUTPUT_PATH, $update, $modelName, $recursive);
+		
+		$expectedStdFile = Config::getInstance()->getManifestFormat() == 'json'
 			? 'stdout_expected_json.txt' : 'stdout_expected_xml.txt';
-		$expected = self::DATA_DIR.$expectedFile;
+		$expected = self::DATA_DIR.$expectedStdFile;
 		$actual = self::DATA_DIR.'stdout_actual.txt';
 		$this->assertFileEquals($expected, $actual);
+		
+		$suffix = $update ? '-update' : '-create';
+		$expectedDir = self::DATA_DIR.'output-conf-'.Config::getInstance()->getManifestFormat().$suffix;
+		$this->assertFileExists(self::OUTPUT_PATH);
+		$this->assertFileExists($expectedDir);
+		$actualFiles = Utils::scanDirectory(self::OUTPUT_PATH);
+		$expectedFiles = Utils::scanDirectory($expectedDir);
+		$this->assertEquals(count($actualFiles), count($expectedFiles));
+		
+		for ($i = 0; $i < count($expectedFiles); $i++) {
+			$actualFile = $actualFiles[$i];
+			$expectedFile = $expectedFiles[$i];
+			$this->assertEquals(basename($expectedFile), basename($actualFile));
+			$this->assertFileEquals($expectedFile, $actualFile);
+		}
 	}
 	
-	/**
-	 * depends testModelToSql
-	 */
-	public function testGeneratedSqlFiles() {
-		
-		$this->assertFileExists(self::OUTPUT_PATH);
-		$files = Utils::scanDirectory(self::OUTPUT_PATH);
-		$this->assertCount(2, $files);
-		
-		$expectedMd5Files = Config::getInstance()->getManifestFormat() == 'json'
-			? 'e5adaeb37744f5eda174fe74af5aed2d'
-			: '3baaff397bb360a67bc0e2c26eb5720d';
-		
-		$actualMd5Files = '';
-		foreach ($files as $file) {
-			if (is_dir($file)) {
-				continue;
-			}
-			$actualMd5Files = md5($actualMd5Files.md5_file($file));
-		}
-		$this->assertEquals($expectedMd5Files, $actualMd5Files);
+	public function modelToSqlData() {
+		return [
+			[
+				false,
+				'Test',
+				true
+			],
+			[
+				true,
+				'Test',
+				true
+			]
+		];
 	}
 	
 }

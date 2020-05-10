@@ -2,4 +2,7 @@
   <serialization>
     <foreign_settings id="man_body" __inheritance__="Comhon\SqlTable"/>
   </serialization>
+  <properties>
+    <owner serialization_name="owner_id"/>
+  </properties>
 </root>

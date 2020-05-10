@@ -60,7 +60,7 @@ CREATE TABLE public.main_test (
 
 CREATE TABLE public.man_body (
     "id" INT,
-    "date" TIMESTAMP NULL,
+    "date" TIMESTAMP,
     "height" FLOAT,
     "weight" FLOAT,
     "hair_color" TEXT,
@@ -70,14 +70,14 @@ CREATE TABLE public.man_body (
     "tatoos" TEXT,
     "piercings" TEXT,
     "arts" TEXT,
-    "owner" INT,
+    "owner_id" INT,
     "baldness" BOOLEAN,
     PRIMARY KEY ("id")
 );
 
 CREATE TABLE public.woman_body (
     "id" INT,
-    "date" TIMESTAMP NULL,
+    "date" TIMESTAMP,
     "height" FLOAT,
     "weight" FLOAT,
     "hair_color" TEXT,
@@ -129,20 +129,20 @@ CREATE TABLE "public"."person" (
     "id" INT,
     "first_name" TEXT,
     "last_name" TEXT,
-    "birth_date" TIMESTAMP NULL,
+    "birth_date" TIMESTAMP,
     "birth_place" INT,
     "best_friend" INT,
     "father_id" INT,
     "mother_id" INT,
-    "sex" VARCHAR(255),
+    "sex" TEXT,
     PRIMARY KEY ("id")
 );
 
 CREATE TABLE public.test (
     "id_1" INT,
     "id_2" VARCHAR(255),
-    "date" TIMESTAMP NULL,
-    "timestamp" TIMESTAMP NULL,
+    "date" TIMESTAMP,
+    "timestamp" TIMESTAMP,
     "object" TEXT,
     "object_with_id" TEXT,
     "string" TEXT,
@@ -163,66 +163,57 @@ CREATE TABLE public.test (
     PRIMARY KEY ("id_1", "id_2")
 );
 
+CREATE TABLE public.version_2 (
+    "id" INT,
+    "serial_name" TEXT,
+    "inheritanceKey" TEXT,
+    PRIMARY KEY ("id")
+);
+
 ALTER TABLE public.house
-    ADD CONSTRAINT fk_public_house_1
-    FOREIGN KEY ("address") REFERENCES public.place("id");
+    ADD FOREIGN KEY ("address") REFERENCES public.place("id");
 
 ALTER TABLE public.town
-    ADD CONSTRAINT fk_public_town_2
-    FOREIGN KEY ("city_hall") REFERENCES public.place("id");
+    ADD FOREIGN KEY ("city_hall") REFERENCES public.place("id");
 
 ALTER TABLE public.test_private_id
-    ADD CONSTRAINT fk_public_test_private_id_3
-    FOREIGN KEY ("foreign_test_private_id") REFERENCES public.test_private_id("id");
+    ADD FOREIGN KEY ("foreign_test_private_id") REFERENCES public.test_private_id("id");
 
 ALTER TABLE public.db_constraint
-    ADD CONSTRAINT fk_public_db_constraint_4
-    FOREIGN KEY ("foreign_constraint") REFERENCES public.db_constraint("id");
+    ADD FOREIGN KEY ("foreign_constraint") REFERENCES public.db_constraint("id");
 
 ALTER TABLE public.db_constraint
-    ADD CONSTRAINT fk_public_db_constraint_5
-    FOREIGN KEY ("unique_foreign_one", "unique_foreign_two") REFERENCES public.test("id_1", "id_2");
+    ADD FOREIGN KEY ("unique_foreign_one", "unique_foreign_two") REFERENCES public.test("id_1", "id_2");
 
 ALTER TABLE public.place
-    ADD CONSTRAINT fk_public_place_6
-    FOREIGN KEY ("town") REFERENCES public.town("id");
+    ADD FOREIGN KEY ("town") REFERENCES public.town("id");
 
 ALTER TABLE public.man_body
-    ADD CONSTRAINT fk_public_man_body_7
-    FOREIGN KEY ("owner") REFERENCES "public"."person"("id");
+    ADD FOREIGN KEY ("owner_id") REFERENCES "public"."person"("id");
 
 ALTER TABLE public.woman_body
-    ADD CONSTRAINT fk_public_woman_body_8
-    FOREIGN KEY ("owner_id") REFERENCES "public"."person"("id");
+    ADD FOREIGN KEY ("owner_id") REFERENCES "public"."person"("id");
 
 ALTER TABLE public.child_test
-    ADD CONSTRAINT fk_public_child_test_9
-    FOREIGN KEY ("parent_id_1", "parent_id_2") REFERENCES public.test("id_1", "id_2");
+    ADD FOREIGN KEY ("parent_id_1", "parent_id_2") REFERENCES public.test("id_1", "id_2");
 
 ALTER TABLE public.home
-    ADD CONSTRAINT fk_public_home_10
-    FOREIGN KEY ("person_id") REFERENCES "public"."person"("id");
+    ADD FOREIGN KEY ("person_id") REFERENCES "public"."person"("id");
 
 ALTER TABLE public.home
-    ADD CONSTRAINT fk_public_home_11
-    FOREIGN KEY ("house_id") REFERENCES public.house("id_serial");
+    ADD FOREIGN KEY ("house_id") REFERENCES public.house("id_serial");
 
 ALTER TABLE "public"."person"
-    ADD CONSTRAINT fk_public_person_12
-    FOREIGN KEY ("birth_place") REFERENCES public.place("id");
+    ADD FOREIGN KEY ("birth_place") REFERENCES public.place("id");
 
 ALTER TABLE "public"."person"
-    ADD CONSTRAINT fk_public_person_13
-    FOREIGN KEY ("best_friend") REFERENCES "public"."person"("id");
+    ADD FOREIGN KEY ("best_friend") REFERENCES "public"."person"("id");
 
 ALTER TABLE "public"."person"
-    ADD CONSTRAINT fk_public_person_14
-    FOREIGN KEY ("father_id") REFERENCES "public"."person"("id");
+    ADD FOREIGN KEY ("father_id") REFERENCES "public"."person"("id");
 
 ALTER TABLE "public"."person"
-    ADD CONSTRAINT fk_public_person_15
-    FOREIGN KEY ("mother_id") REFERENCES "public"."person"("id");
+    ADD FOREIGN KEY ("mother_id") REFERENCES "public"."person"("id");
 
 ALTER TABLE public.test
-    ADD CONSTRAINT fk_public_test_16
-    FOREIGN KEY ("main_test_id") REFERENCES public.main_test("id");
+    ADD FOREIGN KEY ("main_test_id") REFERENCES public.main_test("id");

@@ -38,20 +38,20 @@ SET default_tablespace = '';
 
 SET default_with_oids = false;
 
-DROP TABLE IF EXISTS public.child_test;
-DROP TABLE IF EXISTS public.db_constraint;
-DROP TABLE IF EXISTS public.home;
-DROP TABLE IF EXISTS public.house;
-DROP TABLE IF EXISTS public.main_test;
-DROP TABLE IF EXISTS public.man_body;
-DROP TABLE IF EXISTS public.person;
-DROP TABLE IF EXISTS public.place;
-DROP TABLE IF EXISTS public.test;
-DROP TABLE IF EXISTS public.test_multi_increment;
-DROP TABLE IF EXISTS public.town;
-DROP TABLE IF EXISTS public.woman_body;
-DROP TABLE IF EXISTS public.test_private_id;
-DROP TABLE IF EXISTS public.test_no_id;
+DROP TABLE IF EXISTS public.child_test CASCADE;
+DROP TABLE IF EXISTS public.db_constraint CASCADE;
+DROP TABLE IF EXISTS public.home CASCADE;
+DROP TABLE IF EXISTS public.house CASCADE;
+DROP TABLE IF EXISTS public.main_test CASCADE;
+DROP TABLE IF EXISTS public.man_body CASCADE;
+DROP TABLE IF EXISTS public.person CASCADE;
+DROP TABLE IF EXISTS public.place CASCADE;
+DROP TABLE IF EXISTS public.test CASCADE;
+DROP TABLE IF EXISTS public.test_multi_increment CASCADE;
+DROP TABLE IF EXISTS public.town CASCADE;
+DROP TABLE IF EXISTS public.woman_body CASCADE;
+DROP TABLE IF EXISTS public.test_private_id CASCADE;
+DROP TABLE IF EXISTS public.test_no_id CASCADE;
 
 --
 -- TOC entry 181 (class 1259 OID 304387)
@@ -104,7 +104,10 @@ CREATE TABLE public.db_constraint (
     unique_one integer,
     unique_two text,
     unique_foreign_one integer,
-    unique_foreign_two text
+    unique_foreign_two text,
+    foreign_constraint_not_in_model integer,
+    foreign_not_in_model_one integer,
+    foreign_not_in_model_two text
 );
 
 
@@ -181,7 +184,7 @@ ALTER SEQUENCE public.home_id_seq OWNED BY public.home.id;
 
 CREATE TABLE public.house (
     id_serial bigint NOT NULL,
-    surface integer NOT NULL,
+    surface double precision NOT NULL,
     type text NOT NULL,
     garden boolean NOT NULL,
     garage boolean NOT NULL
@@ -458,7 +461,8 @@ ALTER SEQUENCE public.test_multi_increment_id1_seq OWNED BY public.test_multi_in
 --
 
 CREATE TABLE public.test_no_id (
-    name text
+    name text,
+    foreign_constraint_not_in_model integer
 );
 
 
@@ -795,11 +799,11 @@ INSERT INTO public.test_multi_increment VALUES (16, 'hoho', 45);
 -- Data for Name: test_no_id; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public.test_no_id VALUES ('a');
-INSERT INTO public.test_no_id VALUES ('b');
-INSERT INTO public.test_no_id VALUES ('c');
-INSERT INTO public.test_no_id VALUES ('d');
-INSERT INTO public.test_no_id VALUES ('e');
+INSERT INTO public.test_no_id VALUES ('a', NULL);
+INSERT INTO public.test_no_id VALUES ('b', NULL);
+INSERT INTO public.test_no_id VALUES ('c', NULL);
+INSERT INTO public.test_no_id VALUES ('d', NULL);
+INSERT INTO public.test_no_id VALUES ('e', NULL);
 
 --
 -- TOC entry 2297 (class 0 OID 304540)
@@ -1112,6 +1116,33 @@ ALTER TABLE ONLY public.db_constraint
 
 ALTER TABLE ONLY public.db_constraint
     ADD CONSTRAINT db_constraint_unique_one_fkey FOREIGN KEY (unique_foreign_one, unique_foreign_two) REFERENCES public.test(id_1, id_2);
+
+
+--
+-- TOC entry 2159 (class 2606 OID 304534)
+-- Name: db_constraint db_constraint_foreign_not_in_model_one_fkey; Type: FK CONSTRAINT; Schema: public; Owner: root
+--
+
+ALTER TABLE ONLY public.db_constraint
+    ADD CONSTRAINT db_constraint_foreign_not_in_model_one_fkey FOREIGN KEY (foreign_not_in_model_one,foreign_not_in_model_two) REFERENCES public.test(id_1, id_2);
+
+
+--
+-- TOC entry 2159 (class 2606 OID 304534)
+-- Name: db_constraint db_constraint_foreign_constraint_not_in_model_fkey; Type: FK CONSTRAINT; Schema: public; Owner: root
+--
+
+ALTER TABLE ONLY public.db_constraint
+    ADD CONSTRAINT db_constraint_foreign_constraint_not_in_model_fkey FOREIGN KEY (foreign_constraint_not_in_model) REFERENCES public.db_constraint(id);
+
+
+--
+-- TOC entry 2159 (class 2606 OID 304534)
+-- Name: test_no_id test_no_id_foreign_constraint_not_in_model_fkey; Type: FK CONSTRAINT; Schema: public; Owner: root
+--
+
+ALTER TABLE public.test_no_id
+  ADD CONSTRAINT test_no_id_foreign_constraint_not_in_model_fkey FOREIGN KEY (foreign_constraint_not_in_model) REFERENCES public.db_constraint(id);
 
 
 --

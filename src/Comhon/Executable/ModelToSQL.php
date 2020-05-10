@@ -31,6 +31,24 @@ $optionsDescription = [
 		'has_value' => true,
 		'required' => true,
 		'description' => 'path to config file',
+	],
+	'update' => [
+		'short' => 'u',
+		'long' => 'update',
+		'has_value' => false,
+		'description' => 'connect to database and build table update query if table already exist',
+		'long_description' =>
+			'connect to database and build table update query if model has been updated and table already exist.' . PHP_EOL .
+			'operations managed : ' . PHP_EOL .
+			' - add column if a new serializable property is defined in model' . PHP_EOL .
+			' - drop column if a serializable property has been deleted from model' . PHP_EOL .
+			'operations not managed : ' . PHP_EOL .
+			' - update property with a different type,' . PHP_EOL .
+			'   an error will be thrown' . PHP_EOL .
+			' - update property serialization name,' . PHP_EOL .
+			'   it will generate drop and add instructions' . PHP_EOL .
+			' - update table name is not managed,' . PHP_EOL .
+			'   it will generate a create table instruction'
 	]
 ];
 
@@ -45,6 +63,7 @@ try {
 	ModelToSql::exec(
 		$optionManager->getOption('config'),
 		$optionManager->getOption('output'),
+		$optionManager->hasOption('update'),
 		$optionManager->getOption('model'),
 		$optionManager->hasOption('recursive')
 	);

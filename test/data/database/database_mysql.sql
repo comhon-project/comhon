@@ -20,20 +20,53 @@ SET time_zone = "+00:00";
 -- Base de données :  `database`
 --
 
+/*ALTER TABLE child_test
+    DROP FOREIGN KEY child_test_ibfk_1
+;
+ALTER TABLE home
+    DROP FOREIGN KEY home_ibfk_1,
+    DROP FOREIGN KEY home_ibfk_2
+;
+ALTER TABLE house
+    DROP FOREIGN KEY house_ibfk_1
+;
+ALTER TABLE man_body
+    DROP FOREIGN KEY man_body_ibfk_1
+;
+ALTER TABLE woman_body
+    DROP FOREIGN KEY woman_body_ibfk_1
+;
+ALTER TABLE person
+    DROP FOREIGN KEY person_ibfk_1,
+    DROP FOREIGN KEY person_ibfk_2,
+    DROP FOREIGN KEY person_ibfk_3,
+    DROP FOREIGN KEY person_ibfk_4
+;
+ALTER TABLE place
+    DROP FOREIGN KEY place_ibfk_1
+;
+ALTER TABLE test
+    DROP FOREIGN KEY test_ibfk_1
+;
+ALTER TABLE town
+    DROP FOREIGN KEY town_ibfk_1
+;*/
+
+
 DROP TABLE IF EXISTS child_test;
+DROP TABLE IF EXISTS test_no_id;
 DROP TABLE IF EXISTS db_constraint;
 DROP TABLE IF EXISTS home;
 DROP TABLE IF EXISTS house;
+DROP TABLE IF EXISTS test;
 DROP TABLE IF EXISTS main_test;
 DROP TABLE IF EXISTS man_body;
 DROP TABLE IF EXISTS person;
 DROP TABLE IF EXISTS place;
-DROP TABLE IF EXISTS test;
 DROP TABLE IF EXISTS test_multi_increment;
 DROP TABLE IF EXISTS town;
 DROP TABLE IF EXISTS woman_body;
 DROP TABLE IF EXISTS test_private_id;
-DROP TABLE IF EXISTS test_no_id;
 
 -- --------------------------------------------------------
 
@@ -69,7 +102,10 @@ CREATE TABLE `db_constraint` (
   `unique_one` int(11) DEFAULT NULL,
   `unique_two` varchar(32) DEFAULT NULL,
   `unique_foreign_one` int(11) DEFAULT NULL,
-  `unique_foreign_two` varchar(32) DEFAULT NULL
+  `unique_foreign_two` varchar(32) DEFAULT NULL,
+  `foreign_constraint_not_in_model` int(11) DEFAULT NULL,
+  `foreign_not_in_model_one` int(11) DEFAULT NULL,
+  `foreign_not_in_model_two` varchar(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
@@ -106,7 +142,7 @@ INSERT INTO `home` (`id`, `begin_date`, `end_date`, `person_id`, `house_id`) VAL
 
 CREATE TABLE `house` (
   `id_serial` int(11) NOT NULL,
-  `surface` int(11) NOT NULL,
+  `surface` DECIMAL(20,10) NOT NULL,
   `type` text CHARACTER SET utf8 NOT NULL,
   `garden` tinyint(1) NOT NULL,
   `garage` tinyint(1) NOT NULL
@@ -151,7 +187,7 @@ INSERT INTO `main_test` (`id`, `name`, `obj`) VALUES
 --
 
 CREATE TABLE `man_body` (
-  `id` bigint(20) NOT NULL,
+  `id` int(11) NOT NULL,
   `height` DECIMAL(20,10) NOT NULL,
   `weight` DECIMAL(20,10) NOT NULL,
   `hair_color` text NOT NULL,
@@ -160,7 +196,7 @@ CREATE TABLE `man_body` (
   `physical_appearance` text NOT NULL,
   `tatoos` text NOT NULL,
   `piercings` text NOT NULL,
-  `owner_id` bigint(20) NOT NULL,
+  `owner_id` int(11) NOT NULL,
   `baldness` tinyint(1) NOT NULL DEFAULT '0',
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -213,7 +249,7 @@ INSERT INTO `person` (`id`, `first_name`, `last_name`, `sex`, `birth_place`, `fa
 --
 
 CREATE TABLE `place` (
-  `id` bigint(20) NOT NULL,
+  `id` int(11) NOT NULL,
   `number` int(11) DEFAULT NULL,
   `type` varchar(31) CHARACTER SET utf8 DEFAULT NULL,
   `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -313,19 +349,20 @@ INSERT INTO `test_multi_increment` (`id1`, `plop`, `id2`) VALUES
 --
 
 CREATE TABLE `test_no_id` (
-  `name` text
+  `name` text,
+  `foreign_constraint_not_in_model` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Contenu de la table `test_no_id`
 --
 
-INSERT INTO `test_no_id` (`name`) VALUES
-('a'),
-('b'),
-('c'),
-('d'),
-('e');
+INSERT INTO `test_no_id` (`name`, `foreign_constraint_not_in_model`) VALUES
+('a', NULL),
+('b', NULL),
+('c', NULL),
+('d', NULL),
+('e', NULL);
 
 -- --------------------------------------------------------
 
@@ -402,7 +439,7 @@ INSERT INTO `town` (`id`, `name`, `surface`, `city_hall`) VALUES
 --
 
 CREATE TABLE `woman_body` (
-  `id` bigint(20) NOT NULL,
+  `id` int(11) NOT NULL,
   `height` DECIMAL(20,10) NOT NULL,
   `weight` DECIMAL(20,10) NOT NULL,
   `hair_color` text NOT NULL,
@@ -411,7 +448,7 @@ CREATE TABLE `woman_body` (
   `physical_appearance` text NOT NULL,
   `tatoos` text NOT NULL,
   `piercings` text NOT NULL,
-  `owner_id` bigint(20) NOT NULL,
+  `owner_id` int(11) NOT NULL,
   `chest_size` text NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -431,8 +468,7 @@ INSERT INTO `woman_body` (`id`, `height`, `weight`, `hair_color`, `hair_cut`, `e
 -- Index pour la table `child_test`
 --
 ALTER TABLE `child_test`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `parent_id_1` (`parent_id_1`,`parent_id_2`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Index pour la table `db_constraint`
@@ -441,8 +477,7 @@ ALTER TABLE `db_constraint`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_name` (`unique_name`),
   ADD UNIQUE KEY `unique_one` (`unique_one`,`unique_two`),
-  ADD UNIQUE KEY `unique_foreign_one` (`unique_foreign_one`,`unique_foreign_two`),
-  ADD KEY `foreign_constraint` (`foreign_constraint`);
+  ADD UNIQUE KEY `unique_foreign_one` (`unique_foreign_one`,`unique_foreign_two`);
 
 --
 -- Index pour la table `home`
@@ -484,15 +519,13 @@ ALTER TABLE `place`
 -- Index pour la table `test`
 --
 ALTER TABLE `test`
-  ADD PRIMARY KEY (`id_1`,`id_2`),
-  ADD KEY `id_1` (`id_1`),
-  ADD KEY `id_2` (`id_2`);
+  ADD PRIMARY KEY (`id_1`,`id_2`);
 
 --
 -- Index pour la table `test_multi_increment`
 --
 ALTER TABLE `test_multi_increment`
-  ADD PRIMARY KEY (`id1`);
+  ADD PRIMARY KEY (`id1`,`id2`);
 
 --
 -- Index pour la table `test_private_id`
@@ -545,7 +578,7 @@ ALTER TABLE `main_test`
 -- AUTO_INCREMENT pour la table `man_body`
 --
 ALTER TABLE `man_body`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT pour la table `person`
 --
@@ -555,7 +588,7 @@ ALTER TABLE `person`
 -- AUTO_INCREMENT pour la table `place`
 --
 ALTER TABLE `place`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT pour la table `test_multi_increment`
 --
@@ -570,7 +603,7 @@ ALTER TABLE `town`
 -- AUTO_INCREMENT pour la table `woman_body`
 --
 ALTER TABLE `woman_body`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- Contraintes pour les tables exportées
 --
@@ -580,7 +613,16 @@ ALTER TABLE `woman_body`
 --
 ALTER TABLE `db_constraint`
   ADD CONSTRAINT `db_constraint_ibfk_1` FOREIGN KEY (`foreign_constraint`) REFERENCES `db_constraint` (`id`),
-  ADD CONSTRAINT `db_constraint_ibfk_2` FOREIGN KEY (`unique_foreign_one`,`unique_foreign_two`) REFERENCES `test` (`id_1`, `id_2`);
+  ADD CONSTRAINT `db_constraint_ibfk_2` FOREIGN KEY (`unique_foreign_one`,`unique_foreign_two`) REFERENCES `test` (`id_1`, `id_2`),
+  ADD CONSTRAINT `db_constraint_ibfk_3` FOREIGN KEY (`foreign_constraint_not_in_model`) REFERENCES `db_constraint` (`id`),
+  ADD CONSTRAINT `db_constraint_ibfk_4` FOREIGN KEY (`foreign_not_in_model_one`,`foreign_not_in_model_two`) REFERENCES `test` (`id_1`, `id_2`);
+
+--
+-- Contraintes pour la table `test_no_id`
+--
+ALTER TABLE `test_no_id`
+  ADD CONSTRAINT `test_no_id_ibfk_1` FOREIGN KEY (`foreign_constraint_not_in_model`) REFERENCES `db_constraint` (`id`);
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
