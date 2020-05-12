@@ -126,7 +126,7 @@ CREATE TABLE test_multi_increment (
 );
 
 CREATE TABLE `person` (
-    `id` INT,
+    `id` INT AUTO_INCREMENT,
     `first_name` TEXT,
     `last_name` TEXT,
     `birth_date` TIMESTAMP,

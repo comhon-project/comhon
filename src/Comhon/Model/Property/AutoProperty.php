@@ -44,4 +44,13 @@ class AutoProperty extends Property {
 		$this->auto = $auto;
 	}
 	
+	/**
+	 * return the function name that auto generate value
+	 * 
+	 * @return string
+	 */
+	public function getAutoFunction() {
+		return $this->auto;
+	}
+	
 }

@@ -24,6 +24,7 @@ use Comhon\Utils\Model as ModelUtils;
 use Comhon\Model\Model;
 use Comhon\Database\DatabaseHandler;
 use Comhon\Utils\Utils;
+use Comhon\Model\Property\AutoProperty;
 
 class ModelToSQL extends InteractiveProjectScript {
 	
@@ -838,10 +839,14 @@ ORDER  BY connamespace::regnamespace, conrelid::regclass ASC;";
 	 * @return string[]
 	 */
 	private function getColumnDescription(Property $property, $DBMS) {
-		return [
+		$column = [
 			'name' => $property->getSerializationName(),
 			'type' => $this->getColumnType($property, $DBMS)
 		];
+		if ($property instanceof AutoProperty) {
+			$column['auto'] = $property->getAutoFunction();
+		}
+		return $column;
 	}
 	
 	/**
@@ -1046,8 +1051,8 @@ ORDER  BY connamespace::regnamespace, conrelid::regclass ASC;";
 	 */
 	private function isForeignPropertySimpleIdColumn(Property $property) {
 		return ($property->getModel() instanceof ModelForeign)
-		&& ($property->getModel()->getModel() instanceof Model) // avoid arrays  
-		&& count($property->getModel()->getModel()->getIdProperties()) == 1; // avoid model with several ids
+			&& ($property->getModel()->getModel() instanceof Model) // avoid arrays  
+			&& count($property->getModel()->getModel()->getIdProperties()) == 1; // avoid model with several ids
 	}
 	
 	/**
@@ -1103,9 +1108,8 @@ ORDER  BY connamespace::regnamespace, conrelid::regclass ASC;";
 		$DBMS = $sqlTable->getValue('database')->getValue('DBMS');
 		
 		foreach ($tableColumns as $column) {
-			$tableDescription[] = "    {$this->escape($column['name'], $DBMS)} {$column['type']}";
+			$tableDescription[] = '    '.$this->getColumnDefinition($column, $DBMS);
 		}
-		
 		if (!empty($primaryKey)) {
 			$tableDescription[] = '    PRIMARY KEY (' . $this->escapeList($primaryKey, $DBMS) . ')';
 		}
@@ -1113,6 +1117,33 @@ ORDER  BY connamespace::regnamespace, conrelid::regclass ASC;";
 		return "\nCREATE TABLE {$sqlTable->getValue('name')} (" . PHP_EOL
 			. implode("," . PHP_EOL, $tableDescription) . PHP_EOL
 			.');' . PHP_EOL;
+	}
+	
+	/**
+	 *
+	 * @param string[] $column
+	 * @param string $DBMS
+	 * @throws \Exception
+	 * @return string
+	 */
+	private function getColumnDefinition($column, $DBMS) {
+		$columnName = $this->escape($column['name'], $DBMS);
+		if (isset($column['auto']) && $column['auto'] == 'incremental') {
+			switch ($DBMS) {
+				case 'mysql':
+					$columnString = "$columnName {$column['type']} AUTO_INCREMENT";
+					break;
+				case 'pgsql':
+					$columnString = "$columnName SERIAL";
+					break;
+				default:
+					throw new \Exception("DBMS '$DBMS' not managed");
+			}
+		} else {
+			$columnString = "$columnName {$column['type']}";
+		}
+		
+		return $columnString;
 	}
 	
 	/**
@@ -1133,7 +1164,7 @@ ORDER  BY connamespace::regnamespace, conrelid::regclass ASC;";
 		
 		foreach ($tableColumns as $column) {
 			if (!array_key_exists($column['name'], $existingColumns)) {
-				$tableAlterations[] = "    ADD {$this->escape($column['name'], $DBMS)} {$column['type']}";
+				$tableAlterations[] = '    ADD '.$this->getColumnDefinition($column, $DBMS);
 			} else {
 				$sameColumns[$column['name']] = null;
 			}

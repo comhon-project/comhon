@@ -32,11 +32,22 @@ ALTER TABLE public.test_no_id
     DROP foreign_constraint_not_in_model
 ;
 
+CREATE TABLE three (
+    "string" TEXT
+);
+
 ALTER TABLE public.test
     ADD "notLinkableArrayTestDb" TEXT,
     ADD "notLinkableTestDb" INT,
     ADD "notLinkableTestObjValue" VARCHAR(255)
 ;
+
+CREATE TABLE public.version_2 (
+    "id" INT,
+    "serial_name" TEXT,
+    "inheritanceKey" TEXT,
+    PRIMARY KEY ("id")
+);
 
 ALTER TABLE public.house
     ADD FOREIGN KEY ("address") REFERENCES public.place("id");

@@ -126,7 +126,7 @@ CREATE TABLE public.test_multi_increment (
 );
 
 CREATE TABLE "public"."person" (
-    "id" INT,
+    "id" SERIAL,
     "first_name" TEXT,
     "last_name" TEXT,
     "birth_date" TIMESTAMP,
