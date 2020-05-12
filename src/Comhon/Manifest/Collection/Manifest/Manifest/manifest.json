@@ -346,7 +346,17 @@
             "extends": [
                 "Property\\Integer"
             ],
-            "share_parent_id": true
+            "share_parent_id": true,
+            "properties": [
+                {
+                    "name": "auto",
+                    "not_null": true,
+                    "enum": [
+                        "incremental"
+                    ],
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                }
+            ]
         },
         {
             "name": "Property\\Float",

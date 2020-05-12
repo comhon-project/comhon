@@ -27,6 +27,7 @@ use Comhon\Exception\Manifest\ManifestException;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\AbstractModel;
 use Comhon\Model\Restriction\Restriction;
+use Comhon\Model\Property\AutoProperty;
 
 abstract class ManifestParser {
 
@@ -86,6 +87,9 @@ abstract class ManifestParser {
 	
 	/** @var string */
 	const XML_ATTRIBUTE   = 'attribute';
+	
+	/** @var string */
+	const AUTO            = 'auto';
 	
 	// list of all restrictions
 	
@@ -399,7 +403,16 @@ abstract class ManifestParser {
 	 * @return \Comhon\Model\Property\Property
 	 */
 	public function getCurrentProperty(AbstractModel $propertyModel) {
-		list($name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $isIsolated, $interfaceAsNodeXml) = $this->_getBaseInfosProperty($propertyModel);
+		list($name, 
+			$model, 
+			$isId, 
+			$isPrivate, 
+			$isNotNull,
+			$isRequired, 
+			$isIsolated, 
+			$interfaceAsNodeXml, 
+			$auto
+		) = $this->_getBaseInfosProperty($propertyModel);
 		list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
 		$dependencies = $this->_getDependencyProperties();
 		
@@ -431,10 +444,14 @@ abstract class ManifestParser {
 			if (!empty($serializationNames)) {
 				throw new ManifestException('several serialization names only allowed for foreign properties');
 			}
-			$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $isNotNull, $default, $interfaceAsNodeXml, $restrictions, $dependencies, $isIsolated);
-			// verify default value (get it from property due to dateTime that need to instanciate DateTime object)
-			if (!is_null($default) && !is_null($restriction = Restriction::getFirstNotSatisifed($restrictions, $property->getDefaultValue()))) {
-				throw new NotSatisfiedRestrictionException($property->getDefaultValue(), $restriction);
+			if (is_null($auto)) {
+				$property = new Property($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $isNotNull, $default, $interfaceAsNodeXml, $restrictions, $dependencies, $isIsolated);
+				// verify default value (get it from property due to dateTime that need to instanciate DateTime object)
+				if (!is_null($default) && !is_null($restriction = Restriction::getFirstNotSatisifed($restrictions, $property->getDefaultValue()))) {
+					throw new NotSatisfiedRestrictionException($property->getDefaultValue(), $restriction);
+				}
+			} else {
+				$property = new AutoProperty($model, $name, $serializationName, $isId, $isPrivate, $isRequired, $isSerializable, $interfaceAsNodeXml, $dependencies, $auto);
 			}
 		}
 		return $property;

@@ -32,9 +32,9 @@ class ModelToSqlTest extends TestCase
 	}
 	
 	/**
-	 * @dataProvider ModelToSqlData
+	 * @dataProvider ModelToSqlFileData
 	 */
-	public function testModelToSql($update, $modelName, $recursive) {
+	public function testModelToSqlFile($update, $modelName, $recursive) {
 		Cli::$STDIN = fopen(self::DATA_DIR.'stdin.txt', 'r');
 		Cli::$STDOUT = fopen(self::DATA_DIR.'stdout_actual.txt', 'w');
 		$modelBinder = new ModelToSQL(true);
@@ -62,7 +62,7 @@ class ModelToSqlTest extends TestCase
 		}
 	}
 	
-	public function modelToSqlData() {
+	public function ModelToSqlFileData() {
 		return [
 			[
 				false,
@@ -73,6 +73,95 @@ class ModelToSqlTest extends TestCase
 				true,
 				'Test',
 				true
+			]
+		];
+	}
+	
+	
+	
+	/**
+	 * @dataProvider ModelToSqlQueryData
+	 */
+	public function testModelToSqlQuery($update, $modelName, $recursive, $expectedPgsqlQueries, $expectedMysqlQueries) {
+		$modelBinder = new ModelToSQL(false);
+		$actualQueries = $modelBinder->generateQueries($update, $modelName, $recursive);
+		
+		if (Config::getInstance()->getManifestFormat() == 'json') {
+			$this->assertEquals($expectedPgsqlQueries, $actualQueries);
+		} else {
+			$this->assertEquals($expectedMysqlQueries, $actualQueries);
+		}
+		
+		
+	}
+	
+	public function modelToSqlQueryData() {
+		return [
+			[
+				false,
+				'Test\House',
+				false,
+				[
+					'2' => '
+CREATE TABLE public.house (
+    "id_serial" INT,
+    "surface" FLOAT,
+    "type" TEXT,
+    "garden" BOOLEAN,
+    "garage" BOOLEAN,
+    "ghosts" TEXT,
+    "address" INT,
+    PRIMARY KEY ("id_serial")
+);
+
+ALTER TABLE public.house
+    ADD FOREIGN KEY ("address") REFERENCES public.place("id");
+'
+				],
+				[
+					'1' => '
+CREATE TABLE house (
+    `id_serial` INT,
+    `surface` DECIMAL(20,10),
+    `type` TEXT,
+    `garden` BOOLEAN,
+    `garage` BOOLEAN,
+    `ghosts` TEXT,
+    `address` INT,
+    PRIMARY KEY (`id_serial`)
+);
+
+ALTER TABLE house
+    ADD FOREIGN KEY (`address`) REFERENCES place(`id`);
+'
+				]
+			],
+			[
+				true,
+				'Test\House',
+				true,
+				[
+					'2' => '
+ALTER TABLE public.house
+    ADD "ghosts" TEXT,
+    ADD "address" INT
+;
+
+ALTER TABLE public.house
+    ADD FOREIGN KEY ("address") REFERENCES public.place("id");
+'
+				],
+				[
+					'1' => '
+ALTER TABLE house
+    ADD `ghosts` TEXT,
+    ADD `address` INT
+;
+
+ALTER TABLE house
+    ADD FOREIGN KEY (`address`) REFERENCES place(`id`);
+'
+				]
 			]
 		];
 	}

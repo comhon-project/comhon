@@ -52,6 +52,7 @@ class ManifestManifestTest extends TestCase
 			['Test', 'Test'],
 			['Test', 'TestDb'], // is_main ...
 			['Test', 'TestXml'], // xml node
+			['Test', 'Person'], // auto incremental
 			['Test', 'Person\Woman'], // extends, object_class
 			['Test', 'Extends\ShareId\GrandParent\ParentThree\Child'], // shared_id
 			['Comhon', 'Model'], // is_abstract, share_parent_id, is_model_name

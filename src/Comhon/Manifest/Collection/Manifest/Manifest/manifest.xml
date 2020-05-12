@@ -160,6 +160,13 @@
       <extends>
         <type>Property\Integer</type>
       </extends>
+      <properties>
+        <property name="auto" not_null="1" __inheritance__="Comhon\Manifest\Property\String">
+          <enum>
+            <value>incremental</value>
+          </enum>
+        </property>
+      </properties>
     </type>
     <type name="Property\Float" share_parent_id="1">
       <extends>

@@ -195,6 +195,7 @@ class ManifestParser extends ParentManifestParser {
 		$isRequired = $this->_getBooleanValue($currentProperty, self::IS_REQUIRED, false);
 		$isIsolated = $this->_getBooleanValue($currentProperty, self::IS_ISOLATED, false);
 		$name       = $this->interfacer->getValue($currentProperty, self::NAME);
+		$auto       = $this->interfacer->getValue($currentProperty, self::AUTO);
 		$model      = $this->_completePropertyModel($currentProperty, $propertyModel);
 		
 		if ($this->interfacer->hasValue($currentProperty, self::XML_ELEM_TYPE)) {
@@ -210,7 +211,7 @@ class ManifestParser extends ParentManifestParser {
 			$interfaceAsNodeXml = null;
 		}
 		
-		return [$name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $isIsolated, $interfaceAsNodeXml];
+		return [$name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $isIsolated, $interfaceAsNodeXml, $auto];
 	}
 	
 	/**

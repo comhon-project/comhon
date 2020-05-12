@@ -23,7 +23,7 @@ Would you like to continue ? [yes/(no)]
 > [1;30mmodel 'Test\Extends\Conflict' is ignored[0m
 
 [0;31mSomething goes wrong with model 'Test\Load\Malformed' :
-manifest file not found or malformed '/home/jean-philippe/ReposGit/comhon/test/config/../manifests/test/manifest/Load/Malformed/manifest.json'[0m
+manifest file not found or malformed '/home/jean-philippe/ReposGit/comhon/test/config/../manifests/test/manifest/Load/Malformed/manifest.xml'[0m
 You can stop or continue without model 'Test\Load\Malformed'
 Would you like to continue ? [yes/(no)]
 > [1;30mmodel 'Test\Load\Malformed' is ignored[0m

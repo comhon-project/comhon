@@ -1,6 +1,6 @@
 <root name="Test\Person" is_abstract="1" object_class="\Test\Comhon\Object\Person" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="id" is_id="1" auto="incremental" __inheritance__="Comhon\Manifest\Property\Index"/>
     <property name="firstName" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="lastName" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="birthDate" __inheritance__="Comhon\Manifest\Property\DateTime"/>

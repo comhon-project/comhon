@@ -1,12 +1,13 @@
 {
     "name": "Test\\Person",
-    "object_class": "\\Test\\Comhon\\Object\\Person",
     "is_abstract": true,
+    "object_class": "\\Test\\Comhon\\Object\\Person",
     "properties": [
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "auto": "incremental",
+            "__inheritance__": "Comhon\\Manifest\\Property\\Index"
         },
         {
             "name": "firstName",
