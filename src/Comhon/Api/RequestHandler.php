@@ -480,7 +480,7 @@ class RequestHandler {
 			$requester = !is_null($this->uniqueResourceId)
 				? $this->_getSimpleRequester($this->uniqueResourceId, $filterProperties)
 				: $this->_getComplexRequester($get, $headers, $body, $filterProperties);
-		} catch (MalformedRequestException $e) {
+		} catch (ResponseException $e) {
 			throw $e;
 		} catch (ComhonException $e) {
 			throw new MalformedRequestException(['code' => $e->getCode(), 'message' => $e->getMessage()]);
