@@ -70,7 +70,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	private $isMain = false;
 	
 	/** @var boolean */
-	private $isAbstract = true;
+	private $isAbstract = false;
 	
 	/** @var Serialization */
 	private $serialization = null;
