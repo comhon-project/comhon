@@ -12,7 +12,6 @@
 namespace Comhon\Interfacer;
 
 use Comhon\Object\AbstractComhonObject;
-use Comhon\Model\Model;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
@@ -20,7 +19,7 @@ use Comhon\Exception\Value\EnumerationException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Interfacer\ExportException;
-use Comhon\Model\Property\ForeignProperty;
+use Comhon\Model\ModelComplex;
 
 abstract class Interfacer {
 	
@@ -645,11 +644,11 @@ abstract class Interfacer {
 	 * import given node and construct comhon object
 	 * 
 	 * @param mixed $node
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\Model|\Comhon\Model\ModelArray $model
 	 * @param array $preferences
 	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
 	 */
-	public function import($node, Model $model, array $preferences = []) {
+	public function import($node, ModelComplex $model, array $preferences = []) {
 		$this->setPreferences($preferences);
 		try {
 			return $model->import($node, $this);

@@ -15,7 +15,7 @@ class ConflictException extends ResponseException {
 	
 	/**
 	 * 
-	 * @param string|array|\stdClass $content
+	 * @param string|array|\stdClass|\DOMNode|\SimpleXMLElement $content
 	 * @param string[] $headers
 	 */
 	public function __construct($content = null, $headers = []) {

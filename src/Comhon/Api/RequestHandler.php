@@ -43,6 +43,8 @@ use Comhon\Exception\HTTP\MethodNotAllowedException;
 use Comhon\Exception\Value\InvalidCompositeIdException;
 use Comhon\Exception\Serialization\ManifestSerializationException;
 use Comhon\Object\Config\Config;
+use Comhon\Model\ModelComhonObject;
+use Comhon\Model\ModelArray;
 
 class RequestHandler {
 	
@@ -95,6 +97,12 @@ class RequestHandler {
 	 */
 	private $isCountRequest = false;
 	
+	/**
+	 * handle client request and build response
+	 * 
+	 * @param string $basePath
+	 * @return \Comhon\Api\Response
+	 */
 	public static function handle($basePath) {
 		$handler = new self();
 		return $handler->_handle($basePath, $_SERVER, $_GET, apache_request_headers(), file_get_contents('php://input'));
@@ -107,7 +115,7 @@ class RequestHandler {
 	 * @param array $get
 	 * @param string[] $headers
 	 * @throws \Exception
-	 * @return boolean|\Comhon\Api\Response
+	 * @return \Comhon\Api\Response
 	 */
 	protected function _handle($basePath, $server, $get, $headers, $body) {
 		try {
@@ -240,13 +248,13 @@ class RequestHandler {
 	 * @return \Comhon\Request\ComplexRequester
 	 */
 	private function _getComplexRequester(&$get, $headers, $body, $filterProperties = null) {
-		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers, false);
+		$interfacer = self::getInterfacerFromContentTypeHeader($headers, false);
 		if (is_null($interfacer)) {
 			$request = $this->_setRequestFromQuery($get, $headers, $body, $filterProperties);
 		} else {
 			$this->_verifyAllowedRequest();
 			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
-			$request = $this->_importBody($body, $requestModel, $interfacer);
+			$request = self::importBody($body, $requestModel, $interfacer);
 			$this->_verifyRequestModel($request);
 		}
 		
@@ -482,7 +490,7 @@ class RequestHandler {
 		if (is_null($object)) {
 			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
-		$interfacer = $this->_getInterfacerFromAcceptHeader($headers);
+		$interfacer = self::getInterfacerFromAcceptHeader($headers);
 		$interfacer->setPropertiesFilter($filterProperties->getValues(), $object->getUniqueModel()->getName());
 		
 		if ($object instanceof ComhonArray) {
@@ -506,7 +514,7 @@ class RequestHandler {
 			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
 		}
 		
-		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers, false);
+		$interfacer = self::getInterfacerFromContentTypeHeader($headers, false);
 		if (is_null($interfacer)) {
 			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
 			$request = $requestModel->getObjectInstance(false);
@@ -518,7 +526,7 @@ class RequestHandler {
 		} else {
 			$this->_verifyAllowedRequest();
 			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
-			$request = $this->_importBody($body, $requestModel, $interfacer);
+			$request = self::importBody($body, $requestModel, $interfacer);
 			$this->_verifyRequestModel($request);
 		}
 		
@@ -555,8 +563,8 @@ class RequestHandler {
 		if (count($this->resource) != 1) {
 			throw new ComhonException('unique id not verified or invalid options');
 		}
-		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers);
-		$object = $this->_importBody($body, $this->requestedModel, $interfacer);
+		$interfacer = self::getInterfacerFromContentTypeHeader($headers);
+		$object = self::importBody($body, $this->requestedModel, $interfacer);
 		
 		if ($object->getModel()->hasIdProperties()) {
 			if ($object->hasCompleteId()) {
@@ -596,8 +604,8 @@ class RequestHandler {
 		if (is_null($this->requestedModel->loadObject($this->uniqueResourceId, $idPropertiesNames, true))) {
 			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
-		$interfacer = $this->_getInterfacerFromContentTypeHeader($headers);
-		$object = $this->_importBody($body, $this->requestedModel, $interfacer);
+		$interfacer = self::getInterfacerFromContentTypeHeader($headers);
+		$object = self::importBody($body, $this->requestedModel, $interfacer);
 		
 		if ($object->hasEmptyId()) {
 			$object->setId($this->uniqueResourceId);
@@ -636,12 +644,13 @@ class RequestHandler {
 	}
 	
 	/**
+	 * get interfacer according provided content type
 	 *
 	 * @param string|null $contentType
-	 * @param boolean $throw
+	 * @param boolean $throw if true, and content type is not managed, an exception is thrown
 	 * @return \Comhon\Interfacer\Interfacer|null
 	 */
-	public function _getInterfacerFromContentType($contentType, $throw = false) {
+	public static function getInterfacerFromContentType($contentType, $throw = false) {
 		switch ($contentType) {
 			case 'application/json':
 				return new AssocArrayInterfacer();
@@ -659,29 +668,31 @@ class RequestHandler {
 	}
 	
 	/**
+	 * get interfacer according content type header
 	 *
 	 * @param string[] $headers
 	 * @param boolean $default if true and Content-Type not specified, return default interfacer otherwise return null
 	 * @return \Comhon\Interfacer\Interfacer|null
 	 */
-	public function _getInterfacerFromContentTypeHeader($headers, $default = true) {
+	public static function getInterfacerFromContentTypeHeader($headers, $default = true) {
 		return array_key_exists('Content-Type', $headers) 
-			? $this->_getInterfacerFromContentType($headers['Content-Type'], true)
+			? self::getInterfacerFromContentType($headers['Content-Type'], true)
 			: ($default ? new AssocArrayInterfacer() : null);
 	}
 	
 	/**
+	 * get interfacer according provided accept header
 	 *
 	 * @param string[] $headers
 	 * @return \Comhon\Interfacer\Interfacer
 	 */
-	public function _getInterfacerFromAcceptHeader($headers) {
-		$accept = $this->_getHeaderMultiple('Accept', $headers);
+	public static function getInterfacerFromAcceptHeader($headers) {
+		$accept = self::getHeaderMultiple('Accept', $headers);
 		if (count($accept) == 0) {
 			return new AssocArrayInterfacer();
 		} else {
 			foreach ($accept as $contentType) {
-				if (!is_null($interfacer = $this->_getInterfacerFromContentType($contentType))) {
+				if (!is_null($interfacer = self::getInterfacerFromContentType($contentType))) {
 					return $interfacer;
 				}
 			}
@@ -694,8 +705,9 @@ class RequestHandler {
 	 * 
 	 * @param string $name
 	 * @param string[] $headers
+	 * @return string[]
 	 */
-	public function _getHeaderMultiple($name, $headers) {
+	public static function getHeaderMultiple($name, $headers) {
 		$headerValues = [];
 		if (array_key_exists($name, $headers)) {
 			$values = explode(',', $headers[$name]);
@@ -724,16 +736,21 @@ class RequestHandler {
 	}
 	
 	/**
+	 * import given body and build comhon object according given model
 	 * 
 	 * @param string $body
-	 * @param \Comhon\Model\Model $model
+	 * @param \Comhon\Model\Model|\Comhon\Model\ModelArray $model
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws MalformedRequestException
-	 * @return \Comhon\Object\UniqueObject
+	 * @return \Comhon\Object\AbstractComhonObject
 	 */
-	public function _importBody($body, Model $model, Interfacer $interfacer) {
+	public static function importBody($body, ModelComhonObject $model, Interfacer $interfacer) {
 		$interfacedObject = $interfacer->fromString($body);
-		if (!$interfacer->isNodeValue($interfacedObject)) {
+		if ($model instanceof ModelArray) {
+		    if (!$interfacer->isArrayNodeValue($interfacedObject, $model->isAssociative())) {
+		        throw new MalformedRequestException('invalid body');
+		    }
+		} elseif (!$interfacer->isNodeValue($interfacedObject)) {
 			throw new MalformedRequestException('invalid body');
 		}
 		try {
@@ -784,7 +801,7 @@ class RequestHandler {
 		$content = null;
 		$options = $this->requestedModel->getOptions();
 		if (!is_null($options)) {
-			$content = $this->_getInterfacerFromContentTypeHeader($headers)->export($options);
+			$content = self::getInterfacerFromAcceptHeader($headers)->export($options);
 		}
 		return $this->_buildResponse(200, $content, ['Allow' => implode(', ', $this->_getAllowedMethods())]);
 	}
