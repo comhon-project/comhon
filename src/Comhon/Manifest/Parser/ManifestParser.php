@@ -28,6 +28,8 @@ use Comhon\Exception\ComhonException;
 use Comhon\Model\AbstractModel;
 use Comhon\Model\Restriction\Restriction;
 use Comhon\Model\Property\AutoProperty;
+use Comhon\Model\ModelArray;
+use Comhon\Model\ModelUnique;
 
 abstract class ManifestParser {
 
@@ -90,6 +92,9 @@ abstract class ManifestParser {
 	
 	/** @var string */
 	const AUTO            = 'auto';
+	
+	/** @var string */
+	const AGGREGATIONS = 'aggregations';
 	
 	// list of all restrictions
 	
@@ -209,11 +214,11 @@ abstract class ManifestParser {
 	abstract public function getLocalModelManifestParsers();
 	
 	/**
-	 * get current property model name
+	 * get name of unique model of current property
 	 * 
 	 * @return string
 	 */
-	abstract public function getCurrentPropertyModelName();
+	abstract public function getCurrentPropertyModelUniqueName();
 
 	/**
 	 * get current properties
@@ -225,7 +230,7 @@ abstract class ManifestParser {
 	/**
 	 * get basic informations of property
 	 * 
-	 * @param \Comhon\Model\AbstractModel $propertyModel unique model associated to property
+	 * @param \Comhon\Model\ModelUnique $propertyModelUnique unique model associated to property
 	 * @return [string, \Comhon\Model\AbstractModel, boolean, boolean, boolean]
 	 *     0 : property name
 	 *     1 : final model associated to property
@@ -233,7 +238,7 @@ abstract class ManifestParser {
 	 *     3 : true if property is private
 	 *     4 : true if property is interfaced as node xml
 	 */
-	abstract protected function _getBaseInfosProperty(AbstractModel $propertyModel);
+	abstract protected function _getBaseInfosProperty(ModelUnique $propertyModelUnique);
 	
 	/**
 	 * get default value if exists
@@ -242,6 +247,13 @@ abstract class ManifestParser {
 	 * @return mixed|null null if no default value
 	 */
 	abstract protected function _getDefaultValue(AbstractModel $propertyModel);
+	
+	/**
+	 * get aggregation infos on current property
+	 *
+	 * @return string[]|null
+	 */
+	abstract protected function _getAggregationInfos();
 	
 	/**
 	 * get properties values that MUST be set if current property value is set
@@ -398,11 +410,11 @@ abstract class ManifestParser {
 	/**
 	 * get current property
 	 * 
-	 * @param \Comhon\Model\AbstractModel $propertyModel unique model associated to property
+	 * @param \Comhon\Model\ModelUnique $propertyModelUnique unique model associated to property
 	 * @throws \Exception
 	 * @return \Comhon\Model\Property\Property
 	 */
-	public function getCurrentProperty(AbstractModel $propertyModel) {
+	public function getCurrentProperty(ModelUnique $propertyModelUnique) {
 		list($name, 
 			$model, 
 			$isId, 
@@ -412,8 +424,8 @@ abstract class ManifestParser {
 			$isIsolated, 
 			$interfaceAsNodeXml, 
 			$auto
-		) = $this->_getBaseInfosProperty($propertyModel);
-		list($serializationName, $aggregations, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
+		) = $this->_getBaseInfosProperty($propertyModelUnique);
+		list($serializationName, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
 		$dependencies = $this->_getDependencyProperties();
 		
 		if ($name === Interfacer::INHERITANCE_KEY || $serializationName === Interfacer::INHERITANCE_KEY) {
@@ -421,6 +433,10 @@ abstract class ManifestParser {
 		}
 		if ($this->_isCurrentPropertyForeign()) {
 			$modelForeign = new ModelForeign($model);
+			$aggregations = null;
+			if (($model instanceof ModelArray) && $model->getDimensionsCount() == 1) {
+				$aggregations = $this->_getAggregationInfos();
+			}
 			if (!empty($serializationNames)) {
 				if (count($serializationNames) < 2) {
 					throw new ManifestException('serializationNames must have at least two elements');
@@ -461,17 +477,16 @@ abstract class ManifestParser {
 	 * get serialization informations of property
 	 * 
 	 * @param string $propertyName
-	 * @return [string|null, \Comhon\Model\Property\Property[]|null, boolean, string[]|null]
-	 *     0 : serialization name $serializationNames)
-	 *     1 : aggregations
-	 *     2 : true if property is serializable
-	 *     3 : true if property is serialized in several properties
+	 * @return [string|null, boolean, string[]|null]
+	 *     0 : serialization name
+	 *     1 : true if property is serializable
+	 *     2 : serialization names if property is serialized in several properties
 	 */
 	private function _getBaseSerializationInfosProperty($propertyName) {
 		if (!is_null($this->getSerializationManifestParser())) {
 			return $this->getSerializationManifestParser()->getPropertySerializationInfos($propertyName);
 		}
-		return [null, null, true, []];
+		return [null, true, []];
 	}
 	
 	/**

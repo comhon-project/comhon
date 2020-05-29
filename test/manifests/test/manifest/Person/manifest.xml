@@ -8,11 +8,18 @@
     <property name="bestFriend" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="father" model="\Test\Person\Man" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="mother" model="\Test\Person\Woman" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="children" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="child" model="\Test\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="children" __inheritance__="Comhon\Manifest\Property\Aggregation">
+      <values name="child" model="\Test\Person"/>
+      <aggregations>
+        <aggregation>mother</aggregation>
+        <aggregation>father</aggregation>
+      </aggregations>
     </property>
-    <property name="homes" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="home" model="\Test\Home" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="homes" __inheritance__="Comhon\Manifest\Property\Aggregation">
+      <values name="home" model="\Test\Home"/>
+      <aggregations>
+        <aggregation>person</aggregation>
+      </aggregations>
     </property>
   </properties>
   <inheritance_requestables>

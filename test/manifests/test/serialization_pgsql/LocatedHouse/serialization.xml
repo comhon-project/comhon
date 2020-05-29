@@ -4,10 +4,5 @@
   </serialization>
   <properties>
     <id serialization_name="id_serial"/>
-    <residents>
-      <aggregations>
-        <aggregation>house</aggregation>
-      </aggregations>
-    </residents>
   </properties>
 </root>

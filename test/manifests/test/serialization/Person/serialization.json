@@ -29,17 +29,6 @@
         },
         "mother": {
             "serialization_name": "mother_id"
-        },
-        "children": {
-            "aggregations": [
-                "mother",
-                "father"
-            ]
-        },
-        "homes": {
-            "aggregations": [
-                "person"
-            ]
         }
     }
 }

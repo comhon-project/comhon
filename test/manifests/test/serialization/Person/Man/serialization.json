@@ -1,13 +1,6 @@
 {
     "name": "Test\\Person\\Man",
     "version": "3.0",
-    "properties": {
-        "bodies": {
-            "aggregations": [
-                "owner"
-            ]
-        }
-    },
     "inheritance_values": [
         "\\Test\\Person\\Man"
     ]

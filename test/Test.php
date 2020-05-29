@@ -451,16 +451,16 @@ try {
 
 // TODO for version > 4.0
 
-// update modelToSql
+// add aggregations in manifest
+// route to get all requestable models (with serialization)
 
-// manifest add auto_increment attribut
 // docker
-// latest : override Comhon options to allow manifest creation
-// latest : allow namespace prefix creation
-// latest : create sql table when create manifest
-// sample : put "Sample" folder for manifest and serialization
+// add route to create pattern regex
+// sample : no need to specify default database id
+// refactor code (not all in index.php)
 
 // use id different than table name for sql table (may have same table name but with different database)
+// add possibility to request aggregations in request handler ?
 // add autoload without prefix namespace ?
 // add patch method
 // manifest, serialization validator

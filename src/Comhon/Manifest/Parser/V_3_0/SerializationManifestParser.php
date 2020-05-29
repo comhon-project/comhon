@@ -74,4 +74,15 @@ class SerializationManifestParser extends \Comhon\Manifest\Parser\V_2_0\Serializ
 		return $serializationSettings;
 	}
 	
+	
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\V_2_0\SerializationManifestParser::getAggregationInfos()
+	 */
+	public function getAggregationInfos($propertyName) {
+		return null;
+	}
+	
 }

@@ -115,11 +115,12 @@
             "name": "childrenTestDb",
             "values": {
                 "name": "childTestDb",
-                "model": "\\Test\\ChildTestDb",
-                "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "model": "\\Test\\ChildTestDb"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "aggregations": [
+                "parentTestDb"
+            ],
+            "__inheritance__": "Comhon\\Manifest\\Property\\Aggregation"
         },
         {
             "name": "notLinkableArrayTestDb",

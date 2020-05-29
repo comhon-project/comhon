@@ -84,11 +84,6 @@ is property 'id' serializable [(yes)/no]
 > is property 'type' serializable [(yes)/no]
 > is property 'garden' serializable [(yes)/no]
 > is property 'garage' serializable [(yes)/no]
-> Is 'residents' an aggregation of 'Sql\House' (in other words not serialized as a column but reference rows in a table)? [yes/(no)]
-> Specify which property(ies) is used for aggregation. 
-you can type several responses in one time by separating them with commas.
-  0: house
-  1: finally it's not an aggregation
 > [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Town'[0m
 is property 'id' serializable [(yes)/no]
 > is property 'name' serializable [(yes)/no]
@@ -106,11 +101,6 @@ is property 'id' serializable [(yes)/no]
 is property 'id' serializable [(yes)/no]
 > is property 'name' serializable [(yes)/no]
 > is property 'obj' serializable [(yes)/no]
-> Is 'childrenTestDb' an aggregation of 'Sql\MainTestDb' (in other words not serialized as a column but reference rows in a table)? [yes/(no)]
-> Specify which property(ies) is used for aggregation. 
-you can type several responses in one time by separating them with commas.
-  0: mainParentTestDb
-  1: finally it's not an aggregation
 > [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Body'[0m
 is property 'id' serializable [(yes)/no]
 > is property 'date' serializable [(yes)/no]
@@ -151,31 +141,9 @@ is property 'id' serializable [(yes)/no]
 > is property 'bestFriend' serializable [(yes)/no]
 > is property 'father' serializable [(yes)/no]
 > is property 'mother' serializable [(yes)/no]
-> Is 'children' an aggregation of 'Sql\Person' (in other words not serialized as a column but reference rows in a table)? [yes/(no)]
-> Specify which property(ies) is used for aggregation. 
-you can type several responses in one time by separating them with commas.
-  0: bestFriend
-  1: father
-  2: mother
-  3: finally it's not an aggregation
-> Is 'homes' an aggregation of 'Sql\Person' (in other words not serialized as a column but reference rows in a table)? [yes/(no)]
-> Specify which property(ies) is used for aggregation. 
-you can type several responses in one time by separating them with commas.
-  0: person
-  1: finally it's not an aggregation
 > [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Person\Man'[0m
-Is 'bodies' an aggregation of 'Sql\Person\Man' (in other words not serialized as a column but reference rows in a table)? [yes/(no)]
-> Specify which property(ies) is used for aggregation. 
-you can type several responses in one time by separating them with commas.
-  0: owner
-  1: finally it's not an aggregation
-> [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Person\Woman'[0m
-Is 'bodies' an aggregation of 'Sql\Person\Woman' (in other words not serialized as a column but reference rows in a table)? [yes/(no)]
-> Specify which property(ies) is used for aggregation. 
-you can type several responses in one time by separating them with commas.
-  0: owner
-  1: finally it's not an aggregation
-> [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Person\Woman\WomanExtended'[0m
+[0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Person\Woman'[0m
+[0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Person\Woman\WomanExtended'[0m
 is property 'aProperty' serializable [(yes)/no]
 > [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\Abstract'[0m
 [0;93mProcessing [1;33mproperties[0;93m of model [1;33m'Sql\TestDb'[0m
@@ -196,11 +164,6 @@ is property 'id1' serializable [(yes)/no]
 > is property 'notLinkableTestDb' serializable [(yes)/no]
 > is property 'notLinkableTestObjValue' serializable [(yes)/no]
 > is property 'mainParentTestDb' serializable [(yes)/no]
-> Is 'childrenTestDb' an aggregation of 'Sql\TestDb' (in other words not serialized as a column but reference rows in a table)? [yes/(no)]
-> Specify which property(ies) is used for aggregation. 
-you can type several responses in one time by separating them with commas.
-  0: parentTestDb
-  1: finally it's not an aggregation
 > [0;93mProcessing [1;33minheritance key[0;93m of model [1;33m'Sql\Person'[0m
 Enter an inheritance key (for example if your sql table store persons (male and female), inheritance key would be "gender") (default : __inheritance__)
 > 

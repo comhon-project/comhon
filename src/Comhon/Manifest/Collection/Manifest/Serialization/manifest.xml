@@ -19,9 +19,6 @@
         <property name="serialization_names" not_null="1" is_associative="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array">
           <values name="serialization_name" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
         </property>
-        <property name="aggregations" not_null="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array">
-          <values name="aggregation" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
-        </property>
       </properties>
       <conflicts>
         <properties>

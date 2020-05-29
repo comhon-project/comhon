@@ -46,11 +46,6 @@
         },
         "notSerializedForeignObject": {
             "is_serializable": false
-        },
-        "childrenTestDb": {
-            "aggregations": [
-                "parentTestDb"
-            ]
         }
     }
 }

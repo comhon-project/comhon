@@ -56,8 +56,17 @@ abstract class SerializationManifestParser {
 	 * get serialization informations of property
 	 * 
 	 * @param string $propertyName
+	 * @return array
 	 */
 	abstract public function getPropertySerializationInfos($propertyName);
+	
+	/**
+	 * get aggregation properties (only for serialization manifest 2.0)
+	 *
+	 * @param string $propertyName
+	 * @return string[]|null
+	 */
+	abstract public function getAggregationInfos($propertyName);
 	
 	/**
 	 * verify if serialization of parent model must be shared with current model

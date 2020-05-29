@@ -10,11 +10,6 @@
     "properties": {
         "id": {
             "serialization_name": "id_serial"
-        },
-        "residents": {
-            "aggregations": [
-                "house"
-            ]
         }
     },
     "inheritance_values": [

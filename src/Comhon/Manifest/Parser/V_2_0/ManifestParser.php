@@ -30,6 +30,7 @@ use Comhon\Model\Restriction\NotEmptyString;
 use Comhon\Model\Restriction\NotEmptyArray;
 use Comhon\Model\Restriction\ModelName;
 use Comhon\Model\Restriction\RegexCollection;
+use Comhon\Model\ModelUnique;
 
 class ManifestParser extends ParentManifestParser {
 	
@@ -153,10 +154,10 @@ class ManifestParser extends ParentManifestParser {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\ManifestParser::getCurrentPropertyModelName()
+	 * @see \Comhon\Manifest\Parser\ManifestParser::getCurrentPropertyModelUniqueName()
 	 */
-	public function getCurrentPropertyModelName() {
-		return $this->_getPropertyModelName($this->_getCurrentPropertyNode());
+	public function getCurrentPropertyModelUniqueName() {
+		return $this->_getPropertyModelUniqueName($this->_getCurrentPropertyNode());
 	}
 	
 	/**
@@ -164,10 +165,10 @@ class ManifestParser extends ParentManifestParser {
 	 * @param mixed $property
 	 * @return string
 	 */
-	protected function _getPropertyModelName($property) {
+	protected function _getPropertyModelUniqueName($property) {
 		$modelName = $this->interfacer->getValue($property, 'type');
 		if ($modelName == 'array') {
-			$modelName = $this->_getPropertyModelName($this->interfacer->getValue($property, 'values', true));
+			$modelName = $this->_getPropertyModelUniqueName($this->interfacer->getValue($property, 'values', true));
 		}
 		return $modelName;
 	}
@@ -186,7 +187,7 @@ class ManifestParser extends ParentManifestParser {
 	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_getBaseInfosProperty()
 	 */
-	protected function _getBaseInfosProperty(AbstractModel $propertyModel) {
+	protected function _getBaseInfosProperty(ModelUnique $propertyModelUnique) {
 		$currentProperty = $this->_getCurrentPropertyNode();
 		
 		$isId       = $this->_getBooleanValue($currentProperty, self::IS_ID, false);
@@ -196,7 +197,7 @@ class ManifestParser extends ParentManifestParser {
 		$isIsolated = $this->_getBooleanValue($currentProperty, self::IS_ISOLATED, false);
 		$name       = $this->interfacer->getValue($currentProperty, self::NAME);
 		$auto       = $this->interfacer->getValue($currentProperty, self::AUTO);
-		$model      = $this->_completePropertyModel($currentProperty, $propertyModel);
+		$model      = $this->_completePropertyModel($currentProperty, $propertyModelUnique);
 		
 		if ($this->interfacer->hasValue($currentProperty, self::XML_ELEM_TYPE)) {
 			$type = $this->interfacer->getValue($currentProperty, self::XML_ELEM_TYPE);
@@ -212,6 +213,20 @@ class ManifestParser extends ParentManifestParser {
 		}
 		
 		return [$name, $model, $isId, $isPrivate, $isNotNull, $isRequired, $isIsolated, $interfaceAsNodeXml, $auto];
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_getAggregationInfos()
+	 */
+	protected function _getAggregationInfos() {
+		$currentProperty = $this->_getCurrentPropertyNode();
+		$propertyName = $this->interfacer->getValue($currentProperty, self::NAME);
+		if (!is_null($this->getSerializationManifestParser())) {
+			return $this->getSerializationManifestParser()->getAggregationInfos($propertyName);
+		}
+		return null;
 	}
 	
 	/**
@@ -335,29 +350,37 @@ class ManifestParser extends ParentManifestParser {
 	/**
 	 * add model container if needed
 	 * @param mixed $propertyNode
-	 * @param \Comhon\Model\AbstractModel $uniqueModel
+	 * @param \Comhon\Model\ModelUnique $uniqueModel
 	 * @throws \Exception
 	 * @return \Comhon\Model\AbstractModel
 	 */
-	private function _completePropertyModel($propertyNode, AbstractModel $uniqueModel) {
-		$propertyModel = $uniqueModel;
+	private function _completePropertyModel($propertyNode, ModelUnique $uniqueModel) {
+		$model = $uniqueModel;
 	
-		if ($this->isArrayNode($propertyNode)) {
+		if ($this->isArrayNode($propertyNode) || $this->isAggregationNode($propertyNode)) {
 			$valuesNode = $this->interfacer->getValue($propertyNode, 'values', true);
 			if (is_null($valuesNode)) {
-				throw new ManifestException('type array must have a values node');
+				throw new ManifestException('arrays and aggregations must have a values node');
 			}
 			$valuesName = $this->interfacer->getValue($valuesNode, 'name');
 			if (is_null($valuesName)) {
-				throw new ManifestException('type array must have a values name property');
+				throw new ManifestException('arrays and aggregations must have a values name property');
 			}
-			
-			$isAssociative = $this->_getBooleanValue($propertyNode, self::IS_ASSOCIATIVE, false);
-			$isNotNullElement = $this->_getBooleanValue($valuesNode, self::NOT_NULL, false);
-			$isIsolatedElement = $this->_getBooleanValue($valuesNode, self::IS_ISOLATED, false);
-			
-			$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
-			$elementRestrictions = $subModel instanceof ModelArray ? [] : $this->_getRestrictions($valuesNode, $uniqueModel);
+			if ($this->isAggregationNode($propertyNode)) {
+				$isAssociative = false;
+				$isNotNullElement = true;
+				$isIsolatedElement = true;
+				
+				$subModel = $uniqueModel;
+				$elementRestrictions = [];
+			} else {
+				$isAssociative = $this->_getBooleanValue($propertyNode, self::IS_ASSOCIATIVE, false);
+				$isNotNullElement = $this->_getBooleanValue($valuesNode, self::NOT_NULL, false);
+				$isIsolatedElement = $this->_getBooleanValue($valuesNode, self::IS_ISOLATED, false);
+				
+				$subModel = $this->_completePropertyModel($valuesNode, $uniqueModel);
+				$elementRestrictions = $subModel instanceof ModelArray ? [] : $this->_getRestrictions($valuesNode, $uniqueModel);
+			}
 			$arrayRestrictions = [];
 			
 			if ($this->interfacer->hasValue($propertyNode, self::SIZE)) {
@@ -366,18 +389,27 @@ class ManifestParser extends ParentManifestParser {
 			if ($this->_getBooleanValue($propertyNode, self::NOT_EMPTY, false)) {
 				$arrayRestrictions[] = new NotEmptyArray();
 			}
-			$propertyModel = new ModelArray($subModel, $isAssociative, $valuesName, $arrayRestrictions, $elementRestrictions, $isNotNullElement, $isIsolatedElement);
+			$model = new ModelArray($subModel, $isAssociative, $valuesName, $arrayRestrictions, $elementRestrictions, $isNotNullElement, $isIsolatedElement);
 		}
-		return $propertyModel;
+		return $model;
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param mixed $propertyNode
 	 * @return boolean
 	 */
 	protected function isArrayNode($propertyNode) {
 		return $this->interfacer->getValue($propertyNode, 'type') == 'array';
+	}
+	
+	/**
+	 *
+	 * @param mixed $propertyNode
+	 * @return boolean
+	 */
+	protected function isAggregationNode($propertyNode) {
+		return false;
 	}
 	
 }

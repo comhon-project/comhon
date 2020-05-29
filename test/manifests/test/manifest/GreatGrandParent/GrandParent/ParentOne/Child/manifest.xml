@@ -5,6 +5,10 @@
   <properties>
     <property name="childOne" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
+  <inheritance_requestables>
+    <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</model>
+    <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</model>
+  </inheritance_requestables>
   <types>
     <type name="ChildLocalSerializable">
       <extends>
@@ -24,8 +28,4 @@
       <properties/>
     </type>
   </types>
-  <inheritance_requestables>
-    <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</model>
-    <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</model>
-  </inheritance_requestables>
 </root>

@@ -18,9 +18,7 @@ use Comhon\Model\ModelForeign;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\ArgumentException;
 use Comhon\Serialization\SerializationUnit;
-use Comhon\Model\ModelArray;
 use Comhon\Model\Model;
-use Comhon\Utils\Cli;
 use Comhon\Utils\Model as ModelUtils;
 use Comhon\Object\ComhonObject;
 use Comhon\Utils\Utils;
@@ -859,16 +857,12 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 			$properties = array_diff_key($model->getProperties(), $model->getParent()->getProperties());
 			
 			foreach ($properties as $property) {
+				if ($property instanceof AggregationProperty) {
+					continue;
+				}
 				$serializationProperty = null;
 				
-				$aggregation = $this->getAggregation($model, $property, $modelsInfos);
-				if (!empty($aggregation)) {
-					$serializationProperty = new ComhonObject('Comhon\Serialization\Property');
-					$serializationAggregation = $serializationProperty->initValue('aggregations', false);
-					foreach ($aggregation as $propertyName) {
-						$serializationAggregation->pushValue($propertyName);
-					}
-				} elseif ($this->ask("is property '{$property->getName()}' serializable", 'yes', ['yes', 'no']) === 'yes') {
+				if ($this->ask("is property '{$property->getName()}' serializable", 'yes', ['yes', 'no']) === 'yes') {
 					if ($this->isMultipleIdForeignProperty($property)) {
 						$names = $this->getSerializationNames($property, $tableKeys, $tablesInfos);
 						$serializationProperty = new ComhonObject('Comhon\Serialization\Property');
@@ -910,58 +904,6 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 		foreach ($tableKeys as $tableKey) {
 			$tablesInfos[$tableKey][self::COLUMNS][$serializationName] = null;
 		}
-	}
-	
-	/**
-	 * get aggregation properties.
-	 *
-	 * @param \Comhon\Model\Model $model
-	 * @param \Comhon\Model\Property\Property $property
-	 * @param array $modelsInfos
-	 * @return null|string[] if property is defined as aggregation return array of property names, null otherwise.
-	 */
-	private function getAggregation(Model $model, Property $property, $modelsInfos) {
-		$aggregation = null;
-		if (
-			array_key_exists($property->getUniqueModel()->getName(), $modelsInfos)
-			&& ($property->getModel() instanceof ModelForeign)
-			&& ($property->getModel()->getModel() instanceof ModelArray)
-			&& ($property->getModel()->getModel()->getModel() instanceof Model)
-		) {
-			$aggregationable = [];
-			foreach ($property->getModel()->getModel()->getModel()->getProperties() as $aggregationableProperty) {
-				if (
-					($aggregationableProperty->getModel() instanceof ModelForeign)
-					&& ($aggregationableProperty->getModel()->getModel() instanceof Model)
-					&& (
-						$aggregationableProperty->getModel()->getModel() === $model
-						|| $aggregationableProperty->getModel()->getModel()->isInheritedFrom($model)
-					)
-				) {
-					$aggregationable[] = $aggregationableProperty->getName();
-				}
-			}
-			if (!empty($aggregationable)) {
-				$question = "Is '{$property->getName()}' an aggregation of '{$model->getName()}'"
-				. ' (in other words not serialized as a column but reference rows in a table)?';
-				
-				if ($this->ask($question, 'no', ['yes', 'no']) === 'yes') {
-					$aggregation = [];
-					$aggregationable[] = 'finally it\'s not an aggregation';
-					$not = count($aggregationable) - 1;
-					
-					$question = 'Specify which property(ies) is used for aggregation.';
-					
-					$responses = $this->ask($question, null, $aggregationable, Cli::FILTER_MULTI);
-					if (!in_array($not, $responses)) {
-						foreach ($responses as $response) {
-							$aggregation[] = $aggregationable[$response];
-						}
-					}
-				}
-			}
-		}
-		return $aggregation;
 	}
 	
 	/**

@@ -10,16 +10,5 @@
     <bestFriend serialization_name="best_friend"/>
     <father serialization_name="father_id"/>
     <mother serialization_name="mother_id"/>
-    <children>
-      <aggregations>
-        <aggregation>mother</aggregation>
-        <aggregation>father</aggregation>
-      </aggregations>
-    </children>
-    <homes>
-      <aggregations>
-        <aggregation>person</aggregation>
-      </aggregations>
-    </homes>
   </properties>
 </root>

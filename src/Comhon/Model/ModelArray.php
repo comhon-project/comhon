@@ -174,6 +174,17 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	}
 	
 	/**
+	 * get model array dimensions count
+	 *
+	 * @return integer
+	 */
+	public function getDimensionsCount() {
+		return $this->model instanceof ModelArray
+		? ($this->model->getDimensionsCount() + 1)
+		: 1;
+	}
+	
+	/**
 	 * verify if during import we stay in first level object or not
 	 *
 	 * @param boolean $isCurrentLevelFirstLevel

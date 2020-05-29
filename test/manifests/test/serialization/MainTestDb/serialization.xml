@@ -2,11 +2,4 @@
   <serialization>
     <foreign_settings id="main_test" __inheritance__="Comhon\SqlTable"/>
   </serialization>
-  <properties>
-    <childrenTestDb>
-      <aggregations>
-        <aggregation>mainParentTestDb</aggregation>
-      </aggregations>
-    </childrenTestDb>
-  </properties>
 </root>

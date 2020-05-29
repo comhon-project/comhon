@@ -557,15 +557,15 @@ class ModelManager {
 		}
 		if ($manifestParser->getCurrentPropertiesCount() > 0) {
 			do {
-				$modelName = $manifestParser->getCurrentPropertyModelName();
+				$modelName = $manifestParser->getCurrentPropertyModelUniqueName();
 				if (!array_key_exists($modelName, $this->instanceSimpleModels)) {
 					$modelName = ($modelName[0] != '\\') 
 						? $manifestParser->getNamespace(). '\\' . $modelName 
 						: substr($modelName, 1) ;
 				}
 				
-				$propertyModel = $this->_getInstanceModel($modelName, false);
-				$property      = $manifestParser->getCurrentProperty($propertyModel);
+				$propertyModelUnique = $this->_getInstanceModel($modelName, false);
+				$property = $manifestParser->getCurrentProperty($propertyModelUnique);
 				
 				if (array_key_exists($property->getName(), $properties) && !$properties[$property->getName()]->isEqual($property)) {
 					throw new ComhonException(

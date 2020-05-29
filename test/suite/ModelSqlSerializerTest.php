@@ -64,11 +64,11 @@ class ModelSqlSerializerTest extends TestCase
 		$serializationSqlPath_ad = Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $serializationSqlPath_rd;
 		
 		$files = Utils::scanDirectory($serializationSqlPath_ad);
-		$this->assertCount(34, $files);
+		$this->assertCount(31, $files);
 		
 		$expectedMd5Files = Config::getInstance()->getManifestFormat() == 'json'
-			? '7c4dd582e49c04b89b960ec704d07881'
-			: '02c17a23e1b7580f6c50709d267ef75f';
+			? 'bfce040be94e528f28529e16affef068'
+			: '52f0f2a516d35d20303186b018dbeece';
 		
 		$actualMd5Files = '';
 		foreach ($files as $file) {

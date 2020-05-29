@@ -99,11 +99,12 @@
             "name": "childrenTestDb",
             "values": {
                 "name": "childTestDb",
-                "model": "\\Sql\\ChildTestDb",
-                "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "model": "\\Sql\\ChildTestDb"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "aggregations": [
+                "parentTestDb"
+            ],
+            "__inheritance__": "Comhon\\Manifest\\Property\\Aggregation"
         }
     ],
     "version": "3.0",

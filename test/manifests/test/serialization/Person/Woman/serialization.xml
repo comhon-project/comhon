@@ -2,13 +2,6 @@
   <serialization inheritance_key="sex">
     <foreign_settings id="`person`" __inheritance__="Comhon\SqlTable"/>
   </serialization>
-  <properties>
-    <bodies>
-      <aggregations>
-        <aggregation>owner</aggregation>
-      </aggregations>
-    </bodies>
-  </properties>
   <inheritance_values>
     <model>Test\Person\Woman</model>
     <model>Test\Person\Woman\WomanExtended</model>

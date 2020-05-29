@@ -35,7 +35,6 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	 */
 	public function getPropertySerializationInfos($propertyName) {
 		$serializationName  = null;
-		$aggregations       = null;
 		$isSerializable     = true;
 		$serializationNames = [];
 		$properties         = $this->interfacer->getValue($this->manifest, 'properties', true);
@@ -59,9 +58,31 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 					}
 				}
 			}
-			if ($this->interfacer->hasValue($serializationNode, static::AGGREGATIONS, true)) {
+			if ($this->interfacer->hasValue($serializationNode, static::IS_SERIALIZABLE)) {
+				$isSerializable = $this->interfacer->getValue($serializationNode, static::IS_SERIALIZABLE);
+				if ($this->interfacer instanceof XMLInterfacer) {
+					$isSerializable = $this->interfacer->castValueToBoolean($isSerializable);
+				}
+			}
+		}
+		
+		return [$serializationName, $isSerializable, $serializationNames];
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getAggregationInfos()
+	 */
+	public function getAggregationInfos($propertyName) {
+		$aggregations = null;
+		$properties = $this->interfacer->getValue($this->manifest, 'properties', true);
+		
+		if (!is_null($properties) && $this->interfacer->hasValue($properties, $propertyName, true)) {
+			$propertyNode = $this->interfacer->getValue($properties, $propertyName, true);
+			if ($this->interfacer->hasValue($propertyNode, static::AGGREGATIONS, true)) {
 				$aggregations = $this->interfacer->getTraversableNode(
-					$this->interfacer->getValue($serializationNode, static::AGGREGATIONS, true)
+					$this->interfacer->getValue($propertyNode, static::AGGREGATIONS, true)
 				);
 				if ($this->interfacer instanceof XMLInterfacer) {
 					foreach ($aggregations as $key => $serializationNameNode) {
@@ -72,15 +93,9 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 					throw new ManifestException('aggregation must have at least one aggregation property');
 				}
 			}
-			if ($this->interfacer->hasValue($serializationNode, static::IS_SERIALIZABLE)) {
-				$isSerializable = $this->interfacer->getValue($serializationNode, static::IS_SERIALIZABLE);
-				if ($this->interfacer instanceof XMLInterfacer) {
-					$isSerializable = $this->interfacer->castValueToBoolean($isSerializable);
-				}
-			}
 		}
 		
-		return [$serializationName, $aggregations, $isSerializable, $serializationNames];
+		return $aggregations;
 	}
 	
 	/**

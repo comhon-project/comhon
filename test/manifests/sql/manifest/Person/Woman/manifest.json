@@ -9,11 +9,12 @@
             "name": "bodies",
             "values": {
                 "name": "body",
-                "model": "\\Sql\\Body\\Woman",
-                "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "model": "\\Sql\\Body\\Woman"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "aggregations": [
+                "owner"
+            ],
+            "__inheritance__": "Comhon\\Manifest\\Property\\Aggregation"
         }
     ],
     "version": "3.0"

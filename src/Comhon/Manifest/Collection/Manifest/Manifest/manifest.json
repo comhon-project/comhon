@@ -407,6 +407,44 @@
             "share_parent_id": true
         },
         {
+            "name": "Property\\Aggregation",
+            "extends": [
+                "Property"
+            ],
+            "properties": [
+                {
+                    "name": "not_empty",
+                    "not_null": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
+                },
+                {
+                    "name": "size",
+                    "not_null": true,
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                },
+                {
+                    "name": "values",
+                    "not_null": true,
+                    "is_required": true,
+                    "model": "Value\\Object",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+                },
+                {
+                    "name": "aggregations",
+                    "not_null": true,
+                    "not_empty": true,
+                    "is_required": true,
+                    "values": {
+                        "name": "aggregation",
+                        "not_null": true,
+                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                    },
+                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                }
+            ],
+            "share_parent_id": true
+        },
+        {
             "name": "Value",
             "is_abstract": true,
             "properties": [

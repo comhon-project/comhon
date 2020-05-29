@@ -6,12 +6,5 @@
             "id": "public.main_test",
             "__inheritance__": "Comhon\\SqlTable"
         }
-    },
-    "properties": {
-        "childrenTestDb": {
-            "aggregations": [
-                "mainParentTestDb"
-            ]
-        }
     }
 }

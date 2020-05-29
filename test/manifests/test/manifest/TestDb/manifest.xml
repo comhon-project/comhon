@@ -24,8 +24,11 @@
     <property name="notSerializedForeignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="boolean" __inheritance__="Comhon\Manifest\Property\Boolean"/>
     <property name="boolean2" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="childTestDb" model="\Test\ChildTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Aggregation">
+      <values name="childTestDb" model="\Test\ChildTestDb"/>
+      <aggregations>
+        <aggregation>parentTestDb</aggregation>
+      </aggregations>
     </property>
     <property name="notLinkableArrayTestDb" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="childTestDb" model="\Test\NotLinkableTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>

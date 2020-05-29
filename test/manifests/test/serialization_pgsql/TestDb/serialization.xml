@@ -16,10 +16,5 @@
     <womanXml serialization_name="woman_xml_id"/>
     <notSerializedValue is_serializable="0"/>
     <notSerializedForeignObject is_serializable="0"/>
-    <childrenTestDb>
-      <aggregations>
-        <aggregation>parentTestDb</aggregation>
-      </aggregations>
-    </childrenTestDb>
   </properties>
 </root>

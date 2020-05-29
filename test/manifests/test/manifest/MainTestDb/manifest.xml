@@ -3,8 +3,11 @@
     <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
     <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="obj" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="childTestDb" model="\Test\TestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Aggregation">
+      <values name="childTestDb" model="\Test\TestDb"/>
+      <aggregations>
+        <aggregation>mainParentTestDb</aggregation>
+      </aggregations>
     </property>
   </properties>
   <types>

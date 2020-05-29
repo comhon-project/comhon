@@ -5,8 +5,11 @@
     <property name="type" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="garden" __inheritance__="Comhon\Manifest\Property\Boolean"/>
     <property name="garage" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="residents" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="resident" model="\Sql\Home" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="residents" __inheritance__="Comhon\Manifest\Property\Aggregation">
+      <values name="resident" model="\Sql\Home"/>
+      <aggregations>
+        <aggregation>house</aggregation>
+      </aggregations>
     </property>
   </properties>
 </root>

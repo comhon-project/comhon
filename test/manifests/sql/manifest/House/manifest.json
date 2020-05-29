@@ -26,11 +26,12 @@
             "name": "residents",
             "values": {
                 "name": "resident",
-                "model": "\\Sql\\Home",
-                "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "model": "\\Sql\\Home"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "aggregations": [
+                "house"
+            ],
+            "__inheritance__": "Comhon\\Manifest\\Property\\Aggregation"
         }
     ],
     "version": "3.0"

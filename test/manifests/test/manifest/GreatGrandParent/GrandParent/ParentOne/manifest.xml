@@ -6,9 +6,9 @@
     <property name="parentOne" __inheritance__="Comhon\Manifest\Property\String"/>
   </properties>
   <inheritance_requestables>
+    <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</model>
     <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child</model>
     <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable</model>
-    <model>\Test\GreatGrandParent\GrandParent\ParentOne\Child\Child</model>
     <model>\Test\GreatGrandParent\GrandParent\ParentOne\AnotherChild</model>
   </inheritance_requestables>
 </root>

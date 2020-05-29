@@ -48,21 +48,24 @@
             "name": "children",
             "values": {
                 "name": "child",
-                "model": "\\Sql\\Person",
-                "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "model": "\\Sql\\Person"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "aggregations": [
+                "mother",
+                "father"
+            ],
+            "__inheritance__": "Comhon\\Manifest\\Property\\Aggregation"
         },
         {
             "name": "homes",
             "values": {
                 "name": "home",
-                "model": "\\Sql\\Home",
-                "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "model": "\\Sql\\Home"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "aggregations": [
+                "person"
+            ],
+            "__inheritance__": "Comhon\\Manifest\\Property\\Aggregation"
         }
     ],
     "version": "3.0"

@@ -21,8 +21,11 @@
     <property name="notLinkableTestDb" model="\Test\NotLinkableTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="notLinkableTestObjValue" model="\Test\Test" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
     <property name="mainParentTestDb" model="\Sql\MainTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="childTestDb" model="\Sql\ChildTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Aggregation">
+      <values name="childTestDb" model="\Sql\ChildTestDb"/>
+      <aggregations>
+        <aggregation>parentTestDb</aggregation>
+      </aggregations>
     </property>
   </properties>
   <types>

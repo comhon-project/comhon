@@ -93,9 +93,9 @@ class ManifestParser extends ParentManifestParser {
 	/**
 	 *
 	 * {@inheritDoc}
-	 * @see \Comhon\Manifest\Parser\ManifestParser::getCurrentPropertyModelName()
+	 * @see \Comhon\Manifest\Parser\ManifestParser::getCurrentPropertyModelUniqueName()
 	 */
-	public function getCurrentPropertyModelName() {
+	public function getCurrentPropertyModelUniqueName() {
 		$propertyNode = $this->_getCurrentPropertyNode();
 		$inheritance = $this->interfacer->getValue($propertyNode, Interfacer::INHERITANCE_KEY);
 		
@@ -104,7 +104,10 @@ class ManifestParser extends ParentManifestParser {
 		} elseif ($inheritance == 'Comhon\Manifest\Property\Object') {
 			$modelName = $this->interfacer->getValue($propertyNode, 'model');
 		} elseif ($inheritance == 'Comhon\Manifest\Property\Array') {
-			$modelName = $this->_getValueModelName($this->interfacer->getValue($propertyNode, 'values', true));
+			$modelName = $this->_getValueModelUniqueName($this->interfacer->getValue($propertyNode, 'values', true));
+		} elseif ($inheritance == 'Comhon\Manifest\Property\Aggregation') {
+			$valuesNode = $this->interfacer->getValue($propertyNode, 'values', true);
+			$modelName = $this->interfacer->getValue($valuesNode, 'model');
 		} else {
 			throw new ManifestException('invalid '.Interfacer::INHERITANCE_KEY.' value : '.$inheritance);
 		}
@@ -116,14 +119,14 @@ class ManifestParser extends ParentManifestParser {
 	 * @param mixed $property
 	 * @return string
 	 */
-	protected function _getValueModelName($valuesNode) {
+	protected function _getValueModelUniqueName($valuesNode) {
 		$inheritance = $this->interfacer->getValue($valuesNode, Interfacer::INHERITANCE_KEY);
 		if (array_key_exists($inheritance, self::VALUE_TO_SIMPLE_MODEL)) {
 			$modelName = self::VALUE_TO_SIMPLE_MODEL[$inheritance];
 		} elseif ($inheritance == 'Comhon\Manifest\Value\Object') {
 			$modelName = $this->interfacer->getValue($valuesNode, 'model');
 		} elseif ($inheritance == 'Comhon\Manifest\Value\Array') {
-			$modelName = $this->_getValueModelName($this->interfacer->getValue($valuesNode, 'values', true));
+			$modelName = $this->_getValueModelUniqueName($this->interfacer->getValue($valuesNode, 'values', true));
 		} else {
 			throw new ManifestException('invalid '.Interfacer::INHERITANCE_KEY.' array value : '.$inheritance);
 		}
@@ -142,11 +145,49 @@ class ManifestParser extends ParentManifestParser {
 	
 	/**
 	 *
+	 * @param mixed $propertyNode
+	 * @return boolean
+	 */
+	protected function isAggregationNode($propertyNode) {
+		return $this->interfacer->getValue($propertyNode, Interfacer::INHERITANCE_KEY) == 'Comhon\Manifest\Property\Aggregation';
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\ManifestParser::_getAggregationInfos()
+	 */
+	protected function _getAggregationInfos() {
+		$aggregations = null;
+		$propertyNode = $this->_getCurrentPropertyNode();
+		
+		if ($this->isAggregationNode($propertyNode) && $this->interfacer->hasValue($propertyNode, static::AGGREGATIONS, true)) {
+			$aggregations = $this->interfacer->getTraversableNode(
+				$this->interfacer->getValue($propertyNode, static::AGGREGATIONS, true)
+			);
+			if ($this->interfacer instanceof XMLInterfacer) {
+				foreach ($aggregations as $key => $serializationNameNode) {
+					$aggregations[$key] = $this->interfacer->extractNodeText($serializationNameNode);
+				}
+			}
+			if (empty($aggregations)) {
+				throw new ManifestException('aggregation must have at least one aggregation property');
+			}
+		}
+		
+		return $aggregations;
+	}
+	
+	/**
+	 *
 	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\ManifestParser::_isCurrentPropertyForeign()
 	 */
 	protected function _isCurrentPropertyForeign() {
 		$node = $this->_getCurrentPropertyNode();
+		if ($this->isAggregationNode($node)) {
+			return  true;
+		}
 		while ($this->isArrayNode($node)) {
 			$node = $this->interfacer->getValue($node, 'values', true);
 		}

@@ -75,17 +75,6 @@
                         "__inheritance__": "Comhon\\Manifest\\Value\\String"
                     },
                     "__inheritance__": "Comhon\\Manifest\\Property\\Array"
-                },
-                {
-                    "name": "aggregations",
-                    "not_null": true,
-                    "not_empty": true,
-                    "values": {
-                        "name": "aggregation",
-                        "not_null": true,
-                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
-                    },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
                 }
             ],
             "conflicts": [

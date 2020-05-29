@@ -204,6 +204,19 @@
         <type>Base\Array</type>
       </extends>
     </type>
+    <type name="Property\Aggregation" share_parent_id="1">
+      <extends>
+        <type>Property</type>
+      </extends>
+      <properties>
+        <property name="not_empty" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="size" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="values" not_null="1" is_required="1" model="Value\Object" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="aggregations" not_null="1" not_empty="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Array">
+          <values name="aggregation" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
+        </property>
+      </properties>
+    </type>
     <type name="Value" is_abstract="1">
       <properties>
         <property name="name" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>

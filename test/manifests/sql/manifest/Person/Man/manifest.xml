@@ -3,8 +3,11 @@
     <type>\Sql\Person</type>
   </extends>
   <properties>
-    <property name="bodies" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="body" model="\Sql\Body\Man" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="bodies" __inheritance__="Comhon\Manifest\Property\Aggregation">
+      <values name="body" model="\Sql\Body\Man"/>
+      <aggregations>
+        <aggregation>owner</aggregation>
+      </aggregations>
     </property>
   </properties>
 </root>
