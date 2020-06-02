@@ -55,13 +55,7 @@ abstract class AbstractManifestFile extends SerializationFile {
 	 */
 	public function __construct($format = null, $pretty = true) {
 		if (!is_null($format)) {
-			if ($format == 'json') {
-				$this->interfacer = new AssocArrayInterfacer();
-			} elseif ($format == 'xml') {
-				$this->interfacer = new XMLInterfacer();
-			} else {
-				throw new ArgumentException($format, 'string', 1, ['json', 'xml']);
-			}
+			$this->interfacer = interfacer::getInstance($format, true);
 			$this->format = $format;
 			$this->interfacer->setSerialContext(true);
 			$this->interfacer->setPrivateContext(true);

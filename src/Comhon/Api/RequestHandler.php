@@ -101,26 +101,49 @@ class RequestHandler {
 	 * handle client request and build response
 	 * 
 	 * @param string $basePath
+	 * @param string[] $requestableModels each models that may be requested indexed by API model names.
+	 *                                an API model name must match regex '^[a-z\-]+$' (there is no verification).
+	 *                                example : [
+	 *                                  'man' => 'Object\Person\Man',
+	 *                                  'woman' => 'Object\Person\Woman',
+	 *                                  'man-test' => 'Test\Person\Man',
+	 *                                ].
+	 *                                if provided, URI must contain an API model name,
+	 *                                otherwise it must contain a fully qualified model name (with namespace).
 	 * @return \Comhon\Api\Response
 	 */
-	public static function handle($basePath) {
+	public static function handle($basePath, array $requestableModels = null) {
 		$handler = new self();
-		return $handler->_handle($basePath, $_SERVER, $_GET, apache_request_headers(), file_get_contents('php://input'));
+		return $handler->_handle(
+			$basePath,
+			$requestableModels, 
+			$_SERVER, 
+			$_GET, 
+			apache_request_headers(), 
+			file_get_contents('php://input')
+		);
 	}
 	
 	/**
 	 * 
 	 * @param string $basePath
+	 * @param string[] $requestableModels
 	 * @param string[] $server
 	 * @param array $get
 	 * @param string[] $headers
+	 * @param string $body
 	 * @throws \Exception
 	 * @return \Comhon\Api\Response
 	 */
-	protected function _handle($basePath, $server, $get, $headers, $body) {
+	protected function _handle($basePath, $requestableModels, $server, $get, $headers, $body) {
 		try {
-			$this->_setRessource($basePath, $server, $headers);
-			$response = $this->_handleMethod($server, $get, $headers, $body);
+			$this->_setRessourceArray($basePath, $server['REQUEST_URI']);
+			if (count($this->resource) == 1 && $this->resource[0] == 'models') {
+				$response = $this->_getRequestableModels($server['REQUEST_METHOD'], $headers, $requestableModels);
+			} else {
+				$this->_setRessourceInfos($server['REQUEST_METHOD'], $requestableModels);
+				$response = $this->_handleMethod($server, $get, $headers, $body);
+			}
 		} catch (ResponseException $e) {
 			$response = $e->getResponse();
 		} catch (ManifestSerializationException $e) {
@@ -133,16 +156,14 @@ class RequestHandler {
 	}
 	
 	/**
-	 * set route array according request route.
+	 * set resource array according request route.
 	 * check if route is valid and may be handled.
-	 * add namespace to model if header namespace is specified.
-	 * 
+	 *
 	 * @param string $basePath
-	 * @param string[] $server
-	 * @param string[] $headers
+	 * @param string $uri
 	 */
-	private function _setRessource($basePath, $server, $headers) {
-		$route = substr(preg_replace('~/+~', '/', $server['REQUEST_URI'].'/'), 0, -1);
+	private function _setRessourceArray($basePath, $uri) {
+		$route = substr(preg_replace('~/+~', '/', $uri.'/'), 0, -1);
 		$basePath = preg_replace('~/+~', '/', '/'.$basePath.'/');
 		
 		if (strpos($route, '?') !== false) {
@@ -157,7 +178,16 @@ class RequestHandler {
 			throw new ResponseException(404, 'not handled route');
 		}
 		$this->resource = explode('/', urldecode($route));
-		$method = $server['REQUEST_METHOD'];
+	}
+	
+	/**
+	 * set resource informations according request route.
+	 * check if route is valid and may be handled.
+	 * 
+	 * @param string $method
+	 * @param string[] $requestableModels
+	 */
+	private function _setRessourceInfos($method, array $requestableModels = null) {
 		if ($this->resource[0] === 'count' && ($method === 'GET' || $method === 'HEAD' || $method === 'OPTIONS')) {
 			array_shift($this->resource);
 			$this->isCountRequest = true;
@@ -165,13 +195,19 @@ class RequestHandler {
 		if (!array_key_exists(0, $this->resource)|| count($this->resource) > 2) {
 			throw new ResponseException(404, 'invalid route');
 		}
-		if (isset($headers['namespace']) && !empty($headers['namespace'])) {
-			$this->resource[0] = $headers['namespace'] . '\\' . $this->resource[0];
-		}
 		try {
-			$this->requestedModel = ModelManager::getInstance()->getInstanceModel($this->resource[0]);
+			if (!is_null($requestableModels)) {
+				$resourceName = strtolower($this->resource[0]);
+				if (!array_key_exists($resourceName, $requestableModels)) {
+					throw new ResponseException(404, "resource api model name '{$this->resource[0]}' doesn't exist");
+				}
+				$modelName = $requestableModels[$resourceName];
+			} else {
+				$modelName = $this->resource[0];
+			}
+			$this->requestedModel = ModelManager::getInstance()->getInstanceModel($modelName);
 		} catch (NotDefinedModelException $e) {
-			throw new ResponseException(404, "resource model '{$this->resource[0]}' doesn't exist");
+			throw new ResponseException(404, "resource model '{$modelName}' doesn't exist");
 		}
 		if (!$this->requestedModel->hasSerialization()) {
 			throw new ResponseException(404, "resource model '{$this->requestedModel->getName()}' is not requestable");
@@ -190,13 +226,56 @@ class RequestHandler {
 	}
 	
 	/**
+	 * get models list that may be requested
+	 * 
+	 * @param string $method
+	 * @param string[] $headers
+	 * @param string[] $requestableModels
+	 * @return \Comhon\Api\Response
+	 */
+	private function _getRequestableModels($method, $headers, array $requestableModels = null) {
+		if (is_null($requestableModels)) {
+			throw new ResponseException(404, 'not handled route');
+		}
+		if ($method != 'GET' && $method != 'HEAD') {
+			throw new MethodNotAllowedException(
+				"method $method not allowed",
+				['Allow' => implode(', ', ['GET', 'HEAD'])]
+			);
+		}
+		$response = new Response();
+		$interfacer = self::getInterfacerFromAcceptHeader($headers);
+		
+		if ($interfacer instanceof XMLInterfacer) {
+			$root = $interfacer->createArrayNode('root');
+			foreach ($requestableModels as $apiName => $modelName) {
+				$interfacer->addAssociativeValue($root, $modelName, $apiName);
+			}
+			$response->setContent($root);
+		} elseif ($interfacer instanceof AssocArrayInterfacer) {
+			$response->setContent($requestableModels);
+		} else {
+			throw new ComhonException('not handled Content-Type : '.get_class($interfacer));
+		}
+		if ($method == 'HEAD') {
+			$send = $response->getSend();
+			if (isset($send[1]['Content-Type'])) {
+				$response->addHeader('Content-Type', $send[1]['Content-Type']);
+			}
+			$response->addHeader('Content-Length', strlen($send[2]));
+			$response->setContent(null);
+		}
+		return $response;
+	}
+	
+	/**
 	 *
 	 * @param string[] $server
 	 * @param array $get
 	 * @param string[] $headers
 	 * @param string $body
 	 * @throws \Exception
-	 * @return boolean|\Comhon\Api\Response
+	 * @return \Comhon\Api\Response
 	 */
 	private function _handleMethod($server, $get, $headers, $body) {
 		$this->_verifyAllowedMethod($server['REQUEST_METHOD']);

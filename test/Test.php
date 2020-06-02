@@ -451,14 +451,6 @@ try {
 
 // TODO for version > 4.0
 
-// add aggregations in manifest
-// route to get all requestable models (with serialization)
-
-// docker
-// add route to create pattern regex
-// sample : no need to specify default database id
-// refactor code (not all in index.php)
-
 // use id different than table name for sql table (may have same table name but with different database)
 // add possibility to request aggregations in request handler ?
 // add autoload without prefix namespace ?

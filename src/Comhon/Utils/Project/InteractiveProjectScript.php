@@ -16,6 +16,8 @@ use Comhon\Utils\Model as ModelUtils;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Utils\InteractiveScript;
 use Comhon\Interfacer\StdObjectInterfacer;
+use Comhon\Exception\ArgumentException;
+use Comhon\Interfacer\Interfacer;
 
 abstract class InteractiveProjectScript extends InteractiveScript {
 	
@@ -115,15 +117,12 @@ abstract class InteractiveProjectScript extends InteractiveScript {
 	 * @return \Comhon\Interfacer\Interfacer
 	 */
 	protected function getInterfacer() {
-		switch (Config::getInstance()->getManifestFormat()) {
-			case 'xml':
-				return new XMLInterfacer();
-				break;
-			case 'json':
-				return new StdObjectInterfacer();
-				break;
-			default:
-				throw new \Exception('manifest format not managed : '.Config::getInstance()->getManifestFormat());
+		try {
+			// use std object interfacer because it is easyer to modify interfaced objects
+			// than with array interfacer due to references or copies
+			return Interfacer::getInstance(Config::getInstance()->getManifestFormat());
+		} catch (ArgumentException $e) {
+			throw new \Exception('config manifest format not managed : '.Config::getInstance()->getManifestFormat());
 		}
 	}
     

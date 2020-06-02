@@ -14,7 +14,6 @@ namespace Comhon\Interfacer;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Model\CastStringException;
-use Comhon\Utils\Utils;
 
 class XMLInterfacer extends NoScalarTypedInterfacer {
 	
@@ -39,9 +38,6 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	/** @var \DOMDocument */
 	private $domDocument;
 	
-	/** @var \DOMElement[] */
-	private $nullElements = [];
-	
 	/**
 	 * initialize DomDocument that permit to contruct nodes
 	 * 
@@ -50,7 +46,6 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	protected function _initInstance() {
 		$this->domDocument = new \DOMDocument();
 		$this->domDocument->preserveWhiteSpace = false;
-		$this->nullElements = [];
 	}
 	
 	/**

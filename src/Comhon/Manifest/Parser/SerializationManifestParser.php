@@ -17,6 +17,7 @@ use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Exception\Manifest\ManifestException;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
+use Comhon\Exception\ArgumentException;
 
 abstract class SerializationManifestParser {
 	
@@ -141,15 +142,13 @@ abstract class SerializationManifestParser {
 	 * @return \Comhon\Manifest\Parser\SerializationManifestParser
 	 */
 	public static function getInstance($serializationManifestPath_afe) {
-		switch (mb_strtolower(pathinfo($serializationManifestPath_afe, PATHINFO_EXTENSION))) {
-			case 'xml':
-				$interfacer = new XMLInterfacer();
-				break;
-			case 'json':
-				$interfacer = new AssocArrayInterfacer();
-				break;
-			default:
-				throw new ManifestException('extension not recognized for manifest file : '.$serializationManifestPath_afe);
+		try {
+			$interfacer = interfacer::getInstance(
+				mb_strtolower(pathinfo($serializationManifestPath_afe, PATHINFO_EXTENSION)),
+				true
+			);
+		} catch (ArgumentException $e) {
+			throw new ManifestException('extension not recognized for manifest file : '.$serializationManifestPath_afe);
 		}
 		return self::_getInstanceWithInterfacer($serializationManifestPath_afe, $interfacer);
 		

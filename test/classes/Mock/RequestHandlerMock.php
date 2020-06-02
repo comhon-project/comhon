@@ -15,9 +15,19 @@ use Comhon\Api\RequestHandler;
 
 class RequestHandlerMock extends RequestHandler {
 	
-	public static function handle($basePath, $server = [], $get = [], $headers = [], $body = '') {
+	/**
+	 * 
+	 * @param string $basePath
+	 * @param string[] $server
+	 * @param string[] $get
+	 * @param string[] $headers
+	 * @param string $body
+	 * @param string[] $RequestableModels
+	 * @return \Comhon\Api\Response
+	 */
+	public static function handle($basePath, $server = [], $get = [], $headers = [], $body = '', array $RequestableModels = null) {
 		$handler = new self();
-		return $handler->_handle($basePath, $server, $get, $headers, $body);
+		return $handler->_handle($basePath, $RequestableModels, $server, $get, $headers, $body);
 	}
 	
 }

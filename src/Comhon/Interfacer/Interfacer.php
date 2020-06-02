@@ -143,6 +143,26 @@ abstract class Interfacer {
 	/** @var boolean */
 	private $verifyReferences = true;
 	
+	/**
+	 * 
+	 * @param string $format must be one of [xml, json]
+	 * @param boolean $assoc used only for 'json' format.
+	 *                       if false return StdObjectInterfacer instance, 
+	 *                       XMLInterfacer instance otherwise.
+	 */
+	public static function getInstance($format, $assoc = false) {
+		switch ($format) {
+			case 'xml':
+				return new XMLInterfacer();
+				break;
+			case 'json':
+				return $assoc ? new AssocArrayInterfacer() : new StdObjectInterfacer();
+				break;
+			default:
+				throw new ArgumentException($format, 'string', 1, ['json', 'xml']);
+		}
+	}
+	
 	final public function __construct() {
 		$this->dateTimeZone = new \DateTimeZone(date_default_timezone_get());
 		$this->_initInstance();

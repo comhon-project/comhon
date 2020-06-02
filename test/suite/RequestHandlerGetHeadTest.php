@@ -22,11 +22,11 @@ class RequestHandlerGetHeadTest extends TestCase
 	
 	/**
 	 *
-	 * @dataProvider requestNamespaceData
+	 * @dataProvider apiModelNamesData
 	 */
-	public function testRequestNamespace($server, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
+	public function testApiModelNames($server, $requestableModels, $responseCode, $responseHeaders, $responseContent)
 	{
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $requestableModels);
 		$sendGet = $response->getSend();
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
@@ -34,7 +34,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		$this->assertEquals($responseHeaders, $sendGet[1]);
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $requestableModels);
 		$sendHead = $response->getSend();
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
@@ -47,56 +47,128 @@ class RequestHandlerGetHeadTest extends TestCase
 		}
 	}
 	
-	public function requestNamespaceData()
+	public function apiModelNamesData()
 	{
 		return [
-			[ // no namespace
+			[ // no requestable models names
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
 				],
-				[],
+				null,
 				200,
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
 			],
-			[ // empty namespace
+			[ // existing api model name
 				[
 					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
+					'REQUEST_URI' => '/index.php/api/man/1'
 				],
 				[
-					'namespace' => '',
+					'man' => 'Test\Person\Man',
+					'woman' => 'Test\Person\Woman',
 				],
 				200,
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
 					
 			],
-			[ // namespace
+			[ // existing api model name, not lower case
 				[
 					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Man/1'
+					'REQUEST_URI' => '/index.php/api/MaN/1'
 				],
 				[
-					'namespace' => 'Test\Person',
+					'man' => 'Test\Person\Man',
+					'woman' => 'Test\Person\Woman',
 				],
 				200,
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
 					
 			],
-			[ // non-existent model name
+			[ // NOT existing api model name
 				[
 					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Man/1'
+					'REQUEST_URI' => '/index.php/api/woman'
 				],
 				[
-					'namespace' => 'Test\Aaaa',
+					'man' => 'Test\Person\Man',
 				],
 				404,
 				['Content-Type' => 'text/plain'],
-				'resource model \'Test\Aaaa\Man\' doesn\'t exist'
+				"resource api model name 'woman' doesn't exist"
+			]
+		];
+	}
+	
+	/**
+	 *
+	 * @dataProvider requestableModelNamesData
+	 */
+	public function testRequestableModelNames($requestHeaders, $requestableModels, $responseCode, $responseHeaders, $responseContent)
+	{
+		$server = [
+			'REQUEST_METHOD' => 'GET',
+			'REQUEST_URI' => '/index.php/api/models'
+		];
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders, '', $requestableModels);
+		$sendGet = $response->getSend();
+		
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders, '', $requestableModels);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals($responseHeaders, $sendHead[1]);
+		}
+	}
+	
+	public function requestableModelNamesData()
+	{
+		return [
+			[ // no requestable models names
+				[
+					'Accept' => 'application/json',
+				],
+				null,
+				404,
+				['Content-Type' => 'text/plain'],
+				'not handled route',
+			],
+			[ // existing api model name
+				[
+					'Accept' => 'application/xml',
+				],
+				[
+					'man-test' => 'Test\Person\Man',
+					'woman' => 'Test\Person\Woman',
+				],
+				200,
+				['Content-Type' => 'application/xml'],
+				'<root><man-test>Test\Person\Man</man-test><woman>Test\Person\Woman</woman></root>',
+					
+			],
+			[ // NOT existing api model name
+				[
+					'Accept' => 'application/json',
+				],
+				[
+					'man' => 'Test\Person\Man',
+				],
+				200,
+				['Content-Type' => 'application/json'],
+				'{"man":"Test\\\\Person\\\\Man"}'
 			]
 		];
 	}
@@ -1198,7 +1270,6 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":202,"message":"Something goes wrong on \'.tree.model\' value : \nvalue must be a string, integer \'1\' given"}'
 			],
-	];
+		];
 	}
-	
 }

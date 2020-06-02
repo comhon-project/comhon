@@ -30,6 +30,7 @@ use Comhon\Model\Restriction\Restriction;
 use Comhon\Model\Property\AutoProperty;
 use Comhon\Model\ModelArray;
 use Comhon\Model\ModelUnique;
+use Comhon\Exception\ArgumentException;
 
 abstract class ManifestParser {
 
@@ -499,15 +500,10 @@ abstract class ManifestParser {
 	 * @return ManifestParser
 	 */
 	public static function getInstance($manifestPath_afe, $serializationManifestPath_afe, $namespace) {
-		switch (mb_strtolower(pathinfo($manifestPath_afe, PATHINFO_EXTENSION))) {
-			case 'xml':
-				$interfacer = new XMLInterfacer();
-				break;
-			case 'json':
-				$interfacer = new AssocArrayInterfacer();
-				break;
-			default:
-				throw new ManifestException('extension not recognized for manifest file : '.$manifestPath_afe);
+		try {
+			$interfacer = interfacer::getInstance(mb_strtolower(pathinfo($manifestPath_afe, PATHINFO_EXTENSION)), true);
+		} catch (ArgumentException $e) {
+			throw new ManifestException('extension not recognized for manifest file : '.$manifestPath_afe);
 		}
 		return self::_getInstanceWithInterfacer($manifestPath_afe, $serializationManifestPath_afe, $namespace, $interfacer);
 	}
