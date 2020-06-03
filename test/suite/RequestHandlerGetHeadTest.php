@@ -146,7 +146,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'text/plain'],
 				'not handled route',
 			],
-			[ // existing api model name
+			[ // response xml
 				[
 					'Accept' => 'application/xml',
 				],
@@ -159,7 +159,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				'<root><man-test>Test\Person\Man</man-test><woman>Test\Person\Woman</woman></root>',
 					
 			],
-			[ // NOT existing api model name
+				[ // response json
 				[
 					'Accept' => 'application/json',
 				],
@@ -171,6 +171,33 @@ class RequestHandlerGetHeadTest extends TestCase
 				'{"man":"Test\\\\Person\\\\Man"}'
 			]
 		];
+	}
+	
+	public function testPatterns()
+	{
+		$requestHeaders = ['Content-Type' => 'application/json'];
+		$server = [
+			'REQUEST_METHOD' => 'GET',
+			'REQUEST_URI' => '/index.php/api/patterns'
+		];
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
+		$sendGet = $response->getSend();
+		
+		$patterns = json_decode(file_get_contents(Config::getInstance()->getRegexListPath()), true);
+		$this->assertEquals($patterns, json_decode($sendGet[2], true));
+		$this->assertEquals(200, $sendGet[0]);
+		$this->assertEquals(['Content-Type' => 'application/json'], $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
+		$sendHead = $response->getSend();
+		
+		$this->assertEquals(200, $sendHead[0]);
+		$this->assertEmpty($sendHead[2]);
+		$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+		$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+		unset($sendHead[1]['Content-Length']);
+		$this->assertEquals(['Content-Type' => 'application/json'], $sendHead[1]);
 	}
 	
 	/**

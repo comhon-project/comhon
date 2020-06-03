@@ -138,9 +138,11 @@ class RequestHandler {
 	protected function _handle($basePath, $requestableModels, $server, $get, $headers, $body) {
 		try {
 			$this->_setRessourceArray($basePath, $server['REQUEST_URI']);
-			if (count($this->resource) == 1 && $this->resource[0] == 'models') {
+			if ($this->resource[0] == 'models' && count($this->resource) == 1) {
 				$response = $this->_getRequestableModels($server['REQUEST_METHOD'], $headers, $requestableModels);
-			} else {
+			} elseif ($this->resource[0] == 'patterns' && count($this->resource) == 1) {
+				$response = $this->_getPatterns($server['REQUEST_METHOD'], $headers);
+			}else {
 				$this->_setRessourceInfos($server['REQUEST_METHOD'], $requestableModels);
 				$response = $this->_handleMethod($server, $get, $headers, $body);
 			}
@@ -234,7 +236,32 @@ class RequestHandler {
 	 * @return \Comhon\Api\Response
 	 */
 	private function _getRequestableModels($method, $headers, array $requestableModels = null) {
-		if (is_null($requestableModels)) {
+		return $this->_getAssocArrayResponse($method, $headers, $requestableModels);
+	}
+	
+	/**
+	 * get patterns list that may be used
+	 * 
+	 * @param string $method
+	 * @param string[] $headers
+	 * @return \Comhon\Api\Response
+	 */
+	private function _getPatterns($method, $headers) {
+		$path = Config::getInstance()->getRegexListPath();
+		$regexs = file_exists($path) ? json_decode(file_get_contents($path), true) : null;
+		return $this->_getAssocArrayResponse($method, $headers, $regexs);
+	}
+	
+	/**
+	 * get response according provided assoc array of strings
+	 * 
+	 * @param string $method
+	 * @param string[] $headers
+	 * @param string[] $assocArray
+	 * @return \Comhon\Api\Response
+	 */
+	private function _getAssocArrayResponse($method, $headers, array $assocArray = null) {
+		if (is_null($assocArray)) {
 			throw new ResponseException(404, 'not handled route');
 		}
 		if ($method != 'GET' && $method != 'HEAD') {
@@ -248,12 +275,12 @@ class RequestHandler {
 		
 		if ($interfacer instanceof XMLInterfacer) {
 			$root = $interfacer->createArrayNode('root');
-			foreach ($requestableModels as $apiName => $modelName) {
+			foreach ($assocArray as $apiName => $modelName) {
 				$interfacer->addAssociativeValue($root, $modelName, $apiName);
 			}
 			$response->setContent($root);
 		} elseif ($interfacer instanceof AssocArrayInterfacer) {
-			$response->setContent($requestableModels);
+			$response->setContent($assocArray);
 		} else {
 			throw new ComhonException('not handled Content-Type : '.get_class($interfacer));
 		}
