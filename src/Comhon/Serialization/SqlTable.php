@@ -582,6 +582,23 @@ class SqlTable extends ValidatedSerializationUnit {
 		$uniqueModel = ($object->getModel() instanceof ModelArray) ? $object->getUniqueModel() : $object->getModel();
 		$this->_initDatabaseInterfacing($uniqueModel);
 		
+		if (
+			!is_null($uniqueModel->getSerialization()->getInheritanceKey())
+			&& !empty($uniqueModel->getSerialization()->getInheritanceValues())
+		) {
+			$values = $uniqueModel->getSerialization()->getInheritanceValues();
+			$inheritanceValuesLiteral = new SimpleDbLiteral(
+				$uniqueModel->getSerializationSettings()->getValue('name'),
+				$uniqueModel->getSerialization()->getInheritanceKey(),
+				count($values) > 1 ? Literal::IN : Literal::EQUAL,
+				count($values) > 1 ? $values : $values[0]
+			);
+			$subClause = $clause;
+			$clause = new Clause(Clause::CONJUNCTION);
+			$clause->addLiteral($inheritanceValuesLiteral);
+			$clause->addElement($subClause);
+		}
+		
 		$selectQuery = new SelectQuery($uniqueModel->getSerializationSettings()->getValue('name'));
 		$selectQuery->where($clause);
 		

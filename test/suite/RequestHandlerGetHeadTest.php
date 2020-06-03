@@ -306,7 +306,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}'
 			],
-			[ // inheritance
+			[ // inheritance success
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson/1'
@@ -315,6 +315,26 @@ class RequestHandlerGetHeadTest extends TestCase
 				200,
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}'
+			],
+			[ // inheritance not found (sqlTable), id exists but a woman is requested and given id corespond to man object
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cWoman/1'
+				],
+				[],
+				404,
+				['Content-Type' => 'text/plain'],
+				"resource 'Test\Person\Woman' with id '1' not found"
+			],
+			[ // inheritance not found (file), id exists but a WomanXmlExtended is requested and given id corespond to WomanXml object
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cWomanXmlExtended/2'
+				],
+				[],
+				404,
+				['Content-Type' => 'text/plain'],
+				"resource 'Test\Person\WomanXmlExtended' with id '2' not found"
 			],
 			[ // filter properties
 				[

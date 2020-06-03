@@ -16,6 +16,7 @@ use Comhon\Object\UniqueObject;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Exception\ArgumentException;
 use Comhon\Model\Model;
+use Comhon\Model\Singleton\ModelManager;
 
 abstract class SerializationFile extends ValidatedSerializationUnit {
 	
@@ -122,6 +123,20 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 		$formatedContent = $this->getInterfacer()->read($path);
 		if ($formatedContent === false || is_null($formatedContent)) {
 			throw new SerializationException("cannot load file '$path'");
+		}
+		if (
+			!is_null($inheritanceKey = $object->getModel()->getSerialization()->getInheritanceKey())
+			&& $this->getInterfacer()->hasValue($formatedContent, $inheritanceKey) 
+		) {
+			$modelName = $this->getInterfacer()->getValue($formatedContent, $inheritanceKey);
+			try {
+				$model = ModelManager::getInstance()->getInstanceModel($modelName);
+				if ($model !== $object->getModel() && !$model->isInheritedFrom($object->getModel())) {
+					return false;
+				}
+			} catch (\Exception $e) {
+				// if model doesn't exist, do nothing here, exception will be thrown during import
+			}
 		}
 		$object->fill($formatedContent, $this->getInterfacer());
 		return true;

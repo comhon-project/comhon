@@ -966,15 +966,14 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		}
 		
 		try {
-			return $object->load($propertiesFilter, $forceLoad) ? $object : null;
-		} catch (CastComhonObjectException $e) {
-			if ($newObject) {
-				$object->reset();
+			$success = $object->load($propertiesFilter, $forceLoad);
+			if (!$success && $newObject) {
+				$object->reset(); // remove object from main object collection if needed
 			}
-			throw $e;
-		} catch (ImportException $e) {
-			if ($newObject && ($e->getOriginalException() instanceof CastComhonObjectException)) {
-				$object->reset();
+			return $success ? $object : null;
+		} catch (\Exception $e) {
+			if ($newObject) {
+				$object->reset(); // remove object from main object collection if needed
 			}
 			throw $e;
 		}

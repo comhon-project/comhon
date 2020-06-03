@@ -103,14 +103,8 @@ if (is_null($person) || is_null($woman)) {
 }
 
 
-try {
-	$woman = $manModel->loadObject(7);
-	$throw = true;
-} catch (ComhonException $e) {
-	$throw = false;
-}
-if ($throw) {
-	throw new \Exception('cast \'man\' to \'woman\' should not work');
+if (!is_null($manModel->loadObject(7))) {
+	throw new \Exception('load \'woman\' with \'man\' model should not work, and return null');
 }
 
 $woman = MainObjectCollection::getInstance()->getObject(2, 'Test\Person\Woman');
