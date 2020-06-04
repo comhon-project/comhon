@@ -253,7 +253,7 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 		if (!$sqlDatabase->isA('Comhon\SqlDatabase')) {
 			$databaseModel = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase');
 			$expected = $databaseModel->getObjectInstance()->getComhonClass();
-			throw new ArgumentException($sqlDatabase, $expected, 3);
+			throw new ArgumentException($sqlDatabase, $expected, 1);
 		}
 		if (!is_null($filterModelName) && !$recursive) {
 			// verify if model exists
