@@ -1,9 +1,18 @@
 <?php
 
+/*
+ * This file is part of the Comhon package.
+ *
+ * (c) Jean-Philippe <jeanphilippe.perrotton@gmail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 use Comhon\Utils\OptionManager;
 use Comhon\Utils\Project\ModelSqlSerializer;
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
+include __DIR__ . DIRECTORY_SEPARATOR . 'Loader.php';
 
 $optionsDescription = [
 	'model' => [
