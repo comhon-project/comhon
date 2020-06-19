@@ -11,11 +11,10 @@
 
 namespace Comhon\Exception\Serialization;
 
-use Comhon\Exception\ComhonException;
 use Comhon\Exception\ConstantException;
 use Comhon\Model\Model;
 
-class NotNullException extends ComhonException {
+class NotNullException extends ConstraintException {
 	
 	/**
 	 * 

@@ -45,6 +45,7 @@ use Comhon\Exception\Serialization\ManifestSerializationException;
 use Comhon\Object\Config\Config;
 use Comhon\Model\ModelComhonObject;
 use Comhon\Model\ModelArray;
+use Comhon\Exception\Serialization\ConstraintException;
 
 class RequestHandler {
 	
@@ -150,7 +151,9 @@ class RequestHandler {
 			$response = $e->getResponse();
 		} catch (ManifestSerializationException $e) {
 			$response = $this->_buildResponse(403, ['code' => $e->getCode(), 'message' => $e->getMessage()]);
-		}catch (\Exception $e) {
+		} catch (ConstraintException $e) {
+			$response = $this->_buildResponse(400, ['code' => $e->getCode(), 'message' => $e->getMessage()]);
+		} catch (\Exception $e) {
 			$response = $this->_buildResponse(500);
 		}
 		

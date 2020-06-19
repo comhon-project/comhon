@@ -284,6 +284,17 @@ class RequestHandlerPostTest extends TestCase
 				['Content-Type' => 'text/plain', 'Allow' => 'GET, HEAD, OPTIONS'],
 				'method POST not allowed',
 			],
+			[ // database constraint not satisfied
+				[
+					'REQUEST_METHOD' => 'POST',
+					'REQUEST_URI' => '/index.php/api/Test%5cDbConstraint'
+				],
+				['Content-Type' => 'application/json'],
+				'{"unique_name":"Bernard","foreign_constraint":7566}',
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":802,"message":"reference 7566 of foreign property \'foreign_constraint\' for model \'Test\\\\DbConstraint\' doesn\'t exists"}',
+			],
 		];
 	}
 	

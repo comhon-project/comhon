@@ -11,11 +11,10 @@
 
 namespace Comhon\Exception\Serialization;
 
-use Comhon\Exception\ComhonException;
 use Comhon\Exception\ConstantException;
 use Comhon\Object\UniqueObject;
 
-class UniqueException extends ComhonException {
+class UniqueException extends ConstraintException {
 	
 	/**
 	 * 
