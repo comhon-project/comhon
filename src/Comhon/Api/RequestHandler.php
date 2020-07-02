@@ -267,10 +267,15 @@ class RequestHandler {
 		if (is_null($assocArray)) {
 			throw new ResponseException(404, 'not handled route');
 		}
+		if ($method == 'OPTIONS') {
+			$response = new Response();
+			$response->addHeader('Allow', implode(', ', ['GET', 'HEAD', 'OPTIONS']));
+			return $response;
+		}
 		if ($method != 'GET' && $method != 'HEAD') {
 			throw new MethodNotAllowedException(
 				"method $method not allowed",
-				['Allow' => implode(', ', ['GET', 'HEAD'])]
+				['Allow' => implode(', ', ['GET', 'HEAD', 'OPTIONS'])]
 			);
 		}
 		$response = new Response();

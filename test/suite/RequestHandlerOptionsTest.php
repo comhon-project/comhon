@@ -179,4 +179,56 @@ class RequestHandlerOptionsTest extends TestCase
 		];
 	}
 	
+	/**
+	 *
+	 * @dataProvider requestableModelNamesData
+	 */
+	public function testRequestableModelNames($requestableModels, $responseCode, $responseHeaders, $responseContent)
+	{
+		$server = [
+			'REQUEST_METHOD' => 'OPTIONS',
+			'REQUEST_URI' => '/index.php/api/models'
+		];
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $requestableModels);
+		$sendGet = $response->getSend();
+		
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+	}
+	
+	public function requestableModelNamesData()
+	{
+		return [
+			[ // without requestable models names
+				null,
+				404,
+				['Content-Type' => 'text/plain'],
+				'not handled route',
+			],
+			[ // with requestable models names
+				[
+					'man' => 'Test\Person\Man',
+				],
+				200,
+				['Allow' => 'GET, HEAD, OPTIONS'],
+				''
+			]
+		];
+	}
+	
+	public function testPatterns()
+	{
+		$server = [
+			'REQUEST_METHOD' => 'OPTIONS',
+			'REQUEST_URI' => '/index.php/api/patterns'
+		];
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], []);
+		$sendGet = $response->getSend();
+		
+		$this->assertEquals('', $sendGet[2]);
+		$this->assertEquals(200, $sendGet[0]);
+		$this->assertEquals(['Allow' => 'GET, HEAD, OPTIONS'], $sendGet[1]);
+	}
+	
 }

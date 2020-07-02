@@ -6,8 +6,8 @@
 It will allow you to import, export, serialize (in sql database, xml file, json file) objects without any line of code. You don't have to create any classes (actually you can if you're not comfortable without them), you just have to describe your model in a manifest (xml file or json file). For exemple a manifest may be linked to an sql table and you will be able to Select/Insert/Update without write your sql query (actually like an ORM)
 
 ## Some others features
-* advanced object managment ([see wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Object-management))
-* provide a request format to request any object by any client ([see wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Objects-request-api))
+* advanced object managment ([see wiki page](https://github.com/comhon-project/comhon/wiki/Object-management))
+* provide a request format to request any object by any client ([see wiki page](https://github.com/comhon-project/comhon/wiki/requester))
 * provide automatic and dynamic REST API ([see wiki page](https://github.com/comhon-project/comhon/wiki/rest-api))
 
 ## Manifest Example
@@ -51,7 +51,7 @@ simple JSON manifest to describe a person :
     ]
 }
 ```
-for more informations to build complexes manifests take a look at [manifest wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Manifest)
+for more informations to build complexes manifests take a look at [manifest wiki page](https://github.com/comhon-project/comhon/wiki/Manifest)
 
 ## Code Example
 
@@ -99,8 +99,8 @@ give a chance to make a comhon object managment in your project and avoid many s
 
 ## Installation
 
-for more informations take a look at [installation wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki/Installation)
+for more informations take a look at [installation wiki page](https://github.com/comhon-project/comhon/wiki/Installation)
 
 ## Documentation
 
-for more informations take a look at [wiki page](https://github.com/jeanphilippe-p/ObjectManagerLib/wiki)
+for more informations take a look at [wiki page](https://github.com/comhon-project/comhon/wiki)
