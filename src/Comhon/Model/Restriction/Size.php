@@ -26,7 +26,7 @@ class Size extends Interval {
 	 *
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::satisfy()
-	 * @param integer $increment
+	 * @param integer $increment permit to verify if restriction is satisfied if add or remove one or several values on array
 	 */
 	public function satisfy($value, $increment = 0) {
 		return ($value instanceof ComhonArray) && parent::satisfy($value->count() + $increment);

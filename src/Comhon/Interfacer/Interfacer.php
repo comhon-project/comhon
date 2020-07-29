@@ -85,6 +85,13 @@ abstract class Interfacer {
 	const VERIFY_REFERENCES = 'verifyReferences';
 	
 	/**
+	 * @var string preference name that define if interfacer must validate object to interface
+	 * 
+	 * validation concern required properties, conflicts, dependencies and array size.
+	 */
+	const VALIDATE = 'validate';
+	
+	/**
 	 * @var string preference name that define merge type during import
 	 */
 	const MERGE_TYPE = 'mergeType';
@@ -142,6 +149,9 @@ abstract class Interfacer {
 	
 	/** @var boolean */
 	private $verifyReferences = true;
+	
+	/** @var boolean */
+	private $validate = true;
 	
 	/**
 	 * 
@@ -412,6 +422,29 @@ abstract class Interfacer {
 	 */
 	public function hasToVerifyReferences() {
 		return $this->verifyReferences;
+	}
+	
+	/**
+	 * define if interfacing must validate object to interface.
+	 * if true given, when interfacing object not valid, an exception is thrown.
+	 *
+	 * validation concern required properties, conflicts, dependencies and array size.
+	 *
+	 * @param boolean $boolean
+	 */
+	public function setValidate($boolean) {
+		$this->validate = $boolean;
+	}
+	
+	/**
+	 * verify if interfacing must validate object to interface.
+	 * 
+	 * validation concern required properties, conflicts, dependencies and array size.
+	 *
+	 * @return boolean
+	 */
+	public function mustValidate() {
+		return $this->validate;
 	}
 	
 	/**
@@ -771,6 +804,14 @@ abstract class Interfacer {
 				throw new UnexpectedValueTypeException($preferences[self::VERIFY_REFERENCES], 'boolean', self::VERIFY_REFERENCES);
 			}
 			$this->setVerifyReferences($preferences[self::VERIFY_REFERENCES]);
+		}
+		
+		// validate objects
+		if (array_key_exists(self::VALIDATE, $preferences)) {
+			if (!is_bool($preferences[self::VALIDATE])) {
+				throw new UnexpectedValueTypeException($preferences[self::VALIDATE], 'boolean', self::VALIDATE);
+			}
+			$this->setValidate($preferences[self::VALIDATE]);
 		}
 		
 		// merge type

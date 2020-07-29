@@ -31,46 +31,17 @@ class ConflictValueTest extends TestCase
 		);
 	}
 	
-	public function testSetConflictDefinedOnProperty()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$obj = $model->getObjectInstance(false);
-		$obj->setValue('valueRequired', 'my_value');
-		$obj->setIsLoaded(true);
-		$obj->setValue('conflict', 'my_value');
-		$obj->unsetValue('conflict');
-		
-		$obj->setValue('value', 'my_value');
-		$obj->setValue('baseValue', 'my_value');
-		
-		$this->expectException(ConflictValuesException::class);
-		$this->expectExceptionMessage("properties values [\"conflict\",\"baseValue\"] cannot coexist for model 'Test\Validate'");
-		$obj->setValue('conflict', 'my_value');
-	}
-	
-	public function testSetConflictDefinedOnOtherProperty()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$obj = $model->getObjectInstance(false);
-		$obj->setValue('valueRequired', 'my_value');
-		$obj->setIsLoaded(true);
-		
-		$obj->setValue('conflict', 'my_value');
-		
-		$this->expectException(ConflictValuesException::class);
-		$this->expectExceptionMessage('properties values ["value","conflict"] cannot coexist for model \'Test\Validate\'');
-		$obj->setValue('value', 'my_value');
-	}
-	
 	public function testValidateConflict()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$obj = $model->getObjectInstance(false);
+		$obj = $model->getObjectInstance();
 		$obj->setValue('valueRequired', 'my_value');
 		$obj->setValue('conflict', 'my_value');
 		$obj->validate();
+		$this->assertTrue($obj->isValid());
 		
 		$obj->setValue('baseValue', 'my_value');
+		$this->assertFalse($obj->isValid());
 		
 		$this->expectException(ConflictValuesException::class);
 		$this->expectExceptionMessage('properties values ["conflict","baseValue"] cannot coexist for model \'Test\Validate\'');
@@ -81,28 +52,25 @@ class ConflictValueTest extends TestCase
 	{
 		$interfacer = new AssocArrayInterfacer();
 		
-		// root object NOT flaged as loaded so root object is not validated
-		$interfacer->setFlagObjectAsLoaded(false);
+		// object is not validated
+		$interfacer->setValidate(false);
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['valueRequired' => 'aaaa', 'value' => 'my_value', 'conflict' => 'my_value'], $interfacer);
-		$this->assertFalse($obj->isLoaded());
 		$this->assertEquals('my_value', $obj->getValue('value'));
 		$this->assertEquals('my_value', $obj->getValue('conflict'));
 		
-		// root object flaged as loaded so root object is validated
-		$interfacer->setFlagObjectAsLoaded(true);
+		// object is validated
+		$interfacer->setValidate(true);
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['valueRequired' => 'aaaa', 'conflict' => 'my_value'], $interfacer);
-		$this->assertTrue($obj->isLoaded());
 		$this->assertEquals('my_value', $obj->getValue('conflict'));
 	}
 	
 	public function testImportFailureRoot()
 	{
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(true);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		
 		$thrown = false;
@@ -121,7 +89,7 @@ class ConflictValueTest extends TestCase
 	public function testExportSuccessful() {
 		
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(false);
+		$interfacer->setValidate(true);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['valueRequired' => 'aaaa', 'conflict' => 'my_value'], $interfacer);
 		
@@ -129,12 +97,20 @@ class ConflictValueTest extends TestCase
 			'{"valueRequired":"aaaa","conflict":"my_value"}',
 			$interfacer->toString($obj->export($interfacer))
 		);
+		
+		$interfacer->setValidate(false);
+		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
+		$obj = $model->import(['value' => 'aaaa', 'conflict' => 'my_value'], $interfacer);
+		
+		$this->assertEquals(
+			'{"value":"aaaa","conflict":"my_value"}',
+			$interfacer->toString($obj->export($interfacer))
+		);
 	}
 	
 	public function testExportFailure() {
 		
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(false);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->getObjectInstance(false);
 		$obj->setValue('valueRequired', 'aaaa');

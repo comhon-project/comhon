@@ -247,10 +247,9 @@ class ComplexRequester extends Requester {
 			$literalsByModelName = self::_getLiteralsByModelName($request->getValue('filter'), $maxId);
 			$key = ObjectCollection::getModelKey($model)->getName();
 			if (count($literalsByModelName) == 1 && array_key_exists($key, $literalsByModelName)) {
-				$root = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Root')->getObjectInstance(false);
+				$root = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Root')->getObjectInstance();
 				$root->setId($request->getValue('root')->getId());
 				$root->setValue('model', $request->getValue('root')->getValue('model'));
-				$root->setIsLoaded(true);
 			} else {
 				$root = self::_buildTree($model, $literalsByModelName, $maxId);
 			}
@@ -266,21 +265,19 @@ class ComplexRequester extends Requester {
 				throw new NotLinkableLiteralException($model, $literals[0]);
 			}
 		} else {
-			$root = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Root')->getObjectInstance(false);
+			$root = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Root')->getObjectInstance();
 			$root->setId($request->getValue('root')->getId());
 			$root->setValue('model', $request->getValue('root')->getValue('model'));
-			$root->setIsLoaded(true);
 		}
 		$values = $request->getValues();
 		unset($values['root']);
 		unset($values['models']);
 		
-		$complexRequest = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance(false);
+		$complexRequest = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance();
 		$complexRequest->setValue('tree', $root);
 		foreach ($values as $name => $value) {
 			$complexRequest->setValue($name, $value);
 		}
-		$complexRequest->setIsLoaded(true);
 		
 		return $complexRequest;
 	}
@@ -330,20 +327,18 @@ class ComplexRequester extends Requester {
 				}
 				$databaseId = $database->getId();
 			}
-			$node = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Root')->getObjectInstance(false);
+			$node = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Root')->getObjectInstance();
 			$node->setValue('model', $model->getName());
 			$node->initValue('nodes');
 			$id = array_key_exists($key, $literalsByModelName) 
 				? $literalsByModelName[$key][0]->getValue('node')->getId() : ++$maxId;
 			$node->setId($id);
-			$node->setIsLoaded(true);
 		}
 		elseif (array_key_exists($key, $literalsByModelName)) {
-			$node = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Node')->getObjectInstance(false);
+			$node = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Node')->getObjectInstance();
 			$node->setValue('property', $propertyName);
 			$node->initValue('nodes');
 			$node->setId($literalsByModelName[$key][0]->getValue('node')->getId());
-			$node->setIsLoaded(true);
 			/** @var \Comhon\Object\UniqueObject $object */
 			foreach ($literalsByModelName[$key] as $object) {
 				$object->setvalue('node', $node);
@@ -368,11 +363,10 @@ class ComplexRequester extends Requester {
 			$propertyNode = self::_buildTree($property->getUniqueModel(), $literalsByModelName, $maxId, $property->getName(), $visited, $visitedStack, $databaseId);
 			if (!is_null($propertyNode)) {
 				if (is_null($node)) {
-					$node = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Node')->getObjectInstance(false);
+					$node = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Node')->getObjectInstance();
 					$node->setValue('property', $propertyName);
 					$node->initValue('nodes');
 					$node->setId(++$maxId);
-					$node->setIsLoaded(true);
 				}
 				$node->getValue('nodes')->pushValue($propertyNode);
 			}

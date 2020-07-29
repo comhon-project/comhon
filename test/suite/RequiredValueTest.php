@@ -18,78 +18,55 @@ class RequiredValueTest extends TestCase
 		Config::setLoadPath(Data::$config);
 	}
 	
-	public function testInstanciateObject()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$model->getObjectInstance(false);
-		
-		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("missing required value 'valueRequired' on comhon object with model 'Test\Validate'");
-		$model->getObjectInstance();
-	}
-	
-	public function testSetIsLoadedValue()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$object = $model->getObjectInstance(false);
-		$object->setValue('valueRequired', 'aaaa');
-		$object->setIsLoaded(true);
-		
-		$object = $model->getObjectInstance(false);
-		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("missing required value 'valueRequired' on comhon object with model 'Test\Validate'");
-		$object->setIsLoaded(true);
-	}
-	
 	public function testUnsetValue()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$object = $model->getObjectInstance(false);
 		$object->setValue('valueRequired', 'aaaa');
-		$object->unsetValue('valueRequired');
+		$object->validate();
+		$this->assertTrue($object->isValid());
 		
-		$object->setValue('valueRequired', 'aaaa');
-		$object->setIsLoaded(true);
-		$this->expectException(MissingRequiredValueException::class);
-		$this->expectExceptionMessage("impossible to unset required value 'valueRequired' on comhon object with model 'Test\Validate'");
 		$object->unsetValue('valueRequired');
+		$this->assertFalse($object->isValid());
+		
+		$this->expectException(MissingRequiredValueException::class);
+		$this->expectExceptionMessage("missing required value 'valueRequired' on comhon object with model 'Test\Validate'");
+		$object->validate();
 	}
 	
 	public function testSetNullValue()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$object = $model->getObjectInstance(false);
+		$object = $model->getObjectInstance();
 		$object->setValue('valueRequired', null); // a required property may be null
 		$this->assertNull($object->getValue('valueRequired'));
+		$object->validate();
 	}
 	
 	public function testImportSuccessful()
 	{
 		$interfacer = new AssocArrayInterfacer();
 		
-		// root object NOT flaged as loaded so required values of root object are NOT required
-		$interfacer->setFlagObjectAsLoaded(false);
+		// object is not validated so required values of object are NOT required
+		$interfacer->setValidate(false);
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['value' => 'aaaa', 'valueComplex' => ['valueRequired' => 'aaaa']], $interfacer);
-		$this->assertFalse($obj->isLoaded());
 		$this->assertEquals('aaaa', $obj->getValue('value'));
 		$this->assertTrue($obj->hasValue('valueComplex'));
 		$this->assertEquals('aaaa', $obj->getValue('valueComplex')->getValue('valueRequired'));
 		
-		// root object flaged as loaded so required values of root object are required
-		$interfacer->setFlagObjectAsLoaded(true);
+		// object is validated so required values of object are required
+		$interfacer->setValidate(true);
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['valueRequired' => 'aaaa'], $interfacer);
-		$this->assertTrue($obj->isLoaded());
 		$this->assertEquals('aaaa', $obj->getValue('valueRequired'));
 	}
 	
 	public function testImportFailureRoot()
 	{
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(true);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		
 		$thrown = false;
@@ -108,12 +85,11 @@ class RequiredValueTest extends TestCase
 	public function testImportFailureDeep()
 	{
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(false);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		
 		$thrown = false;
 		try {
-			$model->import(['value' => 'aaaa', 'valueComplex' => ['value' => 'aaaa']], $interfacer);
+			$model->import(['value' => 'aaaa', 'valueRequired' => 'aaaa', 'valueComplex' => ['value' => 'aaaa']], $interfacer);
 		} catch (ImportException $e) {
 			$thrown = true;
 			$this->assertEquals($e->getStringifiedProperties(), '.valueComplex');
@@ -127,12 +103,22 @@ class RequiredValueTest extends TestCase
 	public function testExportSuccessful() {
 		
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(false);
+		$interfacer->setValidate(true);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['valueRequired' => 'aaaa', 'valueComplex' => ['valueRequired' => 'aaaa']], $interfacer);
 		
 		$this->assertEquals(
 			'{"valueRequired":"aaaa","valueComplex":{"valueRequired":"aaaa"}}',
+			$interfacer->toString($obj->export($interfacer))
+		);
+		
+		$obj->getValue('valueComplex')->unsetValue('valueRequired');
+		$this->assertTrue($obj->isValid());
+		$this->assertFalse($obj->getValue('valueComplex')->isValid());
+		
+		$interfacer->setValidate(false);
+		$this->assertEquals(
+			'{"valueRequired":"aaaa","valueComplex":[]}',
 			$interfacer->toString($obj->export($interfacer))
 		);
 	}
@@ -144,7 +130,6 @@ class RequiredValueTest extends TestCase
 	public function testExportFailure($rootProperty, $leafProperty, $propertyString, $modelName) {
 		
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(false);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->getObjectInstance(false);
 		$obj->setValue($rootProperty, 'aaaa');
@@ -191,11 +176,12 @@ class RequiredValueTest extends TestCase
 		
 		$obj2 = $obj->initValue('valueComplex', false);
 		$obj2->setValue('valueRequired', 'aaaa');
-		$obj2->setIsLoaded(true);
+		$obj2->validate();
+		$obj2->cast(ModelManager::getInstance()->getInstanceModel('Test\Validate\localRestrictedExtended'));
 		
 		$this->expectException(MissingRequiredValueException::class);
 		$this->expectExceptionMessage("missing required value 'valueRequiredExtended' on comhon object with model 'Test\Validate\localRestrictedExtended'");
-		$obj2->cast(ModelManager::getInstance()->getInstanceModel('Test\Validate\localRestrictedExtended'));
+		$obj2->validate();
 	}
 
 }

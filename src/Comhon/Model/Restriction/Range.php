@@ -14,6 +14,9 @@ namespace Comhon\Model\Restriction;
 use Comhon\Model\ModelString;
 use Comhon\Model\AbstractModel;
 
+/**
+ * Range restriction permit to know if a string is a valid range (examples : 1-10, 20-20, 0-8...)
+ */
 class Range extends Regex {
 	
 	/**

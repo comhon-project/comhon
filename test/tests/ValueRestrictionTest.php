@@ -54,7 +54,7 @@ function testSetBadArrayValue(AbstractComhonObject $object, $propertyName, $valu
 	}
 }
 
-function testPushBadValue(AbstractComhonObject $object, $value) {
+function testPushBadValue(ComhonArray $object, $value) {
 	try {
 		$object->pushValue($value);
 		$throw = true;
@@ -67,7 +67,7 @@ function testPushBadValue(AbstractComhonObject $object, $value) {
 	}
 }
 
-function testUnshiftBadValue(AbstractComhonObject $object, $value) {
+function testUnshiftBadValue(ComhonArray $object, $value) {
 	try {
 		$object->unshiftValue($value);
 		$throw = true;

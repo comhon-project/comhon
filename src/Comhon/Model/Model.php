@@ -1010,7 +1010,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if ($object->getModel()->isAbstract()) {
 			throw new AbstractObjectExportException($object->getModel()->getName());
 		}
-		$object->validate();
+		if ($interfacer->mustValidate()) {
+			$object->validate();
+		}
 		
 		$node              = $interfacer->createNode($nodeName);
 		$private           = $interfacer->isPrivateContext();
@@ -1343,7 +1345,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				if ($interfacer->hasToVerifyReferences()) {
 					// if object already exists (for exemple during fill object) some property might be not visited
 					// because they are not in object to import. so we have to visit filled object to collect all objects present
-					// and we will be able to compare foeriegn and not foreign values
+					// and we will be able to compare foreign and not foreign values
 					if ($startObject || $startObjColInterfacer->hasStartObject($object->getId(), $object->getModel()->getName())) {
 						$objectCollectionInterfacer->replaceNewObjectCollection(ObjectCollection::build($object, false));
 					}
@@ -1551,6 +1553,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					throw new ImportException($e, $propertyName);
 				}
 			}
+		}
+		if ($interfacer->mustValidate()) {
+			$object->validate();
 		}
 		if (!$isFirstLevel) {
 			$object->setIsLoaded(true);

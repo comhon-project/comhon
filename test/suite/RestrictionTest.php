@@ -189,7 +189,7 @@ class RestrictionTest extends TestCase
 		$this->assertCount(1, $restrictions);
 		$this->assertTrue(isset($restrictions[NotEmptyArray::class]));
 		$this->assertInstanceOf(NotEmptyArray::class, $restrictions[NotEmptyArray::class]);
-		$array = new ComhonArray($model->getProperty('notEmptyArray')->getModel(), false);
+		$array = new ComhonArray($model->getProperty('notEmptyArray')->getModel());
 		$this->assertFalse($restrictions[NotEmptyArray::class]->satisfy($array));
 		$array->pushValue('1');
 		$this->assertTrue($restrictions[NotEmptyArray::class]->satisfy($array));
@@ -220,14 +220,14 @@ class RestrictionTest extends TestCase
 		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
 		$obj = $model->getObjectInstance();
 		
-		$array = $obj->getInstanceValue('notEmptyArray', false);
+		$array = $obj->getInstanceValue('notEmptyArray');
 		$array->pushValue('hehe');
 		$obj->setValue('notEmptyArray', $array);
-		$array->setIsLoaded(true);
+		$array->validate();
 		
-		$array = $obj->initValue('notEmptyArray', false);
+		$array = $obj->initValue('notEmptyArray');
 		$this->expectException(NotSatisfiedRestrictionException::class);
-		$array->setIsLoaded(true);
+		$array->validate();
 	}
 	
 	public function testSetNotEmptyRestrictionArray()
@@ -235,16 +235,18 @@ class RestrictionTest extends TestCase
 		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
 		$obj = $model->getObjectInstance();
 		
-		$array = $obj->getInstanceValue('notEmptyArray', false);
+		$array = $obj->getInstanceValue('notEmptyArray');
+		$array->pushValue('hehe');
 		$array->pushValue('hehe');
 		$obj->setValue('notEmptyArray', $array);
-		$array->setIsLoaded(true);
-		$array->pushValue('hehe');
-		$array->popValue();
 		
-		$this->expectException(NotSatisfiedRestrictionException::class);
-		$this->expectExceptionMessage('trying to modify comhon array and make it empty, value must be not empty');
 		$array->popValue();
+		$array->validate();
+		
+		$array->popValue();
+		$this->expectException(NotSatisfiedRestrictionException::class);
+		$this->expectExceptionMessage('value is empty, value must be not empty');
+		$array->validate();
 	}
 	
 	public function testNotEmptyRestrictionArrayValue()
@@ -252,7 +254,7 @@ class RestrictionTest extends TestCase
 		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
 		$obj = $model->getObjectInstance();
 		
-		$array = $obj->getInstanceValue('notEmptyArray', false);
+		$array = $obj->getInstanceValue('notEmptyArray');
 		$array->pushValue('hehe');
 		
 		$this->expectException(NotSatisfiedRestrictionException::class);
@@ -301,12 +303,37 @@ class RestrictionTest extends TestCase
 		$this->assertTrue(isset($restrictions[Size::class]));
 		$this->assertInstanceOf(Size::class, $restrictions[Size::class]);
 		
-		$array = new ComhonArray($model->getProperty('sizeArray')->getModel(), false);
+		$array = new ComhonArray($model->getProperty('sizeArray')->getModel());
 		$array->pushValue('111');
-		$array->pushValue('222');
+		$this->assertFalse($array->isValid());
 		$this->assertFalse($restrictions[Size::class]->satisfy($array));
+		
+		$array->pushValue('222');
+		$this->assertFalse($array->isValid());
+		$this->assertFalse($restrictions[Size::class]->satisfy($array));
+		
 		$array->pushValue('333');
+		$array->validate();
+		$this->assertTrue($array->isValid());
 		$this->assertTrue($restrictions[Size::class]->satisfy($array));
+		
+		$array->pushValue('444');
+		$array->validate();
+		$this->assertTrue($array->isValid());
+		$this->assertTrue($restrictions[Size::class]->satisfy($array));
+		
+		$array->pushValue('555');
+		$array->validate();
+		$this->assertTrue($array->isValid());
+		$this->assertTrue($restrictions[Size::class]->satisfy($array));
+		
+		$array->pushValue('666');
+		$this->assertFalse($array->isValid());
+		$this->assertFalse($restrictions[Size::class]->satisfy($array));
+		
+		$this->expectException(NotSatisfiedRestrictionException::class);
+		$this->expectExceptionMessage("size 6 of given array is not in size range [3,5]");
+		$array->validate();
 	}
 	
 	
@@ -315,131 +342,17 @@ class RestrictionTest extends TestCase
 		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
 		$obj = $model->getObjectInstance();
 		
-		$array = $obj->getInstanceValue('sizeArray', false);
-		$array->pushValue('111');
-		$array->pushValue('222');
-		$array->pushValue('333');
-		$obj->setValue('sizeArray', $array);
-		$array->setIsLoaded(true);
-		
-		$this->expectException(NotSatisfiedRestrictionException::class);
 		$array = $obj->getInstanceValue('sizeArray');
-	}
-	
-	public function testSetSizeEmptyRestriction()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
-		$obj = $model->getObjectInstance();
-		
-		$array = $obj->getInstanceValue('sizeArray', false);
-		$array->setValue(0, '111');
-		$array->setValue(1, '222');
-		$array->setValue(2, '333');
-		$obj->setValue('sizeArray', $array);
-		$array->setIsLoaded(true);
-		$array->setValue(3, '444');
-		$array->setValue(4, '555');
-		$array->setValue(4, '5555'); // must not throw excpetion 
-		
-		$this->expectException(NotSatisfiedRestrictionException::class);
-		$this->expectExceptionMessage('trying to modify comhon array from size 5 to 6. size 6 of given array is not in size range [3,5]');
-		$array->setValue(5, '666');
-	}
-	
-	public function testUnsetSizeEmptyRestriction()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
-		$obj = $model->getObjectInstance();
-		
-		$array = $obj->getInstanceValue('sizeArray', false);
-		$array->setValue(0, '111');
-		$array->setValue(1, '222');
-		$array->setValue(2, '333');
-		$obj->setValue('sizeArray', $array);
-		$array->setIsLoaded(true);
-		$array->setValue(3, '444');
-		$array->unsetValue(3);
-		$array->unsetValue(3); // must not throw excpetion 
-		
-		$this->expectException(NotSatisfiedRestrictionException::class);
-		$this->expectExceptionMessage('trying to modify comhon array from size 3 to 2. size 2 of given array is not in size range [3,5]');
-		$array->unsetValue(0);
-	}
-	
-	public function testPushSizeEmptyRestriction()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
-		$obj = $model->getObjectInstance();
-		
-		$array = $obj->getInstanceValue('sizeArray', false);
 		$array->pushValue('111');
 		$array->pushValue('222');
 		$array->pushValue('333');
 		$obj->setValue('sizeArray', $array);
-		$array->setIsLoaded(true);
-		$array->pushValue('444');
-		$array->pushValue('555');
+		$array->validate();
 		
+		$array = $obj->getInstanceValue('sizeArray');
 		$this->expectException(NotSatisfiedRestrictionException::class);
-		$this->expectExceptionMessage('trying to modify comhon array from size 5 to 6. size 6 of given array is not in size range [3,5]');
-		$array->pushValue('666');
-	}
-	
-	public function testPopSizeEmptyRestriction()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
-		$obj = $model->getObjectInstance();
-		
-		$array = $obj->getInstanceValue('sizeArray', false);
-		$array->pushValue('111');
-		$array->pushValue('222');
-		$array->pushValue('333');
-		$obj->setValue('sizeArray', $array);
-		$array->setIsLoaded(true);
-		$array->pushValue('444');
-		$array->popValue();
-		
-		$this->expectException(NotSatisfiedRestrictionException::class);
-		$this->expectExceptionMessage('trying to modify comhon array from size 3 to 2. size 2 of given array is not in size range [3,5]');
-		$array->popValue();
-	}
-	
-	public function testUnshiftSizeEmptyRestriction()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
-		$obj = $model->getObjectInstance();
-		
-		$array = $obj->getInstanceValue('sizeArray', false);
-		$array->unshiftValue('111');
-		$array->unshiftValue('222');
-		$array->unshiftValue('333');
-		$obj->setValue('sizeArray', $array);
-		$array->setIsLoaded(true);
-		$array->unshiftValue('444');
-		$array->unshiftValue('555');
-		
-		$this->expectException(NotSatisfiedRestrictionException::class);
-		$this->expectExceptionMessage('trying to modify comhon array from size 5 to 6. size 6 of given array is not in size range [3,5]');
-		$array->unshiftValue('666');
-	}
-	
-	public function testShiftSizeEmptyRestriction()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
-		$obj = $model->getObjectInstance();
-		
-		$array = $obj->getInstanceValue('sizeArray', false);
-		$array->unshiftValue('111');
-		$array->unshiftValue('222');
-		$array->unshiftValue('333');
-		$obj->setValue('sizeArray', $array);
-		$array->setIsLoaded(true);
-		$array->unshiftValue('444');
-		$array->shiftValue();
-		
-		$this->expectException(NotSatisfiedRestrictionException::class);
-		$this->expectExceptionMessage('trying to modify comhon array from size 3 to 2. size 2 of given array is not in size range [3,5]');
-		$array->shiftValue();
+		$this->expectExceptionMessage("size 0 of given array is not in size range [3,5]");
+		$array->validate();
 	}
 	
 	/** ************************************** length ************************************** **/
@@ -500,7 +413,7 @@ class RestrictionTest extends TestCase
 		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
 		$obj = $model->getObjectInstance();
 		
-		$array = $obj->getInstanceValue('sizeArray', false);
+		$array = $obj->getInstanceValue('sizeArray');
 		$array->pushValue('aaa');
 		
 		$this->expectException(NotSatisfiedRestrictionException::class);
@@ -677,10 +590,9 @@ class RestrictionTest extends TestCase
 	public function testExportFailure() {
 		
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(false);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\TestRestricted');
 		$obj = $model->getObjectInstance(false);
-		$obj2 = $obj->initValue('sizeArray', false);
+		$obj2 = $obj->initValue('sizeArray');
 		
 		$thrown = false;
 		try {

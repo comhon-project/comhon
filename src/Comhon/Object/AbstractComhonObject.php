@@ -439,7 +439,6 @@ abstract class AbstractComhonObject {
 			if (($this->getModel() instanceof Model) && $this->getModel()->isAbstract()) {
 				throw new AbstractObjectException($this);
 			}
-			$this->validate();
 		}
 		$this->isLoaded = $isLoaded;
 	}
@@ -447,11 +446,16 @@ abstract class AbstractComhonObject {
 	/**
 	 * validate object.
 	 * throw exception if object is not valid.
-	 * no need to call validate function on loaded objects, they are already validated.
-	 *
-	 * @param boolean $isLoaded
+	 * 
 	 */
 	abstract  public function validate();
+	
+	/**
+	 * verify if object is valid.
+	 * 
+	 * @return boolean
+	 */
+	abstract  public function isValid();
 	
 	/***********************************************************************************************\
 	|                                                                                               |

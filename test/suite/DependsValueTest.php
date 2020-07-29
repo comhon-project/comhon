@@ -31,30 +31,10 @@ class DependsValueTest extends TestCase
 	}
 	
 	
-	public function testDependsSet()
-	{
-		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$obj = $model->getObjectInstance(false);
-		$obj->setValue('valueRequired', 'my_value');
-		$obj->setIsLoaded(true);
-		$obj->setValue('value', 'my_value');
-		$obj->setValue('baseValue', 'my_value');
-		$obj->setValue('depends', 'my_value');
-		
-		$obj->setIsLoaded(false);
-		$obj->unsetValue('baseValue');
-		$obj->unsetValue('depends');
-		$obj->setIsLoaded(true);
-		
-		$this->expectException(DependsValuesException::class);
-		$this->expectExceptionMessage('property value \'depends\' can\'t be set without property value \'baseValue\'');
-		$obj->setValue('depends', 'my_value');
-	}
-	
 	public function testValidateDepends()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$obj = $model->getObjectInstance(false);
+		$obj = $model->getObjectInstance();
 		$obj->setValue('valueRequired', 'my_value');
 		$obj->setValue('value', 'my_value');
 		$obj->setValue('baseValue', 'my_value');
@@ -79,38 +59,38 @@ class DependsValueTest extends TestCase
 		$obj->setValue('value', 'my_value');
 		$obj->setValue('baseValue', 'my_value');
 		$obj->setValue('depends', 'my_value');
+		$obj->validate();
+		
+		$obj->unsetValue('baseValue');
 		
 		$this->expectException(DependsValuesException::class);
-		$this->expectExceptionMessage('property value \'baseValue\' can\'t be unset when property value \'depends\' is set');
-		$obj->unsetValue('baseValue');
+		$this->expectExceptionMessage("property value 'depends' can't be set without property value 'baseValue'");
+		$obj->validate();
 	}
 	
 	public function testImportSuccessful()
 	{
 		$interfacer = new AssocArrayInterfacer();
 		
-		// root object NOT flaged as loaded so root object is not validated
-		$interfacer->setFlagObjectAsLoaded(false);
+		// object is not validated
+		$interfacer->setValidate(false);
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['valueRequired' => 'aaaa', 'value' => 'my_value', 'depends' => 'my_value'], $interfacer);
-		$this->assertFalse($obj->isLoaded());
 		$this->assertEquals('my_value', $obj->getValue('value'));
 		$this->assertEquals('my_value', $obj->getValue('depends'));
 		
-		// root object flaged as loaded so root object is validated
-		$interfacer->setFlagObjectAsLoaded(true);
+		// object is validated
+		$interfacer->setValidate(true);
 		
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['valueRequired' => 'aaaa', 'value' => 'my_value', 'baseValue' => 'my_value', 'depends' => 'my_value'], $interfacer);
-		$this->assertTrue($obj->isLoaded());
 		$this->assertEquals('my_value', $obj->getValue('depends'));
 	}
 	
 	public function testImportFailureRoot()
 	{
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(true);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		
 		$thrown = false;
@@ -129,12 +109,21 @@ class DependsValueTest extends TestCase
 	public function testExportSuccessful() {
 		
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(false);
+		$interfacer->setValidate(true);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->import(['valueRequired' => 'aaaa', 'value' => 'my_value', 'baseValue' => 'my_value', 'depends' => 'my_value'], $interfacer);
+		$this->assertTrue($obj->isValid());
 		
 		$this->assertEquals(
 			'{"value":"my_value","valueRequired":"aaaa","baseValue":"my_value","depends":"my_value"}',
+			$interfacer->toString($obj->export($interfacer))
+		);
+		
+		$obj->unsetValue('value');
+		$this->assertFalse($obj->isValid());
+		$interfacer->setValidate(false);
+		$this->assertEquals(
+			'{"valueRequired":"aaaa","baseValue":"my_value","depends":"my_value"}',
 			$interfacer->toString($obj->export($interfacer))
 		);
 	}
@@ -142,7 +131,6 @@ class DependsValueTest extends TestCase
 	public function testExportFailure() {
 		
 		$interfacer = new AssocArrayInterfacer();
-		$interfacer->setFlagObjectAsLoaded(false);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		$obj = $model->getObjectInstance(false);
 		$obj->setValue('valueRequired', 'aaaa');

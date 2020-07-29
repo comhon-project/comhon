@@ -359,27 +359,46 @@ class Property {
 	}
 	
 	/**
-	 * verify if value is satisfiable regarding restrictions property
+	 * validate value regarding restrictions property.
+	 * throw exception if value is not valid.
 	 *
 	 * @param mixed $value
-	 * @param boolean $throwException
-	 * @return boolean true if property is satisfiable
 	 */
-	public function isSatisfiable($value, $throwException = false) {
+	public function validate($value) {
 		if (is_null($value)) {
-			if ($this->isNotNull && $throwException) {
+			if ($this->isNotNull) {
 				throw new NotSatisfiedRestrictionException($value, new NotNull());
 			}
+		} else {
+			$this->getModel()->verifValue($value);
+			if (!empty($this->restrictions)) {
+				$restriction = Restriction::getFirstNotSatisifed($this->restrictions, $value);
+				if (!is_null($restriction)) {
+					throw new NotSatisfiedRestrictionException($value, $restriction);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * verify if value is valid regarding restrictions property
+	 *
+	 * @param mixed $value
+	 * @return boolean true if property is valid
+	 */
+	public function isValid($value) {
+		if (is_null($value)) {
 			return !$this->isNotNull;
+		}
+		try {
+			$this->getModel()->verifValue($value);
+		} catch (\Exception $e) {
+			return false;
 		}
 		if (empty($this->restrictions)) {
 			return true;
 		}
-		$restriction = Restriction::getFirstNotSatisifed($this->restrictions, $value);
-		if (!is_null($restriction) && $throwException) {
-			throw new NotSatisfiedRestrictionException($value, $restriction);
-		}
-		return is_null($restriction);
+		return is_null(Restriction::getFirstNotSatisifed($this->restrictions, $value));
 	}
 	
 	/**

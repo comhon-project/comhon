@@ -89,9 +89,6 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 */
 	final public function pushValue($value, $flagAsUpdated = true) {
 		try {
-			if ($this->isLoaded()) {
-				$this->_verifAddValue();
-			}
 			$this->getModel()->verifElementValue($value);
 		} catch (NotSatisfiedRestrictionException $e) {
 			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
@@ -110,13 +107,6 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 * @return mixed the last value of array. If array is empty,null will be returned.
 	 */
 	final public function popValue($flagAsUpdated = true) {
-		try {
-			if ($this->isLoaded()) {
-				$this->_verifRemoveValue();
-			}
-		} catch (NotSatisfiedRestrictionException $e) {
-			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
-		}
 		return $this->_popValue($flagAsUpdated);
 	}
 	
@@ -128,9 +118,6 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 */
 	final public function unshiftValue($value, $flagAsUpdated = true) {
 		try {
-			if ($this->isLoaded()) {
-				$this->_verifAddValue();
-			}
 			$this->getModel()->verifElementValue($value);
 		} catch (NotSatisfiedRestrictionException $e) {
 			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
@@ -149,13 +136,6 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 * @return mixed the first value of array. If array is empty,null will be returned.
 	 */
 	final public function shiftValue($flagAsUpdated = true) {
-		try {
-			if ($this->isLoaded()) {
-				$this->_verifRemoveValue();
-			}
-		} catch (NotSatisfiedRestrictionException $e) {
-			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
-		}
 		return $this->_shiftValue($flagAsUpdated);
 	}
 	
@@ -166,9 +146,6 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 */
 	final public function setValue($name, $value, $flagAsUpdated = true) {
 		try {
-			if ($this->isLoaded() && !$this->hasValue($name)) {
-				$this->_verifAddValue();
-			}
 			$this->getModel()->verifElementValue($value);
 		} catch (NotSatisfiedRestrictionException $e) {
 			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
@@ -178,22 +155,6 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
 		parent::setValue($name, $value, $flagAsUpdated);
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Object\AbstractComhonObject::unsetValue()
-	 */
-	final public function unsetValue($name, $flagAsUpdated = true) {
-		try {
-			if ($this->isLoaded() && $this->hasValue($name)) {
-				$this->_verifRemoveValue();
-			}
-		} catch (NotSatisfiedRestrictionException $e) {
-			throw new NotSatisfiedRestrictionException($e->getValue(), $e->getRestriction(), $e->getIncrement());
-		}
-		parent::unsetValue($name, $flagAsUpdated);
 	}
 	
 	/**
@@ -236,30 +197,33 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 \***********************************************************************************************/
 	
 	/**
-	 * verify if a value may be added to given comhon array
+	 * verify if a value may be added to comhon array
 	 *
 	 * @param \Comhon\Object\ComhonArray $array
 	 * @return boolean
 	 */
-	private function _verifAddValue() {
+	public function canAddValue() {
 		foreach ($this->getModel()->getArrayRestrictions() as $restriction) {
 			if (!$restriction->satisfy($this, 1)) {
-				throw new NotSatisfiedRestrictionException($this, $restriction, 1);
+				return false;
 			}
 		}
 		return true;
 	}
 	
 	/**
-	 * verify if a value may be removed from given comhon array
+	 * verify if a value may be removed from comhon array
 	 *
 	 * @param \Comhon\Object\ComhonArray $array
 	 * @return boolean
 	 */
-	private function _verifRemoveValue() {
+	public function canRemoveValue() {
+		if ($this->count() == 0) {
+			return false;
+		}
 		foreach ($this->getModel()->getArrayRestrictions() as $restriction) {
-			if (!$restriction->satisfy($this, $this->count() == 0 ? 0 : -1)) {
-				throw new NotSatisfiedRestrictionException($this, $restriction, $this->count() == 0 ? 0 : -1);
+			if (!$restriction->satisfy($this, -1)) {
+				return false;
 			}
 		}
 		return true;
@@ -374,14 +338,26 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	}
 	
 	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Comhon\Object\AbstractComhonObject::validate()
+	 * validate comhon array.
+	 * 
+	 * validation concern only comhon array restrictions.
+	 * throw exception if comhon array is not valid.
 	 */
 	final public function validate() {
-		if (!$this->isLoaded() && !is_null($restriction = Restriction::getFirstNotSatisifed($this->getModel()->getArrayRestrictions(), $this))) {
+		if (!is_null($restriction = Restriction::getFirstNotSatisifed($this->getModel()->getArrayRestrictions(), $this))) {
 			throw new NotSatisfiedRestrictionException($this, $restriction);
 		}
+	}
+	
+	/**
+	 * verify if comhon array is valid.
+	 * 
+	 * validation concern only comhon array restrictions.
+	 * 
+	 * @return boolean
+	 */
+	final public function isValid() {
+		return is_null(Restriction::getFirstNotSatisifed($this->getModel()->getArrayRestrictions(), $this));
 	}
 	
 	/**

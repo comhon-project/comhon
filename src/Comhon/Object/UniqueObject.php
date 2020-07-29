@@ -26,6 +26,7 @@ use Comhon\Exception\Object\DependsValuesException;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Exception\ArgumentException;
 use Comhon\Model\ModelComplex;
+use Comhon\Exception\Object\AbstractObjectException;
 
 abstract class UniqueObject extends AbstractComhonObject {
 	
@@ -116,26 +117,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 	final public function setValue($name, $value, $flagAsUpdated = true) {
 		try {
 			$property = $this->getModel()->getProperty($name, true);
-			if (!is_null($value)) {
-				$property->getModel()->verifValue($value);
-			}
-			$property->isSatisfiable($value, true);
-			if ($this->isLoaded()) {
-				if ($this->getModel()->hasPropertyConflicts($name)) {
-					foreach ($this->getModel()->getPropertyConflicts($name) as $propertyName) {
-						if ($this->hasValue($propertyName)) {
-							throw new ConflictValuesException($this->getModel(), [$name, $propertyName]);
-						}
-					}
-				}
-				if ($property->hasDependencies()) {
-					foreach ($property->getDependencies() as $propertyName) {
-						if (!$this->hasValue($propertyName)) {
-							throw new DependsValuesException($name, $propertyName);
-						}
-					}
-				}
-			}
+			$property->validate($value);
 			if ($property->isAggregation()) {
 				$flagAsUpdated = false;
 			}
@@ -146,33 +128,9 @@ abstract class UniqueObject extends AbstractComhonObject {
 		} catch (UnexpectedValueTypeException $e) {
 			throw new UnexpectedValueTypeException($value, $e->getExpectedType());
 		}
+		// previous exception catched is thrown again to simplify trace stack
 		
 		parent::setValue($name, $value, $flagAsUpdated);
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Object\AbstractComhonObject::unsetValue()
-	 */
-	final public function unsetValue($name, $flagAsUpdated = true) {
-		try {
-			if ($this->isLoaded()) {
-				if ($this->getModel()->getProperty($name, true)->isRequired()) {
-					throw new MissingRequiredValueException($this, $name, true);
-				}
-				if ($this->getModel()->hasDependents($name)) {
-					foreach ($this->getModel()->getDependents($name) as $propertyName) {
-						if ($this->hasValue($propertyName)) {
-							throw new DependsValuesException($name, $propertyName, true);
-						}
-					}
-				}
-			}
-		} catch (NotSatisfiedRestrictionException $e) {
-			throw new NotSatisfiedRestrictionException($this, $e->getRestriction(), $e->getIncrement());
-		}
-		parent::unsetValue($name, $flagAsUpdated);
 	}
 	
 	/**
@@ -393,14 +351,12 @@ abstract class UniqueObject extends AbstractComhonObject {
 	}
 	
 	/**
+	 * validate comhon object.
 	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Object\AbstractComhonObject::validate()
+	 * validation concern only required properties, conflicts, dependencies.
+	 * throw exception if comhon object is not valid.
 	 */
 	final public function validate() {
-		if ($this->isLoaded()) {
-			return;
-		}
 		foreach ($this->getModel()->getRequiredProperties() as $name => $property) {
 			if (!$this->hasValue($name)) {
 				throw new MissingRequiredValueException($this, $name);
@@ -424,6 +380,22 @@ abstract class UniqueObject extends AbstractComhonObject {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * verify if comhon object is valid.
+	 * 
+	 * validation concern only required properties, conflicts, dependencies.
+	 * 
+	 * @return boolean
+	 */
+	final public function isValid() {
+		try {
+			$this->validate();
+		} catch (\Exception $e) {
+			return false;
+		}
+		return true;
 	}
 	
 	 /***********************************************************************************************\
@@ -480,10 +452,8 @@ abstract class UniqueObject extends AbstractComhonObject {
 			$originalModel = $this->getModel();
 			$this->_setModel($model);
 
-			if ($this->isLoaded()) {
-				// force validate by reset load status
-				$this->setIsLoaded(false);
-				$this->setIsLoaded(true);
+			if ($this->isLoaded() && $this->getModel()->isAbstract()) {
+				throw new AbstractObjectException($this);
 			}
 			if ($this->getModel()->isMain() && $addObject) {
 				MainObjectCollection::getInstance()->addObject($this);

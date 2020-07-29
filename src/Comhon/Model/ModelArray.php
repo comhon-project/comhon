@@ -200,7 +200,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @see \Comhon\Model\ModelComplex::_exportRoot()
 	 */
 	protected function _exportRoot(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
-		$objectArray->validate();
+		if ($interfacer->mustValidate()) {
+			$objectArray->validate();
+		}
 		if ($this->getModel() instanceof SimpleModel) {
 			$nodeArray = $this->_export($objectArray, $nodeName, $interfacer, true, new ObjectCollectionInterfacer());
 		} else {
@@ -232,7 +234,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		if (is_null($objectArray)) {
 			return null;
 		}
-		$objectArray->validate();
+		if ($interfacer->mustValidate()) {
+			$objectArray->validate();
+		}
 		$nodeArray = $interfacer->createArrayNode($nodeName);
 		
 		foreach ($objectArray->getValues() as $key => $value) {
@@ -326,6 +330,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		if ($isFirstLevel && $interfacer->hasToVerifyReferences()) {
 			$this->_verifyReferences($objectArray, $objectCollectionInterfacer);
 		}
+		if ($interfacer->mustValidate()) {
+			$objectArray->validate();
+		}
 		$objectArray->setIsLoaded(true);
 		return $objectArray;
 	}
@@ -353,6 +360,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			} else {
 				$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, false, $objectCollectionInterfacer), $interfacer->hasToFlagValuesAsUpdated());
 			}
+		}
+		if ($interfacer->mustValidate()) {
+			$objectArray->validate();
 		}
 		$objectArray->setIsLoaded(true);
 		return $objectArray;

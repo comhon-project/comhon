@@ -21,7 +21,7 @@ class NotEmptyArray extends Restriction {
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\Restriction\Restriction::satisfy()
-	 * @param integer $increment
+	 * @param integer $increment permit to verify if restriction is satisfied if add or remove one or several values on array
 	 */
 	public function satisfy($value, $increment = 0) {
 		return ($value instanceof ComhonArray) ?  ($value->count() + $increment > 0) : !empty($value);
