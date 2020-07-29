@@ -85,7 +85,7 @@ abstract class Interfacer {
 	const VERIFY_REFERENCES = 'verifyReferences';
 	
 	/**
-	 * @var string preference name that define if interfacer must validate object to interface
+	 * @var string preference name that define if interfacer must validate root object to interface
 	 * 
 	 * validation concern required properties, conflicts, dependencies and array size.
 	 */
@@ -425,7 +425,7 @@ abstract class Interfacer {
 	}
 	
 	/**
-	 * define if interfacing must validate object to interface.
+	 * define if interfacing must validate root object to interface.
 	 * if true given, when interfacing object not valid, an exception is thrown.
 	 *
 	 * validation concern required properties, conflicts, dependencies and array size.
@@ -437,7 +437,7 @@ abstract class Interfacer {
 	}
 	
 	/**
-	 * verify if interfacing must validate object to interface.
+	 * verify if interfacing must validate root object to interface.
 	 * 
 	 * validation concern required properties, conflicts, dependencies and array size.
 	 *
@@ -806,7 +806,7 @@ abstract class Interfacer {
 			$this->setVerifyReferences($preferences[self::VERIFY_REFERENCES]);
 		}
 		
-		// validate objects
+		// validate root object
 		if (array_key_exists(self::VALIDATE, $preferences)) {
 			if (!is_bool($preferences[self::VALIDATE])) {
 				throw new UnexpectedValueTypeException($preferences[self::VALIDATE], 'boolean', self::VALIDATE);

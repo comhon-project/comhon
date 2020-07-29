@@ -605,6 +605,7 @@ class RequestHandler {
 			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
 		$interfacer = self::getInterfacerFromAcceptHeader($headers);
+		$interfacer->setValidate(false);
 		$interfacer->setPropertiesFilter($filterProperties->getValues(), $object->getUniqueModel()->getName());
 		
 		if ($object instanceof ComhonArray) {

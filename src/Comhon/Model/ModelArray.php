@@ -234,7 +234,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		if (is_null($objectArray)) {
 			return null;
 		}
-		if ($interfacer->mustValidate()) {
+		if (!$isFirstLevel || $interfacer->mustValidate()) {
 			$objectArray->validate();
 		}
 		$nodeArray = $interfacer->createArrayNode($nodeName);
@@ -330,7 +330,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		if ($isFirstLevel && $interfacer->hasToVerifyReferences()) {
 			$this->_verifyReferences($objectArray, $objectCollectionInterfacer);
 		}
-		if ($interfacer->mustValidate()) {
+		if (!$isFirstLevel || $interfacer->mustValidate()) {
 			$objectArray->validate();
 		}
 		$objectArray->setIsLoaded(true);
@@ -361,7 +361,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 				$objectArray->pushValue($this->getModel()->_importId($element, $interfacer, false, $objectCollectionInterfacer), $interfacer->hasToFlagValuesAsUpdated());
 			}
 		}
-		if ($interfacer->mustValidate()) {
+		if (!$isFirstLevel || $interfacer->mustValidate()) {
 			$objectArray->validate();
 		}
 		$objectArray->setIsLoaded(true);

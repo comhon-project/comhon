@@ -1010,7 +1010,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if ($object->getModel()->isAbstract()) {
 			throw new AbstractObjectExportException($object->getModel()->getName());
 		}
-		if ($interfacer->mustValidate()) {
+		if (!$isFirstLevel || $interfacer->mustValidate()) {
 			$object->validate();
 		}
 		
@@ -1554,7 +1554,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				}
 			}
 		}
-		if ($interfacer->mustValidate()) {
+		
+		if (!$isFirstLevel || $interfacer->mustValidate()) {
 			$object->validate();
 		}
 		if (!$isFirstLevel) {

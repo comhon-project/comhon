@@ -815,7 +815,9 @@ class ComplexRequester extends Requester {
 	 */
 	private function _buildObjectsWithRows($rows) {
 		$modelArray = new ModelArray($this->model, false, $this->model->getShortName());
-		return $modelArray->import($rows, SqlTable::getInstance()->getInterfacer(), true);
+		$interfacer = SqlTable::getInstance()->getInterfacer();
+		$interfacer->setValidate(false);
+		return $modelArray->import($rows, $interfacer, true);
 	}
 	
 }

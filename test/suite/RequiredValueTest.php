@@ -21,7 +21,7 @@ class RequiredValueTest extends TestCase
 	public function testUnsetValue()
 	{
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$object = $model->getObjectInstance(false);
+		$object = $model->getObjectInstance();
 		$object->setValue('valueRequired', 'aaaa');
 		$object->validate();
 		$this->assertTrue($object->isValid());
@@ -85,6 +85,8 @@ class RequiredValueTest extends TestCase
 	public function testImportFailureDeep()
 	{
 		$interfacer = new AssocArrayInterfacer();
+		// NOT root objects must be validated even if validate setting is set to false 
+		$interfacer->setValidate(false);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
 		
 		$thrown = false;
@@ -112,13 +114,10 @@ class RequiredValueTest extends TestCase
 			$interfacer->toString($obj->export($interfacer))
 		);
 		
-		$obj->getValue('valueComplex')->unsetValue('valueRequired');
-		$this->assertTrue($obj->isValid());
-		$this->assertFalse($obj->getValue('valueComplex')->isValid());
-		
+		$obj->unsetValue('valueComplex');
 		$interfacer->setValidate(false);
 		$this->assertEquals(
-			'{"valueRequired":"aaaa","valueComplex":[]}',
+			'{"valueRequired":"aaaa"}',
 			$interfacer->toString($obj->export($interfacer))
 		);
 	}
@@ -127,13 +126,15 @@ class RequiredValueTest extends TestCase
 	/**
 	 * @dataProvider data
 	 */
-	public function testExportFailure($rootProperty, $leafProperty, $propertyString, $modelName) {
+	public function testExportFailure($rootProperty, $leafProperty, $propertyString, $modelName, $validate) {
 		
 		$interfacer = new AssocArrayInterfacer();
+		// NOT root objects must be validated even if validate setting is set to false 
+		$interfacer->setValidate($validate);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$obj = $model->getObjectInstance(false);
+		$obj = $model->getObjectInstance();
 		$obj->setValue($rootProperty, 'aaaa');
-		$obj2 = $obj->initValue('valueComplex', false);
+		$obj2 = $obj->initValue('valueComplex');
 		$obj2->setValue($leafProperty, 'aaaa');
 		
 		$thrown = false;
@@ -144,7 +145,10 @@ class RequiredValueTest extends TestCase
 			$this->assertEquals($e->getStringifiedProperties(), $propertyString);
 			$this->assertEquals(get_class($e->getOriginalException()), MissingRequiredValueException::class);
 			$this->assertEquals($e->getOriginalException()->getCode(), ConstantException::MISSING_REQUIRED_VALUE_EXCEPTION);
-			$this->assertEquals($e->getOriginalException()->getMessage(), "missing required value 'valueRequired' on comhon object with model '$modelName'");
+			$this->assertEquals(
+				$e->getOriginalException()->getMessage(),
+				"missing required value 'valueRequired' on comhon object with model '$modelName'"
+			);
 		}
 		$this->assertTrue($thrown);
 	}
@@ -155,26 +159,28 @@ class RequiredValueTest extends TestCase
 				'value',
 				'valueRequired',
 				'.',
-				'Test\Validate'
+				'Test\Validate',
+				true
 			],
 			[
 				'valueRequired',
 				'value',
 				'.valueComplex',
-				'Test\Validate\localRestricted'
+				'Test\Validate\localRestricted',
+				false
 			]
 		];
 	}
 	
 	public function testCast() {
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
-		$obj = $model->getObjectInstance(false);
+		$obj = $model->getObjectInstance();
 		
-		$obj2 = $obj->initValue('valueComplex', false);
+		$obj2 = $obj->initValue('valueComplex');
 		$obj2->setValue('valueRequired', 'aaaa');
 		$obj2->cast(ModelManager::getInstance()->getInstanceModel('Test\Validate\localRestrictedExtended'));
 		
-		$obj2 = $obj->initValue('valueComplex', false);
+		$obj2 = $obj->initValue('valueComplex');
 		$obj2->setValue('valueRequired', 'aaaa');
 		$obj2->validate();
 		$obj2->cast(ModelManager::getInstance()->getInstanceModel('Test\Validate\localRestrictedExtended'));

@@ -321,6 +321,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	private function _insertObject(UniqueObject $object) {
 		$interfacer = $this->getInterfacer();
 		$interfacer->setExportOnlyUpdatedValues(false);
+		$interfacer->setValidate(true);
 		$mapOfString = $object->export($interfacer);
 		$databaseId = $object->getModel()->getSerializationSettings()->getValue('database')->getId();
 		$databaseHandler = DatabaseHandler::getInstanceWithDataBaseId($databaseId);
@@ -409,6 +410,7 @@ class SqlTable extends ValidatedSerializationUnit {
 
 		$interfacer = $this->getInterfacer();
 		$interfacer->setExportOnlyUpdatedValues(true);
+		$interfacer->setValidate(true);
 		$mapOfString = $object->export($interfacer);
 		foreach ($object->getDeletedValues() as $propertyName) {
 			$property = $model->getProperty($propertyName);
@@ -620,6 +622,7 @@ class SqlTable extends ValidatedSerializationUnit {
 		$isModelArray = $object->getModel() instanceof ModelArray;
 		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {
 			$interfacer = $this->getInterfacer(!$onlyIds);
+			$interfacer->setValidate(empty($selectColumns));
 			$object->getModel()->fillObject($object, $isModelArray ? $rows : $rows[0], $interfacer, true);
 			$success = true;
 		}
