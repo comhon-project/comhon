@@ -102,8 +102,8 @@ class RequiredValueTest extends TestCase
 		$this->assertTrue($thrown);
 	}
 	
-	public function testExportSuccessful() {
-		
+	public function testExportSuccessful()
+	{
 		$interfacer = new AssocArrayInterfacer();
 		$interfacer->setValidate(true);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Validate');
@@ -126,8 +126,8 @@ class RequiredValueTest extends TestCase
 	/**
 	 * @dataProvider data
 	 */
-	public function testExportFailure($rootProperty, $leafProperty, $propertyString, $modelName, $validate) {
-		
+	public function testExportFailure($rootProperty, $leafProperty, $propertyString, $modelName, $validate)
+	{
 		$interfacer = new AssocArrayInterfacer();
 		// NOT root objects must be validated even if validate setting is set to false 
 		$interfacer->setValidate($validate);

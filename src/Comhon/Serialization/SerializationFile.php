@@ -37,7 +37,7 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 	 */
 	abstract protected static function _initInterfacer();
 	
-	private function getInterfacer() {
+	private function _getInterfacer() {
 		if (is_null($this->interfacer)) {
 			$this->interfacer = static::_initInterfacer();
 		}
@@ -97,8 +97,8 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 				throw new SerializationException("Cannot save object with id '{$object->getId()}'. Impossible to create directory '".dirname($path).'\'');
 			}
 		}
-		$content = $object->export($this->getInterfacer());
-		if ($this->getInterfacer()->write($content, $path, $this->pretty) === false) {
+		$content = $object->export($this->_getInterfacer());
+		if ($this->_getInterfacer()->write($content, $path, $this->pretty) === false) {
 			throw new SerializationException("Cannot save object with id '{$object->getId()}'. Creation or filling file failed");
 		}
 		return 1;
@@ -120,15 +120,15 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 		if (!file_exists($path)) {
 			return false;
 		}
-		$formatedContent = $this->getInterfacer()->read($path);
+		$formatedContent = $this->_getInterfacer()->read($path);
 		if ($formatedContent === false || is_null($formatedContent)) {
 			throw new SerializationException("cannot load file '$path'");
 		}
 		if (
 			!is_null($inheritanceKey = $object->getModel()->getSerialization()->getInheritanceKey())
-			&& $this->getInterfacer()->hasValue($formatedContent, $inheritanceKey) 
+			&& $this->_getInterfacer()->hasValue($formatedContent, $inheritanceKey) 
 		) {
-			$modelName = $this->getInterfacer()->getValue($formatedContent, $inheritanceKey);
+			$modelName = $this->_getInterfacer()->getValue($formatedContent, $inheritanceKey);
 			try {
 				$model = ModelManager::getInstance()->getInstanceModel($modelName);
 				if ($model !== $object->getModel() && !$model->isInheritedFrom($object->getModel())) {
@@ -138,7 +138,7 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 				// if model doesn't exist, do nothing here, exception will be thrown during import
 			}
 		}
-		$object->fill($formatedContent, $this->getInterfacer());
+		$object->fill($formatedContent, $this->_getInterfacer());
 		return true;
 	}
 	

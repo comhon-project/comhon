@@ -47,6 +47,12 @@ use Comhon\Object\Config\Config;
 class ComplexRequester extends Requester {
 	
 	/**
+	 * 
+	 * @var \Comhon\Interfacer\Interfacer
+	 */
+	private static $interfacer = null;
+	
+	/**
 	 * @var \Comhon\Database\SelectQuery select query to find and retrieve serialized comhon objects
 	 */
 	private $selectQuery;
@@ -814,10 +820,12 @@ class ComplexRequester extends Requester {
 	 * @return \Comhon\Object\ComhonArray
 	 */
 	private function _buildObjectsWithRows($rows) {
-		$modelArray = new ModelArray($this->model, false, $this->model->getShortName());
-		$interfacer = SqlTable::getInstance()->getInterfacer();
-		$interfacer->setValidate(false);
-		return $modelArray->import($rows, $interfacer, true);
+		$modelArray = new ModelArray($this->model, false, $this->model->getShortName(), [], [], false, true);
+		if (is_null(self::$interfacer)) {
+			self::$interfacer = SqlTable::getInstance()->getInterfacer();
+			self::$interfacer->setValidate(false);
+		}
+		return $modelArray->import($rows, self::$interfacer);
 	}
 	
 }

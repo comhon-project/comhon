@@ -253,22 +253,35 @@ class SqlTable extends ValidatedSerializationUnit {
 	}
 	
 	/**
-	 * get interfacer able to read retrieved rows from database
-	 * 
+	 * get interfacer able to read retrieved rows from database.
+	 * Each time this function is called, a new interfacer instance is created.
+	 *
 	 * @param string $flagObjectAsLoaded if true flag imported comhon object as loaded
 	 * @return \Comhon\Interfacer\AssocArrayInterfacer
 	 */
-	public function getInterfacer($flagObjectAsLoaded = true) {
+	public function getInterfacer() {
+		$interfacer = new AssocArrayInterfacer();
+		$interfacer->setPrivateContext(true);
+		$interfacer->setSerialContext(true);
+		$interfacer->setFlagValuesAsUpdated(false);
+		$interfacer->setDateTimeFormat('Y-m-d H:i:s');
+		$interfacer->setDateTimeZone(Config::getInstance()->getDataBaseTimezone());
+		$interfacer->setFlattenValues(true);
+		$interfacer->setStringifiedValues(true);
+		$interfacer->setMergeType(Interfacer::OVERWRITE);
+		
+		return $interfacer;
+	}
+	
+	/**
+	 * get interfacer able to read retrieved rows from database
+	 *
+	 * @param string $flagObjectAsLoaded if true flag imported comhon object as loaded
+	 * @return \Comhon\Interfacer\AssocArrayInterfacer
+	 */
+	private function _getInterfacer($flagObjectAsLoaded = true) {
 		if (is_null($this->interfacer)) {
-			$this->interfacer = new AssocArrayInterfacer();
-			$this->interfacer->setPrivateContext(true);
-			$this->interfacer->setSerialContext(true);
-			$this->interfacer->setFlagValuesAsUpdated(false);
-			$this->interfacer->setDateTimeFormat('Y-m-d H:i:s');
-			$this->interfacer->setDateTimeZone(Config::getInstance()->getDataBaseTimezone());
-			$this->interfacer->setFlattenValues(true);
-			$this->interfacer->setStringifiedValues(true);
-			$this->interfacer->setMergeType(Interfacer::OVERWRITE);
+			$this->interfacer = $this->getInterfacer();
 		}
 		$this->interfacer->setFlagObjectAsLoaded($flagObjectAsLoaded);
 		return $this->interfacer;
@@ -319,7 +332,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	 * @return integer number of affected rows
 	 */
 	private function _insertObject(UniqueObject $object) {
-		$interfacer = $this->getInterfacer();
+		$interfacer = $this->_getInterfacer();
 		$interfacer->setExportOnlyUpdatedValues(false);
 		$interfacer->setValidate(true);
 		$mapOfString = $object->export($interfacer);
@@ -408,7 +421,7 @@ class SqlTable extends ValidatedSerializationUnit {
 		$updateValues     = [];
 		$conditionsValues = [];
 
-		$interfacer = $this->getInterfacer();
+		$interfacer = $this->_getInterfacer();
 		$interfacer->setExportOnlyUpdatedValues(true);
 		$interfacer->setValidate(true);
 		$mapOfString = $object->export($interfacer);
@@ -621,7 +634,7 @@ class SqlTable extends ValidatedSerializationUnit {
 		
 		$isModelArray = $object->getModel() instanceof ModelArray;
 		if (is_array($rows) && ($isModelArray || (count($rows) == 1))) {
-			$interfacer = $this->getInterfacer(!$onlyIds);
+			$interfacer = $this->_getInterfacer(!$onlyIds);
 			$interfacer->setValidate(empty($selectColumns));
 			$object->getModel()->fillObject($object, $isModelArray ? $rows : $rows[0], $interfacer, true);
 			$success = true;
