@@ -18,16 +18,21 @@ use Comhon\Exception\ComhonException;
 abstract class SerializationUnitFactory {
 
 	/**
-	 * get serialization unit instance according specified type (model name of serialization object)
+	 * get serialization unit instance according specified type.
+	 * 
+	 * available types constants : 
+	 * - SqlTable::MODEL_NAME
+	 * - XmlFile::MODEL_NAME
+	 * - JsonFile::MODEL_NAME
 	 *
 	 * @param \Comhon\Object\UniqueObject $settings
 	 * @return \Comhon\Serialization\SerializationUnit
 	 */
 	public static function getInstance($type) {
 		switch ($type) {
-			case SqlTable::getType() : return SqlTable::getInstance();
-			case XmlFile::getType() : return XmlFile::getInstance();
-			case JsonFile::getType() : return JsonFile::getInstance();
+			case SqlTable::getModelName() : return SqlTable::getInstance();
+			case XmlFile::getModelName()  : return XmlFile::getInstance();
+			case JsonFile::getModelName() : return JsonFile::getInstance();
 			default: throw new ComhonException('not managed serialization unit type : ' . $type);
 		}
 	}

@@ -452,6 +452,7 @@ try {
 // TODO for version > 4.0
 
 // use id different than table name for sql table (may have same table name but with different database)
+// simplify filter properties on interfacer (filter only root object) ?
 // add possibility to request aggregations in request handler ?
 // add autoload without prefix namespace ?
 // add patch method

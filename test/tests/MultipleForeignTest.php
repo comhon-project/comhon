@@ -6,6 +6,7 @@ use Comhon\Database\DatabaseHandler;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
+use Comhon\Serialization\SqlTable;
 
 $time_start = microtime(true);
 
@@ -137,33 +138,33 @@ if ($count !== 3) {
 	throw new \Exception('bad count');
 }
 
-if ($object->save() !== 0) {
+if ($object->save(SqlTable::PATCH) !== 0) {
 	throw new \Exception('serialization souhld return 0 because there is no update');
 }
 if ($object->isUpdated()) {
-	throw new \Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flagged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
 	throw new \Exception('should not have updated values after save');
 }
 
 $object->setValue('name', 'hehe');
-if ($object->save() !== 1) {
+if ($object->save(SqlTable::PATCH) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 if ($object->isUpdated()) {
-	throw new \Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flagged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
 	throw new \Exception('should not have updated values after save');
 }
 
 $object->setValue('name', 'plop');
-if ($object->save() !== 1) {
+if ($object->save(SqlTable::PATCH) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 if ($object->isUpdated()) {
-	throw new \Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flagged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
 	throw new \Exception('should not have updated values after save');

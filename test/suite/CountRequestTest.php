@@ -16,46 +16,25 @@ class CountRequestTest extends TestCase
 		Config::setLoadPath(Data::$config);
 	}
 	
-	public function testCountSelectQueryMySql()
+	public function testCountSelectQuery()
 	{
+		$dbId = Config::getInstance()->getManifestFormat() == 'xml' ? '1' : '2';
 		// no group
 		$select = new SelectQuery('person');
-		$select->addOrder('id')->limit(2);
-		$count = DatabaseHandler::getInstanceWithDataBaseId('1')->count($select);
+		$select->limit(2);
+		$count = DatabaseHandler::getInstanceWithDataBaseId($dbId)->count($select);
 		$this->assertSame(9, $count);
 		
 		// group by id
 		$select = new SelectQuery('person');
 		$select->addGroup('id')->addOrder('id')->limit(2);
-		$count = DatabaseHandler::getInstanceWithDataBaseId('1')->count($select);
+		$count = DatabaseHandler::getInstanceWithDataBaseId($dbId)->count($select);
 		$this->assertSame(9, $count);
 		
 		// group by last_name (some same last_name)
 		$select = new SelectQuery('person');
 		$select->addGroup('last_name')->addOrder('last_name')->limit(2);
-		$count = DatabaseHandler::getInstanceWithDataBaseId('1')->count($select);
-		$this->assertSame(7, $count);
-	}
-	
-	public function testCountSelectQueryPgSql()
-	{
-		// no group
-		$select = new SelectQuery('person');
-		$select->limit(2);
-		$count = DatabaseHandler::getInstanceWithDataBaseId('2')->count($select);
-		$this->assertSame(9, $count);
-		
-		// group by id -> each group have count one
-		$select = new SelectQuery('person');
-		$select->addGroup('id')->addOrder('id')->limit(2);
-		$select->getMainTable()->addSelectedColumn('id');
-		$count = DatabaseHandler::getInstanceWithDataBaseId('2')->count($select);
-		$this->assertSame(9, $count);
-		
-		// group by last_name (some same last_name)
-		$select = new SelectQuery('person');
-		$select->addGroup('"last_name"')->addOrder('"last_name"')->limit(2);
-		$count = DatabaseHandler::getInstanceWithDataBaseId('2')->count($select);
+		$count = DatabaseHandler::getInstanceWithDataBaseId($dbId)->count($select);
 		$this->assertSame(7, $count);
 	}
 	

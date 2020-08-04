@@ -167,21 +167,6 @@ abstract class UniqueObject extends AbstractComhonObject {
 	}
 	
 	/**
-	 * get names of values that have been deleted
-	 *
-	 * @return string[]
-	 */
-	final public function getDeletedValues() {
-		$deletedValues = [];
-		foreach ($this->getUpdatedValues() as $name => $deleted) {
-			if ($deleted) {
-				$deletedValues[] = $name;
-			}
-		}
-		return $deletedValues;
-	}
-	
-	/**
 	 * get id of comhon object
 	 *
 	 * @return mixed| null if model associated to comhon object doesn't have id properties
@@ -237,7 +222,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 	 * @see \Comhon\Object\AbstractComhonObject::isUpdated()
 	 */
 	final public function isUpdated() {
-		if (!$this->isFlagedAsUpdated()) {
+		if (!$this->isFlaggedAsUpdated()) {
 			foreach ($this->getModel()->getComplexProperties() as $propertyName => $property) {
 				if ($this->isUpdatedValue($propertyName)) {
 					return true;
@@ -249,7 +234,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 				}
 			}
 		}
-		return $this->isFlagedAsUpdated();
+		return $this->isFlaggedAsUpdated();
 	}
 	
 	/**

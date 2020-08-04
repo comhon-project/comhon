@@ -8,6 +8,7 @@ use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\ComhonException;
+use Comhon\Object\UniqueObject;
 
 $time_start = microtime(true);
 
@@ -158,7 +159,7 @@ foreach ($result->result as $index => $stdObject) {
 
 $dbTestModel = ModelManager::getInstance()->getInstanceModel('Test\TestDb');
 
-/** @var AbstractComhonObject $object */
+/** @var UniqueObject $object */
 $object = $dbTestModel->loadObject('[1,"1501774389"]');
 $objectJson = $object->export($stdPrivateInterfacer);
 
@@ -173,7 +174,8 @@ if ($object->isUpdatedValue('timestamp')) {
 if ($object->getValue('timestamp')->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
-if ($object->save(SqlTable::UPDATE) !== 0) {
+
+if ($object->save(SqlTable::PATCH) !== 0) {
 	throw new \Exception('serialization should return 0 because there is no update');
 }
 // update dateTime
@@ -188,7 +190,7 @@ if (!$object->getValue('timestamp')->isUpdated()) {
 	throw new \Exception('should be updated');
 }
 
-if ($object->save(SqlTable::UPDATE) !== 1) {
+if ($object->save(SqlTable::PATCH) !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }
 if ($object->isUpdated()) {
@@ -201,9 +203,8 @@ if ($object->getValue('timestamp')->isUpdated()) {
 	throw new \Exception('should not be updated');
 }
 
-foreach ($object->getValues() as $name => $value) {
-	$object->flagValueAsUpdated($name);
-}
+// flag value as updated but value stay the same as value in database
+$object->flagValueAsUpdated('timestamp');
 
 $updateResultByDBSM = [
 	'mysql' => 0,
@@ -211,11 +212,11 @@ $updateResultByDBSM = [
 ];
 $DBSM = $object->getModel()->getSerializationSettings()->getValue('database')->getValue('DBMS');
 
-if ($object->save(SqlTable::UPDATE) !== $updateResultByDBSM[$DBSM]) {
-	throw new \Exception('serialization should return 0 because there is no update IN database');
+if ($object->save(SqlTable::PATCH) !== $updateResultByDBSM[$DBSM]) {
+	throw new \Exception('for mysql serialization should return 0 because there is no update in database, 1 otherwise');
 }
 if ($object->isUpdated()) {
-	throw new \Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flagged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
 	throw new \Exception('should not have updated values after save');
@@ -225,14 +226,12 @@ $object = $dbTestModel->loadObject('[1,"1501774389"]', null, true);
 $object->getValue('timestamp')->add(new DateInterval('P0Y0M0DT5H0M0S'));
 $object->setValue('notSerializedValue', 'azezaeaze');
 $object->setValue('notSerializedForeignObject', $object->getValue('lonelyForeignObject'));
-foreach ($object->getValues() as $name => $value) {
-	$object->flagValueAsUpdated($name);
-}
-if ($object->save(SqlTable::UPDATE) !== 1) {
-	throw new \Exception('serialization souhld be successfull');
+
+if ($object->save(SqlTable::PATCH) !== 1) {
+	throw new \Exception('serialization should be successfull');
 }
 if ($object->isUpdated()) {
-	throw new \Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flagged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
 	throw new \Exception('should not have updated values after save');
@@ -253,9 +252,9 @@ if (!compareJson(json_encode($object->export($stdPrivateInterfacer)), json_encod
 $value = $object->getValue('integer');
 $object->unsetValue('integer');
 
-$object->save(SqlTable::UPDATE);
+$object->save(SqlTable::PATCH);
 if ($object->isUpdated()) {
-	throw new \Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flagged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
 	throw new \Exception('should not have updated values after save');
@@ -265,12 +264,13 @@ $object = $dbTestModel->loadObject('[1,"1501774389"]', null, true);
 if (!$object->hasValue('integer') || !is_null($object->getValue('integer'))) {
 	throw new \Exception('should not have integer value');
 }
+
 $object->setValue('integer', $value);
 $object->reorderValues();
 
-$object->save(SqlTable::UPDATE);
+$object->save(SqlTable::PATCH);
 if ($object->isUpdated()) {
-	throw new \Exception('should not be flaged as updated after save');
+	throw new \Exception('should not be flagged as updated after save');
 }
 if (count($object->getUpdatedValues()) !== 0) {
 	throw new \Exception('should not have updated values after save');

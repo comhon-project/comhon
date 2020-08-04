@@ -66,11 +66,11 @@ abstract class AbstractManifestFile extends SerializationFile {
 	}
 	
 	/**
-	 * get serialization unit type
-	 *
-	 * @return string|null
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\ValidatedSerializationUnit::getModelName()
 	 */
-	public static function getType() {
+	public static function getModelName() {
 		return null;
 	}
 	

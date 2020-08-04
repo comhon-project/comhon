@@ -20,7 +20,7 @@ class XmlFile extends SerializationFile {
 	/**
 	 * @var string xml serialization type
 	 */
-	const SETTINGS_TYPE = 'Comhon\File\XmlFile';
+	const MODEL_NAME = 'Comhon\File\XmlFile';
 	
 	/**
 	 * @var \Comhon\Serialization\File\XmlFile
@@ -42,12 +42,12 @@ class XmlFile extends SerializationFile {
 	}
 	
 	/**
-	 * get serialization unit type
 	 * 
-	 * @return string
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\ValidatedSerializationUnit::getModelName()
 	 */
-	public static function getType() {
-		return self::SETTINGS_TYPE;
+	public static function getModelName() {
+		return self::MODEL_NAME;
 	}
 	
 	/**

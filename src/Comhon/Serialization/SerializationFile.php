@@ -72,6 +72,9 @@ abstract class SerializationFile extends ValidatedSerializationUnit {
 	 * @see \Comhon\Serialization\ValidatedSerializationUnit::_saveObject()
 	 */
 	protected function _saveObject(UniqueObject $object, $operation = null) {
+		if ($operation == self::PATCH) {
+			throw new SerializationException('patch not allowed for file serialization');
+		}
 		if (!$object->getModel()->hasIdProperties()) {
 			throw new SerializationException('Cannot save model without id into file');
 		}

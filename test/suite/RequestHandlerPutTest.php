@@ -70,7 +70,7 @@ class RequestHandlerPutTest extends TestCase
 				'{"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
 				new AssocArrayInterfacer()
 			],
-			[ // content type xml
+			[ // content type xml, partial content so not specified values are updated to null
 				[
 					'REQUEST_METHOD' => 'PUT',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/'
@@ -81,7 +81,7 @@ class RequestHandlerPutTest extends TestCase
 				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo"></root>',
 					200,
 				['Content-Type' => 'application/xml'],
-				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo" lastName="Dupond" birthDate="2016-11-13T19:04:05+00:00"><birthPlace>2</birthPlace><bestFriend xsi:nil="true"/><father xsi:nil="true"/><mother xsi:nil="true"/></root>',
+				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo" lastName="xsi:nil" birthDate="xsi:nil"><birthPlace xsi:nil="true"/><bestFriend xsi:nil="true"/><father xsi:nil="true"/><mother xsi:nil="true"/></root>',
 				new XMLInterfacer()
 			],
 		];

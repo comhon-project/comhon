@@ -324,6 +324,23 @@ class DatabaseHandler {
 	}
 	
 	/**
+	 * clear prepared queries
+	 */
+	public function clearPreparedQueries() {
+		$this->preparedQueries = [];
+		$this->preparedQueriesParamCount = [];
+	}
+	
+	/**
+	 * get prepared queries
+	 * 
+	 * @return string[]
+	 */
+	public function getPreparedQueries() {
+		return array_keys($this->preparedQueries);
+	}
+	
+	/**
 	 * execute the query
 	 * 
 	 * @param \PDOStatement $PDOStatement

@@ -57,8 +57,8 @@ if (!$testDb->isUpdated()) {
 if ($testDb->isIdUpdated()) {
 	throw new \Exception('id should not be updated');
 }
-if (json_encode($testDb->getUpdatedValues()) !== '{"mainParentTestDb":true}') {
-	throw new \Exception('should have updated value');
+if (json_encode($testDb->getUpdatedValues()) !== '{"mainParentTestDb":null}') {
+	throw new \Exception('should have updated value 0');
 }
 foreach ($testDb->getModel()->getProperties() as $property) {
 	if ($property->getName() == 'mainParentTestDb') {
@@ -99,7 +99,7 @@ if (!$testDb->isUpdated()) {
 if ($testDb->isIdUpdated()) {
 	throw new \Exception('id should not be updated');
 }
-if (json_encode($testDb->getUpdatedValues()) !== '{"mainParentTestDb":true}') {
+if (json_encode($testDb->getUpdatedValues()) !== '{"mainParentTestDb":null}') {
 	throw new \Exception('should have updated value');
 }
 foreach ($testDb->getModel()->getProperties() as $property) {
@@ -188,7 +188,7 @@ foreach ($mainParentTestDb->getModel()->getProperties() as $property) {
 $id = $mainParentTestDb->getId();
 $mainParentTestDb->unsetValue('id');
 
-if (json_encode($mainParentTestDb->getUpdatedValues()) !== '{"id":true}') {
+if (json_encode($mainParentTestDb->getUpdatedValues()) !== '{"id":null}') {
 	throw new \Exception('should have id updated value');
 }
 if (!$mainParentTestDb->isIdUpdated()) {
@@ -217,8 +217,8 @@ if (!$testDb->isUpdated()) {
 if (!$testDb->isUpdatedValue('mainParentTestDb')) {
 	throw new \Exception('should be updated');
 }
-if ($testDb->isValueFlagedAsUpdated('mainParentTestDb')) {
-	throw new \Exception('should not be flaged as updated');
+if ($testDb->isValueFlaggedAsUpdated('mainParentTestDb')) {
+	throw new \Exception('should not be flagged as updated');
 }
 if (!$mainParentTestDb->isUpdated()) {
 	throw new \Exception('should be updated');
@@ -226,7 +226,7 @@ if (!$mainParentTestDb->isUpdated()) {
 if (!$mainParentTestDb->isIdUpdated()) {
 	throw new \Exception('id should be updated');
 }
-if (json_encode($mainParentTestDb->getUpdatedValues()) !== '{"id":false}') {
+if (json_encode($mainParentTestDb->getUpdatedValues()) !== '{"id":null}') {
 	throw new \Exception('should have id updated value');
 }
 foreach ($mainParentTestDb->getModel()->getProperties() as $property) {
@@ -273,10 +273,10 @@ if ($mainParentTestDb->getValue('childrenTestDb')->count() != 6) {
 if ($mainParentTestDb->isUpdated()) {
 	throw new \Exception('should not be updated 10');
 }
-if ($mainParentTestDb->isFlagedAsUpdated()) {
+if ($mainParentTestDb->isFlaggedAsUpdated()) {
 	throw new \Exception('should not be updated 11');
 }
-if ($mainParentTestDb->getValue('childrenTestDb')->isFlagedAsUpdated()) {
+if ($mainParentTestDb->getValue('childrenTestDb')->isFlaggedAsUpdated()) {
 	throw new \Exception('should not be updated 12');
 }
 if ($mainParentTestDb->getValue('childrenTestDb')->isIdUpdated()) {

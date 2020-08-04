@@ -279,7 +279,7 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 * @see \Comhon\Object\AbstractComhonObject::isUpdated()
 	 */
 	final public function isUpdated() {
-		if (!$this->isFlagedAsUpdated()) {
+		if (!$this->isFlaggedAsUpdated()) {
 			if ($this->getModel()->getModel()->isComplex()) {
 				foreach ($this->getValues() as $value) {
 					if (($value instanceof AbstractComhonObject) && $value->isUpdated()) {
@@ -295,7 +295,7 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 				}
 			}
 		}
-		return $this->isFlagedAsUpdated();
+		return $this->isFlaggedAsUpdated();
 	}
 	
 	/**
@@ -304,14 +304,14 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 * @return boolean
 	 */
 	final public function isIdUpdated() {
-		if (!$this->isFlagedAsUpdated() && $this->getModel()->getModel()->isComplex()) {
+		if (!$this->isFlaggedAsUpdated() && $this->getModel()->getModel()->isComplex()) {
 			foreach ($this->getValues() as $value) {
 				if (($value instanceof AbstractComhonObject) && $value->isIdUpdated()) {
 					return true;
 				}
 			}
 		}
-		return $this->isFlagedAsUpdated();
+		return $this->isFlaggedAsUpdated();
 	}
 	
 	/**
@@ -320,7 +320,7 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 * @see \Comhon\Object\AbstractComhonObject::isUpdatedValue()
 	 */
 	final public function isUpdatedValue($key) {
-		if (!$this->isFlagedAsUpdated()) {
+		if (!$this->isFlaggedAsUpdated()) {
 			if ($this->getModel()->getModel()->isComplex()) {
 				$value = $this->getValue($key);
 				if (($value instanceof AbstractComhonObject) && $value->isUpdated()) {
@@ -334,7 +334,7 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 				}
 			}
 		}
-		return $this->isFlagedAsUpdated();
+		return $this->isFlaggedAsUpdated();
 	}
 	
 	/**

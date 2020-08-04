@@ -15,12 +15,28 @@ use Comhon\Object\UniqueObject;
 use Comhon\Model\Model;
 
 abstract class SerializationUnit {
-
-	/** @var string update operation */
-	const UPDATE = 'update';
 	
 	/** @var string create operation */
 	const CREATE = 'create';
+
+	/** 
+	 * update whole object. all values are saved even if there are not flagged as updated.
+	 * if a value is not set, null value may be set according serialization unit (example : \Comhon\Serialization\SqlTable)
+	 * 
+	 * @var string update operation 
+	 */
+	const UPDATE = 'update';
+	
+	/** 
+	 * patch object (partial update). only values flagged as updated are saved.
+	 * if a value is not set AND flagged as updated, 
+	 * null value may be set according serialization unit (example : \Comhon\Serialization\SqlTable).
+	 * 
+	 * path method is not allowed for file serialization (\Comhon\Serialization\SerializationFile).
+	 * 
+	 * @var string update operation 
+	 */
+	const PATCH = 'patch';
 	
 	/**
 	 * get serialization unit instance

@@ -32,13 +32,14 @@ use Comhon\Exception\Serialization\UniqueException;
 use Comhon\Exception\Serialization\ForeignValueException;
 use Comhon\Exception\Serialization\NotNullException;
 use Comhon\Interfacer\Interfacer;
+use Comhon\Model\Property\MultipleForeignProperty;
 
 class SqlTable extends ValidatedSerializationUnit {
 	
 	/** 
 	 * @var string sql serialization type
 	 */
-	const SETTINGS_TYPE = 'Comhon\SqlTable';
+	const MODEL_NAME = 'Comhon\SqlTable';
 	
 	/**
 	 * @var integer index that store information that permit to know if model has incremantal id
@@ -85,12 +86,12 @@ class SqlTable extends ValidatedSerializationUnit {
 	}
 	
 	/**
-	 * get serialization unit type
 	 * 
-	 * @return string
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\ValidatedSerializationUnit::getModelName()
 	 */
-	public static function getType() {
-		return self::SETTINGS_TYPE;
+	public static function getModelName() {
+		return self::MODEL_NAME;
 	}
 	
 	/**
@@ -295,14 +296,16 @@ class SqlTable extends ValidatedSerializationUnit {
 	protected function _saveObject(UniqueObject $object, $operation = null) {
 		$this->_initDatabaseInterfacing($object->getModel());
 		
-		if ($this->modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
+		if (is_null($operation) && $this->modelInfos[$object->getModel()->getName()][self::HAS_INCR_ID_INDEX]) {
 			return $this->_saveObjectWithIncrementalId($object);
 		} else if ($operation == self::CREATE) {
 			return $this->_insertObject($object);
 		} else if ($operation == self::UPDATE) {
-			return $this->_updateObject($object);
-		} else {
-			throw new ArgumentException($operation, [self::CREATE, self::UPDATE], 2);
+			return $this->_updateObject($object, false);
+		} else if ($operation == self::PATCH) {
+			return $this->_updateObject($object, true);
+		}else {
+			throw new ArgumentException($operation, [self::CREATE, self::UPDATE, self::PATCH], 2);
 		}
 	}
 	
@@ -318,7 +321,7 @@ class SqlTable extends ValidatedSerializationUnit {
 			throw new SerializationException('operation not specified');
 		}
 		if ($object->hasCompleteId()) {
-			return $this->_updateObject($object);
+			return $this->_updateObject($object, false);
 		} else {
 			return $this->_insertObject($object);
 		}
@@ -405,10 +408,11 @@ class SqlTable extends ValidatedSerializationUnit {
 	 * execute update query to save comhon object
 	 * 
 	 * @param \Comhon\Object\UniqueObject $object
+	 * @param boolean $partial if true, only updated values are saved.
 	 * @throws \Exception
 	 * @return integer number of affected rows
 	 */
-	private function _updateObject(UniqueObject $object) {
+	private function _updateObject(UniqueObject $object, $partial) {
 		if (!$object->getModel()->hasIdProperties() || !$object->hasCompleteId()) {
 			throw new SerializationException('update operation require complete id');
 		}
@@ -422,15 +426,10 @@ class SqlTable extends ValidatedSerializationUnit {
 		$conditionsValues = [];
 
 		$interfacer = $this->_getInterfacer();
-		$interfacer->setExportOnlyUpdatedValues(true);
-		$interfacer->setValidate(true);
+		$interfacer->setExportOnlyUpdatedValues($partial);
+		$interfacer->setValidate(!$partial);
 		$mapOfString = $object->export($interfacer);
-		foreach ($object->getDeletedValues() as $propertyName) {
-			$property = $model->getProperty($propertyName);
-			if (!$property->isId() && !$property->isAggregation()) {
-				$mapOfString[$property->getSerializationName()] = null;
-			}
-		}
+		$this->_addNullValues($mapOfString, $object, $partial);
 		
 		foreach ($object->getModel()->getIdProperties() as $idPropertyName => $idProperty) {
 			$column = $idProperty->getSerializationName();
@@ -442,7 +441,12 @@ class SqlTable extends ValidatedSerializationUnit {
 			$conditions[]       = "{$esc}$column{$esc}= ?";
 			$conditionsValues[] = $value;
 		}
-		if (empty($mapOfString) && !$object->isCasted()) {
+		if (!is_null($model->getSerialization()->getInheritanceKey())) {
+			if ($partial && !$object->isCasted()) {
+				unset($mapOfString[$model->getSerialization()->getInheritanceKey()]);
+			}
+		}
+		if (empty($mapOfString)) {
 			return 0;
 		}
 		foreach ($mapOfString as $column => $value) {
@@ -453,6 +457,36 @@ class SqlTable extends ValidatedSerializationUnit {
 		$statement = $this->execute($databaseHandler, $query, array_merge($updateValues, $conditionsValues), $object);
 		
 		return $statement->rowCount();
+	}
+	
+	/**
+	 * add null values on not set properties if needed
+	 * - if NOT partial, add automatically null values
+	 * - if partial, add null values only on values flagged as updated
+	 * 
+	 * @param array $mapOfString
+	 * @param UniqueObject $object
+	 * @param boolean $partial
+	 * @throws SerializationException
+	 */
+	private function _addNullValues(array &$mapOfString, UniqueObject $object, $partial) {
+		foreach ($object->getModel()->getProperties() as $name => $property) {
+			if ($property->isSerializable() && !$object->hasValue($name) && (!$partial || $object->isUpdatedValue($name))) {
+				if ($property->isNotNull()) {
+					throw new SerializationException(
+						"updated value '$name' is not set, "
+						.'and can\'t be replaced by null value due to not null restriction'
+					);
+				}
+				if ($property instanceof MultipleForeignProperty) {
+					foreach ($property->getMultipleIdProperties() as $column => $property) {
+						$mapOfString[$column] = null;
+					}
+				} else {
+					$mapOfString[$property->getSerializationName()] = null;
+				}
+			}
+		}
 	}
 	
 	/**

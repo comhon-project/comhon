@@ -29,7 +29,7 @@ abstract class ModelComplex extends AbstractModel {
 	/**
 	 * get instance of object associated to model
 	 *
-	 * @param boolean $isloaded define if instanciated object will be flaged as loaded or not
+	 * @param boolean $isloaded define if instanciated object will be flagged as loaded or not
 	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
 	 */
 	abstract public function getObjectInstance($isloaded = true);

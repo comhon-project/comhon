@@ -20,7 +20,7 @@ class JsonFile extends SerializationFile {
 	/**
 	 * @var string json serialization type
 	 */
-	const SETTINGS_TYPE = 'Comhon\File\JsonFile';
+	const MODEL_NAME = 'Comhon\File\JsonFile';
 	
 	/**
 	 * @var \Comhon\Serialization\File\JsonFile
@@ -42,12 +42,12 @@ class JsonFile extends SerializationFile {
 	}
 	
 	/**
-	 * get serialization unit type
 	 * 
-	 * @return string
+	 * {@inheritDoc}
+	 * @see \Comhon\Serialization\ValidatedSerializationUnit::getModelName()
 	 */
-	public static function getType() {
-		return self::SETTINGS_TYPE;
+	public static function getModelName() {
+		return self::MODEL_NAME;
 	}
 	
 	/**

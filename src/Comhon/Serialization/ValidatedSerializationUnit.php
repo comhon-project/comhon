@@ -25,10 +25,10 @@ abstract class ValidatedSerializationUnit extends SerializationUnit {
 			throw new SerializationException("object with model '{$object->getModel()->getName()}' doesn't have serialization unit");
 		}
 		if (!is_null($object->getModel()->getSerializationSettings())) {
-			if ($object->getModel()->getSerializationSettings()->getModel()->getName() !== static::getType()) {
+			if ($object->getModel()->getSerializationSettings()->getModel()->getName() !== static::getModelName()) {
 				throw new SerializationException(
 					"object with model '{$object->getModel()->getName()}' has wrong serialization. " .
-					$object->getModel()->getSerializationSettings()->getModel()->getName() . ' !== ' . static::getType()
+					$object->getModel()->getSerializationSettings()->getModel()->getName() . ' !== ' . static::getModelName()
 				);
 			}
 		}
@@ -49,8 +49,8 @@ abstract class ValidatedSerializationUnit extends SerializationUnit {
 	 */
 	public final function saveObject(UniqueObject $object, $operation = null) {
 		$this->validateSerialization($object);
-		if (!is_null($operation) && ($operation !== self::CREATE) && ($operation !== self::UPDATE)) {
-			throw new ArgumentException($operation, [self::CREATE, self::UPDATE], 2);
+		if (!is_null($operation) && ($operation !== self::CREATE) && ($operation !== self::UPDATE)&& ($operation !== self::PATCH)) {
+			throw new ArgumentException($operation, [self::CREATE, self::UPDATE, self::PATCH], 2);
 		}
 		$result = $this->_saveObject($object, $operation);
 		$object->resetUpdatedStatus();
@@ -78,11 +78,11 @@ abstract class ValidatedSerializationUnit extends SerializationUnit {
 	}
 	
 	/**
-	 * get serialization unit type
+	 * get associated settings model name (only if serialization unit has associated serialization settings)
 	 *
-	 * @return string
+	 * @return string|null
 	 */
-	abstract public static function getType();
+	abstract public static function getModelName();
 	
 	/**
 	 * save specified comhon object

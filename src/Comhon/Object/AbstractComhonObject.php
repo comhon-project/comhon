@@ -48,7 +48,7 @@ abstract class AbstractComhonObject {
 	private $updatedValues = [];
 	
 	/**
-	 * @var boolean determine if object is flaged as updated
+	 * @var boolean determine if object is flagged as updated
 	 *     warning! if false, that not necessarily means object is not updated
 	 *     actually a sub-object contained in current object may be updated
 	 */
@@ -92,7 +92,7 @@ abstract class AbstractComhonObject {
 			$this->values[$name] = $value;
 		}
 		if ($flagAsUpdated) {
-			$this->updatedValues[$name] = false;
+			$this->updatedValues[$name] = null;
 			$this->isUpdated = true;
 		} elseif (array_key_exists($name, $this->updatedValues)) {
 			unset($this->updatedValues[$name]);
@@ -168,7 +168,7 @@ abstract class AbstractComhonObject {
 			unset($this->values[$name]);
 			if ($flagAsUpdated) {
 				$this->isUpdated = true;
-				$this->updatedValues[$name] = true;
+				$this->updatedValues[$name] = null;
 			}
 		}
 	}
@@ -339,7 +339,7 @@ abstract class AbstractComhonObject {
 	\***********************************************************************************************/
 	
 	/**
-	 * verify if comhon object is flaged as updated or if at least one value has been updated
+	 * verify if comhon object is flagged as updated or if at least one value has been updated
 	 * 
 	 * @return boolean
 	 */
@@ -361,25 +361,25 @@ abstract class AbstractComhonObject {
 	abstract public function isUpdatedValue($name);
 	
 	/**
-	 * verify if object is flaged as updated
+	 * verify if object is flagged as updated
 	 * 
 	 * do not use this function to known if object is updated (use self::isUpdated)
 	 * 
 	 * @return boolean
 	 */
-	final public function isFlagedAsUpdated() {
+	final public function isFlaggedAsUpdated() {
 		return $this->isUpdated;
 	}
 	
 	/**
-	 * verify if a value is flaged as updated
+	 * verify if a value is flagged as updated
 	 * 
 	 * do not use this function to known if a value is updated (use self::isUpdatedValue)
 	 * 
 	 * @param string $name
 	 * @return boolean
 	 */
-	final public function isValueFlagedAsUpdated($name) {
+	final public function isValueFlaggedAsUpdated($name) {
 		return array_key_exists($name, $this->updatedValues);
 	}
 	
@@ -398,7 +398,7 @@ abstract class AbstractComhonObject {
 	abstract protected function _resetUpdatedStatusRecursive(&$objectHashMap);
 	
 	/**
-	 * reset updated Status (reset only self::mIsUpdated and self::mUpdatedValues)
+	 * reset updated Status (reset only self::isUpdated and self::updatedValues)
 	 */
 	final protected function _resetUpdatedStatus() {
 		$this->isUpdated = false;
@@ -414,7 +414,7 @@ abstract class AbstractComhonObject {
 	final public function flagValueAsUpdated($name) {
 		if ($this->hasValue($name)) {
 			$this->isUpdated = true;
-			$this->updatedValues[$name] = false;
+			$this->updatedValues[$name] = null;
 			return true;
 		}
 		return false;
@@ -573,6 +573,7 @@ abstract class AbstractComhonObject {
 			$interfacer = new StdObjectInterfacer();
 			$interfacer->setPrivateContext(true);
 			$interfacer->setVerifyReferences(false);
+			$interfacer->setValidate(false);
 			return json_encode($interfacer->export($this), JSON_PRETTY_PRINT)."\n";
 		} catch (\Exception $e) {
 			trigger_error('object can\'t be printed because it is invalid : '.$e->getMessage());
