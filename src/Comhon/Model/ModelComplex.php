@@ -18,6 +18,8 @@ use Comhon\Object\Collection\ObjectCollectionInterfacer;
 use Comhon\Visitor\ObjectFinder;
 use Comhon\Exception\Interfacer\InterfaceException;
 use Comhon\Exception\Interfacer\NotReferencedValueException;
+use Comhon\Exception\Interfacer\ExportException;
+use Comhon\Object\ComhonArray;
 
 abstract class ModelComplex extends AbstractModel {
 	
@@ -25,31 +27,6 @@ abstract class ModelComplex extends AbstractModel {
 	 * @var integer[] array used to avoid infinite loop when objects are visited
 	 */
 	protected static $instanceObjectHash = [];
-	
-	/**
-	 * get instance of object associated to model
-	 *
-	 * @param boolean $isloaded define if instanciated object will be flagged as loaded or not
-	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
-	 */
-	abstract public function getObjectInstance($isloaded = true);
-	
-	/**
-	 * export comhon object in specified format
-	 *
-	 * @param \Comhon\Object\AbstractComhonObject $object
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @return mixed
-	 */
-	public function export(AbstractComhonObject $object, Interfacer $interfacer) {
-		$this->verifValue($object);
-		self::$instanceObjectHash = [];
-		$node = $this->_exportRoot($object, 'root', $interfacer);
-		self::$instanceObjectHash = [];
-		return $node;
-	}
-	
-	
 	
 	/**
 	 *
@@ -109,12 +86,27 @@ abstract class ModelComplex extends AbstractModel {
 	 * export comhon object in specified format
 	 *
 	 * @param \Comhon\Object\AbstractComhonObject $object
-	 * @param string $nodeName
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @param boolean $forceIsolateElements this parameter is only use if exported object is a comhon array.
+	 *                force isolate each elements of imported array 
+	 *                (isolated element doesn't share objects instances with others elements).
 	 * @return mixed
 	 */
-	protected function _exportRoot(AbstractComhonObject $object, $nodeName, Interfacer $interfacer) {
-		throw new ComhonException('cannot call _importRoot on '.get_class($this));
+	public function export(AbstractComhonObject $object, Interfacer $interfacer, $forceIsolateElements = true) {
+		try {
+			$this->verifValue($object);
+			self::$instanceObjectHash = [];
+			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+			$isolate = $forceIsolateElements && $object instanceof ComhonArray;
+			$node = $this->_export($object, 'root', $interfacer, true, $objectCollectionInterfacer, $isolate);
+			if ($interfacer->hasToVerifyReferences()) {
+				$this->_verifyReferences($object, $objectCollectionInterfacer);
+			}
+			self::$instanceObjectHash = [];
+		} catch (ComhonException $e) {
+			throw new ExportException($e);
+		}
+		return $node;
 	}
 	
 	/**
@@ -172,4 +164,13 @@ abstract class ModelComplex extends AbstractModel {
 	 * @throws \Exception
 	 */
 	abstract public function fillObject(AbstractComhonObject $object, $interfacedObject, Interfacer $interfacer);
+	
+	/**
+	 * get instance of object associated to model
+	 *
+	 * @param boolean $isloaded define if instanciated object will be flagged as loaded or not
+	 * @return \Comhon\Object\UniqueObject|\Comhon\Object\ComhonArray
+	 */
+	abstract public function getObjectInstance($isloaded = true);
+	
 }

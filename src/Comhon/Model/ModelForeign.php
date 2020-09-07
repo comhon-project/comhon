@@ -60,13 +60,14 @@ class ModelForeign extends ModelContainer {
 	}
 	
 	/**
-	 * export comhon object id in specified format
-	 *
-	 * @param \Comhon\Object\AbstractComhonObject $object
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @return mixed
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::export()
+	 * 
+	 * function is overrided because we must not verify references
+	 * 
 	 */
-	public function export(AbstractComhonObject $object, Interfacer $interfacer) {
+	public function export(AbstractComhonObject $object, Interfacer $interfacer, $forceIsolateElements = true) {
 		try {
 			$this->verifValue($object);
 			$objectCollectionInterfacer = new ObjectCollectionInterfacer();

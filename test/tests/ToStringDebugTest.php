@@ -15,8 +15,8 @@ $testDb->unsetValue('childrenTestDb', false);
 $testDb->unsetValue('defaultValue', false);
 
 if (Config::getInstance()->getManifestFormat() == 'json') {
-	$first = '#1109';
-	$second = '#1125';
+	$first = '#1102';
+	$second = '#1118';
 } else {
 	$first = '#945';
 	$second = '#1140';

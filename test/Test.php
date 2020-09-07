@@ -451,6 +451,11 @@ try {
 
 // TODO for version > 4.0
 
+// xml export with true null value
+// response, and request psr-7 (with guzzle)
+// Oauth2 for comhon-docker 
+
+// flagObjectAsUpdated -> flagObjectAsLoaded
 // use id different than table name for sql table (may have same table name but with different database)
 // simplify filter properties on interfacer (filter only root object) ?
 // add possibility to request aggregations in request handler ?

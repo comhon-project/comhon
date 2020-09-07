@@ -1435,6 +1435,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$startObject = null;
 			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
 			
+			// if object doesn't have id, it can't be added to collection
+			// so we have to set start object to keep same instance during import
 			if (!$objectCollectionInterfacer->addStartObject($object, false)) {
 				$objectCollectionInterfacer = null;
 				$startObject = $object;

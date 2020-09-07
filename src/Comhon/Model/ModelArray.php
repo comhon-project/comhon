@@ -197,37 +197,10 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\ModelComplex::_exportRoot()
-	 */
-	protected function _exportRoot(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer) {
-		if ($interfacer->mustValidate()) {
-			$objectArray->validate();
-		}
-		if ($this->getModel() instanceof SimpleModel) {
-			$nodeArray = $this->_export($objectArray, $nodeName, $interfacer, true, new ObjectCollectionInterfacer());
-		} else {
-			$nodeArray = $interfacer->createArrayNode($nodeName);
-			
-			foreach ($objectArray->getValues() as $key => $value) {
-				try {
-					if ($this->isAssociative) {
-						$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_exportRoot($value, $key, $interfacer), $key);
-					} else {
-						$interfacer->addValue($nodeArray, $this->getModel()->_exportRoot($value, $this->elementName, $interfacer), $this->elementName);
-					}
-				} catch (ComhonException $e) {
-					throw new ExportException($e, $key);
-				}
-			}
-		}
-		
-		return $nodeArray;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_export()
+	 * @param boolean $isolate determine if each array elements must be isolated.
+	 *                         this parameter may by true only if the exported root object is an array 
+	 *                         and if the parameter $forceIsolateElements is set to true.
 	 */
 	protected function _export($objectArray, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		/** @var \Comhon\Object\ComhonArray $objectArray */
@@ -238,19 +211,20 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			$objectArray->validate();
 		}
 		$nodeArray = $interfacer->createArrayNode($nodeName);
+		$isolate = $isolate || $this->isIsolatedElement;
 		
 		foreach ($objectArray->getValues() as $key => $value) {
 			try {
 				if ($this->isAssociative) {
 					$interfacer->addAssociativeValue(
 						$nodeArray, 
-						$this->getModel()->_export($value, $key, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $this->isIsolatedElement),
+						$this->getModel()->_export($value, $key, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $isolate),
 						$key
 					);
 				} else {
 					$interfacer->addValue(
 						$nodeArray,
-							$this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $this->isIsolatedElement),
+						$this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $isolate),
 						$this->elementName
 					);
 				}
@@ -297,7 +271,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getArrayNodeClasses()));
 		}
 		$objectArray = $this->getObjectInstance(false);
-		return $this->_fillObjectArray($objectArray, $interfacedObject, $interfacer, $isFirstLevel, $objectCollectionInterfacer);
+		return $this->_fillObjectArray($objectArray, $interfacedObject, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $isolate);
 	}
 	
 	/**
@@ -307,14 +281,18 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @param Interfacer $interfacer
 	 * @param boolean $isFirstLevel
 	 * @param ObjectCollectionInterfacer $objectCollectionInterfacer
+	 * @param boolean $isolate determine if each array elements must be isolated.
+	 *                         this parameter may by true only if the imported root object is an array 
+	 *                         and if the parameter $forceIsolateElements is set to true.
 	 * @throws ImportException
 	 * @return \Comhon\Object\ComhonArray
 	 */
-	protected function _fillObjectArray(ComhonArray $objectArray, $interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	protected function _fillObjectArray(ComhonArray $objectArray, $interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		$setIsLoaded = $isFirstLevel && $interfacer->hasToFlagObjectAsLoaded() && $this->model instanceof ModelComhonObject;
+		$isolate = $isolate || $this->isIsolatedElement;
 		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
 			try {
-				$value = $this->getModel()->_import($element, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $this->isIsolatedElement);
+				$value = $this->getModel()->_import($element, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $isolate);
 				if ($setIsLoaded && !is_null($value)) {
 					$value->setIsLoaded(true);
 				}
@@ -396,13 +374,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			}
 		}
 		try {
-			if ($forceIsolateElements && !$this->isIsolatedElement && $this->model instanceof Model) {
-				$this->isIsolatedElement = true;
-				$objectArray = $this->_import($interfacedObject, $interfacer, true, $objectCollectionInterfacer);
-				$this->isIsolatedElement = false;
-			} else {
-				$objectArray = $this->_import($interfacedObject, $interfacer, true, $objectCollectionInterfacer);
-			}
+			$objectArray = $this->_import($interfacedObject, $interfacer, true, $objectCollectionInterfacer, $forceIsolateElements);
 		} catch (ComhonException $e) {
 			throw new ImportException($e);
 		}
@@ -442,13 +414,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		}
 		try {
 			$objectArray->reset();
-			if ($forceIsolateElements && !$this->isIsolatedElement && $this->model instanceof Model) {
-				$this->isIsolatedElement = true;
-				$this->_fillObjectArray($objectArray, $interfacedObject, $interfacer, true, $objectCollectionInterfacer);
-				$this->isIsolatedElement = false;
-			} else {
-				$this->_fillObjectArray($objectArray, $interfacedObject, $interfacer, true, $objectCollectionInterfacer);
-			}
+			$this->_fillObjectArray($objectArray, $interfacedObject, $interfacer, true, $objectCollectionInterfacer, $forceIsolateElements);
 		} catch (ComhonException $e) {
 			throw new ImportException($e);
 		}
