@@ -116,7 +116,7 @@
         <type>Base</type>
       </extends>
       <properties>
-        <property name="name" not_null="1" is_required="1" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="name" not_null="1" is_required="1" is_id="1" regex="/^\w+$/" __inheritance__="Comhon\Manifest\Property\String"/>
         <property name="is_required" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
         <property name="is_private" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
         <property name="depends" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">

@@ -267,6 +267,7 @@
                     "not_null": true,
                     "is_required": true,
                     "is_id": true,
+                    "regex": "\/^\\w+$\/",
                     "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {

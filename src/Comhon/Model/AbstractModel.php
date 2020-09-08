@@ -66,10 +66,11 @@ abstract class AbstractModel {
 	 * @param boolean $isFirstLevel
 	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
 	 * @param boolean $isolate
+	 * @param \DOMElement[] $nullNodes nodes that need to be processed at the end of export (only used for xml export).
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	abstract protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false);
+	abstract protected function _export($value, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, &$nullNodes, $isolate = false);
 	
 	/**
 	 * import interfaced object

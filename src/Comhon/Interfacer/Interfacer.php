@@ -76,7 +76,7 @@ abstract class Interfacer {
 	/**
 	 * @var string preference name that define if object created during import have to be flagged as loaded
 	 */
-	const FLAG_OBJECT_AS_LOADED = 'flagObjectAsUpdated';
+	const FLAG_OBJECT_AS_LOADED = 'flagObjectAsLoaded';
 	
 	/**
 	 * @var string preference name that define if interfacer must verify if foreign values are referenced 

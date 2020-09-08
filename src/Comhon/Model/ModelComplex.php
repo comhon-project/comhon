@@ -20,6 +20,7 @@ use Comhon\Exception\Interfacer\InterfaceException;
 use Comhon\Exception\Interfacer\NotReferencedValueException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\ComhonArray;
+use Comhon\Interfacer\XMLInterfacer;
 
 abstract class ModelComplex extends AbstractModel {
 	
@@ -97,10 +98,14 @@ abstract class ModelComplex extends AbstractModel {
 			$this->verifValue($object);
 			self::$instanceObjectHash = [];
 			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+			$nullNodes = $interfacer instanceof XMLInterfacer ? [] : null;
 			$isolate = $forceIsolateElements && $object instanceof ComhonArray;
-			$node = $this->_export($object, 'root', $interfacer, true, $objectCollectionInterfacer, $isolate);
-			if ($interfacer->hasToVerifyReferences()) {
+			$node = $this->_export($object, 'root', $interfacer, true, $objectCollectionInterfacer, $nullNodes, $isolate);
+			if ($interfacer->hasToVerifyReferences() && !($this instanceof ModelForeign)) {
 				$this->_verifyReferences($object, $objectCollectionInterfacer);
+			}
+			if (!empty($nullNodes)) { // if not empty, interfacer must be xml interfacer
+				$this->_ProcessNullNodes($interfacer, $node, $nullNodes);
 			}
 			self::$instanceObjectHash = [];
 		} catch (ComhonException $e) {
@@ -110,16 +115,31 @@ abstract class ModelComplex extends AbstractModel {
 	}
 	
 	/**
+	 * add null namespace on given root element and flag given nodes as null
+	 * 
+	 * @param XMLInterfacer $interfacer
+	 * @param \DOMElement $rootNode
+	 * @param \DOMElement[] $nullNodes
+	 */
+	private function _ProcessNullNodes(XMLInterfacer $interfacer, \DOMElement $rootNode, array $nullNodes) {
+		$interfacer->addNullNamespaceURI($rootNode);
+		foreach ($nullNodes as $nullNode) {
+			$interfacer->setNodeAsNull($nullNode);
+		}
+	}
+	
+	/**
 	 * export comhon object id(s)
 	 *
 	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param string $nodeName
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
+	 * @param \DOMElement[] $nullNodes nodes that need to be processed at the end of export (only used for xml export).
 	 * @throws \Exception
 	 * @return mixed|null
 	 */
-	abstract protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer);
+	abstract protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer, &$nullNodes);
 	
 	/**
 	 * import interfaced object

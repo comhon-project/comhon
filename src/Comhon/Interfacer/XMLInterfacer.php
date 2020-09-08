@@ -29,12 +29,6 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	/** @var string */
 	const NIL_URI = 'http://www.w3.org/2001/XMLSchema-instance';
 	
-	/** @var integer */
-	const INDEX_NODE_CONTAINER = 0;
-	
-	/** @var integer */
-	const INDEX_NODES = 1;
-	
 	/** @var \DOMDocument */
 	private $domDocument;
 	
@@ -49,7 +43,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * get child node with name $name
+	 * get child node with name $name (if several children have same name, the first one is returned).
 	 *
 	 * @param \DOMElement $node
 	 * @param string $name
@@ -65,65 +59,53 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * add attribute namespace URI for null values if provided dom element has null child nodes (deep search).
-	 * if there is no null child nodes, nothing is updated.
+	 * add attribute namespace URI for null values.
 	 *
-	 * @param \DOMElement $root
+	 * @param \DOMElement $node
 	 */
-	private function addNullNamespaceURI(\DOMElement $root) {
-		if ($root->hasAttribute(self::NS_XSI)) {
+	public function addNullNamespaceURI(\DOMElement $node) {
+		if ($node->hasAttribute(self::NS_XSI)) {
 			return;
 		}
-		$add = $root->hasAttribute(self::NS_NULL_VALUE);
-		if (!$add) {
-			$stack = [$root];
-			while(!$add && !empty($stack)) {
-				/** @var \DOMNode $node */
-				$node = array_pop($stack);
-				
-				foreach ($node->childNodes as $childNode) {
-					if ($childNode instanceof \DOMElement) {
-						if ($this->isNodeNull($childNode)) {
-							$add = true;
-							break;
-						}
-						$stack[] = $childNode;
-					}
-				}
+		// first solution found, create real attribute namespace
+		// there is perhaps a more simple way
+		if ($node->ownerDocument->firstChild === $node) {
+			// no need to update Dom
+			$node->ownerDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
+		}else {
+			// node must be appended at first place to DomDocument before create attribute ns
+			// and node must be replaced at original place if needed
+			$parent = $node->parentNode;
+			$next = $node->nextSibling;
+			if (is_null($node->ownerDocument->firstChild)) {
+				$node->ownerDocument->appendChild($node);
+			} else {
+				$node->ownerDocument->insertBefore($node, $node->ownerDocument->firstChild);
 			}
-		}
-		if ($add) {
-			// first solution found, create real attribute namespace
-			// there is perhaps a more simple way
-			if ($root->ownerDocument->firstChild === $root) {
-				// no need to update Dom
-				$root->ownerDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
-			}else {
-				// node must be appended at first place to DomDocument before create attribute ns
-				// and node must be replaced at original place if needed
-				$parent = $root->parentNode;
-				$next = $root->nextSibling;
-				if (is_null($root->ownerDocument->firstChild)) {
-					$root->ownerDocument->appendChild($root);
+			$node->ownerDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
+			$node->ownerDocument->removeChild($node);
+			
+			if ($parent) {
+				if ($next) {
+					$parent->insertBefore($node, $next);
 				} else {
-					$root->ownerDocument->insertBefore($root, $root->ownerDocument->firstChild);
-				}
-				$root->ownerDocument->createAttributeNS(self::NIL_URI, self::NS_NULL_VALUE);
-				$root->ownerDocument->removeChild($root);
-				
-				if ($parent) {
-					if ($next) {
-						$parent->insertBefore($root, $next);
-					} else {
-						$parent->appendChild($root);
-					}
+					$parent->appendChild($node);
 				}
 			}
-			// second solution found, create fake attribute namespace
-			// more simple but not recognized as attribute namespace
-			// and we cannot get it with getAttribute()
-			// $root->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
 		}
+		// second solution found, create fake attribute namespace
+		// more simple but not recognized as attribute namespace
+		// and we cannot get it with getAttribute()
+		// $node->setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+	}
+	
+	/**
+	 * add attribute namespace xsi:nil on given node
+	 * 
+	 * @param \DOMElement $node
+	 */
+	public function setNodeAsNull(\DOMElement $node) {
+		$node->setAttributeNS(self::NIL_URI, self::NULL_VALUE, 'true');
 	}
 	
 	/**
@@ -134,7 +116,6 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * @return false|string
 	 */
 	private function saveXML(\DOMElement $node, $prettyPrint) {
-		$this->addNullNamespaceURI($node);
 		$node->ownerDocument->formatOutput = $prettyPrint;
 		return $node->ownerDocument->saveXML($node);
 	}
@@ -173,11 +154,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * @return boolean
 	 */
 	public function isNodeNull(\DOMElement $node) {
-		return $node->hasAttributeNS(self::NIL_URI, self::NULL_VALUE) 
-			|| (
-				!is_null($node->attributes->getNamedItem(self::NS_NULL_VALUE))
-				&& $node->attributes->getNamedItem(self::NS_NULL_VALUE)->value == 'true'
-			);
+		return $node->hasAttributeNS(self::NIL_URI, self::NULL_VALUE);
 	}
 	
 	/**
@@ -286,9 +263,13 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	
 	/**
 	 * Set value in $node with attribute or node $name according $asNode.
+	 * 
 	 * Warning! if $value is a \DomNode and doesn't belong to same \DomDocument than $node,
 	 * $value is copied and the copy is set on $node.
 	 * So modify $value later will not modify set value.
+	 * 
+	 * Warning! if you set a null value as node, 
+	 * parent node (direct or not) must be in null namespace (see XmlInterfacer::addNullNamespaceURI).
 	 * 
 	 * @param \DOMElement $node
 	 * @param mixed $value if scalar value, set attribute. else if \DOMElement, append child
@@ -309,7 +290,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 			if ($asNode) {
 				$childNode = $node->appendChild($node->ownerDocument->createElement($name));
 				if (is_null($value)) {
-					$childNode->setAttribute(self::NS_NULL_VALUE, 'true');
+					$this->setNodeAsNull($childNode);
 				} else {
 					$childNode->appendChild($childNode->ownerDocument->createTextNode($value));
 				}

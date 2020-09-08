@@ -202,7 +202,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 *                         this parameter may by true only if the exported root object is an array 
 	 *                         and if the parameter $forceIsolateElements is set to true.
 	 */
-	protected function _export($objectArray, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
+	protected function _export($objectArray, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, &$nullNodes, $isolate = false) {
 		/** @var \Comhon\Object\ComhonArray $objectArray */
 		if (is_null($objectArray)) {
 			return null;
@@ -215,18 +215,25 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 		
 		foreach ($objectArray->getValues() as $key => $value) {
 			try {
-				if ($this->isAssociative) {
-					$interfacer->addAssociativeValue(
-						$nodeArray, 
-						$this->getModel()->_export($value, $key, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $isolate),
-						$key
-					);
+				if (is_null($value) && !is_null($nullNodes)) {
+					// if $nullNodes is not null interfacer must be a xml interfacer
+					$nullValue = $interfacer->createNode($this->isAssociative ? $key : $this->elementName);
+					$interfacer->addValue($nodeArray, $nullValue);
+					$nullNodes[] = $nullValue;
 				} else {
-					$interfacer->addValue(
-						$nodeArray,
-						$this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $isolate),
-						$this->elementName
-					);
+					if ($this->isAssociative) {
+						$interfacer->addAssociativeValue(
+							$nodeArray, 
+							$this->getModel()->_export($value, $key, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $nullNodes, $isolate),
+							$key
+						);
+					} else {
+						$interfacer->addValue(
+							$nodeArray,
+							$this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $nullNodes, $isolate),
+							$this->elementName
+						);
+					}
 				}
 			} catch (ComhonException $e) {
 				throw new ExportException($e, $key);
@@ -240,17 +247,28 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
-	protected function _exportId(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	protected function _exportId(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer, &$nullNodes) {
 		$nodeArray = $interfacer->createArrayNode($nodeName);
 		foreach ($objectArray->getValues() as $key => $value) {
-			if (is_null($value)) {
-				$interfacer->addValue($nodeArray, null, $this->elementName);
-			} else {
-				if ($this->isAssociative) {
-					$interfacer->addAssociativeValue($nodeArray, $this->getModel()->_exportId($value, $key, $interfacer, $objectCollectionInterfacer), $key);
+			try {
+				if (is_null($value)) {
+					if (!is_null($nullNodes)) {
+						// if $nullNodes is not null interfacer must be a xml interfacer
+						$exportedValue = $interfacer->createNode($this->isAssociative ? $key : $this->elementName);
+						$nullNodes[] = $exportedValue;
+					} else {
+						$exportedValue = null;
+					}
 				} else {
-					$interfacer->addValue($nodeArray, $this->getModel()->_exportId($value, $this->elementName, $interfacer, $objectCollectionInterfacer), $this->elementName);
+					$exportedValue = $this->getModel()->_exportId($value, $this->isAssociative ? $key : $this->elementName, $interfacer, $objectCollectionInterfacer, $nullNodes);
 				}
+				if ($this->isAssociative) {
+					$interfacer->addAssociativeValue($nodeArray, $exportedValue, $key);
+				} else {
+					$interfacer->addValue($nodeArray, $exportedValue, $this->elementName);
+				}
+			} catch (ComhonException $e) {
+				throw new ExportException($e, $key);
 			}
 		}
 		return $nodeArray;

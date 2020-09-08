@@ -982,27 +982,9 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\ModelComplex::_exportRoot()
-	 */
-	protected function _exportRoot(AbstractComhonObject $object, $nodeName, Interfacer $interfacer) {
-		try {
-			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
-			$node = $this->_export($object, $nodeName, $interfacer, true, $objectCollectionInterfacer);
-			if ($interfacer->hasToVerifyReferences()) {
-				$this->_verifyReferences($object, $objectCollectionInterfacer);
-			}
-		} catch (ComhonException $e) {
-			throw new ExportException($e);
-		}
-		return $node;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_export()
 	 */
-	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
+	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, &$nullNodes, $isolate = false) {
 		/** @var \Comhon\Object\UniqueObject $object */
 		if (is_null($object)) {
 			return null;
@@ -1052,7 +1034,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 						&& (is_null($propertiesFilter) || array_key_exists($propertyName, $propertiesFilter))
 					) {
 						$propertyName  = $isSerialContext ? $property->getSerializationName() : $propertyName;
-						$exportedValue = $property->getModel()->_export($value, $propertyName, $interfacer, false, $objectCollectionInterfacer, $property->isIsolated());
+						if (is_null($value) && !is_null($nullNodes) && ($property->isInterfacedAsNodeXml() || $property->getModel() instanceof ModelComplex)) {
+							// if $nullNodes is not null interfacer must be a xml interfacer
+							$exportedValue = $interfacer->createNode($propertyName);
+							$nullNodes[] = $exportedValue;
+						} else {
+							$exportedValue = $property->getModel()->_export($value, $propertyName, $interfacer, false, $objectCollectionInterfacer, $nullNodes, $property->isIsolated());
+						}
 						$interfacer->setValue($node, $exportedValue, $propertyName, $property->isInterfacedAsNodeXml());
 					}
 				}
@@ -1071,7 +1059,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 						foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
 							if (!$onlyUpdatedValues || $foreignObject->isUpdatedValue($idProperty->getName())) {
 								$idValue = $foreignObject->getValue($idProperty->getName());
-								$idValue = $idProperty->getModel()->_export($idValue, $serializationName, $interfacer, false, $objectCollectionInterfacer);
+								$idValue = $idProperty->getModel()->_export($idValue, $serializationName, $interfacer, false, $objectCollectionInterfacer, $nullNodes);
 								$interfacer->setValue($node, $idValue, $serializationName);
 							}
 						}
@@ -1132,7 +1120,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
-	protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	protected function _exportId(AbstractComhonObject $object, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer, &$nullNodes) {
 		$model = $object->getModel();
 		if (!$model->hasIdProperties()) {
 			throw new ComhonException("cannot export id, actual model '{$model->getName()}' doesn't have id");

@@ -114,13 +114,11 @@ class Response {
 		if (!is_null($this->content) && $this->content !== '') {
 			$content = $this->content;
 			if (($this->content instanceof \stdClass) || is_array($this->content)) {
-				$content = json_encode($this->content);
 				$headers['Content-Type'] = 'application/json';
+				$content = json_encode($this->content);
 			} elseif ($this->content instanceof \DOMNode) {
 				$headers['Content-Type'] = 'application/xml';
-				// use XMLInterfacer to add null namespace URI if needed
-				$interfacer = new XMLInterfacer();
-				$content = $interfacer->toString($this->content);
+				$content = $this->content->ownerDocument->saveXML($this->content);
 			} elseif ($this->content instanceof \SimpleXMLElement) {
 				$headers['Content-Type'] = 'application/xml';
 				$content = $this->content->asXML();

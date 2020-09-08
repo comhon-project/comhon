@@ -16,6 +16,7 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
 
 class ModelForeign extends ModelContainer {
 
@@ -60,35 +61,16 @@ class ModelForeign extends ModelContainer {
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Model\ModelComplex::export()
-	 * 
-	 * function is overrided because we must not verify references
-	 * 
-	 */
-	public function export(AbstractComhonObject $object, Interfacer $interfacer, $forceIsolateElements = true) {
-		try {
-			$this->verifValue($object);
-			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
-			$node = $this->_export($object, 'root', $interfacer, true, $objectCollectionInterfacer);
-			return $node;
-		} catch (ComhonException $e) {
-			throw new ExportException($e);
-		}
-	}
-	
-	/**
 	 * export comhon object to interfaced id in specified format
 	 * 
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelContainer::_export()
 	 */
-	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
+	protected function _export($object, $nodeName, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, &$nullNodes, $isolate = false) {
 		if (is_null($object)) {
 			return null;
 		}
-		return $this->getModel()->_exportId($object, $nodeName, $interfacer, $objectCollectionInterfacer);
+		return $this->getModel()->_exportId($object, $nodeName, $interfacer, $objectCollectionInterfacer, $nullNodes);
 	}
 	
 	/**
@@ -96,7 +78,7 @@ class ModelForeign extends ModelContainer {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\ModelComplex::_exportId()
 	 */
-	protected function _exportId(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+	protected function _exportId(AbstractComhonObject $objectArray, $nodeName, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer, &$nullNodes) {
 		throw new ComhonException('should not call _exportId via ModelForeign');
 	}
 	
