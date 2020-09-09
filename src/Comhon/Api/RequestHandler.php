@@ -46,6 +46,8 @@ use Comhon\Object\Config\Config;
 use Comhon\Model\ModelComhonObject;
 use Comhon\Model\ModelArray;
 use Comhon\Exception\Serialization\ConstraintException;
+use GuzzleHttp\Psr7\ServerRequest;
+use function GuzzleHttp\Psr7\parse_header;
 
 class RequestHandler {
 	
@@ -73,6 +75,8 @@ class RequestHandler {
 	 */
 	const CLAUSE = '__clause__';
 	
+	private static $serverRequest;
+	
 	/**
 	 *
 	 * @var string[]
@@ -99,6 +103,40 @@ class RequestHandler {
 	private $isCountRequest = false;
 	
 	/**
+	 * get server request
+	 * 
+	 * @return \Psr\Http\Message\ServerRequestInterface
+	 */
+	public static function getServerRequest() {
+		if (is_null(self::$serverRequest)) {
+			self::$serverRequest = ServerRequest::fromGlobals();
+		}
+		
+		return self::$serverRequest;
+	}
+	
+	/**
+	 * get server request path with urldecoded characters and removed duplicated slash.
+	 * 
+	 * @param boolean $removeLastSlash if true, remove the last slash if exists.
+	 * @return string
+	 */
+	public static function getFilteredServerRequestPath($removeLastSlash = false) {
+		return self::_getFilteredPath(self::getServerRequest()->getUri()->getPath(), $removeLastSlash);
+	}
+	
+	/**
+	 * get path with urldecoded characters and removed duplicated slash.
+	 *
+	 * @param boolean $removeLastSlash if true, remove the last slash if exists.
+	 * @return string
+	 */
+	private static function _getFilteredPath($path, $removeLastSlash = false) {
+		$path = urldecode(preg_replace('#//++#', '/', $path));
+		return $removeLastSlash ? rtrim($path, '/') : $path;
+	}
+	
+	/**
 	 * handle client request and build response
 	 * 
 	 * @param string $basePath
@@ -115,37 +153,27 @@ class RequestHandler {
 	 */
 	public static function handle($basePath, array $requestableModels = null) {
 		$handler = new self();
-		return $handler->_handle(
-			$basePath,
-			$requestableModels, 
-			$_SERVER, 
-			$_GET, 
-			apache_request_headers(), 
-			file_get_contents('php://input')
-		);
+		return $handler->_handle(self::getServerRequest(), $basePath, $requestableModels);
 	}
 	
 	/**
 	 * 
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @param string $basePath
 	 * @param string[] $requestableModels
-	 * @param string[] $server
-	 * @param array $get
-	 * @param string[] $headers
-	 * @param string $body
 	 * @throws \Exception
 	 * @return \Comhon\Api\Response
 	 */
-	protected function _handle($basePath, $requestableModels, $server, $get, $headers, $body) {
+	protected function _handle(ServerRequest $serverRequest, $basePath, $requestableModels) {
 		try {
-			$this->_setRessourceArray($basePath, $server['REQUEST_URI']);
+			$this->_setRessourceArray($serverRequest, $basePath);
 			if ($this->resource[0] == 'models' && count($this->resource) == 1) {
-				$response = $this->_getRequestableModels($server['REQUEST_METHOD'], $headers, $requestableModels);
+				$response = $this->_getRequestableModels($serverRequest, $requestableModels);
 			} elseif ($this->resource[0] == 'patterns' && count($this->resource) == 1) {
-				$response = $this->_getPatterns($server['REQUEST_METHOD'], $headers);
+				$response = $this->_getPatterns($serverRequest);
 			}else {
-				$this->_setRessourceInfos($server['REQUEST_METHOD'], $requestableModels);
-				$response = $this->_handleMethod($server, $get, $headers, $body);
+				$this->_setRessourceInfos($serverRequest->getMethod(), $requestableModels);
+				$response = $this->_handleMethod($serverRequest);
 			}
 		} catch (ResponseException $e) {
 			$response = $e->getResponse();
@@ -164,25 +192,19 @@ class RequestHandler {
 	 * set resource array according request route.
 	 * check if route is valid and may be handled.
 	 *
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @param string $basePath
-	 * @param string $uri
 	 */
-	private function _setRessourceArray($basePath, $uri) {
-		$route = substr(preg_replace('~/+~', '/', $uri.'/'), 0, -1);
-		$basePath = preg_replace('~/+~', '/', '/'.$basePath.'/');
+	private function _setRessourceArray(ServerRequest $serverRequest, $basePath) {
+		$path = self::_getFilteredPath($serverRequest->getUri()->getPath(), true);
+		$basePath = self::_getFilteredPath('/'.$basePath, true);
 		
-		if (strpos($route, '?') !== false) {
-			$route = strstr($route, '?', true);
-		}
-		if (strpos($route, $basePath) === 0) {
-			$route = substr($route, strlen($basePath));
-		} elseif ($route === substr($basePath, 0, -1)) {
-			// health check send response code 200
-			throw new ResponseException(200);
-		} else {
+		if ($path === $basePath) {// health check send response code 200
+			throw new ResponseException(200, 'API root path');
+		} elseif (strpos($path, $basePath.'/') !== 0) {
 			throw new ResponseException(404, 'not handled route');
 		}
-		$this->resource = explode('/', urldecode($route));
+		$this->resource = explode('/', substr($path, strlen($basePath) + 1));
 	}
 	
 	/**
@@ -233,40 +255,39 @@ class RequestHandler {
 	/**
 	 * get models list that may be requested
 	 * 
-	 * @param string $method
-	 * @param string[] $headers
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @param string[] $requestableModels
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getRequestableModels($method, $headers, array $requestableModels = null) {
-		return $this->_getAssocArrayResponse($method, $headers, $requestableModels);
+	private function _getRequestableModels(ServerRequest $serverRequest, array $requestableModels = null) {
+		return $this->_getAssocArrayResponse($serverRequest, $requestableModels);
 	}
 	
 	/**
 	 * get patterns list that may be used
 	 * 
-	 * @param string $method
-	 * @param string[] $headers
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getPatterns($method, $headers) {
+	private function _getPatterns(ServerRequest $serverRequest) {
 		$path = Config::getInstance()->getRegexListPath();
 		$regexs = file_exists($path) ? json_decode(file_get_contents($path), true) : null;
-		return $this->_getAssocArrayResponse($method, $headers, $regexs);
+		return $this->_getAssocArrayResponse($serverRequest, $regexs);
 	}
 	
 	/**
 	 * get response according provided assoc array of strings
 	 * 
-	 * @param string $method
-	 * @param string[] $headers
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @param string[] $assocArray
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getAssocArrayResponse($method, $headers, array $assocArray = null) {
+	private function _getAssocArrayResponse(ServerRequest $serverRequest, array $assocArray = null) {
 		if (is_null($assocArray)) {
 			throw new ResponseException(404, 'not handled route');
 		}
+		$method = $serverRequest->getMethod();
+		
 		if ($method == 'OPTIONS') {
 			$response = new Response();
 			$response->addHeader('Allow', implode(', ', ['GET', 'HEAD', 'OPTIONS']));
@@ -279,7 +300,7 @@ class RequestHandler {
 			);
 		}
 		$response = new Response();
-		$interfacer = self::getInterfacerFromAcceptHeader($headers);
+		$interfacer = self::getInterfacerFromAcceptHeader($serverRequest);
 		
 		if ($interfacer instanceof XMLInterfacer) {
 			$root = $interfacer->createArrayNode('root');
@@ -304,30 +325,28 @@ class RequestHandler {
 	}
 	
 	/**
+	 * handle request according request method
 	 *
-	 * @param string[] $server
-	 * @param array $get
-	 * @param string[] $headers
-	 * @param string $body
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @throws \Exception
 	 * @return \Comhon\Api\Response
 	 */
-	private function _handleMethod($server, $get, $headers, $body) {
-		$this->_verifyAllowedMethod($server['REQUEST_METHOD']);
+	private function _handleMethod($serverRequest) {
+		$this->_verifyAllowedMethod($serverRequest->getMethod());
 		
-		switch ($server['REQUEST_METHOD']) {
+		switch ($serverRequest->getMethod()) {
 			case 'GET':
-				return $this->_get($get, $headers, $body);
+				return $this->_get($serverRequest);
 			case 'HEAD':
-				return $this->_head($get, $headers, $body);
+				return $this->_head($serverRequest);
 			case 'POST':
-				return $this->_post($headers, $body);
+				return $this->_post($serverRequest);
 			case 'PUT':
-				return $this->_put($headers, $body);
+				return $this->_put($serverRequest);
 			case 'DELETE':
 				return $this->_delete();
 			case 'OPTIONS':
-				return $this->_options($headers);
+				return $this->_options($serverRequest);
 			default:
 				return $this->_buildResponse(501);
 		}
@@ -355,20 +374,19 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param array $get
-	 * @param string[] $headers
-	 * @param string $body
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param array $queryParams
 	 * @param string[] $filterProperties
 	 * @return \Comhon\Request\ComplexRequester
 	 */
-	private function _getComplexRequester(&$get, $headers, $body, $filterProperties = null) {
-		$interfacer = self::getInterfacerFromContentTypeHeader($headers, false);
+	private function _getComplexRequester(ServerRequest $serverRequest, &$queryParams, $filterProperties = null) {
+		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest, false);
 		if (is_null($interfacer)) {
-			$request = $this->_setRequestFromQuery($get, $headers, $body, $filterProperties);
+			$request = $this->_setRequestFromQuery($queryParams, $filterProperties);
 		} else {
 			$this->_verifyAllowedRequest();
 			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
-			$request = self::importBody($body, $requestModel, $interfacer);
+			$request = self::importBody($serverRequest, $requestModel, $interfacer);
 			$this->_verifyRequestModel($request);
 		}
 		
@@ -377,13 +395,11 @@ class RequestHandler {
 	
 	/**
 	 *
-	 * @param array $get
-	 * @param string[] $headers
-	 * @param string $body
+	 * @param array $queryParams
 	 * @param string[] $filterProperties
 	 * @return \Comhon\Request\ComplexRequester
 	 */
-	private function _setRequestFromQuery(&$get, $headers, $body, $filterProperties = null) {
+	private function _setRequestFromQuery(&$queryParams, $filterProperties = null) {
 		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
 		$request = $requestModel->getObjectInstance(false);
 		$tree = $request->initValue('tree', false);
@@ -392,27 +408,27 @@ class RequestHandler {
 		$request->setValue('properties', $filterProperties);
 		
 		// limit and offset
-		if (isset($get[self::RANGE])) {
-			if (!isset($get[self::ORDER])) {
+		if (isset($queryParams[self::RANGE])) {
+			if (!isset($queryParams[self::ORDER])) {
 				throw new DependsValuesException(self::RANGE, self::ORDER);
 			}
 			$range = new Range();
-			if (!$range->satisfy($get[self::RANGE])) {
-				throw new ImportException(new NotSatisfiedRestrictionException($get[self::RANGE], $range), self::RANGE);
+			if (!$range->satisfy($queryParams[self::RANGE])) {
+				throw new ImportException(new NotSatisfiedRestrictionException($queryParams[self::RANGE], $range), self::RANGE);
 			}
-			list($first, $last) = explode('-', $get[self::RANGE]);
+			list($first, $last) = explode('-', $queryParams[self::RANGE]);
 			$limit = 1 + $last - $first;
 			$request->setValue('offset', (integer) $first);
 			$request->setValue('limit',  $limit);
 			
-			unset($get[self::RANGE]);
+			unset($queryParams[self::RANGE]);
 		}
 		
 		// values order
-		if (isset($get[self::ORDER])) {
-			$orderArray = json_decode($get[self::ORDER], true);
+		if (isset($queryParams[self::ORDER])) {
+			$orderArray = json_decode($queryParams[self::ORDER], true);
 			if (!is_array($orderArray)) {
-				throw new UnexpectedValueTypeException($get[self::ORDER], 'json', self::ORDER);
+				throw new UnexpectedValueTypeException($queryParams[self::ORDER], 'json', self::ORDER);
 			}
 			try {
 				$order = $requestModel->getProperty('order')->getModel()->import(
@@ -423,9 +439,9 @@ class RequestHandler {
 				throw new ImportException($e, self::ORDER);
 			}
 			$request->setValue('order', $order);
-			unset($get[self::ORDER]);
+			unset($queryParams[self::ORDER]);
 		}
-		$this->_setFilter($request, $get);
+		$this->_setFilter($request, $queryParams);
 		
 		return $request;
 	}
@@ -434,14 +450,14 @@ class RequestHandler {
 	 * add filter to apply on given request
 	 *
 	 * @param \Comhon\Object\UniqueObject $request
-	 * @param array $get
+	 * @param array $queryParams
 	 */
-	private function _setFilter(UniqueObject $request, &$get) {
+	private function _setFilter(UniqueObject $request, &$queryParams) {
 		$i = 0;
 		$clauseType = Clause::CONJUNCTION;
-		if (isset($get[self::CLAUSE])) {
-			$clauseType = $get[self::CLAUSE];
-			unset($get[self::CLAUSE]);
+		if (isset($queryParams[self::CLAUSE])) {
+			$clauseType = $queryParams[self::CLAUSE];
+			unset($queryParams[self::CLAUSE]);
 		}
 		$clause = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Clause')->getObjectInstance(false);
 		try {
@@ -453,7 +469,7 @@ class RequestHandler {
 		$simpleCollection = $request->initValue('simple_collection');
 		$elements = $clause->initValue('elements', false);
 		
-		foreach ($get as $propertyName => $value) {
+		foreach ($queryParams as $propertyName => $value) {
 			$isArrayFilter = is_array($value);
 			$property = $this->requestedModel->getProperty($propertyName, true);
 			$literal = LiteralBinder::getLiteralInstance($property, $isArrayFilter);
@@ -509,17 +525,17 @@ class RequestHandler {
 	/**
 	 * get properties to export
 	 * 
-	 * @param array $get
+	 * @param array $queryParams
 	 * @return \Comhon\Object\ComhonArray
 	 */
-	private function _getFilterProperties(&$get) {
+	private function _getFilterProperties(&$queryParams) {
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request')->getProperty('properties')->getModel();
-		if (isset($get[self::PROPERTIES])) {
-			if (!is_array($get[self::PROPERTIES])) {
-				throw new UnexpectedValueTypeException($get[self::PROPERTIES], 'array', self::PROPERTIES);
+		if (isset($queryParams[self::PROPERTIES])) {
+			if (!is_array($queryParams[self::PROPERTIES])) {
+				throw new UnexpectedValueTypeException($queryParams[self::PROPERTIES], 'array', self::PROPERTIES);
 			}
-			$filterProperties = $model->import($get[self::PROPERTIES], new AssocArrayInterfacer());
-			unset($get[self::PROPERTIES]);
+			$filterProperties = $model->import($queryParams[self::PROPERTIES], new AssocArrayInterfacer());
+			unset($queryParams[self::PROPERTIES]);
 		} else {
 			$filterProperties = $model->getObjectInstance();
 		}
@@ -568,32 +584,30 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param array $get
-	 * @param string[] $headers
-	 * @param string $body
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _get(&$get, $headers, $body) {
-		return $this->isCountRequest ? $this->_getCount($get, $headers, $body) : $this->_getResources($get, $headers, $body);
+	private function _get(ServerRequest $serverRequest) {
+		return $this->isCountRequest ? $this->_getCount($serverRequest) : $this->_getResources($serverRequest);
 	}
 	
 	/**
 	 * 
-	 * @param array $get
-	 * @param string[] $headers
-	 * @param string $body
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getResources(&$get, $headers, $body) {
+	private function _getResources(ServerRequest $serverRequest) {
 		if (count($this->resource) > 2) {
 			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
 		}
 		try {
-			$filterProperties = $this->_getFilterProperties($get);
+			// query parameters will be modified during query bulding by removing some parameters
+			$queryParams = $serverRequest->getQueryParams();
+			$filterProperties = $this->_getFilterProperties($queryParams);
 			
 			$requester = !is_null($this->uniqueResourceId)
 				? $this->_getSimpleRequester($this->uniqueResourceId, $filterProperties)
-				: $this->_getComplexRequester($get, $headers, $body, $filterProperties);
+				: $this->_getComplexRequester($serverRequest, $queryParams, $filterProperties);
 		} catch (ResponseException $e) {
 			throw $e;
 		} catch (ComhonException $e) {
@@ -604,7 +618,7 @@ class RequestHandler {
 		if (is_null($object)) {
 			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
-		$interfacer = self::getInterfacerFromAcceptHeader($headers);
+		$interfacer = self::getInterfacerFromAcceptHeader($serverRequest);
 		$interfacer->setValidate(false);
 		$interfacer->setPropertiesFilter($filterProperties->getValues(), $object->getUniqueModel()->getName());
 		
@@ -619,17 +633,15 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param array $get
-	 * @param string[] $headers
-	 * @param string $body
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getCount(&$get, $headers, $body) {
+	private function _getCount(ServerRequest $serverRequest) {
 		if (count($this->resource) != 1) {
 			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
 		}
 		
-		$interfacer = self::getInterfacerFromContentTypeHeader($headers, false);
+		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest, false);
 		if (is_null($interfacer)) {
 			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
 			$request = $requestModel->getObjectInstance(false);
@@ -637,11 +649,13 @@ class RequestHandler {
 			$tree->setId(1);
 			$tree->setValue('model', $this->requestedModel->getName());
 			
-			$this->_setFilter($request, $get);
+			// query parameters will be modified during query bulding by removing some parameters
+			$queryParams = $serverRequest->getQueryParams();
+			$this->_setFilter($request, $queryParams);
 		} else {
 			$this->_verifyAllowedRequest();
 			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
-			$request = self::importBody($body, $requestModel, $interfacer);
+			$request = self::importBody($serverRequest, $requestModel, $interfacer);
 			$this->_verifyRequestModel($request);
 		}
 		
@@ -651,13 +665,11 @@ class RequestHandler {
 	
 	/**
 	 *
-	 * @param array $get
-	 * @param string[] $headers
-	 * @param string $body
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _head(&$get, $headers, $body) {
-		$response = $this->_get($get, $headers, $body);
+	private function _head(ServerRequest $serverRequest) {
+		$response = $this->_get($serverRequest);
 		$send = $response->getSend();
 		if (isset($send[1]['Content-Type'])) {
 			$response->addHeader('Content-Type', $send[1]['Content-Type']);
@@ -669,17 +681,16 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param string[] $headers
-	 * @param string $body
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @throws ComhonException
 	 * @return \Comhon\Api\Response
 	 */
-	private function _post($headers, $body) {
+	private function _post(ServerRequest $serverRequest) {
 		if (count($this->resource) != 1) {
 			throw new ComhonException('unique id not verified or invalid options');
 		}
-		$interfacer = self::getInterfacerFromContentTypeHeader($headers);
-		$object = self::importBody($body, $this->requestedModel, $interfacer);
+		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest);
+		$object = self::importBody($serverRequest, $this->requestedModel, $interfacer);
 		
 		if ($object->getModel()->hasIdProperties()) {
 			if ($object->hasCompleteId()) {
@@ -707,11 +718,10 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param string[] $headers
-	 * @param string $body
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _put($headers, $body) {
+	private function _put(ServerRequest $serverRequest) {
 		if (is_null($this->uniqueResourceId) || count($this->resource) != 2) {
 			throw new ComhonException('unique id not verified or invalid options');
 		}
@@ -719,8 +729,8 @@ class RequestHandler {
 		if (is_null($this->requestedModel->loadObject($this->uniqueResourceId, $idPropertiesNames, true))) {
 			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
-		$interfacer = self::getInterfacerFromContentTypeHeader($headers);
-		$object = self::importBody($body, $this->requestedModel, $interfacer);
+		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest);
+		$object = self::importBody($serverRequest, $this->requestedModel, $interfacer);
 		
 		if ($object->hasEmptyId()) {
 			$object->setId($this->uniqueResourceId);
@@ -785,29 +795,30 @@ class RequestHandler {
 	/**
 	 * get interfacer according content type header
 	 *
-	 * @param string[] $headers
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @param boolean $default if true and Content-Type not specified, return default interfacer otherwise return null
 	 * @return \Comhon\Interfacer\Interfacer|null
 	 */
-	public static function getInterfacerFromContentTypeHeader($headers, $default = true) {
-		return array_key_exists('Content-Type', $headers) 
-			? self::getInterfacerFromContentType($headers['Content-Type'], true)
+	public static function getInterfacerFromContentTypeHeader(ServerRequest $serverRequest, $default = true) {
+		return $serverRequest->hasHeader('Content-Type')
+			? self::getInterfacerFromContentType(current($serverRequest->getHeader('Content-Type')), true)
 			: ($default ? new AssocArrayInterfacer() : null);
 	}
 	
 	/**
 	 * get interfacer according provided accept header
 	 *
-	 * @param string[] $headers
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @return \Comhon\Interfacer\Interfacer
 	 */
-	public static function getInterfacerFromAcceptHeader($headers) {
-		$accept = self::getHeaderMultiple('Accept', $headers);
+	public static function getInterfacerFromAcceptHeader(ServerRequest $serverRequest) {
+		$accept = parse_header($serverRequest->getHeader('Accept'));
 		if (count($accept) == 0) {
 			return new AssocArrayInterfacer();
 		} else {
-			foreach ($accept as $contentType) {
-				if (!is_null($interfacer = self::getInterfacerFromContentType($contentType))) {
+			usort($accept, [RequestHandler::class, "_sortHeaderByQuality"]);
+			foreach ($accept as $contentTypeNode) {
+				if (!is_null($interfacer = self::getInterfacerFromContentType(current($contentTypeNode)))) {
 					return $interfacer;
 				}
 			}
@@ -815,52 +826,27 @@ class RequestHandler {
 		}
 	}
 	
-	/**
-	 * get header values (header that may define several values) sort by quality DESC
-	 * 
-	 * @param string $name
-	 * @param string[] $headers
-	 * @return string[]
-	 */
-	public static function getHeaderMultiple($name, $headers) {
-		$headerValues = [];
-		if (array_key_exists($name, $headers)) {
-			$values = explode(',', $headers[$name]);
-			$indexedValues = ['1' => []];
-			foreach ($values as $value) {
-				$qualityValue = explode(';q=', trim($value));
-				if (count($qualityValue) == 1) {
-					$indexedValues[1][] = $qualityValue[0];
-				} else {
-					$quality = $qualityValue[1];
-					if (!isset($indexedValues[$quality])) {
-						$indexedValues[$quality] = [];
-					}
-					$indexedValues[$quality][] = $qualityValue[0];
-				}
-			}
-			krsort($indexedValues);
-			
-			foreach ($indexedValues as $values) {
-				foreach ($values as $value) {
-					$headerValues[] = $value;
-				}
-			}
+	private static function _sortHeaderByQuality($a, $b) {
+		$aq = isset($a['q']) ? (float) $a['q'] : 1;
+		$bq = isset($b['q']) ? (float) $b['q'] : 1;
+		
+		if ($aq == $bq) {
+			return 0;
 		}
-		return $headerValues;
+		return ($aq > $bq) ? -1 : 1;
 	}
 	
 	/**
 	 * import given body and build comhon object according given model
 	 * 
-	 * @param string $body
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @param \Comhon\Model\Model|\Comhon\Model\ModelArray $model
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws MalformedRequestException
 	 * @return \Comhon\Object\AbstractComhonObject
 	 */
-	public static function importBody($body, ModelComhonObject $model, Interfacer $interfacer) {
-		$interfacedObject = $interfacer->fromString($body);
+	public static function importBody(ServerRequest $serverRequest, ModelComhonObject $model, Interfacer $interfacer) {
+		$interfacedObject = $interfacer->fromString($serverRequest->getBody()->getContents());
 		if ($model instanceof ModelArray) {
 		    if (!$interfacer->isArrayNodeValue($interfacedObject, $model->isAssociative())) {
 		        throw new MalformedRequestException('invalid body');
@@ -909,14 +895,14 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param string[] $headers
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _options($headers) {
+	private function _options(ServerRequest $serverRequest) {
 		$content = null;
 		$options = $this->requestedModel->getOptions();
 		if (!is_null($options)) {
-			$content = self::getInterfacerFromAcceptHeader($headers)->export($options);
+			$content = self::getInterfacerFromAcceptHeader($serverRequest)->export($options);
 		}
 		return $this->_buildResponse(200, $content, ['Allow' => implode(', ', $this->_getAllowedMethods())]);
 	}

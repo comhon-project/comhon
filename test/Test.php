@@ -452,6 +452,7 @@ try {
 // TODO for version > 4.0
 
 // response, and request psr-7 (with guzzle)
+// replace query params __clause__ by -clause and others.
 // Oauth2 for comhon-docker 
 
 // use id different than table name for sql table (may have same table name but with different database)
