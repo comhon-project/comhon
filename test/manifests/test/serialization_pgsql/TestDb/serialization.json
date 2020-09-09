@@ -7,45 +7,58 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "id1": {
+    "properties": [
+        {
+            "property_name": "id1",
             "serialization_name": "id_1"
         },
-        "id2": {
+        {
+            "property_name": "id2",
             "serialization_name": "id_2"
         },
-        "objectWithId": {
+        {
+            "property_name": "objectWithId",
             "serialization_name": "object_with_id"
         },
-        "mainParentTestDb": {
+        {
+            "property_name": "mainParentTestDb",
             "serialization_name": "main_test_id"
         },
-        "objectsWithId": {
+        {
+            "property_name": "objectsWithId",
             "serialization_name": "objects_with_id"
         },
-        "foreignObjects": {
+        {
+            "property_name": "foreignObjects",
             "serialization_name": "foreign_objects"
         },
-        "lonelyForeignObject": {
+        {
+            "property_name": "lonelyForeignObject",
             "serialization_name": "lonely_foreign_object"
         },
-        "lonelyForeignObjectTwo": {
+        {
+            "property_name": "lonelyForeignObjectTwo",
             "serialization_name": "lonely_foreign_object_two"
         },
-        "defaultValue": {
+        {
+            "property_name": "defaultValue",
             "serialization_name": "default_value"
         },
-        "manBodyJson": {
+        {
+            "property_name": "manBodyJson",
             "serialization_name": "man_body_json_id"
         },
-        "womanXml": {
+        {
+            "property_name": "womanXml",
             "serialization_name": "woman_xml_id"
         },
-        "notSerializedValue": {
+        {
+            "property_name": "notSerializedValue",
             "is_serializable": false
         },
-        "notSerializedForeignObject": {
+        {
+            "property_name": "notSerializedForeignObject",
             "is_serializable": false
         }
-    }
+    ]
 }

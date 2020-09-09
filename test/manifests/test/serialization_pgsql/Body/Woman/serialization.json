@@ -7,12 +7,14 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "chestSize": {
+    "properties": [
+        {
+            "property_name": "chestSize",
             "serialization_name": "chest_size"
         },
-        "owner": {
+        {
+            "property_name": "owner",
             "serialization_name": "owner_id"
         }
-    }
+    ]
 }

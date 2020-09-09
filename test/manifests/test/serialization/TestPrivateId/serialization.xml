@@ -3,10 +3,10 @@
     <foreign_settings id="test_private_id" __inheritance__="Comhon\SqlTable"/>
   </serialization>
   <properties>
-    <objectValues serialization_name="object_values"/>
-    <foreignObjectValue serialization_name="foreign_object_value"/>
-    <foreignObjectValues serialization_name="foreign_object_values"/>
-    <foreignTestPrivateId serialization_name="foreign_test_private_id"/>
-    <foreignTestPrivateIds serialization_name="foreign_test_private_ids"/>
+    <property property_name="objectValues" serialization_name="object_values"/>
+    <property property_name="foreignObjectValue" serialization_name="foreign_object_value"/>
+    <property property_name="foreignObjectValues" serialization_name="foreign_object_values"/>
+    <property property_name="foreignTestPrivateId" serialization_name="foreign_test_private_id"/>
+    <property property_name="foreignTestPrivateIds" serialization_name="foreign_test_private_ids"/>
   </properties>
 </root>

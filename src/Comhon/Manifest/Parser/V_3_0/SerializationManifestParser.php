@@ -34,6 +34,25 @@ class SerializationManifestParser extends \Comhon\Manifest\Parser\V_2_0\Serializ
 	/**
 	 *
 	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::_getIndexedProperties()
+	 */
+	protected function _getIndexedProperties() {
+		$propertiesNode = $this->interfacer->getValue($this->manifest, 'properties', true);
+		$properties = [];
+		
+		if (is_null($propertiesNode)) {
+			return $properties;
+		}
+		foreach ($this->interfacer->getTraversableNode($propertiesNode) as $propertyNode) {
+			$properties[$this->interfacer->getValue($propertyNode, 'property_name')] = $propertyNode;
+		}
+		
+		return $properties;
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::shareParentSerialization()
 	 */
 	public function shareParentSerialization() {

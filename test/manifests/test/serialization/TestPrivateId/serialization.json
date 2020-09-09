@@ -7,21 +7,26 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "objectValues": {
+    "properties": [
+        {
+            "property_name": "objectValues",
             "serialization_name": "object_values"
         },
-        "foreignObjectValue": {
+        {
+            "property_name": "foreignObjectValue",
             "serialization_name": "foreign_object_value"
         },
-        "foreignObjectValues": {
+        {
+            "property_name": "foreignObjectValues",
             "serialization_name": "foreign_object_values"
         },
-        "foreignTestPrivateId": {
+        {
+            "property_name": "foreignTestPrivateId",
             "serialization_name": "foreign_test_private_id"
         },
-        "foreignTestPrivateIds": {
+        {
+            "property_name": "foreignTestPrivateIds",
             "serialization_name": "foreign_test_private_ids"
         }
-    }
+    ]
 }

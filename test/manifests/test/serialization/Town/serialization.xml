@@ -2,10 +2,10 @@
   <serialization>
     <foreign_settings id="town" __inheritance__="Comhon\SqlTable"/>
   </serialization>
-  <properties>
-    <cityHall serialization_name="city_hall"/>
-  </properties>
   <inheritance_values>
     <model>Test\Town</model>
   </inheritance_values>
+  <properties>
+    <property property_name="cityHall" serialization_name="city_hall"/>
+  </properties>
 </root>

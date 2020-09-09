@@ -217,22 +217,15 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			try {
 				if (is_null($value) && !is_null($nullNodes)) {
 					// if $nullNodes is not null interfacer must be a xml interfacer
-					$nullValue = $interfacer->createNode($this->isAssociative ? $key : $this->elementName);
+					$nullValue = $interfacer->createNode($this->elementName);
 					$interfacer->addValue($nodeArray, $nullValue);
 					$nullNodes[] = $nullValue;
 				} else {
+					$exportedValue = $this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $nullNodes, $isolate);
 					if ($this->isAssociative) {
-						$interfacer->addAssociativeValue(
-							$nodeArray, 
-							$this->getModel()->_export($value, $key, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $nullNodes, $isolate),
-							$key
-						);
+						$interfacer->addAssociativeValue($nodeArray, $exportedValue, $key, $this->elementName);
 					} else {
-						$interfacer->addValue(
-							$nodeArray,
-							$this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $nullNodes, $isolate),
-							$this->elementName
-						);
+						$interfacer->addValue($nodeArray, $exportedValue, $this->elementName);
 					}
 				}
 			} catch (ComhonException $e) {
@@ -254,16 +247,16 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 				if (is_null($value)) {
 					if (!is_null($nullNodes)) {
 						// if $nullNodes is not null interfacer must be a xml interfacer
-						$exportedValue = $interfacer->createNode($this->isAssociative ? $key : $this->elementName);
+						$exportedValue = $interfacer->createNode($this->elementName);
 						$nullNodes[] = $exportedValue;
 					} else {
 						$exportedValue = null;
 					}
 				} else {
-					$exportedValue = $this->getModel()->_exportId($value, $this->isAssociative ? $key : $this->elementName, $interfacer, $objectCollectionInterfacer, $nullNodes);
+					$exportedValue = $this->getModel()->_exportId($value, $this->elementName, $interfacer, $objectCollectionInterfacer, $nullNodes);
 				}
 				if ($this->isAssociative) {
-					$interfacer->addAssociativeValue($nodeArray, $exportedValue, $key);
+					$interfacer->addAssociativeValue($nodeArray, $exportedValue, $key, $this->elementName);
 				} else {
 					$interfacer->addValue($nodeArray, $exportedValue, $this->elementName);
 				}
@@ -308,7 +301,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	protected function _fillObjectArray(ComhonArray $objectArray, $interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
 		$setIsLoaded = $isFirstLevel && $interfacer->hasToFlagObjectAsLoaded() && $this->model instanceof ModelComhonObject;
 		$isolate = $isolate || $this->isIsolatedElement;
-		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
+		foreach ($interfacer->getTraversableNode($interfacedObject) as $key => $element) {
 			try {
 				$value = $this->getModel()->_import($element, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $isolate);
 				if ($setIsLoaded && !is_null($value)) {
@@ -350,7 +343,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getArrayNodeClasses()));
 		}
 		$objectArray = $this->getObjectInstance(false);
-		foreach ($interfacer->getTraversableNode($interfacedObject, $this->isAssociative) as $key => $element) {
+		foreach ($interfacer->getTraversableNode($interfacedObject) as $key => $element) {
 			if ($this->isAssociative) {
 				$objectArray->setValue($key, $this->getModel()->_importId($element, $interfacer, false, $objectCollectionInterfacer), $interfacer->hasToFlagValuesAsUpdated());
 			} else {

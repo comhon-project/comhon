@@ -1,9 +1,9 @@
 <root name="Test\Body" version="3.0">
   <properties>
-    <hairColor serialization_name="hair_color"/>
-    <hairCut serialization_name="hair_cut"/>
-    <eyesColor serialization_name="eyes_color"/>
-    <physicalAppearance serialization_name="physical_appearance"/>
-    <owner serialization_name="owner_id"/>
+    <property property_name="hairColor" serialization_name="hair_color"/>
+    <property property_name="hairCut" serialization_name="hair_cut"/>
+    <property property_name="eyesColor" serialization_name="eyes_color"/>
+    <property property_name="physicalAppearance" serialization_name="physical_appearance"/>
+    <property property_name="owner" serialization_name="owner_id"/>
   </properties>
 </root>

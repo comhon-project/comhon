@@ -151,16 +151,16 @@ class ArrayMultiTest extends TestCase
     </x>
   </integers>
   <objects>
-    <key_zero>
+    <first key-="key_zero">
       <second>
-        <key_one>one</key_one>
-        <key_two>two</key_two>
+        <third key-="key_one">one</third>
+        <third key-="key_two">two</third>
       </second>
       <second>
-        <key_three>three</key_three>
-        <key_four>four</key_four>
+        <third key-="key_three">three</third>
+        <third key-="key_four">four</third>
       </second>
-    </key_zero>
+    </first>
   </objects>
 </root>';
 		

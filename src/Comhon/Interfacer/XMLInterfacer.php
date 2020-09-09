@@ -190,29 +190,21 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * get traversable node (return children \DOMElement in array)
 	 *
 	 * @param \DOMElement $node
-	 * @param boolean $getElementName 
-	 *     if true, return array indexed by nodes names
-	 *     in this cases all nodes must have unique name otherwise an exception will be thrown
-	 * @return array|null
+	 * @return array
 	 */
-	public function getTraversableNode($node, $getElementName = false) {
+	public function getTraversableNode($node) {
 		if (!($node instanceof \DOMElement)) {
 			throw new ArgumentException($node, '\DOMElement', 1);
 		}
 		$array = [];
-		if ($getElementName) {
-			foreach ($node->childNodes as $domNode) {
-				if ($domNode->nodeType === XML_ELEMENT_NODE) {
-					if (array_key_exists($domNode->nodeName, $array)) {
-						throw new ComhonException("duplicated name '$domNode->nodeName'");
+		foreach ($node->childNodes as $domNode) {
+			if ($domNode instanceof \DOMElement) {
+				if ($domNode->hasAttribute(self::ASSOCIATIVE_KEY)) {
+					if (array_key_exists($domNode->getAttribute(self::ASSOCIATIVE_KEY), $array)) {
+						throw new ComhonException("duplicated key '$domNode->nodeName'");
 					}
-					$array[$domNode->nodeName] = $domNode;
-				}
-			}
-		}
-		else {
-			foreach ($node->childNodes as $domNode) {
-				if ($domNode->nodeType === XML_ELEMENT_NODE) {
+					$array[$domNode->getAttribute(self::ASSOCIATIVE_KEY)] = $domNode;
+				} else {
 					$array[] = $domNode;
 				}
 			}
@@ -294,7 +286,6 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 				} else {
 					$childNode->appendChild($childNode->ownerDocument->createTextNode($value));
 				}
-				$childNode;
 			} else {
 				if (is_null($value)) {
 					$node->setAttribute($name, self::NS_NULL_VALUE);
@@ -339,10 +330,12 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 *
 	 * @param \DOMElement $node
 	 * @param \DOMNode $value
-	 * @param string $name used only if $value if scalar value
+	 * @param string $key
+	 * @param string $name node name to add. must be provided if $value if scalar value.
 	 */
-	public function addAssociativeValue(&$node, $value, $name = null) {
+	public function addAssociativeValue(&$node, $value, $key, $name = null) {
 		$this->setValue($node, $value, $name, true);
+		$this->setValue($node->lastChild, $key, self::ASSOCIATIVE_KEY);
 	}
 	
 	/**

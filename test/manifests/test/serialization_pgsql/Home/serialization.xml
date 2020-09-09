@@ -3,9 +3,9 @@
     <foreign_settings id="public.home" __inheritance__="Comhon\SqlTable"/>
   </serialization>
   <properties>
-    <beginDate serialization_name="begin_date"/>
-    <endDate serialization_name="end_date"/>
-    <person serialization_name="person_id"/>
-    <house serialization_name="house_id"/>
+    <property property_name="beginDate" serialization_name="begin_date"/>
+    <property property_name="endDate" serialization_name="end_date"/>
+    <property property_name="person" serialization_name="person_id"/>
+    <property property_name="house" serialization_name="house_id"/>
   </properties>
 </root>

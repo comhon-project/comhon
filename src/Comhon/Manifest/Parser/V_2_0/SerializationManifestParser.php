@@ -31,16 +31,37 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 	/**
 	 * 
 	 * {@inheritDoc}
+	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::_getIndexedProperties()
+	 */
+	protected function _getIndexedProperties() {
+		$propertiesNode = $this->interfacer->getValue($this->manifest, 'properties', true);
+		$properties = [];
+		
+		if (is_null($propertiesNode)) {
+			return $properties;
+		}
+		if (!($this->interfacer instanceof XMLInterfacer)) {
+			return $propertiesNode;
+		}
+		foreach ($this->interfacer->getTraversableNode($propertiesNode) as $propertyNode) {
+			$properties[$propertyNode->nodeName] = $propertyNode;
+		}
+		
+		return $properties;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
 	 * @see \Comhon\Manifest\Parser\SerializationManifestParser::getPropertySerializationInfos()
 	 */
 	public function getPropertySerializationInfos($propertyName) {
 		$serializationName  = null;
 		$isSerializable     = true;
 		$serializationNames = [];
-		$properties         = $this->interfacer->getValue($this->manifest, 'properties', true);
+		$serializationNode  = $this->_getPropertyNode($propertyName);
 		
-		if (!is_null($properties) && $this->interfacer->hasValue($properties, $propertyName, true)) {
-			$serializationNode = $this->interfacer->getValue($properties, $propertyName, true);
+		if (!is_null($serializationNode)) {
 			if ($this->interfacer->hasValue($serializationNode, static::SERIALIZATION_NAME)) {
 				$serializationName = $this->interfacer->getValue($serializationNode, static::SERIALIZATION_NAME);
 				if ($this->interfacer->hasValue($serializationNode, static::SERIALIZATION_NAMES)) {
@@ -49,8 +70,7 @@ class SerializationManifestParser extends ParentSerializationManifestParser {
 			}
 			else if ($this->interfacer->hasValue($serializationNode, static::SERIALIZATION_NAMES, true)) {
 				$serializationNames = $this->interfacer->getTraversableNode(
-					$this->interfacer->getValue($serializationNode, static::SERIALIZATION_NAMES, true),
-					true
+					$this->interfacer->getValue($serializationNode, static::SERIALIZATION_NAMES, true)
 				);
 				if ($this->interfacer instanceof XMLInterfacer) {
 					foreach ($serializationNames as $key => $serializationNameNode) {

@@ -3,11 +3,11 @@
     <foreign_settings id="child_test" __inheritance__="Comhon\SqlTable"/>
   </serialization>
   <properties>
-    <parentTestDb>
+    <property property_name="parentTestDb">
       <serialization_names>
-        <id1>parent_id_1</id1>
-        <id2>parent_id_2</id2>
+        <serialization_name key-="id1">parent_id_1</serialization_name>
+        <serialization_name key-="id2">parent_id_2</serialization_name>
       </serialization_names>
-    </parentTestDb>
+    </property>
   </properties>
 </root>

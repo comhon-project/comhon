@@ -3,18 +3,18 @@
     <foreign_settings id="public.test" __inheritance__="Comhon\SqlTable"/>
   </serialization>
   <properties>
-    <id1 serialization_name="id_1"/>
-    <id2 serialization_name="id_2"/>
-    <objectWithId serialization_name="object_with_id"/>
-    <mainParentTestDb serialization_name="main_test_id"/>
-    <objectsWithId serialization_name="objects_with_id"/>
-    <foreignObjects serialization_name="foreign_objects"/>
-    <lonelyForeignObject serialization_name="lonely_foreign_object"/>
-    <lonelyForeignObjectTwo serialization_name="lonely_foreign_object_two"/>
-    <defaultValue serialization_name="default_value"/>
-    <manBodyJson serialization_name="man_body_json_id"/>
-    <womanXml serialization_name="woman_xml_id"/>
-    <notSerializedValue is_serializable="0"/>
-    <notSerializedForeignObject is_serializable="0"/>
+    <property property_name="id1" serialization_name="id_1"/>
+    <property property_name="id2" serialization_name="id_2"/>
+    <property property_name="objectWithId" serialization_name="object_with_id"/>
+    <property property_name="mainParentTestDb" serialization_name="main_test_id"/>
+    <property property_name="objectsWithId" serialization_name="objects_with_id"/>
+    <property property_name="foreignObjects" serialization_name="foreign_objects"/>
+    <property property_name="lonelyForeignObject" serialization_name="lonely_foreign_object"/>
+    <property property_name="lonelyForeignObjectTwo" serialization_name="lonely_foreign_object_two"/>
+    <property property_name="defaultValue" serialization_name="default_value"/>
+    <property property_name="manBodyJson" serialization_name="man_body_json_id"/>
+    <property property_name="womanXml" serialization_name="woman_xml_id"/>
+    <property property_name="notSerializedValue" is_serializable="0"/>
+    <property property_name="notSerializedForeignObject" is_serializable="0"/>
   </properties>
 </root>

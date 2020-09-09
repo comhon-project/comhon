@@ -3,7 +3,7 @@
     <foreign_settings id="woman_body" __inheritance__="Comhon\SqlTable"/>
   </serialization>
   <properties>
-    <chestSize serialization_name="chest_size"/>
-    <owner serialization_name="owner_id"/>
+    <property property_name="chestSize" serialization_name="chest_size"/>
+    <property property_name="owner" serialization_name="owner_id"/>
   </properties>
 </root>

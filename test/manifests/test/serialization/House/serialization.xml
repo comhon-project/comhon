@@ -2,11 +2,11 @@
   <serialization>
     <foreign_settings id="house" __inheritance__="Comhon\SqlTable"/>
   </serialization>
-  <properties>
-    <id serialization_name="id_serial"/>
-  </properties>
   <inheritance_values>
     <model>Test\HauntedHouse</model>
     <model>Test\House</model>
   </inheritance_values>
+  <properties>
+    <property property_name="id" serialization_name="id_serial"/>
+  </properties>
 </root>

@@ -7,12 +7,14 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "geographicLatitude": {
+    "properties": [
+        {
+            "property_name": "geographicLatitude",
             "serialization_name": "geographic_latitude"
         },
-        "geographicLongitude": {
+        {
+            "property_name": "geographicLongitude",
             "serialization_name": "geographic_longitude"
         }
-    }
+    ]
 }

@@ -29,7 +29,6 @@
         {
             "name": "properties",
             "not_null": true,
-            "is_associative": true,
             "values": {
                 "name": "property",
                 "not_null": true,
@@ -55,6 +54,14 @@
             "name": "Property",
             "properties": [
                 {
+                    "name": "property_name",
+                    "not_null": true,
+                    "is_required": true,
+                    "is_id": true,
+                    "regex": "\/^\\w+$\/",
+                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                },
+                {
                     "name": "is_serializable",
                     "not_null": true,
                     "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
@@ -62,6 +69,7 @@
                 {
                     "name": "serialization_name",
                     "not_null": true,
+                    "regex": "\/^\\w+$\/",
                     "__inheritance__": "Comhon\\Manifest\\Property\\String"
                 },
                 {
@@ -72,6 +80,7 @@
                     "values": {
                         "name": "serialization_name",
                         "not_null": true,
+                        "regex": "\/^\\w+$\/",
                         "__inheritance__": "Comhon\\Manifest\\Value\\String"
                     },
                     "__inheritance__": "Comhon\\Manifest\\Property\\Array"

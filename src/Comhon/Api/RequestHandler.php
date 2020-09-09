@@ -284,7 +284,7 @@ class RequestHandler {
 		if ($interfacer instanceof XMLInterfacer) {
 			$root = $interfacer->createArrayNode('root');
 			foreach ($assocArray as $apiName => $modelName) {
-				$interfacer->addAssociativeValue($root, $modelName, $apiName);
+				$interfacer->addAssociativeValue($root, $modelName, $apiName, 'node');
 			}
 			$response->setContent($root);
 		} elseif ($interfacer instanceof AssocArrayInterfacer) {

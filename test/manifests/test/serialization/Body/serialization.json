@@ -1,21 +1,26 @@
 {
     "name": "Test\\Body",
     "version": "3.0",
-    "properties": {
-        "hairColor": {
+    "properties": [
+        {
+            "property_name": "hairColor",
             "serialization_name": "hair_color"
         },
-        "hairCut": {
+        {
+            "property_name": "hairCut",
             "serialization_name": "hair_cut"
         },
-        "eyesColor": {
+        {
+            "property_name": "eyesColor",
             "serialization_name": "eyes_color"
         },
-        "physicalAppearance": {
+        {
+            "property_name": "physicalAppearance",
             "serialization_name": "physical_appearance"
         },
-        "owner": {
+        {
+            "property_name": "owner",
             "serialization_name": "owner_id"
         }
-    }
+    ]
 }

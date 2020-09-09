@@ -106,6 +106,9 @@ abstract class Interfacer {
 	const INHERITANCE_KEY = '__inheritance__';
 	
 	/** @var string */
+	const ASSOCIATIVE_KEY = 'key-';
+	
+	/** @var string */
 	const COMPLEX_ID_KEY = 'id';
 	
 	/** @var string[] */
@@ -499,14 +502,13 @@ abstract class Interfacer {
 	/**
 	 * get traversable node
 	 * 
-	 * actually this method has interest only for XMLInterfacer that need to retrieve children nodes
+	 * actually this method has interest only for XMLInterfacer that need to retrieve children nodes, 
 	 * other interfacer only return $node passed in parameter
 	 *
 	 * @param mixed $node
-	 * @param boolean $getElementName only used for XMLInterfacer
 	 * @return mixed
 	 */
-	abstract public function getTraversableNode($node, $getElementName = false);
+	abstract public function getTraversableNode($node);
 	
 	/**
 	 * verify if value is expected node type
@@ -574,9 +576,10 @@ abstract class Interfacer {
 	 *
 	 * @param mixed $node
 	 * @param mixed $value
+	 * @param string $key
 	 * @param string $name
 	 */
-	abstract public function addAssociativeValue(&$node, $value, $name = null);
+	abstract public function addAssociativeValue(&$node, $value, $key, $name = null);
 	
 	/**
 	 * create node

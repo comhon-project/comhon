@@ -3,6 +3,6 @@
     <foreign_settings id="public.man_body" __inheritance__="Comhon\SqlTable"/>
   </serialization>
   <properties>
-    <owner serialization_name="owner_id"/>
+    <property property_name="owner" serialization_name="owner_id"/>
   </properties>
 </root>

@@ -7,13 +7,14 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "id": {
-            "serialization_name": "id_serial"
-        }
-    },
     "inheritance_values": [
         "Test\\HauntedHouse",
         "Test\\House"
+    ],
+    "properties": [
+        {
+            "property_name": "id",
+            "serialization_name": "id_serial"
+        }
     ]
 }

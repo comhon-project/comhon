@@ -51,9 +51,9 @@ class AssociativeArrayTest extends TestCase
 		
 		$testAssociativeArray2 = $model->import($xmlValue, $XmlInterfacer);
 		$xmlValue = $testAssociativeArray->export($XmlInterfacer);
-		$this->assertEquals('<root><names><first>john</first><last>doe</last><middle>john</middle></names><emails><email>john@doe.fr</email><email>john@doe.com</email></emails></root>', $XmlInterfacer->toString($xmlValue));
+		$this->assertEquals('<root><names><name key-="first">john</name><name key-="last">doe</name><name key-="middle">john</name></names><emails><email>john@doe.fr</email><email>john@doe.com</email></emails></root>', $XmlInterfacer->toString($xmlValue));
 		$xmlValue = $testAssociativeArray2->export($XmlInterfacer);
-		$this->assertEquals('<root><names><first>john</first><last>doe</last></names><emails><email>john@doe.fr</email><email>john@doe.com</email></emails></root>', $XmlInterfacer->toString($xmlValue));
+		$this->assertEquals('<root><names><name key-="first">john</name><name key-="last">doe</name></names><emails><email>john@doe.fr</email><email>john@doe.com</email></emails></root>', $XmlInterfacer->toString($xmlValue));
 		
 	}
 	

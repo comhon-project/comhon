@@ -7,12 +7,13 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "foreign_constraint_composite": {
+    "properties": [
+        {
+            "property_name": "foreign_constraint_composite",
             "serialization_names": {
                 "id1": "unique_foreign_one",
                 "id2": "unique_foreign_two"
             }
         }
-    }
+    ]
 }

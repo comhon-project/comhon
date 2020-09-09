@@ -156,7 +156,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				200,
 				['Content-Type' => 'application/xml'],
-				'<root><man-test>Test\Person\Man</man-test><woman>Test\Person\Woman</woman></root>',
+				'<root><node key-="man-test">Test\Person\Man</node><node key-="woman">Test\Person\Woman</node></root>',
 					
 			],
 				[ // response json

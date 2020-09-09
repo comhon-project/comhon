@@ -3,11 +3,11 @@
     <foreign_settings id="public.db_constraint" __inheritance__="Comhon\SqlTable"/>
   </serialization>
   <properties>
-    <foreign_constraint_composite>
+    <property property_name="foreign_constraint_composite">
       <serialization_names>
-        <id1>unique_foreign_one</id1>
-        <id2>unique_foreign_two</id2>
+        <serialization_name key-="id1">unique_foreign_one</serialization_name>
+        <serialization_name key-="id2">unique_foreign_two</serialization_name>
       </serialization_names>
-    </foreign_constraint_composite>
+    </property>
   </properties>
 </root>

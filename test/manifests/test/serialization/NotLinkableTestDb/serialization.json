@@ -7,12 +7,13 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "notLinkableParentTestDb": {
+    "properties": [
+        {
+            "property_name": "notLinkableParentTestDb",
             "serialization_names": {
                 "id1": "parent_id_1",
                 "id2": "parent_id_2"
             }
         }
-    }
+    ]
 }

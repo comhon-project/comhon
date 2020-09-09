@@ -7,18 +7,22 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "beginDate": {
+    "properties": [
+        {
+            "property_name": "beginDate",
             "serialization_name": "begin_date"
         },
-        "endDate": {
+        {
+            "property_name": "endDate",
             "serialization_name": "end_date"
         },
-        "person": {
+        {
+            "property_name": "person",
             "serialization_name": "person_id"
         },
-        "house": {
+        {
+            "property_name": "house",
             "serialization_name": "house_id"
         }
-    }
+    ]
 }

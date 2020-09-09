@@ -4,7 +4,7 @@
     <property name="version" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
     <property name="share_parent_serialization" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
     <property name="serialization" not_null="1" model="Serialization" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="properties" not_null="1" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array">
+    <property name="properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
       <values name="property" not_null="1" model="Property" __inheritance__="Comhon\Manifest\Value\Object"/>
     </property>
     <property name="inheritance_values" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
@@ -14,10 +14,11 @@
   <types>
     <type name="Property">
       <properties>
+        <property name="property_name" not_null="1" is_required="1" is_id="1" regex="/^\w+$/" __inheritance__="Comhon\Manifest\Property\String"/>
         <property name="is_serializable" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-        <property name="serialization_name" not_null="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="serialization_name" not_null="1" regex="/^\w+$/" __inheritance__="Comhon\Manifest\Property\String"/>
         <property name="serialization_names" not_null="1" is_associative="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array">
-          <values name="serialization_name" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
+          <values name="serialization_name" not_null="1" regex="/^\w+$/" __inheritance__="Comhon\Manifest\Value\String"/>
         </property>
       </properties>
       <conflicts>

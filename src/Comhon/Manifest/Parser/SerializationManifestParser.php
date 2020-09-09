@@ -52,6 +52,9 @@ abstract class SerializationManifestParser {
 	
 	/** @var boolean */
 	protected $castValues;
+	
+	/** @var mixed[] */
+	private $indexedProperties;
 
 	/**
 	 * get serialization informations of property
@@ -105,6 +108,13 @@ abstract class SerializationManifestParser {
 	abstract public function getInheritanceValues();
 	
 	/**
+	 * get properties nodes indexed by their names
+	 *
+	 * @return array
+	 */
+	abstract protected function _getIndexedProperties();
+	
+	/**
 	 * @param mixed $manifest
 	 */
 	final public function __construct($manifest) {
@@ -114,6 +124,19 @@ abstract class SerializationManifestParser {
 		$this->interfacer->setSerialContext(true);
 		$this->interfacer->setPrivateContext(true);
 		$this->castValues = ($this->interfacer instanceof NoScalarTypedInterfacer);
+	}
+	
+	/**
+	 * get property node according given name
+	 * 
+	 * @param string $propertyName
+	 * @return NULL|mixed
+	 */
+	protected function _getPropertyNode($propertyName) {
+		if (is_null($this->indexedProperties)) {
+			$this->indexedProperties = $this->_getIndexedProperties();
+		}
+		return array_key_exists($propertyName, $this->indexedProperties) ? $this->indexedProperties[$propertyName] : null;
 	}
 	
 	/**

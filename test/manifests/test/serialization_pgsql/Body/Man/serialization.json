@@ -7,9 +7,10 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "owner": {
+    "properties": [
+        {
+            "property_name": "owner",
             "serialization_name": "owner_id"
         }
-    }
+    ]
 }

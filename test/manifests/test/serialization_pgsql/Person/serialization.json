@@ -8,27 +8,34 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "firstName": {
+    "properties": [
+        {
+            "property_name": "firstName",
             "serialization_name": "first_name"
         },
-        "lastName": {
+        {
+            "property_name": "lastName",
             "serialization_name": "last_name"
         },
-        "birthDate": {
+        {
+            "property_name": "birthDate",
             "serialization_name": "birth_date"
         },
-        "birthPlace": {
+        {
+            "property_name": "birthPlace",
             "serialization_name": "birth_place"
         },
-        "bestFriend": {
+        {
+            "property_name": "bestFriend",
             "serialization_name": "best_friend"
         },
-        "father": {
+        {
+            "property_name": "father",
             "serialization_name": "father_id"
         },
-        "mother": {
+        {
+            "property_name": "mother",
             "serialization_name": "mother_id"
         }
-    }
+    ]
 }

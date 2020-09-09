@@ -851,6 +851,7 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 			$this->displayProcessingModel($modelName, 'properties');
 			
 			$model = ModelManager::getInstance()->getInstanceModel($modelName);
+			/** @var \Comhon\Object\ComhonObject $serializationManifest */
 			$serializationManifest = $modelInfos[SELF::SERIALIZATION_MANIFEST];
 			
 			/** @var \Comhon\Model\Property\Property[] $properties */
@@ -887,7 +888,8 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 					if (!$serializationManifest->issetValue('properties')) {
 						$serializationManifest->initValue('properties');
 					}
-					$serializationManifest->getValue('properties')->setValue($property->getName(), $serializationProperty);
+					$serializationProperty->setValue('property_name', $property->getName());
+					$serializationManifest->getValue('properties')->pushValue($serializationProperty);
 				}
 			}
 		}

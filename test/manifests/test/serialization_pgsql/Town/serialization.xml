@@ -3,6 +3,6 @@
     <foreign_settings id="public.town" __inheritance__="Comhon\SqlTable"/>
   </serialization>
   <properties>
-    <cityHall serialization_name="city_hall"/>
+    <property property_name="cityHall" serialization_name="city_hall"/>
   </properties>
 </root>

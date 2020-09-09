@@ -3,7 +3,7 @@
     <foreign_settings id="place" __inheritance__="Comhon\SqlTable"/>
   </serialization>
   <properties>
-    <geographicLatitude serialization_name="geographic_latitude"/>
-    <geographicLongitude serialization_name="geographic_longitude"/>
+    <property property_name="geographicLatitude" serialization_name="geographic_latitude"/>
+    <property property_name="geographicLongitude" serialization_name="geographic_longitude"/>
   </properties>
 </root>

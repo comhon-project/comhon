@@ -7,9 +7,10 @@
             "__inheritance__": "Comhon\\SqlTable"
         }
     },
-    "properties": {
-        "cityHall": {
+    "properties": [
+        {
+            "property_name": "cityHall",
             "serialization_name": "city_hall"
         }
-    }
+    ]
 }
