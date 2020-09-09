@@ -451,8 +451,7 @@ try {
 
 // TODO for version > 4.0
 
-// xml export/import : use __key__ for associative array
-// xml export/import : null node even if attribute
+// update __inheritance__ by inheritance-
 // response, and request psr-7 (with guzzle)
 // Oauth2 for comhon-docker 
 

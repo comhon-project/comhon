@@ -13,6 +13,7 @@ use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Exception\Interfacer\NotReferencedValueException;
 use Comhon\Interfacer\AssocArrayInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
 
 class ImportTest extends TestCase
 {
@@ -344,6 +345,42 @@ class ImportTest extends TestCase
 				NotReferencedValueException::class,
 				ConstantException::NOT_REFERENCED_VALUE_EXCEPTION,
 				'foreign value with model \'Test\Duplicated\ObjectOne\' and id \'6\' not referenced in interfaced object',
+			]
+		];
+	}
+	
+	
+	
+	/**
+	 * @dataProvider importNullValuesData
+	 */
+	public function testImportNullValues($modelName, $xmlString)
+	{
+		$model = ModelManager::getInstance()->getInstanceModel($modelName);
+		$interfacer = new XMLInterfacer();
+		$interfacer->setVerifyReferences(false);
+		$object = $interfacer->import($interfacer->fromString($xmlString), $model);
+		$this->assertEquals($xmlString, $interfacer->toString($object->export($interfacer)));
+	}
+	
+	public function importNullValuesData()
+	{
+		return [
+			[
+				'Test\TestDb',
+				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" defaultValue="default"><objectsWithId><objectWithId xsi:nil="true"/></objectsWithId></root>',
+			],
+			[
+				'Test\TestDb',
+				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" defaultValue="default"><foreignObjects><foreignObject xsi:nil="true"/><foreignObject>two</foreignObject></foreignObjects></root>',
+			],
+			[
+				'Test\TestDb',
+				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" defaultValue="default"><date xsi:nil="true"/><foreignObjects xsi:nil="true"/></root>',
+			],
+			[
+				'Test\TestAssociativeArray',
+				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><names><name key-="one">my_name</name><name key-="two" xsi:nil="true"/></names><emails><email xsi:nil="true"/><email>aaa@gmail.com</email></emails></root>',
 			]
 		];
 	}

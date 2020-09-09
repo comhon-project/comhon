@@ -81,7 +81,7 @@ class RequestHandlerPutTest extends TestCase
 				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo"></root>',
 					200,
 				['Content-Type' => 'application/xml'],
-				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo" lastName="xsi:nil" birthDate="xsi:nil"><birthPlace xsi:nil="true"/><bestFriend xsi:nil="true"/><father xsi:nil="true"/><mother xsi:nil="true"/></root>',
+				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo"><lastName xsi:nil="true"/><birthDate xsi:nil="true"/><birthPlace xsi:nil="true"/><bestFriend xsi:nil="true"/><father xsi:nil="true"/><mother xsi:nil="true"/></root>',
 				new XMLInterfacer()
 			],
 		];
