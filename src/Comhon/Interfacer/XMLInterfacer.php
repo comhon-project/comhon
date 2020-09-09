@@ -183,14 +183,14 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	 * @return boolean
 	 */
 	public function isNullValue($value) {
-		return ($value instanceof \DOMElement) ? $this->isNodeNull($value) : (is_null($value) || $value === self::NS_NULL_VALUE);
+		return ($value instanceof \DOMElement) ? $this->isNodeNull($value) : is_null($value);
 	}
 	
 	/**
 	 * get traversable node (return children \DOMElement in array)
 	 *
 	 * @param \DOMElement $node
-	 * @return array
+	 * @return \DOMElement[]
 	 */
 	public function getTraversableNode($node) {
 		if (!($node instanceof \DOMElement)) {
@@ -207,6 +207,22 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 				} else {
 					$array[] = $domNode;
 				}
+			}
+		}
+		return $array;
+	}
+	
+	/**
+	 * get child nodes names that are null
+	 *
+	 * @param \DOMElement $node
+	 * @return string[]
+	 */
+	public function getNullNodes(\DOMElement $node) {
+		$array = [];
+		foreach ($node->childNodes as $domNode) {
+			if ($domNode instanceof \DOMElement && $this->isNodeNull($domNode)) {
+				$array[] = $domNode->nodeName;
 			}
 		}
 		return $array;

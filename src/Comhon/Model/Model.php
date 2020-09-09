@@ -29,7 +29,6 @@ use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\Collection\MainObjectCollection;
-use Comhon\Exception\Model\CastComhonObjectException;
 use Comhon\Serialization\Serialization;
 use Comhon\Manifest\Parser\ManifestParser;
 use Comhon\Exception\Model\NotDefinedModelException;
@@ -42,6 +41,7 @@ use Comhon\Exception\Interfacer\IncompatibleValueException;
 use Comhon\Exception\Model\NoIdPropertyException;
 use Comhon\Exception\Value\InvalidCompositeIdException;
 use Comhon\Exception\Interfacer\AbstractObjectExportException;
+use Comhon\Interfacer\XMLInterfacer;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -1034,7 +1034,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 						&& (is_null($propertiesFilter) || array_key_exists($propertyName, $propertiesFilter))
 					) {
 						$propertyName  = $isSerialContext ? $property->getSerializationName() : $propertyName;
-						if (is_null($value) && !is_null($nullNodes) && ($property->isInterfacedAsNodeXml() || $property->getModel() instanceof ModelComplex)) {
+						if (is_null($value) && !is_null($nullNodes)) {
 							// if $nullNodes is not null interfacer must be a xml interfacer
 							$exportedValue = $interfacer->createNode($propertyName);
 							$nullNodes[] = $exportedValue;
@@ -1199,16 +1199,20 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			return $this->uniqueIdProperty->getModel()->importSimple($id, $interfacer, $isFirstLevel);
 		}
 		$idValues = [];
+		$hasIds = false;
 		foreach ($this->getIdProperties() as $idProperty) {
 			if ($idProperty->isInterfaceable($private, $isSerialContext)) {
 				$propertyName = $isSerialContext ? $idProperty->getSerializationName() : $idProperty->getName();
+				if ($interfacer->hasValue($interfacedObject, $propertyName, $idProperty->isInterfacedAsNodeXml())) {
+					$hasIds = true;
+				}
 				$idValue = $interfacer->getValue($interfacedObject, $propertyName, $idProperty->isInterfacedAsNodeXml());
 				$idValues[] = $idProperty->getModel()->importSimple($idValue, $interfacer, $isFirstLevel);
 			} else {
 				$idValues[] = null;
 			}
 		}
-		return self::encodeId($idValues);
+		return $hasIds ? self::encodeId($idValues) : null;
 	}
 	
 	/**
@@ -1491,6 +1495,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		$isSerialContext   = $interfacer->isSerialContext();
 		$flagAsUpdated     = $interfacer->hasToFlagValuesAsUpdated();
 		$properties        = $model->_getContextProperties($private);
+		$nullNodes         = $interfacer instanceof XMLInterfacer ? $interfacer->getNullNodes($interfacedObject) : null;
 		
 		foreach ($properties as $propertyName => $property) {
 			try {
@@ -1510,6 +1515,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 							);
 						}
 						$object->setValue($propertyName, $value, $flagAsUpdated);
+					} elseif (!$property->isInterfacedAsNodeXml() && !is_null($nullNodes) && in_array($interfacedPropertyName, $nullNodes)) {
+						$object->setValue($propertyName, null, $flagAsUpdated);
 					}
 				}
 			} catch (ComhonException $e) {

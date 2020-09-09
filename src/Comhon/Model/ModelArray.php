@@ -217,16 +217,15 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			try {
 				if (is_null($value) && !is_null($nullNodes)) {
 					// if $nullNodes is not null interfacer must be a xml interfacer
-					$nullValue = $interfacer->createNode($this->elementName);
-					$interfacer->addValue($nodeArray, $nullValue);
-					$nullNodes[] = $nullValue;
+					$exportedValue = $interfacer->createNode($this->elementName);
+					$nullNodes[] = $exportedValue;
 				} else {
 					$exportedValue = $this->getModel()->_export($value, $this->elementName, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $nullNodes, $isolate);
-					if ($this->isAssociative) {
-						$interfacer->addAssociativeValue($nodeArray, $exportedValue, $key, $this->elementName);
-					} else {
-						$interfacer->addValue($nodeArray, $exportedValue, $this->elementName);
-					}
+				}
+				if ($this->isAssociative) {
+					$interfacer->addAssociativeValue($nodeArray, $exportedValue, $key, $this->elementName);
+				} else {
+					$interfacer->addValue($nodeArray, $exportedValue, $this->elementName);
 				}
 			} catch (ComhonException $e) {
 				throw new ExportException($e, $key);
