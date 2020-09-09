@@ -5,40 +5,40 @@
         {
             "name": "color",
             "pattern": "color",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "user",
             "regex": "\/^\\w+$\/",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "emails",
             "values": {
                 "name": "email",
                 "pattern": "email",
-                "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                "inheritance-": "Comhon\\Manifest\\Value\\String"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "naturalNumber",
             "interval": "[0,]",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "birthDate",
             "interval": "[1900-01-01,now[",
-            "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
+            "inheritance-": "Comhon\\Manifest\\Property\\DateTime"
         },
         {
             "name": "intervalInArray",
             "values": {
                 "name": "intervalArrayValue",
                 "interval": "]-1.5, 2[",
-                "__inheritance__": "Comhon\\Manifest\\Value\\Float"
+                "inheritance-": "Comhon\\Manifest\\Value\\Float"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "enumValue",
@@ -46,7 +46,7 @@
                 "plop1",
                 "plop2"
             ],
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "enumIntArray",
@@ -56,9 +56,9 @@
                     1,
                     3
                 ],
-                "__inheritance__": "Comhon\\Manifest\\Value\\Integer"
+                "inheritance-": "Comhon\\Manifest\\Value\\Integer"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "enumFloatArray",
@@ -68,9 +68,9 @@
                     1.5,
                     3.5
                 ],
-                "__inheritance__": "Comhon\\Manifest\\Value\\Float"
+                "inheritance-": "Comhon\\Manifest\\Value\\Float"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "notNullArray",
@@ -82,20 +82,20 @@
                     1.5,
                     3.5
                 ],
-                "__inheritance__": "Comhon\\Manifest\\Value\\Float"
+                "inheritance-": "Comhon\\Manifest\\Value\\Float"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "notNullForeign",
             "not_null": true,
             "model": "\\Test\\Basic\\Standard",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "notEmpty",
             "not_empty": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "notEmptyArray",
@@ -103,14 +103,14 @@
             "values": {
                 "name": "notEmptyArrayValue",
                 "not_empty": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                "inheritance-": "Comhon\\Manifest\\Value\\String"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "length",
             "length": "[3,5]",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "sizeArray",
@@ -118,9 +118,9 @@
             "values": {
                 "name": "lengthArrayValue",
                 "length": "[3,4]",
-                "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                "inheritance-": "Comhon\\Manifest\\Value\\String"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0"

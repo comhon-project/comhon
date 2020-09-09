@@ -7,7 +7,7 @@
     "properties": [
         {
             "name": "childOne",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         }
     ],
     "version": "3.0",
@@ -20,7 +20,7 @@
             "properties": [
                 {
                     "name": "localChildOne",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },

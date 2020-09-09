@@ -4,11 +4,11 @@
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "grandParent",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         }
     ],
     "inheritance_requestables": [

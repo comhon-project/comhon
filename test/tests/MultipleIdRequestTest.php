@@ -14,7 +14,7 @@ $Json = '{
 			"id"       : 0,
 			"elements" : [1,2],
             "type": "conjunction",
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Clause"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Clause"
 		},
 		{
 			"id"       : 1,
@@ -22,14 +22,14 @@ $Json = '{
 			"property" : "name",
 			"operator" : "IN",
 			"values"    : ["azeaze", "Bernard", null],
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
 		},
 		{
 			"id"       : 2,
 			"node"     : 1,
 			"queue"     : ["childrenTestDb", "childrenTestDb"],
 			"having" : 1,
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Having"
 		}
 	],
 	"having_collection" : [
@@ -37,11 +37,11 @@ $Json = '{
 			"id"       : 1,
 			"operator" : "=",
 			"value"    : 2,
-            "__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
+            "inheritance-": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
 		}
 	],
 	"filter" : 0,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 // SELECT main_test.* 
@@ -84,7 +84,7 @@ $Json = '{
 			"id"       : 0,
 			"elements" : [1,2],
             "type": "conjunction",
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Clause"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Clause"
 		},
 		{
 			"id"       : 1,
@@ -92,14 +92,14 @@ $Json = '{
 			"property" : "name",
 			"operator" : "IN",
 			"values"    : ["azeaze", "Bernard", null],
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
 		},
 		{
 			"id"       : 2,
 			"node"     : 2,
 			"queue"     : ["childrenTestDb"],
 			"having" : 1,
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Having"
 		}
 	],
 	"having_collection" : [
@@ -107,11 +107,11 @@ $Json = '{
 			"id"       : 1,
 			"operator" : "=",
 			"value"    : 2,
-            "__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
+            "inheritance-": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
 		}
 	],
 	"filter" : 0,
-    "__inheritance__": "Comhon\\\\Request\\\\Intermediate"
+    "inheritance-": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 // SELECT main_test.* 
@@ -158,11 +158,11 @@ $Json = '{
 			"property" : "string",
 			"operator" : "IN",
 			"values"    : ["nnnn", "bbbb", null],
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Intermediate"
+    "inheritance-": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 // SELECT child_test.* 

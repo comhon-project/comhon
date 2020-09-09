@@ -3,12 +3,12 @@
     <type>\Comhon\Logic\Simple\Literal</type>
   </extends>
   <properties>
-    <property name="operator" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String">
+    <property name="operator" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\String">
       <enum>
         <value>=</value>
         <value>&lt;&gt;</value>
       </enum>
     </property>
-    <property name="value" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="value" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\Boolean"/>
   </properties>
 </root>

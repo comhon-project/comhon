@@ -1,6 +1,6 @@
 <root name="Test\Request\Two" version="3.0">
   <properties>
-    <property name="one" model="\Test\Request\One" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="string" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="one" model="\Test\Request\One" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="string" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>

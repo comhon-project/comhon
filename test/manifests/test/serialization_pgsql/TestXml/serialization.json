@@ -5,7 +5,7 @@
         "settings": {
             "dir_path": ".\/data\/test_xml",
             "file_name": "test.xml",
-            "__inheritance__": "Comhon\\File\\XmlFile"
+            "inheritance-": "Comhon\\File\\XmlFile"
         }
     }
 }

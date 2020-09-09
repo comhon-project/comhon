@@ -3,25 +3,25 @@
     "properties": [
         {
             "name": "value",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "valueRequired",
             "is_required": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "valueNotRequired",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "valueComplex",
             "model": "localRestricted",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "baseValue",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "depends",
@@ -29,18 +29,18 @@
                 "baseValue",
                 "value"
             ],
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "conflict",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "dependsConflict",
             "depends": [
                 "baseValue"
             ],
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         }
     ],
     "conflicts": [
@@ -64,16 +64,16 @@
             "properties": [
                 {
                     "name": "value",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "valueRequired",
                     "is_required": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "valueNotRequired",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -86,7 +86,7 @@
                 {
                     "name": "valueRequiredExtended",
                     "is_required": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -95,11 +95,11 @@
             "properties": [
                 {
                     "name": "value",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "conflict",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ],
             "conflicts": [

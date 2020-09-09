@@ -21,11 +21,11 @@ $Json = '{
 			"property" : "boolean2",
 			"operator" : "=",
 			"value"    : true,
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Boolean"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Boolean"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -52,11 +52,11 @@ $Json = '{
 			"property" : "string",
 			"operator" : "=",
 			"value"    : "plop",
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -82,7 +82,7 @@ $Json = '{
 			"node"     : 1,
 			"queue"     : ["childrenTestDb"],
 			"having" : 1,
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Having"
 		}
 	],
 	"having_collection" : [
@@ -92,11 +92,11 @@ $Json = '{
 			"property" : "string",
 			"operator" : "=",
 			"value"    : 3,
-        	"__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Function"
+        	"inheritance-": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Function"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -123,11 +123,11 @@ $Json = '{
 			"property" : "childrenTestDb",
 			"operator" : "=",
 			"value"    : "plop",
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -161,11 +161,11 @@ $Json = '{
 			"property" : "name",
 			"operator" : "=",
 			"value"    : "plop",
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Intermediate"
+    "inheritance-": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -198,11 +198,11 @@ $Json = '{
 			"property" : "name",
 			"operator" : "=",
 			"value"    : "plop",
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Intermediate"
+    "inheritance-": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -234,11 +234,11 @@ $Json = '{
 			"property" : "stringValue",
 			"operator" : "=",
 			"value"    : "plop",
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -270,11 +270,11 @@ $Json = '{
 			"property" : "name",
 			"operator" : "=",
 			"value"    : "plop",
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -300,7 +300,7 @@ $Json = '{
 			"node"     : 1,
 			"queue"     : ["notLinkableArrayTestDb"],
 			"having" : 1,
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Having"
 		}
 	],
 	"having_collection" : [
@@ -309,11 +309,11 @@ $Json = '{
 			"property" : "string",
 			"operator" : "=",
 			"value"    : 3,
-        	"__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
+        	"inheritance-": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Count"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -332,7 +332,7 @@ $Json = '{
 		"model"   : "Test\\\\Test",
 		"id"      : 1
 	},
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));

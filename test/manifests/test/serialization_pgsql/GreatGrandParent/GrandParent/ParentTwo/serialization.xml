@@ -1,5 +1,5 @@
 <root name="Test\GreatGrandParent\GrandParent\ParentTwo" version="3.0">
   <serialization>
-    <settings dir_path="./data/inherited_serialization_two" file_name="file.json" __inheritance__="Comhon\File\JsonFile"/>
+    <settings dir_path="./data/inherited_serialization_two" file_name="file.json" inheritance-="Comhon\File\JsonFile"/>
   </serialization>
 </root>

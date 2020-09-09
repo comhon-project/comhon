@@ -92,33 +92,33 @@ class ShareIdTest extends TestCase
 				        "ChildThree",
 				        {
 				            "id": "ParentOne",
-				            "__inheritance__": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentThree"
+				            "inheritance-": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentThree"
 				        }
 				    ],
 				    "collection": [
 				        {
 				            "id": "ChildOne",
-				            "__inheritance__": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentOne\\\\Child"
+				            "inheritance-": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentOne\\\\Child"
 				        },
 				        {
 				            "id": "ParentOne",
-				            "__inheritance__": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentOne"
+				            "inheritance-": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentOne"
 				        },
 				        {
 				            "id": "ChildTwo",
-				            "__inheritance__": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentTwo\\\\Child"
+				            "inheritance-": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentTwo\\\\Child"
 				        },
 				        {
 				            "id": "ParentTwo",
-				            "__inheritance__": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentTwo"
+				            "inheritance-": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentTwo"
 				        },
 				        {
 				            "id": "ChildThree",
-				            "__inheritance__": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentThree\\\\Child"
+				            "inheritance-": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentThree\\\\Child"
 				        },
 				        {
 				            "id": "ParentOne",
-				            "__inheritance__": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentThree"
+				            "inheritance-": "Test\\\\Extends\\\\ShareId\\\\GrandParent\\\\ParentThree"
 				        }
 				    ],
 				    "foreignCollectionTwo": [
@@ -146,7 +146,7 @@ class ShareIdTest extends TestCase
 		// the exported children woman has its inheritance specified
 		// because for main model it may be usefull to keep the inheritance information
 		$this->assertEquals(
-			'{"id":1,"children":[{"id":2,"__inheritance__":"Test\\\\Person\\\\Woman"}]}', 
+			'{"id":1,"children":[{"id":2,"inheritance-":"Test\\\\Person\\\\Woman"}]}', 
 			$interfacer->toString($interfacer->export($man))
 		);
 	}

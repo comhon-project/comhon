@@ -5,17 +5,17 @@
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "malformedProperty",
             "model": "MalformedLocalType",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "malformedChild",
             "model": "\\Test\\Load\\NotDefinedProperty",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         }
     ],
     "version": "3.0",
@@ -26,7 +26,7 @@
                 {
                     "name": "malformedPropertyInLocal",
                     "model": "wrong-type-in-local",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
         }

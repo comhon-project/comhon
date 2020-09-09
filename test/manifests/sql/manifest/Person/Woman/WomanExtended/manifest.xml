@@ -3,6 +3,6 @@
     <type>\Sql\Person\Woman</type>
   </extends>
   <properties>
-    <property name="aProperty" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="aProperty" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>

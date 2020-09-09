@@ -1,5 +1,5 @@
 <root name="Test\MainTestDb" version="3.0">
   <serialization>
-    <foreign_settings id="public.main_test" __inheritance__="Comhon\SqlTable"/>
+    <foreign_settings id="public.main_test" inheritance-="Comhon\SqlTable"/>
   </serialization>
 </root>

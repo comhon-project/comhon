@@ -1,11 +1,11 @@
 <root name="Test\Load\Local" is_main="1" version="3.0">
   <properties>
-    <property name="local" model="Local" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="local" model="Local" inheritance-="Comhon\Manifest\Property\Object"/>
   </properties>
   <types>
     <type name="Local">
       <properties>
-        <property name="stringValue" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="stringValue" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>

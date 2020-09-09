@@ -65,7 +65,7 @@ $time_start = microtime(true);
 
 $data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Complex' . DIRECTORY_SEPARATOR . 'request.json';
 $result = ObjectService::getObjects(json_decode(file_get_contents($data_ad)));
-if (!compareJson(json_encode($result),  '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
+if (!compareJson(json_encode($result),  '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 1');
 }
 
@@ -93,17 +93,17 @@ $Json = '{
 			"property" : "surface",
 			"operator" : "=",
 			"value"    : 120,
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 // SELECT p1.* FROM  person AS p1 left join home AS homes on p1.id = homes.person_id left join house AS houseux on homes.house_id = houseux.id_serial  WHERE (houseux.surface = 120) GROUP BY p1.id
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 2');
 }
 
@@ -119,17 +119,17 @@ $Json = '{
 			"property" : "firstName",
 			"operator" : "=",
 			"value"    : "Bernard",
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 // SELECT * FROM  person AS p1  WHERE (p1.first_name = Bernard) GROUP BY p1.id
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 3');
 }
 
@@ -145,11 +145,11 @@ $Json = '{
 			"property" : "parentTestDb",
 			"operator" : "=",
 			"value"    : "[1,\"1501774389\"]",
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\String"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 // SELECT * FROM  public.child_test AS p1  WHERE (p1.parent_id_1 = 1 and p1.parent_id_2 = 1501774389) GROUP BY p1.id
@@ -171,11 +171,11 @@ $Json = '{
 			"property" : "parentTestDb",
 			"operator" : "IN",
 			"values"    : ["[1,\"1501774389\"]","[11,\"1501774389\"]"],
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 // SELECT * FROM  public.child_test AS p1  WHERE ((p1.parent_id_1 = 1 and p1.parent_id_2 = 1501774389) or (p1.parent_id_1 = 1 and p1.parent_id_2 = 1501774389)) GROUP BY p1.id

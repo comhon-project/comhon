@@ -1,6 +1,6 @@
 <root name="Test\TestDb" version="3.0">
   <serialization>
-    <foreign_settings id="test" __inheritance__="Comhon\SqlTable"/>
+    <foreign_settings id="test" inheritance-="Comhon\SqlTable"/>
   </serialization>
   <properties>
     <property property_name="id1" serialization_name="id_1"/>

@@ -1,6 +1,6 @@
 <root name="Comhon\Model" is_abstract="1" version="3.0">
   <properties>
-    <property name="id" not_null="1" is_required="1" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="id" not_null="1" is_required="1" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
   </properties>
   <types>
     <type name="Simple" share_parent_id="1">
@@ -8,7 +8,7 @@
         <type>\Comhon\Model</type>
       </extends>
       <properties>
-        <property name="model" not_null="1" is_required="1" is_model_name="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="model" not_null="1" is_required="1" is_model_name="1" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="Root" share_parent_id="1">
@@ -16,8 +16,8 @@
         <type>Simple</type>
       </extends>
       <properties>
-        <property name="nodes" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-          <values name="node" not_null="1" model="Node" __inheritance__="Comhon\Manifest\Value\Object"/>
+        <property name="nodes" not_null="1" inheritance-="Comhon\Manifest\Property\Array">
+          <values name="node" not_null="1" model="Node" inheritance-="Comhon\Manifest\Value\Object"/>
         </property>
       </properties>
     </type>
@@ -26,9 +26,9 @@
         <type>\Comhon\Model</type>
       </extends>
       <properties>
-        <property name="property" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="nodes" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-          <values name="node" not_null="1" model="Node" __inheritance__="Comhon\Manifest\Value\Object"/>
+        <property name="property" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="nodes" not_null="1" inheritance-="Comhon\Manifest\Property\Array">
+          <values name="node" not_null="1" model="Node" inheritance-="Comhon\Manifest\Value\Object"/>
         </property>
       </properties>
     </type>

@@ -3,6 +3,6 @@
     <type>\Test\Body\ManJson</type>
   </extends>
   <properties>
-    <property name="value" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="value" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>

@@ -5,7 +5,7 @@
         "settings": {
             "dir_path": ".\/database",
             "file_name": "database.json",
-            "__inheritance__": "Comhon\\File\\JsonFile"
+            "inheritance-": "Comhon\\File\\JsonFile"
         }
     }
 }

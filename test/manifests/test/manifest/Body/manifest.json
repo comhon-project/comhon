@@ -5,31 +5,31 @@
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "date",
-            "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
+            "inheritance-": "Comhon\\Manifest\\Property\\DateTime"
         },
         {
             "name": "height",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+            "inheritance-": "Comhon\\Manifest\\Property\\Float"
         },
         {
             "name": "weight",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+            "inheritance-": "Comhon\\Manifest\\Property\\Float"
         },
         {
             "name": "hairColor",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "hairCut",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "eyesColor",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "physicalAppearance",
@@ -40,34 +40,34 @@
                 "muscular",
                 "fat"
             ],
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "tatoos",
             "values": {
                 "name": "tatoo",
                 "model": "\\Test\\Body\\Tatoo",
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "inheritance-": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "piercings",
             "values": {
                 "name": "piercing",
                 "model": "Piercing",
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "inheritance-": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "arts",
             "values": {
                 "name": "art",
                 "model": "Art",
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "inheritance-": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0",
@@ -77,11 +77,11 @@
             "properties": [
                 {
                     "name": "type",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "location",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -95,7 +95,7 @@
                     "name": "tatooArtist",
                     "model": "\\Test\\Person",
                     "is_foreign": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
         },
@@ -109,7 +109,7 @@
                     "name": "piercer",
                     "model": "\\Test\\Person",
                     "is_foreign": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
         }

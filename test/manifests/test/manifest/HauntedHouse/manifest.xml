@@ -3,8 +3,8 @@
     <type>\Test\House</type>
   </extends>
   <properties>
-    <property name="ghosts" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="ghost" __inheritance__="Comhon\Manifest\Value\String"/>
+    <property name="ghosts" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="ghost" inheritance-="Comhon\Manifest\Value\String"/>
     </property>
   </properties>
 </root>

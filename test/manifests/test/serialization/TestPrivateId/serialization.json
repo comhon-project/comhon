@@ -4,7 +4,7 @@
     "serialization": {
         "foreign_settings": {
             "id": "test_private_id",
-            "__inheritance__": "Comhon\\SqlTable"
+            "inheritance-": "Comhon\\SqlTable"
         }
     },
     "properties": [

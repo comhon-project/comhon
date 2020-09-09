@@ -1,13 +1,13 @@
 <root name="Test\Load\LocalTypeNotDefinedProperty" is_main="1" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="malformedProperty" model="MalformedLocalType" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="malformedChild" model="\Test\Load\NotDefinedProperty" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="malformedProperty" model="MalformedLocalType" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="malformedChild" model="\Test\Load\NotDefinedProperty" inheritance-="Comhon\Manifest\Property\Object"/>
   </properties>
   <types>
     <type name="MalformedLocalType">
       <properties>
-        <property name="malformedPropertyInLocal" model="wrong-type-in-local" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="malformedPropertyInLocal" model="wrong-type-in-local" inheritance-="Comhon\Manifest\Property\Object"/>
       </properties>
     </type>
   </types>

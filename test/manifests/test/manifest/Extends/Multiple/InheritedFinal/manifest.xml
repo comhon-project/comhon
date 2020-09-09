@@ -4,6 +4,6 @@
     <type>\Test\Extends\Multiple\InheritedFourth</type>
   </extends>
   <properties>
-    <property name="final" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="final" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>

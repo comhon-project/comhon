@@ -15,13 +15,13 @@
                         "name": "z",
                         "not_null": true,
                         "interval": "[,100]",
-                        "__inheritance__": "Comhon\\Manifest\\Value\\Integer"
+                        "inheritance-": "Comhon\\Manifest\\Value\\Integer"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Value\\Array"
+                    "inheritance-": "Comhon\\Manifest\\Value\\Array"
                 },
-                "__inheritance__": "Comhon\\Manifest\\Value\\Array"
+                "inheritance-": "Comhon\\Manifest\\Value\\Array"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "objects",
@@ -35,13 +35,13 @@
                         "name": "third",
                         "model": "\\Test\\Basic\\Standard",
                         "is_foreign": true,
-                        "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                        "inheritance-": "Comhon\\Manifest\\Value\\Object"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Value\\Array"
+                    "inheritance-": "Comhon\\Manifest\\Value\\Array"
                 },
-                "__inheritance__": "Comhon\\Manifest\\Value\\Array"
+                "inheritance-": "Comhon\\Manifest\\Value\\Array"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0"

@@ -3,6 +3,6 @@
     <type>\Test\GreatGrandParent\GrandParent</type>
   </extends>
   <properties>
-    <property name="parentThree" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="parentThree" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>

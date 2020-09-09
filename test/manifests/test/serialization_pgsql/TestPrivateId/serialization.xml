@@ -1,6 +1,6 @@
 <root name="Test\TestPrivateId" version="3.0">
   <serialization>
-    <foreign_settings id="public.test_private_id" __inheritance__="Comhon\SqlTable"/>
+    <foreign_settings id="public.test_private_id" inheritance-="Comhon\SqlTable"/>
   </serialization>
   <properties>
     <property property_name="objectValues" serialization_name="object_values"/>

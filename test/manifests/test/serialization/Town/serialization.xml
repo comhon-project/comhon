@@ -1,6 +1,6 @@
 <root name="Test\Town" version="3.0">
   <serialization>
-    <foreign_settings id="town" __inheritance__="Comhon\SqlTable"/>
+    <foreign_settings id="town" inheritance-="Comhon\SqlTable"/>
   </serialization>
   <inheritance_values>
     <model>Test\Town</model>

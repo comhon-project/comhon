@@ -1,6 +1,6 @@
 <root name="Test\Person" version="3.0">
   <serialization inheritance_key="sex">
-    <foreign_settings id="`person`" __inheritance__="Comhon\SqlTable"/>
+    <foreign_settings id="`person`" inheritance-="Comhon\SqlTable"/>
   </serialization>
   <properties>
     <property property_name="firstName" serialization_name="first_name"/>

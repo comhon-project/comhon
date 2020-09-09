@@ -3,8 +3,8 @@
     <type>\Comhon\Logic\Simple\Literal\Set\Numeric</type>
   </extends>
   <properties>
-    <property name="values" not_null="1" is_required="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="value" __inheritance__="Comhon\Manifest\Value\Float"/>
+    <property name="values" not_null="1" is_required="1" not_empty="1" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="value" inheritance-="Comhon\Manifest\Value\Float"/>
     </property>
   </properties>
 </root>

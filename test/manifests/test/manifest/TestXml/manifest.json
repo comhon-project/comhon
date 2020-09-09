@@ -5,36 +5,36 @@
             "name": "name",
             "xml": "node",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "textNode",
             "xml": "node",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "textAttribute",
             "xml": "attribute",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "objectValue",
             "model": "Object",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "objectValues",
             "values": {
                 "name": "objectValue",
                 "model": "Object",
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "inheritance-": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "objectContainer",
             "model": "ObjectContainer",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "foreignObjectValues",
@@ -42,9 +42,9 @@
                 "name": "foreignObjectValue",
                 "model": "Object",
                 "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "inheritance-": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0",
@@ -56,17 +56,17 @@
                     "name": "foreignObjectValue",
                     "model": "Object",
                     "is_foreign": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Object"
                 },
                 {
                     "name": "objectValueTwo",
                     "model": "ObjectTwo",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Object"
                 },
                 {
                     "name": "person",
                     "model": "PersonLocal",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Object"
                 }
             ]
         },
@@ -76,15 +76,15 @@
                 {
                     "name": "id",
                     "is_id": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "propertyOne",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "propertyTwo",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -94,15 +94,15 @@
                 {
                     "name": "id",
                     "is_id": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "propertyTwoOne",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "propertyTwoTwo",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         }

@@ -11,7 +11,7 @@
             "is_required": true,
             "model": "\\Comhon\\Model",
             "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "queue",
@@ -21,9 +21,9 @@
             "values": {
                 "name": "property",
                 "not_null": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                "inheritance-": "Comhon\\Manifest\\Value\\String"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "having",
@@ -31,7 +31,7 @@
             "is_required": true,
             "model": "\\Comhon\\Logic\\Having\\Formula",
             "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         }
     ],
     "version": "3.0"

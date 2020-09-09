@@ -5,11 +5,11 @@
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "name",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         }
     ],
     "version": "3.0"

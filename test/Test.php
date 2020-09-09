@@ -451,7 +451,6 @@ try {
 
 // TODO for version > 4.0
 
-// update __inheritance__ by inheritance-
 // response, and request psr-7 (with guzzle)
 // Oauth2 for comhon-docker 
 

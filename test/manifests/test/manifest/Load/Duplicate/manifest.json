@@ -4,11 +4,11 @@
         {
             "name": "name",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "stringProperty",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         }
     ],
     "version": "3.0",
@@ -18,7 +18,7 @@
             "properties": [
                 {
                     "name": "localOne",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         }

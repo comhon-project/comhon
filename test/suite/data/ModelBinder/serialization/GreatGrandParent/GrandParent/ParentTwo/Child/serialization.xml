@@ -1,5 +1,5 @@
 <root name="Binder\GreatGrandParent\GrandParent\ParentTwo\Child" version="3.0">
   <serialization inheritance_key="grand_parent">
-    <settings dir_path="./data/binder/inherited_serialization" file_name="file.json" __inheritance__="Comhon\File\JsonFile"/>
+    <settings dir_path="./data/binder/inherited_serialization" file_name="file.json" inheritance-="Comhon\File\JsonFile"/>
   </serialization>
 </root>

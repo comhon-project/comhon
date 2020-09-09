@@ -5,20 +5,20 @@
 			"node"     : 1,
 			"queue"    : ["children"],
 			"having" : 100,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+            "inheritance-": "Comhon\\Logic\\Simple\\Having"
 		},
 		{
 			"id"       : 200,
 			"node"     : 1,
 			"queue"    : ["children"],
 			"having" : 200,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+            "inheritance-": "Comhon\\Logic\\Simple\\Having"
 		},
         {
             "id": 0,
             "elements": [1,2,3,4,100,5],
             "type": "conjunction",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
+            "inheritance-": "Comhon\\Logic\\Simple\\Clause"
         },
         {
             "id": 1,
@@ -26,7 +26,7 @@
 			"property" : "firstName",
 			"operator" : "IN",
 			"values"    : ["louise", "mouha", null],
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
 		},
 		{
         	"id": 2,
@@ -34,7 +34,7 @@
 			"property" : "endDate",
 			"operator" : "NOT IN",
 			"values"    : ["louise", "mouha", null],
-        	"__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
+        	"inheritance-": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
 		},
 		{
         	"id": 3,
@@ -42,20 +42,20 @@
 			"property" : "surface",
 			"operator" : ">",
 			"value"    : 200,
-        	"__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+        	"inheritance-": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
 		},
 		{
         	"id": 4,
 			"node"      : 1,
 			"queue"     : ["homes", "house"],
 			"having" : 0,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+            "inheritance-": "Comhon\\Logic\\Simple\\Having"
 		},
         {
             "id": 5,
             "elements": [6,7,8,100,200],
             "type": "conjunction",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
+            "inheritance-": "Comhon\\Logic\\Simple\\Clause"
         },
         {
             "id": 6,
@@ -63,14 +63,14 @@
 			"property" : "surface",
 			"operator" : ">",
 			"value"    : 250,
-        	"__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+        	"inheritance-": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
 		},
 		{
             "id": 7,
 			"node"     : 1,
 			"queue"    : ["homes"],
 			"having" : 3,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+            "inheritance-": "Comhon\\Logic\\Simple\\Having"
 		},
 		{
             "id": 8,
@@ -78,7 +78,7 @@
 			"property" : "name",
 			"operator" : "=",
 			"value"    : "Montpellier",
-        	"__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+        	"inheritance-": "Comhon\\Logic\\Simple\\Literal\\String"
 		}
     ],
     "having_collection": [
@@ -86,19 +86,19 @@
             "id": 100,
 			"operator" : "=",
 			"value"    : 3,
-            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+            "inheritance-": "Comhon\\Logic\\Having\\Literal\\Count"
 		},
 		{
             "id": 200,
 			"operator" : ">=",
 			"value"    : 3,
-            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+            "inheritance-": "Comhon\\Logic\\Having\\Literal\\Count"
 		},
 		{
         	"id": 0,
 			"elements" : [1,2],
             "type": "conjunction",
-            "__inheritance__": "Comhon\\Logic\\Having\\Clause"
+            "inheritance-": "Comhon\\Logic\\Having\\Clause"
 		},
 		{
         	"id": 1,
@@ -106,19 +106,19 @@
 			"property" : "surface",
 			"operator" : "=",
 			"value"    : 170,
-            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Function"
+            "inheritance-": "Comhon\\Logic\\Having\\Literal\\Function"
 		},
 		{
         	"id": 2,
 			"operator" : "=",
 			"value"    : 3,
-            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+            "inheritance-": "Comhon\\Logic\\Having\\Literal\\Count"
 		},
 		{
         	"id": 3,
 			"operator" : ">=",
 			"value"    : 3,
-            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+            "inheritance-": "Comhon\\Logic\\Having\\Literal\\Count"
 		}
     ],
     "filter": 0,
@@ -158,5 +158,5 @@
 			}
 		]
 	},
-    "__inheritance__": "Comhon\\Request\\Complex"
+    "inheritance-": "Comhon\\Request\\Complex"
 }

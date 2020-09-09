@@ -4,16 +4,16 @@
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "name",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "obj",
             "model": "Object",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "childrenTestDb",
@@ -24,7 +24,7 @@
             "aggregations": [
                 "mainParentTestDb"
             ],
-            "__inheritance__": "Comhon\\Manifest\\Property\\Aggregation"
+            "inheritance-": "Comhon\\Manifest\\Property\\Aggregation"
         }
     ],
     "version": "3.0",
@@ -34,11 +34,11 @@
             "properties": [
                 {
                     "name": "plop",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "plop2",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         }

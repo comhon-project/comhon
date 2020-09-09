@@ -1,12 +1,12 @@
 <root name="Test\Load\Duplicate" version="3.0">
   <properties>
-    <property name="name" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="stringProperty" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="name" is_id="1" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="stringProperty" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
   <types>
     <type name="Local">
       <properties>
-        <property name="localOne" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="localOne" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>

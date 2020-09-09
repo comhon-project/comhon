@@ -5,7 +5,7 @@
         {
             "name": "localDistant",
             "model": "\\Test\\Load\\Local",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         }
     ],
     "version": "3.0"

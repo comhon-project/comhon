@@ -1,34 +1,34 @@
 <root name="Comhon\Request" is_abstract="1" version="3.0">
   <properties>
-    <property name="limit" not_null="1" interval="[1,]" __inheritance__="Comhon\Manifest\Property\Integer">
+    <property name="limit" not_null="1" interval="[1,]" inheritance-="Comhon\Manifest\Property\Integer">
       <depends>
         <property>order</property>
       </depends>
     </property>
-    <property name="offset" not_null="1" __inheritance__="Comhon\Manifest\Property\Integer">
+    <property name="offset" not_null="1" inheritance-="Comhon\Manifest\Property\Integer">
       <depends>
         <property>order</property>
       </depends>
     </property>
-    <property name="order" not_null="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="element" not_null="1" model="Order" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="order" not_null="1" not_empty="1" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="element" not_null="1" model="Order" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="property" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
+    <property name="properties" not_null="1" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="property" not_null="1" inheritance-="Comhon\Manifest\Value\String"/>
     </property>
-    <property name="simple_collection" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="formula" not_null="1" model="\Comhon\Logic\Simple\Formula" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="simple_collection" not_null="1" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="formula" not_null="1" model="\Comhon\Logic\Simple\Formula" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="having_collection" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="formula" not_null="1" model="\Comhon\Logic\Having\Formula" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="having_collection" not_null="1" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="formula" not_null="1" model="\Comhon\Logic\Having\Formula" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="filter" not_null="1" model="\Comhon\Logic\Simple\Formula" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="filter" not_null="1" model="\Comhon\Logic\Simple\Formula" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
   </properties>
   <types>
     <type name="Order">
       <properties>
-        <property name="property" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="type" not_null="1" is_required="1" default="ASC" __inheritance__="Comhon\Manifest\Property\String">
+        <property name="property" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="type" not_null="1" is_required="1" default="ASC" inheritance-="Comhon\Manifest\Property\String">
           <enum>
             <value>DESC</value>
             <value>ASC</value>

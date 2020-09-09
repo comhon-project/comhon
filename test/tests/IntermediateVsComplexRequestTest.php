@@ -10,7 +10,7 @@ $data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Inter
 $time_start_intermediaire = microtime(true);
 $result = ObjectService::getObjects(json_decode(file_get_contents($data_ad)));
 $time_intermediaire = microtime(true) - $time_start_intermediaire;
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 1');
 }
 /** ********** complex ********** **/
@@ -19,7 +19,7 @@ $data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Compl
 $time_start_complex = microtime(true);
 $result = ObjectService::getObjects(json_decode(file_get_contents($data_ad)));
 $time_complex = microtime(true) - $time_start_complex;
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 2');
 }
 
@@ -48,17 +48,17 @@ $Json = '{
 			"property" : "id",
 			"operator" : "=",
 			"value"    : 1,
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Intermediate"
+    "inheritance-": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 $time_start_intermediaire = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
 $time_intermediaire = microtime(true) - $time_start_intermediaire;
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 3');
 }
 
@@ -80,17 +80,17 @@ $Json = '{
 			"property" : "id",
 			"operator" : "=",
 			"value"    : 1,
-        	"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+        	"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
 		}
 	],
 	"filter" : 1,
-    "__inheritance__": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Complex"
 }';
 
 $time_start_complex = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
 $time_complex = microtime(true) - $time_start_complex;
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 4');
 }
 

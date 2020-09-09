@@ -1,6 +1,6 @@
 <root name="Test\DbConstraint" version="3.0">
   <serialization>
-    <foreign_settings id="db_constraint" __inheritance__="Comhon\SqlTable"/>
+    <foreign_settings id="db_constraint" inheritance-="Comhon\SqlTable"/>
   </serialization>
   <properties>
     <property property_name="foreign_constraint_composite">

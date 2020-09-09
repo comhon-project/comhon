@@ -1,5 +1,5 @@
 <root name="Comhon\SqlTable" version="3.0">
   <serialization>
-    <settings dir_path="./table" file_name="table.json" __inheritance__="Comhon\File\JsonFile"/>
+    <settings dir_path="./table" file_name="table.json" inheritance-="Comhon\File\JsonFile"/>
   </serialization>
 </root>

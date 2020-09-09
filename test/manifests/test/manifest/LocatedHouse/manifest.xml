@@ -1,16 +1,16 @@
 <root name="Test\LocatedHouse" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="surface" __inheritance__="Comhon\Manifest\Property\Float"/>
-    <property name="type" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="garden" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="garage" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="residents" __inheritance__="Comhon\Manifest\Property\Aggregation">
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="surface" inheritance-="Comhon\Manifest\Property\Float"/>
+    <property name="type" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="garden" inheritance-="Comhon\Manifest\Property\Boolean"/>
+    <property name="garage" inheritance-="Comhon\Manifest\Property\Boolean"/>
+    <property name="residents" inheritance-="Comhon\Manifest\Property\Aggregation">
       <values name="resident" model="\Test\Home"/>
       <aggregations>
         <aggregation>house</aggregation>
       </aggregations>
     </property>
-    <property name="address" model="\Test\Place" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="address" model="\Test\Place" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
   </properties>
 </root>

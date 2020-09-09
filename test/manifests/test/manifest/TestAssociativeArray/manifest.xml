@@ -1,10 +1,10 @@
 <root name="Test\TestAssociativeArray" is_main="1" version="3.0">
   <properties>
-    <property name="names" is_associative="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="name" __inheritance__="Comhon\Manifest\Value\String"/>
+    <property name="names" is_associative="1" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="name" inheritance-="Comhon\Manifest\Value\String"/>
     </property>
-    <property name="emails" is_associative="0" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="email" pattern="email" __inheritance__="Comhon\Manifest\Value\String"/>
+    <property name="emails" is_associative="0" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="email" pattern="email" inheritance-="Comhon\Manifest\Value\String"/>
     </property>
   </properties>
 </root>

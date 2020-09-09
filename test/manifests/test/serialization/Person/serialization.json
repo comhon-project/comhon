@@ -5,7 +5,7 @@
         "inheritance_key": "sex",
         "foreign_settings": {
             "id": "`person`",
-            "__inheritance__": "Comhon\\SqlTable"
+            "inheritance-": "Comhon\\SqlTable"
         }
     },
     "properties": [

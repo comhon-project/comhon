@@ -3,6 +3,6 @@
     <type>\Test\Extends\Multiple\InheritedThree</type>
   </extends>
   <properties>
-    <property name="fourth" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="fourth" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>

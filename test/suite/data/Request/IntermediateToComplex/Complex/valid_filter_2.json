@@ -24,7 +24,7 @@
                 2
             ],
             "type": "disjunction",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
+            "inheritance-": "Comhon\\Logic\\Simple\\Clause"
         },
         {
             "id": 1,
@@ -32,7 +32,7 @@
             "property": "string",
             "operator": "<>",
             "value": "aaa",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\String"
         },
         {
             "id": 2,
@@ -40,7 +40,7 @@
             "property": "integer",
             "operator": "<>",
             "value": 12,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
         }
     ],
     "filter": 0

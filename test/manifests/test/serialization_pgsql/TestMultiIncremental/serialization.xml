@@ -1,5 +1,5 @@
 <root name="Test\TestMultiIncremental" version="3.0">
   <serialization>
-    <foreign_settings id="public.test_multi_increment" __inheritance__="Comhon\SqlTable"/>
+    <foreign_settings id="public.test_multi_increment" inheritance-="Comhon\SqlTable"/>
   </serialization>
 </root>

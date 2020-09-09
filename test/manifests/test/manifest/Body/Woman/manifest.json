@@ -8,11 +8,11 @@
             "name": "owner",
             "model": "\\Test\\Person\\Woman",
             "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "chestSize",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         }
     ],
     "version": "3.0"

@@ -5,7 +5,7 @@
         {
             "name": "local",
             "model": "Local",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         }
     ],
     "version": "3.0",
@@ -15,7 +15,7 @@
             "properties": [
                 {
                     "name": "stringValue",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         }

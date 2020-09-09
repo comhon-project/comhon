@@ -5,11 +5,11 @@
         {
             "name": "database",
             "model": "DbOpt",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "date_time_format",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "manifest_format",
@@ -18,32 +18,32 @@
                 "json",
                 "xml"
             ],
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "autoload",
             "model": "Autoload",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "regex_list",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "sql_table",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "sql_database",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "request_collection_limit",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "allow_complex_request",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
+            "inheritance-": "Comhon\\Manifest\\Property\\Boolean"
         }
     ],
     "version": "3.0",
@@ -53,11 +53,11 @@
             "properties": [
                 {
                     "name": "charset",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "timezone",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -69,27 +69,27 @@
                     "is_associative": true,
                     "values": {
                         "name": "manifest",
-                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                        "inheritance-": "Comhon\\Manifest\\Value\\String"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Array"
                 },
                 {
                     "name": "serialization",
                     "is_associative": true,
                     "values": {
                         "name": "serialization",
-                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                        "inheritance-": "Comhon\\Manifest\\Value\\String"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Array"
                 },
                 {
                     "name": "options",
                     "is_associative": true,
                     "values": {
                         "name": "options",
-                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                        "inheritance-": "Comhon\\Manifest\\Value\\String"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Array"
                 }
             ]
         }

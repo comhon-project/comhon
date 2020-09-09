@@ -12,9 +12,9 @@
             "not_empty": true,
             "values": {
                 "name": "value",
-                "__inheritance__": "Comhon\\Manifest\\Value\\Float"
+                "inheritance-": "Comhon\\Manifest\\Value\\Float"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0"

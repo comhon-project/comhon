@@ -66,12 +66,12 @@ class CountRequestTest extends TestCase
 					"property" => "lastName",
 					"operator" => "=",
 					"value" => "Dupond",
-					"__inheritance__" => "Comhon\Logic\Simple\Literal\String"
+					"inheritance-" => "Comhon\Logic\Simple\Literal\String"
 				]
 			],
 			"limit" => 1,
 			"order" => [["property" => "firstName"]],
-			"__inheritance__" => 'Comhon\Request\Complex'
+			"inheritance-" => 'Comhon\Request\Complex'
 		];
 		
 		$objects = ComplexRequester::build($request)->execute();

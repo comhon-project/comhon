@@ -1,7 +1,7 @@
 <root name="Test\Extends\ShareId\GrandParentSerialized" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="grandParent" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="grandParent" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
   <inheritance_requestables>
     <model>\Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child</model>

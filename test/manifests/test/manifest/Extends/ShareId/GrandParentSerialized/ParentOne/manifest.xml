@@ -3,7 +3,7 @@
     <type>\Test\Extends\ShareId\GrandParentSerialized</type>
   </extends>
   <properties>
-    <property name="parentOne" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="parentOne" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
   <inheritance_requestables>
     <model>\Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child</model>

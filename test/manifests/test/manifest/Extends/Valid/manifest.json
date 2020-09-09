@@ -7,11 +7,11 @@
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "floatProperty",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+            "inheritance-": "Comhon\\Manifest\\Property\\Float"
         }
     ],
     "version": "3.0",
@@ -24,7 +24,7 @@
             "properties": [
                 {
                     "name": "booleanProperty",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Boolean"
                 }
             ]
         },
@@ -37,11 +37,11 @@
                 {
                     "name": "id",
                     "is_id": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Integer"
                 },
                 {
                     "name": "integerProperty",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Integer"
                 }
             ]
         }

@@ -174,7 +174,7 @@ class ObjectCollectionTest extends TestCase
 		        {
 		            "name": "id",
 		            "is_id": true,
-		            "__inheritance__": "Comhon\\\\Manifest\\\\Property\\\\Integer"
+		            "inheritance-": "Comhon\\\\Manifest\\\\Property\\\\Integer"
 		        }
 		    ],
 		    "types": [
@@ -184,7 +184,7 @@ class ObjectCollectionTest extends TestCase
 		                {
 		                    "name": "id",
 		                    "is_id": true,
-		                    "__inheritance__": "Comhon\\\\Manifest\\\\Property\\\\Integer"
+		                    "inheritance-": "Comhon\\\\Manifest\\\\Property\\\\Integer"
 		                }
 		            ]
 		        },
@@ -194,7 +194,7 @@ class ObjectCollectionTest extends TestCase
 		                {
 		                    "name": "id",
 		                    "is_id": true,
-		                    "__inheritance__": "Comhon\\\\Manifest\\\\Property\\\\Integer"
+		                    "inheritance-": "Comhon\\\\Manifest\\\\Property\\\\Integer"
 		                }
 		            ]
 		        }

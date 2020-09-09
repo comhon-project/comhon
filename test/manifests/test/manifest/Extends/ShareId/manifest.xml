@@ -1,13 +1,13 @@
 <root name="Test\Extends\ShareId" version="3.0">
   <properties>
-    <property name="foreignCollectionOne" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="element" model="\Test\Extends\ShareId\GrandParent" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="foreignCollectionOne" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="element" model="\Test\Extends\ShareId\GrandParent" is_foreign="1" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="collection" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="element" model="\Test\Extends\ShareId\GrandParent" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="collection" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="element" model="\Test\Extends\ShareId\GrandParent" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="foreignCollectionTwo" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="element" model="\Test\Extends\ShareId\GrandParent" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="foreignCollectionTwo" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="element" model="\Test\Extends\ShareId\GrandParent" is_foreign="1" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
 </root>

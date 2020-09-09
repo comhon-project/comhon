@@ -429,9 +429,6 @@ abstract class ManifestParser {
 		list($serializationName, $isSerializable, $serializationNames) = $this->_getBaseSerializationInfosProperty($name);
 		$dependencies = $this->_getDependencyProperties();
 		
-		if ($name === Interfacer::INHERITANCE_KEY || $serializationName === Interfacer::INHERITANCE_KEY) {
-			throw new ReservedWordException(Interfacer::INHERITANCE_KEY);
-		}
 		if ($this->_isCurrentPropertyForeign()) {
 			$modelForeign = new ModelForeign($model);
 			$aggregations = null;

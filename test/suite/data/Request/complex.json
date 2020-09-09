@@ -6,7 +6,7 @@
             "property": "lastName",
             "operator": "=",
             "value": "Henri",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\String"
         },
         {
             "id": 1,
@@ -14,7 +14,7 @@
             "property": "surface",
             "operator": "=",
             "value": 300,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
         },
         {
             "id": 2,
@@ -23,7 +23,7 @@
                 1
             ],
             "type": "conjunction",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
+            "inheritance-": "Comhon\\Logic\\Simple\\Clause"
         }
     ],
     "filter": 2,
@@ -47,5 +47,5 @@
             }
         ]
     },
-    "__inheritance__": "Comhon\\Request\\Complex"
+    "inheritance-": "Comhon\\Request\\Complex"
 }

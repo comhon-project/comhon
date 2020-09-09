@@ -1,18 +1,18 @@
 <root name="Test\Validate" version="3.0">
   <properties>
-    <property name="value" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="valueRequired" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="valueNotRequired" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="valueComplex" model="localRestricted" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="baseValue" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="depends" __inheritance__="Comhon\Manifest\Property\String">
+    <property name="value" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="valueRequired" is_required="1" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="valueNotRequired" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="valueComplex" model="localRestricted" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="baseValue" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="depends" inheritance-="Comhon\Manifest\Property\String">
       <depends>
         <property>baseValue</property>
         <property>value</property>
       </depends>
     </property>
-    <property name="conflict" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="dependsConflict" __inheritance__="Comhon\Manifest\Property\String">
+    <property name="conflict" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="dependsConflict" inheritance-="Comhon\Manifest\Property\String">
       <depends>
         <property>baseValue</property>
       </depends>
@@ -35,9 +35,9 @@
   <types>
     <type name="localRestricted">
       <properties>
-        <property name="value" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="valueRequired" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="valueNotRequired" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="value" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="valueRequired" is_required="1" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="valueNotRequired" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="localRestrictedExtended">
@@ -45,13 +45,13 @@
         <type>\Test\Validate\localRestricted</type>
       </extends>
       <properties>
-        <property name="valueRequiredExtended" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="valueRequiredExtended" is_required="1" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="Conflict">
       <properties>
-        <property name="value" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="conflict" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="value" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="conflict" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
       <conflicts>
         <properties>

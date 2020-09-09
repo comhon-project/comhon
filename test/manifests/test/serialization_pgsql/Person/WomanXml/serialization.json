@@ -6,7 +6,7 @@
         "settings": {
             "dir_path": ".\/data\/woman_xml",
             "file_name": "woman.xml",
-            "__inheritance__": "Comhon\\File\\XmlFile"
+            "inheritance-": "Comhon\\File\\XmlFile"
         }
     }
 }

@@ -1080,7 +1080,7 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 		$message = 'Enter an inheritance key '
 			.'(for example if your sql table store persons (male and female), inheritance key would be "gender")';
 		do {
-			$inheritanceKey = $this->ask($message, '__inheritance__');
+			$inheritanceKey = $this->ask($message, 'inheritance-');
 			$message = 'Name already used on property, please enter a new inheritance key '
 				.'(for example if your sql table store persons (male and female), inheritance key would be "gender")';
 		} while (array_key_exists($inheritanceKey, $tableInfos[self::COLUMNS]));

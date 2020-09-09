@@ -1,13 +1,13 @@
 <root name="Test\Request\Root" version="3.0">
   <properties>
-    <property name="one" model="\Test\Request\One" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="three" model="\Test\Request\Three" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="four" model="\Test\Request\Four" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="five" model="\Test\Request\Five" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="root" model="\Test\Request\Root" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="string" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="integer" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="float" __inheritance__="Comhon\Manifest\Property\Float"/>
-    <property name="boolean" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="one" model="\Test\Request\One" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="three" model="\Test\Request\Three" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="four" model="\Test\Request\Four" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="five" model="\Test\Request\Five" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="root" model="\Test\Request\Root" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="string" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="integer" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="float" inheritance-="Comhon\Manifest\Property\Float"/>
+    <property name="boolean" inheritance-="Comhon\Manifest\Property\Boolean"/>
   </properties>
 </root>

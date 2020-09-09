@@ -1,5 +1,5 @@
 <root name="Test\Test" version="3.0">
   <serialization>
-    <settings dir_path="./data/test" file_name="test.json" __inheritance__="Comhon\File\JsonFile"/>
+    <settings dir_path="./data/test" file_name="test.json" inheritance-="Comhon\File\JsonFile"/>
   </serialization>
 </root>

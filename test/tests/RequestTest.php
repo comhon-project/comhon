@@ -27,7 +27,7 @@ $request = [
 				"id" => 0,
 				"elements" => [1,2],
 				"type" => "conjunction",
-				"__inheritance__" => "Comhon\Logic\Simple\Clause"
+				"inheritance-" => "Comhon\Logic\Simple\Clause"
 			],
 			[
 				"id" => 1,
@@ -35,7 +35,7 @@ $request = [
 				"property" => "string",
 				"operator" => "IN",
 				"values" => ["aaaa","cccc","bbbbsdfsdfsdf"],
-				"__inheritance__" => "Comhon\Logic\Simple\Literal\Set\String"
+				"inheritance-" => "Comhon\Logic\Simple\Literal\Set\String"
 			],
 			[
 				"id" => 2,
@@ -43,12 +43,12 @@ $request = [
 				"property" => "boolean2",
 				"operator" => "=",
 				"value" => true,
-				"__inheritance__" => "Comhon\Logic\Simple\Literal\Boolean"
+				"inheritance-" => "Comhon\Logic\Simple\Literal\Boolean"
 			]
 		],
 		"order" => [["property" => "integer", "type" => "ASC"]],
 		"properties" => ["date","timestamp","integer","string"],
-		"__inheritance__" => 'Comhon\Request\Intermediate'
+		"inheritance-" => 'Comhon\Request\Intermediate'
 ];
 
 $result = ObjectService::getObjects(json_decode(json_encode($request)), true);
@@ -73,7 +73,7 @@ $request = [
 						"id" => 0,
 						"elements" => [1,2],
 						"type" => "conjunction",
-						"__inheritance__" => "Comhon\Logic\Simple\Clause"
+						"inheritance-" => "Comhon\Logic\Simple\Clause"
 				],
 				[
 						"id" => 1,
@@ -81,7 +81,7 @@ $request = [
 						"property" => "string",
 						"operator" => "IN",
 						"values" => ["aaaa","cccc","bbbbsdfsdfsdf"],
-						"__inheritance__" => "Comhon\Logic\Simple\Literal\Set\String"
+						"inheritance-" => "Comhon\Logic\Simple\Literal\Set\String"
 				],
 				[
 						"id" => 2,
@@ -89,11 +89,11 @@ $request = [
 						"property" => "boolean2",
 						"operator" => "=",
 						"value" => true,
-						"__inheritance__" => "Comhon\Logic\Simple\Literal\Boolean"
+						"inheritance-" => "Comhon\Logic\Simple\Literal\Boolean"
 				]
 		],
 		"order" => [["property" => "integer", "type" => "ASC"]],
-		"__inheritance__" => 'Comhon\Request\Intermediate'
+		"inheritance-" => 'Comhon\Request\Intermediate'
 ];
 
 $result = ObjectService::getObjects(json_decode(json_encode($request)), true);
@@ -305,7 +305,7 @@ $result = ObjectService::getObject($params);
 if (!is_object($result) || !isset($result->success) || !$result->success) {
 	throw new \Exception('simple load request failed'.json_encode($result));
 }
-if (!compareJson(json_encode($result->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
+if (!compareJson(json_encode($result->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"foreignObjects":[{"id":"1","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"id":"1","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"1","11",{"id":"11","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
 	throw new \Exception('bad object 11 : '.json_encode($result->result));
 }
 
@@ -320,7 +320,7 @@ $result = ObjectService::getObject($params);
 if (!is_object($result) || !isset($result->success) || !$result->success) {
 	throw new \Exception('simple load request failed');
 }
-if (!compareJson(json_encode($result->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"foreignObjects":[{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"id":"1","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"1","11",{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","__inheritance__":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
+if (!compareJson(json_encode($result->result), '{"defaultValue":"default","id1":1,"id2":"1501774389","date":"2016-04-12T05:14:33+02:00","timestamp":"2016-10-13T11:50:19+02:00","object":{"plop":"plop","plop2":"plop2"},"objectWithId":{"plop":"plop","plop2":"plop2"},"integer":2,"mainParentTestDb":1,"objectsWithId":[{"plop":"1","plop2":"heyplop2","plop4":"heyplop4","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"plop":"1","plop2":"heyplop2","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},{"plop":"1","plop2":"heyplop2"},{"plop":"11","plop2":"heyplop22"},{"plop":"11","plop2":"heyplop22","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"foreignObjects":[{"id":"1","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMoreMore"},{"id":"1","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"1","11",{"id":"11","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMore"}],"lonelyForeignObject":{"id":"11","inheritance-":"Test\\\\TestDb\\\\ObjectWithIdAndMore"},"lonelyForeignObjectTwo":"11","manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}')) {
 	throw new \Exception('bad object 12 : '.json_encode($result->result));
 }
 

@@ -6,7 +6,7 @@
         "settings": {
             "dir_path": ".\/data\/man_body_json",
             "file_name": "man_body.json",
-            "__inheritance__": "Comhon\\File\\JsonFile"
+            "inheritance-": "Comhon\\File\\JsonFile"
         }
     }
 }

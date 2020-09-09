@@ -4,11 +4,11 @@
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "stringProperty",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         }
     ],
     "version": "3.0",
@@ -21,7 +21,7 @@
             "properties": [
                 {
                     "name": "floatProperty",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Float"
                 }
             ]
         }

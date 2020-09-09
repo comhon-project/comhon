@@ -1,6 +1,6 @@
 <root name="Test\Extends\Multiple\InheritedOne" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
   </properties>
   <inheritance_requestables>
     <model>\Test\Extends\Multiple\InheritedTwo</model>

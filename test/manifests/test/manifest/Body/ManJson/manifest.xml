@@ -1,13 +1,13 @@
 <root name="Test\Body\ManJson" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="date" __inheritance__="Comhon\Manifest\Property\DateTime"/>
-    <property name="height" __inheritance__="Comhon\Manifest\Property\Float"/>
-    <property name="weight" __inheritance__="Comhon\Manifest\Property\Float"/>
-    <property name="hairColor" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="hairCut" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="eyesColor" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="baldness" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="date" inheritance-="Comhon\Manifest\Property\DateTime"/>
+    <property name="height" inheritance-="Comhon\Manifest\Property\Float"/>
+    <property name="weight" inheritance-="Comhon\Manifest\Property\Float"/>
+    <property name="hairColor" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="hairCut" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="eyesColor" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="baldness" inheritance-="Comhon\Manifest\Property\Boolean"/>
   </properties>
   <inheritance_requestables>
     <model>\Test\Body\ManJsonExtended</model>

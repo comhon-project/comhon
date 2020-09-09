@@ -7,25 +7,25 @@
             "is_required": true,
             "is_id": true,
             "regex": "\/^\\w+(\\\\\\w+)*$\/",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "version",
             "not_null": true,
             "is_required": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "unique",
             "not_null": true,
             "model": "Unique",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "collection",
             "not_null": true,
             "model": "Collection",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         }
     ],
     "version": "3.0",
@@ -50,9 +50,9 @@
                             "TRACE",
                             "PATCH"
                         ],
-                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                        "inheritance-": "Comhon\\Manifest\\Value\\String"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Array"
                 }
             ]
         },
@@ -65,12 +65,12 @@
                 {
                     "name": "limit",
                     "not_null": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Integer"
                 },
                 {
                     "name": "allow_complex_request",
                     "not_null": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Boolean"
                 },
                 {
                     "name": "requestable_properties",
@@ -78,9 +78,9 @@
                     "values": {
                         "name": "name",
                         "not_null": true,
-                        "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                        "inheritance-": "Comhon\\Manifest\\Value\\String"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Array"
                 }
             ]
         }

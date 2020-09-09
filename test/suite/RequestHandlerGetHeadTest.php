@@ -341,7 +341,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				[],
 				200,
 				['Content-Type' => 'application/json'],
-				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}'
+				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}'
 			],
 			[ // inheritance not found (sqlTable), id exists but a woman is requested and given id corespond to man object
 				[
@@ -373,7 +373,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				200,
 				['Content-Type' => 'application/json'],
-				'{"id":1,"firstName":"Bernard","birthPlace":2,"__inheritance__":"Test\\\\Person\\\\Man"}'
+				'{"id":1,"firstName":"Bernard","birthPlace":2,"inheritance-":"Test\\\\Person\\\\Man"}'
 			],
 			[ // multiple id
 				[
@@ -441,7 +441,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				200,
 				['Content-Type' => 'application/json'],
-				'[{"id":2,"firstName":"Marie","lastName":"Smith","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":null,"bestFriend":{"id":5,"__inheritance__":"Test\\\\Person\\\\Man"},"father":null,"mother":null},{"id":11,"firstName":"Naelya","lastName":"Dupond","birthDate":null,"birthPlace":2,"bestFriend":null,"father":1,"mother":null},{"id":10,"firstName":"plop","lastName":"plop","birthDate":null,"birthPlace":null,"bestFriend":null,"father":5,"mother":7}]'
+				'[{"id":2,"firstName":"Marie","lastName":"Smith","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":null,"bestFriend":{"id":5,"inheritance-":"Test\\\\Person\\\\Man"},"father":null,"mother":null},{"id":11,"firstName":"Naelya","lastName":"Dupond","birthDate":null,"birthPlace":2,"bestFriend":null,"father":1,"mother":null},{"id":10,"firstName":"plop","lastName":"plop","birthDate":null,"birthPlace":null,"bestFriend":null,"father":5,"mother":7}]'
 			],
 			[ // inheritance, order firstName ASC, filter properties with inheritance
 				[
@@ -454,7 +454,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				200,
 				['Content-Type' => 'application/json'],
-				'[{"id":1,"firstName":"Bernard","birthPlace":2,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":5,"firstName":"Jean","birthPlace":null,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":6,"firstName":"john","birthPlace":null,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":9,"firstName":"lala","birthPlace":null,"__inheritance__":"Test\\\\Person\\\\Woman"},{"id":7,"firstName":"lois","birthPlace":null,"__inheritance__":"Test\\\\Person\\\\Woman"},{"id":8,"firstName":"louise","birthPlace":null,"__inheritance__":"Test\\\\Person\\\\Woman"},{"id":2,"firstName":"Marie","birthPlace":null,"__inheritance__":"Test\\\\Person\\\\Woman"},{"id":11,"firstName":"Naelya","birthPlace":2,"__inheritance__":"Test\\\\Person\\\\Woman"},{"id":10,"firstName":"plop","birthPlace":null,"__inheritance__":"Test\\\\Person\\\\Woman"}]'
+				'[{"id":1,"firstName":"Bernard","birthPlace":2,"inheritance-":"Test\\\\Person\\\\Man"},{"id":5,"firstName":"Jean","birthPlace":null,"inheritance-":"Test\\\\Person\\\\Man"},{"id":6,"firstName":"john","birthPlace":null,"inheritance-":"Test\\\\Person\\\\Man"},{"id":9,"firstName":"lala","birthPlace":null,"inheritance-":"Test\\\\Person\\\\Woman"},{"id":7,"firstName":"lois","birthPlace":null,"inheritance-":"Test\\\\Person\\\\Woman"},{"id":8,"firstName":"louise","birthPlace":null,"inheritance-":"Test\\\\Person\\\\Woman"},{"id":2,"firstName":"Marie","birthPlace":null,"inheritance-":"Test\\\\Person\\\\Woman"},{"id":11,"firstName":"Naelya","birthPlace":2,"inheritance-":"Test\\\\Person\\\\Woman"},{"id":10,"firstName":"plop","birthPlace":null,"inheritance-":"Test\\\\Person\\\\Woman"}]'
 			],
 			[ // unique filter string
 				[
@@ -468,7 +468,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				200,
 				['Content-Type' => 'application/json'],
-				'[{"id":1,"firstName":"Bernard","birthPlace":2,"__inheritance__":"Test\\\\Person\\\\Man"}]'
+				'[{"id":1,"firstName":"Bernard","birthPlace":2,"inheritance-":"Test\\\\Person\\\\Man"}]'
 			],
 			[ // empty result
 				[
@@ -496,7 +496,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				200,
 				['Content-Type' => 'application/json'],
-				'[{"id":1,"firstName":"Bernard","__inheritance__":"Test\\\\Person\\\\Man"},{"id":6,"firstName":"john","__inheritance__":"Test\\\\Person\\\\Man"}]'
+				'[{"id":1,"firstName":"Bernard","inheritance-":"Test\\\\Person\\\\Man"},{"id":6,"firstName":"john","inheritance-":"Test\\\\Person\\\\Man"}]'
 			],
 			[ // several filter conjunction
 				[
@@ -511,7 +511,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				200,
 				['Content-Type' => 'application/json'],
-				'[{"id":6,"firstName":"john","__inheritance__":"Test\\\\Person\\\\Man"}]'
+				'[{"id":6,"firstName":"john","inheritance-":"Test\\\\Person\\\\Man"}]'
 			],
 			[ // several filter disjunction
 				[
@@ -527,7 +527,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				200,
 				['Content-Type' => 'application/json'],
-				'[{"id":1,"firstName":"Bernard","__inheritance__":"Test\\\\Person\\\\Man"},{"id":5,"firstName":"Jean","__inheritance__":"Test\\\\Person\\\\Man"},{"id":6,"firstName":"john","__inheritance__":"Test\\\\Person\\\\Man"}]'
+				'[{"id":1,"firstName":"Bernard","inheritance-":"Test\\\\Person\\\\Man"},{"id":5,"firstName":"Jean","inheritance-":"Test\\\\Person\\\\Man"},{"id":6,"firstName":"john","inheritance-":"Test\\\\Person\\\\Man"}]'
 			],
 			[ // private id property must not appear in result (with filter properties)
 				[
@@ -1093,7 +1093,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				200,
 				['Content-Type' => 'application/json'],
-				'[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":11,"firstName":"Naelya","lastName":"Dupond","birthDate":null,"birthPlace":2,"bestFriend":null,"father":1,"mother":null,"__inheritance__":"Test\\\\Person\\\\Woman"}]'
+				'[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"},{"id":11,"firstName":"Naelya","lastName":"Dupond","birthDate":null,"birthPlace":2,"bestFriend":null,"father":1,"mother":null,"inheritance-":"Test\\\\Person\\\\Woman"}]'
 			],
 			[ // complex request
 				[
@@ -1104,7 +1104,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				200,
 				['Content-Type' => 'application/json'],
-				'[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]'
+				'[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]'
 			],
 		];
 	}
@@ -1200,7 +1200,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
-				'{"tree": {"id": 1,"model": "Test\\\\Person"},"__inheritance__": "Comhon\\\\Request\\\\Complex"}',
+				'{"tree": {"id": 1,"model": "Test\\\\Person"},"inheritance-": "Comhon\\\\Request\\\\Complex"}',
 				['Content-Type' => 'application/json'],
 				400,
 				['Content-Type' => 'text/plain'],
@@ -1211,7 +1211,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestDb'
 				],
-				'{"models": [{"id": 1,"model": "Test\\\\Person"}],"root":1,"__inheritance__": "Comhon\\\\Request\\\\Intermediate"}',
+				'{"models": [{"id": 1,"model": "Test\\\\Person"}],"root":1,"inheritance-": "Comhon\\\\Request\\\\Intermediate"}',
 				['Content-Type' => 'application/json'],
 				400,
 				['Content-Type' => 'text/plain'],
@@ -1233,7 +1233,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
 				],
-				'{"tree": {"id": 1,"model": 1},"__inheritance__": "Comhon\\\\Request\\\\Complex"}',
+				'{"tree": {"id": 1,"model": 1},"inheritance-": "Comhon\\\\Request\\\\Complex"}',
 				['Content-Type' => 'application/json'],
 				400,
 				['Content-Type' => 'application/json'],
@@ -1278,7 +1278,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson%5cMan'
 				],
-				'{"tree": {"id": 1,"model": "Test\\\\Person"},"__inheritance__": "Comhon\\\\Request\\\\Complex"}',
+				'{"tree": {"id": 1,"model": "Test\\\\Person"},"inheritance-": "Comhon\\\\Request\\\\Complex"}',
 				['Content-Type' => 'application/json'],
 				400,
 				['Content-Type' => 'text/plain'],
@@ -1289,7 +1289,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestDb'
 				],
-				'{"models": [{"id": 1,"model": "Test\\\\Person"}],"root":1,"__inheritance__": "Comhon\\\\Request\\\\Intermediate"}',
+				'{"models": [{"id": 1,"model": "Test\\\\Person"}],"root":1,"inheritance-": "Comhon\\\\Request\\\\Intermediate"}',
 				['Content-Type' => 'application/json'],
 				400,
 				['Content-Type' => 'text/plain'],
@@ -1311,7 +1311,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson'
 				],
-				'{"tree": {"id": 1,"model": 1},"__inheritance__": "Comhon\\\\Request\\\\Complex"}',
+				'{"tree": {"id": 1,"model": 1},"inheritance-": "Comhon\\\\Request\\\\Complex"}',
 				['Content-Type' => 'application/json'],
 				400,
 				['Content-Type' => 'application/json'],

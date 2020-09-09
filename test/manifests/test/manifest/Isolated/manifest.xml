@@ -1,16 +1,16 @@
 <root name="Test\Isolated" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="foreignObject" model="\Test\Basic\Standard" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="objects" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="first" __inheritance__="Comhon\Manifest\Value\Array">
-        <values name="second" model="\Test\Basic\Standard" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="foreignObject" model="\Test\Basic\Standard" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="objects" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="first" inheritance-="Comhon\Manifest\Value\Array">
+        <values name="second" model="\Test\Basic\Standard" inheritance-="Comhon\Manifest\Value\Object"/>
       </values>
     </property>
-    <property name="containerIsolated" model="\Test\Isolated" is_isolated="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="containerArrayIsolated" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="first" __inheritance__="Comhon\Manifest\Value\Array">
-        <values name="second" model="\Test\Isolated" is_isolated="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="containerIsolated" model="\Test\Isolated" is_isolated="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="containerArrayIsolated" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="first" inheritance-="Comhon\Manifest\Value\Array">
+        <values name="second" model="\Test\Isolated" is_isolated="1" inheritance-="Comhon\Manifest\Value\Object"/>
       </values>
     </property>
   </properties>

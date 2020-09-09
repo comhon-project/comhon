@@ -18,5 +18,5 @@
             "model": "Test\\Person"
         }
 	],
-    "__inheritance__": "Comhon\\Request\\Intermediate"
+    "inheritance-": "Comhon\\Request\\Intermediate"
 }

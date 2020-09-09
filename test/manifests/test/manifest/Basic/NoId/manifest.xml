@@ -1,19 +1,19 @@
 <root name="Test\Basic\NoId" version="3.0">
   <properties>
-    <property name="stringProperty" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="floatProperty" __inheritance__="Comhon\Manifest\Property\Float"/>
-    <property name="objectContainerProperty" model="ObjectContainer" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="stringProperty" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="floatProperty" inheritance-="Comhon\Manifest\Property\Float"/>
+    <property name="objectContainerProperty" model="ObjectContainer" inheritance-="Comhon\Manifest\Property\Object"/>
   </properties>
   <types>
     <type name="ObjectContainer">
       <properties>
-        <property name="objectProperty" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="objectProperty" model="Object" inheritance-="Comhon\Manifest\Property\Object"/>
       </properties>
     </type>
     <type name="Object">
       <properties>
-        <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="propertyOne" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="propertyOne" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>

@@ -49,7 +49,7 @@ $time_start = microtime(true);
 // GROUP  BY t_1.id  
 $data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Intermediate' . DIRECTORY_SEPARATOR . 'request.json';
 $result = ObjectService::getObjects(json_decode(file_get_contents($data_ad)));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result1');
 }
 
@@ -61,7 +61,7 @@ $Json = '{
 			"property" : "firstName",
 			"operator" : "IN",
 			"values"    : ["Paul", "Bernard", null],
-			"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
+			"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
 		}
 	],
 	"filter": 1,
@@ -72,12 +72,12 @@ $Json = '{
 			"model": "Test\\\\Person"
 		}
 	],
-	"__inheritance__": "Comhon\\\\Request\\\\Intermediate"
+	"inheritance-": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 // SELECT * FROM  person  WHERE ((person.first_name  IN  (Paul,Bernardo) or person.first_name is null)) GROUP BY person.id
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 1');
 }
 
@@ -89,7 +89,7 @@ $Json = '{
 			"property" : "surface",
 			"operator" : "=",
 			"value"    : 120,
-			"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+			"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
 		}
 	],
 	"filter": 1,
@@ -104,13 +104,13 @@ $Json = '{
 			"model": "Test\\\\House"
 		}
 	],
-	"__inheritance__": "Comhon\\\\Request\\\\Intermediate"
+	"inheritance-": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 // SELECT person.* FROM  person left join home on person.id = home.person_id left join house on home.house_id = house.id_serial  WHERE (house.surface = 120) GROUP BY person.id
 
 $result = ObjectService::getObjects(json_decode($Json));
-if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"}]}')) {
+if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 2');
 }
 
@@ -122,7 +122,7 @@ $Json = '{
 			"property" : "surface",
 			"operator" : "<>",
 			"value"    : 120,
-			"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
+			"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Numeric\\\\Integer"
 		}
 	],
 	"filter": 1,
@@ -133,7 +133,7 @@ $Json = '{
 			"model": "Test\\\\Town"
 		}
 	],
-	"__inheritance__": "Comhon\\\\Request\\\\Intermediate"
+	"inheritance-": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 
@@ -151,7 +151,7 @@ $Json = '{
 			"node"    : 1,
 			"queue"     : ["childrenTestDb"],
 			"having" : 1,
-			"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Having"
+			"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Having"
 		}
 	],
 	"having_collection": [
@@ -161,7 +161,7 @@ $Json = '{
 			"property" : "parentTestDb",
 			"operator" : "=",
 			"value"    : 170,
-			"__inheritance__": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Function"
+			"inheritance-": "Comhon\\\\Logic\\\\Having\\\\Literal\\\\Function"
 		}
 	],
 	"filter": 1,
@@ -172,7 +172,7 @@ $Json = '{
 			"model": "Test\\\\TestDb"
 		}
 	],
-	"__inheritance__": "Comhon\\\\Request\\\\Intermediate"
+	"inheritance-": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -189,7 +189,7 @@ $Json = '{
 			"property" : "parentTestDb",
 			"operator" : "NOT IN",
 			"values"    : ["[123, \"123\"]","[124, \"124\"]"],
-			"__inheritance__": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
+			"inheritance-": "Comhon\\\\Logic\\\\Simple\\\\Literal\\\\Set\\\\String"
 		}
 	],
 	"filter": 1,
@@ -200,7 +200,7 @@ $Json = '{
 			"model": "Test\\\\ChildTestDb"
 		}
 	],
-	"__inheritance__": "Comhon\\\\Request\\\\Intermediate"
+	"inheritance-": "Comhon\\\\Request\\\\Intermediate"
 }';
 
 

@@ -14,7 +14,7 @@
             "aggregations": [
                 "owner"
             ],
-            "__inheritance__": "Comhon\\Manifest\\Property\\Aggregation"
+            "inheritance-": "Comhon\\Manifest\\Property\\Aggregation"
         }
     ],
     "inheritance_requestables": [

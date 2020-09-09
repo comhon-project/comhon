@@ -9,7 +9,7 @@
             "name": "value",
             "not_null": true,
             "is_required": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+            "inheritance-": "Comhon\\Manifest\\Property\\Float"
         }
     ],
     "version": "3.0"

@@ -1,6 +1,6 @@
 <root name="Comhon\File" is_abstract="1" is_main="1" version="3.0">
   <properties>
-    <property name="dir_path" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="file_name" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="dir_path" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="file_name" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>

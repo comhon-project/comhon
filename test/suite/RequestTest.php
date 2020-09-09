@@ -40,7 +40,7 @@ class RequestTest extends TestCase
 	public function testBadModel()
 	{
 		$request = [
-			"__inheritance__"=> 'Comhon\SqlTable'
+			"inheritance-"=> 'Comhon\SqlTable'
 		];
 		
 		$this->expectException(ImportException::class);
@@ -208,7 +208,7 @@ missing or not complete id on foreign value");
 				$literal
 			],
 			"filter" => 1,
-		    "__inheritance__"=> 'Comhon\Request\Complex'
+		    "inheritance-"=> 'Comhon\Request\Complex'
 		];
 		
 		$interfacer = new AssocArrayInterfacer();
@@ -227,7 +227,7 @@ missing or not complete id on foreign value");
 					"property" => "string",
 					"operator" => "=",
 					"value"    => true,
-					"__inheritance__"=> 'Comhon\Logic\Simple\Literal\Boolean'
+					"inheritance-"=> 'Comhon\Logic\Simple\Literal\Boolean'
 				],
 				NotAllowedLiteralException::class,
 				"literal 'Comhon\Logic\Simple\Literal\Boolean' not allowed on property 'string' of model 'Test\TestDb'. must be one of [Comhon\Logic\Simple\Literal\String, Comhon\Logic\Simple\Literal\Set\String, Comhon\Logic\Simple\Literal\Null]"
@@ -237,7 +237,7 @@ missing or not complete id on foreign value");
 					"property" => "boolean",
 					"operator" => "=",
 					"value"    => 'aaa',
-					"__inheritance__"=> 'Comhon\Logic\Simple\Literal\String'
+					"inheritance-"=> 'Comhon\Logic\Simple\Literal\String'
 				],
 				NotAllowedLiteralException::class,
 				"literal 'Comhon\Logic\Simple\Literal\String' not allowed on property 'boolean' of model 'Test\TestDb'. must be one of [Comhon\Logic\Simple\Literal\Boolean, Comhon\Logic\Simple\Literal\Null]"
@@ -247,7 +247,7 @@ missing or not complete id on foreign value");
 					"property" => "integer",
 					"operator" => "=",
 					"value"    => true,
-					"__inheritance__"=> 'Comhon\Logic\Simple\Literal\Boolean'
+					"inheritance-"=> 'Comhon\Logic\Simple\Literal\Boolean'
 				],
 				NotAllowedLiteralException::class,
 				"literal 'Comhon\Logic\Simple\Literal\Boolean' not allowed on property 'integer' of model 'Test\TestDb'. must be one of [Comhon\Logic\Simple\Literal\Numeric\Integer, Comhon\Logic\Simple\Literal\Set\Numeric\Integer, Comhon\Logic\Simple\Literal\Null]"
@@ -257,7 +257,7 @@ missing or not complete id on foreign value");
 					"property" => "date",
 					"operator" => "=",
 					"value"    => true,
-					"__inheritance__"=> 'Comhon\Logic\Simple\Literal\Boolean'
+					"inheritance-"=> 'Comhon\Logic\Simple\Literal\Boolean'
 				],
 				NotAllowedLiteralException::class,
 				"literal 'Comhon\Logic\Simple\Literal\Boolean' not allowed on property 'date' of model 'Test\TestDb'. must be one of [Comhon\Logic\Simple\Literal\String, Comhon\Logic\Simple\Literal\Set\String, Comhon\Logic\Simple\Literal\Null]"
@@ -267,7 +267,7 @@ missing or not complete id on foreign value");
 					"property" => "mainParentTestDb",
 					"operator" => "=",
 					"value"    => true,
-					"__inheritance__"=> 'Comhon\Logic\Simple\Literal\Boolean'
+					"inheritance-"=> 'Comhon\Logic\Simple\Literal\Boolean'
 				],
 				NotAllowedLiteralException::class,
 				"literal 'Comhon\Logic\Simple\Literal\Boolean' not allowed on property 'mainParentTestDb' of model 'Test\TestDb'. must be one of [Comhon\Logic\Simple\Literal\Numeric\Integer, Comhon\Logic\Simple\Literal\Set\Numeric\Integer, Comhon\Logic\Simple\Literal\Null]"
@@ -293,11 +293,11 @@ missing or not complete id on foreign value");
 					"property" => $propertyName,
 					"operator" => "=",
 					"value"    => $value,
-					"__inheritance__"=> $literalModelName
+					"inheritance-"=> $literalModelName
 				]
 			],
 			"filter" => 1,
-		    "__inheritance__"=> 'Comhon\Request\Complex'
+		    "inheritance-"=> 'Comhon\Request\Complex'
 		];
 		$request = ComplexRequester::build($request);
 		$array = $request->execute();
@@ -321,7 +321,7 @@ missing or not complete id on foreign value");
 				'birthPlace',
 				2,
 				'Comhon\Logic\Simple\Literal\Numeric\Integer',
-				'[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"__inheritance__":"Test\\\\Person\\\\Man"},{"id":11,"firstName":"Naelya","lastName":"Dupond","birthDate":null,"birthPlace":2,"bestFriend":null,"father":1,"mother":null,"__inheritance__":"Test\\\\Person\\\\Woman"}]'
+				'[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"},{"id":11,"firstName":"Naelya","lastName":"Dupond","birthDate":null,"birthPlace":2,"bestFriend":null,"father":1,"mother":null,"inheritance-":"Test\\\\Person\\\\Woman"}]'
 			]
 		];
 	}
@@ -344,11 +344,11 @@ missing or not complete id on foreign value");
 					"property" => $propertyName,
 					"operator" => "=",
 					"value"    => $value,
-					"__inheritance__"=> $literalModelName
+					"inheritance-"=> $literalModelName
 				]
 			],
 			"filter" => 1,
-			"__inheritance__"=> 'Comhon\Request\Complex'
+			"inheritance-"=> 'Comhon\Request\Complex'
 		];
 		
 		$this->expectException($exception);

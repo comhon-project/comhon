@@ -1,9 +1,9 @@
 <root name="Test\Person\WomanXml" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="firstName" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="lastName" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="birthDate" __inheritance__="Comhon\Manifest\Property\DateTime"/>
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="firstName" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="lastName" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="birthDate" inheritance-="Comhon\Manifest\Property\DateTime"/>
   </properties>
   <inheritance_requestables>
     <model>\Test\Person\WomanXmlExtended</model>

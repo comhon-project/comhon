@@ -3,6 +3,6 @@
     <type>\Comhon\Logic\Simple\Literal\Numeric</type>
   </extends>
   <properties>
-    <property name="value" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Float"/>
+    <property name="value" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\Float"/>
   </properties>
 </root>

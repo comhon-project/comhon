@@ -3,7 +3,7 @@
     <type>\Test\Body</type>
   </extends>
   <properties>
-    <property name="owner" model="\Test\Person\Man" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="baldness" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+    <property name="owner" model="\Test\Person\Man" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="baldness" inheritance-="Comhon\Manifest\Property\Boolean"/>
   </properties>
 </root>

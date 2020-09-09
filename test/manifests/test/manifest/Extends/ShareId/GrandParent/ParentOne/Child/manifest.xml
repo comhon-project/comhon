@@ -3,6 +3,6 @@
     <type>\Test\Extends\ShareId\GrandParent\ParentOne</type>
   </extends>
   <properties>
-    <property name="childOne" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="childOne" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>

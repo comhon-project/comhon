@@ -1,24 +1,24 @@
 <root name="Comhon\Serialization" version="3.0">
   <properties>
-    <property name="name" not_null="1" is_required="1" is_id="1" regex="/^\w+(\\\w+)*$/" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="version" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="share_parent_serialization" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="serialization" not_null="1" model="Serialization" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="property" not_null="1" model="Property" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="name" not_null="1" is_required="1" is_id="1" regex="/^\w+(\\\w+)*$/" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="version" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="share_parent_serialization" not_null="1" inheritance-="Comhon\Manifest\Property\Boolean"/>
+    <property name="serialization" not_null="1" model="Serialization" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="properties" not_null="1" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="property" not_null="1" model="Property" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="inheritance_values" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="model" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
+    <property name="inheritance_values" not_null="1" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="model" not_null="1" inheritance-="Comhon\Manifest\Value\String"/>
     </property>
   </properties>
   <types>
     <type name="Property">
       <properties>
-        <property name="property_name" not_null="1" is_required="1" is_id="1" regex="/^\w+$/" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="is_serializable" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-        <property name="serialization_name" not_null="1" regex="/^\w+$/" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="serialization_names" not_null="1" is_associative="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\Array">
-          <values name="serialization_name" not_null="1" regex="/^\w+$/" __inheritance__="Comhon\Manifest\Value\String"/>
+        <property name="property_name" not_null="1" is_required="1" is_id="1" regex="/^\w+$/" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="is_serializable" not_null="1" inheritance-="Comhon\Manifest\Property\Boolean"/>
+        <property name="serialization_name" not_null="1" regex="/^\w+$/" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="serialization_names" not_null="1" is_associative="1" not_empty="1" inheritance-="Comhon\Manifest\Property\Array">
+          <values name="serialization_name" not_null="1" regex="/^\w+$/" inheritance-="Comhon\Manifest\Value\String"/>
         </property>
       </properties>
       <conflicts>
@@ -30,10 +30,10 @@
     </type>
     <type name="Serialization">
       <properties>
-        <property name="serialization_unit_class" not_null="1" regex="/^(\\\w+)+$/" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="inheritance_key" not_null="1" not_empty="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="settings" not_null="1" model="\Comhon\Root" __inheritance__="Comhon\Manifest\Property\Object"/>
-        <property name="foreign_settings" not_null="1" model="\Comhon\Root" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="serialization_unit_class" not_null="1" regex="/^(\\\w+)+$/" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="inheritance_key" not_null="1" not_empty="1" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="settings" not_null="1" model="\Comhon\Root" inheritance-="Comhon\Manifest\Property\Object"/>
+        <property name="foreign_settings" not_null="1" model="\Comhon\Root" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
       </properties>
       <conflicts>
         <properties>

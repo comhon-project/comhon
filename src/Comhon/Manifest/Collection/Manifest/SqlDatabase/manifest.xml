@@ -1,11 +1,11 @@
 <root name="Comhon\SqlDatabase" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="DBMS" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="host" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="user" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="password" is_private="1" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="port" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="DBMS" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="host" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="name" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="user" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="password" is_private="1" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="port" inheritance-="Comhon\Manifest\Property\Integer"/>
   </properties>
 </root>

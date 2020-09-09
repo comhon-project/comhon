@@ -4,43 +4,43 @@
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "firstName",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "lastName",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "birthDate",
-            "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
+            "inheritance-": "Comhon\\Manifest\\Property\\DateTime"
         },
         {
             "name": "birthPlace",
             "model": "\\Test\\Place",
             "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "bestFriend",
             "model": "\\Test\\Person",
             "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "father",
             "model": "\\Test\\Person\\Man",
             "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "mother",
             "model": "\\Test\\Person\\Woman",
             "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "children",
@@ -48,9 +48,9 @@
                 "name": "child",
                 "model": "\\Test\\Person",
                 "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "inheritance-": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "homes",
@@ -58,25 +58,25 @@
                 "name": "home",
                 "model": "\\Test\\Home",
                 "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "inheritance-": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "anObjectWithIdAndMore",
             "model": "ObjectWithIdAndMore",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "aForeignObjectWithIdAndMore",
             "model": "ObjectWithIdAndMore",
             "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "recursiveLocal",
             "model": "Recursive",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         }
     ],
     "version": "3.0",
@@ -87,11 +87,11 @@
                 {
                     "name": "plop",
                     "is_id": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "plop2",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -104,7 +104,7 @@
                 {
                     "name": "plop3",
                     "is_private": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         }

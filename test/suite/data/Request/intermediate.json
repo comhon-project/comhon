@@ -6,7 +6,7 @@
             "property": "lastName",
             "operator": "=",
             "value": "Dupond",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\String"
         }
     ],
 	"filter": 0,
@@ -17,5 +17,5 @@
             "model": "Test\\Person"
         }
 	],
-    "__inheritance__": "Comhon\\Request\\Intermediate"
+    "inheritance-": "Comhon\\Request\\Intermediate"
 }

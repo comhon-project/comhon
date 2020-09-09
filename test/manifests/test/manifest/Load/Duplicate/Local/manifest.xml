@@ -1,11 +1,11 @@
 <root name="Test\Load\Duplicate\Local" version="3.0">
   <properties>
-    <property name="floatProperty" __inheritance__="Comhon\Manifest\Property\Float"/>
+    <property name="floatProperty" inheritance-="Comhon\Manifest\Property\Float"/>
   </properties>
   <types>
     <type name="MyLocal">
       <properties>
-        <property name="localOne" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="localOne" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>

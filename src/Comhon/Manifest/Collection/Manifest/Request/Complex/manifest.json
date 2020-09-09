@@ -9,7 +9,7 @@
             "not_null": true,
             "is_required": true,
             "model": "\\Comhon\\Model\\Root",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         }
     ],
     "version": "3.0"

@@ -1,8 +1,8 @@
 <root name="Test\Place" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="number" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="type" __inheritance__="Comhon\Manifest\Property\String">
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="number" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="type" inheritance-="Comhon\Manifest\Property\String">
       <enum>
         <value>street</value>
         <value>avenue</value>
@@ -10,9 +10,9 @@
         <value>square</value>
       </enum>
     </property>
-    <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="geographicLatitude" __inheritance__="Comhon\Manifest\Property\Float"/>
-    <property name="geographicLongitude" __inheritance__="Comhon\Manifest\Property\Float"/>
-    <property name="town" model="\Test\Town" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="name" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="geographicLatitude" inheritance-="Comhon\Manifest\Property\Float"/>
+    <property name="geographicLongitude" inheritance-="Comhon\Manifest\Property\Float"/>
+    <property name="town" model="\Test\Town" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
   </properties>
 </root>

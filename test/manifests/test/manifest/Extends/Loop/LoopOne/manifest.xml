@@ -3,7 +3,7 @@
     <type>\Test\Extends\Loop\LoopTwo</type>
   </extends>
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
   </properties>
   <types>
     <type name="LocalLoopOne">
@@ -11,7 +11,7 @@
         <type>LocalLoopTwo</type>
       </extends>
       <properties>
-        <property name="property" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="property" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="LocalLoopTwo">
@@ -19,7 +19,7 @@
         <type>LocalLoopThree</type>
       </extends>
       <properties>
-        <property name="loopIntermediateProperty" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="loopIntermediateProperty" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="LocalLoopThree">
@@ -27,7 +27,7 @@
         <type>LocalLoopOne</type>
       </extends>
       <properties>
-        <property name="loopProperty" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="loopProperty" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>

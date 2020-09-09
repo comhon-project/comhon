@@ -7,7 +7,7 @@
             "not_null": true,
             "is_required": true,
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         }
     ],
     "version": "3.0",
@@ -24,7 +24,7 @@
                     "not_null": true,
                     "is_required": true,
                     "is_model_name": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -42,9 +42,9 @@
                         "name": "node",
                         "not_null": true,
                         "model": "Node",
-                        "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                        "inheritance-": "Comhon\\Manifest\\Value\\Object"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Array"
                 }
             ]
         },
@@ -59,7 +59,7 @@
                     "name": "property",
                     "not_null": true,
                     "is_required": true,
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 },
                 {
                     "name": "nodes",
@@ -68,9 +68,9 @@
                         "name": "node",
                         "not_null": true,
                         "model": "Node",
-                        "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                        "inheritance-": "Comhon\\Manifest\\Value\\Object"
                     },
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Array"
                 }
             ]
         }

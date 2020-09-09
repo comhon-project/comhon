@@ -6,7 +6,7 @@
             "property": "surfaceInt",
             "operator": ">",
             "value": 200,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
         },
         {
             "id": 1,
@@ -14,7 +14,7 @@
             "property": "surface",
             "operator": ">",
             "value": 200.05,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Float"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Float"
         },
         {
             "id": 2,
@@ -22,7 +22,7 @@
             "property": "name",
             "operator": "<>",
             "value": "lalala",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\String"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\String"
         },
         {
             "id": 3,
@@ -30,7 +30,7 @@
             "property": "is",
             "operator": "<>",
             "value": true,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Boolean"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Boolean"
         },
         {
             "id": 4,
@@ -41,7 +41,7 @@
                 200,
                 300
             ],
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Integer"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Integer"
         },
         {
             "id": 5,
@@ -52,7 +52,7 @@
                 200.05555,
                 300
             ],
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Float"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Float"
         },
         {
             "id": 6,
@@ -63,7 +63,7 @@
                 "azeaze",
                 "hehehe"
             ],
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Set\\String"
         },
         {
             "id": 7,
@@ -74,7 +74,7 @@
                 100
             ],
             "type": "disjunction",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
+            "inheritance-": "Comhon\\Logic\\Simple\\Clause"
         },
         {
             "id": 8,
@@ -87,7 +87,7 @@
                 9
             ],
             "type": "conjunction",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Clause"
+            "inheritance-": "Comhon\\Logic\\Simple\\Clause"
         },
         {
             "id": 9,
@@ -96,14 +96,14 @@
                 "rooms"
             ],
             "having": 12,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Having"
+            "inheritance-": "Comhon\\Logic\\Simple\\Having"
         },
         {
             "id": 100,
             "node": 1,
             "property": "name",
             "operator": "=",
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Null"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Null"
         }
     ],
     "having_collection": [
@@ -113,13 +113,13 @@
             "property": "surface",
             "function": "MIN",
             "value": 12.5,
-            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Function"
+            "inheritance-": "Comhon\\Logic\\Having\\Literal\\Function"
         },
         {
             "id": 11,
             "operator": ">",
             "value": 2,
-            "__inheritance__": "Comhon\\Logic\\Having\\Literal\\Count"
+            "inheritance-": "Comhon\\Logic\\Having\\Literal\\Count"
         },
         {
             "id": 12,
@@ -128,7 +128,7 @@
                 11
             ],
             "type": "disjunction",
-            "__inheritance__": "Comhon\\Logic\\Having\\Clause"
+            "inheritance-": "Comhon\\Logic\\Having\\Clause"
         },
         {
             "id": 13,
@@ -136,7 +136,7 @@
                 12
             ],
             "type": "conjunction",
-            "__inheritance__": "Comhon\\Logic\\Having\\Clause"
+            "inheritance-": "Comhon\\Logic\\Having\\Clause"
         }
     ],
     "root": 1,
@@ -150,5 +150,5 @@
             "model": "Test\\House"
         }
 	],
-    "__inheritance__": "Comhon\\Request\\Intermediate"
+    "inheritance-": "Comhon\\Request\\Intermediate"
 }

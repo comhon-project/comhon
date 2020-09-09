@@ -6,7 +6,7 @@
         "settings": {
             "dir_path": ".\/data\/binder\/inherited_serialization",
             "file_name": "file.json",
-            "__inheritance__": "Comhon\\File\\JsonFile"
+            "inheritance-": "Comhon\\File\\JsonFile"
         }
     },
     "inheritance_values": [

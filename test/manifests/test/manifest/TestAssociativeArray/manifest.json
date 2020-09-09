@@ -7,9 +7,9 @@
             "is_associative": true,
             "values": {
                 "name": "name",
-                "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                "inheritance-": "Comhon\\Manifest\\Value\\String"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "emails",
@@ -17,9 +17,9 @@
             "values": {
                 "name": "email",
                 "pattern": "email",
-                "__inheritance__": "Comhon\\Manifest\\Value\\String"
+                "inheritance-": "Comhon\\Manifest\\Value\\String"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         }
     ],
     "version": "3.0"

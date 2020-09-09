@@ -3,7 +3,7 @@
     <type>\Test\Person</type>
   </extends>
   <properties>
-    <property name="bodies" __inheritance__="Comhon\Manifest\Property\Aggregation">
+    <property name="bodies" inheritance-="Comhon\Manifest\Property\Aggregation">
       <values name="body" model="\Test\Body\Man"/>
       <aggregations>
         <aggregation>owner</aggregation>

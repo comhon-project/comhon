@@ -1,27 +1,27 @@
 <root name="Sql\TestDb" is_main="1" version="3.0">
   <properties>
-    <property name="id1" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="id2" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="date" __inheritance__="Comhon\Manifest\Property\DateTime"/>
-    <property name="timestamp" __inheritance__="Comhon\Manifest\Property\DateTime"/>
-    <property name="string" is_private="1" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="integer" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="float" __inheritance__="Comhon\Manifest\Property\Float"/>
-    <property name="boolean" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-    <property name="defaultValue" default="default" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="lonelyForeignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="objectsWithId" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="objectWithId" model="ObjectWithId" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="id1" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="id2" is_id="1" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="date" inheritance-="Comhon\Manifest\Property\DateTime"/>
+    <property name="timestamp" inheritance-="Comhon\Manifest\Property\DateTime"/>
+    <property name="string" is_private="1" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="integer" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="float" inheritance-="Comhon\Manifest\Property\Float"/>
+    <property name="boolean" inheritance-="Comhon\Manifest\Property\Boolean"/>
+    <property name="defaultValue" default="default" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="lonelyForeignObject" model="ObjectWithId" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="objectsWithId" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="objectWithId" model="ObjectWithId" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="foreignObjects" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="foreignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="foreignObjects" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="foreignObject" model="ObjectWithId" is_foreign="1" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="notSerializedValue" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="notSerializedForeignObject" model="ObjectWithId" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="notLinkableTestDb" model="\Test\NotLinkableTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="notLinkableTestObjValue" model="\Test\Test" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="mainParentTestDb" model="\Sql\MainTestDb" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Aggregation">
+    <property name="notSerializedValue" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="notSerializedForeignObject" model="ObjectWithId" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="notLinkableTestDb" model="\Test\NotLinkableTestDb" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="notLinkableTestObjValue" model="\Test\Test" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="mainParentTestDb" model="\Sql\MainTestDb" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="childrenTestDb" inheritance-="Comhon\Manifest\Property\Aggregation">
       <values name="childTestDb" model="\Sql\ChildTestDb"/>
       <aggregations>
         <aggregation>parentTestDb</aggregation>
@@ -31,8 +31,8 @@
   <types>
     <type name="ObjectWithId">
       <properties>
-        <property name="plop" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="plop" is_id="1" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="plop2" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>

@@ -4,7 +4,7 @@
     "serialization": {
         "foreign_settings": {
             "id": "test_multi_increment",
-            "__inheritance__": "Comhon\\SqlTable"
+            "inheritance-": "Comhon\\SqlTable"
         }
     }
 }

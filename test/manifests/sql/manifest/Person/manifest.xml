@@ -1,21 +1,21 @@
 <root name="Sql\Person" is_abstract="1" object_class="\Sql\Comhon\Object\Person" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="firstName" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="lastName" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="birthDate" __inheritance__="Comhon\Manifest\Property\DateTime"/>
-    <property name="birthPlace" model="\Sql\Place" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="bestFriend" model="\Sql\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="father" model="\Sql\Person\Man" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="mother" model="\Sql\Person\Woman" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="children" __inheritance__="Comhon\Manifest\Property\Aggregation">
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="firstName" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="lastName" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="birthDate" inheritance-="Comhon\Manifest\Property\DateTime"/>
+    <property name="birthPlace" model="\Sql\Place" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="bestFriend" model="\Sql\Person" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="father" model="\Sql\Person\Man" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="mother" model="\Sql\Person\Woman" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="children" inheritance-="Comhon\Manifest\Property\Aggregation">
       <values name="child" model="\Sql\Person"/>
       <aggregations>
         <aggregation>mother</aggregation>
         <aggregation>father</aggregation>
       </aggregations>
     </property>
-    <property name="homes" __inheritance__="Comhon\Manifest\Property\Aggregation">
+    <property name="homes" inheritance-="Comhon\Manifest\Property\Aggregation">
       <values name="home" model="\Sql\Home"/>
       <aggregations>
         <aggregation>person</aggregation>

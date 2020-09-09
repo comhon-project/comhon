@@ -5,7 +5,7 @@
         "settings": {
             "name": "two",
             "database": "2",
-            "__inheritance__": "Comhon\\SqlTable"
+            "inheritance-": "Comhon\\SqlTable"
         }
     }
 }

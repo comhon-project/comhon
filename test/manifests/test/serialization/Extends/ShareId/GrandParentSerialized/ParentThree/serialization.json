@@ -6,7 +6,7 @@
         "settings": {
             "dir_path": ".\/data\/inherited_serialization_three",
             "file_name": "file.json",
-            "__inheritance__": "Comhon\\File\\JsonFile"
+            "inheritance-": "Comhon\\File\\JsonFile"
         }
     }
 }

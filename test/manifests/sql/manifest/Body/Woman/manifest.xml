@@ -3,7 +3,7 @@
     <type>\Sql\Body</type>
   </extends>
   <properties>
-    <property name="owner" model="\Sql\Person\Woman" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="chestSize" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="owner" model="\Sql\Person\Woman" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="chestSize" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>

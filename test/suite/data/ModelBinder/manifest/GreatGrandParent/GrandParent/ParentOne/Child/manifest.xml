@@ -3,7 +3,7 @@
     <type>\Binder\GreatGrandParent\GrandParent\ParentOne</type>
   </extends>
   <properties>
-    <property name="childOne" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="childOne" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
   <types>
     <type name="ChildLocalSerializable">
@@ -11,7 +11,7 @@
         <type>\Binder\GreatGrandParent\GrandParent\ParentOne\Child</type>
       </extends>
       <properties>
-        <property name="localChildOne" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="localChildOne" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="ChildLocalNotSerializable">

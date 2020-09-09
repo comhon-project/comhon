@@ -103,7 +103,7 @@ abstract class Interfacer {
 	const OVERWRITE = 2;
 	
 	/** @var string */
-	const INHERITANCE_KEY = '__inheritance__';
+	const INHERITANCE_KEY = 'inheritance-';
 	
 	/** @var string */
 	const ASSOCIATIVE_KEY = 'key-';

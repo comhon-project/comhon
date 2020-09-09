@@ -4,7 +4,7 @@
     "serialization": {
         "foreign_settings": {
             "id": "public.town",
-            "__inheritance__": "Comhon\\SqlTable"
+            "inheritance-": "Comhon\\SqlTable"
         }
     },
     "inheritance_values": [

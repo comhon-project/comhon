@@ -4,7 +4,7 @@
         {
             "name": "integerProperty",
             "interval": "[0,]",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         }
     ],
     "version": "3.0",
@@ -17,7 +17,7 @@
             "properties": [
                 {
                     "name": "integerProperty",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\String"
+                    "inheritance-": "Comhon\\Manifest\\Property\\String"
                 }
             ]
         },
@@ -29,7 +29,7 @@
             "properties": [
                 {
                     "name": "integerProperty",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Integer"
                 }
             ]
         },
@@ -42,7 +42,7 @@
                 {
                     "name": "integerProperty",
                     "interval": "[0,2]",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Integer"
                 }
             ]
         },
@@ -59,7 +59,7 @@
             "properties": [
                 {
                     "name": "integerProperty",
-                    "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+                    "inheritance-": "Comhon\\Manifest\\Property\\Float"
                 }
             ]
         }

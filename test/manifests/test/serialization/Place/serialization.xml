@@ -1,6 +1,6 @@
 <root name="Test\Place" version="3.0">
   <serialization>
-    <foreign_settings id="place" __inheritance__="Comhon\SqlTable"/>
+    <foreign_settings id="place" inheritance-="Comhon\SqlTable"/>
   </serialization>
   <properties>
     <property property_name="geographicLatitude" serialization_name="geographic_latitude"/>

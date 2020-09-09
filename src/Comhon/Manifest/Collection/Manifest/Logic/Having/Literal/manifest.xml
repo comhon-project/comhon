@@ -3,7 +3,7 @@
     <type>\Comhon\Logic\Having\Formula</type>
   </extends>
   <properties>
-    <property name="operator" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String">
+    <property name="operator" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\String">
       <enum>
         <value>=</value>
         <value>&lt;&gt;</value>
@@ -20,7 +20,7 @@
         <type>\Comhon\Logic\Having\Literal</type>
       </extends>
       <properties>
-        <property name="value" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
+        <property name="value" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\Integer"/>
       </properties>
     </type>
     <type name="Function" share_parent_id="1">
@@ -28,8 +28,8 @@
         <type>\Comhon\Logic\Having\Literal</type>
       </extends>
       <properties>
-        <property name="property" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="function" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String">
+        <property name="property" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="function" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\String">
           <enum>
             <value>SUM</value>
             <value>AVG</value>
@@ -37,7 +37,7 @@
             <value>MAX</value>
           </enum>
         </property>
-        <property name="value" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\Float"/>
+        <property name="value" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\Float"/>
       </properties>
     </type>
   </types>

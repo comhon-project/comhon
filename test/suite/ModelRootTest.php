@@ -54,7 +54,7 @@ class ModelRootTest extends TestCase
 		$object->setId('1');
 		$interfacer = new AssocArrayInterfacer();
 		$this->assertEquals(
-				'{"name":"1","__inheritance__":"Test\\\\Basic\\\\Standard"}',
+				'{"name":"1","inheritance-":"Test\\\\Basic\\\\Standard"}',
 				$interfacer->toString($modelRoot->export($object, $interfacer))
 		);
 	}
@@ -77,7 +77,7 @@ class ModelRootTest extends TestCase
 		
 		$interfacer = new AssocArrayInterfacer();
 		$this->assertEquals(
-			'[{"name":"1","__inheritance__":"Test\\\\Basic\\\\Standard"},{"stringProperty":"aaa","__inheritance__":"Test\\\\Basic\\\\NoId"}]',
+			'[{"name":"1","inheritance-":"Test\\\\Basic\\\\Standard"},{"stringProperty":"aaa","inheritance-":"Test\\\\Basic\\\\NoId"}]',
 			$interfacer->toString($modelArray->export($array, $interfacer))
 		);
 	}
@@ -86,7 +86,7 @@ class ModelRootTest extends TestCase
 	{
 		$modelRoot = ModelManager::getInstance()->getInstanceModel('Comhon\Root');
 		$interfacer = new AssocArrayInterfacer();
-		$object = $modelRoot->import(json_decode('{"name":"1","__inheritance__":"Test\\\\Basic\\\\Standard"}', true), $interfacer);
+		$object = $modelRoot->import(json_decode('{"name":"1","inheritance-":"Test\\\\Basic\\\\Standard"}', true), $interfacer);
 		$this->assertSame(ModelManager::getInstance()->getInstanceModel('Test\Basic\Standard'), $object->getModel());
 	}
 	
@@ -97,7 +97,7 @@ class ModelRootTest extends TestCase
 		$modelArray = new ModelArray($model, false, 'child');
 		$interfacer = new AssocArrayInterfacer();
 		$array = $modelArray->import(
-			json_decode('[{"name":"1","__inheritance__":"Test\\\\Basic\\\\Standard"},{"stringProperty":"aaa","__inheritance__":"Test\\\\Basic\\\\NoId"}]', true),
+			json_decode('[{"name":"1","inheritance-":"Test\\\\Basic\\\\Standard"},{"stringProperty":"aaa","inheritance-":"Test\\\\Basic\\\\NoId"}]', true),
 			$interfacer
 		);
 		$this->assertSame(ModelManager::getInstance()->getInstanceModel('Test\Basic\Standard'), $array->getValue(0)->getModel());

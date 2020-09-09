@@ -1,6 +1,6 @@
 <root name="Test\Request\One" version="3.0">
   <serialization>
-    <settings name="one" __inheritance__="Comhon\SqlTable">
+    <settings name="one" inheritance-="Comhon\SqlTable">
       <database>1</database>
     </settings>
   </serialization>

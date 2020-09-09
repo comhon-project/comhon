@@ -1,7 +1,7 @@
 <root name="Test\TestMultiIncremental" version="3.0">
   <properties>
-    <property name="id1" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="id2" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="plop" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="id1" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="id2" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="plop" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>

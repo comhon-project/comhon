@@ -4,11 +4,11 @@
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "number",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "type",
@@ -18,25 +18,25 @@
                 "boulevard",
                 "square"
             ],
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "name",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "geographicLatitude",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+            "inheritance-": "Comhon\\Manifest\\Property\\Float"
         },
         {
             "name": "geographicLongitude",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+            "inheritance-": "Comhon\\Manifest\\Property\\Float"
         },
         {
             "name": "town",
             "model": "\\Test\\Town",
             "is_foreign": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         }
     ],
     "version": "3.0"

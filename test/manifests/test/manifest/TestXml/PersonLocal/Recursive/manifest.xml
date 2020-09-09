@@ -1,14 +1,14 @@
 <root name="Test\TestXml\PersonLocal\Recursive" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="firstName" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="anotherObjectWithIdAndMore" model="ObjectWithIdAndMore" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="firstName" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="anotherObjectWithIdAndMore" model="ObjectWithIdAndMore" inheritance-="Comhon\Manifest\Property\Object"/>
   </properties>
   <types>
     <type name="ObjectWithId">
       <properties>
-        <property name="plop" is_id="1" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="plop" is_id="1" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="plop2" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="ObjectWithIdAndMore">
@@ -16,7 +16,7 @@
         <type>ObjectWithId</type>
       </extends>
       <properties>
-        <property name="plop3" is_private="1" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="plop3" is_private="1" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>

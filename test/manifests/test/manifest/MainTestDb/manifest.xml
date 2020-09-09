@@ -1,9 +1,9 @@
 <root name="Test\MainTestDb" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="name" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="obj" model="Object" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="childrenTestDb" __inheritance__="Comhon\Manifest\Property\Aggregation">
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="name" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="obj" model="Object" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="childrenTestDb" inheritance-="Comhon\Manifest\Property\Aggregation">
       <values name="childTestDb" model="\Test\TestDb"/>
       <aggregations>
         <aggregation>mainParentTestDb</aggregation>
@@ -13,8 +13,8 @@
   <types>
     <type name="Object">
       <properties>
-        <property name="plop" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="plop2" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="plop" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="plop2" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
   </types>

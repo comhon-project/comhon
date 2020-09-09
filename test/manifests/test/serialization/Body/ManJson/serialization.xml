@@ -1,5 +1,5 @@
 <root name="Test\Body\ManJson" version="3.0">
   <serialization inheritance_key="key">
-    <settings dir_path="./data/man_body_json" file_name="man_body.json" __inheritance__="Comhon\File\JsonFile"/>
+    <settings dir_path="./data/man_body_json" file_name="man_body.json" inheritance-="Comhon\File\JsonFile"/>
   </serialization>
 </root>

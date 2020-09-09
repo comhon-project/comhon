@@ -4,12 +4,12 @@
         {
             "name": "basicPropertyWithId",
             "model": "\\Test\\Basic\\Standard",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "basicNoIdObjectContainerProperty",
             "model": "\\Test\\Basic\\NoId\\ObjectContainer",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Object"
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
         }
     ],
     "version": "3.0"

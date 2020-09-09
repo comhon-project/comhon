@@ -67,8 +67,8 @@ class ModelSqlSerializerTest extends TestCase
 		$this->assertCount(31, $files);
 		
 		$expectedMd5Files = Config::getInstance()->getManifestFormat() == 'json'
-			? '3c9ae4edd9abc69f147e6cb777c2f110'
-			: '060df03a2016e65a8c79beee4233f2c8';
+			? 'af0ff78c0fb3d14dd7e1b6e4267523d7'
+			: '7e543a648c4e7c82879fcc29fe7c94f8';
 		
 		$actualMd5Files = '';
 		foreach ($files as $file) {

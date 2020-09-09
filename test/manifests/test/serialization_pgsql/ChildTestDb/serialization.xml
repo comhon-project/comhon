@@ -1,6 +1,6 @@
 <root name="Test\ChildTestDb" version="3.0">
   <serialization>
-    <foreign_settings id="public.child_test" __inheritance__="Comhon\SqlTable"/>
+    <foreign_settings id="public.child_test" inheritance-="Comhon\SqlTable"/>
   </serialization>
   <properties>
     <property property_name="parentTestDb">

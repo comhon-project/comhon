@@ -4,35 +4,35 @@
         {
             "name": "id",
             "is_id": true,
-            "__inheritance__": "Comhon\\Manifest\\Property\\Integer"
+            "inheritance-": "Comhon\\Manifest\\Property\\Integer"
         },
         {
             "name": "date",
-            "__inheritance__": "Comhon\\Manifest\\Property\\DateTime"
+            "inheritance-": "Comhon\\Manifest\\Property\\DateTime"
         },
         {
             "name": "height",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+            "inheritance-": "Comhon\\Manifest\\Property\\Float"
         },
         {
             "name": "weight",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Float"
+            "inheritance-": "Comhon\\Manifest\\Property\\Float"
         },
         {
             "name": "hairColor",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "hairCut",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "eyesColor",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "baldness",
-            "__inheritance__": "Comhon\\Manifest\\Property\\Boolean"
+            "inheritance-": "Comhon\\Manifest\\Property\\Boolean"
         }
     ],
     "version": "3.0",

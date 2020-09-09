@@ -1,6 +1,6 @@
 <root name="Test\Basic\ExternalReference" version="3.0">
   <properties>
-    <property name="basicPropertyWithId" model="\Test\Basic\Standard" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="basicNoIdObjectContainerProperty" model="\Test\Basic\NoId\ObjectContainer" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="basicPropertyWithId" model="\Test\Basic\Standard" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="basicNoIdObjectContainerProperty" model="\Test\Basic\NoId\ObjectContainer" inheritance-="Comhon\Manifest\Property\Object"/>
   </properties>
 </root>

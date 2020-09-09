@@ -1,15 +1,15 @@
 <root name="Comhon\Options" version="3.0">
   <properties>
-    <property name="name" not_null="1" is_required="1" is_id="1" regex="/^\w+(\\\w+)*$/" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="version" not_null="1" is_required="1" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="unique" not_null="1" model="Unique" __inheritance__="Comhon\Manifest\Property\Object"/>
-    <property name="collection" not_null="1" model="Collection" __inheritance__="Comhon\Manifest\Property\Object"/>
+    <property name="name" not_null="1" is_required="1" is_id="1" regex="/^\w+(\\\w+)*$/" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="version" not_null="1" is_required="1" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="unique" not_null="1" model="Unique" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="collection" not_null="1" model="Collection" inheritance-="Comhon\Manifest\Property\Object"/>
   </properties>
   <types>
     <type name="Unique">
       <properties>
-        <property name="allowed_methods" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-          <values name="method" not_null="1" __inheritance__="Comhon\Manifest\Value\String">
+        <property name="allowed_methods" not_null="1" inheritance-="Comhon\Manifest\Property\Array">
+          <values name="method" not_null="1" inheritance-="Comhon\Manifest\Value\String">
             <enum>
               <value>GET</value>
               <value>HEAD</value>
@@ -30,10 +30,10 @@
         <type>Unique</type>
       </extends>
       <properties>
-        <property name="limit" not_null="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-        <property name="allow_complex_request" not_null="1" __inheritance__="Comhon\Manifest\Property\Boolean"/>
-        <property name="requestable_properties" not_null="1" __inheritance__="Comhon\Manifest\Property\Array">
-          <values name="name" not_null="1" __inheritance__="Comhon\Manifest\Value\String"/>
+        <property name="limit" not_null="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+        <property name="allow_complex_request" not_null="1" inheritance-="Comhon\Manifest\Property\Boolean"/>
+        <property name="requestable_properties" not_null="1" inheritance-="Comhon\Manifest\Property\Array">
+          <values name="name" not_null="1" inheritance-="Comhon\Manifest\Value\String"/>
         </property>
       </properties>
     </type>

@@ -7,13 +7,13 @@
                 "name": "three",
                 "model": "\\Test\\Request\\Three",
                 "is_foreign": true,
-                "__inheritance__": "Comhon\\Manifest\\Value\\Object"
+                "inheritance-": "Comhon\\Manifest\\Value\\Object"
             },
-            "__inheritance__": "Comhon\\Manifest\\Property\\Array"
+            "inheritance-": "Comhon\\Manifest\\Property\\Array"
         },
         {
             "name": "string",
-            "__inheritance__": "Comhon\\Manifest\\Property\\String"
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         }
     ],
     "version": "3.0"

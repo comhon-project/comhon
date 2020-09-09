@@ -63,8 +63,8 @@ class ModelBinderTest extends TestCase
 		$this->assertCount(21, $files);
 		
 		$expectedMd5Files = Config::getInstance()->getManifestFormat() == 'json'
-			? 'd781e123b4bbe270b087609ba37e3031'
-			: '979a326fb0c87804f1f8828b243e135b';
+			? 'cc475cf679f5c630fe082dd9abe1b83b'
+			: '375b5be753f40566723677b4d9b66a97';
 		
 		$actualMd5Files = '';
 		foreach ($files as $file) {
@@ -88,8 +88,8 @@ class ModelBinderTest extends TestCase
 		$this->assertCount(24, $files);
 		
 		$expectedMd5Files = Config::getInstance()->getManifestFormat() == 'json'
-			? 'b6941a04a5d5b77ff346fda62d4dc3f4'
-			: 'c4c6e896e2a53c4eae9d9cf36316231c';
+			? 'b89a49ff3bee2a51abc7ce40310559bb'
+			: 'a24fbbc46914b731a9f3bc4c6bea4ebe';
 		
 		$actualMd5Files = '';
 		foreach ($files as $file) {

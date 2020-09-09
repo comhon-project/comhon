@@ -6,7 +6,7 @@
             "property": "integer",
             "operator": ">",
             "value": 200,
-            "__inheritance__": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
+            "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Numeric\\Integer"
         }
     ],
     "filter": 1,

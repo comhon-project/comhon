@@ -3,8 +3,8 @@
     <type>Itself</type>
   </extends>
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="floatProperty" __inheritance__="Comhon\Manifest\Property\Float"/>
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="floatProperty" inheritance-="Comhon\Manifest\Property\Float"/>
   </properties>
   <types>
     <type name="One">
@@ -12,7 +12,7 @@
         <type>Two</type>
       </extends>
       <properties>
-        <property name="booleanProperty" __inheritance__="Comhon\Manifest\Property\Boolean"/>
+        <property name="booleanProperty" inheritance-="Comhon\Manifest\Property\Boolean"/>
       </properties>
     </type>
     <type name="Two">
@@ -20,8 +20,8 @@
         <type>Itself\Itself</type>
       </extends>
       <properties>
-        <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-        <property name="integerProperty" __inheritance__="Comhon\Manifest\Property\Integer"/>
+        <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+        <property name="integerProperty" inheritance-="Comhon\Manifest\Property\Integer"/>
       </properties>
     </type>
   </types>

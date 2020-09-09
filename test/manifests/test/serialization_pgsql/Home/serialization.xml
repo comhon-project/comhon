@@ -1,6 +1,6 @@
 <root name="Test\Home" version="3.0">
   <serialization>
-    <foreign_settings id="public.home" __inheritance__="Comhon\SqlTable"/>
+    <foreign_settings id="public.home" inheritance-="Comhon\SqlTable"/>
   </serialization>
   <properties>
     <property property_name="beginDate" serialization_name="begin_date"/>

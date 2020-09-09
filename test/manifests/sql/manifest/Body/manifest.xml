@@ -1,13 +1,13 @@
 <root name="Sql\Body" is_abstract="1" version="3.0">
   <properties>
-    <property name="id" is_id="1" __inheritance__="Comhon\Manifest\Property\Integer"/>
-    <property name="date" __inheritance__="Comhon\Manifest\Property\DateTime"/>
-    <property name="height" __inheritance__="Comhon\Manifest\Property\Float"/>
-    <property name="weight" __inheritance__="Comhon\Manifest\Property\Float"/>
-    <property name="hairColor" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="hairCut" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="eyesColor" __inheritance__="Comhon\Manifest\Property\String"/>
-    <property name="physicalAppearance" __inheritance__="Comhon\Manifest\Property\String">
+    <property name="id" is_id="1" inheritance-="Comhon\Manifest\Property\Integer"/>
+    <property name="date" inheritance-="Comhon\Manifest\Property\DateTime"/>
+    <property name="height" inheritance-="Comhon\Manifest\Property\Float"/>
+    <property name="weight" inheritance-="Comhon\Manifest\Property\Float"/>
+    <property name="hairColor" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="hairCut" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="eyesColor" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="physicalAppearance" inheritance-="Comhon\Manifest\Property\String">
       <enum>
         <value>slim</value>
         <value>average</value>
@@ -16,21 +16,21 @@
         <value>fat</value>
       </enum>
     </property>
-    <property name="tatoos" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="tatoo" model="\Sql\Body\Tatoo" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="tatoos" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="tatoo" model="\Sql\Body\Tatoo" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="piercings" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="piercing" model="Piercing" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="piercings" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="piercing" model="Piercing" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
-    <property name="arts" __inheritance__="Comhon\Manifest\Property\Array">
-      <values name="art" model="Art" __inheritance__="Comhon\Manifest\Value\Object"/>
+    <property name="arts" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="art" model="Art" inheritance-="Comhon\Manifest\Value\Object"/>
     </property>
   </properties>
   <types>
     <type name="Art">
       <properties>
-        <property name="type" __inheritance__="Comhon\Manifest\Property\String"/>
-        <property name="location" __inheritance__="Comhon\Manifest\Property\String"/>
+        <property name="type" inheritance-="Comhon\Manifest\Property\String"/>
+        <property name="location" inheritance-="Comhon\Manifest\Property\String"/>
       </properties>
     </type>
     <type name="Tatoo">
@@ -38,7 +38,7 @@
         <type>Art</type>
       </extends>
       <properties>
-        <property name="tatooArtist" model="\Sql\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="tatooArtist" model="\Sql\Person" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
       </properties>
     </type>
     <type name="Piercing">
@@ -46,7 +46,7 @@
         <type>Art</type>
       </extends>
       <properties>
-        <property name="piercer" model="\Sql\Person" is_foreign="1" __inheritance__="Comhon\Manifest\Property\Object"/>
+        <property name="piercer" model="\Sql\Person" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
       </properties>
     </type>
   </types>

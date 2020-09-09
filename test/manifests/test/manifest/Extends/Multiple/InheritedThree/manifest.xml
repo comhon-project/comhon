@@ -1,5 +1,5 @@
 <root name="Test\Extends\Multiple\InheritedThree" version="3.0">
   <properties>
-    <property name="three" __inheritance__="Comhon\Manifest\Property\String"/>
+    <property name="three" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
 </root>
