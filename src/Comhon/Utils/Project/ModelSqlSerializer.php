@@ -292,8 +292,8 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 		
 		$updated = false;
 		foreach($modelsInfos as $modelInfos) {
-			if (isset($modelInfos[SELF::SERIALIZATION_MANIFEST]) && $modelInfos[SELF::SERIALIZATION_MANIFEST]->isUpdated()) {
-				$modelInfos[SELF::SERIALIZATION_MANIFEST]->save(SerializationUnit::CREATE);
+			if (isset($modelInfos[self::SERIALIZATION_MANIFEST]) && $modelInfos[self::SERIALIZATION_MANIFEST]->isUpdated()) {
+				$modelInfos[self::SERIALIZATION_MANIFEST]->save(SerializationUnit::CREATE);
 				$updated = true;
 			}
 		}
@@ -383,12 +383,12 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 			if (!array_key_exists($tableKey, $tablesInfos)) {
 				$tablesInfos[$tableKey] = [
 					self::MODEL_NAMES => [],
-					SELF::INHERITANCE_KEY => null,
+					self::INHERITANCE_KEY => null,
 					self::COLUMNS => [],
 				];
 			}
 			$tablesInfos[$tableKey][self::MODEL_NAMES][] = $modelName;
-			$tablesInfos[$tableKey][SELF::INHERITANCE_KEY] = $model->getSerialization()->getInheritanceKey();
+			$tablesInfos[$tableKey][self::INHERITANCE_KEY] = $model->getSerialization()->getInheritanceKey();
 		}
 		return $tablesInfos;
 	}
@@ -426,13 +426,13 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 				
 			$modelInfos[self::SQL_TABLE] = $sqlTable;
 			$modelInfos[self::CREATE_SERIALIZATION_FILE] = true;
-			$modelInfos[SELF::REGISTER_SERIALIZATION_NODE] = $sharedTableModel !== $model->getParent();
+			$modelInfos[self::REGISTER_SERIALIZATION_NODE] = $sharedTableModel !== $model->getParent();
 			
 			$tableKey = $this->getTableUniqueKeyFromObject($sqlTable);
 			if (!array_key_exists($tableKey, $tablesInfos)) {
 				$tablesInfos[$tableKey] = [
 						self::MODEL_NAMES => [],
-						SELF::INHERITANCE_KEY => null,
+						self::INHERITANCE_KEY => null,
 						self::COLUMNS => [],
 				];
 			}
@@ -652,7 +652,7 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 				$parentModel = $this->getParentModelWithSqlTable($modelName, $modelsInfos);
 				if (!is_null($parentModel)) {
 					$modelInfos[self::SQL_TABLE] = $modelsInfos[$parentModel->getName()][self::SQL_TABLE];
-					$modelInfos[SELF::REGISTER_SERIALIZATION_NODE] = false;
+					$modelInfos[self::REGISTER_SERIALIZATION_NODE] = false;
 					
 					$tableKey = $this->getTableUniqueKeyFromObject($modelInfos[self::SQL_TABLE]);
 					$tablesInfos[$tableKey][self::MODEL_NAMES][] = $modelName;
@@ -683,7 +683,7 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 				) {
 					if (!$modelsInfos[$parentModel->getName()][self::HAS_SERIALIZATION_FILE]) {
 						$modelsInfos[$parentModel->getName()][self::CREATE_SERIALIZATION_FILE] = true;
-						$modelsInfos[$parentModel->getName()][SELF::REGISTER_SERIALIZATION_NODE] = false;
+						$modelsInfos[$parentModel->getName()][self::REGISTER_SERIALIZATION_NODE] = false;
 					}
 					$parentModel = $parentModel->getParent();
 				}
@@ -724,7 +724,7 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 				$serializationManifest = new ComhonObject('Comhon\Serialization', false);
 				$serializationManifest->setId($modelName, false);
 				$serializationManifest->setValue('version', '3.0', false);
-				$modelInfos[SELF::SERIALIZATION_MANIFEST] = $serializationManifest;
+				$modelInfos[self::SERIALIZATION_MANIFEST] = $serializationManifest;
 			}
 		}
 	}
@@ -852,7 +852,7 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 			
 			$model = ModelManager::getInstance()->getInstanceModel($modelName);
 			/** @var \Comhon\Object\ComhonObject $serializationManifest */
-			$serializationManifest = $modelInfos[SELF::SERIALIZATION_MANIFEST];
+			$serializationManifest = $modelInfos[self::SERIALIZATION_MANIFEST];
 			
 			/** @var \Comhon\Model\Property\Property[] $properties */
 			$properties = array_diff_key($model->getProperties(), $model->getParent()->getProperties());
@@ -997,7 +997,7 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 	 */
 	private function updateInheritanceKey(&$modelsInfos, &$tablesInfos, $interfacer, $removedModelNames) {
 		foreach($tablesInfos as $tableKey => $tableInfos) {
-			if (!$this->isInheritanceKeyNeeded($tableInfos, $modelsInfos) || !is_null($tablesInfos[$tableKey][SELF::INHERITANCE_KEY])) {
+			if (!$this->isInheritanceKeyNeeded($tableInfos, $modelsInfos) || !is_null($tablesInfos[$tableKey][self::INHERITANCE_KEY])) {
 				continue;
 			}
 			$inheritanceKeyValue = null;
@@ -1041,7 +1041,7 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 				
 				if (is_null($inheritanceKeyValue)) {
 					$inheritanceKeyValue = $this->getInheritanceKey($tablesInfos[$tableKey]);
-					$tablesInfos[$tableKey][SELF::INHERITANCE_KEY] = $inheritanceKeyValue;
+					$tablesInfos[$tableKey][self::INHERITANCE_KEY] = $inheritanceKeyValue;
 				}
 				$serialization = &$interfacer->getValue($serializationManifest, 'serialization', true);
 				$interfacer->setValue($serialization, $inheritanceKeyValue, $inheritanceKey);
@@ -1080,7 +1080,7 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 		$message = 'Enter an inheritance key '
 			.'(for example if your sql table store persons (male and female), inheritance key would be "gender")';
 		do {
-			$inheritanceKey = $this->ask($message, 'inheritance-');
+			$inheritanceKey = $this->ask($message, '__inheritance__');
 			$message = 'Name already used on property, please enter a new inheritance key '
 				.'(for example if your sql table store persons (male and female), inheritance key would be "gender")';
 		} while (array_key_exists($inheritanceKey, $tableInfos[self::COLUMNS]));
@@ -1099,25 +1099,25 @@ class ModelSqlSerializer extends InteractiveProjectScript {
 			if (!$modelInfos[self::CREATE_SERIALIZATION_FILE]) {
 				continue;
 			}
-			$serializationManifest = $modelInfos[SELF::SERIALIZATION_MANIFEST];
+			$serializationManifest = $modelInfos[self::SERIALIZATION_MANIFEST];
 			if (isset($modelInfos[self::SHARE_PARENT_SERIALIZATION]) && $modelInfos[self::SHARE_PARENT_SERIALIZATION] === false) {
 				$serializationManifest->setValue(self::SHARE_PARENT_SERIALIZATION, false);
 			}
-			elseif ($modelInfos[SELF::REGISTER_SERIALIZATION_NODE]) {
+			elseif ($modelInfos[self::REGISTER_SERIALIZATION_NODE]) {
 				$sqlTable = $modelInfos[self::SQL_TABLE];
 				$tableKey = $this->getTableUniqueKeyFromObject($sqlTable);
 				$serialization = $serializationManifest->initValue('serialization');
 				$serialization->setValue('foreign_settings', $sqlTable);
 				
 				if ($this->isInheritanceKeyNeeded($tablesInfos[$tableKey], $modelsInfos)) {
-					if (isset($tablesInfos[$tableKey][SELF::INHERITANCE_KEY])) {
-						$serialization->setValue(SELF::INHERITANCE_KEY, $tablesInfos[$tableKey][SELF::INHERITANCE_KEY]);
+					if (isset($tablesInfos[$tableKey][self::INHERITANCE_KEY])) {
+						$serialization->setValue(self::INHERITANCE_KEY, $tablesInfos[$tableKey][self::INHERITANCE_KEY]);
 					} else {
 						$this->displayProcessingModel($modelName, 'inheritance key');
 						
 						$inheritanceKey = $this->getInheritanceKey($tablesInfos[$tableKey]);
-						$serialization->setValue(SELF::INHERITANCE_KEY, $inheritanceKey);
-						$tablesInfos[$tableKey][SELF::INHERITANCE_KEY] = $inheritanceKey;
+						$serialization->setValue(self::INHERITANCE_KEY, $inheritanceKey);
+						$tablesInfos[$tableKey][self::INHERITANCE_KEY] = $inheritanceKey;
 					}
 				}
 			}
