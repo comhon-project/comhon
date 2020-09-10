@@ -451,6 +451,7 @@ try {
 
 // TODO for version > 4.0
 
+// version 4.0 manifest 4.0 do not manage previous versions
 // response, and request psr-7 (with guzzle)
 // replace query params __clause__ by -clause and others.
 // Oauth2 for comhon-docker 

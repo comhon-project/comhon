@@ -11,122 +11,36 @@
 
 namespace Comhon\Api;
 
-use Comhon\Interfacer\XMLInterfacer;
+use GuzzleHttp\Psr7;
 
-class Response {
+class Response extends Psr7\Response {
 	
 	/**
-	 * 
-	 * @var integer
-	 */
-	private $code = 200;
-	
-	/**
-	 *
-	 * @var string[]
-	 */
-	private $headers = [];
-	
-	/**
-	 * 
-	 * @var string|array|\stdClass
-	 */
-	private $content;
-	
-	/**
-	 * set HTTP code
-	 * 
-	 * @param integer $code
-	 */
-	public function setCode($code) {
-		$this->code = $code;
-	}
-	
-	/**
-	 * get HTTP code
-	 * 
-	 * @return integer
-	 */
-	public function getCode() {
-		return $this->code;
-	}
-	
-	/**
-	 * add HTTP header
-	 * 
-	 * @param string $name
-	 * @param string $value
-	 */
-	public function addHeader($name, $value) {
-		$this->headers[$name] = $value;
-	}
-	
-	/**
-	 * get HTTP headers
-	 * 
-	 * @return string[]
-	 */
-	public function getHeaders() {
-		return $this->headers;
-	}
-	
-	/**
-	 * set HTTP body content
-	 * 
-	 * @param string|array|\stdClass|\DOMNode|\SimpleXMLElement $content
-	 */
-	public function setContent($content) {
-		$this->content = $content;
-	}
-	
-	/**
-	 * get HTTP body content
-	 * 
-	 * @return string|array|\stdClass|\DOMNode|\SimpleXMLElement
-	 */
-	public function getContent() {
-		return $this->content;
-	}
-	
-	/**
-	 * send HTTP response (code, headers and body content)
+	 * send HTTP response (status code, headers and body)
 	 */
 	public function send() {
-		list($code, $headers, $content) = $this->getSend();
-		http_response_code($code);
-		foreach ($headers as $name => $value) {
-			header("$name: $value");
+		http_response_code($this->getStatusCode());
+		foreach ($this->getHeaders() as $header => $value) {
+			header("$header: ".$this->getHeaderLine($header));
 		}
-		if (!is_null($content)) {
-			echo $content;
+		if (!is_null($this->getBody())) {
+			echo $this->getBody()->getContents();
 		}
 	}
 	
 	/**
-	 * get all informations that will be sent if you call function send().
+	 * get body content from the beginning to the end. 
+	 * stream pointer stay at same position.
 	 * 
-	 * @return [integer, string[], string] code, headers, body content
+	 * @return string
 	 */
-	public function getSend() {
-		$headers = $this->headers;
-		$content = null;
+	public function getFullBodyContents() {
+		$offset = $this->getBody()->tell();
+		$this->getBody()->rewind();
+		$body = $this->getBody()->getContents();
+		$this->getBody()->seek($offset);
 		
-		if (!is_null($this->content) && $this->content !== '') {
-			$content = $this->content;
-			if (($this->content instanceof \stdClass) || is_array($this->content)) {
-				$headers['Content-Type'] = 'application/json';
-				$content = json_encode($this->content);
-			} elseif ($this->content instanceof \DOMNode) {
-				$headers['Content-Type'] = 'application/xml';
-				$content = $this->content->ownerDocument->saveXML($this->content);
-			} elseif ($this->content instanceof \SimpleXMLElement) {
-				$headers['Content-Type'] = 'application/xml';
-				$content = $this->content->asXML();
-			} elseif (is_string($this->content) && !array_key_exists('Content-Type', $headers)) {
-				$headers['Content-Type'] = 'text/plain';
-			}
-		}
-		return [$this->code, $headers, $content];
+		return $body;
 	}
 	
 }

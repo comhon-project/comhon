@@ -48,6 +48,7 @@ use Comhon\Model\ModelArray;
 use Comhon\Exception\Serialization\ConstraintException;
 use GuzzleHttp\Psr7\ServerRequest;
 use function GuzzleHttp\Psr7\parse_header;
+use function GuzzleHttp\Psr7\stream_for;
 
 class RequestHandler {
 	
@@ -178,11 +179,11 @@ class RequestHandler {
 		} catch (ResponseException $e) {
 			$response = $e->getResponse();
 		} catch (ManifestSerializationException $e) {
-			$response = $this->_buildResponse(403, ['code' => $e->getCode(), 'message' => $e->getMessage()]);
+			$response = ResponseBuilder::buildSimpleResponse(403, [], ['code' => $e->getCode(), 'message' => $e->getMessage()]);
 		} catch (ConstraintException $e) {
-			$response = $this->_buildResponse(400, ['code' => $e->getCode(), 'message' => $e->getMessage()]);
+			$response = ResponseBuilder::buildSimpleResponse(400, [], ['code' => $e->getCode(), 'message' => $e->getMessage()]);
 		} catch (\Exception $e) {
-			$response = $this->_buildResponse(500);
+			$response = new Response(500);
 		}
 		
 		return $response;
@@ -289,9 +290,7 @@ class RequestHandler {
 		$method = $serverRequest->getMethod();
 		
 		if ($method == 'OPTIONS') {
-			$response = new Response();
-			$response->addHeader('Allow', implode(', ', ['GET', 'HEAD', 'OPTIONS']));
-			return $response;
+			return new Response(200, ['Allow' => implode(', ', ['GET', 'HEAD', 'OPTIONS'])]);
 		}
 		if ($method != 'GET' && $method != 'HEAD') {
 			throw new MethodNotAllowedException(
@@ -299,29 +298,25 @@ class RequestHandler {
 				['Allow' => implode(', ', ['GET', 'HEAD', 'OPTIONS'])]
 			);
 		}
-		$response = new Response();
 		$interfacer = self::getInterfacerFromAcceptHeader($serverRequest);
 		
 		if ($interfacer instanceof XMLInterfacer) {
-			$root = $interfacer->createArrayNode('root');
+			$node = $interfacer->createArrayNode('root');
 			foreach ($assocArray as $apiName => $modelName) {
-				$interfacer->addAssociativeValue($root, $modelName, $apiName, 'node');
+				$interfacer->addAssociativeValue($node, $modelName, $apiName, 'node');
 			}
-			$response->setContent($root);
 		} elseif ($interfacer instanceof AssocArrayInterfacer) {
-			$response->setContent($assocArray);
+			$node = $assocArray;
 		} else {
 			throw new ComhonException('not handled Content-Type : '.get_class($interfacer));
 		}
+		$body = $interfacer->toString($node);
+		$headers = ['Content-Type' => $interfacer->getMediaType()];
 		if ($method == 'HEAD') {
-			$send = $response->getSend();
-			if (isset($send[1]['Content-Type'])) {
-				$response->addHeader('Content-Type', $send[1]['Content-Type']);
-			}
-			$response->addHeader('Content-Length', strlen($send[2]));
-			$response->setContent(null);
+			$headers['Content-Length'] = strlen($body);
+			$body = '';
 		}
-		return $response;
+		return new Response(200, $headers, $body);
 	}
 	
 	/**
@@ -348,7 +343,7 @@ class RequestHandler {
 			case 'OPTIONS':
 				return $this->_options($serverRequest);
 			default:
-				return $this->_buildResponse(501);
+				return new Response(501);
 		}
 	}
 	
@@ -598,7 +593,7 @@ class RequestHandler {
 	 */
 	private function _getResources(ServerRequest $serverRequest) {
 		if (count($this->resource) > 2) {
-			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
+			return ResponseBuilder::buildSimpleResponse(404, [], 'invalid route');
 		}
 		try {
 			// query parameters will be modified during query bulding by removing some parameters
@@ -622,13 +617,16 @@ class RequestHandler {
 		$interfacer->setValidate(false);
 		$interfacer->setPropertiesFilter($filterProperties->getValues(), $object->getUniqueModel()->getName());
 		
-		if ($object instanceof ComhonArray) {
-			$interfacedObject = $interfacer->export($object);
-		} else {
-			// export through original model to export potential inheritance key
-			$interfacedObject = $this->requestedModel->export($object, $interfacer);
-		}
-		return $this->_buildResponse(200, $interfacedObject);
+		// for unique object, export through original model to export potential inheritance key
+		$interfacedObject = $object instanceof ComhonArray 
+			? $interfacer->export($object) : 
+			$this->requestedModel->export($object, $interfacer);
+		
+		return ResponseBuilder::buildSimpleResponse(
+			200, 
+			['Content-Type' => $interfacer->getMediaType()], 
+			$interfacer->toString($interfacedObject)
+		);
 	}
 	
 	/**
@@ -638,7 +636,7 @@ class RequestHandler {
 	 */
 	private function _getCount(ServerRequest $serverRequest) {
 		if (count($this->resource) != 1) {
-			return $this->_buildResponse(404, 'invalid route', ['Content-Type' => 'text/plain']);
+			return ResponseBuilder::buildSimpleResponse(404, [], 'invalid route');
 		}
 		
 		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest, false);
@@ -660,7 +658,8 @@ class RequestHandler {
 		}
 		
 		$requester = ComplexRequester::build($request);
-		return $this->_buildResponse(200, $requester->count(), ['Content-Type' => 'text/plain']);
+		
+		return ResponseBuilder::buildSimpleResponse(200, [], ''.$requester->count());
 	}
 	
 	/**
@@ -670,13 +669,7 @@ class RequestHandler {
 	 */
 	private function _head(ServerRequest $serverRequest) {
 		$response = $this->_get($serverRequest);
-		$send = $response->getSend();
-		if (isset($send[1]['Content-Type'])) {
-			$response->addHeader('Content-Type', $send[1]['Content-Type']);
-		}
-		$response->addHeader('Content-Length', strlen($send[2]));
-		$response->setContent(null);
-		return $response;
+		return $response->withHeader('Content-Length', $response->getBody()->getSize())->withBody(stream_for(''));
 	}
 	
 	/**
@@ -713,7 +706,7 @@ class RequestHandler {
 		}
 		
 		$object->load(null, true);
-		return $this->_buildResponse(201, $interfacer->export($object));
+		return ResponseBuilder::buildObjectResponse($object, $interfacer, 201);
 	}
 	
 	/**
@@ -743,7 +736,7 @@ class RequestHandler {
 			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
 		$object->load(null, true);
-		return $this->_buildResponse(200, $interfacer->export($object));
+		return ResponseBuilder::buildObjectResponse($object, $interfacer, 200);
 	}
 	
 	/**
@@ -765,7 +758,7 @@ class RequestHandler {
 		}
 		$object->delete();
 		
-		return $this->_buildResponse(204);
+		return new Response(204);
 	}
 	
 	/**
@@ -899,12 +892,16 @@ class RequestHandler {
 	 * @return \Comhon\Api\Response
 	 */
 	private function _options(ServerRequest $serverRequest) {
-		$content = null;
 		$options = $this->requestedModel->getOptions();
-		if (!is_null($options)) {
-			$content = self::getInterfacerFromAcceptHeader($serverRequest)->export($options);
+		if (is_null($options)) {
+			return new Response(200, ['Allow' => implode(', ', $this->_getAllowedMethods())]);
 		}
-		return $this->_buildResponse(200, $content, ['Allow' => implode(', ', $this->_getAllowedMethods())]);
+		return ResponseBuilder::buildObjectResponse(
+			$options, 
+			self::getInterfacerFromAcceptHeader($serverRequest), 
+			200,
+			['Allow' => implode(', ', $this->_getAllowedMethods())]
+		);
 	}
 	
 	/**
@@ -942,20 +939,4 @@ class RequestHandler {
 		return $methods;
 	}
 	
-	/**
-	 * 
-	 * @param integer $code
-	 * @param string $content
-	 * @param string[] $headers
-	 */
-	private function _buildResponse($code, $content = null, array $headers = []) {
-		$response = new Response();
-		$response->setCode($code);
-		foreach ($headers as $name => $value) {
-			$response->addHeader($name, $value);
-		}
-		$response->setContent($content);
-		
-		return $response;
-	}
 }

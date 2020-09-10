@@ -7,9 +7,13 @@ use Test\Comhon\Mock\RequestHandlerMock;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Database\DatabaseHandler;
+use Test\Comhon\Utils\RequestTestTrait;
 
 class RequestHandlerDeleteTest extends TestCase
 {
+	
+	use RequestTestTrait;
+	
 	private static $id;
 	
 	public static function setUpBeforeClass()
@@ -40,7 +44,7 @@ class RequestHandlerDeleteTest extends TestCase
 	{
 		$server['REQUEST_URI'] .= self::$id;
 		$response = RequestHandlerMock::handle('index.php/api', $server);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		if (!is_null($responseContent)) {
 			$responseContent = str_replace('[id]', self::$id, $responseContent);
@@ -83,7 +87,7 @@ class RequestHandlerDeleteTest extends TestCase
 	{
 		$server['REQUEST_URI'] .= self::$id;
 		$response = RequestHandlerMock::handle('index.php/api', $server);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $send[2]);
 		$this->assertEquals($responseCode, $send[0]);
@@ -130,7 +134,7 @@ class RequestHandlerDeleteTest extends TestCase
 	public function testRequestDeleteFailureInvalidId($server, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('index.php/api', $server);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $send[2]);
 		$this->assertEquals($responseCode, $send[0]);

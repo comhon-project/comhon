@@ -12,7 +12,7 @@
 namespace Comhon\Exception\HTTP;
 
 use Comhon\Exception\ComhonException;
-use Comhon\Api\Response;
+use Comhon\Api\ResponseBuilder;
 
 class ResponseException extends ComhonException {
 	
@@ -28,13 +28,8 @@ class ResponseException extends ComhonException {
 	 * @param string|array|\stdClass $content
 	 * @param string[] $headers
 	 */
-	public function __construct($code, $content = null, $headers = []) {
-		$this->response = new Response();
-		$this->response->setCode($code);
-		foreach ($headers as $name => $value) {
-			$this->response->addHeader($name, $value);
-		}
-		$this->response->setContent($content);
+	public function __construct($statusCode, $content = null, $headers = []) {
+		$this->response = ResponseBuilder::buildSimpleResponse($statusCode, $headers, $content);
 	}
 	
 	/**

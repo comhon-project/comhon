@@ -121,6 +121,15 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	}
 	
 	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::getMediaType()
+	 */
+	public function getMediaType() {
+		return 'application/xml';
+	}
+	
+	/**
 	 * get value in $node with attribute or node $name according $asNode
 	 *
 	 * @param \DOMElement $node

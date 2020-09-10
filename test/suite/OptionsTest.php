@@ -6,9 +6,12 @@ use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Test\Comhon\Mock\RequestHandlerMock;
+use Test\Comhon\Utils\RequestTestTrait;
 
 class OptionsTest extends TestCase
 {
+	use RequestTestTrait;
+	
 	public static function setUpBeforeClass()
 	{
 		Config::setLoadPath(Data::$config);
@@ -63,7 +66,7 @@ class OptionsTest extends TestCase
 	public function testRequestAllowed($server, $requestGet, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('index.php/api', $server, $requestGet);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $send[2]);
 		$this->assertEquals($responseCode, $send[0]);
@@ -117,13 +120,13 @@ class OptionsTest extends TestCase
 				'REQUEST_URI' => "/index.php/api/count/".urlencode($modelName)
 		];
 		$response = RequestHandlerMock::handle('index.php/api', $server);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		$this->assertEquals($count, $send[2]);
 		
 		
 		$server['REQUEST_URI'] = "/index.php/api/".urlencode($modelName);
 		$response = RequestHandlerMock::handle('index.php/api', $server, $requestGet);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($limitedCount, count(json_decode($send[2])));
 		$this->assertEquals($responseCode, $send[0]);
@@ -195,7 +198,7 @@ class OptionsTest extends TestCase
 				'REQUEST_URI' => "/index.php/api/".urlencode($modelName)
 		];
 		$response = RequestHandlerMock::handle('index.php/api', $server, $requestGet, $requestHeaders);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $send[2]);
 		$this->assertEquals($responseCode, $send[0]);

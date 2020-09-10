@@ -157,22 +157,24 @@ abstract class Interfacer {
 	private $validate = true;
 	
 	/**
-	 * 
-	 * @param string $format must be one of [xml, json]
+	 *
+	 * @param string $format must be one of [xml, json, application/json, application/xml]
 	 * @param boolean $assoc used only for 'json' format.
-	 *                       if false return StdObjectInterfacer instance, 
-	 *                       XMLInterfacer instance otherwise.
+	 *                       if false return StdObjectInterfacer instance,
+	 *                       AssocArrayInterfacer instance otherwise.
 	 */
 	public static function getInstance($format, $assoc = false) {
 		switch ($format) {
 			case 'xml':
+			case 'application/xml':
 				return new XMLInterfacer();
 				break;
 			case 'json':
+			case 'application/json':
 				return $assoc ? new AssocArrayInterfacer() : new StdObjectInterfacer();
 				break;
 			default:
-				throw new ArgumentException($format, 'string', 1, ['json', 'xml']);
+				throw new ArgumentException($format, 'string', 1, ['json', 'xml', 'application/json', 'application/xml']);
 		}
 	}
 	
@@ -470,6 +472,13 @@ abstract class Interfacer {
 	public function getMergeType() {
 		return $this->mergeType;
 	}
+	
+	/**
+	 * get media type associated to exported format
+	 * 
+	 * @return string
+	 */
+	abstract public function getMediaType();
 	
 	/**
 	 * get value in $node with property $name

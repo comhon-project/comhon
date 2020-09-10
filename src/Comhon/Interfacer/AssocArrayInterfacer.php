@@ -16,6 +16,15 @@ use Comhon\Exception\ArgumentException;
 class AssocArrayInterfacer extends Interfacer {
 
 	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::getMediaType()
+	 */
+	public function getMediaType() {
+		return 'application/json';
+	}
+	
+	/**
 	 * get value in $node with key $name
 	 * 
 	 * @param array $node

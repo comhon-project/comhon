@@ -9,9 +9,12 @@ use Comhon\Model\Singleton\ModelManager;
 use Comhon\Database\DatabaseHandler;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
+use Test\Comhon\Utils\RequestTestTrait;
 
 class RequestHandlerPostTest extends TestCase
 {
+	use RequestTestTrait;
+	
 	private static $id;
 	
 	public static function setUpBeforeClass()
@@ -53,7 +56,7 @@ class RequestHandlerPostTest extends TestCase
 		$this->assertNull($obj);
 		
 		$response = RequestHandlerMock::handle('index.php/api', $server, [], $requestHeaders, $RequestBody);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		$sendContentObj = $interfacer->fromString($send[2]);
 		$id = $interfacer->getValue($sendContentObj, 'id');
 		$this->assertEquals(self::$id, (integer) $id);
@@ -128,7 +131,7 @@ class RequestHandlerPostTest extends TestCase
 		$this->assertNull($obj);
 		
 		$response = RequestHandlerMock::handle('index.php/api', $server, [], $requestHeaders, $RequestBody);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $send[2]);
 		$this->assertEquals($responseCode, $send[0]);
@@ -164,7 +167,7 @@ class RequestHandlerPostTest extends TestCase
 	public function testRequestPostNoId($server, $requestHeaders, $RequestBody, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('index.php/api', $server, [], $requestHeaders, $RequestBody);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $send[2]);
 		$this->assertEquals($responseCode, $send[0]);
@@ -195,7 +198,7 @@ class RequestHandlerPostTest extends TestCase
 	public function testRequestPostFailure($server, $requestHeaders, $RequestBody, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('index.php/api', $server, [], $requestHeaders, $RequestBody);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $send[2]);
 		$this->assertEquals($responseCode, $send[0]);

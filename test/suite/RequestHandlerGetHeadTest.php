@@ -5,9 +5,12 @@ use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Test\Comhon\Mock\RequestHandlerMock;
 use Comhon\Object\Collection\MainObjectCollection;
+use Test\Comhon\Utils\RequestTestTrait;
 
 class RequestHandlerGetHeadTest extends TestCase
 {
+	use RequestTestTrait;
+	
 	private static $data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Request' . DIRECTORY_SEPARATOR;
 	
 	public static function setUpBeforeClass()
@@ -27,7 +30,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function testApiModelNames($server, $requestableModels, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $requestableModels);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -35,7 +38,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $requestableModels);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {
@@ -114,7 +117,7 @@ class RequestHandlerGetHeadTest extends TestCase
 			'REQUEST_URI' => '/index.php/api/models'
 		];
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders, '', $requestableModels);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -122,7 +125,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders, '', $requestableModels);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {
@@ -181,7 +184,7 @@ class RequestHandlerGetHeadTest extends TestCase
 			'REQUEST_URI' => '/index.php/api/patterns'
 		];
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$patterns = json_decode(file_get_contents(Config::getInstance()->getRegexListPath()), true);
 		$this->assertEquals($patterns, json_decode($sendGet[2], true));
@@ -190,7 +193,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals(200, $sendHead[0]);
 		$this->assertEmpty($sendHead[2]);
@@ -207,7 +210,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function testRequestAcceptHeader($server, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -215,7 +218,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {
@@ -298,7 +301,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function testRequestUniqueResponse($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('index.php/api', $server, $get, []);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -306,7 +309,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('index.php/api', $server, $get, []);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {
@@ -395,7 +398,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function testRequestArrayResponse($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('index.php/api/', $server, $get, []);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -403,7 +406,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('index.php/api/', $server, $get, []);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {
@@ -580,7 +583,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function testRequestCount($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('/index.php/api', $server, $get, []);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -588,7 +591,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('/index.php/api', $server, $get, []);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {
@@ -663,7 +666,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function testMalformedGetRequest($server, $get, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('/index.php/api/', $server, $get, []);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -671,7 +674,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('/index.php/api/', $server, $get, []);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {
@@ -1061,7 +1064,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	{
 		$body = file_get_contents(self::$data_ad . $bodyFile_rf);
 		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -1069,7 +1072,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {
@@ -1117,7 +1120,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	{
 		$body = file_get_contents(self::$data_ad . $bodyFile_rf);
 		$response = RequestHandlerMock::handle('/index.php/api', $server, [], $requestHeaders, $body);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -1125,7 +1128,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('/index.php/api', $server, [], $requestHeaders, $body);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {
@@ -1172,7 +1175,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function testRequestWithBodyFailure($server, $body, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -1180,7 +1183,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {
@@ -1250,7 +1253,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function testRequestCountWithBodyFailure($server, $body, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
 	{
 		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -1258,7 +1261,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('index.php/api/', $server, [], $requestHeaders, $body);
-		$sendHead = $response->getSend();
+		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
 		if ($responseCode == 200) {

@@ -5,11 +5,12 @@ use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Test\Comhon\Mock\RequestHandlerMock;
 use Comhon\Object\Collection\MainObjectCollection;
-use Comhon\Interfacer\AssocArrayInterfacer;
-use Comhon\Interfacer\XMLInterfacer;
+use Test\Comhon\Utils\RequestTestTrait;
 
 class RequestHandlerOptionsTest extends TestCase
 {
+	use RequestTestTrait;
+	
 	public static function setUpBeforeClass()
 	{
 		Config::setLoadPath(Data::$config);
@@ -27,7 +28,7 @@ class RequestHandlerOptionsTest extends TestCase
 	public function testRequestOptions($server, $responseCode, $responseHeaders)
 	{
 		$response = RequestHandlerMock::handle('index.php/api', $server);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $send[0]);
 		$this->assertEquals($responseHeaders, $send[1]);
@@ -110,7 +111,7 @@ class RequestHandlerOptionsTest extends TestCase
 	public function testRequestOptionsWithBody($server, $responseCode, $responseHeaders, $responseBody)
 	{
 		$response = RequestHandlerMock::handle('index.php/api', $server);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseBody, $send[2]);
 		$this->assertEquals($responseCode, $send[0]);
@@ -148,7 +149,7 @@ class RequestHandlerOptionsTest extends TestCase
 	public function testRequestOptionsFailure($server, $responseCode, $responseHeaders, $responseBody)
 	{
 		$response = RequestHandlerMock::handle('index.php/api', $server);
-		$send = $response->getSend();
+		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseBody, $send[2]);
 		$this->assertEquals($responseCode, $send[0]);
@@ -190,7 +191,7 @@ class RequestHandlerOptionsTest extends TestCase
 			'REQUEST_URI' => '/index.php/api/models'
 		];
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $requestableModels);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
 		$this->assertEquals($responseCode, $sendGet[0]);
@@ -224,7 +225,7 @@ class RequestHandlerOptionsTest extends TestCase
 			'REQUEST_URI' => '/index.php/api/patterns'
 		];
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], []);
-		$sendGet = $response->getSend();
+		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals('', $sendGet[2]);
 		$this->assertEquals(200, $sendGet[0]);

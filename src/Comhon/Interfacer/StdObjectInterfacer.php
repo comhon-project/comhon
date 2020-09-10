@@ -16,6 +16,15 @@ use Comhon\Exception\ArgumentException;
 class StdObjectInterfacer extends Interfacer {
 
 	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Interfacer\Interfacer::getMediaType()
+	 */
+	public function getMediaType() {
+		return 'application/json';
+	}
+	
+	/**
 	 * get value in $node with property $name
 	 *
 	 * @param \stdClass $node
