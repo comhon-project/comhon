@@ -330,7 +330,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
 				],
 				[
-					'__order__' => '[{"property":"id","type":"DESC"}]',
+					'-order' => '[{"property":"id","type":"DESC"}]',
 				],
 				200,
 				['Content-Type' => 'application/json'],
@@ -372,7 +372,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson/1'
 				],
 				[
-					'__properties__' => ['birthPlace', 'firstName']
+					'-properties' => ['birthPlace', 'firstName']
 				],
 				200,
 				['Content-Type' => 'application/json'],
@@ -427,7 +427,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
 				[
-					'__order__' => '[{"property":"id","type":"DESC"}]',
+					'-order' => '[{"property":"id","type":"DESC"}]',
 				],
 				200,
 				['Content-Type' => 'application/json'],
@@ -439,8 +439,8 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cWoman'
 				],
 				[
-					'__order__' => '[{"property":"firstName","type":"ASC"}]',
-					'__range__' => '3-5'
+					'-order' => '[{"property":"firstName","type":"ASC"}]',
+					'-range' => '3-5'
 				],
 				200,
 				['Content-Type' => 'application/json'],
@@ -452,8 +452,8 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
 				],
 				[
-					'__order__' => '[{"property":"firstName","type":"ASC"}]',
-					'__properties__' => ['birthPlace', 'firstName']
+					'-order' => '[{"property":"firstName","type":"ASC"}]',
+					'-properties' => ['birthPlace', 'firstName']
 				],
 				200,
 				['Content-Type' => 'application/json'],
@@ -465,8 +465,8 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
 				],
 				[
-					'__order__' => '[{"property":"firstName","type":"ASC"}]',
-					'__properties__' => ['birthPlace', 'firstName'],
+					'-order' => '[{"property":"firstName","type":"ASC"}]',
+					'-properties' => ['birthPlace', 'firstName'],
 					'firstName' => 'Bernard'
 				],
 				200,
@@ -479,8 +479,8 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
 				],
 				[
-					'__order__' => '[{"property":"firstName","type":"ASC"}]',
-					'__properties__' => ['birthPlace', 'firstName'],
+					'-order' => '[{"property":"firstName","type":"ASC"}]',
+					'-properties' => ['birthPlace', 'firstName'],
 					'firstName' => 'no name'
 				],
 				200,
@@ -493,8 +493,8 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
 				],
 				[
-					'__order__' => '[{"property":"firstName","type":"ASC"}]',
-					'__properties__' => ['firstName'],
+					'-order' => '[{"property":"firstName","type":"ASC"}]',
+					'-properties' => ['firstName'],
 					'firstName' => ['Bernard', 'john']
 				],
 				200,
@@ -507,8 +507,8 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
 				],
 				[
-					'__order__' => '[{"property":"firstName","type":"ASC"}]',
-					'__properties__' => ['firstName'],
+					'-order' => '[{"property":"firstName","type":"ASC"}]',
+					'-properties' => ['firstName'],
 					'firstName' => ['Bernard', 'john'],
 					'lastName' => 'lennon'
 				],
@@ -522,9 +522,9 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
 				],
 				[
-					'__order__' => '[{"property":"firstName","type":"ASC"}]',
-					'__properties__' => ['firstName'],
-					'__clause__' => 'disjunction',
+					'-order' => '[{"property":"firstName","type":"ASC"}]',
+					'-properties' => ['firstName'],
+					'-clause' => 'disjunction',
 					'firstName' => ['Bernard', 'john'],
 					'lastName' => 'Henri'
 				],
@@ -538,9 +538,9 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cTestPrivateId'
 				],
 				[
-					'__order__' => '[{"property":"id","type":"ASC"}]',
-					'__range__' => '0-0',
-					'__properties__' => ['name']
+					'-order' => '[{"property":"id","type":"ASC"}]',
+					'-range' => '0-0',
+					'-properties' => ['name']
 				],
 				200,
 				['Content-Type' => 'application/json'],
@@ -552,8 +552,8 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cTestPrivateId'
 				],
 				[
-					'__order__' => '[{"property":"id","type":"ASC"}]',
-					'__range__' => '0-0',
+					'-order' => '[{"property":"id","type":"ASC"}]',
+					'-range' => '0-0',
 				],
 				200,
 				['Content-Type' => 'application/json'],
@@ -567,7 +567,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					[
 							'hairColor' => 'black',
 							'height' => 1.8,
-							'__properties__' => ['id', 'height', 'physicalAppearance']
+							'-properties' => ['id', 'height', 'physicalAppearance']
 					],
 					200,
 					['Content-Type' => 'application/json'],
@@ -735,7 +735,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
 				],
 				[
-					'__properties__' => ['does_not_exist']
+					'-properties' => ['does_not_exist']
 				],
 				400,
 				['Content-Type' => 'application/json'],
@@ -747,11 +747,11 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
 				],
 				[
-					'__properties__' => 'not_array'
+					'-properties' => 'not_array'
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":202,"message":"value of property \'__properties__\' must be a array, string \'not_array\' given"}'
+				'{"code":202,"message":"value of property \'-properties\' must be a array, string \'not_array\' given"}'
 			],
 			[ // malformed properties filter
 				[
@@ -759,7 +759,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
 				],
 				[
-					'__properties__' => [1]
+					'-properties' => [1]
 				],
 				400,
 				['Content-Type' => 'application/json'],
@@ -771,7 +771,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/[1,"23"]'
 				],
 				[
-					'__properties__' => ['string']
+					'-properties' => ['string']
 				],
 				400,
 				['Content-Type' => 'application/json'],
@@ -783,11 +783,11 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
 				[
-					'__clause__' => ['hehe']
+					'-clause' => ['hehe']
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":202,"message":"Something goes wrong on \'.__clause__\' value : \nvalue must be a string, array given"}'
+				'{"code":202,"message":"Something goes wrong on \'.-clause\' value : \nvalue must be a string, array given"}'
 			],
 			[ // malformed clause
 				[
@@ -795,11 +795,11 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
 				[
-					'__clause__' => 'hehe'
+					'-clause' => 'hehe'
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":200,"message":"Something goes wrong on \'.__clause__\' value : \nhehe is not in enumeration [\"disjunction\",\"conjunction\"]"}'
+				'{"code":200,"message":"Something goes wrong on \'.-clause\' value : \nhehe is not in enumeration [\"disjunction\",\"conjunction\"]"}'
 			],
 			[ // ##### 10 ##### malformed order 
 				[
@@ -807,11 +807,11 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
 				[
-					'__order__' => 'aaaa'
+					'-order' => 'aaaa'
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":202,"message":"value of property \'__order__\' must be a json, string \'aaaa\' given"}'
+				'{"code":202,"message":"value of property \'-order\' must be a json, string \'aaaa\' given"}'
 			],
 			[ // malformed order
 				[
@@ -819,11 +819,11 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
 				[
-					'__order__' => '["aaa"]'
+					'-order' => '["aaa"]'
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":202,"message":"Something goes wrong on \'.__order__.0\' value : \nvalue must be a array, string \'aaa\' given"}'
+				'{"code":202,"message":"Something goes wrong on \'.-order.0\' value : \nvalue must be a array, string \'aaa\' given"}'
 			],
 			[ // malformed order
 				[
@@ -831,11 +831,11 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
 				[
-					'__order__' => '[{"hehe":"hehe"}]'
+					'-order' => '[{"hehe":"hehe"}]'
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":204,"message":"Something goes wrong on \'.__order__.0\' value : \nmissing required value \'property\' on comhon object with model \'Comhon\\\\Request\\\\Order\'"}'
+				'{"code":204,"message":"Something goes wrong on \'.-order.0\' value : \nmissing required value \'property\' on comhon object with model \'Comhon\\\\Request\\\\Order\'"}'
 			],
 				[ // malformed order undefined property name
 				[
@@ -843,7 +843,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
 				[
-					'__order__' => '[{"property":"undefined_property"}]'
+					'-order' => '[{"property":"undefined_property"}]'
 				],
 				400,
 				['Content-Type' => 'application/json'],
@@ -855,11 +855,11 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
 				[
-					'__range__' => '1-2'
+					'-range' => '1-2'
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":208,"message":"property value \'__range__\' can\'t be set without property value \'__order__\'"}'
+				'{"code":208,"message":"property value \'-range\' can\'t be set without property value \'-order\'"}'
 			],
 			[ // malformed range 1
 				[
@@ -867,12 +867,12 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
 				[
-					'__range__' => 'my_range',
-					'__order__' => '[{"property":"id"}]'
+					'-range' => 'my_range',
+					'-order' => '[{"property":"id"}]'
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":200,"message":"Something goes wrong on \'.__range__\' value : \nmy_range doesn\'t satisfy range format \'x-y\' where x and y are integer and x<=y"}'
+				'{"code":200,"message":"Something goes wrong on \'.-range\' value : \nmy_range doesn\'t satisfy range format \'x-y\' where x and y are integer and x<=y"}'
 			],
 			[ // malformed range 2
 				[
@@ -880,12 +880,12 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
 				],
 				[
-					'__range__' => '9-2',
-					'__order__' => '[{"property":"id"}]'
+					'-range' => '9-2',
+					'-order' => '[{"property":"id"}]'
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":200,"message":"Something goes wrong on \'.__range__\' value : \n9-2 doesn\'t satisfy range format \'x-y\' where x and y are integer and x<=y"}'
+				'{"code":200,"message":"Something goes wrong on \'.-range\' value : \n9-2 doesn\'t satisfy range format \'x-y\' where x and y are integer and x<=y"}'
 			],
 			[ // request filter with undefined property
 				[
@@ -1017,7 +1017,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_URI' => '/index.php/api/Test%5cTestNoId'
 				],
 				[
-					'__properties__' => ['value']
+					'-properties' => ['value']
 				],
 				500,
 				[],

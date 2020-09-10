@@ -452,8 +452,7 @@ try {
 // TODO for version > 4.0
 
 // version 4.0 manifest 4.0 do not manage previous versions
-// response, and request psr-7 (with guzzle)
-// replace query params __clause__ by -clause and others.
+// yaml management
 // Oauth2 for comhon-docker 
 
 // use id different than table name for sql table (may have same table name but with different database)

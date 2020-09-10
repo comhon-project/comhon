@@ -56,25 +56,25 @@ class RequestHandler {
 	 *
 	 * @var string
 	 */
-	const PROPERTIES = '__properties__';
+	const PROPERTIES = '-properties';
 	
 	/**
 	 *
 	 * @var string
 	 */
-	const ORDER = '__order__';
+	const ORDER = '-order';
 	
 	/**
 	 *
 	 * @var string
 	 */
-	const RANGE = '__range__';
+	const RANGE = '-range';
 	
 	/**
 	 *
 	 * @var string
 	 */
-	const CLAUSE = '__clause__';
+	const CLAUSE = '-clause';
 	
 	private static $serverRequest;
 	

@@ -81,7 +81,7 @@ class OptionsTest extends TestCase
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cBody%5cMan'
 				],
-				['id' => 1, '__properties__' => ['height']],
+				['id' => 1, '-properties' => ['height']],
 				200,
 				['Content-Type' => 'application/json'],
 				'[{"id":1,"height":1.8}]',
@@ -138,7 +138,7 @@ class OptionsTest extends TestCase
 		return [
 			[ // Config default limit, request without limit
 				'Test\TestPrivateId',
-				['__properties__' => ['name']],
+				['-properties' => ['name']],
 				200,
 				['Content-Type' => 'application/json'],
 				26,
@@ -146,7 +146,7 @@ class OptionsTest extends TestCase
 			],
 			[ // Config default limit, request with limit inferior than default
 				'Test\TestPrivateId',
-				['__properties__' => ['name'], "__range__" => "0-9", "__order__" => '[{"property":"id"}]'],
+				['-properties' => ['name'], "-range" => "0-9", "-order" => '[{"property":"id"}]'],
 				200,
 				['Content-Type' => 'application/json'],
 				26,
@@ -154,7 +154,7 @@ class OptionsTest extends TestCase
 			],
 			[ // Config default limit, request with limit supperior than default
 				'Test\TestPrivateId',
-				['__properties__' => ['name'], "__range__" => "0-99", "__order__" => '[{"property":"id"}]'],
+				['-properties' => ['name'], "-range" => "0-99", "-order" => '[{"property":"id"}]'],
 				200,
 				['Content-Type' => 'application/json'],
 				26,
@@ -162,7 +162,7 @@ class OptionsTest extends TestCase
 			],
 			[ // Model default limit, request without limit
 				'Test\TestNoId',
-				['__properties__' => ['name']],
+				['-properties' => ['name']],
 				200,
 				['Content-Type' => 'application/json'],
 				5,
@@ -170,7 +170,7 @@ class OptionsTest extends TestCase
 			],
 			[ // Model default limit, request with limit inferior than default
 				'Test\TestNoId',
-				['__properties__' => ['name'], "__range__" => "0-1", "__order__" => '[{"property":"name"}]'],
+				['-properties' => ['name'], "-range" => "0-1", "-order" => '[{"property":"name"}]'],
 				200,
 				['Content-Type' => 'application/json'],
 				5,
@@ -178,7 +178,7 @@ class OptionsTest extends TestCase
 			],
 			[ // Model default limit, request with limit supperior than default
 				'Test\TestNoId',
-				['__properties__' => ['name'], "__range__" => "0-99", "__order__" => '[{"property":"name"}]'],
+				['-properties' => ['name'], "-range" => "0-99", "-order" => '[{"property":"name"}]'],
 				200,
 				['Content-Type' => 'application/json'],
 				5,
