@@ -108,99 +108,54 @@ class RequestHandlerGetHeadTest extends TestCase
 	
 	/**
 	 *
-	 * @dataProvider requestableModelNamesData
+	 * @dataProvider patternsData
 	 */
-	public function testRequestableModelNames($requestHeaders, $requestableModels, $responseCode, $responseHeaders, $responseContent)
-	{
-		$server = [
-			'REQUEST_METHOD' => 'GET',
-			'REQUEST_URI' => '/index.php/api/models'
-		];
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders, '', $requestableModels);
-		$sendGet = $this->responseToArray($response);
-		
-		$this->assertEquals($responseContent, $sendGet[2]);
-		$this->assertEquals($responseCode, $sendGet[0]);
-		$this->assertEquals($responseHeaders, $sendGet[1]);
-		
-		$server['REQUEST_METHOD'] = 'HEAD';
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders, '', $requestableModels);
-		$sendHead = $this->responseToArray($response);
-		
-		$this->assertEquals($responseCode, $sendHead[0]);
-		if ($responseCode == 200) {
-			$this->assertEmpty($sendHead[2]);
-			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
-			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
-			unset($sendHead[1]['Content-Length']);
-			$this->assertEquals($responseHeaders, $sendHead[1]);
-		}
-	}
-	
-	public function requestableModelNamesData()
-	{
-		return [
-			[ // no requestable models names
-				[
-					'Accept' => 'application/json',
-				],
-				null,
-				404,
-				['Content-Type' => 'text/plain'],
-				'not handled route',
-			],
-			[ // response xml
-				[
-					'Accept' => 'application/xml',
-				],
-				[
-					'man-test' => 'Test\Person\Man',
-					'woman' => 'Test\Person\Woman',
-				],
-				200,
-				['Content-Type' => 'application/xml'],
-				'<root><node key-="man-test">Test\Person\Man</node><node key-="woman">Test\Person\Woman</node></root>',
-					
-			],
-				[ // response json
-				[
-					'Accept' => 'application/json',
-				],
-				[
-					'man' => 'Test\Person\Man',
-				],
-				200,
-				['Content-Type' => 'application/json'],
-				'{"man":"Test\\\\Person\\\\Man"}'
-			]
-		];
-	}
-	
-	public function testPatterns()
+	public function testPatterns($pattern, $regex)
 	{
 		$requestHeaders = ['Content-Type' => 'application/json'];
 		$server = [
 			'REQUEST_METHOD' => 'GET',
-			'REQUEST_URI' => '/index.php/api/patterns'
+			'REQUEST_URI' => "/index.php/api/pattern/$pattern"
 		];
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
 		$sendGet = $this->responseToArray($response);
 		
-		$patterns = json_decode(file_get_contents(Config::getInstance()->getRegexListPath()), true);
-		$this->assertEquals($patterns, json_decode($sendGet[2], true));
-		$this->assertEquals(200, $sendGet[0]);
-		$this->assertEquals(['Content-Type' => 'application/json'], $sendGet[1]);
+		if ($regex) {
+			$this->assertEquals(200, $sendGet[0]);
+			$this->assertEquals(['Content-Type' => 'text/plain'], $sendGet[1]);
+		} else {
+			$this->assertEquals(404, $sendGet[0]);
+		}
+		$this->assertEquals($regex, $sendGet[2]);
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders);
 		$sendHead = $this->responseToArray($response);
 		
-		$this->assertEquals(200, $sendHead[0]);
-		$this->assertEmpty($sendHead[2]);
-		$this->assertArrayHasKey('Content-Length', $sendHead[1]);
-		$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
-		unset($sendHead[1]['Content-Length']);
-		$this->assertEquals(['Content-Type' => 'application/json'], $sendHead[1]);
+		if ($regex) {
+			$this->assertEquals(200, $sendHead[0]);
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+			unset($sendHead[1]['Content-Length']);
+			$this->assertEquals([], $sendHead[1]);
+		} else {
+			$this->assertEquals(404, $sendGet[0]);
+		}
+	}
+	
+	public function patternsData()
+	{
+		return [
+			[
+			'email', 
+			'/^\S+@\S+\.[a-z]{2,6}$/'
+			],
+			[
+			'foo',
+			null
+			]
+		];
 	}
 	
 	/**

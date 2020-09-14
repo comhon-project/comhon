@@ -33,9 +33,12 @@ class RequestHandlerMock extends RequestHandler {
 		$uri = new Uri('http://localhost/'.$server['REQUEST_URI']);
 		$serverRequest = new ServerRequest($server['REQUEST_METHOD'], $uri, $headers, $body);
 		$serverRequest = $serverRequest->withQueryParams($get);
+		$resolver = is_null($requestableModels) ? null : function ($pathModelName) use ($requestableModels) {
+			$key = strtolower($pathModelName);
+			return array_key_exists($key, $requestableModels) ? $requestableModels[$key] : null;
+		};
 		
-		$handler = new self();
-		return $handler->_handle($serverRequest, $basePath, $requestableModels);
+		return $handler->_handle($serverRequest, $basePath, $resolver);
 	}
 	
 }

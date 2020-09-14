@@ -76,6 +76,10 @@ class RequestHandler {
 	 */
 	const CLAUSE = '-clause';
 	
+	/**
+	 * 
+	 * @var \GuzzleHttp\Psr7\ServerRequest
+	 */
 	private static $serverRequest;
 	
 	/**
@@ -141,39 +145,49 @@ class RequestHandler {
 	 * handle client request and build response
 	 * 
 	 * @param string $basePath
-	 * @param string[] $requestableModels each models that may be requested indexed by API model names.
-	 *                                an API model name must match regex '^[a-z\-]+$' (there is no verification).
-	 *                                example : [
-	 *                                  'man' => 'Object\Person\Man',
-	 *                                  'woman' => 'Object\Person\Woman',
-	 *                                  'man-test' => 'Test\Person\Man',
-	 *                                ].
-	 *                                if provided, URI must contain an API model name,
-	 *                                otherwise it must contain a fully qualified model name (with namespace).
+	 * @param \Closure $modelNameResolver anonymous function that permit to find comhon model name according
+	 *                                    api model name given in path URI.
+	 *                                    function must take api model name in first parameter and
+	 *                                    return the comhon model name if comhon model is requestable.
+	 *                                    the function must return null if comhon model is not found or not requestable.
+	 *                                    
+	 *                                    example : 
+	 *                                    ```
+	 *                                    $modelNames = ['persons' =>  'Test\\Person', 'houses' =>  'Test\\House'];
+	 *                                    $resolver = function ($pathModelName) use ($modelNames) {
+	 *                                        $key = strtolower($pathModelName);
+	 *                                        return array_key_exists($key, $modelNames) ? $modelNames[$key] : null;
+	 *                                    };
+	 *                                    $response = RequestHandler::handle('/api', $resolver);
+	 *                                    ```
+	 *                                    A request with URI 'https://www.mydomain.com/api/persons'
+	 *                                    will handle request with 'Test\\Person' model.
+	 *                                    A request with URI 'https://www.mydomain.com/api/foo'
+	 *                                    will not found comhon model and generate a 404 not found response.
+	 *                                    
+	 *                                    if anonymous function is not specified the api model name must be the cohmon model name.
 	 * @return \Comhon\Api\Response
 	 */
-	public static function handle($basePath, array $requestableModels = null) {
+	public static function handle($basePath, \Closure $modelNameResolver = null) {
 		$handler = new self();
-		return $handler->_handle(self::getServerRequest(), $basePath, $requestableModels);
+		return $handler->_handle(self::getServerRequest(), $basePath, $modelNameResolver);
 	}
 	
 	/**
 	 * 
 	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @param string $basePath
-	 * @param string[] $requestableModels
+	 * @param \Closure $modelNameResolver
 	 * @throws \Exception
 	 * @return \Comhon\Api\Response
 	 */
-	protected function _handle(ServerRequest $serverRequest, $basePath, $requestableModels) {
+	protected function _handle(ServerRequest $serverRequest, $basePath, $modelNameResolver) {
 		try {
 			$this->_setRessourceArray($serverRequest, $basePath);
-			if ($this->resource[0] == 'models' && count($this->resource) == 1) {
-				$response = $this->_getRequestableModels($serverRequest, $requestableModels);
-			} elseif ($this->resource[0] == 'patterns' && count($this->resource) == 1) {
-				$response = $this->_getPatterns($serverRequest);
+			if ($this->resource[0] == 'pattern' && count($this->resource) == 2) {
+				$response = $this->_getPattern($serverRequest);
 			}else {
-				$this->_setRessourceInfos($serverRequest->getMethod(), $requestableModels);
+				$this->_setRessourceInfos($serverRequest->getMethod(), $modelNameResolver);
 				$response = $this->_handleMethod($serverRequest);
 			}
 		} catch (ResponseException $e) {
@@ -213,9 +227,9 @@ class RequestHandler {
 	 * check if route is valid and may be handled.
 	 * 
 	 * @param string $method
-	 * @param string[] $requestableModels
+	 * @param \Closure $modelNameResolver
 	 */
-	private function _setRessourceInfos($method, array $requestableModels = null) {
+	private function _setRessourceInfos($method, \Closure $modelNameResolver = null) {
 		if ($this->resource[0] === 'count' && ($method === 'GET' || $method === 'HEAD' || $method === 'OPTIONS')) {
 			array_shift($this->resource);
 			$this->isCountRequest = true;
@@ -224,12 +238,11 @@ class RequestHandler {
 			throw new ResponseException(404, 'invalid route');
 		}
 		try {
-			if (!is_null($requestableModels)) {
-				$resourceName = strtolower($this->resource[0]);
-				if (!array_key_exists($resourceName, $requestableModels)) {
+			if (!is_null($modelNameResolver)) {
+				$modelName = $modelNameResolver($this->resource[0]);
+				if (is_null($modelName)) {
 					throw new ResponseException(404, "resource api model name '{$this->resource[0]}' doesn't exist");
 				}
-				$modelName = $requestableModels[$resourceName];
 			} else {
 				$modelName = $this->resource[0];
 			}
@@ -254,39 +267,12 @@ class RequestHandler {
 	}
 	
 	/**
-	 * get models list that may be requested
-	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
-	 * @param string[] $requestableModels
-	 * @return \Comhon\Api\Response
-	 */
-	private function _getRequestableModels(ServerRequest $serverRequest, array $requestableModels = null) {
-		return $this->_getAssocArrayResponse($serverRequest, $requestableModels);
-	}
-	
-	/**
 	 * get patterns list that may be used
 	 * 
 	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getPatterns(ServerRequest $serverRequest) {
-		$path = Config::getInstance()->getRegexListPath();
-		$regexs = file_exists($path) ? json_decode(file_get_contents($path), true) : null;
-		return $this->_getAssocArrayResponse($serverRequest, $regexs);
-	}
-	
-	/**
-	 * get response according provided assoc array of strings
-	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
-	 * @param string[] $assocArray
-	 * @return \Comhon\Api\Response
-	 */
-	private function _getAssocArrayResponse(ServerRequest $serverRequest, array $assocArray = null) {
-		if (is_null($assocArray)) {
-			throw new ResponseException(404, 'not handled route');
-		}
+	private function _getPattern(ServerRequest $serverRequest) {
 		$method = $serverRequest->getMethod();
 		
 		if ($method == 'OPTIONS') {
@@ -298,25 +284,16 @@ class RequestHandler {
 				['Allow' => implode(', ', ['GET', 'HEAD', 'OPTIONS'])]
 			);
 		}
-		$interfacer = self::getInterfacerFromAcceptHeader($serverRequest);
-		
-		if ($interfacer instanceof XMLInterfacer) {
-			$node = $interfacer->createArrayNode('root');
-			foreach ($assocArray as $apiName => $modelName) {
-				$interfacer->addAssociativeValue($node, $modelName, $apiName, 'node');
-			}
-		} elseif ($interfacer instanceof AssocArrayInterfacer) {
-			$node = $assocArray;
+		$path = Config::getInstance()->getRegexListPath();
+		$regexs = file_exists($path) ? json_decode(file_get_contents($path), true) : null;
+		if (is_null($regexs)|| !array_key_exists($this->resource[1], $regexs)) {
+			return new Response(404);
+		}
+		if ($method == 'GET') {
+			return new Response(200, ['Content-Type' => 'text/plain'], $regexs[$this->resource[1]]);
 		} else {
-			throw new ComhonException('not handled Content-Type : '.get_class($interfacer));
+			return new Response(200, ['Content-Length' => strlen($regexs[$this->resource[1]])]);
 		}
-		$body = $interfacer->toString($node);
-		$headers = ['Content-Type' => $interfacer->getMediaType()];
-		if ($method == 'HEAD') {
-			$headers['Content-Length'] = strlen($body);
-			$body = '';
-		}
-		return new Response(200, $headers, $body);
 	}
 	
 	/**

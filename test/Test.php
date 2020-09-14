@@ -398,10 +398,6 @@ try {
 	$time_end_local = microtime(true);
 	$plopTimes['DatabaseSerializationTest'] = $time_end_local - $time_start_local;
 	$time_start_local = microtime(true);
-	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'InterfacerTest.php';
-	$time_end_local = microtime(true);
-	$plopTimes['InterfacerTest'] = $time_end_local - $time_start_local;
-	$time_start_local = microtime(true);
 	require_once __DIR__ . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'RestrictionTest.php';
 	$time_end_local = microtime(true);
 	$plopTimes['RestrictionTest'] = $time_end_local - $time_start_local;
@@ -451,7 +447,6 @@ try {
 
 // TODO for version > 4.0
 
-// register model name resolver ?
 // parent access on option ?
 // Oauth2 for comhon-docker 
 

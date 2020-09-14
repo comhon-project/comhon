@@ -182,47 +182,13 @@ class RequestHandlerOptionsTest extends TestCase
 	
 	/**
 	 *
-	 * @dataProvider requestableModelNamesData
+	 * @dataProvider patternsData
 	 */
-	public function testRequestableModelNames($requestableModels, $responseCode, $responseHeaders, $responseContent)
+	public function testPatterns($pattern)
 	{
 		$server = [
 			'REQUEST_METHOD' => 'OPTIONS',
-			'REQUEST_URI' => '/index.php/api/models'
-		];
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $requestableModels);
-		$sendGet = $this->responseToArray($response);
-		
-		$this->assertEquals($responseContent, $sendGet[2]);
-		$this->assertEquals($responseCode, $sendGet[0]);
-		$this->assertEquals($responseHeaders, $sendGet[1]);
-	}
-	
-	public function requestableModelNamesData()
-	{
-		return [
-			[ // without requestable models names
-				null,
-				404,
-				['Content-Type' => 'text/plain'],
-				'not handled route',
-			],
-			[ // with requestable models names
-				[
-					'man' => 'Test\Person\Man',
-				],
-				200,
-				['Allow' => 'GET, HEAD, OPTIONS'],
-				''
-			]
-		];
-	}
-	
-	public function testPatterns()
-	{
-		$server = [
-			'REQUEST_METHOD' => 'OPTIONS',
-			'REQUEST_URI' => '/index.php/api/patterns'
+			'REQUEST_URI' => "/index.php/api/pattern/$pattern"
 		];
 		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], []);
 		$sendGet = $this->responseToArray($response);
@@ -230,6 +196,18 @@ class RequestHandlerOptionsTest extends TestCase
 		$this->assertEquals('', $sendGet[2]);
 		$this->assertEquals(200, $sendGet[0]);
 		$this->assertEquals(['Allow' => 'GET, HEAD, OPTIONS'], $sendGet[1]);
+	}
+	
+	public function patternsData()
+	{
+	return [
+		[
+			'email'
+		],
+		[
+			'foo'
+		]
+	];
 	}
 	
 }
