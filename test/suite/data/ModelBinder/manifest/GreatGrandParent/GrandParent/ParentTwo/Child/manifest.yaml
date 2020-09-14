@@ -1,0 +1,8 @@
+name: Binder\GreatGrandParent\GrandParent\ParentTwo\Child
+extends:
+    - \Binder\GreatGrandParent\GrandParent\ParentTwo
+properties:
+    -
+        name: childTwo
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

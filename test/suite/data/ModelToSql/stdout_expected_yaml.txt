@@ -1,0 +1,78 @@
+[0;31mSomething goes wrong with model 'Test\Extends\Loop\LoopThree' :
+loop detected in model inheritance : Test\Extends\Loop\LoopTwo and Test\Extends\Loop\LoopThree[0m
+You can stop or continue without model 'Test\Extends\Loop\LoopThree'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Extends\Loop\LoopThree' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Extends\Loop\LoopOne' :
+loop detected in model inheritance : Test\Extends\Loop\LoopThree and Test\Extends\Loop\LoopOne[0m
+You can stop or continue without model 'Test\Extends\Loop\LoopOne'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Extends\Loop\LoopOne' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Extends\Loop\LoopTwo' :
+loop detected in model inheritance : Test\Extends\Loop\LoopOne and Test\Extends\Loop\LoopTwo[0m
+You can stop or continue without model 'Test\Extends\Loop\LoopTwo'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Extends\Loop\LoopTwo' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Extends\Conflict' :
+error during model 'Test\Extends\Conflict' loading[0m
+You can stop or continue without model 'Test\Extends\Conflict'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Extends\Conflict' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Load\Malformed' :
+manifest file not found or malformed '/home/jean-philippe/ReposGit/comhon/test/config/../manifests/test/manifest/Load/Malformed/manifest.yaml'[0m
+You can stop or continue without model 'Test\Load\Malformed'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Load\Malformed' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Load\NotDefinedProperty' :
+manifest not found for model Test\Load\NotDefinedProperty\wrong-type[0m
+You can stop or continue without model 'Test\Load\NotDefinedProperty'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Load\NotDefinedProperty' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Request\Two' :
+foreign property 'one' has a model without id ('Test\Request\One')[0m
+You can stop or continue without model 'Test\Request\Two'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Request\Two' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Request\Five' :
+foreign property 'fours' has a model without id ('Test\Request\Four')[0m
+You can stop or continue without model 'Test\Request\Five'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Request\Five' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Request\Root' :
+foreign property 'one' has a model without id ('Test\Request\One')[0m
+You can stop or continue without model 'Test\Request\Root'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Request\Root' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Request\Four' :
+foreign property 'threes' has a model without id ('Test\Request\Three')[0m
+You can stop or continue without model 'Test\Request\Four'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Request\Four' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Request\One' :
+foreign property 'two' has a model without id ('Test\Request\Two')[0m
+You can stop or continue without model 'Test\Request\One'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Request\One' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Load\LocalTypeNotDefinedProperty\MalformedLocalType' :
+manifest not found for model Test\Load\LocalTypeNotDefinedProperty\wrong-type-in-local[0m
+You can stop or continue without model 'Test\Load\LocalTypeNotDefinedProperty\MalformedLocalType'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Load\LocalTypeNotDefinedProperty\MalformedLocalType' is ignored[0m
+
+[0;31mSomething goes wrong with model 'Test\Load\Duplicate\Local' :
+model 'Test\Load\Duplicate\Local' appear several times in manifest and local types[0m
+You can stop or continue without model 'Test\Load\Duplicate\Local'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\Load\Duplicate\Local' is ignored[0m
+

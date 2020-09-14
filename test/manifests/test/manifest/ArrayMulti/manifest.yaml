@@ -1,0 +1,37 @@
+name: Test\ArrayMulti
+properties:
+    -
+        name: integers
+        values:
+            name: x
+            not_null: true
+            size: '[,1]'
+            values:
+                name: 'y'
+                not_null: true
+                size: '[,2]'
+                values:
+                    name: z
+                    not_null: true
+                    interval: '[,100]'
+                    inheritance-: Comhon\Manifest\Value\Integer
+                inheritance-: Comhon\Manifest\Value\Array
+            inheritance-: Comhon\Manifest\Value\Array
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: objects
+        is_associative: true
+        values:
+            name: first
+            values:
+                name: second
+                is_associative: true
+                values:
+                    name: third
+                    model: \Test\Basic\Standard
+                    is_foreign: true
+                    inheritance-: Comhon\Manifest\Value\Object
+                inheritance-: Comhon\Manifest\Value\Array
+            inheritance-: Comhon\Manifest\Value\Array
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'

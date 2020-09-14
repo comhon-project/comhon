@@ -1,0 +1,7 @@
+name: Comhon\SqlTable
+version: '3.0'
+serialization:
+    settings:
+        dir_path: ./table
+        file_name: table.json
+        inheritance-: Comhon\File\JsonFile

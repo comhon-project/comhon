@@ -1,0 +1,80 @@
+name: Test\Validate
+properties:
+    -
+        name: value
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: valueRequired
+        is_required: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: valueNotRequired
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: valueComplex
+        model: localRestricted
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: baseValue
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: depends
+        depends:
+            - baseValue
+            - value
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: conflict
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: dependsConflict
+        depends:
+            - baseValue
+        inheritance-: Comhon\Manifest\Property\String
+conflicts:
+    -
+        - conflict
+        - baseValue
+    -
+        - conflict
+        - value
+    -
+        - dependsConflict
+        - value
+version: '3.0'
+types:
+    -
+        name: localRestricted
+        properties:
+            -
+                name: value
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: valueRequired
+                is_required: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: valueNotRequired
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: localRestrictedExtended
+        extends:
+            - \Test\Validate\localRestricted
+        properties:
+            -
+                name: valueRequiredExtended
+                is_required: true
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: Conflict
+        properties:
+            -
+                name: value
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: conflict
+                inheritance-: Comhon\Manifest\Property\String
+        conflicts:
+            -
+                - value
+                - conflict

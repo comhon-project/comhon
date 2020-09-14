@@ -1,0 +1,29 @@
+name: Test\Extends\ShareId\MainNotMain
+is_main: true
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+version: '3.0'
+types:
+    -
+        name: Main
+        extends:
+            - \Test\Extends\ShareId\MainNotMain
+        is_main: true
+        share_parent_id: true
+        properties: []
+    -
+        name: NotMain
+        extends:
+            - \Test\Extends\ShareId\MainNotMain
+        share_parent_id: true
+        properties: []
+    -
+        name: NotMain\Main
+        extends:
+            - NotMain
+        is_main: true
+        share_parent_id: true
+        properties: []

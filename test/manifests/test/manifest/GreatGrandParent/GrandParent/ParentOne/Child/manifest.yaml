@@ -1,0 +1,27 @@
+name: Test\GreatGrandParent\GrandParent\ParentOne\Child
+extends:
+    - \Test\GreatGrandParent\GrandParent\ParentOne
+properties:
+    -
+        name: childOne
+        inheritance-: Comhon\Manifest\Property\String
+inheritance_requestables:
+    - \Test\GreatGrandParent\GrandParent\ParentOne\Child\Child
+    - \Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable
+version: '3.0'
+types:
+    -
+        name: ChildLocalSerializable
+        extends:
+            - \Test\GreatGrandParent\GrandParent\ParentOne\Child
+        properties:
+            -
+                name: localChildOne
+                inheritance-: Comhon\Manifest\Property\String
+        inheritance_requestables:
+            - \Test\GreatGrandParent\GrandParent\ParentOne\Child\Child
+    -
+        name: ChildLocalNotSerializable
+        extends:
+            - \Test\GreatGrandParent\GrandParent\ParentOne\Child
+        properties: []

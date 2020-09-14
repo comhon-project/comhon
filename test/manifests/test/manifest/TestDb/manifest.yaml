@@ -1,0 +1,154 @@
+name: Test\TestDb
+is_main: true
+properties:
+    -
+        name: id1
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: id2
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: date
+        inheritance-: Comhon\Manifest\Property\DateTime
+    -
+        name: timestamp
+        inheritance-: Comhon\Manifest\Property\DateTime
+    -
+        name: object
+        model: Object
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: objectWithId
+        model: ObjectWithId
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: string
+        is_private: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: integer
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: mainParentTestDb
+        model: \Test\MainTestDb
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: objectsWithId
+        values:
+            name: objectWithId
+            model: ObjectWithId
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: foreignObjects
+        values:
+            name: foreignObject
+            model: ObjectWithId
+            is_foreign: true
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: lonelyForeignObject
+        model: ObjectWithId
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: lonelyForeignObjectTwo
+        model: ObjectWithIdAndMore
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: defaultValue
+        default: default
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: manBodyJson
+        model: \Test\Body\ManJson
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: womanXml
+        model: \Test\Person\WomanXml
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: notSerializedValue
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: notSerializedForeignObject
+        model: ObjectWithId
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: boolean
+        inheritance-: Comhon\Manifest\Property\Boolean
+    -
+        name: boolean2
+        inheritance-: Comhon\Manifest\Property\Boolean
+    -
+        name: childrenTestDb
+        values:
+            name: childTestDb
+            model: \Test\ChildTestDb
+        aggregations:
+            - parentTestDb
+        inheritance-: Comhon\Manifest\Property\Aggregation
+    -
+        name: notLinkableArrayTestDb
+        values:
+            name: childTestDb
+            model: \Test\NotLinkableTestDb
+            is_foreign: true
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: notLinkableTestDb
+        model: \Test\NotLinkableTestDb
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: notLinkableTestObjValue
+        model: \Test\Test
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'
+types:
+    -
+        name: Object
+        properties:
+            -
+                name: plop
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: plop2
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: ObjectWithId
+        properties:
+            -
+                name: plop
+                is_id: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: plop2
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: ObjectWithIdAndMore
+        extends:
+            - ObjectWithId
+        properties:
+            -
+                name: plop3
+                is_private: true
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: ObjectWithIdAndMoreMore
+        extends:
+            - ObjectWithIdAndMore
+        properties:
+            -
+                name: plop4
+                inheritance-: Comhon\Manifest\Property\String

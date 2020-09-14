@@ -1,0 +1,17 @@
+name: Test\Load\Duplicate
+properties:
+    -
+        name: name
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: stringProperty
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'
+types:
+    -
+        name: Local
+        properties:
+            -
+                name: localOne
+                inheritance-: Comhon\Manifest\Property\String

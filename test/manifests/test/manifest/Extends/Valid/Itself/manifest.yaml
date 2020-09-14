@@ -1,0 +1,19 @@
+name: Test\Extends\Valid\Itself
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: stringProperty
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'
+types:
+    -
+        name: Itself
+        extends:
+            - \Test\Extends\Valid\Itself
+        properties:
+            -
+                name: floatProperty
+                inheritance-: Comhon\Manifest\Property\Float

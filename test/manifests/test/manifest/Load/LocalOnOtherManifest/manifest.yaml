@@ -1,0 +1,8 @@
+name: Test\Load\LocalOnOtherManifest
+is_main: true
+properties:
+    -
+        name: localDistant
+        model: \Test\Load\Local
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

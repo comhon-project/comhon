@@ -1,0 +1,6 @@
+name: Test\TestMultiIncremental
+version: '3.0'
+serialization:
+    foreign_settings:
+        id: public.test_multi_increment
+        inheritance-: Comhon\SqlTable

@@ -1,0 +1,4 @@
+name: Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child
+version: '3.0'
+inheritance_values:
+    - Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child

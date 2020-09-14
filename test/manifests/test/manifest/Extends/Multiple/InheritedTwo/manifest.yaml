@@ -1,0 +1,10 @@
+name: Test\Extends\Multiple\InheritedTwo
+extends:
+    - \Test\Extends\Multiple\InheritedOne
+properties:
+    -
+        name: two
+        inheritance-: Comhon\Manifest\Property\String
+inheritance_requestables:
+    - \Test\Extends\Multiple\InheritedFinal
+version: '3.0'

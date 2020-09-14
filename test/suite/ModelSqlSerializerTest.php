@@ -66,9 +66,19 @@ class ModelSqlSerializerTest extends TestCase
 		$files = Utils::scanDirectory($serializationSqlPath_ad);
 		$this->assertCount(31, $files);
 		
-		$expectedMd5Files = Config::getInstance()->getManifestFormat() == 'json'
-			? 'af0ff78c0fb3d14dd7e1b6e4267523d7'
-			: '7e543a648c4e7c82879fcc29fe7c94f8';
+		switch (Config::getInstance()->getManifestFormat()) {
+			case 'json':
+				$expectedMd5Files = 'af0ff78c0fb3d14dd7e1b6e4267523d7';
+				break;
+			case 'xml':
+				$expectedMd5Files = '7e543a648c4e7c82879fcc29fe7c94f8';
+				break;
+			case 'yaml':
+				$expectedMd5Files = '6c26254574d78a9fcecf48c4e9b30afe';
+				break;
+			default:
+				throw new \Exception('unrecognized manifest format');
+		}
 		
 		$actualMd5Files = '';
 		foreach ($files as $file) {

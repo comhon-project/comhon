@@ -1,0 +1,465 @@
+name: Comhon\Manifest
+extends:
+    - \Comhon\Manifest\Local
+properties:
+    -
+        name: version
+        not_null: true
+        is_required: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: types
+        values:
+            name: type
+            model: \Comhon\Manifest\Local
+            is_isolated: true
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'
+types:
+    -
+        name: Base
+        is_abstract: true
+        properties:
+            -
+                name: not_null
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+    -
+        name: Base\String
+        is_abstract: true
+        extends:
+            - Base
+        properties:
+            -
+                name: default
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: length
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: pattern
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: regex
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: enum
+                not_null: true
+                values:
+                    name: value
+                    not_null: true
+                    inheritance-: Comhon\Manifest\Value\String
+                inheritance-: Comhon\Manifest\Property\Array
+            -
+                name: not_empty
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: is_model_name
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+        conflicts:
+            -
+                - pattern
+                - regex
+    -
+        name: Base\Integer
+        is_abstract: true
+        extends:
+            - Base
+        properties:
+            -
+                name: default
+                inheritance-: Comhon\Manifest\Property\Integer
+            -
+                name: interval
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: enum
+                not_null: true
+                values:
+                    name: value
+                    not_null: true
+                    inheritance-: Comhon\Manifest\Value\Integer
+                inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: Base\Index
+        is_abstract: true
+        extends:
+            - Base\Integer
+    -
+        name: Base\Float
+        is_abstract: true
+        extends:
+            - Base
+        properties:
+            -
+                name: default
+                inheritance-: Comhon\Manifest\Property\Float
+            -
+                name: interval
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: enum
+                not_null: true
+                values:
+                    name: value
+                    not_null: true
+                    inheritance-: Comhon\Manifest\Value\Float
+                inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: Base\Percentage
+        is_abstract: true
+        extends:
+            - Base\Float
+    -
+        name: Base\DateTime
+        is_abstract: true
+        extends:
+            - Base
+        properties:
+            -
+                name: default
+                inheritance-: Comhon\Manifest\Property\DateTime
+            -
+                name: interval
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: enum
+                not_null: true
+                values:
+                    name: value
+                    not_null: true
+                    inheritance-: Comhon\Manifest\Value\DateTime
+                inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: Base\Boolean
+        is_abstract: true
+        extends:
+            - Base
+        properties:
+            -
+                name: default
+                inheritance-: Comhon\Manifest\Property\Boolean
+    -
+        name: Base\Object
+        is_abstract: true
+        extends:
+            - Base
+        properties:
+            -
+                name: model
+                not_null: true
+                is_required: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: is_foreign
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: is_isolated
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+    -
+        name: Base\Array
+        is_abstract: true
+        extends:
+            - Base
+        properties:
+            -
+                name: is_associative
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: not_empty
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: size
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: values
+                not_null: true
+                is_required: true
+                model: Value
+                inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: Property
+        is_abstract: true
+        extends:
+            - Base
+        properties:
+            -
+                name: name
+                not_null: true
+                is_required: true
+                is_id: true
+                regex: /^\w+$/
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: is_required
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: is_private
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: depends
+                not_null: true
+                values:
+                    name: property
+                    not_null: true
+                    model: Property
+                    is_foreign: true
+                    inheritance-: Comhon\Manifest\Value\Object
+                inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: Property\Scalar
+        is_abstract: true
+        extends:
+            - Property
+        share_parent_id: true
+        properties:
+            -
+                name: xml
+                not_null: true
+                enum:
+                    - attribute
+                    - node
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: Property\Id
+        is_abstract: true
+        properties:
+            -
+                name: is_id
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+    -
+        name: Property\String
+        extends:
+            - Property\Scalar
+            - Property\Id
+            - Base\String
+        share_parent_id: true
+    -
+        name: Property\Integer
+        extends:
+            - Property\Scalar
+            - Property\Id
+            - Base\Integer
+        share_parent_id: true
+    -
+        name: Property\Index
+        extends:
+            - Property\Integer
+        share_parent_id: true
+        properties:
+            -
+                name: auto
+                not_null: true
+                enum:
+                    - incremental
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: Property\Float
+        extends:
+            - Property\Scalar
+            - Property\Id
+            - Base\Float
+        share_parent_id: true
+    -
+        name: Property\Percentage
+        extends:
+            - Property\Float
+        share_parent_id: true
+    -
+        name: Property\DateTime
+        extends:
+            - Property\Scalar
+            - Base\DateTime
+        share_parent_id: true
+    -
+        name: Property\Boolean
+        extends:
+            - Property\Scalar
+            - Base\Boolean
+        share_parent_id: true
+    -
+        name: Property\Object
+        extends:
+            - Property
+            - Base\Object
+        share_parent_id: true
+    -
+        name: Property\Array
+        extends:
+            - Property
+            - Base\Array
+        share_parent_id: true
+    -
+        name: Property\Aggregation
+        extends:
+            - Property
+        properties:
+            -
+                name: not_empty
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: size
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: values
+                not_null: true
+                is_required: true
+                model: Value\Object
+                inheritance-: Comhon\Manifest\Property\Object
+            -
+                name: aggregations
+                not_null: true
+                not_empty: true
+                is_required: true
+                values:
+                    name: aggregation
+                    not_null: true
+                    inheritance-: Comhon\Manifest\Value\String
+                inheritance-: Comhon\Manifest\Property\Array
+        share_parent_id: true
+    -
+        name: Value
+        is_abstract: true
+        properties:
+            -
+                name: name
+                not_null: true
+                is_required: true
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: Value\String
+        extends:
+            - Value
+            - Base\String
+    -
+        name: Value\Integer
+        extends:
+            - Value
+            - Base\Integer
+    -
+        name: Value\Index
+        extends:
+            - Value\Integer
+    -
+        name: Value\Float
+        extends:
+            - Value
+            - Base\Float
+    -
+        name: Value\Percentage
+        extends:
+            - Value\Float
+    -
+        name: Value\DateTime
+        extends:
+            - Value
+            - Base\DateTime
+    -
+        name: Value\Boolean
+        extends:
+            - Value
+            - Base\Boolean
+    -
+        name: Value\Object
+        extends:
+            - Value
+            - Base\Object
+    -
+        name: Value\Array
+        extends:
+            - Value
+            - Base\Array
+    -
+        name: Local
+        properties:
+            -
+                name: name
+                not_null: true
+                is_required: true
+                is_id: true
+                regex: '/^\w+(\\\w+)*$/'
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: is_abstract
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: extends
+                not_null: true
+                values:
+                    name: type
+                    not_null: true
+                    inheritance-: Comhon\Manifest\Value\String
+                inheritance-: Comhon\Manifest\Property\Array
+            -
+                name: object_class
+                not_null: true
+                regex: /^(\\\w+)+$/
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: is_main
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: share_parent_id
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: shared_id
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: properties
+                not_null: true
+                values:
+                    name: property
+                    not_null: true
+                    model: Property
+                    inheritance-: Comhon\Manifest\Value\Object
+                inheritance-: Comhon\Manifest\Property\Array
+            -
+                name: conflicts
+                not_null: true
+                values:
+                    name: properties
+                    not_null: true
+                    size: '[2,]'
+                    values:
+                        name: property
+                        not_null: true
+                        model: Property
+                        is_foreign: true
+                        inheritance-: Comhon\Manifest\Value\Object
+                    inheritance-: Comhon\Manifest\Value\Array
+                inheritance-: Comhon\Manifest\Property\Array
+            -
+                name: inheritance_requestables
+                not_null: true
+                values:
+                    name: model
+                    not_null: true
+                    inheritance-: Comhon\Manifest\Value\String
+                inheritance-: Comhon\Manifest\Property\Array
+        conflicts:
+            -
+                - shared_id
+                - share_parent_id

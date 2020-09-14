@@ -1,0 +1,8 @@
+name: Test\Extends\Multiple\InheritedFourth
+version: '3.0'
+serialization:
+    inheritance_key: inheritance_two
+    settings:
+        dir_path: ./data/multiple_inheritance_two_serialization
+        file_name: file.json
+        inheritance-: Comhon\File\JsonFile

@@ -1,0 +1,12 @@
+name: Test\LocatedHouse
+version: '3.0'
+serialization:
+    foreign_settings:
+        id: public.house
+        inheritance-: Comhon\SqlTable
+properties:
+    -
+        property_name: id
+        serialization_name: id_serial
+inheritance_values:
+    - Test\LocatedHouse

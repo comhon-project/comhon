@@ -1,0 +1,12 @@
+name: Test\Town
+version: '3.0'
+serialization:
+    foreign_settings:
+        id: public.town
+        inheritance-: Comhon\SqlTable
+properties:
+    -
+        property_name: cityHall
+        serialization_name: city_hall
+inheritance_values:
+    - Test\Town

@@ -1,0 +1,6 @@
+name: Test\Request\Three
+properties:
+    -
+        name: string
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

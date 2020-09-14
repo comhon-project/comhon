@@ -1,0 +1,22 @@
+name: Test\TestPrivateId
+version: '3.0'
+serialization:
+    foreign_settings:
+        id: public.test_private_id
+        inheritance-: Comhon\SqlTable
+properties:
+    -
+        property_name: objectValues
+        serialization_name: object_values
+    -
+        property_name: foreignObjectValue
+        serialization_name: foreign_object_value
+    -
+        property_name: foreignObjectValues
+        serialization_name: foreign_object_values
+    -
+        property_name: foreignTestPrivateId
+        serialization_name: foreign_test_private_id
+    -
+        property_name: foreignTestPrivateIds
+        serialization_name: foreign_test_private_ids

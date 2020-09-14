@@ -1,0 +1,8 @@
+name: Test\Extends\Multiple\InheritedOne
+version: '3.0'
+serialization:
+    inheritance_key: inheritance_one
+    settings:
+        dir_path: ./data/multiple_inheritance_one_serialization
+        file_name: file.json
+        inheritance-: Comhon\File\JsonFile

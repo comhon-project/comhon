@@ -1,0 +1,16 @@
+name: Test\Person\Woman
+extends:
+    - \Test\Person
+object_class: \Test\Comhon\Object\Woman
+properties:
+    -
+        name: bodies
+        values:
+            name: body
+            model: \Test\Body\Woman
+        aggregations:
+            - owner
+        inheritance-: Comhon\Manifest\Property\Aggregation
+inheritance_requestables:
+    - \Test\Person\Woman\WomanExtended
+version: '3.0'

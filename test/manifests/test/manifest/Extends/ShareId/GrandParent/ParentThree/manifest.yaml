@@ -1,0 +1,8 @@
+name: Test\Extends\ShareId\GrandParent\ParentThree
+extends:
+    - \Test\Extends\ShareId\GrandParent
+properties:
+    -
+        name: parentThree
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

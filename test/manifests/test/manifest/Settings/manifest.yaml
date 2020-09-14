@@ -1,0 +1,26 @@
+name: Test\Settings
+is_abstract: false
+extends:
+    - \Test\Basic\Id\Main
+object_class: \Test\Comhon\Object\Settings
+is_main: false
+share_parent_id: true
+version: '3.0'
+types:
+    -
+        name: Local
+        is_abstract: true
+        extends:
+            - \Test\Basic\Id\Simple
+        object_class: \Test\Comhon\Object\SettingsLocal
+        is_main: true
+        share_parent_id: true
+        properties: []
+    -
+        name: LocalTwo
+        is_abstract: false
+        extends:
+            - \Test\Basic\Id\Simple
+        is_main: false
+        shared_id: \Test\Basic\Id\Simple
+        properties: []

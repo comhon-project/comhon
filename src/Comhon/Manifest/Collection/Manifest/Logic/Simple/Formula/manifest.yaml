@@ -1,0 +1,5 @@
+name: Comhon\Logic\Simple\Formula
+is_abstract: true
+extends:
+    - \Comhon\Logic\Formula
+version: '3.0'

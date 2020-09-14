@@ -1,0 +1,8 @@
+name: Test\GreatGrandParent\GrandParent\ParentOne\Child\Child
+extends:
+    - \Test\GreatGrandParent\GrandParent\ParentOne\Child\ChildLocalSerializable
+properties:
+    -
+        name: childChildOne
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

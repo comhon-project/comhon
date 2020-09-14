@@ -1,0 +1,15 @@
+name: Test\ChildTestDb
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: name
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: parentTestDb
+        model: \Test\TestDb
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

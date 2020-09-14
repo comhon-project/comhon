@@ -1,0 +1,13 @@
+name: Test\Body\Woman
+extends:
+    - \Test\Body
+properties:
+    -
+        name: owner
+        model: \Test\Person\Woman
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: chestSize
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

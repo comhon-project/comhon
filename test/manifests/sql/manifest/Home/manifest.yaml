@@ -1,0 +1,23 @@
+name: Sql\Home
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: beginDate
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: endDate
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: person
+        model: \Sql\Person
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: house
+        model: \Sql\House
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

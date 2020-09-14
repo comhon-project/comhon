@@ -1,0 +1,15 @@
+name: Comhon\Logic\Simple\Literal\Set\Numeric\Float
+extends:
+    - \Comhon\Logic\Simple\Literal\Set\Numeric
+share_parent_id: true
+properties:
+    -
+        name: values
+        not_null: true
+        is_required: true
+        not_empty: true
+        values:
+            name: value
+            inheritance-: Comhon\Manifest\Value\Float
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'

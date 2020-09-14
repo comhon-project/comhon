@@ -1,0 +1,104 @@
+name: Comhon\Serialization
+properties:
+    -
+        name: name
+        not_null: true
+        is_required: true
+        is_id: true
+        regex: '/^\w+(\\\w+)*$/'
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: version
+        not_null: true
+        is_required: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: share_parent_serialization
+        not_null: true
+        inheritance-: Comhon\Manifest\Property\Boolean
+    -
+        name: serialization
+        not_null: true
+        model: Serialization
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: properties
+        not_null: true
+        values:
+            name: property
+            not_null: true
+            model: Property
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: inheritance_values
+        not_null: true
+        values:
+            name: model
+            not_null: true
+            inheritance-: Comhon\Manifest\Value\String
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'
+types:
+    -
+        name: Property
+        properties:
+            -
+                name: property_name
+                not_null: true
+                is_required: true
+                is_id: true
+                regex: /^\w+$/
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: is_serializable
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: serialization_name
+                not_null: true
+                regex: /^\w+$/
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: serialization_names
+                not_null: true
+                is_associative: true
+                not_empty: true
+                values:
+                    name: serialization_name
+                    not_null: true
+                    regex: /^\w+$/
+                    inheritance-: Comhon\Manifest\Value\String
+                inheritance-: Comhon\Manifest\Property\Array
+        conflicts:
+            -
+                - serialization_name
+                - serialization_names
+    -
+        name: Serialization
+        properties:
+            -
+                name: serialization_unit_class
+                not_null: true
+                regex: /^(\\\w+)+$/
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: inheritance_key
+                not_null: true
+                not_empty: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: settings
+                not_null: true
+                model: \Comhon\Root
+                inheritance-: Comhon\Manifest\Property\Object
+            -
+                name: foreign_settings
+                not_null: true
+                model: \Comhon\Root
+                is_foreign: true
+                inheritance-: Comhon\Manifest\Property\Object
+        conflicts:
+            -
+                - settings
+                - foreign_settings

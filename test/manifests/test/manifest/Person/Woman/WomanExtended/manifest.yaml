@@ -1,0 +1,4 @@
+name: Test\Person\Woman\WomanExtended
+extends:
+    - \Test\Person\Woman
+version: '3.0'

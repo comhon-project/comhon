@@ -1,0 +1,46 @@
+name: Test\TestDb
+version: '3.0'
+serialization:
+    foreign_settings:
+        id: public.test
+        inheritance-: Comhon\SqlTable
+properties:
+    -
+        property_name: id1
+        serialization_name: id_1
+    -
+        property_name: id2
+        serialization_name: id_2
+    -
+        property_name: objectWithId
+        serialization_name: object_with_id
+    -
+        property_name: mainParentTestDb
+        serialization_name: main_test_id
+    -
+        property_name: objectsWithId
+        serialization_name: objects_with_id
+    -
+        property_name: foreignObjects
+        serialization_name: foreign_objects
+    -
+        property_name: lonelyForeignObject
+        serialization_name: lonely_foreign_object
+    -
+        property_name: lonelyForeignObjectTwo
+        serialization_name: lonely_foreign_object_two
+    -
+        property_name: defaultValue
+        serialization_name: default_value
+    -
+        property_name: manBodyJson
+        serialization_name: man_body_json_id
+    -
+        property_name: womanXml
+        serialization_name: woman_xml_id
+    -
+        property_name: notSerializedValue
+        is_serializable: false
+    -
+        property_name: notSerializedForeignObject
+        is_serializable: false

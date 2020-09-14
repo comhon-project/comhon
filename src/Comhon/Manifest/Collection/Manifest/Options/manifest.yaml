@@ -1,0 +1,68 @@
+name: Comhon\Options
+properties:
+    -
+        name: name
+        not_null: true
+        is_required: true
+        is_id: true
+        regex: '/^\w+(\\\w+)*$/'
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: version
+        not_null: true
+        is_required: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: unique
+        not_null: true
+        model: Unique
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: collection
+        not_null: true
+        model: Collection
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'
+types:
+    -
+        name: Unique
+        properties:
+            -
+                name: allowed_methods
+                not_null: true
+                values:
+                    name: method
+                    not_null: true
+                    enum:
+                        - GET
+                        - HEAD
+                        - POST
+                        - PUT
+                        - DELETE
+                        - CONNECT
+                        - OPTIONS
+                        - TRACE
+                        - PATCH
+                    inheritance-: Comhon\Manifest\Value\String
+                inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: Collection
+        extends:
+            - Unique
+        properties:
+            -
+                name: limit
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Integer
+            -
+                name: allow_complex_request
+                not_null: true
+                inheritance-: Comhon\Manifest\Property\Boolean
+            -
+                name: requestable_properties
+                not_null: true
+                values:
+                    name: name
+                    not_null: true
+                    inheritance-: Comhon\Manifest\Value\String
+                inheritance-: Comhon\Manifest\Property\Array

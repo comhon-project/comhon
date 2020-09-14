@@ -1,0 +1,9 @@
+name: Test\GreatGrandParent\GrandParentTwo\Parent\Child
+extends:
+    - \Test\GreatGrandParent\GrandParentTwo\Parent
+share_parent_id: true
+properties:
+    -
+        name: child
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

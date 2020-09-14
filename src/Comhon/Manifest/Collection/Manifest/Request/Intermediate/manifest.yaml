@@ -1,0 +1,23 @@
+name: Comhon\Request\Intermediate
+extends:
+    - \Comhon\Request
+properties:
+    -
+        name: root
+        not_null: true
+        is_required: true
+        model: \Comhon\Model\Simple
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: models
+        not_null: true
+        is_required: true
+        not_empty: true
+        values:
+            name: model
+            not_null: true
+            model: \Comhon\Model\Simple
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'

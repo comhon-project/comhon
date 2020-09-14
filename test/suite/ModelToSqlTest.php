@@ -40,8 +40,20 @@ class ModelToSqlTest extends TestCase
 		$modelBinder = new ModelToSQL(true);
 		$modelBinder->generateFiles(self::OUTPUT_PATH, $update, $modelName, $recursive);
 		
-		$expectedStdFile = Config::getInstance()->getManifestFormat() == 'json'
-			? 'stdout_expected_json.txt' : 'stdout_expected_xml.txt';
+		switch (Config::getInstance()->getManifestFormat()) {
+			case 'json':
+				$expectedStdFile = 'stdout_expected_json.txt';
+				break;
+			case 'xml':
+				$expectedStdFile = 'stdout_expected_xml.txt';
+				break;
+			case 'yaml':
+				$expectedStdFile = 'stdout_expected_yaml.txt';
+				break;
+			default:
+				throw new \Exception('unrecognized manifest format');
+		}
+		
 		$expected = self::DATA_DIR.$expectedStdFile;
 		$actual = self::DATA_DIR.'stdout_actual.txt';
 		$this->assertFileEquals($expected, $actual);
@@ -86,10 +98,16 @@ class ModelToSqlTest extends TestCase
 		$modelBinder = new ModelToSQL(false);
 		$actualQueries = $modelBinder->generateQueries($update, $modelName, $recursive);
 		
-		if (Config::getInstance()->getManifestFormat() == 'json') {
-			$this->assertEquals($expectedPgsqlQueries, $actualQueries);
-		} else {
-			$this->assertEquals($expectedMysqlQueries, $actualQueries);
+		switch (Config::getInstance()->getManifestFormat()) {
+			case 'json':
+			case 'yaml':
+				$this->assertEquals($expectedPgsqlQueries, $actualQueries);
+				break;
+			case 'xml':
+				$this->assertEquals($expectedMysqlQueries, $actualQueries);
+				break;
+			default:
+				throw new \Exception('unrecognized manifest format');
 		}
 		
 		

@@ -1,0 +1,13 @@
+name: Test\Body\Man
+extends:
+    - \Test\Body
+properties:
+    -
+        name: owner
+        model: \Test\Person\Man
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: baldness
+        inheritance-: Comhon\Manifest\Property\Boolean
+version: '3.0'

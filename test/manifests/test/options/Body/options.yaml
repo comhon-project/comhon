@@ -1,0 +1,14 @@
+name: Test\Body
+version: '3.0'
+unique:
+    allowed_methods: []
+collection:
+    allowed_methods:
+        - GET
+        - HEAD
+        - OPTIONS
+    allow_complex_request: false
+    requestable_properties:
+        - id
+        - height
+        - hairColor

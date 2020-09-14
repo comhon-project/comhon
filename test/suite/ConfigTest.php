@@ -114,6 +114,8 @@ class ConfigTest extends TestCase
 ';
 		if ($config->getManifestFormat() == 'xml') {
 			$expected = str_replace(['"json"', 'serialization_pgsql'], ['"xml"', 'serialization'], $expected);
+		} elseif ($config->getManifestFormat() == 'yaml') {
+			$expected = str_replace('"json"', '"yaml"', $expected);
 		}
 		$this->assertEquals($expected, $config->__toString());
 		

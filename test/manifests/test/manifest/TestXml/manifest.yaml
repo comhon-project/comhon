@@ -1,0 +1,82 @@
+name: Test\TestXml
+properties:
+    -
+        name: name
+        xml: node
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: textNode
+        xml: node
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: textAttribute
+        xml: attribute
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: objectValue
+        model: Object
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: objectValues
+        values:
+            name: objectValue
+            model: Object
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: objectContainer
+        model: ObjectContainer
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: foreignObjectValues
+        values:
+            name: foreignObjectValue
+            model: Object
+            is_foreign: true
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'
+types:
+    -
+        name: ObjectContainer
+        properties:
+            -
+                name: foreignObjectValue
+                model: Object
+                is_foreign: true
+                inheritance-: Comhon\Manifest\Property\Object
+            -
+                name: objectValueTwo
+                model: ObjectTwo
+                inheritance-: Comhon\Manifest\Property\Object
+            -
+                name: person
+                model: PersonLocal
+                inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: Object
+        properties:
+            -
+                name: id
+                is_id: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: propertyOne
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: propertyTwo
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: ObjectTwo
+        properties:
+            -
+                name: id
+                is_id: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: propertyTwoOne
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: propertyTwoTwo
+                inheritance-: Comhon\Manifest\Property\String

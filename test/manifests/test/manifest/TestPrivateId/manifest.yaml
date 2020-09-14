@@ -1,0 +1,61 @@
+name: Test\TestPrivateId
+is_main: true
+properties:
+    -
+        name: id
+        is_private: true
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: name
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: objectValues
+        values:
+            name: objectValue
+            model: Object
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: foreignObjectValue
+        model: Object
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: foreignObjectValues
+        values:
+            name: foreignObjectValue
+            model: Object
+            is_foreign: true
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: foreignTestPrivateId
+        model: \Test\TestPrivateId
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: foreignTestPrivateIds
+        values:
+            name: foreignTestPrivateId
+            model: \Test\TestPrivateId
+            is_foreign: true
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'
+types:
+    -
+        name: Object
+        properties:
+            -
+                name: id1
+                is_private: true
+                is_id: true
+                inheritance-: Comhon\Manifest\Property\Integer
+            -
+                name: id2
+                is_id: true
+                inheritance-: Comhon\Manifest\Property\Integer
+            -
+                name: propertyOne
+                inheritance-: Comhon\Manifest\Property\String

@@ -1,0 +1,10 @@
+name: Test\Person\Woman
+version: '3.0'
+serialization:
+    inheritance_key: sex
+    foreign_settings:
+        id: '"public"."person"'
+        inheritance-: Comhon\SqlTable
+inheritance_values:
+    - Test\Person\Woman
+    - Test\Person\Woman\WomanExtended

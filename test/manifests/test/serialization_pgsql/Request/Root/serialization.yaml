@@ -1,0 +1,7 @@
+name: Test\Request\Root
+version: '3.0'
+serialization:
+    settings:
+        name: root
+        database: '2'
+        inheritance-: Comhon\SqlTable

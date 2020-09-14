@@ -1,0 +1,11 @@
+name: Test\Request\Two
+properties:
+    -
+        name: one
+        model: \Test\Request\One
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: string
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

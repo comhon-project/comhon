@@ -1,0 +1,72 @@
+name: Comhon\Config
+is_main: true
+properties:
+    -
+        name: database
+        model: DbOpt
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: date_time_format
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: manifest_format
+        default: json
+        enum:
+            - json
+            - xml
+            - yaml
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: autoload
+        model: Autoload
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: regex_list
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: sql_table
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: sql_database
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: request_collection_limit
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: allow_complex_request
+        inheritance-: Comhon\Manifest\Property\Boolean
+version: '3.0'
+types:
+    -
+        name: DbOpt
+        properties:
+            -
+                name: charset
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: timezone
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: Autoload
+        properties:
+            -
+                name: manifest
+                is_associative: true
+                values:
+                    name: manifest
+                    inheritance-: Comhon\Manifest\Value\String
+                inheritance-: Comhon\Manifest\Property\Array
+            -
+                name: serialization
+                is_associative: true
+                values:
+                    name: serialization
+                    inheritance-: Comhon\Manifest\Value\String
+                inheritance-: Comhon\Manifest\Property\Array
+            -
+                name: options
+                is_associative: true
+                values:
+                    name: options
+                    inheritance-: Comhon\Manifest\Value\String
+                inheritance-: Comhon\Manifest\Property\Array

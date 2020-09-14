@@ -1,0 +1,11 @@
+name: Comhon\File
+is_abstract: true
+is_main: true
+properties:
+    -
+        name: dir_path
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: file_name
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

@@ -1,0 +1,9 @@
+name: Comhon\Logic\Formula
+is_abstract: true
+properties:
+    -
+        name: id
+        not_null: true
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+version: '3.0'

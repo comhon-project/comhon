@@ -1,0 +1,6 @@
+name: Test\Extends\Multiple\InheritedThree
+properties:
+    -
+        name: three
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

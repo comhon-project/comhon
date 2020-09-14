@@ -1,0 +1,14 @@
+name: Sql\Person\Woman
+extends:
+    - \Sql\Person
+object_class: \Sql\Comhon\Object\Woman
+properties:
+    -
+        name: bodies
+        values:
+            name: body
+            model: \Sql\Body\Woman
+        aggregations:
+            - owner
+        inheritance-: Comhon\Manifest\Property\Aggregation
+version: '3.0'

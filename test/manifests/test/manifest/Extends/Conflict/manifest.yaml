@@ -1,0 +1,45 @@
+name: Test\Extends\Conflict
+properties:
+    -
+        name: integerProperty
+        interval: '[0,]'
+        inheritance-: Comhon\Manifest\Property\Integer
+version: '3.0'
+types:
+    -
+        name: One
+        extends:
+            - \Test\Extends\Conflict
+        properties:
+            -
+                name: integerProperty
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: Two
+        extends:
+            - \Test\Extends\Conflict
+        properties:
+            -
+                name: integerProperty
+                inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: Three
+        extends:
+            - \Test\Extends\Conflict
+        properties:
+            -
+                name: integerProperty
+                interval: '[0,2]'
+                inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: Four
+        extends:
+            - Five
+            - \Test\Extends\Conflict
+        properties: []
+    -
+        name: Five
+        properties:
+            -
+                name: integerProperty
+                inheritance-: Comhon\Manifest\Property\Float

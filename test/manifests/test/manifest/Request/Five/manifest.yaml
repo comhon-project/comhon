@@ -1,0 +1,14 @@
+name: Test\Request\Five
+properties:
+    -
+        name: fours
+        values:
+            name: four
+            model: \Test\Request\Four
+            is_foreign: true
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: string
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

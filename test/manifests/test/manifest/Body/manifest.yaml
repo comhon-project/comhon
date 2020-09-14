@@ -1,0 +1,86 @@
+name: Test\Body
+is_abstract: true
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: date
+        inheritance-: Comhon\Manifest\Property\DateTime
+    -
+        name: height
+        inheritance-: Comhon\Manifest\Property\Float
+    -
+        name: weight
+        inheritance-: Comhon\Manifest\Property\Float
+    -
+        name: hairColor
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: hairCut
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: eyesColor
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: physicalAppearance
+        enum:
+            - slim
+            - average
+            - athletic
+            - muscular
+            - fat
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: tatoos
+        values:
+            name: tatoo
+            model: \Test\Body\Tatoo
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: piercings
+        values:
+            name: piercing
+            model: Piercing
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: arts
+        values:
+            name: art
+            model: Art
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'
+types:
+    -
+        name: Art
+        properties:
+            -
+                name: type
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: location
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: Tatoo
+        extends:
+            - Art
+        properties:
+            -
+                name: tatooArtist
+                model: \Test\Person
+                is_foreign: true
+                inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: Piercing
+        extends:
+            - Art
+        properties:
+            -
+                name: piercer
+                model: \Test\Person
+                is_foreign: true
+                inheritance-: Comhon\Manifest\Property\Object

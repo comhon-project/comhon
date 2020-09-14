@@ -1,0 +1,8 @@
+name: Test\Extends\Multiple\InheritedFourth
+extends:
+    - \Test\Extends\Multiple\InheritedThree
+properties:
+    -
+        name: fourth
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

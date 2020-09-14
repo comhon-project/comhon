@@ -60,11 +60,21 @@ class ModelBinderTest extends TestCase
 		$manifestBinderPath_ad = Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $manifestBinderPath_rd;
 		
 		$files = Utils::scanDirectory($manifestBinderPath_ad);
-		$this->assertCount(21, $files);
+		$this->assertCount(28, $files);
 		
-		$expectedMd5Files = Config::getInstance()->getManifestFormat() == 'json'
-			? 'cc475cf679f5c630fe082dd9abe1b83b'
-			: '375b5be753f40566723677b4d9b66a97';
+		switch (Config::getInstance()->getManifestFormat()) {
+			case 'json':
+				$expectedMd5Files = '10474249b9cd53fd5d7e9261d81efdf8';
+				break;
+			case 'xml':
+				$expectedMd5Files = '875519b8d976cd17985c5c4e6a647449';
+				break;
+			case 'yaml':
+				$expectedMd5Files = '76c5776a15a95b05df2081d308cd30c8';
+				break;
+			default:
+				throw new \Exception('unrecognized manifest format');
+		}
 		
 		$actualMd5Files = '';
 		foreach ($files as $file) {
@@ -85,11 +95,21 @@ class ModelBinderTest extends TestCase
 		$serializationBinderPath_ad = Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $serializationBinderPath_rd;
 		
 		$files = Utils::scanDirectory($serializationBinderPath_ad);
-		$this->assertCount(24, $files);
+		$this->assertCount(31, $files);
 		
-		$expectedMd5Files = Config::getInstance()->getManifestFormat() == 'json'
-			? 'b89a49ff3bee2a51abc7ce40310559bb'
-			: 'a24fbbc46914b731a9f3bc4c6bea4ebe';
+		switch (Config::getInstance()->getManifestFormat()) {
+			case 'json':
+				$expectedMd5Files = '0dacfc4b64b54485e16ffb6756704bec';
+				break;
+			case 'xml':
+				$expectedMd5Files = '7f487a00b38e3f59885a7cf7c3133691';
+				break;
+			case 'yaml':
+				$expectedMd5Files = 'cb8a123d7a4e64375bf4685890d0b997';
+				break;
+			default:
+				throw new \Exception('unrecognized manifest format');
+		}
 		
 		$actualMd5Files = '';
 		foreach ($files as $file) {

@@ -1,0 +1,32 @@
+name: Test\MainTestDb
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: name
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: obj
+        model: Object
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: childrenTestDb
+        values:
+            name: childTestDb
+            model: \Test\TestDb
+        aggregations:
+            - mainParentTestDb
+        inheritance-: Comhon\Manifest\Property\Aggregation
+version: '3.0'
+types:
+    -
+        name: Object
+        properties:
+            -
+                name: plop
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: plop2
+                inheritance-: Comhon\Manifest\Property\String

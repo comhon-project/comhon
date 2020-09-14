@@ -1,0 +1,11 @@
+name: Sql\HauntedHouse
+extends:
+    - \Sql\House
+properties:
+    -
+        name: ghosts
+        values:
+            name: ghost
+            inheritance-: Comhon\Manifest\Value\String
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'

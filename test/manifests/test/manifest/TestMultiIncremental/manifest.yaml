@@ -1,0 +1,14 @@
+name: Test\TestMultiIncremental
+properties:
+    -
+        name: id1
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: id2
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: plop
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

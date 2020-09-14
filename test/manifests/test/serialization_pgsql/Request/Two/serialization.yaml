@@ -1,0 +1,7 @@
+name: Test\Request\Two
+version: '3.0'
+serialization:
+    settings:
+        name: two
+        database: '2'
+        inheritance-: Comhon\SqlTable

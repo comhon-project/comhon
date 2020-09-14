@@ -1,0 +1,8 @@
+version: '2.0'
+serialization:
+    inheritanceKey: inheritanceKey
+    id: version_2
+    type: Comhon\SqlTable
+properties:
+    name:
+        serializationName: serial_name

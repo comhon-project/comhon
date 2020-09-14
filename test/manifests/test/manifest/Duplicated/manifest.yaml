@@ -1,0 +1,97 @@
+name: Test\Duplicated
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: dupliForeignProp
+        model: \Test\Duplicated
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: containerOne
+        model: ContainerOne
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: containerTwo
+        model: ContainerTwo
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: containerMain
+        model: ContainerMain
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: containerForeign
+        model: ContainerForeign
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'
+types:
+    -
+        name: ObjectMain
+        extends:
+            - \Test\Duplicated
+        is_main: true
+        share_parent_id: true
+        properties:
+            -
+                name: localMain
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: ObjectOne
+        extends:
+            - \Test\Duplicated
+        share_parent_id: true
+        properties:
+            -
+                name: localOne
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: ObjectTwo
+        extends:
+            - \Test\Duplicated
+        properties:
+            -
+                name: localTwo
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: ContainerOne
+        properties:
+            -
+                name: dupliProp
+                model: \Test\Duplicated
+                inheritance-: Comhon\Manifest\Property\Object
+            -
+                name: objTwoProp
+                model: ObjectTwo
+                inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: ContainerTwo
+        properties:
+            -
+                name: objOneProp
+                model: ObjectOne
+                inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: ContainerMain
+        properties:
+            -
+                name: objMainProp
+                model: ObjectMain
+                inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: ContainerForeign
+        properties:
+            -
+                name: objOneForeignProp
+                values:
+                    name: objOneForeign
+                    model: ObjectOne
+                    is_foreign: true
+                    inheritance-: Comhon\Manifest\Value\Object
+                inheritance-: Comhon\Manifest\Property\Array
+            -
+                name: objMainForeignProp
+                model: ObjectMain
+                is_foreign: true
+                inheritance-: Comhon\Manifest\Property\Object

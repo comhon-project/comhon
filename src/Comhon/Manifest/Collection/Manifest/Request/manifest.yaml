@@ -1,0 +1,77 @@
+name: Comhon\Request
+is_abstract: true
+properties:
+    -
+        name: limit
+        not_null: true
+        depends:
+            - order
+        interval: '[1,]'
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: offset
+        not_null: true
+        depends:
+            - order
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: order
+        not_null: true
+        not_empty: true
+        values:
+            name: element
+            not_null: true
+            model: Order
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: properties
+        not_null: true
+        values:
+            name: property
+            not_null: true
+            inheritance-: Comhon\Manifest\Value\String
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: simple_collection
+        not_null: true
+        values:
+            name: formula
+            not_null: true
+            model: \Comhon\Logic\Simple\Formula
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: having_collection
+        not_null: true
+        values:
+            name: formula
+            not_null: true
+            model: \Comhon\Logic\Having\Formula
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: filter
+        not_null: true
+        model: \Comhon\Logic\Simple\Formula
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'
+types:
+    -
+        name: Order
+        properties:
+            -
+                name: property
+                not_null: true
+                is_required: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: type
+                not_null: true
+                is_required: true
+                default: ASC
+                enum:
+                    - DESC
+                    - ASC
+                inheritance-: Comhon\Manifest\Property\String

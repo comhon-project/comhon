@@ -1,0 +1,12 @@
+name: Comhon\SqlTable
+properties:
+    -
+        name: name
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: database
+        model: \Comhon\SqlDatabase
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

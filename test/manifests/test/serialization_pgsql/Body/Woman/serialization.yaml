@@ -1,0 +1,13 @@
+name: Test\Body\Woman
+version: '3.0'
+serialization:
+    foreign_settings:
+        id: public.woman_body
+        inheritance-: Comhon\SqlTable
+properties:
+    -
+        property_name: chestSize
+        serialization_name: chest_size
+    -
+        property_name: owner
+        serialization_name: owner_id

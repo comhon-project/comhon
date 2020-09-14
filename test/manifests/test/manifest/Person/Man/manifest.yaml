@@ -1,0 +1,13 @@
+name: Test\Person\Man
+extends:
+    - \Test\Person
+properties:
+    -
+        name: bodies
+        values:
+            name: body
+            model: \Test\Body\Man
+        aggregations:
+            - owner
+        inheritance-: Comhon\Manifest\Property\Aggregation
+version: '3.0'

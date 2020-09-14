@@ -1,0 +1,15 @@
+name: Test\Extends\ShareId\GrandParentSerialized
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: grandParent
+        inheritance-: Comhon\Manifest\Property\String
+inheritance_requestables:
+    - \Test\Extends\ShareId\GrandParentSerialized\ParentThree\Child
+    - \Test\Extends\ShareId\GrandParentSerialized\ParentOne
+    - \Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child
+    - \Test\Extends\ShareId\GrandParentSerialized\ParentTwo\Child
+version: '3.0'

@@ -1,0 +1,6 @@
+name: Comhon\Logic\Simple\Literal\Set\Numeric
+is_abstract: true
+extends:
+    - \Comhon\Logic\Simple\Literal\Set
+share_parent_id: true
+version: '3.0'

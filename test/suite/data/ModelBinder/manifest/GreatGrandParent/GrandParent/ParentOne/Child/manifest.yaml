@@ -1,0 +1,23 @@
+name: Binder\GreatGrandParent\GrandParent\ParentOne\Child
+extends:
+    - \Binder\GreatGrandParent\GrandParent\ParentOne
+is_abstract: true
+properties:
+    -
+        name: childOne
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'
+types:
+    -
+        name: ChildLocalSerializable
+        extends:
+            - \Binder\GreatGrandParent\GrandParent\ParentOne\Child
+        properties:
+            -
+                name: localChildOne
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: ChildLocalNotSerializable
+        extends:
+            - \Binder\GreatGrandParent\GrandParent\ParentOne\Child
+        properties: []

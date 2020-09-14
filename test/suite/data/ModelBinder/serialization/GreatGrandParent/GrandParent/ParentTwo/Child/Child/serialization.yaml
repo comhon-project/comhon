@@ -1,0 +1,7 @@
+name: Binder\GreatGrandParent\GrandParent\ParentTwo\Child
+version: '3.0'
+serialization:
+    settings:
+        dir_path: ./data/binder/inherited_serialization_two
+        file_name: file.json
+        inheritance-: Comhon\File\JsonFile

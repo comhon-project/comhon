@@ -1,0 +1,15 @@
+{
+    "Test\\Extends\\Loop\\LoopThree": "loop detected in model inheritance : Test\\Extends\\Loop\\LoopTwo and Test\\Extends\\Loop\\LoopThree",
+    "Test\\Extends\\Loop\\LoopOne": "loop detected in model inheritance : Test\\Extends\\Loop\\LoopThree and Test\\Extends\\Loop\\LoopOne",
+    "Test\\Extends\\Loop\\LoopTwo": "loop detected in model inheritance : Test\\Extends\\Loop\\LoopOne and Test\\Extends\\Loop\\LoopTwo",
+    "Test\\Extends\\Conflict": "Inheritance conflict on property \"integerProperty\" on model \"Test\\Extends\\Conflict\\One\"",
+    "Test\\Load\\Malformed": "manifest file not found or malformed '\/home\/jean-philippe\/ReposGit\/comhon\/test\/config\/..\/manifests\/test\/manifest\/Load\/Malformed\/manifest.yaml'",
+    "Test\\Load\\NotDefinedProperty": "manifest not found for model Test\\Load\\NotDefinedProperty\\wrong-type",
+    "Test\\Request\\Two": "foreign property 'one' has a model without id ('Test\\Request\\One')",
+    "Test\\Request\\Five": "foreign property 'fours' has a model without id ('Test\\Request\\Four')",
+    "Test\\Request\\Root": "foreign property 'one' has a model without id ('Test\\Request\\One')",
+    "Test\\Request\\Four": "foreign property 'threes' has a model without id ('Test\\Request\\Three')",
+    "Test\\Request\\One": "foreign property 'two' has a model without id ('Test\\Request\\Two')",
+    "Test\\Load\\LocalTypeNotDefinedProperty\\MalformedLocalType": "manifest not found for model Test\\Load\\LocalTypeNotDefinedProperty\\wrong-type-in-local",
+    "Test\\Load\\Duplicate\\Local": "model 'Test\\Load\\Duplicate\\Local' appear several times in manifest and local types"
+}

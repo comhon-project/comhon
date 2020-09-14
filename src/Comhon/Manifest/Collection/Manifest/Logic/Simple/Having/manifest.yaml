@@ -1,0 +1,30 @@
+name: Comhon\Logic\Simple\Having
+extends:
+    - \Comhon\Logic\Simple\Formula
+share_parent_id: true
+properties:
+    -
+        name: node
+        not_null: true
+        is_required: true
+        model: \Comhon\Model
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: queue
+        not_null: true
+        is_required: true
+        not_empty: true
+        values:
+            name: property
+            not_null: true
+            inheritance-: Comhon\Manifest\Value\String
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: having
+        not_null: true
+        is_required: true
+        model: \Comhon\Logic\Having\Formula
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

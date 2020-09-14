@@ -1,0 +1,7 @@
+name: Test\Request\Three
+version: '3.0'
+serialization:
+    settings:
+        name: three
+        database: '2'
+        inheritance-: Comhon\SqlTable

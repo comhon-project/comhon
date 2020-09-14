@@ -1,0 +1,6 @@
+name: Comhon\SqlDatabase
+version: '3.0'
+unique:
+    allowed_methods: []
+collection:
+    allowed_methods: []

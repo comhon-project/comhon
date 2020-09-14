@@ -1,0 +1,10 @@
+name: Binder\GreatGrandParent
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: name
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

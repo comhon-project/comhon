@@ -1,0 +1,4 @@
+name: Test\Body\ManJsonExtended
+version: '3.0'
+inheritance_values:
+    - Test\Body\ManJsonExtended

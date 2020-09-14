@@ -1,0 +1,32 @@
+name: Test\Place
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: number
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: type
+        enum:
+            - street
+            - avenue
+            - boulevard
+            - square
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: name
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: geographicLatitude
+        inheritance-: Comhon\Manifest\Property\Float
+    -
+        name: geographicLongitude
+        inheritance-: Comhon\Manifest\Property\Float
+    -
+        name: town
+        model: \Test\Town
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

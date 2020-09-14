@@ -1,0 +1,8 @@
+name: Test\GreatGrandParent\GrandParent\ParentTwo\Child
+extends:
+    - \Test\GreatGrandParent\GrandParent\ParentTwo
+properties:
+    -
+        name: childTwo
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

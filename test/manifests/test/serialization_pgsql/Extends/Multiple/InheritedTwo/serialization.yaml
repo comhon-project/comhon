@@ -1,0 +1,5 @@
+name: Test\Extends\Multiple\InheritedTwo
+version: '3.0'
+inheritance_values:
+    - Test\Extends\Multiple\InheritedTwo
+    - Test\Extends\Multiple\InheritedFinal

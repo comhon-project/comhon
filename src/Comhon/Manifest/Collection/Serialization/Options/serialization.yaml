@@ -1,0 +1,4 @@
+name: Comhon\Options
+version: '3.0'
+serialization:
+    serialization_unit_class: \Comhon\Serialization\File\OptionsManifestFile

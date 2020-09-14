@@ -1,0 +1,8 @@
+name: Test\Person\WomanXml
+version: '3.0'
+serialization:
+    inheritance_key: attribute
+    settings:
+        dir_path: ./data/woman_xml
+        file_name: woman.xml
+        inheritance-: Comhon\File\XmlFile

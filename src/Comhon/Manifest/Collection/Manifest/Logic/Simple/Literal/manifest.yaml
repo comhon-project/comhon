@@ -1,0 +1,19 @@
+name: Comhon\Logic\Simple\Literal
+is_abstract: true
+extends:
+    - \Comhon\Logic\Simple\Formula
+share_parent_id: true
+properties:
+    -
+        name: node
+        not_null: true
+        is_required: true
+        model: \Comhon\Model
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: property
+        not_null: true
+        is_required: true
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

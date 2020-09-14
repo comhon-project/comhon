@@ -1,0 +1,26 @@
+name: Comhon\SqlDatabase
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: DBMS
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: host
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: name
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: user
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: password
+        is_private: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: port
+        inheritance-: Comhon\Manifest\Property\Integer
+version: '3.0'

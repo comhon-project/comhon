@@ -1,0 +1,26 @@
+name: Test\DbConstraint
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: unique_name
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: foreign_constraint
+        model: \Test\DbConstraint
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: unique_one
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: unique_two
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: foreign_constraint_composite
+        model: \Test\TestDb
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

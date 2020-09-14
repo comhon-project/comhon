@@ -1,0 +1,10 @@
+version: '2.0'
+serialization:
+    inheritanceKey: inheritanceKey
+    id: public.version_2
+    type: Comhon\SqlTable
+properties:
+    name:
+        serializationName: serial_name
+inheritance_values:
+    - Test\Manifest_V_2

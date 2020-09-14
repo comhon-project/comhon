@@ -1,0 +1,10 @@
+name: Test\Extends\ShareId\GrandParentSerialized\ParentOne
+extends:
+    - \Test\Extends\ShareId\GrandParentSerialized
+properties:
+    -
+        name: parentOne
+        inheritance-: Comhon\Manifest\Property\String
+inheritance_requestables:
+    - \Test\Extends\ShareId\GrandParentSerialized\ParentOne\Child
+version: '3.0'

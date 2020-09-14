@@ -1,0 +1,9 @@
+name: Test\TestNoId
+properties:
+    -
+        name: name
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: value
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

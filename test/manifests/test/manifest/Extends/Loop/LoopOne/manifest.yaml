@@ -1,0 +1,34 @@
+name: Test\Extends\Loop\LoopOne
+extends:
+    - \Test\Extends\Loop\LoopTwo
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+version: '3.0'
+types:
+    -
+        name: LocalLoopOne
+        extends:
+            - LocalLoopTwo
+        properties:
+            -
+                name: property
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: LocalLoopTwo
+        extends:
+            - LocalLoopThree
+        properties:
+            -
+                name: loopIntermediateProperty
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: LocalLoopThree
+        extends:
+            - LocalLoopOne
+        properties:
+            -
+                name: loopProperty
+                inheritance-: Comhon\Manifest\Property\String

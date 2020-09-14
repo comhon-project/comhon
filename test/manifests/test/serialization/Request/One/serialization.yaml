@@ -1,0 +1,7 @@
+name: Test\Request\One
+version: '3.0'
+serialization:
+    settings:
+        name: one
+        database: '1'
+        inheritance-: Comhon\SqlTable

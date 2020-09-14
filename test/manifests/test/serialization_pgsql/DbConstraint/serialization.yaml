@@ -1,0 +1,12 @@
+name: Test\DbConstraint
+version: '3.0'
+serialization:
+    foreign_settings:
+        id: public.db_constraint
+        inheritance-: Comhon\SqlTable
+properties:
+    -
+        property_name: foreign_constraint_composite
+        serialization_names:
+            id1: unique_foreign_one
+            id2: unique_foreign_two

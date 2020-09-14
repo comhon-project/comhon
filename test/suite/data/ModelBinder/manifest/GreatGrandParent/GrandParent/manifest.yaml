@@ -1,0 +1,9 @@
+name: Binder\GreatGrandParent\GrandParent
+extends:
+    - \Binder\GreatGrandParent
+share_parent_id: true
+properties:
+    -
+        name: grandParent
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

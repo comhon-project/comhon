@@ -1,0 +1,8 @@
+name: Test\Body\ManJsonExtended
+extends:
+    - \Test\Body\ManJson
+properties:
+    -
+        name: value
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

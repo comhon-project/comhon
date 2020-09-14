@@ -1,0 +1,8 @@
+name: Sql\Person\Woman\WomanExtended
+extends:
+    - \Sql\Person\Woman
+properties:
+    -
+        name: aProperty
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

@@ -1,0 +1,5 @@
+name: Comhon\File\JsonFile
+extends:
+    - \Comhon\File
+is_main: true
+version: '3.0'

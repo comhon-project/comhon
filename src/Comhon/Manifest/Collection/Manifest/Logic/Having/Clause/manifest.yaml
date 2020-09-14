@@ -1,0 +1,26 @@
+name: Comhon\Logic\Having\Clause
+extends:
+    - \Comhon\Logic\Having\Formula
+share_parent_id: true
+properties:
+    -
+        name: elements
+        not_null: true
+        is_required: true
+        not_empty: true
+        values:
+            name: element
+            not_null: true
+            model: \Comhon\Logic\Having\Formula
+            is_foreign: true
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: type
+        not_null: true
+        is_required: true
+        enum:
+            - disjunction
+            - conjunction
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

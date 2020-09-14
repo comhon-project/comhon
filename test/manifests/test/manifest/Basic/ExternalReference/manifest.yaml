@@ -1,0 +1,11 @@
+name: Test\Basic\ExternalReference
+properties:
+    -
+        name: basicPropertyWithId
+        model: \Test\Basic\Standard
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: basicNoIdObjectContainerProperty
+        model: \Test\Basic\NoId\ObjectContainer
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

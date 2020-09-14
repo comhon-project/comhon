@@ -1,0 +1,19 @@
+name: Test\Home
+version: '3.0'
+serialization:
+    foreign_settings:
+        id: public.home
+        inheritance-: Comhon\SqlTable
+properties:
+    -
+        property_name: beginDate
+        serialization_name: begin_date
+    -
+        property_name: endDate
+        serialization_name: end_date
+    -
+        property_name: person
+        serialization_name: person_id
+    -
+        property_name: house
+        serialization_name: house_id

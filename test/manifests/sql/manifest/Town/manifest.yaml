@@ -1,0 +1,18 @@
+name: Sql\Town
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: name
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: surface
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: cityHall
+        model: \Sql\Place
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

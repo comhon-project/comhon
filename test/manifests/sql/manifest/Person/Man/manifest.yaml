@@ -1,0 +1,13 @@
+name: Sql\Person\Man
+extends:
+    - \Sql\Person
+properties:
+    -
+        name: bodies
+        values:
+            name: body
+            model: \Sql\Body\Man
+        aggregations:
+            - owner
+        inheritance-: Comhon\Manifest\Property\Aggregation
+version: '3.0'

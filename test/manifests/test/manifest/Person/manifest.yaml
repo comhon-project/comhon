@@ -1,0 +1,60 @@
+name: Test\Person
+is_abstract: true
+object_class: \Test\Comhon\Object\Person
+properties:
+    -
+        name: id
+        is_id: true
+        auto: incremental
+        inheritance-: Comhon\Manifest\Property\Index
+    -
+        name: firstName
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: lastName
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: birthDate
+        inheritance-: Comhon\Manifest\Property\DateTime
+    -
+        name: birthPlace
+        model: \Test\Place
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: bestFriend
+        model: \Test\Person
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: father
+        model: \Test\Person\Man
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: mother
+        model: \Test\Person\Woman
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: children
+        values:
+            name: child
+            model: \Test\Person
+        aggregations:
+            - mother
+            - father
+        inheritance-: Comhon\Manifest\Property\Aggregation
+    -
+        name: homes
+        values:
+            name: home
+            model: \Test\Home
+        aggregations:
+            - person
+        inheritance-: Comhon\Manifest\Property\Aggregation
+inheritance_requestables:
+    - \Test\Person\Man
+    - \Test\Person\Woman
+    - \Test\Person\Woman\WomanExtended
+version: '3.0'

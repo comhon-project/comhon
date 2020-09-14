@@ -1,0 +1,27 @@
+name: Sql\House
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: surface
+        inheritance-: Comhon\Manifest\Property\Float
+    -
+        name: type
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: garden
+        inheritance-: Comhon\Manifest\Property\Boolean
+    -
+        name: garage
+        inheritance-: Comhon\Manifest\Property\Boolean
+    -
+        name: residents
+        values:
+            name: resident
+            model: \Sql\Home
+        aggregations:
+            - house
+        inheritance-: Comhon\Manifest\Property\Aggregation
+version: '3.0'

@@ -1,0 +1,7 @@
+name: Test\TestXml
+version: '3.0'
+serialization:
+    settings:
+        dir_path: ./data/test_xml
+        file_name: test.xml
+        inheritance-: Comhon\File\XmlFile

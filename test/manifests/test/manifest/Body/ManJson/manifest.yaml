@@ -1,0 +1,30 @@
+name: Test\Body\ManJson
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: date
+        inheritance-: Comhon\Manifest\Property\DateTime
+    -
+        name: height
+        inheritance-: Comhon\Manifest\Property\Float
+    -
+        name: weight
+        inheritance-: Comhon\Manifest\Property\Float
+    -
+        name: hairColor
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: hairCut
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: eyesColor
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: baldness
+        inheritance-: Comhon\Manifest\Property\Boolean
+inheritance_requestables:
+    - \Test\Body\ManJsonExtended
+version: '3.0'

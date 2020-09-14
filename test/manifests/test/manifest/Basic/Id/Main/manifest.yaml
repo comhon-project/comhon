@@ -1,0 +1,9 @@
+name: Test\Basic\Id\Main
+is_abstract: true
+is_main: true
+properties:
+    -
+        name: name
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

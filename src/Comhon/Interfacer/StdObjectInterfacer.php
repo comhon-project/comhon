@@ -243,30 +243,6 @@ class StdObjectInterfacer extends MultipleFormatInterfacer {
 	}
 	
 	/**
-	 * write file with given content
-	 * 
-	 * @param mixed $node
-	 * @param string $path
-	 * @param bool $prettyPrint
-	 * @return boolean
-	 */
-	public function write($node, $path, $prettyPrint = false) {
-		$data = $prettyPrint ? json_encode($node, JSON_PRETTY_PRINT) : json_encode($node);
-		return file_put_contents($path, $data) !== false;
-	}
-	
-	/**
-	 * read file and load node with file content
-	 * 
-	 * @param string $path
-	 * @return \stdClass|null return null on failure
-	 */
-	public function read($path) {
-		$json = file_get_contents($path);
-		return $json ? json_decode($json) : null;
-	}
-	
-	/**
 	 * flatten value (transform object/array to string)
 	 * 
 	 * @param \stdClass $node

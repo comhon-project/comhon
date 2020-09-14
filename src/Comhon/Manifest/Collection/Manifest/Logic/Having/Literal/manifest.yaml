@@ -1,0 +1,57 @@
+name: Comhon\Logic\Having\Literal
+is_abstract: true
+extends:
+    - \Comhon\Logic\Having\Formula
+share_parent_id: true
+properties:
+    -
+        name: operator
+        not_null: true
+        is_required: true
+        enum:
+            - '='
+            - '<>'
+            - '<'
+            - '<='
+            - '>'
+            - '>='
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'
+types:
+    -
+        name: Count
+        extends:
+            - \Comhon\Logic\Having\Literal
+        share_parent_id: true
+        properties:
+            -
+                name: value
+                not_null: true
+                is_required: true
+                inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: Function
+        extends:
+            - \Comhon\Logic\Having\Literal
+        share_parent_id: true
+        properties:
+            -
+                name: property
+                not_null: true
+                is_required: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: function
+                not_null: true
+                is_required: true
+                enum:
+                    - SUM
+                    - AVG
+                    - MIN
+                    - MAX
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: value
+                not_null: true
+                is_required: true
+                inheritance-: Comhon\Manifest\Property\Float

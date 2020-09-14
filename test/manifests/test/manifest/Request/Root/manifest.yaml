@@ -1,0 +1,40 @@
+name: Test\Request\Root
+properties:
+    -
+        name: one
+        model: \Test\Request\One
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: three
+        model: \Test\Request\Three
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: four
+        model: \Test\Request\Four
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: five
+        model: \Test\Request\Five
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: root
+        model: \Test\Request\Root
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: string
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: integer
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: float
+        inheritance-: Comhon\Manifest\Property\Float
+    -
+        name: boolean
+        inheritance-: Comhon\Manifest\Property\Boolean
+version: '3.0'

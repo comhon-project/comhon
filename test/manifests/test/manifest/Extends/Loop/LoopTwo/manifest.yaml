@@ -1,0 +1,9 @@
+name: Test\Extends\Loop\LoopTwo
+extends:
+    - \Test\Extends\Loop\LoopThree
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+version: '3.0'

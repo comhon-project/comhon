@@ -1,0 +1,4 @@
+name: Test\GreatGrandParent\GrandParent\ParentOne\Child\Child
+version: '3.0'
+inheritance_values:
+    - Test\GreatGrandParent\GrandParent\ParentOne\Child\Child

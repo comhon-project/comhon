@@ -1,0 +1,11 @@
+name: Comhon\Request\Complex
+extends:
+    - \Comhon\Request
+properties:
+    -
+        name: tree
+        not_null: true
+        is_required: true
+        model: \Comhon\Model\Root
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

@@ -1,0 +1,98 @@
+name: Test\TestRestricted
+is_main: true
+properties:
+    -
+        name: color
+        pattern: color
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: user
+        regex: /^\w+$/
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: emails
+        values:
+            name: email
+            pattern: email
+            inheritance-: Comhon\Manifest\Value\String
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: naturalNumber
+        interval: '[0,]'
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: birthDate
+        interval: '[1900-01-01,now['
+        inheritance-: Comhon\Manifest\Property\DateTime
+    -
+        name: intervalInArray
+        values:
+            name: intervalArrayValue
+            interval: ']-1.5, 2['
+            inheritance-: Comhon\Manifest\Value\Float
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: enumValue
+        enum:
+            - plop1
+            - plop2
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: enumIntArray
+        values:
+            name: enumArrayValue
+            enum:
+                - 1
+                - 3
+            inheritance-: Comhon\Manifest\Value\Integer
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: enumFloatArray
+        values:
+            name: enumArrayValue
+            enum:
+                - 1.5
+                - 3.5
+            inheritance-: Comhon\Manifest\Value\Float
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: notNullArray
+        not_null: true
+        values:
+            name: enumNotNullValue
+            not_null: true
+            enum:
+                - 1.5
+                - 3.5
+            inheritance-: Comhon\Manifest\Value\Float
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: notNullForeign
+        not_null: true
+        model: \Test\Basic\Standard
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: notEmpty
+        not_empty: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: notEmptyArray
+        not_empty: true
+        values:
+            name: notEmptyArrayValue
+            not_empty: true
+            inheritance-: Comhon\Manifest\Value\String
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: length
+        length: '[3,5]'
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: sizeArray
+        size: '[3,5]'
+        values:
+            name: lengthArrayValue
+            length: '[3,4]'
+            inheritance-: Comhon\Manifest\Value\String
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'

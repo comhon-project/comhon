@@ -1,0 +1,19 @@
+name: Test\TestAssociativeArray
+is_main: true
+properties:
+    -
+        name: names
+        is_associative: true
+        values:
+            name: name
+            inheritance-: Comhon\Manifest\Value\String
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: emails
+        is_associative: false
+        values:
+            name: email
+            pattern: email
+            inheritance-: Comhon\Manifest\Value\String
+        inheritance-: Comhon\Manifest\Property\Array
+version: '3.0'

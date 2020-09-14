@@ -1,0 +1,8 @@
+name: Test\Load\NotDefinedProperty
+is_main: true
+properties:
+    -
+        name: malformedProperty
+        model: wrong-type
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'

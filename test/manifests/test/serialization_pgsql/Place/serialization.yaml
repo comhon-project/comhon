@@ -1,0 +1,13 @@
+name: Test\Place
+version: '3.0'
+serialization:
+    foreign_settings:
+        id: public.place
+        inheritance-: Comhon\SqlTable
+properties:
+    -
+        property_name: geographicLatitude
+        serialization_name: geographic_latitude
+    -
+        property_name: geographicLongitude
+        serialization_name: geographic_longitude

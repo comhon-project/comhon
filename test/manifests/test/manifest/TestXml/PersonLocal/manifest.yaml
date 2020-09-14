@@ -1,0 +1,80 @@
+name: Test\TestXml\PersonLocal
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: firstName
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: lastName
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: birthDate
+        inheritance-: Comhon\Manifest\Property\DateTime
+    -
+        name: birthPlace
+        model: \Test\Place
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: bestFriend
+        model: \Test\Person
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: father
+        model: \Test\Person\Man
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: mother
+        model: \Test\Person\Woman
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: children
+        values:
+            name: child
+            model: \Test\Person
+            is_foreign: true
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: homes
+        values:
+            name: home
+            model: \Test\Home
+            is_foreign: true
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: anObjectWithIdAndMore
+        model: ObjectWithIdAndMore
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: recursiveLocal
+        model: Recursive
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'
+types:
+    -
+        name: ObjectWithId
+        properties:
+            -
+                name: plop
+                is_id: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: plop2
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: ObjectWithIdAndMore
+        extends:
+            - ObjectWithId
+        properties:
+            -
+                name: plop3
+                is_private: true
+                inheritance-: Comhon\Manifest\Property\String

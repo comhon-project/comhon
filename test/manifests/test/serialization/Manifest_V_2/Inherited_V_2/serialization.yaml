@@ -1,0 +1,6 @@
+version: '2.0'
+serialization:
+    type: Comhon\File\JsonFile
+    value:
+        dir_path: ./data/file_xml
+        file_name: file.xml

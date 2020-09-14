@@ -1,0 +1,19 @@
+name: Comhon\Logic\Simple\Literal\Numeric
+is_abstract: true
+extends:
+    - \Comhon\Logic\Simple\Literal
+share_parent_id: true
+properties:
+    -
+        name: operator
+        not_null: true
+        is_required: true
+        enum:
+            - '='
+            - '<>'
+            - '<'
+            - '<='
+            - '>'
+            - '>='
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

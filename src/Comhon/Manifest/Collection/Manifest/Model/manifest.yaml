@@ -1,0 +1,58 @@
+name: Comhon\Model
+is_abstract: true
+properties:
+    -
+        name: id
+        not_null: true
+        is_required: true
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+version: '3.0'
+types:
+    -
+        name: Simple
+        extends:
+            - \Comhon\Model
+        share_parent_id: true
+        properties:
+            -
+                name: model
+                not_null: true
+                is_required: true
+                is_model_name: true
+                inheritance-: Comhon\Manifest\Property\String
+    -
+        name: Root
+        extends:
+            - Simple
+        share_parent_id: true
+        properties:
+            -
+                name: nodes
+                not_null: true
+                values:
+                    name: node
+                    not_null: true
+                    model: Node
+                    inheritance-: Comhon\Manifest\Value\Object
+                inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: Node
+        extends:
+            - \Comhon\Model
+        share_parent_id: true
+        properties:
+            -
+                name: property
+                not_null: true
+                is_required: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: nodes
+                not_null: true
+                values:
+                    name: node
+                    not_null: true
+                    model: Node
+                    inheritance-: Comhon\Manifest\Value\Object
+                inheritance-: Comhon\Manifest\Property\Array

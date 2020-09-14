@@ -1,0 +1,35 @@
+name: Test\Basic\Standard
+properties:
+    -
+        name: name
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: stringProperty
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: floatProperty
+        inheritance-: Comhon\Manifest\Property\Float
+    -
+        name: objectContainerProperty
+        model: ObjectContainer
+        inheritance-: Comhon\Manifest\Property\Object
+version: '3.0'
+types:
+    -
+        name: ObjectContainer
+        properties:
+            -
+                name: objectProperty
+                model: Object
+                inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: Object
+        properties:
+            -
+                name: id
+                is_id: true
+                inheritance-: Comhon\Manifest\Property\String
+            -
+                name: propertyOne
+                inheritance-: Comhon\Manifest\Property\String

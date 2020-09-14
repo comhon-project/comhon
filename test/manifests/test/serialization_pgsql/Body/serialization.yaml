@@ -1,0 +1,18 @@
+name: Test\Body
+version: '3.0'
+properties:
+    -
+        property_name: hairColor
+        serialization_name: hair_color
+    -
+        property_name: hairCut
+        serialization_name: hair_cut
+    -
+        property_name: eyesColor
+        serialization_name: eyes_color
+    -
+        property_name: physicalAppearance
+        serialization_name: physical_appearance
+    -
+        property_name: owner
+        serialization_name: owner_id

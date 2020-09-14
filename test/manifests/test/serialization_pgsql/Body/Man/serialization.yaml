@@ -1,0 +1,10 @@
+name: Test\Body\Man
+version: '3.0'
+serialization:
+    foreign_settings:
+        id: public.man_body
+        inheritance-: Comhon\SqlTable
+properties:
+    -
+        property_name: owner
+        serialization_name: owner_id

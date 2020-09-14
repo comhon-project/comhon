@@ -1,0 +1,7 @@
+name: Comhon\SqlDatabase
+version: '3.0'
+serialization:
+    settings:
+        dir_path: ./database
+        file_name: database.json
+        inheritance-: Comhon\File\JsonFile

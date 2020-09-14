@@ -1,0 +1,55 @@
+name: Sql\Person
+is_abstract: true
+object_class: \Sql\Comhon\Object\Person
+properties:
+    -
+        name: id
+        is_id: true
+        inheritance-: Comhon\Manifest\Property\Integer
+    -
+        name: firstName
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: lastName
+        inheritance-: Comhon\Manifest\Property\String
+    -
+        name: birthDate
+        inheritance-: Comhon\Manifest\Property\DateTime
+    -
+        name: birthPlace
+        model: \Sql\Place
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: bestFriend
+        model: \Sql\Person
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: father
+        model: \Sql\Person\Man
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: mother
+        model: \Sql\Person\Woman
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: children
+        values:
+            name: child
+            model: \Sql\Person
+        aggregations:
+            - mother
+            - father
+        inheritance-: Comhon\Manifest\Property\Aggregation
+    -
+        name: homes
+        values:
+            name: home
+            model: \Sql\Home
+        aggregations:
+            - person
+        inheritance-: Comhon\Manifest\Property\Aggregation
+version: '3.0'

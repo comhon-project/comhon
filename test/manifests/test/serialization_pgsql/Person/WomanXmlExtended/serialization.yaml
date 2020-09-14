@@ -1,0 +1,4 @@
+name: Test\Person\WomanXmlExtended
+version: '3.0'
+inheritance_values:
+    - Test\Person\WomanXmlExtended
