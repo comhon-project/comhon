@@ -57,7 +57,7 @@
 			"node": 1,
 			"property": "my_property",
 			"operator": "=",
-			"value": 0
+			"value": 0.0
 		},
 		"Comhon\\Logic\\Simple\\Literal\\Numeric\\Float"
 	],
@@ -84,7 +84,7 @@
             "node": 1,
             "property": "surfaceInt",
             "operator": "IN",
-            "values": [200]
+            "values": [200.0]
         },
 		"Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Float"
 	],

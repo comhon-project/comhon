@@ -12,18 +12,11 @@
 namespace Comhon\Interfacer;
 
 use Comhon\Exception\ArgumentException;
+use Comhon\Exception\ComhonException;
+use Symfony\Component\Yaml\Yaml;
 
-class StdObjectInterfacer extends Interfacer {
+class StdObjectInterfacer extends MultipleFormatInterfacer {
 
-	/**
-	 *
-	 * {@inheritDoc}
-	 * @see \Comhon\Interfacer\Interfacer::getMediaType()
-	 */
-	public function getMediaType() {
-		return 'application/json';
-	}
-	
 	/**
 	 * get value in $node with property $name
 	 *
@@ -223,7 +216,14 @@ class StdObjectInterfacer extends Interfacer {
 	 * @return string
 	 */
 	public function toString($node, $prettyPrint = false) {
-		return $prettyPrint ? json_encode($node, JSON_PRETTY_PRINT) : json_encode($node);
+		switch ($this->format) {
+			case 'json':
+				return $prettyPrint ? json_encode($node, JSON_PRETTY_PRINT) : json_encode($node);
+			case 'yaml':
+				return Yaml::dump($node, 1000, 4, Yaml::DUMP_OBJECT_AS_MAP | Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE);
+			default:
+				throw new ComhonException('undefined format '.$this->format);
+		}
 	}
 	
 	/**
@@ -232,7 +232,14 @@ class StdObjectInterfacer extends Interfacer {
 	 * @see \Comhon\Interfacer\Interfacer::fromString()
 	 */
 	public function fromString($string) {
-		return json_decode($string);
+		switch ($this->format) {
+			case 'json':
+				return json_decode($string);
+			case 'yaml':
+				return Yaml::parse($string, Yaml::PARSE_OBJECT_FOR_MAP);
+			default:
+				throw new ComhonException('undefined format '.$this->format);
+		}
 	}
 	
 	/**

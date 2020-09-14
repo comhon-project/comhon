@@ -82,7 +82,7 @@ class ConfigTest extends TestCase
 		$this->assertTrue(strpos($configPath, realpath(Data::$config)) !== false);
 		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Comhon\SqlTable'));
 		$this->assertTrue(ModelManager::getInstance()->hasInstanceModel('Comhon\SqlDatabase'));
-		$this->assertTrue(in_array($config->getManifestFormat(), ['xml', 'json']));
+		$this->assertTrue(in_array($config->getManifestFormat(), ['xml', 'json', 'yaml']));
 		
 		$expected = '{
     "manifest_format": "json",

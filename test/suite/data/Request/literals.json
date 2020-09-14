@@ -50,7 +50,7 @@
             "operator": "IN",
             "values": [
                 200.05555,
-                300
+                300.0
             ],
             "inheritance-": "Comhon\\Logic\\Simple\\Literal\\Set\\Numeric\\Float"
         },

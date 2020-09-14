@@ -14,6 +14,8 @@ namespace Comhon\Model;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
+use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Exception\Model\CastStringException;
 
 abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	
@@ -92,7 +94,7 @@ abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	 * @see \Comhon\Model\AbstractModel::_import()
 	 */
 	final protected function _import($value, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
-		return $this->importSimple($value, $interfacer, $isFirstLevel);
+		return $this->importValue($value, $interfacer);
 	}
 	
 	/**
@@ -101,15 +103,31 @@ abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	 * @param mixed $value
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param boolean $applyCast if true and if interfacer setting Interfacer::STRINGIFIED_VALUES is set to true, value will be casted during import
-	 * @return string|null
+	 * @return mixed
 	 */
-	public function importSimple($value, Interfacer $interfacer, $applyCast = true) {
+	public function importValue($value, Interfacer $interfacer) {
 		if ($interfacer->isNullValue($value)) {
 			return null;
 		}
-		if ($interfacer instanceof NoScalarTypedInterfacer) {
-			$value = $interfacer->castValueToString($value);
+		if ($interfacer instanceof XMLInterfacer && $value instanceof \DOMElement) {
+			$value = $interfacer->extractNodeText($value);
 		}
+		try {
+			return $this->_importScalarValue($value, $interfacer);
+		} catch (CastStringException $e) {
+			// we don't want CastStringException but an UnexpectedValueTypeException
+			$this->verifValue($value);
+		}
+	}
+	
+	/**
+	 * import interfaced value
+	 *
+	 * @param mixed $value
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @return string|null
+	 */
+	protected function _importScalarValue($value, Interfacer $interfacer) {
 		return $value;
 	}
 	

@@ -6,6 +6,7 @@
       <enum>
         <value>json</value>
         <value>xml</value>
+        <value>yaml</value>
       </enum>
     </property>
     <property name="autoload" model="Autoload" inheritance-="Comhon\Manifest\Property\Object"/>

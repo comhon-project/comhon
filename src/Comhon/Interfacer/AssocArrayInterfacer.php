@@ -12,18 +12,11 @@
 namespace Comhon\Interfacer;
 
 use Comhon\Exception\ArgumentException;
+use Symfony\Component\Yaml\Yaml;
+use Comhon\Exception\ComhonException;
 
-class AssocArrayInterfacer extends Interfacer {
+class AssocArrayInterfacer extends MultipleFormatInterfacer {
 
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Interfacer\Interfacer::getMediaType()
-	 */
-	public function getMediaType() {
-		return 'application/json';
-	}
-	
 	/**
 	 * get value in $node with key $name
 	 * 
@@ -223,7 +216,14 @@ class AssocArrayInterfacer extends Interfacer {
 	 * @return string
 	 */
 	public function toString($node, $prettyPrint = false) {
-		return $prettyPrint ? json_encode($node, JSON_PRETTY_PRINT) : json_encode($node);
+		switch ($this->format) {
+			case 'json':
+				return $prettyPrint ? json_encode($node, JSON_PRETTY_PRINT) : json_encode($node);
+			case 'yaml':
+				return Yaml::dump($node, 1000, 4, Yaml::DUMP_EMPTY_ARRAY_AS_SEQUENCE);
+			default:
+				throw new ComhonException('undefined format '.$this->format);
+		}
 	}
 	
 	/**
@@ -232,31 +232,18 @@ class AssocArrayInterfacer extends Interfacer {
 	 * @see \Comhon\Interfacer\Interfacer::fromString()
 	 */
 	public function fromString($string) {
-		return json_decode($string, true);
-	}
-	
-	/**
-	 * write file with given content
-	 * 
-	 * @param \stdClass $node
-	 * @param string $path
-	 * @param bool $prettyPrint
-	 * @return boolean
-	 */
-	public function write($node, $path, $prettyPrint = false) {
-		$data = $prettyPrint ? json_encode($node, JSON_PRETTY_PRINT) : json_encode($node);
-		return file_put_contents($path, $data) !== false;
-	}
-	
-	/**
-	 * read file and load node with file content
-	 * 
-	 * @param string $path
-	 * @return array|null return null on failure
-	 */
-	public function read($path) {
-		$json = file_get_contents($path);
-		return $json ? json_decode($json, true) : null;
+		switch ($this->format) {
+			case 'json':
+				return json_decode($string, true);
+			case 'yaml':
+				try {
+					return Yaml::parse($string);
+				} catch (\Exception $e) {
+					return null;
+				}
+			default:
+				throw new ComhonException('undefined format '.$this->format);
+		}
 	}
 	
 	/**

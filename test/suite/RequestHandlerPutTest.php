@@ -143,7 +143,7 @@ class RequestHandlerPutTest extends TestCase
 				'<root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" firstName="Bernardo" lastName="Dupond" birthDate="2016-11-13T19:04:05+00:00"><birthPlace>aaa</birthPlace><bestFriend xsi:nil="true"/><father xsi:nil="true"/><mother xsi:nil="true"/></root>',
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":104,"message":"Something goes wrong on \'.birthPlace\' value : \nCannot cast value \'aaa\', value should be integer"}',
+				'{"code":202,"message":"Something goes wrong on \'.birthPlace\' value : \nvalue must be a integer, string \'aaa\' given"}',
 			],
 			[ // conflict route and body id 
 				[

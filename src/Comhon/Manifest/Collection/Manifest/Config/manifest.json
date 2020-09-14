@@ -16,7 +16,8 @@
             "default": "json",
             "enum": [
                 "json",
-                "xml"
+                "xml",
+                "yaml"
             ],
             "inheritance-": "Comhon\\Manifest\\Property\\String"
         },

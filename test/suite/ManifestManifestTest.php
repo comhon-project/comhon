@@ -38,7 +38,7 @@ class ManifestManifestTest extends TestCase
 		$manifest = $model->loadObject($modelName);
 		$this->assertNotNull($manifest);
 		
-		$interfacer = Config::getInstance()->getManifestFormat() == 'json' ? new AssocArrayInterfacer() : new XMLInterfacer();
+		$interfacer = Interfacer::getInstance(Config::getInstance()->getManifestFormat());
 		$interfacer->setSerialContext(true);
 		$interfacer->setPrivateContext(true);
 		$interfacer->setFlagValuesAsUpdated(false);
@@ -81,7 +81,7 @@ class ManifestManifestTest extends TestCase
 		$modelNameCopied = 'Test\TestCopy';
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
 		
-		$interfacer = Config::getInstance()->getManifestFormat() == 'json' ? new AssocArrayInterfacer() : new XMLInterfacer();
+		$interfacer = Interfacer::getInstance(Config::getInstance()->getManifestFormat());
 		$interfacer->setSerialContext(true);
 		$interfacer->setPrivateContext(true);
 		$interfacer->setFlagValuesAsUpdated(false);

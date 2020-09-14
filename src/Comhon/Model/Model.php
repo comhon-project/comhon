@@ -1196,7 +1196,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			}
 			$propertyName = $isSerialContext ? $this->uniqueIdProperty->getSerializationName() : $this->uniqueIdProperty->getName();
 			$id = $interfacer->getValue($interfacedObject, $propertyName, $this->uniqueIdProperty->isInterfacedAsNodeXml());
-			return $this->uniqueIdProperty->getModel()->importSimple($id, $interfacer, $isFirstLevel);
+			return $this->uniqueIdProperty->getModel()->importValue($id, $interfacer);
 		}
 		$idValues = [];
 		$hasIds = false;
@@ -1207,7 +1207,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					$hasIds = true;
 				}
 				$idValue = $interfacer->getValue($interfacedObject, $propertyName, $idProperty->isInterfacedAsNodeXml());
-				$idValues[] = $idProperty->getModel()->importSimple($idValue, $interfacer, $isFirstLevel);
+				$idValues[] = $idProperty->getModel()->importValue($idValue, $interfacer);
 			} else {
 				$idValues[] = null;
 			}
@@ -1531,7 +1531,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					foreach ($multipleForeignProperty->getMultipleIdProperties() as $serializationName => $idProperty) {
 						if ($interfacer->hasValue($interfacedObject, $serializationName)) {
 							$idPart = $interfacer->getValue($interfacedObject, $serializationName);
-							$idPart = $idProperty->getModel()->importSimple($idPart, $interfacer, $isFirstLevel);
+							$idPart = $idProperty->getModel()->importValue($idPart, $interfacer);
 							if (!is_null($idPart)) {
 								$allNull = false;
 							}
@@ -1601,8 +1601,8 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		else {
 			$id = $interfacedId;
 			$model = $this;
-			if ($model->hasUniqueIdProperty()) {
-				$id = $model->getUniqueIdProperty()->getModel()->importSimple($id, $interfacer, $isFirstLevel);
+			if ($interfacer instanceof XMLInterfacer && $id instanceof \DOMElement) {
+				$id = $interfacer->extractNodeText($id);
 			}
 		}
 		if (!$model->hasIdProperties()) {
@@ -1611,18 +1611,17 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if (!$interfacer->isPrivateContext() && $model->hasPrivateIdProperty()) {
 			throw new ContextIdException();
 		}
-		if ($interfacer->isNullValue($interfacedId)) {
-			return null;
-		}
-		if ($interfacer instanceof NoScalarTypedInterfacer) {
-			if ($model->hasUniqueIdProperty()) {
-				$id = $model->getUniqueIdProperty()->getModel()->importSimple($id, $interfacer, $isFirstLevel);
-			} else if (!is_string($id)) {
-				$id = $interfacer->castValueToString($id);
-			}
-		}
 		if (is_null($id)) {
 			return null;
+		}
+		if (
+			$model->hasUniqueIdProperty() 
+			&& (
+				($isFirstLevel && $interfacer->isStringifiedValues())
+				|| $interfacer instanceof NoScalarTypedInterfacer
+			)
+		) {
+			$id = $model->getUniqueIdProperty()->getModel()->importValue($id, $interfacer);
 		}
 		if (is_object($id) || is_array($id) || $id === '') {
 			$id = is_object($id) || is_array($id) ? json_encode($id) : $id;

@@ -303,7 +303,7 @@ class ManifestParser extends ParentManifestParser {
 					throw new ManifestException('invalid default value time format : '.$default);
 				}
 			} else if ($propertyModel instanceof SimpleModel) {
-				$default = $propertyModel->importSimple($default, $this->interfacer);
+				$default = $propertyModel->importValue($default, $this->interfacer);
 			} else {
 				throw new ManifestException('default value can\'t be applied on complex model');
 			}

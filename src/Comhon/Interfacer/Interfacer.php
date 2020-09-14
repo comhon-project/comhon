@@ -112,7 +112,7 @@ abstract class Interfacer {
 	const COMPLEX_ID_KEY = 'id';
 	
 	/** @var string[] */
-	private static $allowedMergeTypes = [
+	const ALLOWED_MERGE_TYPE = [
 		self::MERGE,
 		self::OVERWRITE
 	];
@@ -158,8 +158,8 @@ abstract class Interfacer {
 	
 	/**
 	 *
-	 * @param string $format must be one of [xml, json, application/json, application/xml]
-	 * @param boolean $assoc used only for 'json' format.
+	 * @param string $format must be one of [xml, json, yaml, application/json, application/xml, application/x-yaml]
+	 * @param boolean $assoc used only for json and yaml format.
 	 *                       if false return StdObjectInterfacer instance,
 	 *                       AssocArrayInterfacer instance otherwise.
 	 */
@@ -171,26 +171,13 @@ abstract class Interfacer {
 				break;
 			case 'json':
 			case 'application/json':
-				return $assoc ? new AssocArrayInterfacer() : new StdObjectInterfacer();
+			case 'yaml':
+			case 'application/x-yaml':
+				return $assoc ? new AssocArrayInterfacer($format) : new StdObjectInterfacer($format);
 				break;
 			default:
-				throw new ArgumentException($format, 'string', 1, ['json', 'xml', 'application/json', 'application/xml']);
+				throw new ArgumentException($format, 'string', 1, ['json', 'xml', 'yaml', 'application/json', 'application/xml', 'application/x-yaml']);
 		}
-	}
-	
-	final public function __construct() {
-		$this->dateTimeZone = new \DateTimeZone(date_default_timezone_get());
-		$this->_initInstance();
-	}
-	
-	/**
-	 * initialize DomDocument that permit to contruct nodes
-	 * 
-	 * @throws \Exception
-	 */
-	protected function _initInstance() {
-		// called in final constructor
-		// override this function if some stuff have to be done during instanciation
 	}
 	
 	/**
@@ -241,10 +228,10 @@ abstract class Interfacer {
 	/**
 	 * set date time zone
 	 * 
-	 * @param string $timeZone
+	 * @param string|\DateTimeZone $timeZone
 	 */
 	public function setDateTimeZone($timeZone) {
-		$this->dateTimeZone = new \DateTimeZone($timeZone);
+		$this->dateTimeZone = $timeZone instanceof \DateTimeZone ? $timeZone : new \DateTimeZone($timeZone);
 	}
 	
 	/**
@@ -458,8 +445,8 @@ abstract class Interfacer {
 	 * @param integer $mergeType possible values are [self::MERGE, self::OVERWRITE]
 	 */
 	public function setMergeType($mergeType) {
-		if (!in_array($mergeType, self::$allowedMergeTypes, true)) {
-			throw new ArgumentException($mergeType, self::$allowedMergeTypes, 1);
+		if (!in_array($mergeType, self::ALLOWED_MERGE_TYPE, true)) {
+			throw new ArgumentException($mergeType, self::ALLOWED_MERGE_TYPE, 1);
 		}
 		$this->mergeType = $mergeType;
 	}
@@ -828,8 +815,8 @@ abstract class Interfacer {
 		
 		// merge type
 		if (array_key_exists(self::MERGE_TYPE, $preferences)) {
-			if (!in_array($preferences[self::MERGE_TYPE], self::$allowedMergeTypes, true)) {
-				throw new EnumerationException($preferences[self::MERGE_TYPE], self::$allowedMergeTypes, self::MERGE_TYPE);
+			if (!in_array($preferences[self::MERGE_TYPE], self::ALLOWED_MERGE_TYPE, true)) {
+				throw new EnumerationException($preferences[self::MERGE_TYPE], self::ALLOWED_MERGE_TYPE, self::MERGE_TYPE);
 			}
 			$this->setMergeType($preferences[self::MERGE_TYPE]);
 		}

@@ -771,9 +771,9 @@ class RequestHandler {
 	public static function getInterfacerFromContentType($contentType, $throw = false) {
 		switch ($contentType) {
 			case 'application/json':
-				return new AssocArrayInterfacer();
 			case 'application/xml':
-				return new XMLInterfacer();
+			case 'application/x-yaml':
+				return Interfacer::getInstance($contentType, true);
 			default:
 				if ($throw) {
 					throw new ResponseException(415, [

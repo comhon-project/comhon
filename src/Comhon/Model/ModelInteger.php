@@ -33,18 +33,10 @@ class ModelInteger extends SimpleModel implements StringCastableModelInterface {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\SimpleModel::importSimple()
+	 * @see \Comhon\Model\SimpleModel::_importScalarValue()
 	 */
-	public function importSimple($value, Interfacer $interfacer, $applyCast = true) {
-		if ($interfacer->isNullValue($value)) {
-			return null;
-		}
-		if ($interfacer instanceof NoScalarTypedInterfacer) {
-			$value = $interfacer->castValueToInteger($value);
-		} elseif ($applyCast && $interfacer->isStringifiedValues()) {
-			$value = $this->castValue($value);
-		}
-		return $value;
+	protected function _importScalarValue($value, Interfacer $interfacer) {
+		return $this->castValue($value);
 	}
 	
 	/**

@@ -15,8 +15,6 @@ use Comhon\Object\UniqueObject;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Config\Config;
-use Comhon\Interfacer\AssocArrayInterfacer;
-use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Serialization\SerializationFile;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
@@ -79,8 +77,7 @@ abstract class AbstractManifestFile extends SerializationFile {
 	 * @return \Comhon\Interfacer\AssocArrayInterfacer|\Comhon\Interfacer\XMLInterfacer
 	 */
 	protected static function _initInterfacer() {
-		$interfacer = Config::getInstance()->getManifestFormat() == 'json' 
-			? new AssocArrayInterfacer() : new XMLInterfacer();
+		$interfacer = Interfacer::getInstance(Config::getInstance()->getManifestFormat(), true);
 		$interfacer->setSerialContext(true);
 		$interfacer->setPrivateContext(true);
 		$interfacer->setFlagValuesAsUpdated(false);

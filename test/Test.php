@@ -451,8 +451,8 @@ try {
 
 // TODO for version > 4.0
 
-// version 4.0 manifest 4.0 do not manage previous versions
-// yaml management
+// register model name resolver ?
+// parent access on option ?
 // Oauth2 for comhon-docker 
 
 // use id different than table name for sql table (may have same table name but with different database)

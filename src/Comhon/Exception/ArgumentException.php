@@ -46,8 +46,10 @@ class ArgumentException extends ComhonException {
 			? 'be one of '.json_encode($expected)
 			: "be a $expected".(is_array($enum) ? (" that belong to ".json_encode($enum)) : '');
 		
+		$value = is_array($enum) && (is_string($argument) || is_int($argument) || is_float($argument)) ? " '$argument' " : ' ' ;
+		
 		$message = "Argument at index $index passed to $function() "
-			."must $expected, $type given, called in {$callFile} on line {$callLine} "
+			."must $expected, $type{$value}given, called in {$callFile} on line {$callLine} "
 			."and defined in {$definedFile}";
 		
 		parent::__construct($message);

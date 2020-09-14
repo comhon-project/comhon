@@ -13,8 +13,8 @@ namespace Comhon\Model;
 
 use Comhon\Object\ComhonDateTime;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
+use Comhon\Exception\ComhonException;
 
 class ModelDateTime extends SimpleModel {
 	
@@ -45,14 +45,20 @@ class ModelDateTime extends SimpleModel {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\SimpleModel::importSimple()
+	 * @see \Comhon\Model\SimpleModel::_importScalarValue()
 	 */
-	public function importSimple($value, Interfacer $interfacer, $applyCast = true) {
-		if ($interfacer->isNullValue($value)) {
-			return null;
-		}
-		if ($interfacer instanceof NoScalarTypedInterfacer) {
-			$value = $interfacer->castValueToString($value);
+	protected function _importScalarValue($value, Interfacer $interfacer) {
+		if (!is_string($value)) {
+			if (is_int($value) && $interfacer->getMediaType() == 'application/x-yaml') {
+				// symfony YAML library automaticaly transform date time without quote to timestamp
+				// and date time without timezone are processed with UTC timezome by default
+				// but comhon framework use server default timezone.
+				// and we can't know if there was a specified timezone in originale value.
+				// so we can't have the wanted value according server default timezone.
+				// so dateTime values must be quoted.
+				throw new ComhonException('dateTime value must be quoted in YAML format');
+			}
+			throw new UnexpectedValueTypeException($value, 'string');
 		}
 		return $this->fromString($value, $interfacer->getDateTimeZone());
 	}

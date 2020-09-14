@@ -11,6 +11,8 @@
 
 namespace Comhon\Interfacer;
 
+use Comhon\Exception\Model\CastStringException;
+
 abstract class NoScalarTypedInterfacer extends Interfacer {
 	
 	/**
@@ -32,20 +34,20 @@ abstract class NoScalarTypedInterfacer extends Interfacer {
 	}
 	
 	/**
-	 * cast value to string and return it
-	 * 
-	 * @param mixed $value
-	 * @return string
-	 */
-	abstract public function castValueToString($value);
-	
-	/**
 	 * cast value to integer and return it
 	 *
 	 * @param mixed $value
 	 * @return integer
 	 */
-	abstract public function castValueToInteger($value);
+	public function castValueToInteger($value) {
+		if (is_integer($value)) {
+			return $value;
+		}
+		if (!ctype_digit($value)) {
+			throw new CastStringException($value, 'integer');
+		}
+		return (integer) $value;
+	}
 	
 	/**
 	 * cast value to float and return it
@@ -53,7 +55,15 @@ abstract class NoScalarTypedInterfacer extends Interfacer {
 	 * @param mixed $value
 	 * @return float
 	 */
-	abstract public function castValueToFloat($value);
+	public function castValueToFloat($value) {
+		if (is_float($value)) {
+			return $value;
+		}
+		if (!is_numeric($value)) {
+			throw new CastStringException($value, 'float');
+		}
+		return (float) $value;
+	}
 	
 	/**
 	 * cast value to boolean and return it
@@ -61,6 +71,14 @@ abstract class NoScalarTypedInterfacer extends Interfacer {
 	 * @param mixed $value
 	 * @return boolean
 	 */
-	abstract public function castValueToBoolean($value);
+	public function castValueToBoolean($value) {
+		if (is_bool($value)) {
+			return $value;
+		}
+		if ($value !== '0' && $value !== '1') {
+			throw new CastStringException($value, ['0', '1']);
+		}
+		return $value === '1';
+	}
 	
 }

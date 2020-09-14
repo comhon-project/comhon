@@ -1,0 +1,158 @@
+-
+    defaultValue: default
+    id1: 1
+    id2: '23'
+    date: '2016-05-01T14:53:54+02:00'
+    timestamp: '2016-10-16T21:50:19+02:00'
+    object: null
+    objectWithId: null
+    integer: 0
+    mainParentTestDb: 1
+    objectsWithId: []
+    foreignObjects: []
+    lonelyForeignObject: null
+    lonelyForeignObjectTwo: null
+    manBodyJson: null
+    womanXml: null
+    boolean: false
+    boolean2: true
+-
+    defaultValue: default
+    id1: 1
+    id2: '50'
+    date: '2016-10-16T20:21:18+02:00'
+    timestamp: '2016-10-16T21:50:19+02:00'
+    object:
+        plop: plop
+        plop2: plop2222
+    objectWithId:
+        plop: plop
+        plop2: plop2222
+    integer: 1
+    mainParentTestDb: 1
+    objectsWithId: []
+    foreignObjects: []
+    lonelyForeignObject: null
+    lonelyForeignObjectTwo: null
+    manBodyJson: null
+    womanXml: null
+    boolean: false
+    boolean2: true
+-
+    defaultValue: default
+    id1: 1
+    id2: '101'
+    date: '2016-04-13T09:14:33+02:00'
+    timestamp: '2016-10-16T21:50:19+02:00'
+    object:
+        plop: plop
+        plop2: plop2
+    objectWithId:
+        plop: plop
+        plop2: plop2
+    integer: 2
+    mainParentTestDb: 1
+    objectsWithId: []
+    foreignObjects: []
+    lonelyForeignObject: null
+    lonelyForeignObjectTwo: null
+    manBodyJson: null
+    womanXml: null
+    boolean: false
+    boolean2: true
+-
+    defaultValue: default
+    id1: 1
+    id2: '1501774389'
+    date: '2016-04-12T05:14:33+02:00'
+    timestamp: '2016-10-13T11:50:19+02:00'
+    object:
+        plop: plop
+        plop2: plop2
+    objectWithId:
+        plop: plop
+        plop2: plop2
+    integer: 2
+    mainParentTestDb: 1
+    objectsWithId:
+        -
+            plop: '1'
+            plop2: heyplop2
+            plop4: heyplop4
+            inheritance-: Test\TestDb\ObjectWithIdAndMoreMore
+        -
+            plop: '1'
+            plop2: heyplop2
+            inheritance-: Test\TestDb\ObjectWithIdAndMore
+        -
+            plop: '1'
+            plop2: heyplop2
+        -
+            plop: '11'
+            plop2: heyplop22
+        -
+            plop: '11'
+            plop2: heyplop22
+            inheritance-: Test\TestDb\ObjectWithIdAndMore
+    foreignObjects:
+        -
+            id: '1'
+            inheritance-: Test\TestDb\ObjectWithIdAndMoreMore
+        -
+            id: '1'
+            inheritance-: Test\TestDb\ObjectWithIdAndMore
+        - '1'
+        - '11'
+        -
+            id: '11'
+            inheritance-: Test\TestDb\ObjectWithIdAndMore
+    lonelyForeignObject:
+        id: '11'
+        inheritance-: Test\TestDb\ObjectWithIdAndMore
+    lonelyForeignObjectTwo: '11'
+    manBodyJson: null
+    womanXml: null
+    boolean: false
+    boolean2: true
+-
+    defaultValue: default
+    id1: 2
+    id2: '50'
+    date: '2016-05-01T23:37:18+02:00'
+    timestamp: '2016-10-16T21:50:19+02:00'
+    object:
+        plop: plop
+        plop2: plop2222
+    objectWithId:
+        plop: plop
+        plop2: plop2222
+    integer: 3
+    mainParentTestDb: 1
+    objectsWithId: []
+    foreignObjects: []
+    lonelyForeignObject: null
+    lonelyForeignObjectTwo: null
+    manBodyJson: null
+    womanXml: null
+    boolean: false
+    boolean2: true
+-
+    defaultValue: default
+    id1: 2
+    id2: '102'
+    date: '2016-04-01T08:00:00+02:00'
+    timestamp: '2016-10-16T18:21:18+02:00'
+    object:
+        plop: plop10
+        plop2: plop20
+    objectWithId: null
+    integer: 4
+    mainParentTestDb: 1
+    objectsWithId: []
+    foreignObjects: []
+    lonelyForeignObject: null
+    lonelyForeignObjectTwo: null
+    manBodyJson: null
+    womanXml: null
+    boolean: false
+    boolean2: true

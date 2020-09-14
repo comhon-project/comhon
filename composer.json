@@ -11,7 +11,8 @@
 	],
 	"require" : {
 		"php" : "^7.2",
-		"GuzzleHttp/Psr7" : "^1.6.1"
+		"GuzzleHttp/Psr7" : "^1.6.1",
+		"symfony/yaml" : "^5.1.5"
 	},
 	"autoload" : {
 		"psr-4" : {

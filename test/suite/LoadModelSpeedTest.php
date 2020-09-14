@@ -65,7 +65,7 @@ class LoadModelSpeedTest extends TestCase
 		$averageTimeJson = 0.348;
 		$errorMargin = 0.01;
 		
-		$this->assertContains(Config::getInstance()->getManifestFormat(), ['xml', 'json']);
+		$this->assertContains(Config::getInstance()->getManifestFormat(), ['xml', 'json', 'yaml']);
 		$averageTime = Config::getInstance()->getManifestFormat() == 'xml' ? $averageTimeXml : $averageTimeJson;
 		if (($exectTime - $averageTime) > $errorMargin) {
 			echo PHP_EOL . PHP_EOL . "Loading model time :  " . PHP_EOL

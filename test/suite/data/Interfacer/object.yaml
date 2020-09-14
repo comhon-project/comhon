@@ -1,0 +1,53 @@
+defaultValue: default
+id1: 1
+id2: '1501774389'
+date: '2016-04-12T05:14:33+02:00'
+timestamp: '2016-10-13T11:50:19+02:00'
+object:
+    plop: 'null'
+    plop2: 'true'
+objectWithId:
+    plop: plop
+    plop2: '~'
+integer: 2
+mainParentTestDb: 1
+objectsWithId:
+    -
+        plop: '1'
+        plop2: heyplop2
+        plop4: heyplop4
+        inheritance-: Test\TestDb\ObjectWithIdAndMoreMore
+    -
+        plop: '1'
+        plop2: heyplop2
+        inheritance-: Test\TestDb\ObjectWithIdAndMore
+    -
+        plop: '1'
+        plop2: heyplop2
+    -
+        plop: '11'
+        plop2: heyplop22
+    -
+        plop: '11'
+        plop2: heyplop22
+        inheritance-: Test\TestDb\ObjectWithIdAndMore
+foreignObjects:
+    -
+        id: '1'
+        inheritance-: Test\TestDb\ObjectWithIdAndMoreMore
+    -
+        id: '1'
+        inheritance-: Test\TestDb\ObjectWithIdAndMore
+    - '1'
+    - '11'
+    -
+        id: '11'
+        inheritance-: Test\TestDb\ObjectWithIdAndMore
+lonelyForeignObject:
+    id: '11'
+    inheritance-: Test\TestDb\ObjectWithIdAndMore
+lonelyForeignObjectTwo: '11'
+manBodyJson: null
+womanXml: null
+boolean: false
+boolean2: true

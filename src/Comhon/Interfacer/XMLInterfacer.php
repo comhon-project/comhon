@@ -13,7 +13,6 @@ namespace Comhon\Interfacer;
 
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\Model\CastStringException;
 
 class XMLInterfacer extends NoScalarTypedInterfacer {
 	
@@ -32,14 +31,10 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	/** @var \DOMDocument */
 	private $domDocument;
 	
-	/**
-	 * initialize DomDocument that permit to contruct nodes
-	 * 
-	 * @throws \Exception
-	 */
-	protected function _initInstance() {
+	final public function __construct() {
 		$this->domDocument = new \DOMDocument();
 		$this->domDocument->preserveWhiteSpace = false;
+		$this->setDateTimeZone(new \DateTimeZone(date_default_timezone_get()));
 	}
 	
 	/**
@@ -145,11 +140,8 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 			}
 			return $childNode;
 		} else if ($node->hasAttribute($name)) {
-			$attribute = $node->getAttribute($name);
-			if ($attribute == self::NS_NULL_VALUE) {
-				$attribute = null;
-			}
-			return $attribute;
+			$value = $node->getAttribute($name);
+			return $value;
 		}
 		// ugly but we return reference so we have to return a variable
 		$null = null;
@@ -313,7 +305,8 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 				}
 			} else {
 				if (is_null($value)) {
-					$node->setAttribute($name, self::NS_NULL_VALUE);
+					$childNode = $node->appendChild($node->ownerDocument->createElement($name));
+					$this->setNodeAsNull($childNode);
 				} else {
 					$node->setAttribute($name, $value);
 				}
@@ -533,69 +526,15 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 	}
 	
 	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Interfacer\NoScalarTypedInterfacer::castValueToString()
-	 */
-	public function castValueToString($value) {
-		if ($value instanceof \DOMElement) {
-			$value = $this->extractNodeText($value);
-		}
-		return $value;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Interfacer\NoScalarTypedInterfacer::castValueToInteger()
-	 */
-	public function castValueToInteger($value) {
-		if ($value instanceof \DOMElement) {
-			$value = $this->extractNodeText($value);
-		}
-		if (!is_integer($value) && !ctype_digit($value)) {
-			throw new CastStringException($value, 'integer');
-		}
-		return (integer) $value;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Interfacer\NoScalarTypedInterfacer::castValueToFloat()
-	 */
-	public function castValueToFloat($value) {
-		if ($value instanceof \DOMElement) {
-			$value = $this->extractNodeText($value);
-		}
-		if (!is_numeric($value)) {
-			throw new CastStringException($value, 'float');
-		}
-		return (float) $value;
-	}
-	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 * @see \Comhon\Interfacer\NoScalarTypedInterfacer::castValueToBoolean()
-	 */
-	public function castValueToBoolean($value) {
-		if ($value instanceof \DOMElement) {
-			$value = $this->extractNodeText($value);
-		}
-		if ($value !== '0' && $value !== '1') {
-			throw new CastStringException($value, ['0', '1']);
-		}
-		return $value === '1';
-	}
-	
-	/**
 	 * extract text from node
 	 * 
 	 * @param \DOMElement $node
-	 * @return string
+	 * @return string|null
 	 */
 	public function extractNodeText(\DOMElement $node) {
+		if ($this->isNodeNull($node)) {
+			return null;
+		}
 		if ($node->childNodes->length != 1) {
 			throw new ComhonException('malformed node, should only contain one text');
 		}

@@ -50,20 +50,12 @@ class ModelBoolean extends SimpleModel implements StringCastableModelInterface {
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Model\SimpleModel::importSimple()
+	 * @see \Comhon\Model\SimpleModel::_importScalarValue()
 	 * 
 	 * @return boolean|null
 	 */
-	public function importSimple($value, Interfacer $interfacer, $applyCast = true) {
-		if ($interfacer->isNullValue($value)) {
-			return null;
-		}
-		if ($interfacer instanceof NoScalarTypedInterfacer) {
-			$value = $interfacer->castValueToBoolean($value);
-		} elseif ($applyCast && $interfacer->isStringifiedValues()) {
-			$value = $this->castValue($value);
-		}
-		return $value;
+	protected function _importScalarValue($value, Interfacer $interfacer) {
+		return $this->castValue($value);
 	}
 	
 	/**
