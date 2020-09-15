@@ -76,6 +76,7 @@ abstract class ConstantException {
 	const FOREIGN_CONSTRAINT_EXCEPTION     = 802;
 	const UNIQUE_CONSTRAINT_EXCEPTION      = 803;
 	const MANIFEST_SERIALIZATION_EXCEPTION = 804;
+	const MISSING_NOT_NULL_EXCEPTION       = 805;
 	
 	// config
 	const CONFIG_NOT_FOUND_EXCEPTION = 900;

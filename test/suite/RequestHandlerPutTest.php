@@ -21,6 +21,7 @@ class RequestHandlerPutTest extends TestCase
 	{
 		Config::setLoadPath(Data::$config);
 		$obj = ModelManager::getInstance()->getInstanceModel('Test\Person\Man')->getObjectInstance(false);
+		$obj->setValue('firstName', 'john');
 		$obj->save();
 		self::$id = $obj->getId();
 	}
@@ -184,6 +185,18 @@ class RequestHandlerPutTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":105,"message":"invalid route, cannot use private id property \'id\' on model \'Test\\\\TestPrivateId\' in public context"}'
 			],
+			[ // not specified not null and not required value
+			  // (must be specified and not null due to SQL serialization that set automatically a null value)
+				[
+					'REQUEST_METHOD' => 'PUT',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/'
+				],
+				['Content-Type' => 'application/json'],
+				'{"lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":805,"message":"property \'firstName\' of model \'Test\\\\Person\\\\Man\' is not set and cannot be serialized with null value. property should probably be set as required"}',
+			],
 		];
 	}
 	
@@ -248,7 +261,7 @@ class RequestHandlerPutTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"code":206,"message":"invalid composite id \'[1,null]\'"}',
 			],
-			[ // null value
+			[ // not found
 				[
 					'REQUEST_METHOD' => 'PUT',
 					'REQUEST_URI' => '/index.php/api/Test%5cTestDb/[123123,"azezae"]'

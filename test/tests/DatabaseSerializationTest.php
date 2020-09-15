@@ -9,8 +9,22 @@ $time_start = microtime(true);
 $modelPerson = ModelManager::getInstance()->getInstanceModel('Test\Person\Woman');
 $woman = $modelPerson->getObjectInstance();
 
+$throw = false;
+try {
+	$woman->save();
+	$throw = true;
+} catch (Exception $e) {
+	if ($e->getCode() !== 805) {
+		throw new \Exception("wrong exception code, {$e->getCode()} given, 805 expected");
+	}
+}
+if ($throw) {
+	throw new \Exception('serialization souhld be stopped due to not null value');
+}
+
 /** ************************* test if casted object is updated in database ************************** **/
 
+$woman->setValue('firstName', 'jane');
 if ($woman->save() !== 1) {
 	throw new \Exception('serialization souhld be successfull');
 }

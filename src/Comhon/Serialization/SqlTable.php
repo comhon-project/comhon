@@ -33,6 +33,7 @@ use Comhon\Exception\Serialization\ForeignValueException;
 use Comhon\Exception\Serialization\NotNullException;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Model\Property\MultipleForeignProperty;
+use Comhon\Exception\Serialization\MissingNotNullException;
 
 class SqlTable extends ValidatedSerializationUnit {
 	
@@ -42,14 +43,20 @@ class SqlTable extends ValidatedSerializationUnit {
 	const MODEL_NAME = 'Comhon\SqlTable';
 	
 	/**
-	 * @var integer index that store information that permit to know if model has incremantal id
+	 * @var integer index that store information that permit to know if model has incremental id
 	 */
 	const HAS_INCR_ID_INDEX = 0;
 	
 	/**
-	 * @var integer index that store information that permit to know if model has incremantal properties
+	 * @var integer index that store information that permit to know if model has incremental properties
 	 */
 	const AUTO_INCR_PROPERTIES_INDEX = 1;
+	
+	/**
+	 * @var integer index that store information that permit to 
+	 *              know if model has not null and not required serializable properties
+	 */
+	const NOT_NULL_NOT_REQUIRED_PROPERTIES = 2;
 	
 	/**
 	 * @var array store all incremental columns names grouped by table
@@ -223,6 +230,7 @@ class SqlTable extends ValidatedSerializationUnit {
 			return;
 		}
 		$autoIncrementProperties = [];
+		$notNullNotRequiredProperties = [];
 		$hasIncrementalId = false;
 		
 		$autoIncrementColumns = $this->autoIncrementColumns[$tableId];
@@ -233,13 +241,16 @@ class SqlTable extends ValidatedSerializationUnit {
 					if ($property->isId()) {
 						$hasIncrementalId = true;
 					}
+				} elseif ($property->isNotNull() && !$property->isRequired()) {
+					$notNullNotRequiredProperties[] = $property;
 				}
 			}
 		}
 		
 		$this->modelInfos[$model->getName()] = [
-			self::HAS_INCR_ID_INDEX          => $hasIncrementalId,
-			self::AUTO_INCR_PROPERTIES_INDEX => $autoIncrementProperties
+			self::HAS_INCR_ID_INDEX => $hasIncrementalId,
+			self::AUTO_INCR_PROPERTIES_INDEX => $autoIncrementProperties,
+			self::NOT_NULL_NOT_REQUIRED_PROPERTIES => $notNullNotRequiredProperties
 		];
 	}
 	
@@ -335,6 +346,7 @@ class SqlTable extends ValidatedSerializationUnit {
 	 * @return integer number of affected rows
 	 */
 	private function _insertObject(UniqueObject $object) {
+		$this->_verifyNotNullNotRequiredValues($object);
 		$interfacer = $this->_getInterfacer();
 		$interfacer->setExportOnlyUpdatedValues(false);
 		$interfacer->setValidate(true);
@@ -460,6 +472,25 @@ class SqlTable extends ValidatedSerializationUnit {
 	}
 	
 	/**
+	 * verify not null and not required values.
+	 * actually a manifest can have a not required property set as not null
+	 * but in SQL a column has automatically a null value if column value is not specified during insert.
+	 * and when value will be retrieved, there will be a null value set and import will fail and throw an exception.
+	 * so we have to prevent insert to avoid this situation.
+	 *
+	 * @param UniqueObject $object
+	 * @throws \Comhon\Exception\Serialization\MissingNotNullException
+	 */
+	private function _verifyNotNullNotRequiredValues(UniqueObject $object) {
+		$notNullNotReuiredProperties = $this->modelInfos[$object->getModel()->getName()][self::NOT_NULL_NOT_REQUIRED_PROPERTIES];
+		foreach ($notNullNotReuiredProperties as $name => $property) {
+			if (!$object->hasValue($property->getName())) {
+				throw new MissingNotNullException($object->getModel(), $property->getName());
+			}
+		}
+	}
+	
+	/**
 	 * add null values on not set properties if needed
 	 * - if NOT partial, add automatically null values
 	 * - if partial, add null values only on values flagged as updated
@@ -467,16 +498,13 @@ class SqlTable extends ValidatedSerializationUnit {
 	 * @param array $mapOfString
 	 * @param UniqueObject $object
 	 * @param boolean $partial
-	 * @throws SerializationException
+	 * @throws \Comhon\Exception\Serialization\MissingNotNullException
 	 */
 	private function _addNullValues(array &$mapOfString, UniqueObject $object, $partial) {
 		foreach ($object->getModel()->getProperties() as $name => $property) {
 			if ($property->isSerializable() && !$object->hasValue($name) && (!$partial || $object->isUpdatedValue($name))) {
 				if ($property->isNotNull()) {
-					throw new SerializationException(
-						"updated value '$name' is not set, "
-						.'and can\'t be replaced by null value due to not null restriction'
-					);
+					throw new MissingNotNullException($object->getModel(), $name);
 				}
 				if ($property instanceof MultipleForeignProperty) {
 					foreach ($property->getMultipleIdProperties() as $column => $property) {

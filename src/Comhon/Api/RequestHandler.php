@@ -49,6 +49,7 @@ use Comhon\Exception\Serialization\ConstraintException;
 use GuzzleHttp\Psr7\ServerRequest;
 use function GuzzleHttp\Psr7\parse_header;
 use function GuzzleHttp\Psr7\stream_for;
+use Comhon\Exception\Serialization\MissingNotNullException;
 
 class RequestHandler {
 	
@@ -195,6 +196,8 @@ class RequestHandler {
 		} catch (ManifestSerializationException $e) {
 			$response = ResponseBuilder::buildSimpleResponse(403, [], ['code' => $e->getCode(), 'message' => $e->getMessage()]);
 		} catch (ConstraintException $e) {
+			$response = ResponseBuilder::buildSimpleResponse(400, [], ['code' => $e->getCode(), 'message' => $e->getMessage()]);
+		} catch (MissingNotNullException $e) {
 			$response = ResponseBuilder::buildSimpleResponse(400, [], ['code' => $e->getCode(), 'message' => $e->getMessage()]);
 		} catch (\Exception $e) {
 			$response = new Response(500);

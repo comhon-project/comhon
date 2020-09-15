@@ -20,6 +20,7 @@ class RequestHandlerDeleteTest extends TestCase
 	{
 		Config::setLoadPath(Data::$config);
 		$obj = ModelManager::getInstance()->getInstanceModel('Test\Person\Man')->getObjectInstance(false);
+		$obj->setValue('firstName', 'john');
 		$obj->save();
 		self::$id = $obj->getId();
 	}

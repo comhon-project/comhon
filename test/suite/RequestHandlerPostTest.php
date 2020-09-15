@@ -21,6 +21,7 @@ class RequestHandlerPostTest extends TestCase
 	{
 		Config::setLoadPath(Data::$config);
 		$obj = ModelManager::getInstance()->getInstanceModel('Test\Person\Man')->getObjectInstance(false);
+		$obj->setValue('firstName', 'john');
 		$obj->save();
 		self::$id = $obj->getId();
 	}
@@ -297,6 +298,18 @@ class RequestHandlerPostTest extends TestCase
 				400,
 				['Content-Type' => 'application/json'],
 				'{"code":802,"message":"reference 7566 of foreign property \'foreign_constraint\' for model \'Test\\\\DbConstraint\' doesn\'t exists"}',
+			],
+			[ // not specified not null and not required value 
+			  // (must be specified and not null due to SQL serialization that set automatically a null value)
+				[
+					'REQUEST_METHOD' => 'POST',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
+				],
+				['Content-Type' => 'application/json'],
+				'{"lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
+				400,
+				['Content-Type' => 'application/json'],
+				'{"code":805,"message":"property \'firstName\' of model \'Test\\\\Person\\\\Man\' is not set and cannot be serialized with null value. property should probably be set as required"}',
 			],
 		];
 	}

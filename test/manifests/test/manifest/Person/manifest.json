@@ -11,6 +11,7 @@
         },
         {
             "name": "firstName",
+            "not_null": true,
             "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
