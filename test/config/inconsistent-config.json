@@ -1,6 +1,4 @@
 {
-  "manifestList": "../manifests/manifest/manifestList.json",
-  "serializationList": "../manifests/serialization/serializationList.json",
   "regex_list":"./fake-path/regex.json",
   "sql_table": "./fake-path",
   "sql_database": "./fake-path",

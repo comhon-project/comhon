@@ -504,7 +504,7 @@ class RequestHandler {
 	 * @return \Comhon\Object\ComhonArray
 	 */
 	private function _getFilterProperties(&$queryParams) {
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request')->getProperty('properties')->getModel();
+		$model = new ModelArray(ModelManager::getInstance()->getInstanceModel('string'), false, 'property', [], [], true);
 		if (isset($queryParams[self::PROPERTIES])) {
 			if (!is_array($queryParams[self::PROPERTIES])) {
 				throw new UnexpectedValueTypeException($queryParams[self::PROPERTIES], 'array', self::PROPERTIES);

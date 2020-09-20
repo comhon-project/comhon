@@ -12,10 +12,10 @@
 namespace Comhon\Object\Config;
 
 use Comhon\Object\ExtendableObject;
-use Comhon\Object\AbstractComhonObject;
-use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Exception\Config\ConfigMalformedException;
 use Comhon\Exception\Config\ConfigFileNotFoundException;
+use Comhon\Interfacer\AssocArrayInterfacer;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Exception\ComhonException;
 
 class Config extends ExtendableObject {
 	
@@ -42,36 +42,35 @@ class Config extends ExtendableObject {
 	 */
 	public static function getInstance() {
 		if (!isset(self::$instance)) {
-			try {
-				$instance = new self();
+			// ModelNanager will call self::initInstance an register instance
+			ModelManager::getInstance();
 			
-				// during new config instanciation, ModelManager singleton might be instanciated for the first time
-				// in this case ModelManager instanciation need config singleton but it is currently instanciating 
-				// (at this step self::$instance is empty)
-				// so config singleton might be instanciated two times, so we have to verify a second time
-				// if self::$instance is set to avoid to affect self::$instance a second time
-				if (!isset(self::$instance)) {
-					self::$instance = $instance;
-					$config_af = realpath(self::$loadPath);
-					if ($config_af === false) {
-						throw new ConfigFileNotFoundException('configuration', 'file', self::$loadPath);
-					}
-					$stdInterfacer = new StdObjectInterfacer();
-					$stdInterfacer->setSerialContext(true);
-					$stdInterfacer->setPrivateContext(true);
-					$jsonConfig = $stdInterfacer->read($config_af);
-					if (is_null($jsonConfig) || $jsonConfig === false) {
-						throw new ConfigMalformedException($config_af);
-					}
-					self::$instance->fill($jsonConfig, $stdInterfacer);
-					self::$instance->_setDirectory(dirname($config_af));
-				}
+			// if instance is not registered, there is a failure
+			if (!isset(self::$instance)) {
+				throw new ComhonException('instance is not registered');
+			}
+		}
+		return self::$instance;
+	}
+	
+	/**
+	 * initialize Config instance.
+	 * DON'T call this function, it must be only used during ModelManager instanciation.
+	 *
+	 * @throws \Exception
+	 * @return \Comhon\Object\Config\Config
+	 */
+	public static function initInstance(array $config, $config_ad) {
+		if (!isset(self::$instance)) {
+			try {
+				self::$instance = new self();
+				self::$instance->_setDirectory($config_ad);
+				self::$instance->fill($config, new AssocArrayInterfacer());
 			} catch (\Exception $e) {
 				self::$instance = null;
 				throw $e;
 			}
 		}
-		return self::$instance;
 	}
 	
 	/**

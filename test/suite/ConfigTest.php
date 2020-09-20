@@ -59,6 +59,19 @@ class ConfigTest extends TestCase
 	/**
 	 * @depends testDatabaseFileNotFoundConfig
 	 */
+	public function testSuccessConfigExtended()
+	{
+		ModelManager::resetSingleton();
+		Config::resetSingleton();
+		Config::setLoadPath(__DIR__ . '/../config/config-extended.json');
+		$config = Config::getInstance();
+		$this->assertEquals('Test\Config', $config->getModel()->getName());
+		$this->assertEquals('test', $config->getValue('test_config'));
+	}
+	
+	/**
+	 * @depends testSuccessConfigExtended
+	 */
 	public function testSuccessConfigWithoutSql()
 	{
 		ModelManager::resetSingleton();

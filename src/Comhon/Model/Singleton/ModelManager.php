@@ -33,6 +33,9 @@ use Comhon\Serialization\Serialization;
 use Comhon\Manifest\Parser\SerializationManifestParser;
 use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Model\ModelRoot;
+use Comhon\Exception\Config\ConfigMalformedException;
+use Comhon\Interfacer\AssocArrayInterfacer;
+use Comhon\Utils\Utils;
 
 class ModelManager {
 
@@ -59,6 +62,11 @@ class ModelManager {
 	
 	/** @var string */
 	const CONFLICTS = 'conflicts';
+	
+	/**
+	 * @var string
+	 */
+	private $config_ad;
 	
 	/**
 	 * @var \Comhon\Model\AbstractModel[]
@@ -154,48 +162,80 @@ class ModelManager {
 			$this->_registerSimpleModelClasses();
 			$this->modelRoot = new ModelRoot();
 			$this->_addInstanceModel($this->modelRoot);
+			$config_af = realpath(Config::getLoadPath());
+			$configArray = $this->_getConfigArray($config_af);
+			$this->config_ad = dirname($config_af);
 			
-			if (Config::getInstance()->hasValue('sql_table')) {
-				$path = Config::getInstance()->getSerializationSqlTablePath();
+			if (isset($configArray['sql_table'])) {
+				$path = $this->_toAbsolutePath($configArray['sql_table'], $this->config_ad);
 				if (!is_dir($path)) {
-					throw new ConfigFileNotFoundException('sql_table', 'directory', Config::getInstance()->getSerializationSqlTablePath(false));
+					throw new ConfigFileNotFoundException('sql_table', 'directory', $configArray['sql_table']);
 				}
 				$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('dir_path', $path);
 			}
-			if (Config::getInstance()->hasValue('sql_database')) {
-				$path = Config::getInstance()->getSerializationSqlDatabasePath();
+			if (isset($configArray['sql_database'])) {
+				$path = $this->_toAbsolutePath($configArray['sql_database'], $this->config_ad);
 				if (!is_dir($path)) {
-					throw new ConfigFileNotFoundException('sql_database', 'directory', Config::getInstance()->getSerializationSqlDatabasePath(false));
+					throw new ConfigFileNotFoundException('sql_database', 'directory', $configArray['sql_database']);
 				}
 				$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('dir_path', $path);
 			}
-			if (!is_null(Config::getInstance()->getValue('manifest_format'))) {
-				$this->manifestExtension = Config::getInstance()->getValue('manifest_format');
+			if (isset($configArray['manifest_format'])) {
+				$this->manifestExtension = $configArray['manifest_format'];
 			}
-			$lManifestAutoloadList = Config::getInstance()->getManifestAutoloadList();
-			if (!is_null($lManifestAutoloadList)) {
+			if (isset($configArray['autoload']['manifest'])) {
 				$comhonPath_ad = $this->autoloadManifest['Comhon'];
-				$this->autoloadManifest = $lManifestAutoloadList->getValues();
+				$this->autoloadManifest = $configArray['autoload']['manifest'];
 				$this->autoloadManifest['Comhon'] = $comhonPath_ad;
 			}
-			$lSerializationManifestAutoloadList = Config::getInstance()->getSerializationAutoloadList();
-			if (!is_null($lSerializationManifestAutoloadList)) {
+			if (isset($configArray['autoload']['serialization'])) {
 				$comhonPath_ad = $this->autoloadSerializationManifest['Comhon'];
-				$this->autoloadSerializationManifest = $lSerializationManifestAutoloadList->getValues();
+				$this->autoloadSerializationManifest = $configArray['autoload']['serialization'];
 				$this->autoloadSerializationManifest['Comhon'] = $comhonPath_ad;
 			}
-			$lOptionsManifestAutoloadList = Config::getInstance()->getOptionsAutoloadList();
-			if (!is_null($lOptionsManifestAutoloadList)) {
+			if (isset($configArray['autoload']['options'])) {
 				$comhonPath_ad = $this->autoloadOptionsManifest['Comhon'];
-				$this->autoloadOptionsManifest = $lOptionsManifestAutoloadList->getValues();
+				$this->autoloadOptionsManifest = $configArray['autoload']['options'];
 				if (!isset($this->autoloadOptionsManifest['Comhon'])) {
 					$this->autoloadOptionsManifest['Comhon'] = $comhonPath_ad;
 				}
 			}
+			Config::initInstance($configArray, $this->config_ad);
 		} catch (\Exception $e) {
 			self::$_instance = null;
 			throw $e;
 		}
+	}
+	
+	/**
+	 * load config into associative array and return it.
+	 * 
+	 * @param string $config_af
+	 * @throws ConfigFileNotFoundException
+	 * @throws ConfigMalformedException
+	 * @return array
+	 */
+	private function _getConfigArray($config_af) {
+		if ($config_af === false) {
+			throw new ConfigFileNotFoundException('configuration', 'file', self::$loadPath);
+		}
+		$interfacer = new AssocArrayInterfacer();
+		$arrayConfig = $interfacer->read($config_af);
+		if (is_null($arrayConfig)) {
+			throw new ConfigMalformedException($config_af);
+		}
+		return $arrayConfig;
+	}
+	
+	/**
+	 * transform given path to absolute path if given path begin with a dot (examples: ./my_path or ../my_path).
+	 *
+	 * @param string $path
+	 * @param string $config_ad
+	 * @return string
+	 */
+	private function _toAbsolutePath($path, $config_ad) {
+		return substr($path, 0, 1) == '.' ? $config_ad . DIRECTORY_SEPARATOR . $path : $path;
 	}
 	
 	/**
@@ -299,7 +339,7 @@ class ModelManager {
 			throw new ComhonException("prefix namespace '$fullyQualifiedNamePrefix' do not belong to autoload manifest list");
 		}
 		$prefix_ad = substr($this->autoloadManifest[$fullyQualifiedNamePrefix], 0, 1) == '.'
-			? Config::getInstance()->getDirectory() . DIRECTORY_SEPARATOR . $this->autoloadManifest[$fullyQualifiedNamePrefix]
+			? $this->config_ad . DIRECTORY_SEPARATOR . $this->autoloadManifest[$fullyQualifiedNamePrefix]
 			: $this->autoloadManifest[$fullyQualifiedNamePrefix];
 		return $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $fullyQualifiedNameSuffix) . DIRECTORY_SEPARATOR .'manifest.' . $this->manifestExtension;
 	}
@@ -315,7 +355,7 @@ class ModelManager {
 	public function getSerializationManifestPath($manifest_af, $fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) {
 		if (array_key_exists($fullyQualifiedNamePrefix, $this->autoloadSerializationManifest)) {
 			$prefix_ad = substr($this->autoloadSerializationManifest[$fullyQualifiedNamePrefix], 0, 1) == '.'
-				? Config::getInstance()->getDirectory(). DIRECTORY_SEPARATOR . $this->autoloadSerializationManifest[$fullyQualifiedNamePrefix]
+				? $this->config_ad . DIRECTORY_SEPARATOR . $this->autoloadSerializationManifest[$fullyQualifiedNamePrefix]
 				: $this->autoloadSerializationManifest[$fullyQualifiedNamePrefix];
 			$manifest_af = $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $fullyQualifiedNameSuffix) . DIRECTORY_SEPARATOR .'serialization.' . $this->manifestExtension;
 		} else {
@@ -335,7 +375,7 @@ class ModelManager {
 	public function getOptionsManifestPath($manifest_af, $fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) {
 		if (array_key_exists($fullyQualifiedNamePrefix, $this->autoloadOptionsManifest)) {
 			$prefix_ad = substr($this->autoloadOptionsManifest[$fullyQualifiedNamePrefix], 0, 1) == '.'
-				? Config::getInstance()->getDirectory(). DIRECTORY_SEPARATOR . $this->autoloadOptionsManifest[$fullyQualifiedNamePrefix]
+				? $this->config_ad . DIRECTORY_SEPARATOR . $this->autoloadOptionsManifest[$fullyQualifiedNamePrefix]
 				: $this->autoloadOptionsManifest[$fullyQualifiedNamePrefix];
 			$manifest_af = $prefix_ad . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $fullyQualifiedNameSuffix) . DIRECTORY_SEPARATOR .'options.' . $this->manifestExtension;
 		} else {

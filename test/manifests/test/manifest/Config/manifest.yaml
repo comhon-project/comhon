@@ -1,0 +1,8 @@
+name: Test\Config
+extends:
+    - \Comhon\Config
+properties:
+    -
+        name: test_config
+        inheritance-: Comhon\Manifest\Property\String
+version: '3.0'

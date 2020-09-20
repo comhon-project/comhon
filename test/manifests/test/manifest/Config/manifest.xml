@@ -1,0 +1,8 @@
+<root name="Test\Config" version="3.0">
+  <extends>
+    <type>\Comhon\Config</type>
+  </extends>
+  <properties>
+    <property name="test_config" inheritance-="Comhon\Manifest\Property\String"/>
+  </properties>
+</root>

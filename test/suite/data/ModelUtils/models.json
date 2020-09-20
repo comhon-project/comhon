@@ -2,6 +2,7 @@
     "Test\\NotLinkableTestDb",
     "Test\\TestNoSerialization",
     "Test\\HauntedHouse",
+    "Test\\Config",
     "Test\\Extends\\ShareId",
     "Test\\Extends\\ShareId\\MainNotMain",
     "Test\\Extends\\ShareId\\MainNotMain\\Main",

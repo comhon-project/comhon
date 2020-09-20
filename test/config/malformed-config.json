@@ -1,6 +1,4 @@
 
-  "manifestList": "../manifests/manifest/manifestList.json",
-  "serializationList": "../manifests/serialization/serializationList.json",
   "regex_list":"./regex.json",
   "sql_table": "./table",
   "sql_database": "./database",
