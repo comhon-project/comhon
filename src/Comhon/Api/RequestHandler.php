@@ -361,7 +361,7 @@ class RequestHandler {
 		} else {
 			$this->_verifyAllowedRequest();
 			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
-			$request = self::importBody($serverRequest, $requestModel, $interfacer);
+			$request = self::_importBody($serverRequest, $requestModel, $interfacer);
 			$this->_verifyRequestModel($request);
 		}
 		
@@ -633,7 +633,7 @@ class RequestHandler {
 		} else {
 			$this->_verifyAllowedRequest();
 			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
-			$request = self::importBody($serverRequest, $requestModel, $interfacer);
+			$request = self::_importBody($serverRequest, $requestModel, $interfacer);
 			$this->_verifyRequestModel($request);
 		}
 		
@@ -663,7 +663,7 @@ class RequestHandler {
 			throw new ComhonException('unique id not verified or invalid options');
 		}
 		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest);
-		$object = self::importBody($serverRequest, $this->requestedModel, $interfacer);
+		$object = self::_importBody($serverRequest, $this->requestedModel, $interfacer);
 		
 		if ($object->getModel()->hasIdProperties()) {
 			if ($object->hasCompleteId()) {
@@ -703,7 +703,7 @@ class RequestHandler {
 			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
 		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest);
-		$object = self::importBody($serverRequest, $this->requestedModel, $interfacer);
+		$object = self::_importBody($serverRequest, $this->requestedModel, $interfacer);
 		
 		if ($object->hasEmptyId()) {
 			$object->setId($this->uniqueResourceId);
@@ -810,7 +810,23 @@ class RequestHandler {
 	}
 	
 	/**
-	 * import given body and build comhon object according given model
+	 * import request body and build comhon object according Content-Type header and given model
+	 *
+	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Comhon\Model\Model|\Comhon\Model\ModelArray $model
+	 * @param boolean $default if true and Content-Type not specified, 
+	 *                         try to parse body with default interfacer (json)
+	 *                         otherwise return null
+	 * @throws MalformedRequestException
+	 * @return \Comhon\Object\AbstractComhonObject
+	 */
+	public static function importBody(ServerRequest $serverRequest, ModelComhonObject $model, $default = true) {
+		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest, $default);
+		return $interfacer ? self::_importBody($serverRequest, $model, $interfacer) : null;
+	}
+	
+	/**
+	 * import request body and build comhon object according given model
 	 * 
 	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
 	 * @param \Comhon\Model\Model|\Comhon\Model\ModelArray $model
@@ -818,7 +834,7 @@ class RequestHandler {
 	 * @throws MalformedRequestException
 	 * @return \Comhon\Object\AbstractComhonObject
 	 */
-	public static function importBody(ServerRequest $serverRequest, ModelComhonObject $model, Interfacer $interfacer) {
+	private static function _importBody(ServerRequest $serverRequest, ModelComhonObject $model, Interfacer $interfacer) {
 		$interfacedObject = $interfacer->fromString($serverRequest->getBody()->getContents());
 		if ($model instanceof ModelArray) {
 		    if (!$interfacer->isArrayNodeValue($interfacedObject, $model->isAssociative())) {
