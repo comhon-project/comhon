@@ -20,6 +20,7 @@ use Comhon\Exception\Model\UnexpectedModelException;
 use Comhon\Exception\Database\IncompleteSqlDbInfosException;
 use Comhon\Exception\Database\UnexpectedCountValuesQueryException;
 use Comhon\Exception\Database\QueryBindingValueException;
+use Comhon\Exception\ComhonException;
 
 class DatabaseHandler {
 	
@@ -260,9 +261,14 @@ class DatabaseHandler {
 	 * @return DatabaseHandler|null
 	 */
 	public static function getInstanceWithDataBaseId($id) {
-		return array_key_exists($id, self::$instances)
-			? self::$instances[$id]
-			: self::getInstanceWithDataBaseObject(ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->loadObject($id));
+		if (array_key_exists($id, self::$instances)) {
+			return self::$instances[$id];
+		}
+		$db = ModelManager::getInstance()->getInstanceModel('Comhon\SqlDatabase')->loadObject($id);
+		if (is_null($db)) {
+			throw new ComhonException("database file with id '$id' not found");
+		}
+		return self::getInstanceWithDataBaseObject($db);
 	}
 	
 	/**
