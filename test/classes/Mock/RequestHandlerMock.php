@@ -11,11 +11,11 @@
 
 namespace Test\Comhon\Mock;
 
-use Comhon\Api\RequestHandler;
 use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7\Uri;
+use Comhon\Api\RequestHandler;
 
-class RequestHandlerMock extends RequestHandler {
+class RequestHandlerMock {
 	
 	/**
 	 * 
@@ -28,8 +28,6 @@ class RequestHandlerMock extends RequestHandler {
 	 * @return \Comhon\Api\Response
 	 */
 	public static function handle($basePath, $server = [], $get = [], $headers = [], $body = '', array $requestableModels = null) {
-		$handler = new self();
-		
 		$uri = new Uri('http://localhost/'.$server['REQUEST_URI']);
 		$serverRequest = new ServerRequest($server['REQUEST_METHOD'], $uri, $headers, $body);
 		$serverRequest = $serverRequest->withQueryParams($get);
@@ -37,8 +35,8 @@ class RequestHandlerMock extends RequestHandler {
 			$key = strtolower($pathModelName);
 			return array_key_exists($key, $requestableModels) ? $requestableModels[$key] : null;
 		};
-		
-		return $handler->_handle($serverRequest, $basePath, $resolver);
+		$requestHandler = new RequestHandler($basePath, $resolver);
+		return $requestHandler->handle($serverRequest);
 	}
 	
 }

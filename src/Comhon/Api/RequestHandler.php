@@ -37,7 +37,6 @@ use Comhon\Model\Restriction\Range;
 use Comhon\Exception\Model\NoIdPropertyException;
 use Comhon\Exception\Model\PropertyVisibilityException;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\HTTP\ConflictException;
 use Comhon\Exception\HTTP\MethodNotAllowedException;
 use Comhon\Exception\Value\InvalidCompositeIdException;
@@ -46,12 +45,15 @@ use Comhon\Object\Config\Config;
 use Comhon\Model\ModelComhonObject;
 use Comhon\Model\ModelArray;
 use Comhon\Exception\Serialization\ConstraintException;
+use Comhon\Exception\Serialization\MissingNotNullException;
 use GuzzleHttp\Psr7\ServerRequest;
 use function GuzzleHttp\Psr7\parse_header;
 use function GuzzleHttp\Psr7\stream_for;
-use Comhon\Exception\Serialization\MissingNotNullException;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ResponseInterface;
 
-class RequestHandler {
+class RequestHandler implements RequestHandlerInterface {
 	
 	/**
 	 *
@@ -79,9 +81,21 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @var \GuzzleHttp\Psr7\ServerRequest
+	 * @var \Psr\Http\Message\ServerRequestInterface
 	 */
 	private static $serverRequest;
+	
+	/**
+	 *
+	 * @var string
+	 */
+	private $requestBasePath;
+	
+	/**
+	 *
+	 * @var callable 
+	 */
+	private $modelNameResolver;
 	
 	/**
 	 *
@@ -109,7 +123,7 @@ class RequestHandler {
 	private $isCountRequest = false;
 	
 	/**
-	 * get server request
+	 * get server request from globals
 	 * 
 	 * @return \Psr\Http\Message\ServerRequestInterface
 	 */
@@ -122,30 +136,29 @@ class RequestHandler {
 	}
 	
 	/**
-	 * get server request path with urldecoded characters and removed duplicated slash.
-	 * 
-	 * @param boolean $removeLastSlash if true, remove the last slash if exists.
-	 * @return string
-	 */
-	public static function getFilteredServerRequestPath($removeLastSlash = false) {
-		return self::_getFilteredPath(self::getServerRequest()->getUri()->getPath(), $removeLastSlash);
-	}
-	
-	/**
-	 * get path with urldecoded characters and removed duplicated slash.
+	 * get path with urldecoded characters, removed duplicated slash and optionally removed trailing slash.
 	 *
-	 * @param boolean $removeLastSlash if true, remove the last slash if exists.
+	 * @param boolean $removeTrailingSlash if true, remove trailing slash if exists (/my/path/ become /my/path).
 	 * @return string
 	 */
-	private static function _getFilteredPath($path, $removeLastSlash = false) {
+	public static function filterPath($path, $removeTrailingSlash = false) {
 		$path = urldecode(preg_replace('#//++#', '/', $path));
-		return $removeLastSlash ? rtrim($path, '/') : $path;
+		return $removeTrailingSlash ? rtrim($path, '/') : $path;
 	}
 	
 	/**
-	 * handle client request and build response
 	 * 
-	 * @param string $basePath
+	 * @param string $basePath The request path must match with given base path otherwise request will not be handled 
+	 * 
+	 *                         for example if you decide to set base path to '/api' :
+	 *                         - a request with path '/' will not be handled
+	 *                         - a request with path '/myapi' will not be handled
+	 *                         - a request with path '/api' will be handled
+	 *                         - a request with path '/api/some/resource' will be handled
+	 *                         
+	 *                         If you call handle function but request path is not handled according base path,
+	 *                         a response whit status code 404 and body 'route not handled' will be returned
+	 *                         
 	 * @param \Closure $modelNameResolver anonymous function that permit to find comhon model name according
 	 *                                    api model name given in path URI.
 	 *                                    function must take api model name in first parameter and
@@ -159,36 +172,42 @@ class RequestHandler {
 	 *                                        $key = strtolower($pathModelName);
 	 *                                        return array_key_exists($key, $modelNames) ? $modelNames[$key] : null;
 	 *                                    };
-	 *                                    $response = RequestHandler::handle('/api', $resolver);
+	 *                                    new RequestHandler('/api', $resolver);
 	 *                                    ```
 	 *                                    A request with URI 'https://www.mydomain.com/api/persons'
-	 *                                    will handle request with 'Test\\Person' model.
+	 *                                    will handle request with 'Test\Person' model.
 	 *                                    A request with URI 'https://www.mydomain.com/api/foo'
 	 *                                    will not found comhon model and generate a 404 not found response.
 	 *                                    
-	 *                                    if anonymous function is not specified the api model name must be the cohmon model name.
+	 *                                    if this parameter is not specified the api model name must be the cohmon model name.
 	 * @return \Comhon\Api\Response
 	 */
-	public static function handle($basePath, \Closure $modelNameResolver = null) {
-		$handler = new self();
-		return $handler->_handle(self::getServerRequest(), $basePath, $modelNameResolver);
+	public function __construct($basePath, callable $modelNameResolver = null) {
+		$this->requestBasePath = $basePath;
+		$this->modelNameResolver = $modelNameResolver;
+	}
+	
+	/**
+     * Handles the request from globals and produces a response.
+	 * 
+	 * @return ResponseInterface
+	 */
+	public function run(): ResponseInterface {
+		return $this->handle(self::getServerRequest());
 	}
 	
 	/**
 	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
-	 * @param string $basePath
-	 * @param \Closure $modelNameResolver
-	 * @throws \Exception
-	 * @return \Comhon\Api\Response
+	 * {@inheritDoc}
+	 * @see \Psr\Http\Server\RequestHandlerInterface::handle()
 	 */
-	protected function _handle(ServerRequest $serverRequest, $basePath, $modelNameResolver) {
+	public function handle(ServerRequestInterface $serverRequest): ResponseInterface {
 		try {
-			$this->_setRessourceArray($serverRequest, $basePath);
+			$this->_setRessourceArray($serverRequest);
 			if ($this->resource[0] == 'pattern' && count($this->resource) == 2) {
 				$response = $this->_getPattern($serverRequest);
 			}else {
-				$this->_setRessourceInfos($serverRequest->getMethod(), $modelNameResolver);
+				$this->_setRessourceInfos($serverRequest->getMethod());
 				$response = $this->_handleMethod($serverRequest);
 			}
 		} catch (ResponseException $e) {
@@ -210,12 +229,11 @@ class RequestHandler {
 	 * set resource array according request route.
 	 * check if route is valid and may be handled.
 	 *
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
-	 * @param string $basePath
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 */
-	private function _setRessourceArray(ServerRequest $serverRequest, $basePath) {
-		$path = self::_getFilteredPath($serverRequest->getUri()->getPath(), true);
-		$basePath = self::_getFilteredPath('/'.$basePath, true);
+	private function _setRessourceArray(ServerRequestInterface $serverRequest) {
+		$path = self::filterPath($serverRequest->getUri()->getPath(), true);
+		$basePath = self::filterPath('/'.$this->requestBasePath, true);
 		
 		if ($path === $basePath) {// health check send response code 200
 			throw new ResponseException(200, 'API root path');
@@ -230,9 +248,8 @@ class RequestHandler {
 	 * check if route is valid and may be handled.
 	 * 
 	 * @param string $method
-	 * @param \Closure $modelNameResolver
 	 */
-	private function _setRessourceInfos($method, \Closure $modelNameResolver = null) {
+	private function _setRessourceInfos($method) {
 		if ($this->resource[0] === 'count' && ($method === 'GET' || $method === 'HEAD' || $method === 'OPTIONS')) {
 			array_shift($this->resource);
 			$this->isCountRequest = true;
@@ -241,8 +258,10 @@ class RequestHandler {
 			throw new ResponseException(404, 'invalid route');
 		}
 		try {
-			if (!is_null($modelNameResolver)) {
-				$modelName = $modelNameResolver($this->resource[0]);
+			if (!is_null($this->modelNameResolver)) {
+				// callable cannot be called from class attribute otherwise the context is RequestHandler
+				$resolver = $this->modelNameResolver; 
+				$modelName = $resolver($this->resource[0]);
 				if (is_null($modelName)) {
 					throw new ResponseException(404, "resource api model name '{$this->resource[0]}' doesn't exist");
 				}
@@ -272,10 +291,10 @@ class RequestHandler {
 	/**
 	 * get patterns list that may be used
 	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getPattern(ServerRequest $serverRequest) {
+	private function _getPattern(ServerRequestInterface $serverRequest) {
 		$method = $serverRequest->getMethod();
 		
 		if ($method == 'OPTIONS') {
@@ -302,7 +321,7 @@ class RequestHandler {
 	/**
 	 * handle request according request method
 	 *
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @throws \Exception
 	 * @return \Comhon\Api\Response
 	 */
@@ -349,12 +368,12 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @param array $queryParams
 	 * @param string[] $filterProperties
 	 * @return \Comhon\Request\ComplexRequester
 	 */
-	private function _getComplexRequester(ServerRequest $serverRequest, &$queryParams, $filterProperties = null) {
+	private function _getComplexRequester(ServerRequestInterface $serverRequest, &$queryParams, $filterProperties = null) {
 		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest, false);
 		if (is_null($interfacer)) {
 			$request = $this->_setRequestFromQuery($queryParams, $filterProperties);
@@ -559,19 +578,19 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _get(ServerRequest $serverRequest) {
+	private function _get(ServerRequestInterface $serverRequest) {
 		return $this->isCountRequest ? $this->_getCount($serverRequest) : $this->_getResources($serverRequest);
 	}
 	
 	/**
 	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getResources(ServerRequest $serverRequest) {
+	private function _getResources(ServerRequestInterface $serverRequest) {
 		if (count($this->resource) > 2) {
 			return ResponseBuilder::buildSimpleResponse(404, [], 'invalid route');
 		}
@@ -611,10 +630,10 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _getCount(ServerRequest $serverRequest) {
+	private function _getCount(ServerRequestInterface $serverRequest) {
 		if (count($this->resource) != 1) {
 			return ResponseBuilder::buildSimpleResponse(404, [], 'invalid route');
 		}
@@ -644,21 +663,21 @@ class RequestHandler {
 	
 	/**
 	 *
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _head(ServerRequest $serverRequest) {
+	private function _head(ServerRequestInterface $serverRequest) {
 		$response = $this->_get($serverRequest);
 		return $response->withHeader('Content-Length', $response->getBody()->getSize())->withBody(stream_for(''));
 	}
 	
 	/**
 	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @throws ComhonException
 	 * @return \Comhon\Api\Response
 	 */
-	private function _post(ServerRequest $serverRequest) {
+	private function _post(ServerRequestInterface $serverRequest) {
 		if (count($this->resource) != 1) {
 			throw new ComhonException('unique id not verified or invalid options');
 		}
@@ -691,10 +710,10 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _put(ServerRequest $serverRequest) {
+	private function _put(ServerRequestInterface $serverRequest) {
 		if (is_null($this->uniqueResourceId) || count($this->resource) != 2) {
 			throw new ComhonException('unique id not verified or invalid options');
 		}
@@ -768,11 +787,11 @@ class RequestHandler {
 	/**
 	 * get interfacer according content type header
 	 *
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @param boolean $default if true and Content-Type not specified, return default interfacer otherwise return null
 	 * @return \Comhon\Interfacer\Interfacer|null
 	 */
-	public static function getInterfacerFromContentTypeHeader(ServerRequest $serverRequest, $default = true) {
+	public static function getInterfacerFromContentTypeHeader(ServerRequestInterface $serverRequest, $default = true) {
 		return $serverRequest->hasHeader('Content-Type')
 			? self::getInterfacerFromContentType(current($serverRequest->getHeader('Content-Type')), true)
 			: ($default ? new AssocArrayInterfacer() : null);
@@ -781,10 +800,10 @@ class RequestHandler {
 	/**
 	 * get interfacer according provided accept header
 	 *
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @return \Comhon\Interfacer\Interfacer
 	 */
-	public static function getInterfacerFromAcceptHeader(ServerRequest $serverRequest) {
+	public static function getInterfacerFromAcceptHeader(ServerRequestInterface $serverRequest) {
 		$accept = parse_header($serverRequest->getHeader('Accept'));
 		if (count($accept) == 0) {
 			return new AssocArrayInterfacer();
@@ -812,7 +831,7 @@ class RequestHandler {
 	/**
 	 * import request body and build comhon object according Content-Type header and given model
 	 *
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @param \Comhon\Model\Model|\Comhon\Model\ModelArray $model
 	 * @param boolean $default if true and Content-Type not specified, 
 	 *                         try to parse body with default interfacer (json)
@@ -820,7 +839,7 @@ class RequestHandler {
 	 * @throws MalformedRequestException
 	 * @return \Comhon\Object\AbstractComhonObject
 	 */
-	public static function importBody(ServerRequest $serverRequest, ModelComhonObject $model, $default = true) {
+	public static function importBody(ServerRequestInterface $serverRequest, ModelComhonObject $model, $default = true) {
 		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest, $default);
 		return $interfacer ? self::_importBody($serverRequest, $model, $interfacer) : null;
 	}
@@ -828,13 +847,13 @@ class RequestHandler {
 	/**
 	 * import request body and build comhon object according given model
 	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @param \Comhon\Model\Model|\Comhon\Model\ModelArray $model
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws MalformedRequestException
 	 * @return \Comhon\Object\AbstractComhonObject
 	 */
-	private static function _importBody(ServerRequest $serverRequest, ModelComhonObject $model, Interfacer $interfacer) {
+	private static function _importBody(ServerRequestInterface $serverRequest, ModelComhonObject $model, Interfacer $interfacer) {
 		$interfacedObject = $interfacer->fromString($serverRequest->getBody()->getContents());
 		if ($model instanceof ModelArray) {
 		    if (!$interfacer->isArrayNodeValue($interfacedObject, $model->isAssociative())) {
@@ -884,10 +903,10 @@ class RequestHandler {
 	
 	/**
 	 * 
-	 * @param \GuzzleHttp\Psr7\ServerRequest $serverRequest
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @return \Comhon\Api\Response
 	 */
-	private function _options(ServerRequest $serverRequest) {
+	private function _options(ServerRequestInterface $serverRequest) {
 		$options = $this->requestedModel->getOptions();
 		if (is_null($options)) {
 			return new Response(200, ['Allow' => implode(', ', $this->_getAllowedMethods())]);
