@@ -157,7 +157,7 @@ class RequestHandler implements RequestHandlerInterface {
 	 *                         - a request with path '/api/some/resource' will be handled
 	 *                         
 	 *                         If you call handle function but request path is not handled according base path,
-	 *                         a response whit status code 404 and body 'route not handled' will be returned
+	 *                         a response whit status code 404 and body 'not handled route' will be returned
 	 *                         
 	 * @param \Closure $modelNameResolver anonymous function that permit to find comhon model name according
 	 *                                    api model name given in path URI.
