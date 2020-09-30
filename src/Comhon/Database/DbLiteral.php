@@ -15,7 +15,6 @@ use Comhon\Request\ComplexRequester;
 use Comhon\Model\Model;
 use Comhon\Logic\Clause;
 use Comhon\Logic\Literal;
-use Comhon\Exception\Model\PropertyVisibilityException;
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Serialization\SerializationException;
 use Comhon\Model\Property\MultipleForeignProperty;

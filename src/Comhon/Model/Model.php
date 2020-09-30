@@ -136,6 +136,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	public function __construct($modelName) {
 		$this->modelName = $modelName;
+		ModelManager::getInstance()->addInstanceModel($this);
 	}
 	
 	/**
@@ -180,7 +181,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					}
 				}
 			}
-			$this->_init();
 			$this->isLoaded  = true;
 			$this->isLoading = false;
 			$this->manifestParser = null;
@@ -325,10 +325,47 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * initialize some informations not managed by generic load
+	 * register model (and nested models) in model manager if needed.
+	 * (used when model is unserialized from cache)
+	 *
+	 * @return bool
 	 */
-	protected function _init() {
-		// you can overide this function in inherited class to initialize others attributes
+	public function register() {
+		if (ModelManager::getInstance()->hasInstanceModel($this->modelName)) {
+			return false;
+		}
+		ModelManager::getInstance()->addInstanceModel($this);
+		foreach ($this->getComplexProperties() as $property) {
+			$property->registerModel();
+		}
+		if (!is_null($this->sharedIdModel)) {
+			$this->sharedIdModel->register();
+		}
+		foreach ($this->parents as $parent) {
+			$parent->register();
+		}
+		if (!is_null($settings = $this->getSerializationSettings())) {
+			$settings->getModel()->register();
+		}
+		return true;
+	}
+	
+	/**
+	 * replace root model instance (used for model cache).
+	 *
+	 * @return bool
+	 */
+	public function restoreRootModel() {
+		if ($this->getParent()->getName() == 'Comhon\Root') {
+			$this->parents[0] = ModelManager::getInstance()->getInstanceModel('Comhon\Root');
+		} else {
+			foreach ($this->parents as $parent) {
+				$parent->restoreRootModel();
+			}
+		}
+		if (!is_null($settings = $this->getSerializationSettings())) {
+			$settings->getModel()->restoreRootModel();
+		}
 	}
 	
 	/**

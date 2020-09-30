@@ -5,7 +5,6 @@ use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Utils\Cli;
 use Comhon\Utils\Utils;
-use Comhon\Utils\Project\ModelBinder;
 use Comhon\Utils\Project\ModelToSQL;
 
 class ModelToSqlTest extends TestCase

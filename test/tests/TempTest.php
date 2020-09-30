@@ -8,7 +8,6 @@ use Comhon\Model\ModelArray;
 use Comhon\Model\Property\Property;
 use Comhon\Model\Restriction\Enum;
 use Comhon\Model\ModelForeign;
-use phpDocumentor\Reflection\Types\Self_;
 use Comhon\Serialization\File\ManifestFile;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Utils\Model;

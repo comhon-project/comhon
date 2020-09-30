@@ -24,8 +24,8 @@ class LoadModelSpeedTest extends TestCase
 		$timeStart = microtime(true);
 		
 		for ($i = 0; $i < 100; $i++) {
+			Config::resetSingleton();
 			ModelManager::resetSingleton();
-			$this->assertFalse(ModelManager::getInstance()->hasInstanceModel('Comhon\Config'));
 			
 			ModelManager::getInstance()->getInstanceModel('Comhon\Config');
 			ModelManager::getInstance()->getInstanceModel('Comhon\Config\DbOpt');
@@ -61,12 +61,20 @@ class LoadModelSpeedTest extends TestCase
 		}
 		
 		$exectTime = microtime(true) - $timeStart;
-		$averageTimeXml = 0.524;
-		$averageTimeJson = 0.348;
 		$errorMargin = 0.01;
 		
 		$this->assertContains(Config::getInstance()->getManifestFormat(), ['xml', 'json', 'yaml']);
-		$averageTime = Config::getInstance()->getManifestFormat() == 'xml' ? $averageTimeXml : $averageTimeJson;
+		switch (Config::getInstance()->getManifestFormat()) {
+			case 'xml':
+				$averageTime = 0.524;
+				break;
+			case 'json':
+				$averageTime = 0.348;
+				break;
+			case 'yaml':
+				$averageTime = 1.009;
+				break;
+		}
 		if (($exectTime - $averageTime) > $errorMargin) {
 			echo PHP_EOL . PHP_EOL . "Loading model time :  " . PHP_EOL
 				. "\033[31mWARNING!!!"

@@ -19,7 +19,7 @@ class ModelCustom extends Model {
 	 * @param \Comhon\Model\Property\Property[] $properties
 	 */
 	public function __construct($modelName, $properties) {
-		$this->modelName = $modelName;
+		parent::__construct($modelName);
 		$this->isLoaded = true;
 		$this->_setProperties($properties);
 	}

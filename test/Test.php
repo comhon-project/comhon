@@ -2,6 +2,7 @@
 
 use Comhon\Object\Config\Config;
 use Comhon\Database\DatabaseHandler;
+use Comhon\Utils\Cache;
 
 if ($argc === 1) {
 	$configFile = 'config-xml-mysql.json';
@@ -30,6 +31,10 @@ echo "success".PHP_EOL;
 echo "set timezone... ";
 date_default_timezone_set('Europe/Berlin');
 echo date_default_timezone_get().PHP_EOL;
+
+echo "reset cache... ";
+Cache::reset();
+echo "success".PHP_EOL;
 
 echo "initializing database... ";
 $dbHandlerMySql = DatabaseHandler::getInstanceWithDataBaseId('1');

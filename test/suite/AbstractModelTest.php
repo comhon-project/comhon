@@ -2,13 +2,11 @@
 
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Interfacer\XMLInterfacer;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Exception\Object\AbstractObjectException;
 use Comhon\Object\ComhonObject;
 use Comhon\Exception\ConstantException;
-use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Interfacer\Interfacer;

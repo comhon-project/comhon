@@ -10,7 +10,6 @@ use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\Interfacer;
-use Comhon\Exception\ComhonException;
 
 $time_start = microtime(true);
 

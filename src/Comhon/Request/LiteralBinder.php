@@ -13,10 +13,8 @@ namespace Comhon\Request;
 
 use Comhon\Object\UniqueObject;
 use Comhon\Model\Property\Property;
-use Comhon\Model\Property\MultipleForeignProperty;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Model\ModelBoolean;
-use Comhon\Model\Property\ForeignProperty;
 
 class LiteralBinder {
 

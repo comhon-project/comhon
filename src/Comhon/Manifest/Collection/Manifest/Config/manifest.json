@@ -3,15 +3,6 @@
     "is_main": true,
     "properties": [
         {
-            "name": "database",
-            "model": "DbOpt",
-            "inheritance-": "Comhon\\Manifest\\Property\\Object"
-        },
-        {
-            "name": "date_time_format",
-            "inheritance-": "Comhon\\Manifest\\Property\\String"
-        },
-        {
             "name": "manifest_format",
             "default": "json",
             "enum": [
@@ -31,6 +22,15 @@
             "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
+            "name": "date_time_format",
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "database",
+            "model": "DbOpt",
+            "inheritance-": "Comhon\\Manifest\\Property\\Object"
+        },
+        {
             "name": "sql_table",
             "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
@@ -45,6 +45,10 @@
         {
             "name": "allow_complex_request",
             "inheritance-": "Comhon\\Manifest\\Property\\Boolean"
+        },
+        {
+            "name": "cache_settings",
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
         }
     ],
     "version": "3.0",

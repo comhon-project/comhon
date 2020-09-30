@@ -14,9 +14,7 @@ namespace Comhon\Model;
 use Comhon\Object\AbstractComhonObject;
 use Comhon\Interfacer\Interfacer;
 use Comhon\Exception\ComhonException;
-use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
-use Comhon\Interfacer\XMLInterfacer;
 
 class ModelForeign extends ModelContainer {
 

@@ -159,6 +159,16 @@ class Property {
 	}
 	
 	/**
+	 * register contained model (and nested models) in model manager if needed.
+	 * (used when model is unserialized from cache)
+	 *
+	 * @return bool
+	 */
+	public function registerModel() {
+		return $this->model->register();
+	}
+	
+	/**
 	 * get name
 	 * 
 	 * @return string

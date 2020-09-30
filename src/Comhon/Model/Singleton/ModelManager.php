@@ -27,7 +27,6 @@ use Comhon\Exception\Model\NotDefinedModelException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Model\AlreadyUsedModelNameException;
 use Comhon\Exception\Config\ConfigFileNotFoundException;
-use Comhon\Model\ModelUnique;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Serialization\Serialization;
 use Comhon\Manifest\Parser\SerializationManifestParser;
@@ -35,7 +34,8 @@ use Comhon\Object\Collection\ObjectCollection;
 use Comhon\Model\ModelRoot;
 use Comhon\Exception\Config\ConfigMalformedException;
 use Comhon\Interfacer\AssocArrayInterfacer;
-use Comhon\Utils\Utils;
+use Comhon\Cache\CacheHandler;
+use Comhon\Cache\FileSystemCacheHandler;
 
 class ModelManager {
 
@@ -102,6 +102,11 @@ class ModelManager {
 	private $modelRoot;
 	
 	/**
+	 * @var \Comhon\Cache\CacheHandler
+	 */
+	private $cacheHandler;
+	
+	/**
 	 * @var string[] map namespace prefix to directory to allow manifest autoloading
 	 */
 	private $autoloadManifest = [
@@ -160,47 +165,68 @@ class ModelManager {
 		
 		try {
 			$this->_registerSimpleModelClasses();
-			$this->modelRoot = new ModelRoot();
-			$this->_addInstanceModel($this->modelRoot);
 			$config_af = realpath(Config::getLoadPath());
 			$configArray = $this->_getConfigArray($config_af);
 			$this->config_ad = dirname($config_af);
+			if (isset($configArray['cache_settings'])) {
+				$this->cacheHandler = CacheHandler::getInstance($configArray['cache_settings']);
+				if ($this->cacheHandler instanceof FileSystemCacheHandler) {
+					$this->cacheHandler->setDirectory(
+						$this->_toAbsolutePath($this->cacheHandler->getDirectory(), $this->config_ad)
+					);
+				}
+			}
 			
-			if (isset($configArray['sql_table'])) {
-				$path = $this->_toAbsolutePath($configArray['sql_table'], $this->config_ad);
-				if (!is_dir($path)) {
-					throw new ConfigFileNotFoundException('sql_table', 'directory', $configArray['sql_table']);
+			// must be done before SqlTable and SqlDatabase model instanciation
+			if (Config::hasInstance()) {
+				Config::getInstance()->getModel()->register();
+				$this->modelRoot = $this->_getInstanceModel('Comhon\Root', false);
+				$this->_setBaseConfigFromObject(Config::getInstance());
+			} elseif ($this->cacheHandler) {
+				$config = $this->cacheHandler->loadConfig();
+				if (!is_null($config)) {
+					$this->modelRoot = $this->_getInstanceModel('Comhon\Root', false);
+					$this->_setBaseConfigFromObject($config);
+				} else {
+					$this->modelRoot = new ModelRoot();
+					$this->_setBaseConfigFromArray($configArray);
+					$config = Config::initInstance($configArray, $this->config_ad);
+					$this->cacheHandler->registerConfig($config);
 				}
-				$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('dir_path', $path);
+			} else {
+				$this->modelRoot = new ModelRoot();
+				$this->_setBaseConfigFromArray($configArray);
+				Config::initInstance($configArray, $this->config_ad);
 			}
-			if (isset($configArray['sql_database'])) {
-				$path = $this->_toAbsolutePath($configArray['sql_database'], $this->config_ad);
-				if (!is_dir($path)) {
-					throw new ConfigFileNotFoundException('sql_database', 'directory', $configArray['sql_database']);
+			
+			// load sqlTable and sqlDatabase and update serialization if needed
+			if (isset($configArray['sql_table']) || isset($configArray['sql_database'])) {
+				$useCache = !is_null($this->cacheHandler)
+					&& !$this->hasInstanceModel('Comhon\SqlTable')
+					&& !$this->hasInstanceModel('Comhon\SqlDatabase');
+				if (!$useCache || is_null($this->cacheHandler->loadSqlTable())) {
+					if (isset($configArray['sql_table'])) {
+						$path = $this->_toAbsolutePath($configArray['sql_table'], $this->config_ad);
+						if (!is_dir($path)) {
+							throw new ConfigFileNotFoundException('sql_table', 'directory', $configArray['sql_table']);
+						}
+						$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('dir_path', $path);
+					}
+					if (isset($configArray['sql_database'])) {
+						$path = $this->_toAbsolutePath($configArray['sql_database'], $this->config_ad);
+						if (!is_dir($path)) {
+							throw new ConfigFileNotFoundException('sql_database', 'directory', $configArray['sql_database']);
+						}
+						$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('dir_path', $path);
+					}
+					if ($useCache) {
+						$this->cacheHandler->registerSqlTable($this->getInstanceModel('Comhon\SqlTable'));
+					}
+				} else {
+					$this->_getInstanceModel('Comhon\SqlTable', false)->restoreRootModel();
+					$this->_getInstanceModel('Comhon\SqlDatabase', false)->restoreRootModel();
 				}
-				$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('dir_path', $path);
 			}
-			if (isset($configArray['manifest_format'])) {
-				$this->manifestExtension = $configArray['manifest_format'];
-			}
-			if (isset($configArray['autoload']['manifest'])) {
-				$comhonPath_ad = $this->autoloadManifest['Comhon'];
-				$this->autoloadManifest = $configArray['autoload']['manifest'];
-				$this->autoloadManifest['Comhon'] = $comhonPath_ad;
-			}
-			if (isset($configArray['autoload']['serialization'])) {
-				$comhonPath_ad = $this->autoloadSerializationManifest['Comhon'];
-				$this->autoloadSerializationManifest = $configArray['autoload']['serialization'];
-				$this->autoloadSerializationManifest['Comhon'] = $comhonPath_ad;
-			}
-			if (isset($configArray['autoload']['options'])) {
-				$comhonPath_ad = $this->autoloadOptionsManifest['Comhon'];
-				$this->autoloadOptionsManifest = $configArray['autoload']['options'];
-				if (!isset($this->autoloadOptionsManifest['Comhon'])) {
-					$this->autoloadOptionsManifest['Comhon'] = $comhonPath_ad;
-				}
-			}
-			Config::initInstance($configArray, $this->config_ad);
 		} catch (\Exception $e) {
 			self::$_instance = null;
 			throw $e;
@@ -236,6 +262,63 @@ class ModelManager {
 	 */
 	private function _toAbsolutePath($path, $config_ad) {
 		return substr($path, 0, 1) == '.' ? $config_ad . DIRECTORY_SEPARATOR . $path : $path;
+	}
+	
+	/**
+	 * 
+	 * @param array $configArray
+	 */
+	private function _setBaseConfigFromArray(array $configArray) {
+		if (isset($configArray['manifest_format'])) {
+			$this->manifestExtension = $configArray['manifest_format'];
+		}
+		if (isset($configArray['autoload']['manifest'])) {
+			$comhonPath_ad = $this->autoloadManifest['Comhon'];
+			$this->autoloadManifest = $configArray['autoload']['manifest'];
+			$this->autoloadManifest['Comhon'] = $comhonPath_ad;
+		}
+		if (isset($configArray['autoload']['serialization'])) {
+			$comhonPath_ad = $this->autoloadSerializationManifest['Comhon'];
+			$this->autoloadSerializationManifest = $configArray['autoload']['serialization'];
+			$this->autoloadSerializationManifest['Comhon'] = $comhonPath_ad;
+		}
+		if (isset($configArray['autoload']['options'])) {
+			$comhonPath_ad = $this->autoloadOptionsManifest['Comhon'];
+			$this->autoloadOptionsManifest = $configArray['autoload']['options'];
+			if (!isset($this->autoloadOptionsManifest['Comhon'])) {
+				$this->autoloadOptionsManifest['Comhon'] = $comhonPath_ad;
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @param \Comhon\Object\Config\Config $config
+	 */
+	private function _setBaseConfigFromObject(Config $config) {
+		if (!is_null(Config::getInstance()->getValue('manifest_format'))) {
+			$this->manifestExtension = Config::getInstance()->getValue('manifest_format');
+		}
+		$lManifestAutoloadList = $config->getManifestAutoloadList();
+		if (!is_null($lManifestAutoloadList)) {
+			$comhonPath_ad = $this->autoloadManifest['Comhon'];
+			$this->autoloadManifest = $lManifestAutoloadList->getValues();
+			$this->autoloadManifest['Comhon'] = $comhonPath_ad;
+		}
+		$lSerializationManifestAutoloadList = $config->getSerializationAutoloadList();
+		if (!is_null($lSerializationManifestAutoloadList)) {
+			$comhonPath_ad = $this->autoloadSerializationManifest['Comhon'];
+			$this->autoloadSerializationManifest = $lSerializationManifestAutoloadList->getValues();
+			$this->autoloadSerializationManifest['Comhon'] = $comhonPath_ad;
+		}
+		$lOptionsManifestAutoloadList = $config->getOptionsAutoloadList();
+		if (!is_null($lOptionsManifestAutoloadList)) {
+			$comhonPath_ad = $this->autoloadOptionsManifest['Comhon'];
+			$this->autoloadOptionsManifest = $lOptionsManifestAutoloadList->getValues();
+			if (!isset($this->autoloadOptionsManifest['Comhon'])) {
+				$this->autoloadOptionsManifest['Comhon'] = $comhonPath_ad;
+			}
+		}
 	}
 	
 	/**
@@ -319,7 +402,11 @@ class ModelManager {
 			throw new \InvalidArgumentException('first argument must be a string');
 		}
 		if (!array_key_exists($modelName, $this->instanceModels)) {
-			$this->_addInstanceModel(new Model($modelName));
+			new Model($modelName);
+			// instance model must be added during model instanciation (in constructor)
+			if (!array_key_exists($modelName, $this->instanceModels)) {
+				throw new ComhonException('model not added during model instanciation');
+			}
 		}
 		if ($loadModel) {
 			$this->instanceModels[$modelName]->load();
@@ -456,12 +543,13 @@ class ModelManager {
 	}
 	
 	/**
-	 * add loaded instance model
+	 * add instance model.
+	 * automatically called during \Comhon\Model\Model instanciation
 	 * 
-	 * @param \Comhon\Model\ModelUnique $model
+	 * @param \Comhon\Model\Model $model
 	 * @return array
 	 */
-	private function _addInstanceModel(ModelUnique $model) {
+	public function addInstanceModel(Model $model) {
 		if (array_key_exists($model->getName(), $this->instanceModels)) {
 			throw new AlreadyUsedModelNameException($model->getName());
 		}

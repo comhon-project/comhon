@@ -3,16 +3,12 @@
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
 use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Exception\Interfacer\ImportException;
-use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Exception\Interfacer\DuplicatedIdException;
 use Comhon\Exception\ConstantException;
-use Comhon\Interfacer\Interfacer;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Exception\Interfacer\NotReferencedValueException;
-use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Exception\Interfacer\ObjectLoopException;
 

@@ -9,7 +9,6 @@ use Comhon\Serialization\SqlTable;
 use Comhon\Object\UniqueObject;
 use Comhon\Object\ComhonDateTime;
 use Comhon\Object\ComhonObject;
-use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Serialization\File\XmlFile;
 use Comhon\Exception\Serialization\SerializationException;
 

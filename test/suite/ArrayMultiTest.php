@@ -17,9 +17,6 @@ use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\ConstantException;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
-use Comhon\Model\Restriction\Regex;
-use Comhon\Model\Restriction\RegexCollection;
-use Comhon\Object\ComhonArray;
 
 class ArrayMultiTest extends TestCase
 {

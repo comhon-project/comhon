@@ -1,7 +1,5 @@
 <root name="Comhon\Config" is_main="1" version="3.0">
   <properties>
-    <property name="database" model="DbOpt" inheritance-="Comhon\Manifest\Property\Object"/>
-    <property name="date_time_format" inheritance-="Comhon\Manifest\Property\String"/>
     <property name="manifest_format" default="json" inheritance-="Comhon\Manifest\Property\String">
       <enum>
         <value>json</value>
@@ -11,10 +9,13 @@
     </property>
     <property name="autoload" model="Autoload" inheritance-="Comhon\Manifest\Property\Object"/>
     <property name="regex_list" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="date_time_format" inheritance-="Comhon\Manifest\Property\String"/>
+    <property name="database" model="DbOpt" inheritance-="Comhon\Manifest\Property\Object"/>
     <property name="sql_table" inheritance-="Comhon\Manifest\Property\String"/>
     <property name="sql_database" inheritance-="Comhon\Manifest\Property\String"/>
     <property name="request_collection_limit" inheritance-="Comhon\Manifest\Property\Integer"/>
     <property name="allow_complex_request" inheritance-="Comhon\Manifest\Property\Boolean"/>
+    <property name="cache_settings" inheritance-="Comhon\Manifest\Property\String"/>
   </properties>
   <types>
     <type name="DbOpt">

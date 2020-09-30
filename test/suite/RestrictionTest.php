@@ -19,7 +19,6 @@ use Comhon\Model\Restriction\Length;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Exception\Interfacer\ImportException;
 use Comhon\Exception\ConstantException;
-use Comhon\Exception\Object\MissingRequiredValueException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Model\Restriction\ModelName;
 

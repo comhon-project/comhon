@@ -11,7 +11,6 @@
 
 namespace Comhon\Database;
 
-use Comhon\Exception\Model\PropertyVisibilityException;
 use Comhon\Exception\ComhonException;
 use Comhon\Exception\Literal\MultiplePropertyLiteralException;
 use Comhon\Object\UniqueObject;

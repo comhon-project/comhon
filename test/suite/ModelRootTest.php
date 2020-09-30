@@ -4,9 +4,6 @@ use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
-use Comhon\Object\ComhonObject;
-use Comhon\Interfacer\StdObjectInterfacer;
-use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Model\ModelArray;
 

@@ -14,7 +14,7 @@ namespace Comhon\Model;
 class ModelRoot extends Model {
 	
 	public function __construct() {
-		$this->modelName = 'Comhon\Root';
+		parent::__construct('Comhon\Root');
 		$this->isLoaded = true;
 	}
 	

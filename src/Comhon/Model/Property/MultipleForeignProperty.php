@@ -13,7 +13,6 @@ namespace Comhon\Model\Property;
 
 use Comhon\Exception\ComhonException;
 use Comhon\Model\ModelForeign;
-use Comhon\Object\UniqueObject;
 use Comhon\Model\Singleton\ModelManager;
 
 class MultipleForeignProperty extends ForeignProperty {

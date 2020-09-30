@@ -99,11 +99,6 @@ class ConfigTest extends TestCase
 		
 		$expected = '{
     "manifest_format": "json",
-    "database": {
-        "charset": "utf8",
-        "timezone": "UTC"
-    },
-    "date_time_format": "c",
     "autoload": {
         "manifest": {
             "Test": "..\/manifests\/test\/manifest",
@@ -120,9 +115,15 @@ class ConfigTest extends TestCase
         }
     },
     "regex_list": ".\/regex.json",
+    "date_time_format": "c",
+    "database": {
+        "charset": "utf8",
+        "timezone": "UTC"
+    },
     "sql_table": ".\/table",
     "sql_database": ".\/database",
-    "request_collection_limit": 20
+    "request_collection_limit": 20,
+    "cache_settings": "directory:..\/..\/..\/cache"
 }
 ';
 		if ($config->getManifestFormat() == 'xml') {

@@ -19,6 +19,7 @@
   "regex_list":"./regex.json",
   "sql_table": "./table",
   "sql_database": "./database",
+  "cache_settings": "directory:../../../cache",
   "date_time_format": "c",
   "database": {
     "charset": "utf8",

@@ -35,6 +35,15 @@ class Config extends ExtendableObject {
 	private $config_ad;
 	
 	/**
+	 * verify if singleton instance is initialized
+	 * 
+	 * @return boolean
+	 */
+	public static function hasInstance() {
+		return isset(self::$instance);
+	}
+	
+	/**
 	 * get Config instance
 	 *
 	 * @throws \Exception
@@ -71,6 +80,22 @@ class Config extends ExtendableObject {
 				throw $e;
 			}
 		}
+		return self::$instance;
+	}
+	
+	/**
+	 * 
+	 * @param string $cacheValue
+	 * @return \Comhon\Object\Config\Config
+	 */
+	public static function loadFromCache(string $cacheValue) {
+		if (isset(self::$instance)) {
+			throw new ComhonException('Config singleton is already initialized, it cannot be loaded from cache');
+		}
+		self::$instance = unserialize($cacheValue);
+		self::$instance->getModel()->register();
+		
+		return self::$instance;
 	}
 	
 	/**
@@ -171,6 +196,15 @@ class Config extends ExtendableObject {
 	}
 	
 	/**
+	 * get cache settings
+	 *
+	 * @return string|null
+	 */
+	public function getCacheSettings() {
+		return $this->getValue('cache_settings');
+	}
+	
+	/**
 	 * get map namespace prefix to directory to allow manifest autoloading
 	 *
 	 * @return \Comhon\Object\ComhonArray|null
@@ -212,8 +246,8 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getRegexListPath($transform = true) {
-		return $transform && substr($this->getValue('regex_list'), 0, 1) == '.'
-			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('regex_list')
+		return $transform
+			? $this->transformPath($this->getValue('regex_list'))
 			: $this->getValue('regex_list');
 	}
 	
@@ -226,8 +260,8 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getSerializationSqlTablePath($transform = true) {
-		return $transform && substr($this->getValue('sql_table'), 0, 1) == '.'
-			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('sql_table')
+		return $transform
+			? $this->transformPath($this->getValue('sql_table'))
 			: $this->getValue('sql_table');
 	}
 	
@@ -240,8 +274,20 @@ class Config extends ExtendableObject {
 	 * @return string
 	 */
 	public function getSerializationSqlDatabasePath($transform = true) {
-		return $transform && substr($this->getValue('sql_database'), 0, 1) == '.'
-			? $this->config_ad . DIRECTORY_SEPARATOR . $this->getValue('sql_database')
+		return $transform
+			? $this->transformPath($this->getValue('sql_database'))
 			: $this->getValue('sql_database');
+	}
+	
+	/**
+	 * transform relative path to absolute path by prefixing relative path with config directory. 
+	 * path is considered as relative only if path begin by "."
+	 * 
+	 * @return string
+	 */
+	public function transformPath($path) {
+		return substr($path, 0, 1) == '.'
+				? $this->config_ad . DIRECTORY_SEPARATOR . $path
+				: $path;
 	}
 }

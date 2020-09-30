@@ -12,7 +12,6 @@
 namespace Comhon\Model;
 
 use Comhon\Interfacer\Interfacer;
-use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Model\CastStringException;
 

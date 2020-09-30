@@ -7,8 +7,6 @@ use Comhon\Serialization\SqlTable;
 use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
-use Comhon\Exception\ComhonException;
-use Comhon\Object\UniqueObject;
 
 $time_start = microtime(true);
 

@@ -2,11 +2,9 @@
 
 use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Interfacer\StdObjectInterfacer;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Object\Collection\MainObjectCollection;
-use Comhon\Object\Collection\ObjectCollection;
 
 class ObjectTest extends TestCase
 {

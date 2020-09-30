@@ -4,8 +4,6 @@ use PHPUnit\Framework\TestCase;
 use Comhon\Model\Singleton\ModelManager;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
-use Comhon\Interfacer\AssocArrayInterfacer;
-use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Interfacer\Interfacer;
 
 class ManifestManifestTest extends TestCase

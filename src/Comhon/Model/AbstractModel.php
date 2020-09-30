@@ -50,6 +50,16 @@ abstract class AbstractModel {
 	}
 	
 	/**
+	 * register model (and nested models) in model manager if needed.
+	 * (used when model is unserialized from cache)
+	 *
+	 * @return bool
+	 */
+	public function register() {
+		return false;
+	}
+	
+	/**
 	 * verify if during import we stay in first level object or not
 	 * 
 	 * @param boolean $isCurrentLevelFirstLevel

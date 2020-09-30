@@ -63,6 +63,16 @@ abstract class ModelContainer extends ModelComplex {
 	}
 	
 	/**
+	 * register contained model (and nested models) in model manager if needed.
+	 * (used when model is unserialized from cache)
+	 *
+	 * @return bool
+	 */
+	public function register() {
+		return $this->model->register();
+	}
+	
+	/**
 	 * verify if specified model is equal to this model container
 	 * 
 	 * verify if model are same instance or if they have same contained model

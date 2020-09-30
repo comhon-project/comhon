@@ -12,7 +12,6 @@
 namespace Comhon\Model;
 
 use Comhon\Interfacer\Interfacer;
-use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Object\Collection\ObjectCollectionInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\Model\CastStringException;

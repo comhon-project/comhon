@@ -7,7 +7,6 @@ use Comhon\Request\ComplexRequester;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Interfacer\StdObjectInterfacer;
 
 class CountRequestTest extends TestCase
 {

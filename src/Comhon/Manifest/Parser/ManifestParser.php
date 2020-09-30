@@ -22,7 +22,6 @@ use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\StdObjectInterfacer;
 use Comhon\Interfacer\NoScalarTypedInterfacer;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
-use Comhon\Exception\Manifest\ReservedWordException;
 use Comhon\Exception\Manifest\ManifestException;
 use Comhon\Exception\ComhonException;
 use Comhon\Model\AbstractModel;
