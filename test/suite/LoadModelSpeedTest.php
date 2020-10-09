@@ -72,7 +72,7 @@ class LoadModelSpeedTest extends TestCase
 				$averageTime = 0.348;
 				break;
 			case 'yaml':
-				$averageTime = 1.009;
+				$averageTime = 1.131;
 				break;
 		}
 		if (($exectTime - $averageTime) > $errorMargin) {

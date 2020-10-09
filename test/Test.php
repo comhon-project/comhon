@@ -452,8 +452,22 @@ try {
 
 // TODO for version > 4.0
 
-// parent access on option ?
+// account model on config
+// parent access on option ? (if parent access is account model, add new literal with joins)
+// apply parent access on methods
+// access rank
+// add "use" for inheritance in manifest
+// cache handler, improve cache model management
+// ApiModelNameHandlerInterface (useApiModelName(), resolveApiModelName(), getApiModels())
+
+// Docker
+// unique username database, password private property
 // Oauth2 for comhon-docker 
+
+// Front
+// if model property is account model,
+// - input text username autocompletion and store id
+// - check box "Me" 
 
 // use id different than table name for sql table (may have same table name but with different database)
 // simplify filter properties on interfacer (filter only root object) ?

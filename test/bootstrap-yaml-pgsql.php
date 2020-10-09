@@ -9,7 +9,8 @@ $loader->addPsr4('Test\\Comhon\\', __DIR__ . DIRECTORY_SEPARATOR . 'classes');
 chdir(__DIR__);
 
 Data::$config = './config/config-yaml-pgsql.json';
-resetCache(Data::$config);
+// cache is desactivate for yaml to test without caching
+// resetCache(Data::$config); 
 
 $dataSourceName = 'pgsql:dbname=database;host=localhost';
 $pdo = new \PDO($dataSourceName, 'root', 'root');

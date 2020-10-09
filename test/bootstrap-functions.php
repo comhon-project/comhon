@@ -10,7 +10,7 @@ function resetCache($configPath) {
 	$settings = $config['cache_settings'];
 	$cacheHandler = CacheHandler::getInstance($settings);
 	if ($cacheHandler instanceof FileSystemCacheHandler && substr($cacheHandler->getDirectory(), 0, 1) == '.') {
-		$cacheHandler->setDirectory(
+		$cacheHandler = new FileSystemCacheHandler(
 			__DIR__ . DIRECTORY_SEPARATOR . dirname($configPath) . DIRECTORY_SEPARATOR . $cacheHandler->getDirectory()
 		);
 	}

@@ -11,6 +11,8 @@
 
 namespace Comhon\Cache;
 
+use Comhon\Exception\ComhonException;
+
 class FileSystemCacheHandler extends CacheHandler {
 
 	/** @var string */
@@ -21,7 +23,7 @@ class FileSystemCacheHandler extends CacheHandler {
 	 * @param string $directory apth to directory where cache is stored
 	 */
 	public function __construct(string $directory) {
-		$this->setDirectory($directory);
+		$this->directory = $directory;
 	}
 	
 	/**
@@ -51,7 +53,9 @@ class FileSystemCacheHandler extends CacheHandler {
 		if (!file_exists(dirname($key))) {
 			mkdir(dirname($key), 0777, true);
 		}
-		file_put_contents($key, $value);
+		if (file_put_contents($key, $value) === false) {
+			throw new ComhonException("write cache file $key failed (verify folder rights)");
+		}
 	}
 	
 	/**
@@ -93,13 +97,6 @@ class FileSystemCacheHandler extends CacheHandler {
 	 */
 	public function getDirectory() {
 		return $this->directory;
-	}
-	/**
-	 *
-	 * @return string
-	 */
-	public function setDirectory(string $directory) {
-		$this->directory = $directory;
 	}
 	
 }

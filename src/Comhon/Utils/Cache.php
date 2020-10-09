@@ -11,10 +11,8 @@
 
 namespace Comhon\Utils;
 
-use Comhon\Object\Config\Config;
 use Comhon\Exception\ComhonException;
-use Comhon\Cache\CacheHandler;
-use Comhon\Cache\FileSystemCacheHandler;
+use Comhon\Model\Singleton\ModelManager;
 
 class Cache {
 	
@@ -25,15 +23,9 @@ class Cache {
 	 * @return boolean true if success, false if there is no cache configured in configuration file
 	 */
 	public static function reset() {
-		$settings = Config::getInstance()->getCacheSettings();
-		if (is_null($settings)) {
+		$cacheHandler = ModelManager::getInstance()->getCacheHandler();
+		if (is_null($cacheHandler)) {
 			return false;
-		}
-		$cacheHandler = CacheHandler::getInstance($settings);
-		if ($cacheHandler instanceof FileSystemCacheHandler) {
-			$cacheHandler->setDirectory(
-				Config::getInstance()->transformPath($cacheHandler->getDirectory())
-			);
 		}
 		if (!$cacheHandler->reset()) {
 			throw new ComhonException('error when trying to reset cache');

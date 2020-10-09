@@ -130,6 +130,7 @@ class ConfigTest extends TestCase
 			$expected = str_replace(['"json"', 'serialization_pgsql'], ['"xml"', 'serialization'], $expected);
 		} elseif ($config->getManifestFormat() == 'yaml') {
 			$expected = str_replace('"json"', '"yaml"', $expected);
+			$expected = str_replace(',' . PHP_EOL . '    "cache_settings": "directory:..\/..\/..\/cache"', '', $expected);
 		}
 		$this->assertEquals($expected, $config->__toString());
 		

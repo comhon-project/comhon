@@ -171,7 +171,7 @@ class ModelManager {
 			if (isset($configArray['cache_settings'])) {
 				$this->cacheHandler = CacheHandler::getInstance($configArray['cache_settings']);
 				if ($this->cacheHandler instanceof FileSystemCacheHandler) {
-					$this->cacheHandler->setDirectory(
+					$this->cacheHandler = new FileSystemCacheHandler(
 						$this->_toAbsolutePath($this->cacheHandler->getDirectory(), $this->config_ad)
 					);
 				}
@@ -231,6 +231,15 @@ class ModelManager {
 			self::$_instance = null;
 			throw $e;
 		}
+	}
+	
+	/**
+	 * get cache handler according "cache_setting" in config file
+	 * 
+	 * @return \Comhon\Cache\CacheHandler|null return null if there is no "cache_setting" in config file
+	 */
+	public function getCacheHandler() {
+		return $this->cacheHandler;
 	}
 	
 	/**
