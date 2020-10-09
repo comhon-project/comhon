@@ -74,7 +74,9 @@ class Config extends ExtendableObject {
 			try {
 				self::$instance = new self();
 				self::$instance->_setDirectory($config_ad);
-				self::$instance->fill($config, new AssocArrayInterfacer());
+				$interfacer = new AssocArrayInterfacer();
+				$interfacer->setPrivateContext(true);
+				self::$instance->fill($config, $interfacer);
 			} catch (\Exception $e) {
 				self::$instance = null;
 				throw $e;

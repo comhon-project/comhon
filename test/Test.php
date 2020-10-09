@@ -452,7 +452,6 @@ try {
 
 // TODO for version > 4.0
 
-// account model on config
 // parent access on option ? (if parent access is account model, add new literal with joins)
 // apply parent access on methods
 // access rank

@@ -29,10 +29,16 @@ die();
 
 /*
 $interfacer = new AssocArrayInterfacer();
-$model = ModelManager::getInstance()->getInstanceModel('Comhon\Serialization\File');
-echo $model->import(
-	$interfacer->read('/home/jean-philippe/ReposGit/comhon/docker/assets/manifests/serialization/Sample/manifest.json'),
+$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
+$object = $model->import(
+	$interfacer->read('/home/jean-philippe/ReposGit/comhon/src/Comhon/Manifest/Collection/Manifest/Config/manifest.json'),
 	$interfacer
+		);
+$interfacer = new AssocArrayInterfacer('yaml');
+$interfacer->write(
+	$object->export($interfacer),
+	'/home/jean-philippe/ReposGit/comhon/src/Comhon/Manifest/Collection/Manifest/Config/manifest.yaml',
+		true
 );
 die();
 */

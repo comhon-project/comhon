@@ -122,8 +122,8 @@ class ConfigTest extends TestCase
     },
     "sql_table": ".\/table",
     "sql_database": ".\/database",
-    "request_collection_limit": 20,
-    "cache_settings": "directory:..\/..\/..\/cache"
+    "cache_settings": "directory:..\/..\/..\/cache",
+    "request_collection_limit": 20
 }
 ';
 		if ($config->getManifestFormat() == 'xml') {

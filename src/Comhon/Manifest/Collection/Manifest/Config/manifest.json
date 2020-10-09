@@ -4,6 +4,7 @@
     "properties": [
         {
             "name": "manifest_format",
+            "is_private": true,
             "default": "json",
             "enum": [
                 "json",
@@ -14,28 +15,39 @@
         },
         {
             "name": "autoload",
+            "is_private": true,
             "model": "Autoload",
             "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "regex_list",
+            "is_private": true,
             "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "date_time_format",
+            "is_private": true,
             "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "database",
+            "is_private": true,
             "model": "DbOpt",
             "inheritance-": "Comhon\\Manifest\\Property\\Object"
         },
         {
             "name": "sql_table",
+            "is_private": true,
             "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
             "name": "sql_database",
+            "is_private": true,
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
+        },
+        {
+            "name": "cache_settings",
+            "is_private": true,
             "inheritance-": "Comhon\\Manifest\\Property\\String"
         },
         {
@@ -47,7 +59,7 @@
             "inheritance-": "Comhon\\Manifest\\Property\\Boolean"
         },
         {
-            "name": "cache_settings",
+            "name": "account_model",
             "inheritance-": "Comhon\\Manifest\\Property\\String"
         }
     ],
