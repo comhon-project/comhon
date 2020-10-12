@@ -454,10 +454,10 @@ try {
 
 // parent access on option ? (if parent access is account model, add new literal with joins)
 // apply parent access on methods
-// access rank
+// role rank with parent access (guest, admin... => interger min to access)
+// auth rank (public, protected (logged), private (logged and good parent access))
 // add "use" for inheritance in manifest
-// cache handler, improve cache model management
-// ApiModelNameHandlerInterface (useApiModelName(), resolveApiModelName(), getApiModels())
+// cache handler, improve cache model management (only store model name in object and property ?)
 
 // Docker
 // unique username database, password private property

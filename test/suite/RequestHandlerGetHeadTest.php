@@ -6,10 +6,17 @@ use Comhon\Object\Config\Config;
 use Test\Comhon\Mock\RequestHandlerMock;
 use Comhon\Object\Collection\MainObjectCollection;
 use Test\Comhon\Utils\RequestTestTrait;
+use Test\Comhon\Utils\ApiModelNameHandler;
 
 class RequestHandlerGetHeadTest extends TestCase
 {
 	use RequestTestTrait;
+	
+	private static $apiModelNames = [
+		['api_model_name' => 'man', 'comhon_model_name' => 'Test\Person\Man', 'extends' => ['Test\Person']],
+		['api_model_name' => 'woman', 'comhon_model_name' => 'Test\Person\Woman'],
+		['api_model_name' => 'house', 'comhon_model_name' => 'Test\Dont\Exist'],
+	];
 	
 	private static $data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Request' . DIRECTORY_SEPARATOR;
 	
@@ -27,9 +34,9 @@ class RequestHandlerGetHeadTest extends TestCase
 	 *
 	 * @dataProvider apiModelNamesData
 	 */
-	public function testApiModelNames($server, $requestableModels, $responseCode, $responseHeaders, $responseContent)
+	public function testApiModelNames($server, $apiModelNameHandler, $responseCode, $responseHeaders, $responseContent)
 	{
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $requestableModels);
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $apiModelNameHandler);
 		$sendGet = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $sendGet[2]);
@@ -37,7 +44,7 @@ class RequestHandlerGetHeadTest extends TestCase
 		$this->assertEquals($responseHeaders, $sendGet[1]);
 		
 		$server['REQUEST_METHOD'] = 'HEAD';
-		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $requestableModels);
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], [], '', $apiModelNameHandler);
 		$sendHead = $this->responseToArray($response);
 		
 		$this->assertEquals($responseCode, $sendHead[0]);
@@ -53,7 +60,7 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function apiModelNamesData()
 	{
 		return [
-			[ // no requestable models names
+			[ // without api model name handler
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
@@ -63,15 +70,22 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
 			],
+			[ // with api model name handler but doesn't use api model name
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan/1'
+				],
+				new ApiModelNameHandler(false, self::$apiModelNames),
+				200,
+				['Content-Type' => 'application/json'],
+				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
+			],
 			[ // existing api model name
 				[
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/man/1'
 				],
-				[
-					'man' => 'Test\Person\Man',
-					'woman' => 'Test\Person\Woman',
-				],
+				new ApiModelNameHandler(true, self::$apiModelNames),
 				200,
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
@@ -82,10 +96,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_METHOD' => 'GET',
 					'REQUEST_URI' => '/index.php/api/MaN/1'
 				],
-				[
-					'man' => 'Test\Person\Man',
-					'woman' => 'Test\Person\Woman',
-				],
+				new ApiModelNameHandler(true, self::$apiModelNames),
 				200,
 				['Content-Type' => 'application/json'],
 				'{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null}',
@@ -94,14 +105,97 @@ class RequestHandlerGetHeadTest extends TestCase
 			[ // NOT existing api model name
 				[
 					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/woman'
+					'REQUEST_URI' => '/index.php/api/person'
 				],
-				[
-					'man' => 'Test\Person\Man',
-				],
+				new ApiModelNameHandler(true, self::$apiModelNames),
 				404,
 				['Content-Type' => 'text/plain'],
-				"resource api model name 'woman' doesn't exist"
+				"resource api model name 'person' doesn't exist"
+			],
+			[ // NOT existing comhon model name
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/house'
+				],
+				new ApiModelNameHandler(true, self::$apiModelNames),
+				404,
+				['Content-Type' => 'text/plain'],
+				"resource model 'Test\Dont\Exist' doesn't exist"
+			]
+		];
+	}
+	
+	/**
+	 *
+	 * @dataProvider getModelNamesData
+	 */
+	public function testGetModelNames($server, $requestHeaders, $apiModelNameHandler, $responseCode, $responseHeaders, $responseContent)
+	{
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders, '', $apiModelNameHandler);
+		$sendGet = $this->responseToArray($response);
+		
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+		$server['REQUEST_METHOD'] = 'HEAD';
+		$response = RequestHandlerMock::handle('////index.php////api///', $server, [], $requestHeaders, '', $apiModelNameHandler);
+		$sendHead = $this->responseToArray($response);
+		
+		$this->assertEquals($responseCode, $sendHead[0]);
+		if ($responseCode == 200) {
+			$this->assertEmpty($sendHead[2]);
+			$this->assertArrayHasKey('Content-Length', $sendHead[1]);
+			$this->assertEquals(strlen($sendGet[2]), $sendHead[1]['Content-Length']);
+		}
+	}
+	
+	public function getModelNamesData()
+	{
+		return [
+			[ // json
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/models'
+				],
+				['Accept' => 'application/json'],
+				new ApiModelNameHandler(true, self::$apiModelNames),
+				200,
+				['Content-Type' => 'application/json'],
+				'[{"api_model_name":"man","comhon_model_name":"Test\\\\Person\\\\Man","extends":["Test\\\\Person"]},{"api_model_name":"woman","comhon_model_name":"Test\\\\Person\\\\Woman"},{"api_model_name":"house","comhon_model_name":"Test\\\\Dont\\\\Exist"}]',
+			],
+			[ // xml
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/models'
+				],
+				['Accept' => 'application/xml'],
+				new ApiModelNameHandler(true, self::$apiModelNames),
+				200,
+				['Content-Type' => 'application/xml'],
+				'<root><model comhon_model_name="Test\Person\Man" api_model_name="man"><extends><model>Test\Person</model></extends></model><model comhon_model_name="Test\Person\Woman" api_model_name="woman"/><model comhon_model_name="Test\Dont\Exist" api_model_name="house"/></root>',
+			],
+			[ // route not handled
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/models'
+				],
+				['Accept' => 'application/xml'],
+				null,
+				404,
+				[],
+				""
+			],
+			[ // route not handled
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/models'
+				],
+				['Accept' => 'application/xml'],
+				new ApiModelNameHandler(false, null),
+				404,
+				[],
+				""
 			]
 		];
 	}

@@ -52,6 +52,7 @@ use function GuzzleHttp\Psr7\stream_for;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
+use Comhon\Interfacer\XMLInterfacer;
 
 class RequestHandler implements RequestHandlerInterface {
 	
@@ -93,9 +94,9 @@ class RequestHandler implements RequestHandlerInterface {
 	
 	/**
 	 *
-	 * @var callable 
+	 * @var ApiModelNameHandlerInterface
 	 */
-	private $modelNameResolver;
+	private $apiModelNameHandler;
 	
 	/**
 	 *
@@ -159,32 +160,12 @@ class RequestHandler implements RequestHandlerInterface {
 	 *                         If you call handle function but request path is not handled according base path,
 	 *                         a response whit status code 404 and body 'not handled route' will be returned
 	 *                         
-	 * @param \Closure $modelNameResolver anonymous function that permit to find comhon model name according
-	 *                                    api model name given in path URI.
-	 *                                    function must take api model name in first parameter and
-	 *                                    return the comhon model name if comhon model is requestable.
-	 *                                    the function must return null if comhon model is not found or not requestable.
-	 *                                    
-	 *                                    example : 
-	 *                                    ```
-	 *                                    $modelNames = ['persons' =>  'Test\\Person', 'houses' =>  'Test\\House'];
-	 *                                    $resolver = function ($pathModelName) use ($modelNames) {
-	 *                                        $key = strtolower($pathModelName);
-	 *                                        return array_key_exists($key, $modelNames) ? $modelNames[$key] : null;
-	 *                                    };
-	 *                                    new RequestHandler('/api', $resolver);
-	 *                                    ```
-	 *                                    A request with URI 'https://www.mydomain.com/api/persons'
-	 *                                    will handle request with 'Test\Person' model.
-	 *                                    A request with URI 'https://www.mydomain.com/api/foo'
-	 *                                    will not found comhon model and generate a 404 not found response.
-	 *                                    
-	 *                                    if this parameter is not specified the api model name must be the cohmon model name.
+	 * @param ApiModelNameHandlerInterface $apiModelNameHandler
 	 * @return \Comhon\Api\Response
 	 */
-	public function __construct($basePath, callable $modelNameResolver = null) {
+	public function __construct($basePath, ApiModelNameHandlerInterface $apiModelNameHandler = null) {
 		$this->requestBasePath = $basePath;
-		$this->modelNameResolver = $modelNameResolver;
+		$this->apiModelNameHandler = $apiModelNameHandler;
 	}
 	
 	/**
@@ -206,8 +187,10 @@ class RequestHandler implements RequestHandlerInterface {
 			$this->_setRessourceArray($serverRequest);
 			if ($this->resource[0] == 'pattern' && count($this->resource) == 2) {
 				$response = $this->_getPattern($serverRequest);
+			} elseif ($this->resource[0] == 'models' && count($this->resource) == 1) {
+				$response = $this->_getModels($serverRequest);
 			}else {
-				$this->_setRessourceInfos($serverRequest->getMethod());
+				$this->_setRessourceInfos($serverRequest);
 				$response = $this->_handleMethod($serverRequest);
 			}
 		} catch (ResponseException $e) {
@@ -247,9 +230,10 @@ class RequestHandler implements RequestHandlerInterface {
 	 * set resource informations according request route.
 	 * check if route is valid and may be handled.
 	 * 
-	 * @param string $method
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 */
-	private function _setRessourceInfos($method) {
+	private function _setRessourceInfos(ServerRequestInterface $serverRequest) {
+		$method = $serverRequest->getMethod();
 		if ($this->resource[0] === 'count' && ($method === 'GET' || $method === 'HEAD' || $method === 'OPTIONS')) {
 			array_shift($this->resource);
 			$this->isCountRequest = true;
@@ -258,10 +242,8 @@ class RequestHandler implements RequestHandlerInterface {
 			throw new ResponseException(404, 'invalid route');
 		}
 		try {
-			if (!is_null($this->modelNameResolver)) {
-				// callable cannot be called from class attribute otherwise the context is RequestHandler
-				$resolver = $this->modelNameResolver; 
-				$modelName = $resolver($this->resource[0]);
+			if (!is_null($this->apiModelNameHandler) && $this->apiModelNameHandler->useApiModelName()) {
+				$modelName = $this->apiModelNameHandler->resolveApiModelName($this->resource[0], $serverRequest);
 				if (is_null($modelName)) {
 					throw new ResponseException(404, "resource api model name '{$this->resource[0]}' doesn't exist");
 				}
@@ -289,7 +271,7 @@ class RequestHandler implements RequestHandlerInterface {
 	}
 	
 	/**
-	 * get patterns list that may be used
+	 * get pattern regex according given pattern name in request path URI
 	 * 
 	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @return \Comhon\Api\Response
@@ -311,11 +293,64 @@ class RequestHandler implements RequestHandlerInterface {
 		if (is_null($regexs)|| !array_key_exists($this->resource[1], $regexs)) {
 			return new Response(404);
 		}
-		if ($method == 'GET') {
-			return new Response(200, ['Content-Type' => 'text/plain'], $regexs[$this->resource[1]]);
-		} else {
-			return new Response(200, ['Content-Length' => strlen($regexs[$this->resource[1]])]);
+		
+		return $method == 'GET'
+			? new Response(200, ['Content-Type' => 'text/plain'], $regexs[$this->resource[1]])
+			: new Response(200, ['Content-Length' => strlen($regexs[$this->resource[1]])]);
+	}
+	
+	/**
+	 * get models list
+	 *
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
+	 * @return \Comhon\Api\Response
+	 */
+	private function _getModels(ServerRequestInterface $serverRequest) {
+		if (is_null($this->apiModelNameHandler)) {
+			return new Response(404);
 		}
+		$models = $this->apiModelNameHandler->getApiModels($serverRequest);
+		if (is_null($models)) {
+			return new Response(404);
+		}
+		$method = $serverRequest->getMethod();
+		if ($method == 'OPTIONS') {
+			return new Response(200, ['Allow' => implode(', ', ['GET', 'HEAD', 'OPTIONS'])]);
+		}
+		if ($method != 'GET' && $method != 'HEAD') {
+			throw new MethodNotAllowedException(
+				"method $method not allowed",
+				['Allow' => implode(', ', ['GET', 'HEAD', 'OPTIONS'])]
+			);
+		}
+		$interfacer = self::getInterfacerFromAcceptHeader($serverRequest);
+		if ($interfacer instanceof XMLInterfacer) {
+			$root = $interfacer->createArrayNode('root');
+			foreach ($models as $model) {
+				$modelNode = $interfacer->createArrayNode('model');
+				$interfacer->setValue($root, $modelNode);
+				if (!isset($model['comhon_model_name'])) {
+					throw new ComhonException('invalid models list : "comhon_model_name" is not set');
+				}
+				$interfacer->setValue($modelNode, $model['comhon_model_name'], 'comhon_model_name');
+				if (isset($model['api_model_name'])) {
+					$interfacer->setValue($modelNode, $model['api_model_name'], 'api_model_name');
+				}
+				if (isset($model['extends'])) {
+					$extendsNode = $interfacer->createArrayNode('extends');
+					$interfacer->setValue($modelNode, $extendsNode);
+					foreach ($model['extends'] as $modelName) {
+						$interfacer->setValue($extendsNode, $modelName, 'model', true);
+					}
+				}
+			}
+			$models = $root;
+		}
+		
+		return $method == 'GET'
+			? new Response(200, ['Content-Type' => $interfacer->getMediaType()], $interfacer->toString($models))
+			: new Response(200, ['Content-Length' => strlen($interfacer->toString($models))]);
+		
 	}
 	
 	/**
