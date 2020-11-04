@@ -645,6 +645,9 @@ class RequestHandler implements RequestHandlerInterface {
 
 		$object = $requester->execute();
 		if (is_null($object)) {
+			if ($this->requestedModel->getName() == 'Comhon\Manifest') {
+				$this->throwManifestRedirection($serverRequest);
+			}
 			throw new NotFoundException($this->requestedModel, $this->uniqueResourceId);
 		}
 		$interfacer = self::getInterfacerFromAcceptHeader($serverRequest);
@@ -661,6 +664,25 @@ class RequestHandler implements RequestHandlerInterface {
 			['Content-Type' => $interfacer->getMediaType()], 
 			$interfacer->toString($interfacedObject)
 		);
+	}
+	
+	/**
+	 * throw a redirection HTTP exception if needed.
+	 * the redirection is thrown only a "parent" manifest is found
+	 * 
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
+	 * @throws ResponseException
+	 */
+	private function throwManifestRedirection(ServerRequestInterface $serverRequest) {
+		$infos = ModelManager::getInstance()->searchManifestPath($this->uniqueResourceId);
+		if (!is_null($infos[0])) {
+			$uri = $serverRequest->getUri()->__toString();
+			if (($pos = strrpos($uri, '/')) !== false) {
+				$uri = substr($uri, 0, $pos + 1);
+			}
+			$uri .= urlencode($infos[3]);
+			throw new ResponseException(301, $infos[3], ['Location' => $uri]);
+		}
 	}
 	
 	/**

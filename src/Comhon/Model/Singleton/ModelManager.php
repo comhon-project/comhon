@@ -491,20 +491,13 @@ class ModelManager {
 		if (strpos($fullyQualifiedName, '\\\\') !== false) {
 			throw new ComhonException('invalid model name, it cannot contain several followed baskslash (\\\\)');
 		}
-		list($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) = $this->splitModelName($fullyQualifiedName);
-		$separatorOffset = PHP_INT_MAX;
-		$manifestPath_afe = null;
+		list (
+			$manifestPath_afe,
+			$fullyQualifiedNamePrefix,
+			$fullyQualifiedNameSuffix,
+			$fullyQualifiedName
+		) = $this->searchManifestPath($fullyQualifiedName);
 		
-		while (is_null($manifestPath_afe) && $separatorOffset !== false) {
-			$tempManifestPath_afe = $this->getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix);
-			if (file_exists($tempManifestPath_afe)) {
-				$manifestPath_afe = $tempManifestPath_afe;
-			}
-			if (is_null($manifestPath_afe) && ($separatorOffset = strrpos($fullyQualifiedNameSuffix, '\\')) !== false) {
-				$fullyQualifiedNameSuffix = substr($fullyQualifiedNameSuffix, 0, $separatorOffset);
-				$fullyQualifiedName = $fullyQualifiedNamePrefix . '\\' . $fullyQualifiedNameSuffix;
-			}
-		}
 		if (is_null($manifestPath_afe)) {
 			throw new NotDefinedModelException($model->getName());
 		}
@@ -549,6 +542,50 @@ class ModelManager {
 		} while (!array_key_exists($prefix, $this->autoloadManifest));
 		
 		return [$prefix, $suffix];
+	}
+	
+	/**
+	 * get the manifest path according given model name.
+	 * 
+	 * if manifest file corresponding to given model name is not found,
+	 * a "parent" manifest path may be returned because this file may contain 
+	 * a local type that correspond to wanted model.
+	 * example :
+	 * - the searched model is Comhon\Manifest\Local
+	 * - the returned path point to manifest that describe model Comhon\Manifest
+	 * - actually Comhon\Manifest\Local is a local type defined in this manifest
+	 * 
+	 * Warning! a "parent" manifest path may be returned even if 
+	 * there is no local type that correspond to given model name.
+	 * Actually there is no verification, the file is not opened.
+	 * 
+	 * @param string $modelName
+	 * @return string[] an array that contain manifest informations
+	 *                  - at index 0 : the manifest path (null if nothing found)
+	 *                  - at index 1 : the fully Qualified Name Prefix of model corresponding to manifest
+	 *                  - at index 2 : the fully Qualified Name Suffix of model corresponding to manifest
+	 *                  - at index 3 : the fully Qualified Name of model corresponding to manifest
+	 */
+	public function searchManifestPath($modelName) {
+		try {
+			list($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix) = $this->splitModelName($modelName);
+		} catch (NotDefinedModelException $e) {
+			return [null, null, null, null];
+		}
+		$separatorOffset = PHP_INT_MAX;
+		$manifestPath_afe = null;
+		
+		while (is_null($manifestPath_afe) && $separatorOffset !== false) {
+			$tempManifestPath_afe = $this->getManifestPath($fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix);
+			if (file_exists($tempManifestPath_afe)) {
+				$manifestPath_afe = $tempManifestPath_afe;
+			}
+			if (is_null($manifestPath_afe) && ($separatorOffset = strrpos($fullyQualifiedNameSuffix, '\\')) !== false) {
+				$fullyQualifiedNameSuffix = substr($fullyQualifiedNameSuffix, 0, $separatorOffset);
+				$modelName = $fullyQualifiedNamePrefix . '\\' . $fullyQualifiedNameSuffix;
+			}
+		}
+		return [$manifestPath_afe, $fullyQualifiedNamePrefix, $fullyQualifiedNameSuffix, $modelName];
 	}
 	
 	/**

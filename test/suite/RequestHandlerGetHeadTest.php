@@ -1371,4 +1371,66 @@ class RequestHandlerGetHeadTest extends TestCase
 			],
 		];
 	}
+	
+	/**
+	 *
+	 * @dataProvider requestManifestData
+	 */
+	public function testRequestManifest($server, $get, $responseCode, $responseHeaders, $responseContent)
+	{
+		$response = RequestHandlerMock::handle('index.php/api', $server, $get, []);
+		$sendGet = $this->responseToArray($response);
+		
+		$this->assertEquals($responseContent, $sendGet[2]);
+		$this->assertEquals($responseCode, $sendGet[0]);
+		$this->assertEquals($responseHeaders, $sendGet[1]);
+		
+	}
+	
+	public function requestManifestData()
+	{
+		return [
+			[ // test existing manifest
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Comhon%5cManifest/Comhon%5cSqlTable'
+				],
+				[],
+				200,
+				['Content-Type' => 'application/json'],
+				'{"name":"Comhon\\\\SqlTable","properties":[{"name":"name","is_id":true,"inheritance-":"Comhon\\\\Manifest\\\\Property\\\\String"},{"name":"database","model":"\\\\Comhon\\\\SqlDatabase","is_foreign":true,"inheritance-":"Comhon\\\\Manifest\\\\Property\\\\Object"}],"version":"3.0"}'
+			],
+			[ // test model redirect to parent manifest
+			[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Comhon%5cManifest/Comhon%5cManifest%5cLocal'
+				],
+				[],
+				301,
+				['Content-Type' => 'text/plain', 'Location' => 'http://localhost//index.php/api/Comhon%5cManifest/Comhon%5CManifest'],
+				'Comhon\Manifest'
+			],
+			[ // test existing manifest (invalid namespace prefix)
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Comhon%5cManifest/CComhon%5cManifest%5cLocal'
+				],
+				[],
+				404,
+				['Content-Type' => 'text/plain'],
+				"resource 'Comhon\Manifest' with id 'CComhon\Manifest\Local' not found"
+			],
+			[ // test existing manifest
+				[
+					'REQUEST_METHOD' => 'GET',
+					'REQUEST_URI' => '/index.php/api/Comhon%5cManifest/Comhon%5cMManifest%5cLocal'
+				],
+				[],
+				404,
+				['Content-Type' => 'text/plain'],
+				"resource 'Comhon\Manifest' with id 'Comhon\MManifest\Local' not found"
+			]
+		];
+	}
+	
 }
