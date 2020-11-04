@@ -62,11 +62,11 @@ class Length extends Interval {
 		return 'length ' . strlen($value) . ' of given string'
 			. ' is' . ($this->satisfy($value) ? ' ' : ' not ')
 			. 'in length range '
-			. ($this->isLeftClosed ? '[' : ']')
-			. $this->leftEndPoint
+			. ($this->_isLeftClosed() ? '[' : ']')
+			. $this->_getLeftEndPoint()
 			. ','
-			. $this->rightEndPoint
-			. ($this->isRightClosed ? ']' : '[');
+			. $this->_getRightEndPoint()
+			. ($this->_isRightClosed() ? ']' : '[');
 	}
 	
 }

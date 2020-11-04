@@ -46,7 +46,7 @@ use Comhon\Interfacer\XMLInterfacer;
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
 	/** @var boolean */
-	protected $isLoading = false;
+	private $isLoading = false;
 	
 	/** 
 	 * list of parent models (current model extends these models).
@@ -113,9 +113,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	
 	/** @var \Comhon\Model\Property\Property[] */
 	private $dependsProperties = [];
-	
-	/** @var \Comhon\Model\Property\Property[] */
-	private $dependents = [];
 	
 	/** @var string[][] */
 	private $conflicts = [];
@@ -202,7 +199,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$this->dateTimeProperties = [];
 			$this->dependsProperties = [];
 			$this->conflicts = [];
-			$this->dependents = [];
 			$this->uniqueIdProperty = null;
 			$this->hasPrivateIdProperty = false;
 			$this->manifestParser = null;
@@ -282,17 +278,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				$this->dependsProperties[$property->getName()] = $property;
 			}
 			$this->properties[$property->getName()] = $property;
-		}
-		foreach ($this->dependsProperties as $property) {
-			foreach ($property->getDependencies() as $propertyName) {
-				if (!isset($this->properties[$propertyName])) {
-					throw new UndefinedPropertyException($this, $propertyName);
-				}
-				if (!isset($this->dependents[$propertyName])) {
-					$this->dependents[$propertyName] = [];
-				}
-				$this->dependents[$propertyName][] = $property->getName();
-			}
 		}
 		if (count($this->idProperties) == 1) {
 			reset($this->idProperties);
@@ -437,7 +422,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * get first shared id parent model found. search from direct parent two last parent.
+	 * get first shared id parent model found. search from direct parent to last parent.
 	 *
 	 * @param bool $sameSerializationSettings if provided and true, only look at parent model with same serialization,
 	 *                                        otherwise serialization is ignored
@@ -448,7 +433,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * get last shared id parent model found. search from direct parent two last parent.
+	 * get last shared id parent model found. search from direct parent to last parent.
 	 *
 	 * @param bool $sameSerializationSettings if provided and true, only look at parent model with same serialization,
 	 *                                        otherwise serialization is ignored
@@ -790,7 +775,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * get all conflicts.
 	 * a property has conflict with other properties if property value MUST NOT be set when other properties values are set.
 	 *
-	 * @param string $propertyName name of property
 	 * @return string[]
 	 */
 	public function getConflicts() {
@@ -805,25 +789,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	public function getDependsProperties() {
 		return $this->dependsProperties;
-	}
-	
-	/**
-	 * verify if given property is referenced by depends on other property(ies).
-	 *
-	 * @param string $propertyName name of property
-	 * @return boolean
-	 */
-	public function hasDependents($propertyName) {
-		return isset($this->dependents[$propertyName]);
-	}
-	
-	/**
-	 * get properties names that are referenced by depends on other property(ies).
-	 *
-	 * @return \Comhon\Model\Property\Property[]
-	 */
-	public function getDependents($propertyName) {
-		return isset($this->dependents[$propertyName]) ? $this->dependents[$propertyName] : [];
 	}
 	
 	/**
@@ -893,7 +858,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/**
 	 * load options
 	 *
-	 * @return \Comhon\Object\UniqueObject|null null if no serialization settings
+	 * @return \Comhon\Object\UniqueObject|null null if no options settings
 	 */
 	private function _loadOptions() {
 		if (!$this->isOptionsLoaded) {
@@ -1170,13 +1135,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		// we may export only id whitout inheritance
 		// but for main model we keep inheritance because it can be a usefull information
 		if ($model === $this || (!$model->isMain() && ObjectCollection::getModelKey($this) === ObjectCollection::getModelKey($model))) {
-			$exportedId = self::_toInterfacedId($object, $interfacer);
+			$exportedId = self::_toInterfacedId($object);
 		} else {
 			if (!$model->isInheritedFrom($this)) {
 				throw new UnexpectedModelException($this, $model);
 			}
 			$exportedId = $interfacer->createNode($nodeName);
-			$interfacer->setValue($exportedId, self::_toInterfacedId($object, $interfacer), Interfacer::COMPLEX_ID_KEY);
+			$interfacer->setValue($exportedId, self::_toInterfacedId($object), Interfacer::COMPLEX_ID_KEY);
 			$interfacer->setValue($exportedId, $model->getName(), Interfacer::INHERITANCE_KEY);
 		}
 		
@@ -1672,11 +1637,10 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * build interface id from comhon object
 	 * 
 	 * @param \Comhon\Object\UniqueObject $object
-	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @throws \Exception
 	 * @return integer|string
 	 */
-	private static function _toInterfacedId(UniqueObject $object, Interfacer $interfacer) {
+	private static function _toInterfacedId(UniqueObject $object) {
 		if (!$object->hasCompleteId()) {
 			throw new MissingIdForeignValueException();
 		}

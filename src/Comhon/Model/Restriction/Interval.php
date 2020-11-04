@@ -45,16 +45,16 @@ class Interval extends Restriction {
 	const INTEGER_INTERVAL  = '/^([\\[\\]])\\s*((?:-?\\d+)|(?:\\d*))\\s*,\\s*((?:-?\\d+)|(?:\\d*))\\s*([\\[\\]])$/';
 	
 	/** @var mixed */
-	protected $leftEndPoint  = null;
+	private $leftEndPoint  = null;
 	
 	/** @var mixed */
-	protected $rightEndPoint = null;
+	private $rightEndPoint = null;
 	
 	/** @var boolean */
-	protected $isLeftClosed  = true;
+	private $isLeftClosed  = true;
 	
 	/** @var boolean */
-	protected $isRightClosed = true;
+	private $isRightClosed = true;
 	
 	/** @var \Comhon\Model\SimpleModel */
 	private $model;
@@ -102,6 +102,34 @@ class Interval extends Restriction {
 		if (!is_null($this->leftEndPoint) && !is_null($this->rightEndPoint) && $this->leftEndPoint > $this->rightEndPoint) {
 			throw new MalformedIntervalException($interval);
 		}
+	}
+	
+	/**
+	 * verify if interval is left closed
+	 */
+	protected function _isLeftClosed() {
+		return $this->isLeftClosed;
+	}
+	
+	/**
+	 * verify if interval is left closed
+	 */
+	protected function _getLeftEndPoint() {
+		return $this->leftEndPoint;
+	}
+	
+	/**
+	 * verify if interval is left closed
+	 */
+	protected function _isRightClosed() {
+		return $this->isRightClosed;
+	}
+	
+	/**
+	 * verify if interval is left closed
+	 */
+	protected function _getRightEndPoint() {
+		return $this->rightEndPoint;
 	}
 	
 	/**

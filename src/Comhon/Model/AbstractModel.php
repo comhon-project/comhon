@@ -75,8 +75,8 @@ abstract class AbstractModel {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param boolean $isFirstLevel
 	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
-	 * @param boolean $isolate
 	 * @param \DOMElement[] $nullNodes nodes that need to be processed at the end of export (only used for xml export).
+	 * @param boolean $isolate
 	 * @throws \Exception
 	 * @return mixed|null
 	 */

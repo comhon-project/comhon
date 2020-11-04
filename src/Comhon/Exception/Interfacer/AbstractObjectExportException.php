@@ -17,7 +17,7 @@ use Comhon\Exception\ConstantException;
 class AbstractObjectExportException extends ComhonException {
 	
 	/**
-	 * @param string $id
+	 * @param string $modelName
 	 */
 	public function __construct($modelName) {
 		parent::__construct(

@@ -12,27 +12,26 @@
 namespace Comhon\Object;
 
 use Comhon\Model\Singleton\ModelManager;
-use Comhon\Model\ModelContainer;
-use Comhon\Model\SimpleModel;
 use Comhon\Exception\ComhonException;
-use Comhon\Model\ModelComhonObject;
+use Comhon\Model\Model;
 
 final class ComhonObject extends UniqueObject {
 
 	/**
 	 * 
-	 * @param string|\Comhon\Model\ModelComhonObject $model can be a model name or an instance of model
+	 * @param string|\Comhon\Model\Model $model can be a model name or an instance of model
 	 * @param boolean $isLoaded
 	 */
 	final public function __construct($model, $isLoaded = true) {
-		$objectModel = ($model instanceof ModelComhonObject) ? $model : ModelManager::getInstance()->getInstanceModel($model);
-		
-		if (($objectModel instanceof ModelContainer) || ($objectModel instanceof SimpleModel)) {
-			throw new ComhonException('ComhonObject cannot have ModelContainer or SimpleModel');
+		if (is_string($model)) {
+			$model = ModelManager::getInstance()->getInstanceModel($model);
 		}
-		$this->_affectModel($objectModel);
+		if (!($model instanceof Model)) {
+			throw new ComhonException("invalid model '{$model->getName()}', ComhonObject must have instance of Model");
+		}
+		$this->_affectModel($model);
 		
-		foreach ($objectModel->getPropertiesWithDefaultValues() as $property) {
+		foreach ($model->getPropertiesWithDefaultValues() as $property) {
 			$this->setValue($property->getName(), $property->getDefaultValue(), false);
 		}
 		$this->setIsLoaded($isLoaded);

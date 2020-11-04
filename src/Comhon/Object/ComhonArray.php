@@ -22,6 +22,7 @@ use Comhon\Model\AbstractModel;
 use Comhon\Model\Restriction\Restriction;
 use Comhon\Exception\Value\UnexpectedArrayException;
 use Comhon\Model\ModelComplex;
+use Comhon\Model\ModelUnique;
 
 final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	
@@ -36,10 +37,12 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 		if ($model instanceof ModelArray) {
 			$objectModel = $model;
 		} else {
-			$elementModel = ($model instanceof AbstractModel) ? $model : ModelManager::getInstance()->getInstanceModel($model);
-		
-			if ($elementModel instanceof ModelContainer) {
-				throw new ComhonException('ComhonArray cannot have ModelContainer except ModelArray');
+			if (is_string($model)) {
+				$elementModel = ModelManager::getInstance()->getInstanceModel($model);
+			} elseif ($model instanceof ModelUnique) {
+				$elementModel = $model;
+			} else {
+				throw new ComhonException('invalid model, ComhonArray must have ModelUnique or ModelArray');
 			}
 			$objectModel = new ModelArray($elementModel, $isAssociative, is_null($elementName) ? $elementModel->getShortName() : $elementName);
 		}
@@ -70,13 +73,13 @@ final class ComhonArray extends AbstractComhonObject implements \Iterator {
 	 * {@inheritDoc}
 	 * @see \Comhon\Object\AbstractComhonObject::loadValue()
 	 */
-	final public function loadValue($pkey, $propertiesFilter = null, $forceLoad = false) {
-		if (!$this->issetValue($pkey)) {
-			throw new ComhonException("cannot load value $pkey, value not set");
+	final public function loadValue($key, $propertiesFilter = null, $forceLoad = false) {
+		if (!$this->issetValue($key)) {
+			throw new ComhonException("cannot load value $key, value not set");
 		}
-		$value = $this->getValue($pkey);
+		$value = $this->getValue($key);
 		if (!($value instanceof UniqueObject)) {
-			throw new ComhonException("cannot load value $pkey, it is not an unique object");
+			throw new ComhonException("cannot load value $key, it is not an unique object");
 		}
 		return $value->load($propertiesFilter, $forceLoad);
 	}

@@ -435,7 +435,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 				MainObjectCollection::getInstance()->removeObject($this);
 			}
 			$originalModel = $this->getModel();
-			$this->_setModel($model);
+			$this->_updateModel($model);
 
 			if ($this->isLoaded() && $this->getModel()->isAbstract()) {
 				throw new AbstractObjectException($this);
@@ -444,7 +444,7 @@ abstract class UniqueObject extends AbstractComhonObject {
 				MainObjectCollection::getInstance()->addObject($this);
 			}
 		} catch (\Exception $e) {
-			$this->_setModel($originalModel);
+			$this->_updateModel($originalModel);
 			throw $e;
 		}
 		$this->isCasted = true;

@@ -27,44 +27,46 @@ use Comhon\Model\Model;
 class Property {
 
 	/** @var \Comhon\Model\AbstractModel */
-	protected $model;
+	private $model;
 	
 	/** @var string */
-	protected $name;
+	private $name;
 	
 	/** @var boolean */
-	protected $hasDefinedSerializationName;
+	private $hasDefinedSerializationName;
 	
 	/** @var string */
-	protected $serializationName;
-	protected $isId;
+	private $serializationName;
 	
 	/** @var boolean */
-	protected $isPrivate;
+	private $isId;
 	
 	/** @var boolean */
-	protected $isRequired;
+	private $isPrivate;
 	
 	/** @var boolean */
-	protected $isSerializable;
+	private $isRequired;
 	
 	/** @var boolean */
-	protected $isNotNull;
+	private $isSerializable;
 	
 	/** @var boolean */
-	protected $isIsolated;
+	private $isNotNull;
+	
+	/** @var boolean */
+	private $isIsolated;
 	
 	/** @var mixed */
-	protected $default;
+	private $default;
 	
 	/** @var boolean */
-	protected $interfaceAsNodeXml;
+	private $interfaceAsNodeXml;
 	
 	/** @var \Comhon\Model\Restriction\Restriction[] */
-	protected $restrictions = [];
+	private $restrictions = [];
 	
 	/** @var string[] */
-	protected $dependencies;
+	private $dependencies;
 	
 	/**
 	 * 
@@ -339,7 +341,7 @@ class Property {
 	 * get names of dependency properties.
 	 * dependencies values MUST be set when current property value is set
 	 *
-	 * @return mixed|null null if property doesn't have default value
+	 * @return mixed|null null if property doesn't have dependencies
 	 */
 	public function getDependencies() {
 		return $this->dependencies;

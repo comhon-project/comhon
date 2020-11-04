@@ -238,11 +238,7 @@ abstract class AbstractComhonObject {
 	/**
 	 * get associative array that reference names of updated values
 	 * 
-	 * @return boolean[]
-	 *     - each key is a property name
-	 *     - each value determine nature of update
-	 *         - if false value has been set or replaced
-	 *         - if true value was deleted
+	 * @return boolean[] each key is a property name of an updated value
 	 */
 	final public function getUpdatedValues() {
 		return $this->updatedValues;
@@ -468,7 +464,7 @@ abstract class AbstractComhonObject {
 	 * 
 	 * @param \Comhon\Model\ModelComhonObject $model
 	 */
-	final protected function _setModel(ModelComhonObject $model) {
+	final protected function _updateModel(ModelComhonObject $model) {
 		$this->model = $model;
 	}
 	

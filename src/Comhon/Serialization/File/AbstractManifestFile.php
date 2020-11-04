@@ -53,7 +53,7 @@ abstract class AbstractManifestFile extends SerializationFile {
 	 */
 	public function __construct($format = null, $pretty = true) {
 		if (!is_null($format)) {
-			$this->interfacer = interfacer::getInstance($format, true);
+			$this->interfacer = Interfacer::getInstance($format, true);
 			$this->format = $format;
 			$this->interfacer->setSerialContext(true);
 			$this->interfacer->setPrivateContext(true);

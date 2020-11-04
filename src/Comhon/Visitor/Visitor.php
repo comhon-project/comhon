@@ -88,7 +88,6 @@ abstract class Visitor {
 			return;
 		}
 		if ($object instanceof ComhonArray) {
-			$propertyName = $object->getModel()->getElementName();
 			foreach ($object->getValues() as $key => $value) {
 				$this->_accept($object, $key, $isForeign);
 			}

@@ -377,7 +377,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			throw new IncompatibleValueException($interfacedObject, $interfacer);
 		}
 		$objectCollectionInterfacer = new ObjectCollectionInterfacer();
-		if ($interfacer->getMergeType() == interfacer::OVERWRITE) {
+		if ($interfacer->getMergeType() == Interfacer::OVERWRITE) {
 			$uniqueModel = $this->getUniqueModel();
 			if ($uniqueModel instanceof Model && $uniqueModel->isMain()) {
 				$this->_resetMainObjets($interfacedObject, $interfacer);
@@ -416,7 +416,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 				$objectCollectionInterfacer->addStartObject($value);
 			}
 		}
-		if ($interfacer->getMergeType() == interfacer::OVERWRITE) {
+		if ($interfacer->getMergeType() == Interfacer::OVERWRITE) {
 			$uniqueModel = $this->getUniqueModel();
 			if ($uniqueModel instanceof Model && $uniqueModel->isMain()) {
 				$this->_resetMainObjets($interfacedObject, $interfacer);

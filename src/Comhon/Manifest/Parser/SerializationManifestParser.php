@@ -166,7 +166,7 @@ abstract class SerializationManifestParser {
 	 */
 	public static function getInstance($serializationManifestPath_afe) {
 		try {
-			$interfacer = interfacer::getInstance(
+			$interfacer = Interfacer::getInstance(
 				mb_strtolower(pathinfo($serializationManifestPath_afe, PATHINFO_EXTENSION)),
 				true
 			);

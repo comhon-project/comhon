@@ -18,7 +18,7 @@ class ManifestException extends ComhonException {
 	
 	/**
 	 * 
-	 * @param string $value
+	 * @param string $message
 	 */
 	public function __construct($message) {
 		parent::__construct($message, ConstantException::MANIFEST_EXCEPTION);

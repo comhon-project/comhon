@@ -17,9 +17,7 @@ use Comhon\Exception\ConstantException;
 class InvalidCompositeIdException extends ComhonException {
 	
 	/**
-	 * @param mixed $value
-	 * @param string $expectedType
-	 * @param string $property
+	 * @param string $id
 	 */
 	public function __construct($id) {
 		parent::__construct("invalid composite id '$id'", ConstantException::INVALID_COMPOSITE_ID_EXCEPTION);

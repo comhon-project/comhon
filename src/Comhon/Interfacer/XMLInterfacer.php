@@ -202,7 +202,7 @@ class XMLInterfacer extends NoScalarTypedInterfacer {
 			if ($domNode instanceof \DOMElement) {
 				if ($domNode->hasAttribute(self::ASSOCIATIVE_KEY)) {
 					if (array_key_exists($domNode->getAttribute(self::ASSOCIATIVE_KEY), $array)) {
-						throw new ComhonException("duplicated key '$domNode->nodeName'");
+						throw new ComhonException("duplicated key '{$domNode->getAttribute(self::ASSOCIATIVE_KEY)}'");
 					}
 					$array[$domNode->getAttribute(self::ASSOCIATIVE_KEY)] = $domNode;
 				} else {

@@ -581,14 +581,14 @@ abstract class Interfacer {
 	 * create node
 	 * 
 	 * @param string $name
-	 * return mixed
+	 * @return mixed
 	 */
 	abstract public function createNode($name = null);
 	
 	/**
 	 * get node classes
 	 *
-	 * return string[]
+	 * @return string[]
 	 */
 	abstract public function getNodeClasses();
 	
@@ -603,7 +603,7 @@ abstract class Interfacer {
 	/**
 	 * get array node classes
 	 *
-	 * return string[]
+	 * @return string[]
 	 */
 	abstract public function getArrayNodeClasses();
 	

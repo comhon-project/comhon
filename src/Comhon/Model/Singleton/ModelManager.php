@@ -252,7 +252,7 @@ class ModelManager {
 	 */
 	private function _getConfigArray($config_af) {
 		if ($config_af === false) {
-			throw new ConfigFileNotFoundException('configuration', 'file', self::$loadPath);
+			throw new ConfigFileNotFoundException('configuration', 'file', $config_af);
 		}
 		$interfacer = new AssocArrayInterfacer();
 		$arrayConfig = $interfacer->read($config_af);
@@ -744,7 +744,7 @@ class ModelManager {
 		}
 		if (!is_null($serializationSettings)) {
 			$serialization = Serialization::getInstanceWithSettings(
-				$this->getUniqueSerializationSettings($serializationSettings, $parentModel), 
+				$this->_getUniqueSerializationSettings($serializationSettings, $parentModel), 
 				$inheritanceKey, 
 				$inheritanceValues
 			);
@@ -791,7 +791,7 @@ class ModelManager {
 	 * @param \Comhon\Model\Model $parentModel
 	 * @return \Comhon\Object\UniqueObject|null null if no serialization
 	 */
-	private function getUniqueSerializationSettings(UniqueObject $serializationSettings, Model $parentModel = null) {
+	private function _getUniqueSerializationSettings(UniqueObject $serializationSettings, Model $parentModel = null) {
 		$same = false;
 		while (!is_null($parentModel) && !$same) {
 			if (is_null($parentModel->getSerialization())) {

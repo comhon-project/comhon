@@ -497,7 +497,7 @@ abstract class ManifestParser {
 	 */
 	public static function getInstance($manifestPath_afe, $serializationManifestPath_afe, $namespace) {
 		try {
-			$interfacer = interfacer::getInstance(mb_strtolower(pathinfo($manifestPath_afe, PATHINFO_EXTENSION)), true);
+			$interfacer = Interfacer::getInstance(mb_strtolower(pathinfo($manifestPath_afe, PATHINFO_EXTENSION)), true);
 		} catch (ArgumentException $e) {
 			throw new ManifestException('extension not recognized for manifest file : '.$manifestPath_afe);
 		}

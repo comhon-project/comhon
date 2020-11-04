@@ -66,11 +66,11 @@ class Size extends Interval {
 			. 'size '.($value->count() + $increment).' of given array'
 			. ' is' . ($this->satisfy($value, $increment) ? ' ' : ' not ')
 			. 'in size range '
-			. ($this->isLeftClosed ? '[' : ']')
-			. $this->leftEndPoint
+			. ($this->_isLeftClosed() ? '[' : ']')
+			. $this->_getLeftEndPoint()
 			. ','
-			. $this->rightEndPoint
-			. ($this->isRightClosed ? ']' : '[');
+			. $this->_getRightEndPoint()
+			. ($this->_isRightClosed() ? ']' : '[');
 	}
 	
 }

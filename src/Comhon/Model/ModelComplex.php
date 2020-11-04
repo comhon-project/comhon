@@ -89,7 +89,7 @@ abstract class ModelComplex extends AbstractModel {
 	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param boolean $forceIsolateElements this parameter is only use if exported object is a comhon array.
-	 *                force isolate each elements of imported array 
+	 *                force isolate each elements of comhon array 
 	 *                (isolated element doesn't share objects instances with others elements).
 	 * @return mixed
 	 */
@@ -105,7 +105,7 @@ abstract class ModelComplex extends AbstractModel {
 				$this->_verifyReferences($object, $objectCollectionInterfacer);
 			}
 			if (!empty($nullNodes)) { // if not empty, interfacer must be xml interfacer
-				$this->_ProcessNullNodes($interfacer, $node, $nullNodes);
+				$this->_processNullNodes($interfacer, $node, $nullNodes);
 			}
 			self::$instanceObjectHash = [];
 		} catch (ComhonException $e) {
@@ -121,7 +121,7 @@ abstract class ModelComplex extends AbstractModel {
 	 * @param \DOMElement $rootNode
 	 * @param \DOMElement[] $nullNodes
 	 */
-	private function _ProcessNullNodes(XMLInterfacer $interfacer, \DOMElement $rootNode, array $nullNodes) {
+	private function _processNullNodes(XMLInterfacer $interfacer, \DOMElement $rootNode, array $nullNodes) {
 		$interfacer->addNullNamespaceURI($rootNode);
 		foreach ($nullNodes as $nullNode) {
 			$interfacer->setNodeAsNull($nullNode);
