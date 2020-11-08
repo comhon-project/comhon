@@ -21,6 +21,8 @@ use Comhon\Exception\Interfacer\NotReferencedValueException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\ComhonArray;
 use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Object\UniqueObject;
+use Comhon\Object\Collection\ObjectCollection;
 
 abstract class ModelComplex extends AbstractModel {
 	
@@ -167,13 +169,83 @@ abstract class ModelComplex extends AbstractModel {
 	 *
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
-	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
+	 * @param \Comhon\Object\AbstractComhonObject $rootObject
+	 * @param boolean $isolate determine if root comhon array elements must be isolated.
+	 *                         this parameter may by true only if the imported root object is a comhon array
+	 *                         and if the parameter $forceIsolateElements is set to true.
 	 * @throws \Exception
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	protected function _importRoot($interfacedObject, Interfacer $interfacer, ObjectCollectionInterfacer $objectCollectionInterfacer = null) {
-		throw new ComhonException('can call _importRoot only via Model');
+	protected function _importRoot($interfacedObject, Interfacer $interfacer, AbstractComhonObject $rootObject = null, $isolate = false) {
+		$this->load();
+		$mergeType = $interfacer->getMergeType();
+		
+		if (is_null($rootObject)) {
+			$rootObject = $this->_getRootObject($interfacedObject, $interfacer);
+		}
+		
+		$objectCollectionInterfacer = $this->_initObjectCollectionInterfacer($rootObject, $mergeType);
+		
+		if ($interfacer->getMergeType() == Interfacer::OVERWRITE || $this instanceof ModelArray) {
+			$isLoaded = $rootObject->isLoaded();
+			$rootObject->reset(false);
+			$rootObject->setIsLoaded($isLoaded);
+		}
+		$this->_fillObject(
+			$rootObject,
+			$interfacedObject,
+			$interfacer,
+			true,
+			$objectCollectionInterfacer,
+			$isolate
+		);
+		
+		if ($interfacer->hasToVerifyReferences()) {
+			$this->_verifyReferences($rootObject, $objectCollectionInterfacer);
+		}
+		
+		return $rootObject;
 	}
+	
+	/**
+	 * get root object (instanciate or get existing instance)
+	 *
+	 * @param mixed $interfacedObject
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @return \Comhon\Object\ComhonObject|\Comhon\Object\ComhonArray
+	 */
+	abstract protected function _getRootObject($interfacedObject, Interfacer $interfacer);
+	
+	/**
+	 *
+	 * @param \Comhon\Object\ComhonObject|\Comhon\Object\ComhonArray $objectArray
+	 * @param string $mergeType
+	 * @return \Comhon\Object\Collection\ObjectCollectionInterfacer
+	 */
+	abstract protected function _initObjectCollectionInterfacer(AbstractComhonObject $object, $mergeType);
+	
+	/**
+	 * fill comhon object (or comhon aray) with values from interfaced object
+	 *
+	 * @param \Comhon\Object\AbstractComhonObject $object
+	 * @param mixed $interfacedObject
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @param boolean $isFirstLevel
+	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
+	 * @param boolean $isolate determine if root comhon array elements must be isolated.
+	 *                         this parameter may by true only if the imported root object is a comhon array
+	 *                         and if the parameter $forceIsolateElements is set to true.
+	 * @throws \Comhon\Exception\Interfacer\ImportException
+	 * @return \Comhon\Object\ComhonArray
+	 */
+	abstract protected function _fillObject(
+		AbstractComhonObject $object,
+		$interfacedObject,
+		Interfacer $interfacer,
+		$isFirstLevel,
+		ObjectCollectionInterfacer $objectCollectionInterfacer,
+		$isolate = false
+	);
 	
 	/**
 	 * fill comhon object with values from interfaced object

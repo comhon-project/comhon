@@ -12,6 +12,7 @@
 namespace Comhon\Object\Collection;
 
 use Comhon\Object\UniqueObject;
+use Comhon\Object\AbstractComhonObject;
 
 class ObjectCollectionInterfacer {
 	
@@ -35,12 +36,28 @@ class ObjectCollectionInterfacer {
 	
 	/**
 	 * 
-	 * @param \Comhon\Object\UniqueObject $object if specified, populate start object collection
+	 * @param \Comhon\Object\AbstractComhonObject $object if specified, populate start object collection
 	 */
-	public function __construct(UniqueObject $object = null) {
+	public function __construct(AbstractComhonObject $object = null) {
 		$this->startObjectCollection = is_null($object) ? new ObjectCollection() : ObjectCollection::build($object);
 		$this->newForeignObjectCollection = new ObjectCollection();
 		$this->newObjectCollection = new ObjectCollection();
+	}
+	
+	/**
+	 *
+	 * @return \Comhon\Object\Collection\ObjectCollection
+	 */
+	public function getNewObjectCollection() {
+		return $this->newObjectCollection;
+	}
+	
+	/**
+	 *
+	 * @return \Comhon\Object\Collection\ObjectCollection
+	 */
+	public function getNewForeignObjectCollection() {
+		return $this->newForeignObjectCollection;
 	}
 	
 	/**
@@ -82,8 +99,8 @@ class ObjectCollectionInterfacer {
 	 * - new foreign object collection if $isForeign is true
 	 * 
 	 * @param \Comhon\Object\UniqueObject $object
-	 * @param boolean $isForeign it true, add $object in new foreign object collection otherwise in new object collection
-	 * @param boolean $throwException it true, throw exception if another instance object already added
+	 * @param boolean $isForeign if true, add $object in new foreign object collection otherwise in new object collection
+	 * @param boolean $throwException if true, throw exception if another instance object already added
 	 * @throws \Exception
 	 * @return boolean true if object is added
 	 */
@@ -116,15 +133,6 @@ class ObjectCollectionInterfacer {
 	 */
 	public function addStartObject(UniqueObject $object, $throwException = true) {
 		return $this->startObjectCollection->addObject($object, $throwException);
-	}
-	
-	/**
-	 * replace new object collection
-	 * 
-	 * @param \Comhon\Object\Collection\ObjectCollection $newObjectCollection
-	 */
-	public function replaceNewObjectCollection(ObjectCollection $newObjectCollection) {
-		$this->newObjectCollection = $newObjectCollection;
 	}
 	
 	/**

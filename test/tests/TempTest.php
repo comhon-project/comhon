@@ -42,4 +42,11 @@ $interfacer->write(
 );
 die();
 */
+/*
+$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
+$object = $model->loadObject('Test\Duplicated');
+$unit = new ManifestFile('yaml');
+$unit->saveObject($object);
+die();
+*/
 

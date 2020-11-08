@@ -92,7 +92,13 @@ abstract class SimpleModel extends AbstractModel implements ModelUnique {
 	 * {@inheritDoc}
 	 * @see \Comhon\Model\AbstractModel::_import()
 	 */
-	final protected function _import($value, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
+	final protected function _import(
+		$value,
+		Interfacer $interfacer,
+		$isFirstLevel,
+		ObjectCollectionInterfacer $objectCollectionInterfacer,
+		$isolate = false
+	) {
 		return $this->importValue($value, $interfacer);
 	}
 	

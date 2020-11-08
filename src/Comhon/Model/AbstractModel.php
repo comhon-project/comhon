@@ -92,7 +92,13 @@ abstract class AbstractModel {
 	 * @param boolean $isolate
 	 * @return mixed|null
 	 */
-	abstract protected function _import($interfacedValue, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false);
+	abstract protected function _import(
+		$interfacedValue,
+		Interfacer $interfacer,
+		$isFirstLevel,
+		ObjectCollectionInterfacer $objectCollectionInterfacer,
+		$isolate = false
+	);
 	
 	/**
 	 * verify if value is correct according current model

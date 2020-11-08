@@ -6,6 +6,16 @@
     <property name="containerTwo" model="ContainerTwo" inheritance-="Comhon\Manifest\Property\Object"/>
     <property name="containerMain" model="ContainerMain" inheritance-="Comhon\Manifest\Property\Object"/>
     <property name="containerForeign" model="ContainerForeign" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="objectValues" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="object" model="\Test\Duplicated" inheritance-="Comhon\Manifest\Value\Object"/>
+    </property>
+    <property name="foreignObjectValues" inheritance-="Comhon\Manifest\Property\Array">
+      <values name="objects" inheritance-="Comhon\Manifest\Value\Array">
+        <values name="object" model="\Test\Duplicated" is_foreign="1" inheritance-="Comhon\Manifest\Value\Object"/>
+      </values>
+    </property>
+    <property name="foreignObjectValue" model="\Test\Duplicated" is_foreign="1" inheritance-="Comhon\Manifest\Property\Object"/>
+    <property name="intValue" inheritance-="Comhon\Manifest\Property\Integer"/>
   </properties>
   <types>
     <type name="ObjectMain" is_main="1" share_parent_id="1">

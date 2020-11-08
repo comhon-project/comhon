@@ -42,15 +42,24 @@ class ObjectCollection {
 	}
 	
 	/**
-	 * build object collection that will store given object itslef (if UniqueObject given) and all its contained unique objects
+	 * build object collection that will store given object itslef (if has id)
+	 * and all its contained unique objects (with id)
 	 *
 	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param boolean $addForeignObjects
 	 * @param boolean $visitForeignObjects
+	 * @param \Comhon\Object\Collection\ObjectCollection $objectCollection you may populate an existing object collection
 	 * @return \Comhon\Object\Collection\ObjectCollection
 	 */
-	public static function build(AbstractComhonObject $object, $addForeignObjects = true, $visitForeignObjects = false) {
-		$objectCollection = new ObjectCollection();
+	public static function build(
+			AbstractComhonObject $object,
+			$addForeignObjects = true,
+			$visitForeignObjects = false,
+			ObjectCollection $objectCollection = null
+	) {
+		if (is_null($objectCollection)) {
+			$objectCollection = new ObjectCollection();
+		}
 		$stack = [[$object, false, true, false]];
 		self::$instanceObjectHash = [];
 		

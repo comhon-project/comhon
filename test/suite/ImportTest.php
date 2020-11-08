@@ -14,6 +14,7 @@ use Comhon\Object\Collection\MainObjectCollection;
 use Comhon\Exception\Interfacer\NotReferencedValueException;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Interfacer\XMLInterfacer;
+use Comhon\Model\ModelArray;
 
 class ImportTest extends TestCase
 {
@@ -32,14 +33,21 @@ class ImportTest extends TestCase
 	 * 
 	 * @dataProvider importData
 	 */
-	public function testSimpleFillObject($baseJson)
+	public function testSimpleFillObject($baseJson, $partialJson, $isolateElements)
 	{
+		$baseJsonDecoded = json_decode($baseJson);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Duplicated');
+		if (is_array($baseJsonDecoded)) {
+			$model = new ModelArray($model, false, 'value', [], [], false, $isolateElements);
+		}
 		$test = $model->getObjectInstance();
 		$stdInterfacer = new StdObjectInterfacer();
 		$this->assertEquals(Interfacer::MERGE, $stdInterfacer->getMergeType());
 		
-		$test->fill(json_decode($baseJson), $stdInterfacer);
+		$test->fill($baseJsonDecoded, $stdInterfacer, $isolateElements);
+		if (is_array($baseJsonDecoded)) {
+			$test = $test->getValue(0);
+		}
 		$this->assertSame($test->getValue('containerTwo')->getValue('objOneProp'), $test->getValue('dupliForeignProp'));
 		$this->assertSame($test->getValue('containerMain')->getValue('objMainProp'), $test->getValue('containerForeign')->getValue('objMainForeignProp'));
 		$this->assertSame($test, $test->getValue('containerForeign')->getValue('objOneForeignProp')->getValue(0));
@@ -56,16 +64,23 @@ class ImportTest extends TestCase
 	 *
 	 * @dataProvider importData
 	 */
-	public function testFillObjectAgain($baseJson)
+	public function testFillObjectAgain($baseJson, $partialJson, $isolateElements)
 	{
+		$baseJsonDecoded = json_decode($baseJson);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Duplicated');
+		if (is_array($baseJsonDecoded)) {
+			$model = new ModelArray($model, false, 'value', [], [], false, $isolateElements);
+		}
 		$test = $model->getObjectInstance();
 		$stdInterfacer = new StdObjectInterfacer();
 		
 		// first fill
-		$test->fill(json_decode($baseJson), $stdInterfacer);
+		$test->fill($baseJsonDecoded, $stdInterfacer, $isolateElements);
 		
-		$test->fill(json_decode($baseJson), $stdInterfacer);
+		$test->fill($baseJsonDecoded, $stdInterfacer, $isolateElements);
+		if (is_array($baseJsonDecoded)) {
+			$test = $test->getValue(0);
+		}
 		$this->assertSame($test->getValue('containerTwo')->getValue('objOneProp'), $test->getValue('dupliForeignProp'));
 		$this->assertNotSame($test->getValue('containerOne')->getValue('objTwoProp'), $test->getValue('containerTwo')->getValue('objOneProp'));
 		$this->assertSame($test, $test->getValue('containerForeign')->getValue('objOneForeignProp')->getValue(0));
@@ -109,16 +124,23 @@ class ImportTest extends TestCase
 	 *
 	 * @dataProvider importData
 	 */
-	public function testFillObjectAgainPartialTwo($baseJson, $partialJson)
+	public function testFillObjectAgainPartialTwo($baseJson, $partialJson, $isolateElements)
 	{
+		$baseJsonDecoded = json_decode($baseJson);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Duplicated');
+		if (is_array($baseJsonDecoded)) {
+			$model = new ModelArray($model, false, 'value', [], [], false, $isolateElements);
+		}
 		$test = $model->getObjectInstance();
 		$stdInterfacer = new StdObjectInterfacer();
 		
 		// first fill
-		$test->fill(json_decode($baseJson), $stdInterfacer);
+		$test->fill($baseJsonDecoded, $stdInterfacer, $isolateElements);
 		
-		$test->fill(json_decode($partialJson), $stdInterfacer);
+		$test->fill(json_decode($partialJson), $stdInterfacer, $isolateElements);
+		if (is_array($baseJsonDecoded)) {
+			$test = $test->getValue(0);
+		}
 		$this->assertTrue($test->getValue('containerTwo')->hasValue('objOneProp'));
 		$this->assertSame($test->getValue('containerTwo')->getValue('objOneProp'), $test->getValue('dupliForeignProp'));
 		$this->assertTrue($test->getValue('containerMain')->hasValue('objMainProp'));
@@ -127,23 +149,30 @@ class ImportTest extends TestCase
 	}
 	
 	/**
-	 * test a fill function called twice (with interfacer merge type set to Interfacer::MERGE).
+	 * test a fill function called twice (with interfacer merge type set to Interfacer::OVERWRITE).
 	 * second fill call import interfaced object without some values
 	 *
 	 * @dataProvider importData
 	 */
-	public function testFillObjectAgainPartialOverwrite($baseJson, $partialJson)
+	public function testFillObjectAgainPartialOverwrite($baseJson, $partialJson, $isolateElements)
 	{
+		$baseJsonDecoded = json_decode($baseJson);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Duplicated');
+		if (is_array($baseJsonDecoded)) {
+			$model = new ModelArray($model, false, 'value', [], [], false, $isolateElements);
+		}
 		$test = $model->getObjectInstance();
 		$stdInterfacer = new StdObjectInterfacer();
 		
 		// first fill
-		$test->fill(json_decode($baseJson), $stdInterfacer);
+		$test->fill($baseJsonDecoded, $stdInterfacer, $isolateElements);
 		
 		$stdInterfacer->setMergeType(Interfacer::OVERWRITE);
 		$stdInterfacer->setVerifyReferences(false); // some foreign values are not referenced so we modify setting
-		$test->fill(json_decode($partialJson), $stdInterfacer);
+		$test->fill(json_decode($partialJson), $stdInterfacer, $isolateElements);
+		if (is_array($baseJsonDecoded)) {
+			$test = $test->getValue(0);
+		}
 		$this->assertFalse($test->getValue('dupliForeignProp')->isLoaded());
 		$this->assertNull($test->getValue('containerMain'));
 		$this->assertTrue($test->getValue('containerForeign')->getValue('objMainForeignProp')->isLoaded());
@@ -157,17 +186,24 @@ class ImportTest extends TestCase
 	 *
 	 * @dataProvider importData
 	 */
-	public function testImportAfterFillObject($baseJson, $partialJson)
+	public function testImportAfterFillObject($baseJson, $partialJson, $isolateElements)
 	{
+		$baseJsonDecoded = json_decode($baseJson);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Duplicated');
+		if (is_array($baseJsonDecoded)) {
+			$model = new ModelArray($model, false, 'value', [], [], false, $isolateElements);
+		}
 		$test = $model->getObjectInstance();
 		$stdInterfacer = new StdObjectInterfacer();
 		
 		// first fill
-		$test->fill(json_decode($baseJson), $stdInterfacer);
+		$test->fill($baseJsonDecoded, $stdInterfacer, $isolateElements);
 		
 		$stdInterfacer->setVerifyReferences(false); // some foreign values are not referenced so we modify setting
-		$test = $model->import(json_decode($partialJson), $stdInterfacer);
+		$test = $model->import(json_decode($partialJson), $stdInterfacer, $isolateElements);
+		if (is_array($baseJsonDecoded)) {
+			$test = $test->getValue(0);
+		}
 		$this->assertFalse($test->getValue('dupliForeignProp')->isLoaded());
 		$this->assertTrue($test->getValue('containerForeign')->getValue('objMainForeignProp')->isLoaded());
 	}
@@ -181,20 +217,24 @@ class ImportTest extends TestCase
 	 *
 	 * @dataProvider importData
 	 */
-	public function testNotReferencedDuringFill($baseJson, $partialJson)
+	public function testNotReferencedDuringFill($baseJson, $partialJson, $isolateElements)
 	{
+		$baseJsonDecoded = json_decode($baseJson);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Duplicated');
+		if (is_array($baseJsonDecoded)) {
+			$model = new ModelArray($model, false, 'value', [], [], false, $isolateElements);
+		}
 		$test = $model->getObjectInstance();
 		$stdInterfacer = new StdObjectInterfacer();
 		
 		// first fill
-		$test->fill(json_decode($baseJson), $stdInterfacer);
+		$test->fill($baseJsonDecoded, $stdInterfacer, $isolateElements);
 		
 		$interfacedObj = json_decode($partialJson);
 		$stdInterfacer->setMergeType(Interfacer::OVERWRITE);
 		try {
 			$hasThrownEx = false;
-			$test->fill($interfacedObj, $stdInterfacer);
+			$test->fill($interfacedObj, $stdInterfacer, $isolateElements);
 		} catch (ImportException $e) {
 			$hasThrownEx = true;
 			$this->asserttrue($e->getOriginalException() instanceof NotReferencedValueException);
@@ -203,11 +243,15 @@ class ImportTest extends TestCase
 		// should failed before
 		$this->assertTrue($hasThrownEx);
 		
-		unset($interfacedObj->dupliForeignProp);
+		if (is_array($baseJsonDecoded)) {
+			unset($interfacedObj[0]->dupliForeignProp);
+		} else {
+			unset($interfacedObj->dupliForeignProp);
+		}
 		// after unset 'dupliForeignProp', only foreign value 'objMainForeignProp' is not referenced
 		// and it has a main model so import must NOT throw exception
 		// because values with main model doesn't need to be referenced in current object
-		$test->fill($interfacedObj, $stdInterfacer);
+		$test->fill($interfacedObj, $stdInterfacer, $isolateElements);
 	}
 	
 	/**
@@ -218,19 +262,23 @@ class ImportTest extends TestCase
 	 *
 	 * @dataProvider importData
 	 */
-	public function testNotReferencedDuringImport($baseJson, $partialJson)
+	public function testNotReferencedDuringImport($baseJson, $partialJson, $isolateElements)
 	{
+		$baseJsonDecoded = json_decode($baseJson);
 		$model = ModelManager::getInstance()->getInstanceModel('Test\Duplicated');
+		if (is_array($baseJsonDecoded)) {
+			$model = new ModelArray($model, false, 'value', [], [], false, $isolateElements);
+		}
 		$test = $model->getObjectInstance();
 		$stdInterfacer = new StdObjectInterfacer();
 		
 		// first fill
-		$test->fill(json_decode($baseJson), $stdInterfacer);
+		$test->fill($baseJsonDecoded, $stdInterfacer, $isolateElements);
 		
 		$interfacedObj = json_decode($partialJson);
 		try {
 			$hasThrownEx = false;
-			$test = $model->import($interfacedObj, $stdInterfacer);
+			$test = $model->import($interfacedObj, $stdInterfacer, $isolateElements);
 		} catch (ImportException $e) {
 			$hasThrownEx = true;
 			$this->asserttrue($e->getOriginalException() instanceof NotReferencedValueException);
@@ -239,48 +287,65 @@ class ImportTest extends TestCase
 		// should failed before
 		$this->assertTrue($hasThrownEx);
 		
-		unset($interfacedObj->dupliForeignProp);
+		if (is_array($baseJsonDecoded)) {
+			unset($interfacedObj[0]->dupliForeignProp);
+		} else {
+			unset($interfacedObj->dupliForeignProp);
+		}
 		// after unset 'dupliForeignProp', only foreign value 'objMainForeignProp' is not referenced 
 		// and it has a main model so import must NOT throw exception
 		// because values with main model doesn't need to be referenced in current object
-		$test = $model->import($interfacedObj, $stdInterfacer);
+		$test = $model->import($interfacedObj, $stdInterfacer, $isolateElements);
 	}
 	
 	public function importData()
 	{
+		$baseObject = '{
+			"id":1,
+			"dupliForeignProp":3,
+			"containerOne":{
+				"dupliProp":{"id":2},
+				"objTwoProp":{"id":3}
+			},
+			"containerTwo":{
+				"objOneProp":{"id":3}
+			},
+			"containerMain":{
+				"objMainProp":{"id":4}
+			},
+			"containerForeign":{
+				"objOneForeignProp":[1],
+				"objMainForeignProp":4
+			},
+			"objectValues":[
+				{"id":100},
+				{"id":101},
+				{"id":102},
+				null
+			],
+			"foreignObjectValues":[
+				[100],
+				[101,null]
+			],
+			"foreignObjectValue":100,
+			"intValue":1000
+		}';
+		$partialObject = '{
+			"id":1,
+			"dupliForeignProp":3,
+			"containerOne":{
+				"dupliProp":{"id":2},
+				"objTwoProp":{"id":3}
+			},
+			"containerForeign":{
+				"objOneForeignProp":[1],
+				"objMainForeignProp":4
+			}
+		}';
 		return [
-			[
-				'{
-					"id":1,
-					"dupliForeignProp":3,
-					"containerOne":{
-						"dupliProp":{"id":2},
-						"objTwoProp":{"id":3}
-					},
-					"containerTwo":{
-						"objOneProp":{"id":3}
-					},
-					"containerMain":{
-						"objMainProp":{"id":4}
-					},
-					"containerForeign":{
-						"objOneForeignProp":[1],
-						"objMainForeignProp":4
-					}
-				}',
-				'{
-					"id":1,
-					"dupliForeignProp":3,
-					"containerOne":{
-						"dupliProp":{"id":2},
-						"objTwoProp":{"id":3}
-					},
-					"containerForeign":{
-						"objOneForeignProp":[1],
-						"objMainForeignProp":4
-					}
-				}'
-			]
+			[$baseObject, $partialObject, false],
+			['['.$baseObject.']', '['.$partialObject.']', false],
+			['['.$baseObject.']', '['.$partialObject.']', true]
 		];
 	}
 	

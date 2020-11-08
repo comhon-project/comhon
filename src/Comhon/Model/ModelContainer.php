@@ -11,6 +11,11 @@
 
 namespace Comhon\Model;
 
+use Comhon\Exception\ComhonException;
+use Comhon\Interfacer\Interfacer;
+use Comhon\Object\AbstractComhonObject;
+use Comhon\Object\Collection\ObjectCollectionInterfacer;
+
 abstract class ModelContainer extends ModelComplex {
 
 	/**
@@ -23,6 +28,41 @@ abstract class ModelContainer extends ModelComplex {
 	 */
 	public function __construct(AbstractModel $model) {
 		$this->model = $model;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::_getRootObject()
+	 */
+	protected function _getRootObject($interfacedObject, Interfacer $interfacer) {
+		throw new ComhonException('only callable from Model and ModelArray');
+	}
+	
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::_initObjectCollectionInterfacer()
+	 */
+	protected function _initObjectCollectionInterfacer(AbstractComhonObject $object, $mergeType) {
+		throw new ComhonException('only callable from Model and ModelArray');
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::_fillObject()
+	 */
+	protected function _fillObject(
+		AbstractComhonObject $object,
+		$interfacedObject,
+		Interfacer $interfacer,
+		$isFirstLevel,
+		ObjectCollectionInterfacer $objectCollectionInterfacer,
+		$isolate = false
+	) {
+		throw new ComhonException('only callable from Model and ModelArray');
 	}
 	
 	/**

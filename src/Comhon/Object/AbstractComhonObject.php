@@ -281,6 +281,21 @@ abstract class AbstractComhonObject {
 		return true;
 	}
 	
+	/**
+	 * get object values and array values that contain objects
+	 *
+	 * @return mixed[]
+	 */
+	final public function getObjectValues() {
+		$values = [];
+		foreach ($this->values as $name => $value) {
+			if ($value instanceof AbstractComhonObject && $value->getUniqueModel() instanceof Model) {
+				$values[$name] = $value;
+			}
+		}
+		return $values;
+	}
+	
 	 /***********************************************************************************************\
 	 |                                                                                               |
 	 |                                       Iterator functions                                      |
@@ -544,10 +559,13 @@ abstract class AbstractComhonObject {
 	 * 
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @param boolean $forceIsolateElements if object to fill is a comhon array, 
+	 *     force isolate each elements of imported array 
+	 *     (isolated element doesn't share objects instances with others elements)
 	 */
-	final public function fill($interfacedObject, Interfacer $interfacer) {
+	final public function fill($interfacedObject, Interfacer $interfacer, $forceIsolateElements = true) {
 		try {
-			$this->model->fillObject($this, $interfacedObject, $interfacer);
+			$this->model->fillObject($this, $interfacedObject, $interfacer, $forceIsolateElements);
 		} catch (ComhonException $e) {
 			throw new ImportException($e);
 		}

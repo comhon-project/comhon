@@ -154,7 +154,7 @@ class RequestHandlerPostTest extends TestCase
 				'{"id1":111,"id2":"aaa","integer":12,"mainParentTestDb":1,"boolean":true,"timestamp":"2020-01-02T19:20:34+00:00"}',
 				201,
 				['Content-Type' => 'application/json'],
-				'{"defaultValue":"default","id1":111,"id2":"aaa","date":null,"timestamp":"2020-01-02T19:20:34+00:00","object":null,"objectWithId":null,"integer":12,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":true,"boolean2":true}',
+				'{"id1":111,"id2":"aaa","defaultValue":"default","date":null,"timestamp":"2020-01-02T19:20:34+00:00","object":null,"objectWithId":null,"integer":12,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":true,"boolean2":true}',
 				'Test\TestDb',
 				'[111,"aaa"]'
 			],

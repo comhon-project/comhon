@@ -452,10 +452,16 @@ try {
 
 // TODO for version > 4.0
 
+// remove this->load() calls on models
+// when save manifest, verify parent existence or instanciate model (use modelname restriction ?)
+// add shared id script for model with same serialization
+// export properties filter only on root object
+
 // parent access on option ? (if parent access is account model, add new literal with joins)
 // apply parent access on methods
 // role rank with parent access (guest, admin... => interger min to access)
 // auth rank (public, protected (logged), private (logged and good parent access))
+
 // add "use" for inheritance in manifest
 // cache handler, improve cache model management (only store model name in object and property ?)
 
@@ -468,8 +474,18 @@ try {
 // - input text username autocompletion and store id
 // - check box "Me" 
 
+
+// in manifest parser and RegexCollection remove regex delimiter '/' (and when retrieve pattern)
+//   resolve patterns directly when retrieve manifest (not during model loading due to local types) ? nope load is async anyway
+// make RegexCollection.getRegex asynchrone
+
+// getModel() , getUniqueModel() async only on modelcontainer and property, 
+//   comhonobject or comhonArray still sync because model alreay loaded
+
+// model loadObject async
+// add events when getmodel (https://stackoverflow.com/questions/15308371/custom-events-model-without-using-dom-events-in-javascript)
+
 // use id different than table name for sql table (may have same table name but with different database)
-// simplify filter properties on interfacer (filter only root object) ?
 // add possibility to request aggregations in request handler ?
 // add autoload without prefix namespace ?
 // add patch method

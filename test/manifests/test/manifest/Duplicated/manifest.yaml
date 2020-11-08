@@ -25,6 +25,32 @@ properties:
         name: containerForeign
         model: ContainerForeign
         inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: objectValues
+        values:
+            name: object
+            model: \Test\Duplicated
+            inheritance-: Comhon\Manifest\Value\Object
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: foreignObjectValues
+        values:
+            name: objects
+            values:
+                name: object
+                model: \Test\Duplicated
+                is_foreign: true
+                inheritance-: Comhon\Manifest\Value\Object
+            inheritance-: Comhon\Manifest\Value\Array
+        inheritance-: Comhon\Manifest\Property\Array
+    -
+        name: foreignObjectValue
+        model: \Test\Duplicated
+        is_foreign: true
+        inheritance-: Comhon\Manifest\Property\Object
+    -
+        name: intValue
+        inheritance-: Comhon\Manifest\Property\Integer
 version: '3.0'
 types:
     -

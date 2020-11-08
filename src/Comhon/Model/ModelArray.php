@@ -26,6 +26,9 @@ use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Interfacer\IncompatibleValueException;
 use Comhon\Exception\ArgumentException;
 use Comhon\Object\Collection\MainObjectCollection;
+use Comhon\Object\UniqueObject;
+use Comhon\Object\Collection\ObjectCollection;
+use phpDocumentor\Reflection\PseudoTypes\True_;
 
 class ModelArray extends ModelContainer implements ModelComhonObject {
 	
@@ -273,7 +276,13 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * 
 	 * @return \Comhon\Object\ComhonArray|null
 	 */
-	protected function _import($interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
+	protected function _import(
+		$interfacedObject,
+		Interfacer $interfacer,
+		$isFirstLevel,
+		ObjectCollectionInterfacer $objectCollectionInterfacer,
+		$isolate = false
+	) {
 		if ($interfacer->isNullValue($interfacedObject)) {
 			return null;
 		}
@@ -281,31 +290,43 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getArrayNodeClasses()));
 		}
 		$objectArray = $this->getObjectInstance(false);
-		return $this->_fillObjectArray($objectArray, $interfacedObject, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $isolate);
+		return $this->_fillObject(
+			$objectArray,
+			$interfacedObject,
+			$interfacer,
+			$isFirstLevel,
+			$objectCollectionInterfacer,
+			$isolate
+		);
 	}
 	
 	/**
 	 * 
-	 * @param ComhonArray $objectArray
-	 * @param mixed $interfacedObject
-	 * @param Interfacer $interfacer
-	 * @param boolean $isFirstLevel
-	 * @param ObjectCollectionInterfacer $objectCollectionInterfacer
-	 * @param boolean $isolate determine if each array elements must be isolated.
-	 *                         this parameter may by true only if the imported root object is an array 
-	 *                         and if the parameter $forceIsolateElements is set to true.
-	 * @throws ImportException
-	 * @return \Comhon\Object\ComhonArray
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelContainer::_fillObject()
 	 */
-	protected function _fillObjectArray(ComhonArray $objectArray, $interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer, $isolate = false) {
-		$setIsLoaded = $isFirstLevel && $interfacer->hasToFlagObjectAsLoaded() && $this->model instanceof ModelComhonObject;
+	protected function _fillObject(
+			AbstractComhonObject $objectArray,
+			$interfacedObject,
+			Interfacer $interfacer,
+			$isFirstLevel,
+			ObjectCollectionInterfacer $objectCollectionInterfacer,
+			$isolate = false
+	) {
+		if (!($objectArray instanceof ComhonArray)) {
+			throw new ArgumentException($objectArray, ComhonArray::class, 1);
+		}
 		$isolate = $isolate || $this->isIsolatedElement;
+		
 		foreach ($interfacer->getTraversableNode($interfacedObject) as $key => $element) {
 			try {
-				$value = $this->getModel()->_import($element, $interfacer, $isFirstLevel, $objectCollectionInterfacer, $isolate);
-				if ($setIsLoaded && !is_null($value)) {
-					$value->setIsLoaded(true);
-				}
+				$value = $this->getModel()->_import(
+					$element,
+					$interfacer,
+					$isFirstLevel,
+					$objectCollectionInterfacer,
+					$isolate
+				);
 				if ($this->isAssociative) {
 					$objectArray->setValue($key, $value, $interfacer->hasToFlagValuesAsUpdated());
 				} else {
@@ -314,9 +335,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			} catch (ComhonException $e) {
 				throw new ImportException($e, $key);
 			}
-		}
-		if ($isFirstLevel && $interfacer->hasToVerifyReferences()) {
-			$this->_verifyReferences($objectArray, $objectCollectionInterfacer);
 		}
 		if (!$isFirstLevel || $interfacer->mustValidate()) {
 			$objectArray->validate();
@@ -370,21 +388,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 */
 	public function import($interfacedObject, Interfacer $interfacer, $forceIsolateElements = true) {
 		$this->load();
-		if ($interfacedObject instanceof \SimpleXMLElement) {
-			$interfacedObject = dom_import_simplexml($interfacedObject);
-		}
-		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
-			throw new IncompatibleValueException($interfacedObject, $interfacer);
-		}
-		$objectCollectionInterfacer = new ObjectCollectionInterfacer();
-		if ($interfacer->getMergeType() == Interfacer::OVERWRITE) {
-			$uniqueModel = $this->getUniqueModel();
-			if ($uniqueModel instanceof Model && $uniqueModel->isMain()) {
-				$this->_resetMainObjets($interfacedObject, $interfacer);
-			}
-		}
+
 		try {
-			$objectArray = $this->_import($interfacedObject, $interfacer, true, $objectCollectionInterfacer, $forceIsolateElements);
+			return $this->_importRoot($interfacedObject, $interfacer, null, $forceIsolateElements);
 		} catch (ComhonException $e) {
 			throw new ImportException($e);
 		}
@@ -401,61 +407,94 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	public function fillObject(AbstractComhonObject $objectArray, $interfacedObject, Interfacer $interfacer, $forceIsolateElements = true) {
 		$this->load();
 		$this->verifValue($objectArray);
-		if ($interfacedObject instanceof \SimpleXMLElement) {
-			$interfacedObject = dom_import_simplexml($interfacedObject);
-		}
-		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
-			throw new IncompatibleValueException($interfacedObject, $interfacer);
-		}
-		$isSimple = $this->getModel() instanceof SimpleModel;
-		if (!$isSimple && !$this->getUniqueModel()->hasIdProperties()) {
-			$objectCollectionInterfacer = null;
-		} else {
-			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
-			foreach ($objectArray->getValues() as $value) {
-				$objectCollectionInterfacer->addStartObject($value);
-			}
-		}
-		if ($interfacer->getMergeType() == Interfacer::OVERWRITE) {
-			$uniqueModel = $this->getUniqueModel();
-			if ($uniqueModel instanceof Model && $uniqueModel->isMain()) {
-				$this->_resetMainObjets($interfacedObject, $interfacer);
-			}
-		}
+		
 		try {
-			$objectArray->reset();
-			$this->_fillObjectArray($objectArray, $interfacedObject, $interfacer, true, $objectCollectionInterfacer, $forceIsolateElements);
+			$imported = $this->_importRoot($interfacedObject, $interfacer, $objectArray, $forceIsolateElements);
+			if ($imported !== $objectArray) {
+				throw new ComhonException('invalid object instance');
+			}
+			return $objectArray;
 		} catch (ComhonException $e) {
 			throw new ImportException($e);
 		}
 	}
 	
 	/**
-	 * 
-	 * @param mixed $interfacedObject
-	 * @param Interfacer $interfacer
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::_importRoot()
+	 * @return \Comhon\Object\ComhonArray
 	 */
-	private function _resetMainObjets($interfacedObject, Interfacer $interfacer) {
-		$model = $this->model;
-		$isSubModelArray = $model instanceof ModelArray;
-		foreach ($interfacer->getTraversableNode($interfacedObject) as $value) {
-			if ($isSubModelArray) {
-				if ($interfacer->isArrayNodeValue($value, $model->isAssociative)) {
-					$model->_resetMainObjets($value, $interfacer);
+	protected function _importRoot($interfacedObject, Interfacer $interfacer, AbstractComhonObject $rootObject = null, $isolate = false) {
+		if ($interfacedObject instanceof \SimpleXMLElement) {
+			$interfacedObject = dom_import_simplexml($interfacedObject);
+		}
+		if (!$interfacer->isArrayNodeValue($interfacedObject, $this->isAssociative)) {
+			throw new IncompatibleValueException($interfacedObject, $interfacer);
+		}
+		
+		return parent::_importRoot($interfacedObject, $interfacer, $rootObject, $isolate);
+	}
+	
+	/**
+	 *
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelComplex::_getRootObject()
+	 */
+	protected function _getRootObject($interfacedObject, Interfacer $interfacer) {
+		return $this->getObjectInstance(false);
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \Comhon\Model\ModelContainer::_initObjectCollectionInterfacer()
+	 */
+	protected function _initObjectCollectionInterfacer(AbstractComhonObject $objectArray, $mergeType) {
+		$uniqueModel = $this->getUniqueModel();
+		
+		if ($uniqueModel instanceof Model && $uniqueModel->hasIdProperties()) {
+			if ($mergeType == Interfacer::MERGE) {
+				$objectCollectionInterfacer = new ObjectCollectionInterfacer($objectArray);
+			} else {
+				$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+				foreach (self::getOneDimensionalValues($objectArray, true) as $value) {
+					$objectCollectionInterfacer->addStartObject($value);
+				}
+			}
+		} else {
+			$objectCollectionInterfacer = new ObjectCollectionInterfacer();
+		}
+		return $objectCollectionInterfacer;
+	}
+	
+	/**
+	 * get object array values in one dimentional array
+	 * 
+	 * @param \Comhon\Object\ComhonArray $objectArray
+	 * @param boolean $skipNullValues
+	 * @return mixed[]
+	 */
+	public static function getOneDimensionalValues(ComhonArray $objectArray, $skipNullValues = false) {
+		$values = [];
+		$stack = [$objectArray];
+		while (!empty($stack)) {
+			$objectArrayElmt = array_pop($stack);
+			if ($objectArrayElmt->getModel()->getModel() instanceof ModelArray) {
+				foreach ($objectArrayElmt as $value) {
+					if (!is_null($value)) {
+						$stack[] = $value;
+					}
 				}
 			} else {
-				if ($interfacer->isNodeValue($value)) {
-					$inheritance = $model->_getInheritedModelName($value, $interfacer, true);
-					/** @var \Comhon\Model\Model $inheritanceModel */
-					$inheritanceModel = is_null($inheritance) ? $model : $model->_getInheritedModel($inheritance);
-					$id = $inheritanceModel->getIdFromInterfacedObject($value, $interfacer, true);
-					
-					if (!is_null($object = MainObjectCollection::getInstance()->getObject($id, $inheritanceModel->getName()))) {
-						$object->reset(false);
+				foreach ($objectArrayElmt as $value) {
+					if (!$skipNullValues || !is_null($value)) {
+						$values[] = $value;
 					}
 				}
 			}
 		}
+		return $values;
 	}
 	
 	/**

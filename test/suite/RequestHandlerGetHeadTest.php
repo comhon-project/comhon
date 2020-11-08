@@ -435,7 +435,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				[],
 				200,
 				['Content-Type' => 'application/json'],
-				'{"defaultValue":"default","id1":1,"id2":"23","date":"2016-05-01T12:53:54+00:00","timestamp":"2016-10-16T19:50:19+00:00","object":null,"objectWithId":null,"integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}'
+				'{"id1":1,"id2":"23","defaultValue":"default","date":"2016-05-01T12:53:54+00:00","timestamp":"2016-10-16T19:50:19+00:00","object":null,"objectWithId":null,"integer":0,"mainParentTestDb":1,"objectsWithId":[],"foreignObjects":[],"lonelyForeignObject":null,"lonelyForeignObjectTwo":null,"manBodyJson":null,"womanXml":null,"boolean":false,"boolean2":true}'
 			]
 		];
 	}
