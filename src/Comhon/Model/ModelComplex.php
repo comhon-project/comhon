@@ -177,7 +177,6 @@ abstract class ModelComplex extends AbstractModel {
 	 * @return \Comhon\Object\UniqueObject
 	 */
 	protected function _importRoot($interfacedObject, Interfacer $interfacer, AbstractComhonObject $rootObject = null, $isolate = false) {
-		$this->load();
 		$mergeType = $interfacer->getMergeType();
 		
 		if (is_null($rootObject)) {

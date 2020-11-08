@@ -387,7 +387,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @return \Comhon\Object\ComhonArray
 	 */
 	public function import($interfacedObject, Interfacer $interfacer, $forceIsolateElements = true) {
-		$this->load();
 
 		try {
 			return $this->_importRoot($interfacedObject, $interfacer, null, $forceIsolateElements);
@@ -405,7 +404,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * (isolated element doesn't share objects instances with others elements)
 	 */
 	public function fillObject(AbstractComhonObject $objectArray, $interfacedObject, Interfacer $interfacer, $forceIsolateElements = true) {
-		$this->load();
 		$this->verifValue($objectArray);
 		
 		try {

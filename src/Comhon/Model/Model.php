@@ -953,7 +953,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if (is_null($this->getSerialization())) {
 			throw new ComhonException("model {$this->getName()} doesn't have serialization");
 		}
-		$this->load();
 		if (!$this->hasIdProperties()) {
 			throw new NoIdPropertyException($this);
 		}
@@ -1409,7 +1408,6 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @throws \Exception
 	 */
 	public function fillObject(AbstractComhonObject $object, $interfacedObject, Interfacer $interfacer) {
-		$this->load();
 		$this->verifValue($object);
 		
 		if ($interfacedObject instanceof \SimpleXMLElement) {
