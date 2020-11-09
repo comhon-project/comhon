@@ -109,10 +109,16 @@ abstract class AbstractManifestFile extends SerializationFile {
 		try {
 			list($fullyQualifiedNamePrefix) = ModelManager::getInstance()->splitModelName($object->getId());
 			if ($fullyQualifiedNamePrefix == 'Comhon') {
-				throw new ManifestSerializationException('manifest with \'Comhon\' prefix cannot be serialized or deleted');
+				throw new ManifestSerializationException(
+					'manifest with \'Comhon\' prefix cannot be serialized or deleted',
+					403
+				);
 			}
 		} catch (NotDefinedModelException $e) {
-			throw new ManifestSerializationException("manifest prefix not defined in config file autoload for model '{$object->getId()}'");
+			throw new ManifestSerializationException(
+				"manifest prefix not defined in config file autoload for model '{$object->getId()}'",
+				403
+			);
 		}
 	}
 	
@@ -124,6 +130,19 @@ abstract class AbstractManifestFile extends SerializationFile {
 	protected function _saveObject(UniqueObject $object, $operation = null) {
 		if (!$object->isA($this->_getModelName())) {
 			throw new SerializationException("object model must be a {$this->_getModelName()}', {$object->getModel()->getName()} given");
+		}
+		if ($object->getValue('version') !== '3.0') {
+			throw new ManifestSerializationException("only manifest with version 3.0 may be saved");
+		}
+		if ($object->issetValue('extends')) {
+			foreach ($object->getValue('extends') as $extends) {
+				try {
+					$modelName = $extends[0] == '\\' ? substr($extends, 1) : $object->getId(). '\\' . $extends;
+					ModelManager::getInstance()->getInstanceModel($modelName);
+				} catch (NotDefinedModelException $e) {
+					throw new ManifestSerializationException("invalid extends value '$extends'. model '$modelName' is not defined");
+				}
+			}
 		}
 		$this->_verifyNamespacePrefix($object);
 		return parent::_saveObject($object, $operation);

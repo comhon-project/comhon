@@ -16,11 +16,25 @@ use Comhon\Exception\ConstantException;
 
 class ManifestSerializationException extends ComhonException {
 	
+	/** @var integer */
+	private $httpCode;
+	
 	/**
+	 *
 	 * @param string $message
+	 * @param integer $httpCode
 	 */
-	public function __construct($message) {
+	public function __construct($message, $httpCode = 400) {
 		parent::__construct($message, ConstantException::MANIFEST_SERIALIZATION_EXCEPTION);
+		$this->httpCode = $httpCode;
+	}
+	
+	/**
+	 *
+	 * @return number
+	 */
+	public function getHttpCode() {
+		return $this->httpCode;
 	}
 	
 }

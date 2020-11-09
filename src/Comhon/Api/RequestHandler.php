@@ -196,7 +196,7 @@ class RequestHandler implements RequestHandlerInterface {
 		} catch (ResponseException $e) {
 			$response = $e->getResponse();
 		} catch (ManifestSerializationException $e) {
-			$response = ResponseBuilder::buildSimpleResponse(403, [], ['code' => $e->getCode(), 'message' => $e->getMessage()]);
+			$response = ResponseBuilder::buildSimpleResponse($e->getHttpCode(), [], ['code' => $e->getCode(), 'message' => $e->getMessage()]);
 		} catch (ConstraintException $e) {
 			$response = ResponseBuilder::buildSimpleResponse(400, [], ['code' => $e->getCode(), 'message' => $e->getMessage()]);
 		} catch (MissingNotNullException $e) {

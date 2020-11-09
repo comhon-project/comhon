@@ -5,6 +5,7 @@ use Comhon\Model\Singleton\ModelManager;
 use Test\Comhon\Data;
 use Comhon\Object\Config\Config;
 use Comhon\Interfacer\Interfacer;
+use Comhon\Exception\Serialization\ManifestSerializationException;
 
 class ManifestManifestTest extends TestCase
 {
@@ -105,5 +106,50 @@ class ManifestManifestTest extends TestCase
 		
 		$this->assertEquals(1, $manifestCopied->delete());
 	}
-
+	
+	public function testManifestObjectSaveWrongVersion()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
+		$manifest = $model->getObjectInstance();
+		$manifest->setId('Test\WrongVersion');
+		$manifest->setValue('version', '2.0');
+		
+		$this->expectException(ManifestSerializationException::class);
+		$this->expectExceptionCode(804);
+		$this->expectExceptionMessage('only manifest with version 3.0 may be saved');
+		$manifest->save();
+	}
+	
+	/**
+	 *
+	 * @dataProvider manifestNotDefinedParentData
+	 */
+	public function testManifestObjectSaveNotDefinedParent($extendsValue, $message)
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
+		$manifest = $model->getObjectInstance();
+		$manifest->setId('Test\New');
+		$manifest->setValue('version', '3.0');
+		$extends = $manifest->initValue('extends');
+		$extends->pushValue($extendsValue);
+		
+		$this->expectException(ManifestSerializationException::class);
+		$this->expectExceptionCode(804);
+		$this->expectExceptionMessage($message);
+		$manifest->save();
+	}
+	
+	public function manifestNotDefinedParentData()
+	{
+		return [
+			[
+				'Test\NotDefinedParent',
+				"invalid extends value 'Test\NotDefinedParent'. model 'Test\New\Test\NotDefinedParent' is not defined"
+			],
+			[
+				'\Test\NotDefinedParent',
+				"invalid extends value '\Test\NotDefinedParent'. model 'Test\NotDefinedParent' is not defined"
+			]
+		];
+	}
 }

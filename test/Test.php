@@ -452,7 +452,6 @@ try {
 
 // TODO for version > 4.0
 
-// when save manifest, verify parent existence or instanciate model (use modelname restriction ?)
 // add shared id script for model with same serialization
 // export properties filter only on root object
 

@@ -488,6 +488,9 @@ class ModelManager {
 	 */
 	public function addManifestParser(Model $model) {
 		$fullyQualifiedName = $model->getName();
+		if ($fullyQualifiedName[0] == '\\') {
+			throw new ComhonException('invalid model name, it cannot begin by baskslash (\)');
+		}
 		if (strpos($fullyQualifiedName, '\\\\') !== false) {
 			throw new ComhonException('invalid model name, it cannot contain several followed baskslash (\\\\)');
 		}
