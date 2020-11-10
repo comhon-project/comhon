@@ -1156,7 +1156,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param bool $isFirstLevel
 	 * @return string|null
 	 */
-	protected function _getInheritedModelName($interfacedObject, Interfacer $interfacer, $isFirstLevel) {
+	private function _getInheritedModelName($interfacedObject, Interfacer $interfacer, $isFirstLevel) {
 		if ($isFirstLevel && $interfacer->isSerialContext()) {
 			$inheritance = $this->getSerialization() && $this->getSerialization()->getInheritanceKey()
 				? $interfacer->getValue($interfacedObject, $this->getSerialization()->getInheritanceKey())
@@ -1173,7 +1173,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * @param string $inheritanceModelName
 	 * @return Model;
 	 */
-	protected function _getInheritedModel($inheritanceModelName) {
+	private function _getInheritedModel($inheritanceModelName) {
 		$model = ModelManager::getInstance()->getInstanceModel($inheritanceModelName);
 		if ($model !== $this && !$model->isInheritedFrom($this)) {
 			throw new UnexpectedModelException($this, $model);
@@ -1315,7 +1315,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			if (($interfacer instanceof StdObjectInterfacer) && is_array($interfacedObject) && empty($interfacedObject)) {
 				$interfacedObject = new \stdClass();
 			} else {
-				throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getNodeClasses()));
+				throw new IncompatibleValueException($interfacedObject, $interfacer);
 			}
 		}
 		
@@ -1383,14 +1383,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$objectCollectionInterfacer->addStartObject($object, false);
 			$objectCollectionInterfacer->addObject($object, false);
 		}
-		$this->_fillObject(
-			$object,
-			$interfacedObject,
-			$interfacer,
-			$isFirstLevel,
-			$objectCollectionInterfacer,
-			false
-		);
+		$this->_fillObject($object, $interfacedObject, $interfacer, $isFirstLevel, $objectCollectionInterfacer);
 		if ($isolate) {
 			if ($interfacer->hasToVerifyReferences()) {
 				$this->_verifyReferences($object, $objectCollectionInterfacer);
@@ -1477,17 +1470,17 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		if (!($object instanceof UniqueObject)) {
 			throw new ArgumentException($object, UniqueObject::class, 1);
 		}
-		$processUnchangedValues = $isFirstLevel && $interfacer->hasToVerifyReferences() 
-			&& $interfacer->getMergeType() == Interfacer::MERGE;
-		if ($processUnchangedValues) {
-			$UnchangedValues = $object->getObjectValues();
-			if (empty($UnchangedValues)) {
-				$processUnchangedValues = false;
-			}
-		}
 		$model = $object->getModel();
 		if (!$object->isA($this)) {
 			throw new UnexpectedModelException($this, $model);
+		}
+		$processUnchangedValues = $isFirstLevel && $interfacer->hasToVerifyReferences() 
+			&& $interfacer->getMergeType() == Interfacer::MERGE;
+		if ($processUnchangedValues) {
+			$unchangedValues = $object->getObjectValues();
+			if (empty($unchangedValues)) {
+				$processUnchangedValues = false;
+			}
 		}
 		if ($isFirstLevel && $interfacer->hasToFlattenValues()) {
 			$this->_unFlattenValues($interfacedObject, $object, $interfacer);
@@ -1518,12 +1511,12 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 						}
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 						if ($processUnchangedValues) {
-							unset($UnchangedValues[$propertyName]);
+							unset($unchangedValues[$propertyName]);
 						}
 					} elseif (!$property->isInterfacedAsNodeXml() && !is_null($nullNodes) && in_array($interfacedPropertyName, $nullNodes)) {
 						$object->setValue($propertyName, null, $flagAsUpdated);
 						if ($processUnchangedValues) {
-							unset($UnchangedValues[$propertyName]);
+							unset($unchangedValues[$propertyName]);
 						}
 					}
 				}
@@ -1553,7 +1546,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 						$value = $multipleForeignProperty->getModel()->_import(json_encode($id), $interfacer, false, $objectCollectionInterfacer);
 						$object->setValue($propertyName, $value, $flagAsUpdated);
 						if ($processUnchangedValues) {
-							unset($UnchangedValues[$propertyName]);
+							unset($unchangedValues[$propertyName]);
 						}
 					}
 				}
@@ -1571,7 +1564,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 				$object->validate();
 			}
 			if ($processUnchangedValues) {
-				$this->_processUnchangeValues($UnchangedValues, $objectCollectionInterfacer);
+				$this->_processUnchangeValues($unchangedValues, $objectCollectionInterfacer);
 			}
 		} else {
 			$object->setIsLoaded(true);
@@ -1583,11 +1576,11 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 * add unchanged values of existing objects in new object collections.
 	 * that will permit to verify references at the end of inport
 	 * 
-	 * @param array $UnchangedValues
+	 * @param array $unchangedValues
 	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
 	 */
-	private function _processUnchangeValues(array $UnchangedValues, ObjectCollectionInterfacer $objectCollectionInterfacer) {
-		foreach ($UnchangedValues as $name => $value) {
+	private function _processUnchangeValues(array $unchangedValues, ObjectCollectionInterfacer $objectCollectionInterfacer) {
+		foreach ($unchangedValues as $name => $value) {
 			$propertyModel = $this->getProperty($name)->getModel();
 			if ($propertyModel instanceof ModelForeign) {
 				if ($propertyModel->getModel() instanceof ModelArray) {

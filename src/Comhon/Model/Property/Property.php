@@ -145,7 +145,6 @@ class Property {
 		if ($uniqueModel instanceof ModelContainer) {
 			$uniqueModel = $uniqueModel->getUniqueModel();
 		}
-		$uniqueModel->load();
 		return $uniqueModel;
 	}
 	
@@ -437,7 +436,7 @@ class Property {
 	 * @param \Comhon\Object\UniqueObject $object
 	 * @param string[] $propertiesFilter
 	 * @param boolean $forceLoad if object is already loaded, force to reload object
-	 * @throws \Exception
+	 * @return boolean true if object is successfully loaded, false otherwise
 	 */
 	public function loadValue(UniqueObject $object, $propertiesFilter = [], $forceLoad = false) {
 		throw new ComhonException('cannot load object, property is not foreign property');

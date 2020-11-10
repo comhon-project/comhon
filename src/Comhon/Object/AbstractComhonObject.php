@@ -284,7 +284,7 @@ abstract class AbstractComhonObject {
 	/**
 	 * get object values and array values that contain objects
 	 *
-	 * @return mixed[]
+	 * @return AbstractComhonObject[]
 	 */
 	final public function getObjectValues() {
 		$values = [];

@@ -25,10 +25,6 @@ use Comhon\Model\Restriction\NotNull;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Exception\Interfacer\IncompatibleValueException;
 use Comhon\Exception\ArgumentException;
-use Comhon\Object\Collection\MainObjectCollection;
-use Comhon\Object\UniqueObject;
-use Comhon\Object\Collection\ObjectCollection;
-use phpDocumentor\Reflection\PseudoTypes\True_;
 
 class ModelArray extends ModelContainer implements ModelComhonObject {
 	
@@ -290,7 +286,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			throw new UnexpectedValueTypeException($interfacedObject, implode(' or ', $interfacer->getArrayNodeClasses()));
 		}
 		$objectArray = $this->getObjectInstance(false);
-		return $this->_fillObject(
+		$this->_fillObject(
 			$objectArray,
 			$interfacedObject,
 			$interfacer,
@@ -298,6 +294,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			$objectCollectionInterfacer,
 			$isolate
 		);
+		return $objectArray;
 	}
 	
 	/**
@@ -340,7 +337,6 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 			$objectArray->validate();
 		}
 		$objectArray->setIsLoaded(true);
-		return $objectArray;
 	}
 	
 	/**
@@ -350,7 +346,7 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
 	 * @param boolean $isFirstLevel
 	 * @param \Comhon\Object\Collection\ObjectCollectionInterfacer $objectCollectionInterfacer
-	 * @return \Comhon\Object\UniqueObject
+	 * @return \Comhon\Object\ComhonArray
 	 */
 	protected function _importId($interfacedObject, Interfacer $interfacer, $isFirstLevel, ObjectCollectionInterfacer $objectCollectionInterfacer) {
 		if ($interfacer->isNullValue($interfacedObject)) {
@@ -576,9 +572,9 @@ class ModelArray extends ModelContainer implements ModelComhonObject {
 	 * @see \Comhon\Model\ModelContainer::isEqual()
 	 */
 	public function isEqual(AbstractModel $model) {
-		return parent::isEqual($model) &&
-		Restriction::compare($this->arrayRestrictions, $model->getArrayRestrictions()) &&
-		Restriction::compare($this->elementRestrictions, $model->getElementRestrictions());
+		return $this === $model || (parent::isEqual($model) &&
+			Restriction::compare($this->arrayRestrictions, $model->getArrayRestrictions()) &&
+			Restriction::compare($this->elementRestrictions, $model->getElementRestrictions()));
 	}
 	
 }

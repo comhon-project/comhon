@@ -109,6 +109,9 @@ class AggregationProperty extends ForeignProperty {
 	 * @see \Comhon\Model\Property\Property::isEqual()
 	 */
 	public function isEqual(Property $property) {
+		if ($this === $property) {
+			return true;
+		}
 		if (is_null($property->getAggregationProperties()) || count($this->aggregationProperties) != count($property->getAggregationProperties())) {
 			return false;
 		}

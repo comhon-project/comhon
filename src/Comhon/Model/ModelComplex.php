@@ -64,28 +64,6 @@ abstract class ModelComplex extends AbstractModel {
 	}
 	
 	/**
-	 * get inherited model name from interfaced object
-	 *
-	 * @param mixed $interfacedObject
-	 * @param Interfacer $interfacer
-	 * @param bool $isFirstLevel
-	 * @return string|null
-	 */
-	protected function _getInheritedModelName($interfacedObject, Interfacer $interfacer, $isFirstLevel) {
-		throw new ComhonException('cannot call _getInheritedModelName on '.get_class($this));
-	}
-	
-	/**
-	 * get inherited model
-	 *
-	 * @param string $inheritanceModelName
-	 * @return Model;
-	 */
-	protected function _getInheritedModel($inheritanceModelName) {
-		throw new ComhonException('cannot call _getInheritedModel on '.get_class($this));
-	}
-	
-	/**
 	 * export comhon object in specified format
 	 *
 	 * @param \Comhon\Object\AbstractComhonObject $object
@@ -174,7 +152,7 @@ abstract class ModelComplex extends AbstractModel {
 	 *                         this parameter may by true only if the imported root object is a comhon array
 	 *                         and if the parameter $forceIsolateElements is set to true.
 	 * @throws \Exception
-	 * @return \Comhon\Object\UniqueObject
+	 * @return \Comhon\Object\AbstractComhonObject
 	 */
 	protected function _importRoot($interfacedObject, Interfacer $interfacer, AbstractComhonObject $rootObject = null, $isolate = false) {
 		$mergeType = $interfacer->getMergeType();
@@ -207,7 +185,7 @@ abstract class ModelComplex extends AbstractModel {
 	}
 	
 	/**
-	 * get root object (instanciate or get existing instance)
+	 * get root object instance
 	 *
 	 * @param mixed $interfacedObject
 	 * @param \Comhon\Interfacer\Interfacer $interfacer
@@ -224,7 +202,7 @@ abstract class ModelComplex extends AbstractModel {
 	abstract protected function _initObjectCollectionInterfacer(AbstractComhonObject $object, $mergeType);
 	
 	/**
-	 * fill comhon object (or comhon aray) with values from interfaced object
+	 * fill comhon object (or comhon array) with values from interfaced object
 	 *
 	 * @param \Comhon\Object\AbstractComhonObject $object
 	 * @param mixed $interfacedObject
@@ -235,7 +213,6 @@ abstract class ModelComplex extends AbstractModel {
 	 *                         this parameter may by true only if the imported root object is a comhon array
 	 *                         and if the parameter $forceIsolateElements is set to true.
 	 * @throws \Comhon\Exception\Interfacer\ImportException
-	 * @return \Comhon\Object\ComhonArray
 	 */
 	abstract protected function _fillObject(
 		AbstractComhonObject $object,

@@ -477,8 +477,11 @@ try {
 //   resolve patterns directly when retrieve manifest (not during model loading due to local types) ? nope load is async anyway
 // make RegexCollection.getRegex asynchrone
 
+
+// .getModel( by ._getModel( if no need to be loaded
 // getModel() , getUniqueModel() async only on modelcontainer and property, 
-//   comhonobject or comhonArray still sync because model alreay loaded
+//   comhonobject or comhonArray still sync because model already loaded
+// modelmanager getInstanceModel async
 
 // model loadObject async
 // add events when getmodel (https://stackoverflow.com/questions/15308371/custom-events-model-without-using-dom-events-in-javascript)
