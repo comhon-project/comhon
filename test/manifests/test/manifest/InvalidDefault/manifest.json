@@ -1,0 +1,25 @@
+{
+    "name": "Test\\InvalidDefault",
+    "properties": [
+        {
+            "name": "name",
+            "length": "[10,20]",
+            "default": "value",
+            "inheritance-": "Comhon\\Manifest\\Property\\String"
+        }
+    ],
+    "version": "3.0",
+    "types": [
+        {
+            "name": "InvalidDefaultLocal",
+            "properties": [
+                {
+                    "name": "date",
+                    "interval": "[1990-01-10,2000-01-10]",
+                    "default": "2020-11-10T20:10:00+01:00",
+                    "inheritance-": "Comhon\\Manifest\\Property\\DateTime"
+                }
+            ]
+        }
+    ]
+}

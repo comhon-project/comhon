@@ -11,5 +11,6 @@
     "Test\\Request\\Four": "foreign property 'threes' has a model without id ('Test\\Request\\Three')",
     "Test\\Request\\One": "foreign property 'two' has a model without id ('Test\\Request\\Two')",
     "Test\\Load\\LocalTypeNotDefinedProperty\\MalformedLocalType": "manifest not found for model Test\\Load\\LocalTypeNotDefinedProperty\\wrong-type-in-local",
-    "Test\\Load\\Duplicate\\Local": "model 'Test\\Load\\Duplicate\\Local' appear several times in manifest and local types"
+    "Test\\Load\\Duplicate\\Local": "model 'Test\\Load\\Duplicate\\Local' appear several times in manifest and local types",
+    "Test\\InvalidDefault": "length 5 of given string is not in length range [10,20]"
 }

@@ -1,0 +1,12 @@
+<root name="Test\InvalidDefault" version="3.0">
+  <properties>
+    <property name="name" default="value" length="[10,20]" inheritance-="Comhon\Manifest\Property\String"/>
+  </properties>
+  <types>
+    <type name="InvalidDefaultLocal">
+      <properties>
+        <property name="date" default="2020-11-10T20:10:00+01:00" interval="[1990-01-10,2000-01-10]" inheritance-="Comhon\Manifest\Property\DateTime"/>
+      </properties>
+    </type>
+  </types>
+</root>

@@ -219,6 +219,26 @@ class LoadingModelTest extends TestCase
 	}
 	
 	/**
+	 * test invalid default value in root model manifest
+	 */
+	public function testInvalidDefaultValueRoot()
+	{
+		$this->expectException(ComhonException::class);
+		$this->expectExceptionMessage('length 5 of given string is not in length range [10,20]');
+		ModelManager::getInstance()->getInstanceModel('Test\InvalidDefault');
+	}
+	
+	/**
+	 * test invalid default value in local model manifest
+	 */
+	public function testInvalidDefaultValueLocal()
+	{
+		$this->expectException(ComhonException::class);
+		$this->expectExceptionMessage('2020-11-10T20:10:00+01:00 is not in interval [1990-01-10T00:00:00+00:00,2000-01-10T00:00:00+00:00]');
+		ModelManager::getInstance()->getInstanceModel('Test\InvalidDefault\InvalidDefaultLocal');
+	}
+	
+	/**
 	 * test manifest loading with a local type that is defined in another manifest
 	 */
 	public function testLocalTypeDefinedInAnotheranifest() {

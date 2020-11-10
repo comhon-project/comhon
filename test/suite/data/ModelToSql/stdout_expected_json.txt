@@ -28,6 +28,12 @@ You can stop or continue without model 'Test\Load\Malformed'
 Would you like to continue ? [yes/(no)]
 > [1;30mmodel 'Test\Load\Malformed' is ignored[0m
 
+[0;31mSomething goes wrong with model 'Test\InvalidDefault' :
+length 5 of given string is not in length range [10,20][0m
+You can stop or continue without model 'Test\InvalidDefault'
+Would you like to continue ? [yes/(no)]
+> [1;30mmodel 'Test\InvalidDefault' is ignored[0m
+
 [0;31mSomething goes wrong with model 'Test\Load\NotDefinedProperty' :
 manifest not found for model Test\Load\NotDefinedProperty\wrong-type[0m
 You can stop or continue without model 'Test\Load\NotDefinedProperty'
