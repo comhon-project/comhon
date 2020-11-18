@@ -231,12 +231,16 @@ abstract class ManifestParser {
 	 * get basic informations of property
 	 * 
 	 * @param \Comhon\Model\ModelUnique $propertyModelUnique unique model associated to property
-	 * @return [string, \Comhon\Model\AbstractModel, boolean, boolean, boolean]
+	 * @return [string, \Comhon\Model\AbstractModel, boolean, boolean, boolean, boolean, boolean, boolean, string]
 	 *     0 : property name
 	 *     1 : final model associated to property
 	 *     2 : true if property is id
 	 *     3 : true if property is private
-	 *     4 : true if property is interfaced as node xml
+	 *     4 : true if property value must be not null
+	 *     5 : true if property value is required
+	 *     6 : true if property value is isolated
+	 *     7 : true if property value is interfaced as node xml
+	 *     8 : the method to auto generate property value
 	 */
 	abstract protected function _getBaseInfosProperty(ModelUnique $propertyModelUnique);
 	

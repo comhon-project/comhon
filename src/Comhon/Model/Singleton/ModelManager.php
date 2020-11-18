@@ -635,7 +635,7 @@ class ModelManager {
 				self::OBJECT_CLASS => $manifestParser->getObjectClass(),
 				self::IS_ABSTRACT => $manifestParser->isAbstract(),
 				self::PROPERTIES => $this->_buildProperties($parentModels, $model, $manifestParser),
-				self::CONFLICTS => $manifestParser->getconflicts(),
+				self::CONFLICTS => $manifestParser->getConflicts(),
 			];
 			$properties[self::SERIALIZATION] = $this->_getSerializationInstance(
 				$manifestParser, 

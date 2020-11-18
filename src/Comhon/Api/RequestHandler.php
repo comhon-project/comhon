@@ -259,7 +259,10 @@ class RequestHandler implements RequestHandlerInterface {
 		}
 		if (isset($this->resource[1])) {
 			try {
-				$this->uniqueResourceId = $this->_getFormatedId($this->requestedModel, $this->resource[1]);
+				// if method is OPTIONS, not need to format id, 
+				// it is only used to know if request is a collection or a unique resquest
+				// it avoid to respond with an error code that might be inconvenient with browser CORS management
+				$this->uniqueResourceId = $this->_getFormatedId($this->requestedModel, $this->resource[1], $method !== 'OPTIONS');
 			} catch (NoIdPropertyException $e) {
 				throw new ResponseException(404, ['code' => $e->getCode(), 'message' => 'invalid route, '.$e->getMessage()]);
 			} catch (PropertyVisibilityException $e) {
@@ -931,10 +934,11 @@ class RequestHandler implements RequestHandlerInterface {
 	 * 
 	 * @param Model $model
 	 * @param string $id
+	 * @param boolean $verifyValue
 	 * @throws ResponseException
 	 * @return mixed
 	 */
-	private function _getFormatedId(Model $model, $id) {
+	private function _getFormatedId(Model $model, $id, $verifyValue = true) {
 		if (!$model->hasIdProperties()) {
 			throw new NoIdPropertyException($model);
 		}
@@ -945,13 +949,15 @@ class RequestHandler implements RequestHandlerInterface {
 				}
 			}
 		}
-		if ($model->hasUniqueIdProperty()) {
-			$idModel = $model->getUniqueIdProperty()->getModel();
-			if ($idModel instanceof StringCastableModelInterface) {
-				$id = $idModel->castvalue($id, $model->getUniqueIdProperty()->getName());
+		if ($verifyValue) {
+			if ($model->hasUniqueIdProperty()) {
+				$idModel = $model->getUniqueIdProperty()->getModel();
+				if ($idModel instanceof StringCastableModelInterface) {
+					$id = $idModel->castvalue($id, $model->getUniqueIdProperty()->getName());
+				}
+			} elseif (!$model->isCompleteId($id)) {
+				throw new InvalidCompositeIdException($id);
 			}
-		} elseif (!$model->isCompleteId($id)) {
-			throw new InvalidCompositeIdException($id);
 		}
 		return $id;
 	}

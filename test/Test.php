@@ -452,7 +452,8 @@ try {
 
 // TODO for version > 4.0
 
-// add shared id script for model with same serialization
+// add "main" property set to true in ModelSqlSerializer script for model with serialization
+// add "shared id" or "share parent id" property in ModelBinder script for model that share same serialization
 // export properties filter only on root object
 
 // parent access on option ? (if parent access is account model, add new literal with joins)
@@ -464,27 +465,12 @@ try {
 // cache handler, improve cache model management (only store model name in object and property ?)
 
 // Docker
-// unique username database, password private property
-// Oauth2 for comhon-docker 
+// Oauth2 for comhon-docker ?
 
 // Front
 // if model property is account model,
-// - input text username autocompletion and store id
+// - input text username (autocompletion?) and store id
 // - check box "Me" 
-
-
-// in manifest parser and RegexCollection remove regex delimiter '/' (and when retrieve pattern)
-//   resolve patterns directly when retrieve manifest (not during model loading due to local types) ? nope load is async anyway
-// make RegexCollection.getRegex asynchrone
-
-
-// .getModel( by ._getModel( if no need to be loaded
-// getModel() , getUniqueModel() async only on modelcontainer and property, 
-//   comhonobject or comhonArray still sync because model already loaded
-// modelmanager getInstanceModel async
-
-// model loadObject async
-// add events when getmodel (https://stackoverflow.com/questions/15308371/custom-events-model-without-using-dom-events-in-javascript)
 
 // use id different than table name for sql table (may have same table name but with different database)
 // add possibility to request aggregations in request handler ?
