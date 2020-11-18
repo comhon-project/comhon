@@ -43,6 +43,7 @@ use Comhon\Exception\Value\InvalidCompositeIdException;
 use Comhon\Exception\Interfacer\AbstractObjectExportException;
 use Comhon\Interfacer\XMLInterfacer;
 use Comhon\Exception\ArgumentException;
+use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 
 class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 
@@ -959,7 +960,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		$object = MainObjectCollection::getInstance()->getObject($id, $this->modelName);
 		
 		if (is_null($object)) {
-			$object = $this->_buildObjectFromId($id, false, false);
+			try {
+				$object = $this->_buildObjectFromId($id, false, false);
+			} catch (NotSatisfiedRestrictionException $e) {
+				return null;
+			} catch (UnexpectedValueTypeException $e) {
+				return null;
+			}
 			$newObject = true;
 		} else if ($object->isLoaded() && !$forceLoad) {
 			return $object;

@@ -45,4 +45,14 @@ class ObjectTest extends TestCase
 		$this->assertCount(0, $array->getValues());
 	}
 	
+	
+	public function testLoadObjectInvalidId()
+	{
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Manifest');
+		// 'id property as a regex restriction' and cannot contain '-'
+		// loadObject must return null and must not throw exception
+		$obj = $model->loadObject('test-person');
+		$this->assertNull($obj);
+	}
+	
 }
