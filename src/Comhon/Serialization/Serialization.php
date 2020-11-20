@@ -13,6 +13,10 @@ namespace Comhon\Serialization;
 
 use Comhon\Object\UniqueObject;
 use Comhon\Exception\Serialization\SerializationException;
+use Comhon\Model\Model;
+use Comhon\Model\Singleton\ModelManager;
+use Comhon\Exception\ComhonException;
+use Comhon\Interfacer\StdObjectInterfacer;
 
 final class Serialization {
 	
@@ -30,6 +34,9 @@ final class Serialization {
 	
 	/** @var string[] */
 	private $inheritanceValues;
+	
+	/** @var string */
+	private $settingsParentName = null;
 	
 	/**
 	 * 
@@ -128,6 +135,57 @@ final class Serialization {
 	 */
 	public function getSerializationUnit() {
 		return $this->serializationUnit;
+	}
+	
+	/**
+	 * serialize model.
+	 * this function must be called only in caching context.
+	 *
+	 * @param \Comhon\Model\Model $parent
+	 */
+	public function serialize(Model $parent = null) {
+		if (!ModelManager::getInstance()->isCachingContext()) {
+			throw new ComhonException('error function serialize may be called only in caching context');
+		}
+		if (!is_null($this->settings)) {
+			if (!is_null($parent)) {
+				if ($parent->getSerializationSettings() !== $this->getSettings()) {
+					throw new ComhonException('not same serialization settings');
+				}
+				$this->settingsParentName = $parent->getName();
+				$this->settings = null;
+			} else {
+				$interfacer = new StdObjectInterfacer();
+				$interfacer->setPrivateContext(true);
+				$interfacer->setVerifyReferences(false);
+				$interfacer->setValidate(false);
+				// get parent model to have inheritance key
+				$this->settings = $this->settings->getModel()->getParent()->export($this->settings, $interfacer);
+			}
+		}
+		$this->serializationUnit = get_class($this->serializationUnit);
+	}
+	
+	/**
+	 * restore model that have been unserialized from cache.
+	 * this function must be called only in caching context.
+	 */
+	public function restore() {
+		$modelManager = ModelManager::getInstance();
+		if (!$modelManager->isCachingContext()) {
+			throw new ComhonException('error function restore may be called only in caching context');
+		}
+		if (!is_null($this->settingsParentName)) {
+			$this->settings = $modelManager->getInstanceModel($this->settingsParentName)->getSerializationSettings();
+		} elseif (!is_null($this->settings)) {
+			$interfacer = new StdObjectInterfacer();
+			$interfacer->setPrivateContext(true);
+			$interfacer->setVerifyReferences(false);
+			$interfacer->setValidate(false);
+			$this->settings = $modelManager->getInstanceModel('Comhon\Root')->import($this->settings, $interfacer);
+		}
+		$serializationUnitClass = $this->serializationUnit;
+		$this->serializationUnit = $serializationUnitClass::getInstance();
 	}
 	
 }

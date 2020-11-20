@@ -16,9 +16,12 @@ use Comhon\Model\ModelForeign;
 use Comhon\Model\Singleton\ModelManager;
 
 class MultipleForeignProperty extends ForeignProperty {
-
+	
 	/** @var Property[] */
 	private $multipleIdProperties = [];
+	
+	/** @var Property[] */
+	private $multipleIdPropertiesNames = [];
 	
 	/** @var boolean */
 	private $propertiesInitialized = false;
@@ -36,7 +39,7 @@ class MultipleForeignProperty extends ForeignProperty {
 	 */
 	public function __construct(ModelForeign $model, $name, $serializationNames, $isPrivate = false, $isRequired = false, $isSerializable = true, $isNotNull = false, $dependencies = []) {
 		parent::__construct($model, $name, null, $isPrivate, $isRequired, $isSerializable, $isNotNull, $dependencies);
-		$this->multipleIdProperties = $serializationNames;
+		$this->multipleIdPropertiesNames = $serializationNames;
 	}
 	
 	/**
@@ -58,19 +61,21 @@ class MultipleForeignProperty extends ForeignProperty {
 		if (!$this->propertiesInitialized) {
 			$model = $this->getUniqueModel();
 			$idProperties = $model->getIdProperties();
-			if (count($idProperties) != count($this->multipleIdProperties)) {
-				throw new ComhonException('ids properties and serialization names doesn\t match : '
-					.json_encode(array_keys($idProperties)).' != '. json_encode(array_values($this->multipleIdProperties)));
+			if (count($idProperties) != count($this->multipleIdPropertiesNames)) {
+				throw new ComhonException(
+					'ids properties and serialization names doesn\t match : '
+					.json_encode(array_keys($idProperties)).' != '. json_encode(array_values($this->multipleIdPropertiesNames))
+				);
 			}
-			$multipleIdProperties = [];
 			foreach ($idProperties as $idProperty) {
-				if (!array_key_exists($idProperty->getName(), $this->multipleIdProperties)) {
-					throw new ComhonException('ids properties and serialization names doesn\t match : '
-						.json_encode(array_keys($idProperties)).' != '. json_encode($this->multipleIdProperties));
+				if (!array_key_exists($idProperty->getName(), $this->multipleIdPropertiesNames)) {
+					throw new ComhonException(
+						'ids properties and serialization names doesn\t match : '
+						.json_encode(array_keys($idProperties)).' != '. json_encode($this->multipleIdPropertiesNames)
+					);
 				}
-				$multipleIdProperties[$this->multipleIdProperties[$idProperty->getName()]] = $idProperty;
+				$this->multipleIdProperties[$this->multipleIdPropertiesNames[$idProperty->getName()]] = $idProperty;
 			}
-			$this->multipleIdProperties = $multipleIdProperties;
 			$this->propertiesInitialized = true;
 		}
 		return $this->multipleIdProperties;
@@ -112,6 +117,16 @@ class MultipleForeignProperty extends ForeignProperty {
 	 */
 	public function getLiteralModel() {
 		return ModelManager::getInstance()->getInstanceModel('string');
+	}
+	
+	/**
+	 * serialize model.
+	 * this function must be called only in caching context.
+	 */
+	public function serialize() {
+		parent::serialize();
+		$this->multipleIdProperties = [];
+		$this->propertiesInitialized = false;
 	}
 	
 }

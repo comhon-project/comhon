@@ -21,8 +21,6 @@ use Comhon\Exception\Interfacer\NotReferencedValueException;
 use Comhon\Exception\Interfacer\ExportException;
 use Comhon\Object\ComhonArray;
 use Comhon\Interfacer\XMLInterfacer;
-use Comhon\Object\UniqueObject;
-use Comhon\Object\Collection\ObjectCollection;
 
 abstract class ModelComplex extends AbstractModel {
 	

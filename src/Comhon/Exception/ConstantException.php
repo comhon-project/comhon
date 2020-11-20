@@ -22,6 +22,7 @@ abstract class ConstantException {
 	const PROPERTY_VISIBILITY_EXCEPTION     = 105;
 	const NO_ID_PROPERTY_EXCEPTION          = 106;
 	const REQUESTABLE_PROPERTY_EXCEPTION    = 107;
+	const CACHE_EXCEPTION                   = 108;
 	
 	// object/value exception
 	const NOT_SATISFIED_RESTRICTION_EXCEPTION = 200;

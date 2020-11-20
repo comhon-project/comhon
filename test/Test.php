@@ -455,23 +455,14 @@ try {
 // add "main" property set to true in ModelSqlSerializer script for model with serialization
 // add "shared id" or "share parent id" property in ModelBinder script for model that share same serialization
 // export properties filter only on root object
+// add "use" for inheritance in manifest
 
 // parent access on option ? (if parent access is account model, add new literal with joins)
 // apply parent access on methods
 // role rank with parent access (guest, admin... => interger min to access)
 // auth rank (public, protected (logged), private (logged and good parent access))
 
-// add "use" for inheritance in manifest
-// cache handler, improve cache model management (only store model name in object and property ?)
-
-// Docker
-// Oauth2 for comhon-docker ?
-
-// Front
-// if model property is account model,
-// - input text username (autocompletion?) and store id
-// - check box "Me" 
-
+// only store model name in object and property (to simplify model caching and perhaps improve model loading speed) ?
 // use id different than table name for sql table (may have same table name but with different database)
 // add possibility to request aggregations in request handler ?
 // add autoload without prefix namespace ?
@@ -487,3 +478,9 @@ try {
 // versionning for manifest (get versionned instance model)
 // inheritage with join table
 // request order not only on requested model
+
+// Front
+// if model property is account model,
+// - input text username (autocompletion?) and store id
+// - check box "Me" 
+

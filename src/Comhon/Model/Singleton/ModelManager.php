@@ -35,7 +35,6 @@ use Comhon\Model\ModelRoot;
 use Comhon\Exception\Config\ConfigMalformedException;
 use Comhon\Interfacer\AssocArrayInterfacer;
 use Comhon\Cache\CacheHandler;
-use Comhon\Cache\FileSystemCacheHandler;
 
 class ModelManager {
 
@@ -82,11 +81,6 @@ class ModelManager {
 	private $instanceSimpleModels;
 	
 	/**
-	 * @var string[] map that contain all local types indexed by model name (model defined in manifest)
-	 */
-	private $localTypes;
-	
-	/**
 	 * @var string
 	 */
 	private $originalModelName;
@@ -105,6 +99,11 @@ class ModelManager {
 	 * @var \Comhon\Cache\CacheHandler
 	 */
 	private $cacheHandler;
+	
+	/**
+	 * @var boolean
+	 */
+	private $isCachingContext;
 	
 	/**
 	 * @var string[] map namespace prefix to directory to allow manifest autoloading
@@ -169,23 +168,18 @@ class ModelManager {
 			$configArray = $this->_getConfigArray($config_af);
 			$this->config_ad = dirname($config_af);
 			if (isset($configArray['cache_settings'])) {
-				$this->cacheHandler = CacheHandler::getInstance($configArray['cache_settings']);
-				if ($this->cacheHandler instanceof FileSystemCacheHandler) {
-					$this->cacheHandler = new FileSystemCacheHandler(
-						$this->_toAbsolutePath($this->cacheHandler->getDirectory(), $this->config_ad)
-					);
-				}
+				$this->cacheHandler = CacheHandler::getInstance($configArray['cache_settings'], $this->config_ad);
 			}
 			
 			// must be done before SqlTable and SqlDatabase model instanciation
 			if (Config::hasInstance()) {
 				Config::getInstance()->getModel()->register();
-				$this->modelRoot = $this->_getInstanceModel('Comhon\Root', false);
+				$this->modelRoot = $this->getInstanceModel('Comhon\Root');
 				$this->_setBaseConfigFromObject(Config::getInstance());
 			} elseif ($this->cacheHandler) {
 				$config = $this->cacheHandler->loadConfig();
 				if (!is_null($config)) {
-					$this->modelRoot = $this->_getInstanceModel('Comhon\Root', false);
+					$this->modelRoot = $this->getInstanceModel('Comhon\Root');
 					$this->_setBaseConfigFromObject($config);
 				} else {
 					$this->modelRoot = new ModelRoot();
@@ -200,36 +194,38 @@ class ModelManager {
 			}
 			
 			// load sqlTable and sqlDatabase and update serialization if needed
-			if (isset($configArray['sql_table']) || isset($configArray['sql_database'])) {
-				$useCache = !is_null($this->cacheHandler)
-					&& !$this->hasInstanceModel('Comhon\SqlTable')
-					&& !$this->hasInstanceModel('Comhon\SqlDatabase');
-				if (!$useCache || is_null($this->cacheHandler->loadSqlTable())) {
-					if (isset($configArray['sql_table'])) {
-						$path = $this->_toAbsolutePath($configArray['sql_table'], $this->config_ad);
-						if (!is_dir($path)) {
-							throw new ConfigFileNotFoundException('sql_table', 'directory', $configArray['sql_table']);
-						}
-						$this->getInstanceModel('Comhon\SqlTable')->getSerializationSettings()->setValue('dir_path', $path);
-					}
-					if (isset($configArray['sql_database'])) {
-						$path = $this->_toAbsolutePath($configArray['sql_database'], $this->config_ad);
-						if (!is_dir($path)) {
-							throw new ConfigFileNotFoundException('sql_database', 'directory', $configArray['sql_database']);
-						}
-						$this->getInstanceModel('Comhon\SqlDatabase')->getSerializationSettings()->setValue('dir_path', $path);
-					}
-					if ($useCache) {
-						$this->cacheHandler->registerSqlTable($this->getInstanceModel('Comhon\SqlTable'));
-					}
-				} else {
-					$this->_getInstanceModel('Comhon\SqlTable', false)->restoreRootModel();
-					$this->_getInstanceModel('Comhon\SqlDatabase', false)->restoreRootModel();
-				}
+			if (isset($configArray['sql_table'])) {
+				$this->_modifySqlFileSerialization('Comhon\SqlTable', $configArray['sql_table'], 'sql_table');
+			}
+			if (isset($configArray['sql_database'])) {
+				$this->_modifySqlFileSerialization('Comhon\SqlDatabase', $configArray['sql_database'], 'sql_database');
 			}
 		} catch (\Exception $e) {
 			self::$_instance = null;
 			throw $e;
+		}
+	}
+	
+	/**
+	 * 
+	 * @param string $modelName
+	 * @param string $newSerializationPath
+	 * @param string $type
+	 * @throws ConfigFileNotFoundException
+	 */
+	private function _modifySqlFileSerialization($modelName, $newSerializationPath, $type) {
+		$useCache = !is_null($this->cacheHandler) && !$this->hasInstanceModel($modelName);
+		
+		if (!$useCache || is_null($this->loadModelFromCache($modelName))) {
+			$path = $this->_toAbsolutePath($newSerializationPath, $this->config_ad);
+			if (!is_dir($path)) {
+				throw new ConfigFileNotFoundException($type, 'directory', $newSerializationPath);
+			}
+			$this->getInstanceModel($modelName)->getSerializationSettings()->setValue('dir_path', $path);
+			if ($useCache) {
+				// need to register manually with new path values
+				$this->registerModelIntoCache($this->getInstanceModel($modelName));
+			}
 		}
 	}
 	
@@ -240,6 +236,15 @@ class ModelManager {
 	 */
 	public function getCacheHandler() {
 		return $this->cacheHandler;
+	}
+	
+	/**
+	 * verify if a model is currently serializing or unserializing
+	 *
+	 * @return boolean
+	 */
+	public function isCachingContext() {
+		return $this->isCachingContext;
 	}
 	
 	/**
@@ -381,9 +386,7 @@ class ModelManager {
 	 * @return string[]
 	 */
 	public function getLocalTypes($modelName) {
-		// ensure that model is loaded
-		$this->getInstanceModel($modelName);
-		return array_key_exists($modelName, $this->localTypes) ? $this->localTypes[$modelName] : [];
+		return $this->getInstanceModel($modelName)->getLocalTypes();
 	}
 	
 	/**
@@ -411,7 +414,15 @@ class ModelManager {
 			throw new \InvalidArgumentException('first argument must be a string');
 		}
 		if (!array_key_exists($modelName, $this->instanceModels)) {
-			new Model($modelName);
+			if (
+				$loadModel 
+				&& !is_null($this->cacheHandler) 
+				&& $this->cacheHandler->hasValue($this->cacheHandler->getModelKey($modelName))
+			) {
+				$this->loadModelFromCache($modelName);
+			} else {
+				new Model($modelName);
+			}
 			// instance model must be added during model instanciation (in constructor)
 			if (!array_key_exists($modelName, $this->instanceModels)) {
 				throw new ComhonException('model not added during model instanciation');
@@ -521,8 +532,8 @@ class ModelManager {
 		if ($mainModel !== $model && !array_key_exists($model->getName(), $localTypeManifestParsers)) {
 			throw new NotDefinedModelException($model->getName());
 		}
-		$this->localTypes[$mainModel->getName()] = array_keys($localTypeManifestParsers);
 		$mainModel->setManifestParser($manifestParser);
+		$mainModel->setLocalTypes(array_keys($localTypeManifestParsers));
 		return $this->_instanciateLocalModels($localTypeManifestParsers);
 	}
 	
@@ -928,6 +939,86 @@ class ModelManager {
 			$sharedIdModel = $sharedIdModelTemp;
 		}
 		return $sharedIdModel;
+	}
+	
+	/**
+	 * get model instance (model may be loaded or not).
+	 * this function is only callable in caching context
+	 *
+	 * @return \Comhon\Model\Model|\Comhon\Model\SimpleModel
+	 */
+	public function getNotLoadedInstanceModel($modelName) {
+		if (!$this->isCachingContext) {
+			throw new ComhonException('wrong context, caching model is not launched, can\'t call getNotLoadedInstanceModel');
+		}
+		return $this->_getInstanceModel($modelName, false);
+	}
+	
+	/**
+	 * load model from cache if exists
+	 *
+	 * @return \Comhon\Model\Model|null return model or null if model is not cached
+	 */
+	public function loadModelFromCache($modelName) {
+		if (is_null($this->cacheHandler)) {
+			throw new ComhonException("can't call loadModelFromCache, there is no cache handler set");
+		}
+		if ($this->hasInstanceModelLoaded($modelName)) {
+			throw new ComhonException("can't call loadModelFromCache, model '$modelName' is already loaded");
+		}
+		if (!$this->cacheHandler->hasValue($this->cacheHandler->getModelKey($modelName))) {
+			return null;
+		}
+		$isAlreadyCachingContext = $this->isCachingContext;
+		$this->isCachingContext = true;
+		try {
+			/** @var \Comhon\Model\Model $model */
+			if ($this->hasInstanceModel($modelName)) {
+				$modelTemp = unserialize($this->cacheHandler->getValue($this->cacheHandler->getModelKey($modelName)));
+				$model = $this->_getInstanceModel($modelName, false);
+				$model->overwrite($modelTemp);
+			} else {
+				$model = unserialize($this->cacheHandler->getValue($this->cacheHandler->getModelKey($modelName)));
+				$this->addInstanceModel($model);
+			}
+			$model->restore();
+		} finally {
+			if (!$isAlreadyCachingContext) {
+				$this->isCachingContext = false;
+			}
+		}
+		
+		return $model;
+	}
+	
+	/**
+	 * register model into cache
+	 *
+	 * @param \Comhon\Model\Model $model
+	 */
+	public function registerModelIntoCache(Model $model) {
+		if (is_null($this->cacheHandler)) {
+			throw new ComhonException("can't call registerModelIntoCache, there is no cache handler set");
+		}
+		if (!$model->isLoaded()) {
+			throw new ComhonException("can't call registerModelIntoCache, model '{$model->getName()}' is not loaded");
+		}
+		$isAlreadyCachingContext = $this->isCachingContext;
+		$this->isCachingContext = true;
+		try {
+			if (!$model->isLoaded()) {
+				throw new ComhonException("cannot cache unloaded model, '{$model->getName()}' is not loaded");
+			}
+			
+			$this->cacheHandler->registerValue(
+				$this->cacheHandler->getModelKey($model->getName()),
+				$model->serialize()
+			);
+		} finally {
+			if (!$isAlreadyCachingContext) {
+				$this->isCachingContext = false;
+			}
+		}
 	}
 	
 }

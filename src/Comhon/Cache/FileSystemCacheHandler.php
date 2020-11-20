@@ -11,7 +11,8 @@
 
 namespace Comhon\Cache;
 
-use Comhon\Exception\ComhonException;
+use Comhon\Exception\Cache\CacheException;
+use Comhon\Utils\Utils;
 
 class FileSystemCacheHandler extends CacheHandler {
 
@@ -23,7 +24,47 @@ class FileSystemCacheHandler extends CacheHandler {
 	 * @param string $directory apth to directory where cache is stored
 	 */
 	public function __construct(string $directory) {
-		$this->directory = $directory;
+		if (!file_exists($directory)) {
+			if (!mkdir($directory, 0777, true)) {
+				throw new CacheException("failure when trying to create cache directory '$directory'");
+			}
+		}
+		$this->directory = realpath($directory);
+		if ($this->directory === false) {
+			throw new CacheException("failure when trying to get realpath of cache directory '$directory'");
+		}
+	}
+	
+	/**
+	 * transform key to path and verify if path is actually in cache directory and not outside 
+	 * (may be outside cache directory if key contains some "..")
+	 * 
+	 * @param string $key
+	 * @return string
+	 */
+	public function getPath(string $key) {
+		if (strpos($key, '..') !== false) {
+			$path = explode(DIRECTORY_SEPARATOR, $this->directory . DIRECTORY_SEPARATOR . $key);
+			$stack = [];
+			foreach ($path as $seg) {
+				if ($seg == '..') {
+					array_pop($stack);
+					continue;
+				}
+				if ($seg == '.') {
+					continue;
+				}
+				$stack[] = $seg;
+			}
+			
+			$path = implode('/', $stack);
+			if (strpos($path, $this->directory) !== 0) {
+				throw new CacheException("invalid key '$key', path is outside cache directory");
+			}
+		} else {
+			$path = $this->directory . DIRECTORY_SEPARATOR . $key;
+		}
+		return $path;
 	}
 	
 	/**
@@ -32,7 +73,7 @@ class FileSystemCacheHandler extends CacheHandler {
 	 * @see \Comhon\Cache\CacheHandler::hasValue()
 	 */
 	public function hasValue(string $key) {
-		return file_exists($key);
+		return file_exists($this->getPath($key));
 	}
 	
 	/**
@@ -41,20 +82,26 @@ class FileSystemCacheHandler extends CacheHandler {
 	 * @see \Comhon\Cache\CacheHandler::getValue()
 	 */
 	public function getValue(string $key) {
-		return file_get_contents($key);
+		$path = $this->getPath($key);
+		if (file_exists($path)) {
+			$content = file_get_contents($path);
+			return $content === false ? null : $content;
+		}
+		return null;
 	}
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Cache\CacheHandler::setValue()
+	 * @see \Comhon\Cache\CacheHandler::registerValue()
 	 */
-	public function setValue(string $key, string $value) {
-		if (!file_exists(dirname($key))) {
-			mkdir(dirname($key), 0777, true);
+	public function registerValue(string $key, string $value) {
+		$path = $this->getPath($key);
+		if (!file_exists(dirname($path))) {
+			mkdir(dirname($path), 0777, true);
 		}
-		if (file_put_contents($key, $value) === false) {
-			throw new ComhonException("write cache file $key failed (verify folder rights)");
+		if (file_put_contents($path, $value) === false) {
+			throw new CacheException("write cache file $key failed (verify folder rights)");
 		}
 	}
 	
@@ -64,10 +111,12 @@ class FileSystemCacheHandler extends CacheHandler {
 	 * @see \Comhon\Cache\CacheHandler::reset()
 	 */
 	public function reset() {
-		if (file_exists($this->getConfigKey()) && !unlink($this->getConfigKey())) {
+		$configPath = $this->getPath($this->getConfigKey());
+		if (file_exists($configPath) && !unlink($configPath)) {
 			return false;
 		}
-		if (file_exists($this->getSqlTableModelKey()) && !unlink($this->getSqlTableModelKey())) {
+		$modelsPath = $this->getPath($this->getModelPrefixKey());
+		if (file_exists($modelsPath) && !Utils::deleteDirectory($modelsPath)) {
 			return false;
 		}
 		return true;
@@ -79,16 +128,16 @@ class FileSystemCacheHandler extends CacheHandler {
 	 * @see \Comhon\Cache\CacheHandler::getConfigKey()
 	 */
 	public function getConfigKey() {
-		return $this->directory . DIRECTORY_SEPARATOR . 'config';
+		return 'config';
 	}
 	
 	/**
 	 * 
 	 * {@inheritDoc}
-	 * @see \Comhon\Cache\CacheHandler::getSqlTableModelKey()
+	 * @see \Comhon\Cache\CacheHandler::getModelPrefixKey()
 	 */
-	public function getSqlTableModelKey() {
-		return $this->directory . DIRECTORY_SEPARATOR . 'sqlTable_sqlDatabase';
+	public function getModelPrefixKey() {
+		return 'model/';
 	}
 	
 	/**

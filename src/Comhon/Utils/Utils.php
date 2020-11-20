@@ -37,11 +37,14 @@ class Utils {
 	 * @return boolean true if success
 	 */
 	public static function deleteDirectory($dir) {
-		$files = array_diff(scandir($dir), ['.','..']);
-		foreach ($files as $file) {
-			is_dir($dir . DIRECTORY_SEPARATOR . $file) 
-				? self::deleteDirectory($dir . DIRECTORY_SEPARATOR. $file) 
-				: unlink($dir . DIRECTORY_SEPARATOR. $file);
+		$contents = scandir($dir);
+		if ($contents !== false) {
+			$files = array_diff(scandir($dir), ['.','..']);
+			foreach ($files as $file) {
+				is_dir($dir . DIRECTORY_SEPARATOR . $file) 
+					? self::deleteDirectory($dir . DIRECTORY_SEPARATOR. $file) 
+					: unlink($dir . DIRECTORY_SEPARATOR. $file);
+			}
 		}
 		return rmdir($dir);
 	}

@@ -11,10 +11,8 @@
 
 namespace Comhon\Cache;
 
-use Comhon\Exception\ComhonException;
 use Comhon\Object\Config\Config;
-use Comhon\Model\Model;
-use Comhon\Exception\ArgumentException;
+use Comhon\Exception\Cache\CacheException;
 
 /**
  * CacheHandler permit to cache comhon models to load them more rapidly.
@@ -33,21 +31,28 @@ abstract class CacheHandler {
 	 *                         it must begin with the handler name followed by a colon, 
 	 *                         followed by specific handler informations.
 	 *                         for example : "directory:/my/path/to/cache/directory"
+	 * @param string $config_ad the path to config directory (may be usefull if settings have relative path)
 	 */
-	public static function getInstance(string $settings) {
+	public static function getInstance(string $settings, $config_ad = null) {
 		$pos = strpos($settings, ':');
 		if ($pos === false) {
-			throw new ComhonException("invalid cache handler settings : '$settings' (no colon)");
+			throw new CacheException("invalid cache handler settings : '$settings' (no colon)");
 		}
 		$name = substr($settings, 0, $pos);
 		$specificSettings = substr($settings, $pos + 1);
 		
 		switch ($name) {
 			case self::DIRECTORY:
+				if ($specificSettings[0] == '.') {
+					if (is_null($config_ad)) {
+						throw new CacheException("settings path is relative but config directory is not provided");
+					}
+					$specificSettings = $config_ad . DIRECTORY_SEPARATOR . $specificSettings;
+				}
 				return new FileSystemCacheHandler($specificSettings);
 				break;
 			default:
-				throw new ComhonException("invalid cache handler name : '$name'");
+				throw new CacheException("invalid cache handler name : '$name'");
 		}
 	}
 	
@@ -61,14 +66,14 @@ abstract class CacheHandler {
 	/**
 	 * get cached value according given key.
 	 * 
-	 * @return string
+	 * @return string|null
 	 */
 	abstract public function getValue(string $key);
 	
 	/**
 	 * register value into cache according given key.
 	 */
-	abstract public function setValue(string $key, string $value);
+	abstract public function registerValue(string $key, string $value);
 	
 	/**
 	 * reset cache
@@ -85,11 +90,23 @@ abstract class CacheHandler {
 	abstract public function getConfigKey();
 	
 	/**
-	 * get key where Comhon\SqlTable and Comhon\Database model must be registered.
+	 * get the prefix that will be used to build key when register/load model
 	 * 
 	 * @return string
 	 */
-	abstract public function getSqlTableModelKey();
+	abstract public function getModelPrefixKey();
+	
+	
+	
+	/**
+	 * get model key according given model name
+	 * 
+	 * @param string $modelName
+	 * @return string
+	 */
+	public function getModelKey(string $modelName) {
+		return $this->getModelPrefixKey().str_replace('\\', '-', $modelName);
+	}
 	
 	/**
 	 * load configuration object and instanciate Config singleton.
@@ -109,38 +126,7 @@ abstract class CacheHandler {
 	 * @param \Comhon\Object\Config\Config $config
 	 */
 	public function registerConfig(Config $config) {
-		$this->setValue($this->getConfigKey(), serialize($config));
-	}
-	
-	/**
-	 * load Comhon\SqlTable model and Comhon\SqlDatabase model in same time.
-	 * 
-	 * @return \Comhon\Model\Model|null return Comhon\SqlTable model or null if model is not cached
-	 */
-	public function loadSqlTable() {
-		if (!$this->hasValue($this->getSqlTableModelKey())) {
-			return null;
-		}
-		/** @var \Comhon\Model\Model $model */
-		$model = unserialize($this->getValue($this->getSqlTableModelKey()));
-		$model->register();
-		
-		return $model;
-	}
-	
-	/**
-	 * register Comhon\SqlTable model and Comhon\SqlDatabase model in same time.
-	 * 
-	 * @param \Comhon\Model\Model $sqlTableModel given model must be a 'Comhon\SqlTable'
-	 */
-	public function registerSqlTable(Model $sqlTableModel) {
-		if ($sqlTableModel->getName() !== 'Comhon\SqlTable') {
-			throw new ArgumentException($sqlTableModel->getName(), 'Comhon\SqlTable', 1);
-		}
-		// ensure that database property model is loaded
-		$sqlTableModel->getProperty('database')->getModel();
-		
-		$this->setValue($this->getSqlTableModelKey(), serialize($sqlTableModel));
+		$this->registerValue($this->getConfigKey(), serialize($config));
 	}
 	
 }

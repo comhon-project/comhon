@@ -51,7 +51,7 @@ abstract class AbstractModel {
 	
 	/**
 	 * register model (and nested models) in model manager if needed.
-	 * (used when model is unserialized from cache)
+	 * (used when config object is unserialized from cache)
 	 *
 	 * @return bool
 	 */

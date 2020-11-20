@@ -23,6 +23,7 @@ use Comhon\Model\Restriction\Restriction;
 use Comhon\Exception\Value\NotSatisfiedRestrictionException;
 use Comhon\Model\Restriction\NotNull;
 use Comhon\Model\Model;
+use Comhon\Model\Singleton\ModelManager;
 
 class Property {
 
@@ -161,12 +162,48 @@ class Property {
 	
 	/**
 	 * register contained model (and nested models) in model manager if needed.
-	 * (used when model is unserialized from cache)
+	 * (used when config object is unserialized from cache)
 	 *
 	 * @return bool
 	 */
 	public function registerModel() {
+		if (
+			$this->model instanceof SimpleModel 
+			&& $this->model !== ModelManager::getInstance()->getInstanceModel($this->model->getName())
+		) {
+			$this->model = ModelManager::getInstance()->getInstanceModel($this->model->getName());
+		}
 		return $this->model->register();
+	}
+	
+	/**
+	 * serialize model.
+	 * this function must be called only in caching context.
+	 */
+	public function serialize() {
+		if (!ModelManager::getInstance()->isCachingContext()) {
+			throw new ComhonException('error function serialize may be called only in caching context');
+		}
+		if ($this->model instanceof ModelContainer) {
+			$this->model->serialize();
+		} else {
+			$this->model = $this->model->getName();
+		}
+	}
+	
+	/**
+	 * restore model that have been unserialized from cache.
+	 * this function must be called only in caching context.
+	 */
+	public function restore() {
+		if (!ModelManager::getInstance()->isCachingContext()) {
+			throw new ComhonException('error function restore may be called only in caching context');
+		}
+		if (is_string($this->model)) {
+			$this->model = ModelManager::getInstance()->getNotLoadedInstanceModel($this->model);
+		} else {
+			$this->model->restore();
+		}
 	}
 	
 	/**

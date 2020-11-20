@@ -125,7 +125,14 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	/** @var boolean */
 	private $hasPrivateIdProperty = false;
 	
+	/** @var \Comhon\Manifest\Parser\ManifestParser */
 	private $manifestParser;
+	
+	/** @var \Comhon\Model\Model[] */
+	private $localModels;
+	
+	/** @var string[] array of local models names defined in manifest */
+	private $localTypes = [];
 	
 	/**
 	 * don't instanciate a model by yourself because it take time.
@@ -149,46 +156,29 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		}
 		try {
 			$this->isLoading = true;
-			if (is_null($this->manifestParser)) {
-				$localModels = ModelManager::getInstance()->addManifestParser($this);
-				if (is_null($this->manifestParser)) {
-					throw new NotDefinedModelException($this->getName());
+			$cacheHandler = ModelManager::getInstance()->getCacheHandler();
+			if (
+				!is_null($cacheHandler)
+				&& $cacheHandler->hasValue($cacheHandler->getModelKey($this->modelName))
+			) {
+				ModelManager::getInstance()->loadModelFromCache($this->modelName);
+			} else {
+				$this->_loadFromManfiest();
+				if (!is_null($cacheHandler)) {
+					// $this->isLoaded must be true before register model
+					ModelManager::getInstance()->registerModelIntoCache($this);
 				}
 			}
-			$result = ModelManager::getInstance()->getProperties($this, $this->manifestParser);
-			$this->isMain = $result[ModelManager::IS_MAIN_MODEL];
-			$this->parents = $result[ModelManager::PARENT_MODELS];
-			$this->sharedIdModel = $result[ModelManager::SHARED_ID_MODEL];
-			$this->_setProperties($result[ModelManager::PROPERTIES]);
-			$this->serialization = $result[ModelManager::SERIALIZATION];
-			$this->isAbstract = $result[ModelManager::IS_ABSTRACT];
-			$this->_verifyIdSerialization();
-			
-			if (!is_null($result[ModelManager::OBJECT_CLASS]) && ($this->objectClass !== $result[ModelManager::OBJECT_CLASS])) {
-				$this->objectClass = $result[ModelManager::OBJECT_CLASS];
-				$this->isExtended = true;
+			if (!$this->isLoaded) {
+				throw new ComhonException('model should be flagged loaded');
 			}
-			foreach ($result[ModelManager::CONFLICTS] as $properties) {
-				foreach ($properties as $i => $propertyName) {
-					if (!array_key_exists($propertyName, $this->conflicts)) {
-						$this->conflicts[$propertyName] = [];
-					}
-					foreach ($properties as $j => $conflictPropertyName) {
-						if ($j != $i) {
-							$this->conflicts[$propertyName][] = $conflictPropertyName;
-						}
-					}
-				}
-			}
-			$this->isLoaded  = true;
-			$this->isLoading = false;
-			$this->manifestParser = null;
-			
 		} catch (\Exception $e) {
 			// reinitialize attributes if any exception
 			$this->isLoading = false;
 			$this->parents = null;
 			$this->objectClass = ComhonObject::class;
+			$this->isMain = false;
+			$this->isAbstract = false;
 			$this->isExtended = false;
 			$this->properties   = [];
 			$this->idProperties = [];
@@ -199,20 +189,129 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			$this->multipleForeignProperties = [];
 			$this->complexProperties = [];
 			$this->dateTimeProperties = [];
+			$this->requiredProperties = [];
 			$this->dependsProperties = [];
 			$this->conflicts = [];
+			$this->localTypes = [];
 			$this->uniqueIdProperty = null;
 			$this->hasPrivateIdProperty = false;
 			$this->manifestParser = null;
+			$this->sharedIdModel = null;
+			$this->serialization = null;
 			
-			if (isset($localModels)) {
-				foreach ($localModels as $localModel) {
+			if (isset($this->localModels)) {
+				foreach ($this->localModels as $localModel) {
 					$localModel->manifestParser = null;
 				}
 			}
+			$this->localModels = null;
 			
 			throw $e;
 		}
+	}
+	
+	/**
+	 * overwite current model with given model.
+	 * this function must be called only in caching context.
+	 * 
+	 * @param Model $model the cached model
+	 */
+	public function overwrite(Model $model) {
+		if (!ModelManager::getInstance()->isCachingContext()) {
+			throw new ComhonException('error, function overwrite may be called only in caching context');
+		}
+		if ($this->isLoaded) {
+			throw new ComhonException('error, function overwrite may be called only on unloaded model');
+		}
+		if ($model->getName() !== $this->modelName) {
+			throw new ComhonException(
+				"error, try to overwrite model '{$this->modelName}' with '{$model->getName()}' (must have same name)"
+			);
+		}
+		
+		$this->parents = $model->parents;
+		$this->sharedIdModel = $model->sharedIdModel;
+		$this->objectClass = $model->objectClass;
+		$this->isMain = $model->isMain;
+		$this->isAbstract = $model->isAbstract;
+		$this->isExtended = $model->isExtended;
+		$this->serialization = $model->serialization;
+		$this->properties   = $model->properties;
+		$this->conflicts = $model->conflicts;
+		$this->localTypes = $model->localTypes;
+		
+		$this->isLoaded = true;
+		$this->isLoading = false;
+	}
+	
+	/**
+	 * restore model that have been unserialized from cache.
+	 * this function must be called only in caching context.
+	 */
+	public function restore() {
+		if (!ModelManager::getInstance()->isCachingContext()) {
+			throw new ComhonException('error function overwrite may be called only in caching context');
+		}
+		$properties = [];
+		foreach ($this->parents as $key => $parentName) {
+			$this->parents[$key] = ModelManager::getInstance()->getInstanceModel($parentName);
+			$properties = array_merge($properties, $this->parents[$key]->getProperties());
+		}
+		foreach ($this->getProperties() as $property) {
+			$property->restore();
+		}
+		$properties = array_merge($properties, $this->getProperties());
+		$this->properties = [];
+		$this->_setProperties($properties);
+		if (!is_null($this->sharedIdModel)) {
+			$this->sharedIdModel = ModelManager::getInstance()->getInstanceModel($this->sharedIdModel);
+		}
+		if (!is_null($this->serialization)) {
+			$this->serialization->restore();
+		}
+	}
+	
+	/**
+	 * load model from manifest
+	 * 
+	 * @throws NotDefinedModelException
+	 */
+	private function _loadFromManfiest() {
+		if (is_null($this->manifestParser)) {
+			$this->localModels = ModelManager::getInstance()->addManifestParser($this);
+			if (is_null($this->manifestParser)) {
+				throw new NotDefinedModelException($this->getName());
+			}
+		}
+		$result = ModelManager::getInstance()->getProperties($this, $this->manifestParser);
+		$this->isMain = $result[ModelManager::IS_MAIN_MODEL];
+		$this->parents = $result[ModelManager::PARENT_MODELS];
+		$this->sharedIdModel = $result[ModelManager::SHARED_ID_MODEL];
+		$this->_setProperties($result[ModelManager::PROPERTIES]);
+		$this->serialization = $result[ModelManager::SERIALIZATION];
+		$this->isAbstract = $result[ModelManager::IS_ABSTRACT];
+		$this->_verifyIdSerialization();
+		
+		if (!is_null($result[ModelManager::OBJECT_CLASS]) && ($this->objectClass !== $result[ModelManager::OBJECT_CLASS])) {
+			$this->objectClass = $result[ModelManager::OBJECT_CLASS];
+			$this->isExtended = true;
+		}
+		foreach ($result[ModelManager::CONFLICTS] as $properties) {
+			foreach ($properties as $i => $propertyName) {
+				if (!array_key_exists($propertyName, $this->conflicts)) {
+					$this->conflicts[$propertyName] = [];
+				}
+				foreach ($properties as $j => $conflictPropertyName) {
+					if ($j != $i) {
+						$this->conflicts[$propertyName][] = $conflictPropertyName;
+					}
+				}
+			}
+		}
+		$this->localModels = null;
+		$this->manifestParser = null;
+		$this->isLoaded  = true;
+		$this->isLoading = false;
 	}
 	
 	/**
@@ -227,6 +326,15 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			throw new ComhonException('error during model \''.$this->modelName.'\' loading');
 		}
 		$this->manifestParser = $manifestParser;
+	}
+	
+	/**
+	 * set local types (model names defined in manifest local types).
+	 *
+	 * @param string[] $localTypes
+	 */
+	public function setLocalTypes(array $localTypes) {
+		$this->localTypes = $localTypes;
 	}
 	
 	/**
@@ -313,7 +421,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	
 	/**
 	 * register model (and nested models) in model manager if needed.
-	 * (used when model is unserialized from cache)
+	 * (used when config object is unserialized from cache)
 	 *
 	 * @return bool
 	 */
@@ -322,7 +430,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 			return false;
 		}
 		ModelManager::getInstance()->addInstanceModel($this);
-		foreach ($this->getComplexProperties() as $property) {
+		foreach ($this->getProperties() as $property) {
 			$property->registerModel();
 		}
 		if (!is_null($this->sharedIdModel)) {
@@ -331,6 +439,13 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		foreach ($this->parents as $parent) {
 			$parent->register();
 		}
+		if (
+			isset($this->parents[0])
+			&& $this->parents[0]->getName() === 'Comhon\Root'
+			&& $this->parents[0] !== ModelManager::getInstance()->getInstanceModel('Comhon\Root')
+		) {
+			$this->parents[0] = ModelManager::getInstance()->getInstanceModel('Comhon\Root');
+		}
 		if (!is_null($settings = $this->getSerializationSettings())) {
 			$settings->getModel()->register();
 		}
@@ -338,21 +453,51 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	}
 	
 	/**
-	 * replace root model instance (used for model cache).
-	 *
-	 * @return bool
+	 * 
+	 * serialize model.
+	 * this function must be called only in caching context.
+	 * 
+	 * @return string
 	 */
-	public function restoreRootModel() {
-		if ($this->getParent()->getName() == 'Comhon\Root') {
-			$this->parents[0] = ModelManager::getInstance()->getInstanceModel('Comhon\Root');
-		} else {
-			foreach ($this->parents as $parent) {
-				$parent->restoreRootModel();
-			}
+	public function serialize() {
+		if (!ModelManager::getInstance()->isCachingContext()) {
+			throw new ComhonException('error function serialize may be called only in caching context');
 		}
-		if (!is_null($settings = $this->getSerializationSettings())) {
-			$settings->getModel()->restoreRootModel();
+		if (!is_null($this->serialization)) {
+			$this->serialization->serialize($this->getFirstSharedIdParentMatch(true));
 		}
+		if (!is_null($this->sharedIdModel)) {
+			$this->sharedIdModel = $this->sharedIdModel->getName();
+		}
+		$parentProperties = [];
+		$parents = [];
+		foreach ($this->parents as $parent) {
+			$parentProperties = array_merge($parentProperties, $parent->getProperties());
+			$parents[] = $parent->getName();
+		}
+		
+		$this->parents = $parents;
+		$this->properties = array_diff_key($this->properties, $parentProperties);
+		foreach ($this->properties as $property) {
+			$property->serialize();
+		}
+		$this->idProperties = [];
+		$this->aggregations = [];
+		$this->publicProperties  = [];
+		$this->serializableProperties = [];
+		$this->propertiesWithDefaultValues = [];
+		$this->multipleForeignProperties = [];
+		$this->complexProperties = [];
+		$this->dateTimeProperties = [];
+		$this->requiredProperties = [];
+		$this->dependsProperties = [];
+		$this->uniqueIdProperty = null;
+		$this->hasPrivateIdProperty = false;
+		
+		$serial = serialize($this);
+		$this->restore();
+		
+		return $serial;
 	}
 	
 	/**
@@ -554,6 +699,15 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 	 */
 	public function isLoading() {
 		return $this->isLoading;
+	}
+	
+	/**
+	 * get model names of local types that are defined in manifest
+	 *
+	 * @return string[]
+	 */
+	public function getLocalTypes() {
+		return $this->localTypes;
 	}
 	
 	/**
