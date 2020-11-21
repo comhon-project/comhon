@@ -128,6 +128,7 @@ class ConfigTest extends TestCase
 ';
 		if ($config->getManifestFormat() == 'xml') {
 			$expected = str_replace(['"json"', 'serialization_pgsql'], ['"xml"', 'serialization'], $expected);
+			$expected = str_replace('"directory:..\/..\/..\/cache"', '"memcached:host=127.0.0.1;port=11211"', $expected);
 		} elseif ($config->getManifestFormat() == 'yaml') {
 			$expected = str_replace('"json"', '"yaml"', $expected);
 			$expected = str_replace(',' . PHP_EOL . '    "cache_settings": "directory:..\/..\/..\/cache"', '', $expected);

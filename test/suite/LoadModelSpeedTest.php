@@ -66,10 +66,10 @@ class LoadModelSpeedTest extends TestCase
 		$this->assertContains(Config::getInstance()->getManifestFormat(), ['xml', 'json', 'yaml']);
 		switch (Config::getInstance()->getManifestFormat()) {
 			case 'xml':
-				$averageTime = 0.245; // use cache
+				$averageTime = 0.508; // use memcached
 				break;
 			case 'json':
-				$averageTime = 0.245; // use cache
+				$averageTime = 0.245; // use file system cache
 				break;
 			case 'yaml':
 				$averageTime = 1.131; // do not use cache

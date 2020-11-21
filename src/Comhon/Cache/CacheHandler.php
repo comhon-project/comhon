@@ -21,9 +21,12 @@ use Comhon\Exception\Cache\CacheException;
  * it is implicitly used in ModelManager
  */
 abstract class CacheHandler {
-
+	
 	/** @var string */
 	const DIRECTORY = 'directory';
+	
+	/** @var string */
+	const MEMCACHED = 'memcached';
 	
 	/**
 	 * 
@@ -51,6 +54,9 @@ abstract class CacheHandler {
 				}
 				return new FileSystemCacheHandler($specificSettings);
 				break;
+			case self::MEMCACHED:
+				return new MemCachedHandler($specificSettings);
+				break;
 			default:
 				throw new CacheException("invalid cache handler name : '$name'");
 		}
@@ -72,6 +78,9 @@ abstract class CacheHandler {
 	
 	/**
 	 * register value into cache according given key.
+	 * 
+	 * @param string $key
+	 * @param string $value
 	 */
 	abstract public function registerValue(string $key, string $value);
 	

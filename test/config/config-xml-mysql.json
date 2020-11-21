@@ -19,7 +19,7 @@
   "regex_list":"./regex.json",
   "sql_table": "./table",
   "sql_database": "./database",
-  "cache_settings": "directory:../../../cache",
+  "cache_settings": "memcached:host=127.0.0.1;port=11211",
   "date_time_format": "c",
   "database": {
     "charset": "utf8",
