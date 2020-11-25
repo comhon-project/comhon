@@ -12,7 +12,6 @@
 namespace Comhon\Interfacer;
 
 use Comhon\Object\AbstractComhonObject;
-use Comhon\Model\Singleton\ModelManager;
 use Comhon\Exception\ArgumentException;
 use Comhon\Exception\Value\UnexpectedValueTypeException;
 use Comhon\Exception\Value\EnumerationException;
@@ -133,7 +132,7 @@ abstract class Interfacer {
 	private $updatedValueOnly = false;
 	
 	/** @var string[] */
-	private $propertiesFilters = [];
+	private $propertiesFilters = null;
 	
 	/** @var boolean */
 	private $flattenValues = false;
@@ -288,40 +287,21 @@ abstract class Interfacer {
 	}
 	
 	/**
-	 * get properties filter for specified model (properties names are stored in array keys)
+	 * get properties filter
 	 * 
-	 * @param string $modelName
-	 * @return array|null return null if filter doesn't exist for specified model
+	 * @return string[]|null return null if there is no filter
 	 */
-	public function getPropertiesFilter($modelName) {
-		return array_key_exists($modelName, $this->propertiesFilters)
-		? $this->propertiesFilters[$modelName]
-		: null;
+	public function getPropertiesFilter() {
+		return $this->propertiesFilters;
 	}
 	
 	/**
-	 * reset properties filter
-	 */
-	public function resetPropertiesFilters() {
-		$this->propertiesFilters = [];
-	}
-	
-	/**
-	 * set properties filter for specified model
+	 * set properties filter
 	 * 
-	 * @param string[] $propertiesNames
-	 * @param string $modelName
+	 * @param string[]|null $propertiesNames
 	 */
-	public function setPropertiesFilter(array $propertiesNames, $modelName) {
-		if (!empty($propertiesNames)) {
-			$this->propertiesFilters[$modelName] = array_flip($propertiesNames);
-			
-			// add id properties even if they are not in filter properties
-			$model = ModelManager::getInstance()->getInstanceModel($modelName);
-			foreach ($model->getIdProperties()as $propertyName => $property) {
-				$this->propertiesFilters[$modelName][$propertyName] = null;
-			}
-		}
+	public function setPropertiesFilter(array $propertiesNames = null) {
+		$this->propertiesFilters = $propertiesNames;
 	}
 	
 	/**
@@ -756,13 +736,10 @@ abstract class Interfacer {
 		
 		// preoperties filters
 		if (array_key_exists(self::PROPERTIES_FILTERS, $preferences)) {
-			if (!is_array($preferences[self::PROPERTIES_FILTERS])) {
+			if (!is_null($preferences[self::PROPERTIES_FILTERS]) && !is_array($preferences[self::PROPERTIES_FILTERS])) {
 				throw new UnexpectedValueTypeException($preferences[self::PROPERTIES_FILTERS], 'array', self::PROPERTIES_FILTERS);
 			}
-			$this->resetPropertiesFilters();
-			foreach ($preferences[self::PROPERTIES_FILTERS] as $modelName => $properties) {
-				$this->setPropertiesFilter($properties, $modelName);
-			}
+			$this->setPropertiesFilter($preferences[self::PROPERTIES_FILTERS]);
 		}
 		
 		// flatten values

@@ -30,8 +30,8 @@ class ObjectService {
 	 */
 	public static function getObject(\stdClass $params, $private = false) {
 		try {
-			if (!isset($params->properties)) {
-				$params->properties = [];
+			if (!property_exists($params, 'properties')) {
+				$params->properties = null;
 			}
 			$object = SimpleRequester::build($params->model, $params->id, $params->properties, $private)->execute();
 			if (is_null($object)) {
@@ -39,7 +39,7 @@ class ObjectService {
 			} else {
 				$model  = ModelManager::getInstance()->getInstanceModel($params->model);
 				$interfacer = new StdObjectInterfacer();
-				$interfacer->setPropertiesFilter(self::_getFilterProperties($params, $object->getModel()), $object->getModel()->getName());
+				$interfacer->setPropertiesFilter(self::_getFilterProperties($params, $object->getModel()));
 				$result = $model->export($object, $interfacer);
 			}
 			return self::_setSuccessResponse($result);
@@ -59,7 +59,7 @@ class ObjectService {
 		try {
 			$objectArray = ComplexRequester::build($params, $private)->execute();
 			$interfacer = new StdObjectInterfacer();
-			$modelFilter = [$objectArray->getUniqueModel()->getName() => self::_getFilterProperties($params, $objectArray->getUniqueModel())];
+			$modelFilter = self::_getFilterProperties($params, $objectArray->getUniqueModel());
 			return self::_setSuccessResponse($interfacer->export($objectArray, [Interfacer::PROPERTIES_FILTERS => $modelFilter]));
 		} catch (ImportException $e) {
 			var_dump($e->getStringifiedProperties());
@@ -88,8 +88,8 @@ class ObjectService {
 	 * @return array|null
 	 */
 	private static function _getFilterProperties(\stdClass $params, ModelComhonObject $model) {
-		if (!isset($params->properties) || empty($params->properties)) {
-			return [];
+		if (!isset($params->properties)) {
+			return null;
 		}
 		$filterProperties = $params->properties;
 		if ($model->hasIdProperties()) {

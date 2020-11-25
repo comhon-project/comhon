@@ -53,8 +53,9 @@ abstract class Requester {
 	 * @param string[] $propertiesFilter
 	 */
 	public function setPropertiesFilter($propertiesFilter) {
-		if (empty($propertiesFilter)) {
-			return;	
+		if (is_null($propertiesFilter)) {
+			$this->propertiesFilter = null;
+			return;
 		}
 		$this->propertiesFilter = [];
 		// ids have to be in selected columns so if they are not defined in filter, we add them

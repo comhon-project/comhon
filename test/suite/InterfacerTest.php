@@ -73,7 +73,7 @@ class InterfacerTest extends TestCase
 		$this->assertEquals('Europe/Berlin', $interfacer->getDateTimeZone()->getName());
 		$this->assertEquals('c', $interfacer->getDateTimeFormat());
 		$this->assertEquals(false, $interfacer->hasToExportOnlyUpdatedValues());
-		$this->assertEquals(null, $interfacer->getPropertiesFilter('Test\Person'));
+		$this->assertEquals(null, $interfacer->getPropertiesFilter());
 		$this->assertEquals(false, $interfacer->hasToFlattenValues());
 		$this->assertEquals(true, $interfacer->hasToFlagValuesAsUpdated());
 		$this->assertEquals(true, $interfacer->hasToFlagObjectAsLoaded());
@@ -85,7 +85,7 @@ class InterfacerTest extends TestCase
 			Interfacer::DATE_TIME_ZONE         => 'Pacific/Tahiti',
 			Interfacer::DATE_TIME_FORMAT       => 'Y-m-d H:i:s',
 			Interfacer::ONLY_UPDATED_VALUES    => true,
-			Interfacer::PROPERTIES_FILTERS     => ['Test\Person' => ['haha', 'hoho'], 'Test\Place' => ['plop1', 'plop2']],
+			Interfacer::PROPERTIES_FILTERS     => ['haha', 'hoho'],
 			Interfacer::FLATTEN_VALUES         => true,
 			Interfacer::FLAG_VALUES_AS_UPDATED => false,
 			Interfacer::FLAG_OBJECT_AS_LOADED  => false,
@@ -97,8 +97,7 @@ class InterfacerTest extends TestCase
 		$this->assertEquals('Pacific/Tahiti', $interfacer->getDateTimeZone()->getName());
 		$this->assertEquals('Y-m-d H:i:s', $interfacer->getDateTimeFormat());
 		$this->assertEquals(true, $interfacer->hasToExportOnlyUpdatedValues());
-		$this->assertEquals(null, $interfacer->getPropertiesFilter('haha'));
-		$this->assertEquals('{"haha":0,"hoho":1,"id":null}', json_encode($interfacer->getPropertiesFilter('Test\Person')));
+		$this->assertEquals('["haha","hoho"]', json_encode($interfacer->getPropertiesFilter()));
 		$this->assertEquals(true, $interfacer->hasToFlattenValues());
 		$this->assertEquals(false, $interfacer->hasToFlagValuesAsUpdated());
 		$this->assertEquals(false, $interfacer->hasToFlagObjectAsLoaded());

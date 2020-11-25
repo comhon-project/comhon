@@ -1163,7 +1163,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		$private           = $interfacer->isPrivateContext();
 		$isSerialContext   = $interfacer->isSerialContext();
 		$onlyUpdatedValues = $isFirstLevel && $interfacer->hasToExportOnlyUpdatedValues();
-		$propertiesFilter  = $interfacer->getPropertiesFilter($object->getModel()->getName());
+		$propertiesFilter  = $isFirstLevel ? $this->_getPropertiesFilter($object, $interfacer) : null;
 		
 		if (array_key_exists(spl_object_hash($object), self::$instanceObjectHash)) {
 			if (self::$instanceObjectHash[spl_object_hash($object)] > 0) {
@@ -1194,7 +1194,7 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 					if (
 						$property->isExportable($private, $isSerialContext, $value)
 						&& (!$onlyUpdatedValues || $property->isId() || $object->isUpdatedValue($propertyName))
-						&& (is_null($propertiesFilter) || array_key_exists($propertyName, $propertiesFilter))
+						&& (is_null($propertiesFilter) || in_array($propertyName, $propertiesFilter))
 					) {
 						$propertyName  = $isSerialContext ? $property->getSerializationName() : $propertyName;
 						if (is_null($value) && !is_null($nullNodes)) {
@@ -1251,6 +1251,24 @@ class Model extends ModelComplex implements ModelUnique, ModelComhonObject {
 		}
 		self::$instanceObjectHash[spl_object_hash($object)]--;
 		return $node;
+	}
+	
+	/**
+	 * 
+	 * @param \Comhon\Object\UniqueObject $object
+	 * @param \Comhon\Interfacer\Interfacer $interfacer
+	 * @return array|NULL
+	 */
+	private function _getPropertiesFilter(UniqueObject $object, Interfacer $interfacer) {
+		$properties = $interfacer->getPropertiesFilter();
+		if (is_null($properties)) {
+			return $properties;
+		}
+		// at least ids must be in filter properties
+		foreach ($object->getModel()->getIdProperties() as $propertyName => $property) {
+			$properties[] = $propertyName;
+		}
+		return $properties;
 	}
 	
 	/**

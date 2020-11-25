@@ -408,7 +408,7 @@ class RequestHandler implements RequestHandlerInterface {
 	 * 
 	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @param array $queryParams
-	 * @param string[] $filterProperties
+	 * @param string[]|null $filterProperties
 	 * @return \Comhon\Request\ComplexRequester
 	 */
 	private function _getComplexRequester(ServerRequestInterface $serverRequest, &$queryParams, $filterProperties = null) {
@@ -428,7 +428,7 @@ class RequestHandler implements RequestHandlerInterface {
 	/**
 	 *
 	 * @param array $queryParams
-	 * @param string[] $filterProperties
+	 * @param string[]|null $filterProperties
 	 * @return \Comhon\Request\ComplexRequester
 	 */
 	private function _setRequestFromQuery(&$queryParams, $filterProperties = null) {
@@ -437,7 +437,13 @@ class RequestHandler implements RequestHandlerInterface {
 		$tree = $request->initValue('tree', false);
 		$tree->setId(1);
 		$tree->setValue('model', $this->requestedModel->getName());
-		$request->setValue('properties', $filterProperties);
+		if (is_array($filterProperties)) {
+			$properties = $request->initValue('properties');
+			foreach ($filterProperties as $property) {
+				$properties->pushValue($property);
+			}
+			$request->setValue('properties', $properties);
+		}
 		
 		// limit and offset
 		if (isset($queryParams[self::RANGE])) {
@@ -546,11 +552,11 @@ class RequestHandler implements RequestHandlerInterface {
 	/**
 	 * 
 	 * @param mixed $id
-	 * @param \Comhon\Object\ComhonArray $filterProperties
+	 * @param string[]|null $filterProperties
 	 * @return \Comhon\Request\SimpleRequester
 	 */
-	private function _getSimpleRequester($id, ComhonArray $filterProperties) {
-		return SimpleRequester::build($this->requestedModel->getName(), $id, $filterProperties->getValues());
+	private function _getSimpleRequester($id, array $filterProperties = null) {
+		return SimpleRequester::build($this->requestedModel->getName(), $id, $filterProperties);
 	}
 	
 	
@@ -558,21 +564,18 @@ class RequestHandler implements RequestHandlerInterface {
 	 * get properties to export
 	 * 
 	 * @param array $queryParams
-	 * @return \Comhon\Object\ComhonArray
+	 * @return string[]|null
 	 */
 	private function _getFilterProperties(&$queryParams) {
-		$model = new ModelArray(ModelManager::getInstance()->getInstanceModel('string'), false, 'property', [], [], true);
 		if (isset($queryParams[self::PROPERTIES])) {
 			if (!is_array($queryParams[self::PROPERTIES])) {
 				throw new UnexpectedValueTypeException($queryParams[self::PROPERTIES], 'array', self::PROPERTIES);
 			}
-			$filterProperties = $model->import($queryParams[self::PROPERTIES], new AssocArrayInterfacer());
+			$properties = $queryParams[self::PROPERTIES];
 			unset($queryParams[self::PROPERTIES]);
-		} else {
-			$filterProperties = $model->getObjectInstance();
+			return $properties;
 		}
-		
-		return $filterProperties;
+		return null;
 	}
 	
 	/**
@@ -655,7 +658,7 @@ class RequestHandler implements RequestHandlerInterface {
 		}
 		$interfacer = self::getInterfacerFromAcceptHeader($serverRequest);
 		$interfacer->setValidate(false);
-		$interfacer->setPropertiesFilter($filterProperties->getValues(), $object->getUniqueModel()->getName());
+		$interfacer->setPropertiesFilter($filterProperties);
 		
 		// for unique object, export through original model to export potential inheritance key
 		$interfacedObject = $object instanceof ComhonArray 

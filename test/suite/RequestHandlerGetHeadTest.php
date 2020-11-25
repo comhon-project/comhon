@@ -812,7 +812,7 @@ class RequestHandlerGetHeadTest extends TestCase
 				],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":202,"message":"Something goes wrong on \'.0\' value : \nvalue must be a string, integer \'1\' given"}'
+				'{"code":103,"message":"Undefined property \'1\' for model \'Test\\\\Person\\\\Man\'"}'
 			],
 			[ // private properties filter
 				[

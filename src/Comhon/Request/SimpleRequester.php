@@ -69,7 +69,7 @@ class SimpleRequester extends Requester {
 	 * @param boolean $private
 	 * @return \Comhon\Request\SimpleRequester
 	 */
-	public static function build($modelName, $id, $propertiesFilter = [], $private = false) {
+	public static function build($modelName, $id, $propertiesFilter = null, $private = false) {
 		$request = new SimpleRequester($modelName, $private);
 		$request->setRequestedId($id);
 		if (is_array($propertiesFilter)) {

@@ -452,9 +452,8 @@ try {
 
 // TODO for version > 4.0
 
-// add "main" property set to true in ModelSqlSerializer script for model with serialization
+// add "main" property set to true in ModelSqlSerializer script for model with serialization ?
 // add "shared id" or "share parent id" property in ModelBinder script for model that share same serialization
-// export properties filter only on root object
 // add "use" for inheritance in manifest
 
 // parent access on option ? (if parent access is account model, add new literal with joins)
