@@ -442,7 +442,6 @@ class RequestHandler implements RequestHandlerInterface {
 			foreach ($filterProperties as $property) {
 				$properties->pushValue($property);
 			}
-			$request->setValue('properties', $properties);
 		}
 		
 		// limit and offset
