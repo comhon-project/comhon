@@ -14,17 +14,17 @@ if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"first
 	throw new \Exception('bad result 1');
 }
 /** ********** complex ********** **/
-$data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Complex' . DIRECTORY_SEPARATOR . 'request.json';
+$data_ad = __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'Advanced' . DIRECTORY_SEPARATOR . 'request.json';
 
-$time_start_complex = microtime(true);
+$time_start_advanced = microtime(true);
 $result = ObjectService::getObjects(json_decode(file_get_contents($data_ad)));
-$time_complex = microtime(true) - $time_start_complex;
+$time_advanced = microtime(true) - $time_start_advanced;
 if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 2');
 }
 
-if ($time_complex > $time_intermediaire) {
-	var_dump('Warning!!! intermediate request is faster than complex request');
+if ($time_advanced > $time_intermediaire) {
+	var_dump('Warning!!! intermediate request is faster than advanced request');
 }
 
 /** *************************************************************************************************** **/
@@ -84,19 +84,19 @@ $Json = '{
 		}
 	],
 	"filter" : 1,
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
-$time_start_complex = microtime(true);
+$time_start_advanced = microtime(true);
 $result = ObjectService::getObjects(json_decode($Json));
-$time_complex = microtime(true) - $time_start_complex;
+$time_advanced = microtime(true) - $time_start_advanced;
 if (!compareJson(json_encode($result), '{"success":true,"result":[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T20:04:05+01:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"}]}')) {
 	throw new \Exception('bad result 4');
 }
 
-if ($time_complex > $time_intermediaire) {
-	var_dump('Warning!!! intermediate request is faster than complex request');
+if ($time_advanced > $time_intermediaire) {
+	var_dump('Warning!!! intermediate request is faster than advanced request');
 }
 
 $time_end = microtime(true);
-var_dump('intermediate vs complex request test exec time '.($time_end - $time_start));
+var_dump('intermediate vs advanced request test exec time '.($time_end - $time_start));

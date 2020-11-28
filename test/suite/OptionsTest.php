@@ -212,7 +212,7 @@ class OptionsTest extends TestCase
 				"model"   => 'Test\Body\Man',
 				"id"      => 1
 			],
-			"inheritance-"=> 'Comhon\Request\Complex'
+			"inheritance-"=> 'Comhon\Request\Advanced'
 		];
 		return [
 			[ // Test\Body doesn't allow complex request on options file
@@ -220,7 +220,7 @@ class OptionsTest extends TestCase
 				['Content-Type' => 'application/json'],
 				400,
 				['Content-Type' => 'application/json'],
-				'{"code":707,"message":"intermediate or complex request not allowed for model \'Test\\\\Body\\\\Man\'"}',
+				'{"code":707,"message":"intermediate or advanced request not allowed for model \'Test\\\\Body\\\\Man\'"}',
 			],
 		];
 	}

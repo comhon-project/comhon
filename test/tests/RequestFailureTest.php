@@ -25,7 +25,7 @@ $Json = '{
 		}
 	],
 	"filter" : 1,
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -56,7 +56,7 @@ $Json = '{
 		}
 	],
 	"filter" : 1,
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -96,7 +96,7 @@ $Json = '{
 		}
 	],
 	"filter" : 1,
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -127,7 +127,7 @@ $Json = '{
 		}
 	],
 	"filter" : 1,
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -238,7 +238,7 @@ $Json = '{
 		}
 	],
 	"filter" : 1,
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -274,7 +274,7 @@ $Json = '{
 		}
 	],
 	"filter" : 1,
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -313,7 +313,7 @@ $Json = '{
 		}
 	],
 	"filter" : 1,
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
@@ -332,13 +332,13 @@ $Json = '{
 		"model"   : "Test\\\\Test",
 		"id"      : 1
 	},
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
 $result = ObjectService::getObjects(json_decode($Json));
 
 if (!is_object($result) || !isset($result->success) || $result->success
-	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "intermediate or complex request not allowed for model 'Test\Test'"
+	|| !isset($result->error) || !isset($result->error->message) || $result->error->message !== "intermediate or advanced request not allowed for model 'Test\Test'"
 	|| !isset($result->error->code) || $result->error->code !== 707
 ) {
 	throw new \Exception('bad ObjectService::getObjects return 13 '.json_encode($result));

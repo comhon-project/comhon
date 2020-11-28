@@ -476,7 +476,7 @@ class RequestHandler implements RequestHandlerInterface {
 	 * @return \Comhon\Request\ComplexRequester
 	 */
 	private function _setRequestFromQuery(&$queryParams, $filterProperties = null) {
-		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
+		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced');
 		$request = $requestModel->getObjectInstance(false);
 		$tree = $request->initValue('tree', false);
 		$tree->setId(1);
@@ -704,7 +704,7 @@ class RequestHandler implements RequestHandlerInterface {
 		if (count($this->resource) != 1) {
 			return ResponseBuilder::buildSimpleResponse(404, [], 'invalid route');
 		}
-		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
+		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced');
 		$request = $requestModel->getObjectInstance(false);
 		$tree = $request->initValue('tree', false);
 		$tree->setId(1);

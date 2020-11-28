@@ -39,7 +39,7 @@ class CountRequestTest extends TestCase
 	
 	public function testCountServiceRequest()
 	{
-		$request = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance(false);
+		$request = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced')->getObjectInstance(false);
 		$tree = $request->initValue('tree', false);
 		$tree->setId(1);
 		$tree->setValue('model', 'Test\Person');
@@ -70,7 +70,7 @@ class CountRequestTest extends TestCase
 			],
 			"limit" => 1,
 			"order" => [["property" => "firstName"]],
-			"inheritance-" => 'Comhon\Request\Complex'
+			"inheritance-" => 'Comhon\Request\Advanced'
 		];
 		
 		$objects = ComplexRequester::build($request)->execute();

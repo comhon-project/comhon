@@ -61,7 +61,7 @@ missing required value 'root' on comhon object with model 'Comhon\Request\Interm
 	public function testUnloadedNotValidRequestLeaf()
 	{
 		$NodeModel = ModelManager::getInstance()->getInstanceModel('Comhon\Model\Node');
-		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance(false);
+		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced')->getObjectInstance(false);
 		$tree = $obj->initValue('tree', false);
 		$tree->setId(1);
 		$tree->setValue('model', 'Comhon\SqlTable');
@@ -79,7 +79,7 @@ missing required value 'id' on comhon object with model 'Comhon\Model\Node'");
 	public function testNotRefValueRequest()
 	{
 		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal\String');
-		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance(false);
+		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced')->getObjectInstance(false);
 		$tree = $obj->getInstanceValue('tree', false);
 		$tree->setId(1);
 		$tree->setValue('model', 'Comhon\SqlTable');
@@ -105,7 +105,7 @@ foreign value with model 'Comhon\Model\Root' and id '2' not referenced in interf
 	public function testForeignWithoutIdRequest()
 	{
 		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal\String');
-		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance(false);
+		$obj = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced')->getObjectInstance(false);
 		$tree = $obj->getInstanceValue('tree', false);
 		$tree->setId(1);
 		$tree->setValue('model', 'Comhon\SqlTable');
@@ -122,17 +122,17 @@ missing or not complete id on foreign value");
 	/**
 	 * @dataProvider validIntermediateRequest
 	 */
-	public function testIntermediateToComplexValid($file_rf)
+	public function testIntermediateToAdvancedValid($file_rf)
 	{
-		$dataIntermediate_ad = self::$data_ad . 'IntermediateToComplex' . DIRECTORY_SEPARATOR . 'Intermediate' . DIRECTORY_SEPARATOR;
-		$dataComplex_ad = self::$data_ad . 'IntermediateToComplex' . DIRECTORY_SEPARATOR . 'Complex' . DIRECTORY_SEPARATOR;
+		$dataIntermediate_ad = self::$data_ad . 'IntermediateToAdvanced' . DIRECTORY_SEPARATOR . 'Intermediate' . DIRECTORY_SEPARATOR;
+		$dataAdvanced_ad = self::$data_ad . 'IntermediateToAdvanced' . DIRECTORY_SEPARATOR . 'Advanced' . DIRECTORY_SEPARATOR;
 		
 		$interfacer = new StdObjectInterfacer();
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Intermediate');
 		
 		$interfacedObject = $interfacer->read($dataIntermediate_ad . $file_rf);
-		$request = ComplexRequester::intermediateToComplexRequest($model->import($interfacedObject, $interfacer));
-		$this->assertEquals(json_encode($interfacer->read($dataComplex_ad . $file_rf)), $interfacer->toString($request->export($interfacer)));
+		$request = ComplexRequester::intermediateToAdvancedRequest($model->import($interfacedObject, $interfacer));
+		$this->assertEquals(json_encode($interfacer->read($dataAdvanced_ad . $file_rf)), $interfacer->toString($request->export($interfacer)));
 	}
 	
 	public function validIntermediateRequest()
@@ -156,9 +156,9 @@ missing or not complete id on foreign value");
 	/**
 	 * @dataProvider notPersistantIntermediateRequestData
 	 */
-	public function testIntermediateToComplexNotValid($file_rf, $exception, $message)
+	public function testIntermediateToAdvancedNotValid($file_rf, $exception, $message)
 	{
-		$data_ad = self::$data_ad . 'IntermediateToComplex' . DIRECTORY_SEPARATOR . 'Intermediate' . DIRECTORY_SEPARATOR;
+		$data_ad = self::$data_ad . 'IntermediateToAdvanced' . DIRECTORY_SEPARATOR . 'Intermediate' . DIRECTORY_SEPARATOR;
 		
 		$interfacer = new StdObjectInterfacer();
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Intermediate');
@@ -167,7 +167,7 @@ missing or not complete id on foreign value");
 		
 		$this->expectException($exception);
 		$this->expectExceptionMessage($message);
-		ComplexRequester::intermediateToComplexRequest($model->import($interfacedObject, $interfacer));
+		ComplexRequester::intermediateToAdvancedRequest($model->import($interfacedObject, $interfacer));
 		
 	}
 	
@@ -208,11 +208,11 @@ missing or not complete id on foreign value");
 				$literal
 			],
 			"filter" => 1,
-		    "inheritance-"=> 'Comhon\Request\Complex'
+		    "inheritance-"=> 'Comhon\Request\Advanced'
 		];
 		
 		$interfacer = new AssocArrayInterfacer();
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced');
 		
 		$this->expectException($exception);
 		$this->expectExceptionMessage($message);
@@ -297,7 +297,7 @@ missing or not complete id on foreign value");
 				]
 			],
 			"filter" => 1,
-		    "inheritance-"=> 'Comhon\Request\Complex'
+		    "inheritance-"=> 'Comhon\Request\Advanced'
 		];
 		$request = ComplexRequester::build($request);
 		$array = $request->execute();
@@ -348,7 +348,7 @@ missing or not complete id on foreign value");
 				]
 			],
 			"filter" => 1,
-			"inheritance-"=> 'Comhon\Request\Complex'
+			"inheritance-"=> 'Comhon\Request\Advanced'
 		];
 		
 		$this->expectException($exception);

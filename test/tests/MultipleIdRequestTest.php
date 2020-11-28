@@ -41,7 +41,7 @@ $Json = '{
 		}
 	],
 	"filter" : 0,
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
 // SELECT main_test.* 

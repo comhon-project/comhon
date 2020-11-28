@@ -1137,12 +1137,12 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'application/json'],
 				'[{"id":1,"firstName":"Bernard","lastName":"Dupond","birthDate":"2016-11-13T19:04:05+00:00","birthPlace":2,"bestFriend":null,"father":null,"mother":null,"inheritance-":"Test\\\\Person\\\\Man"},{"id":11,"firstName":"Naelya","lastName":"Dupond","birthDate":null,"birthPlace":2,"bestFriend":null,"father":1,"mother":null,"inheritance-":"Test\\\\Person\\\\Woman"}]'
 			],
-			[ // complex request
+			[ // advanced request
 				[
 					'REQUEST_METHOD' => 'POST',
 					'REQUEST_URI' => '/index.php/api/request'
 				],
-				'complex.json',
+				'advanced.json',
 				['Content-Type' => 'application/json'],
 				200,
 				['Content-Type' => 'application/json'],
@@ -1193,12 +1193,12 @@ class RequestHandlerGetHeadTest extends TestCase
 					['Content-Type' => 'text/plain'],
 				2
 			],
-			[ // complex request
+			[ // advanced request
 				[
 					'REQUEST_METHOD' => 'POST',
 					'REQUEST_URI' => '/index.php/api/count'
 				],
-				'complex.json',
+				'advanced.json',
 				['Content-Type' => 'application/json'],
 				200,
 				['Content-Type' => 'text/plain'],
@@ -1253,7 +1253,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_METHOD' => 'POST',
 					'REQUEST_URI' => '/index.php/api/request'
 				],
-				'{"tree": {"id": 1,"model": 1},"inheritance-": "Comhon\\\\Request\\\\Complex"}',
+				'{"tree": {"id": 1,"model": 1},"inheritance-": "Comhon\\\\Request\\\\Advanced"}',
 				['Content-Type' => 'application/json'],
 				400,
 				['Content-Type' => 'application/json'],
@@ -1309,7 +1309,7 @@ class RequestHandlerGetHeadTest extends TestCase
 					'REQUEST_METHOD' => 'POST',
 					'REQUEST_URI' => '/index.php/api/count'
 				],
-				'{"tree": {"id": 1,"model": 1},"inheritance-": "Comhon\\\\Request\\\\Complex"}',
+				'{"tree": {"id": 1,"model": 1},"inheritance-": "Comhon\\\\Request\\\\Advanced"}',
 				['Content-Type' => 'application/json'],
 				400,
 				['Content-Type' => 'application/json'],

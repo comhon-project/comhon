@@ -106,7 +106,7 @@ class AbstractModelTest extends TestCase
 	public function testImportInvalidTwo()
 	{
 		$interfacer = new AssocArrayInterfacer();
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced');
 		
 		$this->expectException(ImportException::class);
 		$this->expectExceptionMessage('model \'Comhon\Logic\Simple\Formula\' is abstract. Objects with abstract model cannot be flagged as loaded');
@@ -118,7 +118,7 @@ class AbstractModelTest extends TestCase
 		$interfacer = new AssocArrayInterfacer();
 		$interfacer->setVerifyReferences(false);
 		$interfacer->setValidate(false);
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced');
 		
 		// filter property is foreign so object is NOT loaded and may be instanciated
 		$obj = $interfacer->import(['filter' => [Interfacer::COMPLEX_ID_KEY => 2, Interfacer::INHERITANCE_KEY => 'Comhon\Logic\Simple\Formula']], $model);

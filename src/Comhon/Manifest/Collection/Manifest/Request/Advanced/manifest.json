@@ -1,5 +1,5 @@
 {
-    "name": "Comhon\\Request\\Complex",
+    "name": "Comhon\\Request\\Advanced",
     "extends": [
         "\\Comhon\\Request"
     ],

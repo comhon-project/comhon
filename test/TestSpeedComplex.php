@@ -24,7 +24,7 @@ $Json = '{
 		}
 	],
 	"filter" : 1,
-    "inheritance-": "Comhon\\\\Request\\\\Complex"
+    "inheritance-": "Comhon\\\\Request\\\\Advanced"
 }';
 
 $time_start = microtime(true);

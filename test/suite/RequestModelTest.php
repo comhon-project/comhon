@@ -54,7 +54,7 @@ class RequestModelTest extends TestCase
 				'intermediate.json'
 			],
 			[
-				'complex.json'
+				'advanced.json'
 			]
 		];
 	}
@@ -75,12 +75,12 @@ class RequestModelTest extends TestCase
 		$this->assertSame($modelPerson, $collection->getValue(0)->getValue('node'));
 	}
 	
-	public function testComplex()
+	public function testAdvanced()
 	{
 		$interfacer = new StdObjectInterfacer();
 		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
 		
-		$interfacedObject = $interfacer->read(self::$data_ad . 'complex.json');
+		$interfacedObject = $interfacer->read(self::$data_ad . 'advanced.json');
 		$obj = $model->import($interfacedObject, $interfacer);
 		
 		$modelPerson = $obj->getValue('tree');
@@ -97,7 +97,7 @@ class RequestModelTest extends TestCase
 	
 	public function testNotExistingModel()
 	{
-		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
+		$model = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced');
 		$obj = $model->getObjectInstance(false);
 		
 		$thrown = false;

@@ -1,4 +1,4 @@
-<root name="Comhon\Request\Complex" version="3.0">
+<root name="Comhon\Request\Advanced" version="3.0">
   <extends>
     <type>\Comhon\Request</type>
   </extends>

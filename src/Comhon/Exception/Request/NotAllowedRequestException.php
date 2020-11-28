@@ -19,7 +19,7 @@ class NotAllowedRequestException extends ComhonException {
 	
 	const SIMPLE_REQUEST = 'simple';
 	const INTERMEDIATE_REQUEST = 'intermediate';
-	const COMPLEXE_REQUEST = 'complex';
+	const ADVANCED_REQUEST = 'advanced';
 	
 	/**
 	 * @param \Comhon\Model\AbstractModel $model

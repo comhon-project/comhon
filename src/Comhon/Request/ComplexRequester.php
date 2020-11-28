@@ -91,7 +91,7 @@ class ComplexRequester extends Requester {
 	public function __construct($modelName, $private = false, $verifyOptions = false) {
 		parent::__construct($modelName, $private);
 		if (!$this->model->hasSqlTableSerialization()) {
-			$types = [NotAllowedRequestException::INTERMEDIATE_REQUEST, NotAllowedRequestException::COMPLEXE_REQUEST];
+			$types = [NotAllowedRequestException::INTERMEDIATE_REQUEST, NotAllowedRequestException::ADVANCED_REQUEST];
 			throw new NotAllowedRequestException($this->model, $types);
 		}
 		if ($verifyOptions) {
@@ -101,7 +101,7 @@ class ComplexRequester extends Requester {
 				: Config::getInstance()->getValue('allow_complex_request');
 			
 			if ($allow === false) {
-				$types = [NotAllowedRequestException::INTERMEDIATE_REQUEST, NotAllowedRequestException::COMPLEXE_REQUEST];
+				$types = [NotAllowedRequestException::INTERMEDIATE_REQUEST, NotAllowedRequestException::ADVANCED_REQUEST];
 				throw new NotAllowedRequestException($this->model, $types);
 			}
 		}
@@ -203,45 +203,45 @@ class ComplexRequester extends Requester {
 	 */
 	private static function _build(UniqueObject $request, $private, $verifyOptions) {
 		if ($request->getModel()->getName() === 'Comhon\Request\Intermediate') {
-			$request = self::_intermediateToComplexRequest($request);
+			$request = self::_intermediateToAdvancedRequest($request);
 		}
-		$objectLoadRequest = new ComplexRequester($request->getValue('tree')->getValue('model'), $private, $verifyOptions);
-		$objectLoadRequest->_importModelTree($request->getValue('tree'));
+		$requester = new ComplexRequester($request->getValue('tree')->getValue('model'), $private, $verifyOptions);
+		$requester->_importModelTree($request->getValue('tree'));
 		if ($request->hasValue('filter')) {
 			if (!$private) {
-				$objectLoadRequest->_verifyPublicRequest($request);
+				$requester->_verifyPublicRequest($request);
 			}
-			$objectLoadRequest->_importFilter($request->getValue('filter'));
+			$requester->_importFilter($request->getValue('filter'));
 		}
 		if ($request->hasValue('limit')) {
-			$objectLoadRequest->setLimit($request->getValue('limit'));
+			$requester->setLimit($request->getValue('limit'));
 		}
 		if ($request->hasValue('properties')) {
-			$objectLoadRequest->setPropertiesFilter($request->getValue('properties')->getValues());
+			$requester->setPropertiesFilter($request->getValue('properties')->getValues());
 		}
 		if ($request->hasValue('offset')) {
-			$objectLoadRequest->setOffset($request->getValue('offset'));
+			$requester->setOffset($request->getValue('offset'));
 		}
 		if ($request->hasValue('order')) {
 			foreach ($request->getValue('order') as $orderElement) {
-				$objectLoadRequest->addOrder($orderElement->getValue('property'), $orderElement->getValue('type'));
+				$requester->addOrder($orderElement->getValue('property'), $orderElement->getValue('type'));
 			}
 		}
 		if (!$private) {
-			$objectLoadRequest->_setDefaultLimit();
+			$requester->_setDefaultLimit();
 		}
-		return $objectLoadRequest;
+		return $requester;
 	}
 	
 	/**
-	 * transform intermediate request to complex request
+	 * transform intermediate request to advanced request
 	 *
 	 * @param ComhonObject $request
 	 * @throws ArgumentException
 	 * @throws NotLinkableLiteralException
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	public static function intermediateToComplexRequest(ComhonObject $request) {
+	public static function intermediateToAdvancedRequest(ComhonObject $request) {
 		if ($request->getModel()->getName() != 'Comhon\Request\Intermediate') {
 			$expected = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Intermediate')->getObjectInstance(false)->getComhonClass();
 			throw new ArgumentException($request, $expected, 1);
@@ -249,18 +249,18 @@ class ComplexRequester extends Requester {
 		$visitor = new ObjectValidator();
 		$visitor->execute($request, [ObjectValidator::VERIF_REFERENCES => true, ObjectValidator::VERIF_FOREIGN_ID => true]);
 		
-		return self::_intermediateToComplexRequest($request);
+		return self::_intermediateToAdvancedRequest($request);
 	}
 	
 	/**
-	 * transform intermediate request to complex request
+	 * transform intermediate request to advanced request
 	 * 
 	 * @param ComhonObject $request
 	 * @throws ArgumentException
 	 * @throws NotLinkableLiteralException
 	 * @return \Comhon\Object\UniqueObject
 	 */
-	private static function _intermediateToComplexRequest(ComhonObject $request) {
+	private static function _intermediateToAdvancedRequest(ComhonObject $request) {
 		if ($request->hasValue('filter')) {
 			$maxId = 0;
 			$model = ModelManager::getInstance()->getInstanceModel($request->getValue('root')->getValue('model'));
@@ -293,13 +293,13 @@ class ComplexRequester extends Requester {
 		unset($values['root']);
 		unset($values['models']);
 		
-		$complexRequest = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex')->getObjectInstance();
-		$complexRequest->setValue('tree', $root);
+		$advancedRequest = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Advanced')->getObjectInstance();
+		$advancedRequest->setValue('tree', $root);
 		foreach ($values as $name => $value) {
-			$complexRequest->setValue($name, $value);
+			$advancedRequest->setValue($name, $value);
 		}
 		
-		return $complexRequest;
+		return $advancedRequest;
 	}
 	
 	private function _getLiteralsByModelName(ComhonObject $filter, &$maxId) {
