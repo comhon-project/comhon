@@ -685,16 +685,6 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'text/plain'],
 				'0'
 			],
-			[ // invalid route
-				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/count'
-				],
-				[],
-				404,
-				['Content-Type' => 'text/plain'],
-				'invalid route'
-			],
 			[ // non-existent model name
 				[
 					'REQUEST_METHOD' => 'GET',
@@ -1138,8 +1128,8 @@ class RequestHandlerGetHeadTest extends TestCase
 		return [
 			[ // intermediate request
 				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+					'REQUEST_METHOD' => 'POST',
+					'REQUEST_URI' => '/index.php/api/request'
 				],
 				'intermediate.json',
 				['Content-Type' => 'application/json'],
@@ -1149,8 +1139,8 @@ class RequestHandlerGetHeadTest extends TestCase
 			],
 			[ // complex request
 				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+					'REQUEST_METHOD' => 'POST',
+					'REQUEST_URI' => '/index.php/api/request'
 				],
 				'complex.json',
 				['Content-Type' => 'application/json'],
@@ -1194,8 +1184,8 @@ class RequestHandlerGetHeadTest extends TestCase
 		return [
 			[ // intermediate request
 				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson'
+					'REQUEST_METHOD' => 'POST',
+					'REQUEST_URI' => '/index.php/api/count'
 				],
 				'intermediate.json',
 				['Content-Type' => 'application/json'],
@@ -1205,8 +1195,8 @@ class RequestHandlerGetHeadTest extends TestCase
 			],
 			[ // complex request
 				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson'
+					'REQUEST_METHOD' => 'POST',
+					'REQUEST_URI' => '/index.php/api/count'
 				],
 				'complex.json',
 				['Content-Type' => 'application/json'],
@@ -1247,32 +1237,10 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function requestWithBodyFailureData()
 	{
 		return [
-			[ // route model name different than request model name (complex request)
-				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Test%5cPerson%5cMan'
-				],
-				'{"tree": {"id": 1,"model": "Test\\\\Person"},"inheritance-": "Comhon\\\\Request\\\\Complex"}',
-				['Content-Type' => 'application/json'],
-				400,
-				['Content-Type' => 'text/plain'],
-				'request model name is different than route model : Test\Person != Test\Person\Man'
-			],
-			[ // route model name different than request model name (intermediate request)
-				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Test%5cTestDb'
-				],
-				'{"models": [{"id": 1,"model": "Test\\\\Person"}],"root":1,"inheritance-": "Comhon\\\\Request\\\\Intermediate"}',
-				['Content-Type' => 'application/json'],
-				400,
-				['Content-Type' => 'text/plain'],
-				'request model name is different than route model : Test\Person != Test\TestDb'
-			],
 			[ // invalid body
 				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+					'REQUEST_METHOD' => 'POST',
+					'REQUEST_URI' => '/index.php/api/request'
 				],
 				'not-json',
 				['Content-Type' => 'application/json'],
@@ -1280,10 +1248,10 @@ class RequestHandlerGetHeadTest extends TestCase
 				['Content-Type' => 'text/plain'],
 				'invalid body'
 			],
-				[ // error in request model
+			[ // error in request model
 				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Test%5cPerson'
+					'REQUEST_METHOD' => 'POST',
+					'REQUEST_URI' => '/index.php/api/request'
 				],
 				'{"tree": {"id": 1,"model": 1},"inheritance-": "Comhon\\\\Request\\\\Complex"}',
 				['Content-Type' => 'application/json'],
@@ -1325,32 +1293,10 @@ class RequestHandlerGetHeadTest extends TestCase
 	public function requestCountWithBodyFailureData()
 	{
 		return [
-			[ // route model name different than request model name (complex request)
-				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson%5cMan'
-				],
-				'{"tree": {"id": 1,"model": "Test\\\\Person"},"inheritance-": "Comhon\\\\Request\\\\Complex"}',
-				['Content-Type' => 'application/json'],
-				400,
-				['Content-Type' => 'text/plain'],
-				'request model name is different than route model : Test\Person != Test\Person\Man'
-			],
-			[ // route model name different than request model name (intermediate request)
-				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/Test%5cTestDb'
-				],
-				'{"models": [{"id": 1,"model": "Test\\\\Person"}],"root":1,"inheritance-": "Comhon\\\\Request\\\\Intermediate"}',
-				['Content-Type' => 'application/json'],
-				400,
-				['Content-Type' => 'text/plain'],
-				'request model name is different than route model : Test\Person != Test\TestDb'
-			],
 			[ // invalid body
 				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson'
+					'REQUEST_METHOD' => 'POST',
+					'REQUEST_URI' => '/index.php/api/count'
 				],
 				'not-json',
 				['Content-Type' => 'application/json'],
@@ -1360,8 +1306,8 @@ class RequestHandlerGetHeadTest extends TestCase
 			],
 			[ // error in request model
 				[
-					'REQUEST_METHOD' => 'GET',
-					'REQUEST_URI' => '/index.php/api/count/Test%5cPerson'
+					'REQUEST_METHOD' => 'POST',
+					'REQUEST_URI' => '/index.php/api/count'
 				],
 				'{"tree": {"id": 1,"model": 1},"inheritance-": "Comhon\\\\Request\\\\Complex"}',
 				['Content-Type' => 'application/json'],

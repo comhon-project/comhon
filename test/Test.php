@@ -452,6 +452,9 @@ try {
 
 // TODO for version > 4.0
 
+// allow complex request on root object options (not on collection)
+// change complex to intermediate
+
 // add "main" property set to true in ModelSqlSerializer script for model with serialization ?
 // add "shared id" or "share parent id" property in ModelBinder script for model that share same serialization
 // add "use" for inheritance in manifest

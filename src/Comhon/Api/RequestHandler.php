@@ -189,6 +189,10 @@ class RequestHandler implements RequestHandlerInterface {
 				$response = $this->_getPattern($serverRequest);
 			} elseif ($this->resource[0] == 'models' && count($this->resource) == 1) {
 				$response = $this->_getModels($serverRequest);
+			} elseif ($this->resource[0] == 'request' && count($this->resource) == 1) {
+				$response = $this->getResourcesComplexRequest($serverRequest, false);
+			} elseif ($this->resource[0] == 'count' && count($this->resource) == 1) {
+				$response = $this->getResourcesComplexRequest($serverRequest, true);
 			}else {
 				$this->_setRessourceInfos($serverRequest);
 				$response = $this->_handleMethod($serverRequest);
@@ -356,6 +360,54 @@ class RequestHandler implements RequestHandlerInterface {
 		
 	}
 	
+	
+	
+	/**
+	 * get resources (or resources count) that match with body request filter
+	 *
+	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
+	 * @param boolean $getCount
+	 * @return \Comhon\Api\Response
+	 */
+	private function getResourcesComplexRequest(ServerRequestInterface $serverRequest, $getCount) {
+		$method = $serverRequest->getMethod();
+		
+		if ($method == 'OPTIONS') {
+			return new Response(200, ['Allow' => implode(', ', ['POST', 'OPTIONS'])]);
+		}
+		if ($method != 'POST' && $method != 'HEAD') {
+			throw new MethodNotAllowedException(
+				"method $method not allowed",
+				['Allow' => implode(', ', ['POST', 'OPTIONS'])]
+			);
+		}
+		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest, true);
+		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
+		$request = self::_importBody($serverRequest, $requestModel, $interfacer);
+		
+		try {
+			$requester = ComplexRequester::build($request, false, true);
+		} catch (ComhonException $e) {
+			throw new MalformedRequestException(['code' => $e->getCode(), 'message' => $e->getMessage()]);
+		}
+		
+		$interfacer = self::getInterfacerFromAcceptHeader($serverRequest);
+		$interfacer->setValidate(false);
+		
+		$response = $getCount
+			? ResponseBuilder::buildSimpleResponse(200, [], ''.$requester->count())
+			: ResponseBuilder::buildSimpleResponse(
+				200,
+				['Content-Type' => $interfacer->getMediaType()],
+				$interfacer->toString($interfacer->export($requester->execute()))
+			);
+		if ($method == 'HEAD') {
+			$response = $response->withHeader('Content-Length', $response->getBody()->getSize())->withBody(stream_for(''));
+		}
+		
+		return $response;
+	}
+	
 	/**
 	 * handle request according request method
 	 *
@@ -412,15 +464,7 @@ class RequestHandler implements RequestHandlerInterface {
 	 * @return \Comhon\Request\ComplexRequester
 	 */
 	private function _getComplexRequester(ServerRequestInterface $serverRequest, &$queryParams, $filterProperties = null) {
-		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest, false);
-		if (is_null($interfacer)) {
-			$request = $this->_setRequestFromQuery($queryParams, $filterProperties);
-		} else {
-			$this->_verifyAllowedRequest();
-			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
-			$request = self::_importBody($serverRequest, $requestModel, $interfacer);
-			$this->_verifyRequestModel($request);
-		}
+		$request = $this->_setRequestFromQuery($queryParams, $filterProperties);
 		
 		return ComplexRequester::build($request);
 	}
@@ -578,45 +622,6 @@ class RequestHandler implements RequestHandlerInterface {
 	}
 	
 	/**
-	 * verify if route model and request model are the same
-	 * 
-	 * @param UniqueObject $request
-	 * @throws MalformedRequestException
-	 */
-	private function _verifyRequestModel(UniqueObject $request) {
-		if ($request->isA('Comhon\Request\Complex')) {
-			$modelName = $request->getValue('tree')->getValue('model');
-		} elseif ($request->isA('Comhon\Request\Intermediate')) {
-			$modelName = $request->getValue('root')->getValue('model');
-		}
-		if ($modelName !== $this->requestedModel->getName()) {
-			throw new MalformedRequestException(
-				'request model name is different than route model : '.$modelName.' != '.$this->requestedModel->getName()
-			);
-		}
-	}
-	
-	
-	
-	/**
-	 * verify if complex/intermediate request are allowed for requested model
-	 *
-	 * @throws MalformedRequestException
-	 */
-	private function _verifyAllowedRequest() {
-		$options = $this->requestedModel->getOptions();
-		$allow = !is_null($options) && $options->issetValue('collection') && $options->getValue('collection')->issetValue('allow_complex_request')
-			? $options->getValue('collection')->getValue('allow_complex_request')
-			: Config::getInstance()->getValue('allow_complex_request');
-		
-		if ($allow === false) {
-			throw new MalformedRequestException(
-				'complex or intermediate request not allowed for model '.$this->requestedModel->getName()
-			);
-		}
-	}
-	
-	/**
 	 * 
 	 * @param \Psr\Http\Message\ServerRequestInterface $serverRequest
 	 * @return \Comhon\Api\Response
@@ -699,27 +704,17 @@ class RequestHandler implements RequestHandlerInterface {
 		if (count($this->resource) != 1) {
 			return ResponseBuilder::buildSimpleResponse(404, [], 'invalid route');
 		}
+		$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
+		$request = $requestModel->getObjectInstance(false);
+		$tree = $request->initValue('tree', false);
+		$tree->setId(1);
+		$tree->setValue('model', $this->requestedModel->getName());
 		
-		$interfacer = self::getInterfacerFromContentTypeHeader($serverRequest, false);
-		if (is_null($interfacer)) {
-			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request\Complex');
-			$request = $requestModel->getObjectInstance(false);
-			$tree = $request->initValue('tree', false);
-			$tree->setId(1);
-			$tree->setValue('model', $this->requestedModel->getName());
-			
-			// query parameters will be modified during query bulding by removing some parameters
-			$queryParams = $serverRequest->getQueryParams();
-			$this->_setFilter($request, $queryParams);
-		} else {
-			$this->_verifyAllowedRequest();
-			$requestModel = ModelManager::getInstance()->getInstanceModel('Comhon\Request');
-			$request = self::_importBody($serverRequest, $requestModel, $interfacer);
-			$this->_verifyRequestModel($request);
-		}
-		
+		// query parameters will be modified during query bulding by removing some parameters
+		$queryParams = $serverRequest->getQueryParams();
+		$this->_setFilter($request, $queryParams);
+	
 		$requester = ComplexRequester::build($request);
-		
 		return ResponseBuilder::buildSimpleResponse(200, [], ''.$requester->count());
 	}
 	

@@ -191,13 +191,13 @@ class OptionsTest extends TestCase
 	 *
 	 * @dataProvider AllowedRequestData
 	 */
-	public function testAllowedRequest($modelName, $requestGet, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
+	public function testAllowedRequest($requestBody, $requestHeaders, $responseCode, $responseHeaders, $responseContent)
 	{
 		$server = [
-				'REQUEST_METHOD' => 'GET',
-				'REQUEST_URI' => "/index.php/api/".urlencode($modelName)
+				'REQUEST_METHOD' => 'POST',
+				'REQUEST_URI' => "/index.php/api/request"
 		];
-		$response = RequestHandlerMock::handle('index.php/api', $server, $requestGet, $requestHeaders);
+		$response = RequestHandlerMock::handle('index.php/api', $server, [], $requestHeaders, $requestBody);
 		$send = $this->responseToArray($response);
 		
 		$this->assertEquals($responseContent, $send[2]);
@@ -207,14 +207,20 @@ class OptionsTest extends TestCase
 	
 	public function AllowedRequestData()
 	{
+		$request = [
+			"tree" => [
+				"model"   => 'Test\Body\Man',
+				"id"      => 1
+			],
+			"inheritance-"=> 'Comhon\Request\Complex'
+		];
 		return [
 			[ // Test\Body doesn't allow complex request on options file
-				'Test\Body\Man',
-				['id' => '1'],
+				json_encode($request),
 				['Content-Type' => 'application/json'],
 				400,
-				['Content-Type' => 'text/plain'],
-				'complex or intermediate request not allowed for model Test\Body\Man',
+				['Content-Type' => 'application/json'],
+				'{"code":707,"message":"intermediate or complex request not allowed for model \'Test\\\\Body\\\\Man\'"}',
 			],
 		];
 	}

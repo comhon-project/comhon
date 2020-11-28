@@ -85,13 +85,25 @@ class ComplexRequester extends Requester {
 	 * 
 	 * @param string $modelName
 	 * @param boolean $private
+	 * @param boolean $verifyOptions
 	 * @throws \Exception
 	 */
-	public function __construct($modelName, $private = false) {
+	public function __construct($modelName, $private = false, $verifyOptions = false) {
 		parent::__construct($modelName, $private);
 		if (!$this->model->hasSqlTableSerialization()) {
 			$types = [NotAllowedRequestException::INTERMEDIATE_REQUEST, NotAllowedRequestException::COMPLEXE_REQUEST];
 			throw new NotAllowedRequestException($this->model, $types);
+		}
+		if ($verifyOptions) {
+			$options = $this->model->getOptions();
+			$allow = !is_null($options) && $options->issetValue('collection') && $options->getValue('collection')->issetValue('allow_complex_request')
+				? $options->getValue('collection')->getValue('allow_complex_request')
+				: Config::getInstance()->getValue('allow_complex_request');
+			
+			if ($allow === false) {
+				$types = [NotAllowedRequestException::INTERMEDIATE_REQUEST, NotAllowedRequestException::COMPLEXE_REQUEST];
+				throw new NotAllowedRequestException($this->model, $types);
+			}
 		}
 		$database = $this->model->getSqlTableSettings()->getValue('database');
 		if (!($database instanceof UniqueObject)) {
@@ -151,10 +163,11 @@ class ComplexRequester extends Requester {
 	 *
 	 * @param \stdClass|array|\SimpleXMLElement|\DOMNode|\Comhon\Object\UniqueObject $request
 	 * @param boolean $private
+	 * @param boolean $verifyOptions
 	 * @throws \Exception
 	 * @return \Comhon\Request\ComplexRequester
 	 */
-	public static function build($request, $private = false) {
+	public static function build($request, $private = false, $verifyOptions = false) {
 		if ($request instanceof UniqueObject) {
 			if (!$request->isA('Comhon\Request')) {
 				$expected = ModelManager::getInstance()->getInstanceModel('Comhon\Request')->getObjectInstance(false)->getComhonClass();
@@ -176,7 +189,7 @@ class ComplexRequester extends Requester {
 			$request = $interfacer->import($request, ModelManager::getInstance()->getInstanceModel('Comhon\Request'));
 		}
 		
-		return self::_build($request, $private);
+		return self::_build($request, $private, $verifyOptions);
 	}
 	
 	/**
@@ -184,14 +197,15 @@ class ComplexRequester extends Requester {
 	 *
 	 * @param \Comhon\Object\UniqueObject $request
 	 * @param boolean $private
+	 * @param boolean $verifyOptions
 	 * @throws \Exception
 	 * @return \Comhon\Request\ComplexRequester
 	 */
-	private static function _build(UniqueObject $request, $private = false) {
+	private static function _build(UniqueObject $request, $private, $verifyOptions) {
 		if ($request->getModel()->getName() === 'Comhon\Request\Intermediate') {
 			$request = self::_intermediateToComplexRequest($request);
 		}
-		$objectLoadRequest = new ComplexRequester($request->getValue('tree')->getValue('model'), $private);
+		$objectLoadRequest = new ComplexRequester($request->getValue('tree')->getValue('model'), $private, $verifyOptions);
 		$objectLoadRequest->_importModelTree($request->getValue('tree'));
 		if ($request->hasValue('filter')) {
 			if (!$private) {
