@@ -277,13 +277,12 @@ abstract class Interfacer {
 	}
 	
 	/**
-	 * verify if has properties filter for specified model
+	 * verify if has properties filter
 	 * 
-	 * @param string $modelName
 	 * @return boolean $boolean
 	 */
-	public function hasPropertiesFilter($modelName) {
-		return array_key_exists($modelName, $this->propertiesFilters);
+	public function hasPropertiesFilter() {
+		return !is_null($this->propertiesFilters);
 	}
 	
 	/**
