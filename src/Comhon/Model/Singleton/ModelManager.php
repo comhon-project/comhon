@@ -165,7 +165,7 @@ class ModelManager {
 		try {
 			$this->_registerSimpleModelClasses();
 			$config_af = realpath(Config::getLoadPath());
-			$configArray = $this->_getConfigArray($config_af);
+			$configArray = $this->_getConfigArray($config_af, Config::getLoadPath());
 			$this->config_ad = dirname($config_af);
 			if (isset($configArray['cache_settings'])) {
 				$this->cacheHandler = CacheHandler::getInstance($configArray['cache_settings'], $this->config_ad);
@@ -251,13 +251,14 @@ class ModelManager {
 	 * load config into associative array and return it.
 	 * 
 	 * @param string $config_af
+	 * @param string $notVerifiedConfig_af
 	 * @throws ConfigFileNotFoundException
 	 * @throws ConfigMalformedException
 	 * @return array
 	 */
-	private function _getConfigArray($config_af) {
+	private function _getConfigArray($config_af, $notVerifiedConfig_af) {
 		if ($config_af === false) {
-			throw new ConfigFileNotFoundException('configuration', 'file', $config_af);
+			throw new ConfigFileNotFoundException('configuration', 'file', $notVerifiedConfig_af);
 		}
 		$interfacer = new AssocArrayInterfacer();
 		$arrayConfig = $interfacer->read($config_af);

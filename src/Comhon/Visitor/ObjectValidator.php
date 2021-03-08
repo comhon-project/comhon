@@ -71,7 +71,9 @@ class ObjectValidator extends Visitor {
 		$object->validate();
 		if ($this->verifRef) {
 			$this->collection = new ObjectCollectionInterfacer();
-			$this->collection->addObject($object, false);
+			if ($object instanceof UniqueObject) {
+				$this->collection->addObject($object, false);
+			}
 		}
 	}
 	

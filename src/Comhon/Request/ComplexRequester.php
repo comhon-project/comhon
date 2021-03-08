@@ -302,7 +302,7 @@ class ComplexRequester extends Requester {
 		return $advancedRequest;
 	}
 	
-	private function _getLiteralsByModelName(ComhonObject $filter, &$maxId) {
+	private static function _getLiteralsByModelName(ComhonObject $filter, &$maxId) {
 		$collectionMap = ObjectCollection::build($filter, true, true)->getMap();
 		$literalsByModelName = [];
 		$literalModel = ModelManager::getInstance()->getInstanceModel('Comhon\Logic\Simple\Literal');

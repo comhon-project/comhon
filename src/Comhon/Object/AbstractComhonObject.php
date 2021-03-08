@@ -94,11 +94,6 @@ abstract class AbstractComhonObject {
 		if ($flagAsUpdated) {
 			$this->updatedValues[$name] = null;
 			$this->isUpdated = true;
-		} elseif (array_key_exists($name, $this->updatedValues)) {
-			unset($this->updatedValues[$name]);
-			if (empty($this->updatedValues)) {
-				$this->isUpdated = false;
-			}
 		}
 	}
 	
@@ -236,9 +231,9 @@ abstract class AbstractComhonObject {
 	}
 	
 	/**
-	 * get associative array that reference names of updated values
+	 * get associative array that reference names of values that are flagged as updated
 	 * 
-	 * @return boolean[] each key is a property name of an updated value
+	 * @return boolean[] each key is a property name of a value that is flagged as updated
 	 */
 	final public function getUpdatedValues() {
 		return $this->updatedValues;

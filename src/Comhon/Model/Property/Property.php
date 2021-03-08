@@ -303,7 +303,7 @@ class Property {
 	 * @return mixed|null null if property doesn't have default value
 	 */
 	public function getDefaultValue() {
-		if ($this->model instanceof ModelDateTime) {
+		if (!is_null($this->default) && $this->model instanceof ModelDateTime) {
 			return new ComhonDateTime($this->default);
 		}
 		return $this->default;
